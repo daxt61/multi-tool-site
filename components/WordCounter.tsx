@@ -1,0 +1,92 @@
+import { useState } from 'react';
+
+export function WordCounter() {
+  const [text, setText] = useState('');
+
+  const stats = {
+    characters: text.length,
+    charactersNoSpaces: text.replace(/\s/g, '').length,
+    words: text.trim() === '' ? 0 : text.trim().split(/\s+/).length,
+    lines: text === '' ? 0 : text.split('\n').length,
+    sentences: text.trim() === '' ? 0 : text.split(/[.!?]+/).filter(s => s.trim().length > 0).length,
+    paragraphs: text.trim() === '' ? 0 : text.split(/\n\s*\n/).filter(p => p.trim().length > 0).length,
+    readingTime: Math.ceil((text.trim() === '' ? 0 : text.trim().split(/\s+/).length) / 200) // Average reading speed: 200 words/min
+  };
+
+  return (
+    <div className="max-w-4xl mx-auto">
+      <textarea
+        value={text}
+        onChange={(e) => setText(e.target.value)}
+        placeholder="Tapez ou collez votre texte ici..."
+        className="w-full h-64 p-4 border border-gray-300 rounded-lg resize-none focus:outline-none focus:ring-2 focus:ring-blue-500"
+      />
+
+      <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mt-6">
+        <div className="bg-gradient-to-br from-blue-500 to-blue-600 text-white p-6 rounded-lg">
+          <div className="text-3xl font-bold">{stats.characters}</div>
+          <div className="text-sm opacity-90">Caractères</div>
+        </div>
+        
+        <div className="bg-gradient-to-br from-indigo-500 to-indigo-600 text-white p-6 rounded-lg">
+          <div className="text-3xl font-bold">{stats.charactersNoSpaces}</div>
+          <div className="text-sm opacity-90">Sans espaces</div>
+        </div>
+        
+        <div className="bg-gradient-to-br from-purple-500 to-purple-600 text-white p-6 rounded-lg">
+          <div className="text-3xl font-bold">{stats.words}</div>
+          <div className="text-sm opacity-90">Mots</div>
+        </div>
+        
+        <div className="bg-gradient-to-br from-pink-500 to-pink-600 text-white p-6 rounded-lg">
+          <div className="text-3xl font-bold">{stats.lines}</div>
+          <div className="text-sm opacity-90">Lignes</div>
+        </div>
+        
+        <div className="bg-gradient-to-br from-rose-500 to-rose-600 text-white p-6 rounded-lg">
+          <div className="text-3xl font-bold">{stats.sentences}</div>
+          <div className="text-sm opacity-90">Phrases</div>
+        </div>
+        
+        <div className="bg-gradient-to-br from-orange-500 to-orange-600 text-white p-6 rounded-lg">
+          <div className="text-3xl font-bold">{stats.paragraphs}</div>
+          <div className="text-sm opacity-90">Paragraphes</div>
+        </div>
+        
+        <div className="bg-gradient-to-br from-amber-500 to-amber-600 text-white p-6 rounded-lg col-span-2">
+          <div className="text-3xl font-bold">{stats.readingTime} min</div>
+          <div className="text-sm opacity-90">Temps de lecture estimé</div>
+        </div>
+      </div>
+
+      <div className="mt-6 flex gap-3">
+        <button
+          onClick={() => setText(text.toUpperCase())}
+          className="flex-1 py-3 bg-gray-200 hover:bg-gray-300 rounded-lg font-semibold transition-colors"
+        >
+          MAJUSCULES
+        </button>
+        <button
+          onClick={() => setText(text.toLowerCase())}
+          className="flex-1 py-3 bg-gray-200 hover:bg-gray-300 rounded-lg font-semibold transition-colors"
+        >
+          minuscules
+        </button>
+        <button
+          onClick={() => setText(text.split(' ').map(word => 
+            word.charAt(0).toUpperCase() + word.slice(1).toLowerCase()
+          ).join(' '))}
+          className="flex-1 py-3 bg-gray-200 hover:bg-gray-300 rounded-lg font-semibold transition-colors"
+        >
+          Capitaliser
+        </button>
+        <button
+          onClick={() => setText('')}
+          className="py-3 px-6 bg-red-500 hover:bg-red-600 text-white rounded-lg font-semibold transition-colors"
+        >
+          Effacer
+        </button>
+      </div>
+    </div>
+  );
+}

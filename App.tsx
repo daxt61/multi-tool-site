@@ -21,6 +21,9 @@ import {
   Image,
   Globe,
   CaseSensitive,
+  Info,
+  Mail,
+  Shield,
 } from "lucide-react";
 import { Calculator } from "./components/Calculator";
 import { UnitConverter } from "./components/UnitConverter";
@@ -45,6 +48,9 @@ import { ImageCompressor } from "./components/ImageCompressor";
 import { IPAddressTool } from "./components/IPAddressTool";
 import { CaseConverter } from "./components/CaseConverter";
 import { AdPlaceholder } from "./components/AdPlaceholder";
+import { About } from "./components/About";
+import { Contact } from "./components/Contact";
+import { PrivacyPolicy } from "./components/PrivacyPolicy";
 
 interface Tool {
   id: string;
@@ -214,6 +220,27 @@ export default function App() {
       description: "camelCase, snake_case, kebab-case...",
       component: <CaseConverter />,
     },
+    {
+      id: "about",
+      name: "À propos",
+      icon: <Info className="w-6 h-6" />,
+      description: "En savoir plus sur Boîte à Outils",
+      component: <About />,
+    },
+    {
+      id: "contact",
+      name: "Contact",
+      icon: <Mail className="w-6 h-6" />,
+      description: "Nous contacter pour vos questions",
+      component: <Contact />,
+    },
+    {
+      id: "privacy-policy",
+      name: "Politique de Confidentialité",
+      icon: <Shield className="w-6 h-6" />,
+      description: "Protection de vos données personnelles",
+      component: <PrivacyPolicy />,
+    },
   ];
 
   const currentTool = tools.find(
@@ -283,6 +310,35 @@ export default function App() {
                 className="max-w-4xl mx-auto"
               />
             </div>
+
+            {/* Footer */}
+            <footer className="mt-12 pt-8 border-t border-gray-200">
+              <div className="max-w-4xl mx-auto text-center">
+                <div className="flex justify-center gap-6 mb-4">
+                  <button
+                    onClick={() => setSelectedTool("about")}
+                    className="text-gray-600 hover:text-indigo-600 transition-colors text-sm"
+                  >
+                    À propos
+                  </button>
+                  <button
+                    onClick={() => setSelectedTool("contact")}
+                    className="text-gray-600 hover:text-indigo-600 transition-colors text-sm"
+                  >
+                    Contact
+                  </button>
+                  <button
+                    onClick={() => setSelectedTool("privacy-policy")}
+                    className="text-gray-600 hover:text-indigo-600 transition-colors text-sm"
+                  >
+                    Politique de Confidentialité
+                  </button>
+                </div>
+                <p className="text-gray-500 text-xs">
+                  © {new Date().getFullYear()} Boîte à Outils. Tous droits réservés.
+                </p>
+              </div>
+            </footer>
           </div>
         ) : (
           <div className="bg-white rounded-xl shadow-xl p-8">

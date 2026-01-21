@@ -1,10 +1,15 @@
 import { useState } from 'react';
+import { History as HistoryIcon, Trash2 } from 'lucide-react';
 
 export function Calculator() {
   const [display, setDisplay] = useState('0');
   const [previousValue, setPreviousValue] = useState<number | null>(null);
   const [operation, setOperation] = useState<string | null>(null);
   const [newNumber, setNewNumber] = useState(true);
+  const [history, setHistory] = useState<{ expression: string; result: string }[]>(() => {
+    const saved = localStorage.getItem('calc_history');
+    return saved ? JSON.parse(saved) : [];
+  });
 
   const handleNumber = (num: string) => {
     if (newNumber) {
@@ -53,7 +58,14 @@ export function Calculator() {
     if (operation && previousValue !== null) {
       const current = parseFloat(display);
       const result = calculate(previousValue, current, operation);
-      setDisplay(String(result));
+      const expression = `${previousValue} ${operation} ${current}`;
+      const resultStr = String(result);
+
+      const newHistory = [{ expression, result: resultStr }, ...history].slice(0, 10);
+      setHistory(newHistory);
+      localStorage.setItem('calc_history', JSON.stringify(newHistory));
+
+      setDisplay(resultStr);
       setPreviousValue(null);
       setOperation(null);
       setNewNumber(true);
@@ -84,8 +96,14 @@ export function Calculator() {
     ['0', '.', '=']
   ];
 
+  const clearHistory = () => {
+    setHistory([]);
+    localStorage.removeItem('calc_history');
+  };
+
   return (
-    <div className="max-w-md mx-auto">
+    <div className="max-w-4xl mx-auto grid grid-cols-1 md:grid-cols-3 gap-8">
+      <div className="md:col-span-2">
       <div className="bg-gray-900 text-white p-6 rounded-lg mb-4 text-right">
         <div className="text-sm text-gray-400 mb-2 h-6">
           {previousValue !== null && operation ? `${previousValue} ${operation}` : ''}
@@ -124,6 +142,47 @@ export function Calculator() {
             ))}
           </div>
         ))}
+      </div>
+      </div>
+
+      <div className="bg-gray-50 p-6 rounded-lg">
+        <div className="flex items-center justify-between mb-4">
+          <div className="flex items-center gap-2 font-semibold text-gray-700">
+            <HistoryIcon className="w-5 h-5" />
+            Historique
+          </div>
+          {history.length > 0 && (
+            <button
+              onClick={clearHistory}
+              className="text-red-500 hover:text-red-600 p-1"
+              title="Effacer l'historique"
+            >
+              <Trash2 className="w-4 h-4" />
+            </button>
+          )}
+        </div>
+
+        <div className="space-y-3">
+          {history.length === 0 ? (
+            <p className="text-sm text-gray-500 text-center py-4">
+              Aucun historique
+            </p>
+          ) : (
+            history.map((item, index) => (
+              <div
+                key={index}
+                className="bg-white p-3 rounded border border-gray-200 text-right cursor-pointer hover:border-blue-300 transition-colors"
+                onClick={() => {
+                  setDisplay(item.result);
+                  setNewNumber(true);
+                }}
+              >
+                <div className="text-xs text-gray-500 mb-1">{item.expression} =</div>
+                <div className="font-mono font-bold text-gray-800">{item.result}</div>
+              </div>
+            ))
+          )}
+        </div>
       </div>
     </div>
   );

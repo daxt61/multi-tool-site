@@ -35,6 +35,7 @@ import {
   LineChart,
   CreditCard,
   Briefcase,
+  Search,
 } from "lucide-react";
 import { Calculator } from "./components/Calculator";
 import { UnitConverter } from "./components/UnitConverter";
@@ -92,6 +93,7 @@ interface Category {
 export default function App() {
   const [selectedTool, setSelectedTool] = useState<string | null>(null);
   const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
+  const [searchQuery, setSearchQuery] = useState("");
 
   const categories: Category[] = [
     {
@@ -437,6 +439,14 @@ export default function App() {
 
   const filteredTools = tools.filter((tool) => {
     if (tool.category === "info") return false;
+
+    const matchesSearch = tool.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+                         tool.description.toLowerCase().includes(searchQuery.toLowerCase());
+
+    if (!matchesSearch) return false;
+
+    if (searchQuery) return true;
+
     if (!selectedCategory || selectedCategory === "all") return true;
     return tool.category === selectedCategory;
   });
@@ -479,6 +489,20 @@ export default function App() {
         {/* Tool Grid or Selected Tool */}
         {!selectedTool ? (
           <div>
+            {/* Search Bar */}
+            <div className="max-w-2xl mx-auto mb-8 relative">
+              <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                <Search className="h-5 w-5 text-gray-400" />
+              </div>
+              <input
+                type="text"
+                placeholder="Rechercher un outil..."
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                className="block w-full pl-10 pr-3 py-3 border border-gray-300 rounded-xl leading-5 bg-white placeholder-gray-500 focus:outline-none focus:placeholder-gray-400 focus:ring-1 focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm shadow-sm transition-all"
+              />
+            </div>
+
             {/* Category Filter */}
             <div className="mb-8">
               <div className="flex flex-wrap justify-center gap-2">
@@ -512,6 +536,7 @@ export default function App() {
                 : "disponibles"}
             </div>
 
+            {filteredTools.length > 0 ? (
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
               {filteredTools.map((tool) => (
                 <button
@@ -533,6 +558,17 @@ export default function App() {
                 </button>
               ))}
             </div>
+            ) : (
+              <div className="text-center py-12">
+                <p className="text-xl text-gray-500">Aucun outil trouvé pour "{searchQuery}"</p>
+                <button
+                  onClick={() => setSearchQuery("")}
+                  className="mt-4 text-blue-600 hover:underline"
+                >
+                  Effacer la recherche
+                </button>
+              </div>
+            )}
 
             {/* Bottom Ad */}
             <div className="mt-8">

@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 
 interface BudgetCategory {
   name: string;
@@ -7,15 +7,27 @@ interface BudgetCategory {
 }
 
 export function BudgetPlanner() {
-  const [income, setIncome] = useState<string>("");
-  const [categories, setCategories] = useState<BudgetCategory[]>([
+  const [income, setIncome] = useState<string>(() => {
+    return localStorage.getItem("budget_income") || "";
+  });
+  const [categories, setCategories] = useState<BudgetCategory[]>(() => {
+    const saved = localStorage.getItem("budget_categories");
+    return saved ? JSON.parse(saved) : [
     { name: "Logement", planned: 0, actual: 0 },
     { name: "Alimentation", planned: 0, actual: 0 },
     { name: "Transport", planned: 0, actual: 0 },
     { name: "Santé", planned: 0, actual: 0 },
     { name: "Loisirs", planned: 0, actual: 0 },
     { name: "Épargne", planned: 0, actual: 0 },
-  ]);
+  ];});
+
+  useEffect(() => {
+    localStorage.setItem("budget_income", income);
+  }, [income]);
+
+  useEffect(() => {
+    localStorage.setItem("budget_categories", JSON.stringify(categories));
+  }, [categories]);
 
   const addCategory = () => {
     setCategories([...categories, { name: "Nouvelle catégorie", planned: 0, actual: 0 }]);

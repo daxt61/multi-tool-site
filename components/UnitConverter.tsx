@@ -1,6 +1,6 @@
 import { useState } from 'react';
 
-type ConversionCategory = 'length' | 'weight' | 'temperature';
+type ConversionCategory = 'length' | 'weight' | 'temperature' | 'area' | 'volume';
 
 interface ConversionUnit {
   name: string;
@@ -50,6 +50,26 @@ export function UnitConverter() {
         toBase: (v) => v - 273.15,
         fromBase: (v) => v + 273.15
       }
+    },
+    area: {
+      'm2': { name: 'Mètres carrés', toBase: (v) => v, fromBase: (v) => v },
+      'km2': { name: 'Kilomètres carrés', toBase: (v) => v * 1000000, fromBase: (v) => v / 1000000 },
+      'cm2': { name: 'Centimètres carrés', toBase: (v) => v / 10000, fromBase: (v) => v * 10000 },
+      'mm2': { name: 'Millimètres carrés', toBase: (v) => v / 1000000, fromBase: (v) => v * 1000000 },
+      'ha': { name: 'Hectares', toBase: (v) => v * 10000, fromBase: (v) => v / 10000 },
+      'ac': { name: 'Acres', toBase: (v) => v * 4046.86, fromBase: (v) => v / 4046.86 },
+      'ft2': { name: 'Pieds carrés', toBase: (v) => v * 0.092903, fromBase: (v) => v / 0.092903 },
+      'in2': { name: 'Pouces carrés', toBase: (v) => v * 0.00064516, fromBase: (v) => v * 1550.0031 }
+    },
+    volume: {
+      'm3': { name: 'Mètres cubes', toBase: (v) => v, fromBase: (v) => v },
+      'l': { name: 'Litres', toBase: (v) => v / 1000, fromBase: (v) => v * 1000 },
+      'ml': { name: 'Millilitres', toBase: (v) => v / 1000000, fromBase: (v) => v * 1000000 },
+      'cm3': { name: 'Centimètres cubes', toBase: (v) => v / 1000000, fromBase: (v) => v * 1000000 },
+      'gal': { name: 'Gallons (US)', toBase: (v) => v * 0.00378541, fromBase: (v) => v / 0.00378541 },
+      'qt': { name: 'Quarts (US)', toBase: (v) => v * 0.000946353, fromBase: (v) => v / 0.000946353 },
+      'pt': { name: 'Pintes (US)', toBase: (v) => v * 0.000473176, fromBase: (v) => v / 0.000473176 },
+      'cup': { name: 'Tasses (US)', toBase: (v) => v * 0.000236588, fromBase: (v) => v / 0.000236588 }
     }
   };
 
@@ -120,6 +140,26 @@ export function UnitConverter() {
           }`}
         >
           Température
+        </button>
+        <button
+          onClick={() => handleCategoryChange('area')}
+          className={`flex-1 py-3 rounded-lg font-semibold transition-all ${
+            category === 'area'
+              ? 'bg-blue-500 text-white'
+              : 'bg-gray-200 hover:bg-gray-300'
+          }`}
+        >
+          Surface
+        </button>
+        <button
+          onClick={() => handleCategoryChange('volume')}
+          className={`flex-1 py-3 rounded-lg font-semibold transition-all ${
+            category === 'volume'
+              ? 'bg-blue-500 text-white'
+              : 'bg-gray-200 hover:bg-gray-300'
+          }`}
+        >
+          Volume
         </button>
       </div>
 

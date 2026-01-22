@@ -36,8 +36,13 @@ import {
   CreditCard,
   Briefcase,
   Search,
+  Clock,
+  History,
+  Brain,
 } from "lucide-react";
 import { Calculator } from "./components/Calculator";
+import { PomodoroTimer } from "./components/PomodoroTimer";
+import { TimestampConverter } from "./components/TimestampConverter";
 import { UnitConverter } from "./components/UnitConverter";
 import { PasswordGenerator } from "./components/PasswordGenerator";
 import { WordCounter } from "./components/WordCounter";
@@ -385,7 +390,23 @@ export default function App() {
       component: <URLEncoder />,
       category: "dev",
     },
+    {
+      id: "timestamp-converter",
+      name: "Convertisseur de Timestamp",
+      icon: <History className="w-6 h-6" />,
+      description: "Convertir dates et timestamps Unix",
+      component: <TimestampConverter />,
+      category: "dev",
+    },
     // Other Tools
+    {
+      id: "pomodoro",
+      name: "Pomodoro",
+      icon: <Brain className="w-6 h-6" />,
+      description: "Timer pour la méthode Pomodoro",
+      component: <PomodoroTimer />,
+      category: "other",
+    },
     {
       id: "timer",
       name: "Minuteur & Chronomètre",

@@ -1,6 +1,6 @@
 import { useState } from 'react';
 
-type ConversionCategory = 'length' | 'weight' | 'temperature' | 'area' | 'volume';
+type ConversionCategory = 'length' | 'weight' | 'temperature' | 'area' | 'volume' | 'digital';
 
 interface ConversionUnit {
   name: string;
@@ -70,6 +70,13 @@ export function UnitConverter() {
       'qt': { name: 'Quarts (US)', toBase: (v) => v * 0.000946353, fromBase: (v) => v / 0.000946353 },
       'pt': { name: 'Pintes (US)', toBase: (v) => v * 0.000473176, fromBase: (v) => v / 0.000473176 },
       'cup': { name: 'Tasses (US)', toBase: (v) => v * 0.000236588, fromBase: (v) => v / 0.000236588 }
+    },
+    digital: {
+      'o': { name: 'Octets (o)', toBase: (v) => v, fromBase: (v) => v },
+      'ko': { name: 'Kilooctets (ko)', toBase: (v) => v * 1024, fromBase: (v) => v / 1024 },
+      'Mo': { name: 'Mégaoctets (Mo)', toBase: (v) => v * Math.pow(1024, 2), fromBase: (v) => v / Math.pow(1024, 2) },
+      'Go': { name: 'Gigaoctets (Go)', toBase: (v) => v * Math.pow(1024, 3), fromBase: (v) => v / Math.pow(1024, 3) },
+      'To': { name: 'Téraoctets (To)', toBase: (v) => v * Math.pow(1024, 4), fromBase: (v) => v / Math.pow(1024, 4) }
     }
   };
 
@@ -160,6 +167,16 @@ export function UnitConverter() {
           }`}
         >
           Volume
+        </button>
+        <button
+          onClick={() => handleCategoryChange('digital')}
+          className={`flex-1 py-3 rounded-lg font-semibold transition-all ${
+            category === 'digital'
+              ? 'bg-blue-500 text-white'
+              : 'bg-gray-200 hover:bg-gray-300'
+          }`}
+        >
+          Informatique
         </button>
       </div>
 

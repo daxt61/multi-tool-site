@@ -1,8 +1,29 @@
-import { useState } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { History as HistoryIcon, Trash2 } from 'lucide-react';
 
 export function Calculator() {
   const [display, setDisplay] = useState('0');
+
+  const handleBackspace = useCallback(() => {
+    if (display === 'Erreur') {
+      setDisplay('0');
+      setNewNumber(true);
+      return;
+    }
+    if (display.length > 1) {
+      setDisplay(display.slice(0, -1));
+    } else {
+      setDisplay('0');
+      setNewNumber(true);
+    }
+  }, [display]);
+
+  const handleClear = useCallback(() => {
+    setDisplay('0');
+    setPreviousValue(null);
+    setOperation(null);
+    setNewNumber(true);
+  }, []);
   const [previousValue, setPreviousValue] = useState<number | null>(null);
   const [operation, setOperation] = useState<string | null>(null);
   const [newNumber, setNewNumber] = useState(true);
@@ -11,55 +32,56 @@ export function Calculator() {
     return saved ? JSON.parse(saved) : [];
   });
 
-  const handleNumber = (num: string) => {
-    if (newNumber) {
+  const handleNumber = useCallback((num: string) => {
+    if (newNumber || display === 'Erreur') {
       setDisplay(num);
       setNewNumber(false);
     } else {
       setDisplay(display === '0' ? num : display + num);
     }
-  };
+  }, [newNumber, display]);
 
-  const handleDecimal = () => {
-    if (newNumber) {
+  const handleDecimal = useCallback(() => {
+    if (newNumber || display === 'Erreur') {
       setDisplay('0.');
       setNewNumber(false);
     } else if (!display.includes('.')) {
       setDisplay(display + '.');
     }
-  };
+  }, [newNumber, display]);
 
-  const handleOperation = (op: string) => {
+  const handleOperation = useCallback((op: string) => {
     const current = parseFloat(display);
     
     if (previousValue === null) {
-      setPreviousValue(current);
+      setPreviousValue(isNaN(current) ? null : current);
     } else if (operation) {
       const result = calculate(previousValue, current, operation);
-      setDisplay(String(result));
-      setPreviousValue(result);
+      const resultStr = isNaN(result) ? 'Erreur' : String(result);
+      setDisplay(resultStr);
+      setPreviousValue(isNaN(result) ? null : result);
     }
     
     setOperation(op);
     setNewNumber(true);
-  };
+  }, [display, previousValue, operation]);
 
   const calculate = (a: number, b: number, op: string): number => {
     switch (op) {
       case '+': return a + b;
       case '-': return a - b;
       case '×': return a * b;
-      case '÷': return b !== 0 ? a / b : 0;
+      case '÷': return b !== 0 ? a / b : NaN;
       default: return b;
     }
   };
 
-  const handleEquals = () => {
+  const handleEquals = useCallback(() => {
     if (operation && previousValue !== null) {
       const current = parseFloat(display);
       const result = calculate(previousValue, current, operation);
       const expression = `${previousValue} ${operation} ${current}`;
-      const resultStr = String(result);
+      const resultStr = isNaN(result) ? 'Erreur' : String(result);
 
       const newHistory = [{ expression, result: resultStr }, ...history].slice(0, 10);
       setHistory(newHistory);
@@ -70,23 +92,35 @@ export function Calculator() {
       setOperation(null);
       setNewNumber(true);
     }
-  };
+  }, [display, previousValue, operation, history]);
 
-  const handleClear = () => {
-    setDisplay('0');
-    setPreviousValue(null);
-    setOperation(null);
-    setNewNumber(true);
-  };
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key >= '0' && e.key <= '9') {
+        handleNumber(e.key);
+      } else if (e.key === '.' || e.key === ',') {
+        handleDecimal();
+      } else if (e.key === '+') {
+        handleOperation('+');
+      } else if (e.key === '-') {
+        handleOperation('-');
+      } else if (e.key === '*') {
+        handleOperation('×');
+      } else if (e.key === '/') {
+        handleOperation('÷');
+      } else if (e.key === 'Enter' || e.key === '=') {
+        e.preventDefault();
+        handleEquals();
+      } else if (e.key === 'Backspace') {
+        handleBackspace();
+      } else if (e.key === 'Escape') {
+        handleClear();
+      }
+    };
 
-  const handleBackspace = () => {
-    if (display.length > 1) {
-      setDisplay(display.slice(0, -1));
-    } else {
-      setDisplay('0');
-      setNewNumber(true);
-    }
-  };
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [handleNumber, handleDecimal, handleOperation, handleEquals, handleBackspace, handleClear]);
 
   const buttons = [
     ['C', '←', '÷'],

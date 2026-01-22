@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Copy, RefreshCw, Check } from 'lucide-react';
 
 export function PasswordGenerator() {
@@ -52,6 +52,10 @@ export function PasswordGenerator() {
   };
 
   const strength = getStrength();
+
+  useEffect(() => {
+    generatePassword();
+  }, []);
 
   return (
     <div className="max-w-2xl mx-auto">

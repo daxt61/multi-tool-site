@@ -1,7 +1,15 @@
 import { useState } from 'react';
+import { Copy, Check } from 'lucide-react';
 
 export function WordCounter() {
   const [text, setText] = useState('');
+  const [copied, setCopied] = useState(false);
+
+  const copyToClipboard = () => {
+    navigator.clipboard.writeText(text);
+    setCopied(true);
+    setTimeout(() => setCopied(false), 2000);
+  };
 
   const stats = {
     characters: text.length,
@@ -79,6 +87,14 @@ export function WordCounter() {
           className="flex-1 py-3 bg-gray-200 hover:bg-gray-300 rounded-lg font-semibold transition-colors"
         >
           Capitaliser
+        </button>
+        <button
+          onClick={copyToClipboard}
+          disabled={!text}
+          className="flex-1 py-3 bg-blue-500 hover:bg-blue-600 text-white rounded-lg font-semibold transition-colors flex items-center justify-center gap-2 disabled:opacity-50"
+        >
+          {copied ? <Check className="w-5 h-5" /> : <Copy className="w-5 h-5" />}
+          Copier
         </button>
         <button
           onClick={() => setText('')}

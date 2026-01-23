@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { History as HistoryIcon, Trash2 } from 'lucide-react';
 
 export function Calculator() {
@@ -100,6 +100,30 @@ export function Calculator() {
     setHistory([]);
     localStorage.removeItem('calc_history');
   };
+
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key >= '0' && e.key <= '9') handleNumber(e.key);
+      if (e.key === '.') handleDecimal();
+      if (e.key === ',') handleDecimal();
+      if (e.key === '+') handleOperation('+');
+      if (e.key === '-') handleOperation('-');
+      if (e.key === '*') handleOperation('×');
+      if (e.key === '/') {
+        e.preventDefault();
+        handleOperation('÷');
+      }
+      if (e.key === 'Enter' || e.key === '=') {
+        e.preventDefault();
+        handleEquals();
+      }
+      if (e.key === 'Backspace') handleBackspace();
+      if (e.key === 'Escape') handleClear();
+    };
+
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [display, previousValue, operation, newNumber]);
 
   return (
     <div className="max-w-4xl mx-auto grid grid-cols-1 md:grid-cols-3 gap-8">

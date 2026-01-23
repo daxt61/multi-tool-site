@@ -14,9 +14,9 @@ export function TextFormatter() {
     },
     {
       name: 'Capitaliser Chaque Mot',
-      action: (t: string) => t.split(' ').map(word => 
+      action: (t: string) => t.replace(/\b\w+/g, (word) =>
         word.charAt(0).toUpperCase() + word.slice(1).toLowerCase()
-      ).join(' ')
+      )
     },
     {
       name: 'Première lettre en majuscule',

@@ -20,6 +20,57 @@ export function MorseCodeConverter() {
   const [text, setText] = useState('');
   const [morse, setMorse] = useState('');
   const [copied, setCopied] = useState(false);
+  const [isPlaying, setIsPlaying] = useState(false);
+
+  const playMorse = async () => {
+    if (!morse || isPlaying) return;
+    setIsPlaying(true);
+
+    try {
+      const audioCtx = new (window.AudioContext || (window as any).webkitAudioContext)();
+      const oscillator = audioCtx.createOscillator();
+      const gainNode = audioCtx.createGain();
+
+      oscillator.type = 'sine';
+      oscillator.frequency.setValueAtTime(600, audioCtx.currentTime);
+      gainNode.gain.setValueAtTime(0, audioCtx.currentTime);
+
+      oscillator.connect(gainNode);
+      gainNode.connect(audioCtx.destination);
+      oscillator.start();
+
+      let time = audioCtx.currentTime + 0.1;
+      const dot = 0.1;
+      const dash = 0.3;
+
+      for (const char of morse) {
+        if (char === '.') {
+          gainNode.gain.setValueAtTime(0.2, time);
+          time += dot;
+          gainNode.gain.setValueAtTime(0, time);
+          time += dot;
+        } else if (char === '-') {
+          gainNode.gain.setValueAtTime(0.2, time);
+          time += dash;
+          gainNode.gain.setValueAtTime(0, time);
+          time += dot;
+        } else if (char === ' ') {
+          time += dot * 2;
+        } else if (char === '/') {
+          time += dot * 4;
+        }
+      }
+
+      setTimeout(() => {
+        oscillator.stop();
+        audioCtx.close();
+        setIsPlaying(false);
+      }, (time - audioCtx.currentTime + 0.5) * 1000);
+    } catch (e) {
+      console.error('Audio context error:', e);
+      setIsPlaying(false);
+    }
+  };
 
   const encode = (input: string) => {
     const encoded = input.toUpperCase().split('').map(char => MORSE_CODE[char] || char).join(' ');
@@ -69,13 +120,21 @@ export function MorseCodeConverter() {
         </div>
       </div>
 
-      <div className="flex gap-4 justify-center">
+      <div className="flex flex-wrap gap-4 justify-center">
         <button
           onClick={handleCopy}
           className="px-6 py-3 bg-blue-500 text-white rounded-lg font-semibold hover:bg-blue-600 transition-colors flex items-center gap-2"
         >
           {copied ? <Check className="w-5 h-5" /> : <Copy className="w-5 h-5" />}
           Copier le Code Morse
+        </button>
+        <button
+          onClick={playMorse}
+          disabled={!morse || isPlaying}
+          className="px-6 py-3 bg-orange-500 text-white rounded-lg font-semibold hover:bg-orange-600 transition-colors flex items-center gap-2 disabled:opacity-50"
+        >
+          <Volume2 className={isPlaying ? 'animate-pulse' : ''} />
+          {isPlaying ? 'Lecture...' : 'Écouter'}
         </button>
         <button
           onClick={() => { setText(''); setMorse(''); }}

@@ -42,6 +42,7 @@ import {
   Clock,
   History,
   Brain,
+  Activity,
 } from "lucide-react";
 import { Calculator } from "./components/Calculator";
 import { PomodoroTimer } from "./components/PomodoroTimer";
@@ -70,6 +71,9 @@ import { CaseConverter } from "./components/CaseConverter";
 import { DiffChecker } from "./components/DiffChecker";
 import { AspectRatioCalculator } from "./components/AspectRatioCalculator";
 import { MorseCodeConverter } from "./components/MorseCodeConverter";
+import { HashGenerator } from "./components/HashGenerator";
+import { BPMCounter } from "./components/BPMCounter";
+import { FindAndReplace } from "./components/FindAndReplace";
 import { AdPlaceholder } from "./components/AdPlaceholder";
 import { About } from "./components/About";
 import { Contact } from "./components/Contact";
@@ -363,6 +367,14 @@ export default function App() {
       component: <MorseCodeConverter />,
       category: "text",
     },
+    {
+      id: "find-replace",
+      name: "Chercher et Remplacer",
+      icon: <Search className="w-6 h-6" />,
+      description: "Rechercher et remplacer du texte",
+      component: <FindAndReplace />,
+      category: "text",
+    },
     // Dev Tools
     {
       id: "password-generator",
@@ -420,6 +432,14 @@ export default function App() {
       component: <TimestampConverter />,
       category: "dev",
     },
+    {
+      id: "hash-generator",
+      name: "Générateur de Hash",
+      icon: <Hash className="w-6 h-6" />,
+      description: "Générer des hashs SHA-256, SHA-512",
+      component: <HashGenerator />,
+      category: "dev",
+    },
     // Other Tools
     {
       id: "pomodoro",
@@ -459,6 +479,14 @@ export default function App() {
       icon: <Monitor className="w-6 h-6" />,
       description: "Calculer les dimensions et l'aspect ratio",
       component: <AspectRatioCalculator />,
+      category: "other",
+    },
+    {
+      id: "bpm-counter",
+      name: "Compteur de BPM",
+      icon: <Activity className="w-6 h-6" />,
+      description: "Mesurer les battements par minute",
+      component: <BPMCounter />,
       category: "other",
     },
     // Info Pages (hidden from categories)

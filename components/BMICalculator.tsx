@@ -93,8 +93,31 @@ export function BMICalculator() {
         <div className="text-6xl font-bold mb-2">
           {bmi > 0 ? bmi.toFixed(1) : '0'}
         </div>
-        <div className="text-xl font-semibold">
+        <div className="text-xl font-semibold mb-4">
           {category.label}
+        </div>
+
+        {/* Visual Scale Indicator */}
+        {/* Scale is 0-40. Percentages calculated as (value/40)*100 */}
+        {/* 18.5 -> 46.25%, 25 -> 62.5%, 30 -> 75% */}
+        <div className="relative w-full h-4 bg-white/20 rounded-full mt-4 overflow-hidden border border-white/30">
+          <div className="absolute top-0 left-0 h-full w-[46.25%] bg-blue-300/50 border-r border-white/20"></div>
+          <div className="absolute top-0 left-[46.25%] h-full w-[16.25%] bg-green-300/50 border-r border-white/20"></div>
+          <div className="absolute top-0 left-[62.5%] h-full w-[12.5%] bg-yellow-300/50 border-r border-white/20"></div>
+          <div className="absolute top-0 left-[75%] h-full w-[25%] bg-red-300/50"></div>
+
+          {/* Pointer */}
+          <div
+            className="absolute top-0 w-1 h-full bg-white shadow-[0_0_10px_rgba(255,255,255,0.8)] transition-all duration-500 ease-out z-10"
+            style={{ left: `${Math.min(Math.max((bmi / 40) * 100, 0), 99)}%` }}
+          />
+        </div>
+        <div className="flex justify-between mt-1 text-[10px] opacity-70 px-1 font-mono">
+          <span>0</span>
+          <span>18.5</span>
+          <span>25</span>
+          <span>30</span>
+          <span>40+</span>
         </div>
       </div>
 

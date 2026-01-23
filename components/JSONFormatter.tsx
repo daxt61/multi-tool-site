@@ -1,11 +1,18 @@
 import { useState } from 'react';
-import { Check, AlertCircle } from 'lucide-react';
+import { Check, AlertCircle, Copy } from 'lucide-react';
 import { AdPlaceholder } from './AdPlaceholder';
 
 export function JSONFormatter() {
   const [input, setInput] = useState('');
   const [output, setOutput] = useState('');
   const [error, setError] = useState('');
+  const [copied, setCopied] = useState(false);
+
+  const copyToClipboard = () => {
+    navigator.clipboard.writeText(output);
+    setCopied(true);
+    setTimeout(() => setCopied(false), 2000);
+  };
 
   const formatJSON = () => {
     try {
@@ -58,9 +65,20 @@ export function JSONFormatter() {
         </div>
 
         <div>
-          <label className="block text-sm font-semibold text-gray-700 mb-2">
-            Résultat
-          </label>
+          <div className="flex justify-between items-center mb-2">
+            <label className="text-sm font-semibold text-gray-700">
+              Résultat
+            </label>
+            {output && (
+              <button
+                onClick={copyToClipboard}
+                className="text-blue-500 hover:text-blue-600 flex items-center gap-1 text-sm font-medium"
+              >
+                {copied ? <Check className="w-4 h-4" /> : <Copy className="w-4 h-4" />}
+                {copied ? 'Copié !' : 'Copier'}
+              </button>
+            )}
+          </div>
           <textarea
             value={output}
             readOnly

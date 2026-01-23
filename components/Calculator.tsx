@@ -13,23 +13,55 @@ export function Calculator() {
     return saved ? JSON.parse(saved) : [];
   });
 
-  const handleNumber = (num: string) => {
-    if (newNumber) {
+  const handleBackspace = useCallback(() => {
+    if (display === 'Erreur') {
+      setDisplay('0');
+      setNewNumber(true);
+      return;
+    }
+    if (display.length > 1) {
+      setDisplay(display.slice(0, -1));
+    } else {
+      setDisplay('0');
+      setNewNumber(true);
+    }
+  }, [display]);
+
+  const handleClear = useCallback(() => {
+    setDisplay('0');
+    setPreviousValue(null);
+    setOperation(null);
+    setNewNumber(true);
+  }, []);
+
+  const handleNumber = useCallback((num: string) => {
+    if (newNumber || display === 'Erreur') {
       setDisplay(num);
       setNewNumber(false);
     } else {
       setDisplay(display === '0' ? num : display + num);
     }
-  };
+  }, [newNumber, display]);
 
-  const handleDecimal = () => {
-    if (newNumber) {
+  const handleDecimal = useCallback(() => {
+    if (newNumber || display === 'Erreur') {
       setDisplay('0.');
       setNewNumber(false);
     } else if (!display.includes('.')) {
       setDisplay(display + '.');
     }
-  };
+  }, [newNumber, display]);
+
+  const calculate = useCallback((a: number, b: number, op: string): number => {
+    switch (op) {
+      case '+': return a + b;
+      case '-': return a - b;
+      case '×': return a * b;
+      case '÷': return b !== 0 ? a / b : NaN;
+      case 'x^y': return Math.pow(a, b);
+      default: return b;
+    }
+  }, []);
 
   const handleScientific = (func: string) => {
     const current = parseFloat(display);
@@ -91,17 +123,33 @@ export function Calculator() {
     const current = parseFloat(display);
     
     if (previousValue === null) {
-      setPreviousValue(current);
+      setPreviousValue(isNaN(current) ? null : current);
     } else if (operation) {
       const result = calculate(previousValue, current, operation);
-      setDisplay(String(result));
-      setPreviousValue(result);
+      const resultStr = isNaN(result) ? 'Erreur' : String(result);
+      setDisplay(resultStr);
+      setPreviousValue(isNaN(result) ? null : result);
     }
     
     setOperation(op === 'x^y' ? '^' : op);
     setNewNumber(true);
-  };
+  }, [display, previousValue, operation, calculate]);
 
+  const handleScientificAction = useCallback((action: string) => {
+    const current = parseFloat(display);
+    let result = 0;
+
+    switch (action) {
+      case 'sin': result = Math.sin(current * Math.PI / 180); break;
+      case 'cos': result = Math.cos(current * Math.PI / 180); break;
+      case 'tan': result = Math.tan(current * Math.PI / 180); break;
+      case 'log': result = Math.log10(current); break;
+      case 'ln': result = Math.log(current); break;
+      case '√': result = Math.sqrt(current); break;
+      case 'x²': result = Math.pow(current, 2); break;
+      case 'π': result = Math.PI; break;
+      case 'e': result = Math.E; break;
+      default: return;
   const calculate = (a: number, b: number, op: string): number => {
     switch (op) {
       case '+': return a + b;
@@ -112,6 +160,35 @@ export function Calculator() {
       case 'x^y': return Math.pow(a, b);
       default: return b;
     }
+
+  const handleScientificAction = (action: string) => {
+    const current = parseFloat(display);
+    let result = 0;
+
+    switch (action) {
+      case 'sin': result = Math.sin(current * Math.PI / 180); break;
+      case 'cos': result = Math.cos(current * Math.PI / 180); break;
+      case 'tan': result = Math.tan(current * Math.PI / 180); break;
+      case 'log': result = Math.log10(current); break;
+      case 'ln': result = Math.log(current); break;
+      case '√': result = Math.sqrt(current); break;
+      case 'x²': result = Math.pow(current, 2); break;
+      case 'π': result = Math.PI; break;
+      case 'e': result = Math.E; break;
+      default: return;
+    }
+
+    const resultStr = String(Number(result.toFixed(10)));
+    setDisplay(resultStr);
+    setNewNumber(true);
+
+    const expression = `${action}(${current})`;
+    const newHistory = [{ expression, result: resultStr }, ...history].slice(0, 10);
+    setHistory(newHistory);
+    localStorage.setItem('calc_history', JSON.stringify(newHistory));
+  }, [display, history]);
+
+  const handleEquals = useCallback(() => {
   };
 
   const addToHistory = (expression: string, result: string) => {
@@ -133,23 +210,52 @@ export function Calculator() {
       setOperation(null);
       setNewNumber(true);
     }
-  };
+  }, [display, previousValue, operation, history, calculate]);
 
-  const handleClear = () => {
-    setDisplay('0');
-    setPreviousValue(null);
-    setOperation(null);
-    setNewNumber(true);
-  };
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key >= '0' && e.key <= '9') {
+        handleNumber(e.key);
+      } else if (e.key === '.' || e.key === ',') {
+        handleDecimal();
+      } else if (e.key === '+') {
+        handleOperation('+');
+      } else if (e.key === '-') {
+        handleOperation('-');
+      } else if (e.key === '*') {
+        handleOperation('×');
+      } else if (e.key === '/') {
+        e.preventDefault();
+        handleOperation('÷');
+      } else if (e.key === 'Enter' || e.key === '=') {
+        e.preventDefault();
+        handleEquals();
+      } else if (e.key === 'Backspace') {
+        handleBackspace();
+      } else if (e.key === 'Escape') {
+        handleClear();
+      }
+    };
 
-  const handleBackspace = () => {
-    if (display.length > 1) {
-      setDisplay(display.slice(0, -1));
-    } else {
-      setDisplay('0');
-      setNewNumber(true);
-    }
-  };
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [handleNumber, handleDecimal, handleOperation, handleEquals, handleBackspace, handleClear]);
+
+  const standardButtons = [
+    ['C', '←', '÷', '×'],
+    ['7', '8', '9', '-'],
+    ['4', '5', '6', '+'],
+    ['1', '2', '3', '0'],
+    ['.', '=']
+  ];
+
+  const standardButtons = [
+    ['C', '←', '÷', '×'],
+    ['7', '8', '9', '-'],
+    ['4', '5', '6', '+'],
+    ['1', '2', '3', '0'],
+    ['.', '=']
+  ];
 
   const clearHistory = () => {
     setHistory([]);

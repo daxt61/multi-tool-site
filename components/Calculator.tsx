@@ -1,4 +1,5 @@
 import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect } from 'react';
 import { History as HistoryIcon, Trash2 } from 'lucide-react';
 
 export function Calculator() {
@@ -93,6 +94,31 @@ export function Calculator() {
       case 'π': result = Math.PI; break;
       case 'e': result = Math.E; break;
       default: return;
+  const calculate = (a: number, b: number, op: string): number => {
+    switch (op) {
+      case '+': return a + b;
+      case '-': return a - b;
+      case '×': return a * b;
+      case '÷': return b !== 0 ? a / b : 0;
+      case 'x^y': return Math.pow(a, b);
+      default: return b;
+    }
+
+  const handleScientificAction = (action: string) => {
+    const current = parseFloat(display);
+    let result = 0;
+
+    switch (action) {
+      case 'sin': result = Math.sin(current * Math.PI / 180); break;
+      case 'cos': result = Math.cos(current * Math.PI / 180); break;
+      case 'tan': result = Math.tan(current * Math.PI / 180); break;
+      case 'log': result = Math.log10(current); break;
+      case 'ln': result = Math.log(current); break;
+      case '√': result = Math.sqrt(current); break;
+      case 'x²': result = Math.pow(current, 2); break;
+      case 'π': result = Math.PI; break;
+      case 'e': result = Math.E; break;
+      default: return;
     }
 
     const resultStr = String(Number(result.toFixed(10)));
@@ -106,6 +132,9 @@ export function Calculator() {
   }, [display, history]);
 
   const handleEquals = useCallback(() => {
+  };
+
+  const handleEquals = () => {
     if (operation && previousValue !== null) {
       const current = parseFloat(display);
       const result = calculate(previousValue, current, operation);
@@ -160,6 +189,14 @@ export function Calculator() {
     ['.', '=']
   ];
 
+  const standardButtons = [
+    ['C', '←', '÷', '×'],
+    ['7', '8', '9', '-'],
+    ['4', '5', '6', '+'],
+    ['1', '2', '3', '0'],
+    ['.', '=']
+  ];
+
   const scientificButtons = [
     ['sin', 'cos', 'tan', 'C', '←'],
     ['log', 'ln', '√', '÷', '×'],
@@ -173,6 +210,30 @@ export function Calculator() {
     setHistory([]);
     localStorage.removeItem('calc_history');
   };
+
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key >= '0' && e.key <= '9') handleNumber(e.key);
+      if (e.key === '.') handleDecimal();
+      if (e.key === ',') handleDecimal();
+      if (e.key === '+') handleOperation('+');
+      if (e.key === '-') handleOperation('-');
+      if (e.key === '*') handleOperation('×');
+      if (e.key === '/') {
+        e.preventDefault();
+        handleOperation('÷');
+      }
+      if (e.key === 'Enter' || e.key === '=') {
+        e.preventDefault();
+        handleEquals();
+      }
+      if (e.key === 'Backspace') handleBackspace();
+      if (e.key === 'Escape') handleClear();
+    };
+
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [display, previousValue, operation, newNumber]);
 
   return (
     <div className="max-w-4xl mx-auto grid grid-cols-1 md:grid-cols-3 gap-8">

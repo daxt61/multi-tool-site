@@ -98,6 +98,7 @@ export function WordCounter() {
           onClick={handleCopy}
           disabled={!text}
           className="flex-1 min-w-[120px] py-3 bg-blue-500 hover:bg-blue-600 text-white rounded-lg font-semibold transition-colors flex items-center justify-center gap-2 disabled:opacity-50"
+          className="flex-1 min-w-[120px] py-3 bg-blue-500 hover:bg-blue-600 text-white rounded-lg font-semibold transition-colors flex items-center justify-center gap-2"
         >
           {copied ? <Check className="w-5 h-5" /> : <Copy className="w-5 h-5" />}
           {copied ? 'Copié !' : 'Copier'}

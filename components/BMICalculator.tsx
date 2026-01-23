@@ -158,6 +158,28 @@ export function BMICalculator() {
           ℹ️ L'Indice de Masse Corporelle (IMC) est une mesure standardisée de la corpulence. Elle ne remplace pas un diagnostic médical et ne prend pas en compte la masse musculaire, l'ossature ou la répartition des graisses.
         </p>
       </div>
+
+      {/* SEO Content Section */}
+      <div className="mt-12 grid grid-cols-1 md:grid-cols-2 gap-8 border-t border-gray-200 pt-12 text-left">
+        <div>
+          <h2 className="text-2xl font-bold text-gray-800 mb-4">Qu'est-ce que l'Indice de Masse Corporelle (IMC) ?</h2>
+          <p className="text-gray-600 mb-4">
+            L'IMC est une mesure standardisée utilisée par l'Organisation Mondiale de la Santé (OMS) pour évaluer les risques pour la santé liés au surpoids ou à l'insuffisance pondérale. Il se calcule en divisant le poids (en kg) par le carré de la taille (en mètres).
+          </p>
+          <p className="text-gray-600">
+            Notre calculateur d'IMC en ligne vous permet d'obtenir rapidement votre score et de voir où vous vous situez sur l'échelle de classification officielle.
+          </p>
+        </div>
+        <div>
+          <h2 className="text-2xl font-bold text-gray-800 mb-4">Comment interpréter vos résultats ?</h2>
+          <ul className="list-disc pl-5 text-gray-600 space-y-2">
+            <li><strong>Moins de 18.5 :</strong> Insuffisance pondérale. Il peut être utile de consulter un professionnel de santé.</li>
+            <li><strong>18.5 à 24.9 :</strong> Poids normal. Votre poids est idéal par rapport à votre taille.</li>
+            <li><strong>25 à 29.9 :</strong> Surpoids. Un équilibrage alimentaire peut être envisagé.</li>
+            <li><strong>30 et plus :</strong> Obésité. Risque accru pour la santé (diabète, hypertension, etc.).</li>
+          </ul>
+        </div>
+      </div>
     </div>
   );
 }

@@ -6,6 +6,7 @@ export function Calculator() {
   const [previousValue, setPreviousValue] = useState<number | null>(null);
   const [operation, setOperation] = useState<string | null>(null);
   const [newNumber, setNewNumber] = useState(true);
+  const [isScientific, setIsScientific] = useState(false);
   const [history, setHistory] = useState<{ expression: string; result: string }[]>(() => {
     const saved = localStorage.getItem('calc_history');
     return saved ? JSON.parse(saved) : [];
@@ -50,8 +51,36 @@ export function Calculator() {
       case '-': return a - b;
       case '×': return a * b;
       case '÷': return b !== 0 ? a / b : 0;
+      case 'x^y': return Math.pow(a, b);
       default: return b;
     }
+  };
+
+  const handleScientificAction = (action: string) => {
+    const current = parseFloat(display);
+    let result = 0;
+
+    switch (action) {
+      case 'sin': result = Math.sin(current * Math.PI / 180); break;
+      case 'cos': result = Math.cos(current * Math.PI / 180); break;
+      case 'tan': result = Math.tan(current * Math.PI / 180); break;
+      case 'log': result = Math.log10(current); break;
+      case 'ln': result = Math.log(current); break;
+      case '√': result = Math.sqrt(current); break;
+      case 'x²': result = Math.pow(current, 2); break;
+      case 'π': result = Math.PI; break;
+      case 'e': result = Math.E; break;
+      default: return;
+    }
+
+    const resultStr = String(Number(result.toFixed(10)));
+    setDisplay(resultStr);
+    setNewNumber(true);
+
+    const expression = `${action}(${current})`;
+    const newHistory = [{ expression, result: resultStr }, ...history].slice(0, 10);
+    setHistory(newHistory);
+    localStorage.setItem('calc_history', JSON.stringify(newHistory));
   };
 
   const handleEquals = () => {
@@ -88,12 +117,21 @@ export function Calculator() {
     }
   };
 
-  const buttons = [
-    ['C', '←', '÷'],
-    ['7', '8', '9', '×'],
-    ['4', '5', '6', '-'],
-    ['1', '2', '3', '+'],
-    ['0', '.', '=']
+  const standardButtons = [
+    ['C', '←', '÷', '×'],
+    ['7', '8', '9', '-'],
+    ['4', '5', '6', '+'],
+    ['1', '2', '3', '0'],
+    ['.', '=']
+  ];
+
+  const scientificButtons = [
+    ['sin', 'cos', 'tan', 'C', '←'],
+    ['log', 'ln', '√', '÷', '×'],
+    ['x²', 'x^y', 'π', '7', '8'],
+    ['9', '-', '4', '5', '6'],
+    ['+', '1', '2', '3', '0'],
+    ['.', 'e', '=']
   ];
 
   const clearHistory = () => {
@@ -128,6 +166,15 @@ export function Calculator() {
   return (
     <div className="max-w-4xl mx-auto grid grid-cols-1 md:grid-cols-3 gap-8">
       <div className="md:col-span-2">
+      <div className="flex justify-end mb-4">
+        <button
+          onClick={() => setIsScientific(!isScientific)}
+          className="text-sm bg-gray-100 hover:bg-gray-200 px-3 py-1 rounded-full transition-colors font-medium text-gray-600"
+        >
+          {isScientific ? 'Mode Simple' : 'Mode Scientifique'}
+        </button>
+      </div>
+
       <div className="bg-gray-900 text-white p-6 rounded-lg mb-4 text-right">
         <div className="text-sm text-gray-400 mb-2 h-6">
           {previousValue !== null && operation ? `${previousValue} ${operation}` : ''}
@@ -138,8 +185,14 @@ export function Calculator() {
       </div>
 
       <div className="grid gap-2">
-        {buttons.map((row, i) => (
-          <div key={i} className="grid grid-cols-4 gap-2">
+        {(isScientific ? scientificButtons : standardButtons).map((row, i) => (
+          <div
+            key={i}
+            className="grid gap-2"
+            style={{
+              gridTemplateColumns: `repeat(${isScientific ? 5 : 4}, minmax(0, 1fr))`
+            }}
+          >
             {row.map((btn) => (
               <button
                 key={btn}
@@ -147,19 +200,22 @@ export function Calculator() {
                   if (btn === 'C') handleClear();
                   else if (btn === '←') handleBackspace();
                   else if (btn === '=') handleEquals();
-                  else if (['+', '-', '×', '÷'].includes(btn)) handleOperation(btn);
+                  else if (['+', '-', '×', '÷', 'x^y'].includes(btn)) handleOperation(btn);
+                  else if (['sin', 'cos', 'tan', 'log', 'ln', '√', 'x²', 'π', 'e'].includes(btn)) handleScientificAction(btn);
                   else if (btn === '.') handleDecimal();
                   else handleNumber(btn);
                 }}
-                className={`p-4 rounded-lg font-semibold text-lg transition-all ${
+                className={`p-4 rounded-lg font-semibold text-lg transition-all flex items-center justify-center min-h-[60px] ${
                   btn === 'C' || btn === '←'
-                    ? 'bg-red-500 text-white hover:bg-red-600'
+                    ? 'bg-red-500 text-white'
                     : btn === '='
-                    ? 'bg-green-500 text-white hover:bg-green-600'
-                    : ['+', '-', '×', '÷'].includes(btn)
-                    ? 'bg-blue-500 text-white hover:bg-blue-600'
-                    : 'bg-gray-200 hover:bg-gray-300'
-                } ${btn === '0' ? 'col-span-2' : ''}`}
+                    ? 'bg-green-500 text-white'
+                    : ['+', '-', '×', '÷', 'x^y'].includes(btn)
+                    ? 'bg-blue-500 text-white'
+                    : ['sin', 'cos', 'tan', 'log', 'ln', '√', 'x²', 'π', 'e'].includes(btn)
+                    ? 'bg-gray-700 text-white'
+                    : 'bg-gray-200 text-gray-800'
+                } ${isScientific && btn === '=' ? 'col-span-3' : (!isScientific && btn === '=') ? 'col-span-3' : ''}`}
               >
                 {btn}
               </button>

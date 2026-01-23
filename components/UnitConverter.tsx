@@ -1,6 +1,6 @@
 import { useState } from 'react';
 
-type ConversionCategory = 'length' | 'weight' | 'temperature' | 'area' | 'volume' | 'digital';
+type ConversionCategory = 'length' | 'weight' | 'temperature' | 'area' | 'volume' | 'digital' | 'speed' | 'pressure';
 
 interface ConversionUnit {
   name: string;
@@ -77,6 +77,20 @@ export function UnitConverter() {
       'MB': { name: 'Megaoctets (MB)', toBase: (v) => v * Math.pow(1024, 2), fromBase: (v) => v / Math.pow(1024, 2) },
       'GB': { name: 'Gigaoctets (GB)', toBase: (v) => v * Math.pow(1024, 3), fromBase: (v) => v / Math.pow(1024, 3) },
       'TB': { name: 'Teraoctets (TB)', toBase: (v) => v * Math.pow(1024, 4), fromBase: (v) => v / Math.pow(1024, 4) }
+    },
+    speed: {
+      'm/s': { name: 'Mètres par seconde', toBase: (v) => v, fromBase: (v) => v },
+      'km/h': { name: 'Kilomètres par heure', toBase: (v) => v / 3.6, fromBase: (v) => v * 3.6 },
+      'mph': { name: 'Miles par heure', toBase: (v) => v / 2.23694, fromBase: (v) => v * 2.23694 },
+      'knot': { name: 'Nœuds', toBase: (v) => v / 1.94384, fromBase: (v) => v * 1.94384 },
+      'ft/s': { name: 'Pieds par seconde', toBase: (v) => v * 0.3048, fromBase: (v) => v / 0.3048 }
+    },
+    pressure: {
+      'Pa': { name: 'Pascal (Pa)', toBase: (v) => v, fromBase: (v) => v },
+      'bar': { name: 'Bar', toBase: (v) => v * 100000, fromBase: (v) => v / 100000 },
+      'psi': { name: 'PSI', toBase: (v) => v * 6894.76, fromBase: (v) => v / 6894.76 },
+      'atm': { name: 'Atmosphère (atm)', toBase: (v) => v * 101325, fromBase: (v) => v / 101325 },
+      'mmHg': { name: 'Millimètres de mercure', toBase: (v) => v * 133.322, fromBase: (v) => v / 133.322 }
     }
   };
 
@@ -177,6 +191,26 @@ export function UnitConverter() {
           }`}
         >
           Informatique
+        </button>
+        <button
+          onClick={() => handleCategoryChange('speed')}
+          className={`flex-1 min-w-[100px] py-3 rounded-lg font-semibold transition-all ${
+            category === 'speed'
+              ? 'bg-blue-500 text-white'
+              : 'bg-gray-200 hover:bg-gray-300'
+          }`}
+        >
+          Vitesse
+        </button>
+        <button
+          onClick={() => handleCategoryChange('pressure')}
+          className={`flex-1 min-w-[100px] py-3 rounded-lg font-semibold transition-all ${
+            category === 'pressure'
+              ? 'bg-blue-500 text-white'
+              : 'bg-gray-200 hover:bg-gray-300'
+          }`}
+        >
+          Pression
         </button>
       </div>
 

@@ -26,6 +26,7 @@ export function BMICalculator() {
   const bmi = calculateBMI();
 
   const getCategory = () => {
+    if (bmi <= 0) return { label: 'En attente de données', color: 'bg-gray-400' };
     if (bmi < 18.5) return { label: 'Insuffisance pondérale', color: 'bg-blue-500' };
     if (bmi < 25) return { label: 'Poids normal', color: 'bg-green-500' };
     if (bmi < 30) return { label: 'Surpoids', color: 'bg-yellow-500' };
@@ -91,7 +92,7 @@ export function BMICalculator() {
       <div className={`${category.color} text-white p-8 rounded-lg text-center mb-6`}>
         <div className="text-sm opacity-90 mb-2">Votre IMC</div>
         <div className="text-6xl font-bold mb-2">
-          {bmi > 0 ? bmi.toFixed(1) : '0'}
+          {bmi > 0 ? bmi.toFixed(1) : '--'}
         </div>
         <div className="text-xl font-semibold mb-4">
           {category.label}

@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { History as HistoryIcon, Trash2 } from 'lucide-react';
 
 export function Calculator() {
@@ -12,6 +12,14 @@ export function Calculator() {
     const saved = localStorage.getItem('calc_history');
     return saved ? JSON.parse(saved) : [];
   });
+
+  const addToHistory = useCallback((expression: string, result: string) => {
+    setHistory(prev => {
+      const newHistory = [{ expression, result }, ...prev].slice(0, 10);
+      localStorage.setItem('calc_history', JSON.stringify(newHistory));
+      return newHistory;
+    });
+  }, []);
 
   const handleBackspace = useCallback(() => {
     if (display === 'Erreur') {
@@ -58,13 +66,16 @@ export function Calculator() {
       case '-': return a - b;
       case '×': return a * b;
       case '÷': return b !== 0 ? a / b : NaN;
-      case 'x^y': return Math.pow(a, b);
+      case 'x^y':
+      case '^': return Math.pow(a, b);
       default: return b;
     }
   }, []);
 
-  const handleScientific = (func: string) => {
+  const handleScientific = useCallback((func: string) => {
     const current = parseFloat(display);
+    if (isNaN(current) && !['π', 'e'].includes(func)) return;
+
     let result = 0;
     let expression = '';
 
@@ -117,9 +128,9 @@ export function Calculator() {
     addToHistory(expression, resultStr);
     setDisplay(resultStr);
     setNewNumber(true);
-  };
+  }, [display, angleUnit, addToHistory]);
 
-  const handleOperation = (op: string) => {
+  const handleOperation = useCallback((op: string) => {
     const current = parseFloat(display);
     
     if (previousValue === null) {
@@ -135,82 +146,27 @@ export function Calculator() {
     setNewNumber(true);
   }, [display, previousValue, operation, calculate]);
 
-  const handleScientificAction = useCallback((action: string) => {
-    const current = parseFloat(display);
-    let result = 0;
-
-    switch (action) {
-      case 'sin': result = Math.sin(current * Math.PI / 180); break;
-      case 'cos': result = Math.cos(current * Math.PI / 180); break;
-      case 'tan': result = Math.tan(current * Math.PI / 180); break;
-      case 'log': result = Math.log10(current); break;
-      case 'ln': result = Math.log(current); break;
-      case '√': result = Math.sqrt(current); break;
-      case 'x²': result = Math.pow(current, 2); break;
-      case 'π': result = Math.PI; break;
-      case 'e': result = Math.E; break;
-      default: return;
-  const calculate = (a: number, b: number, op: string): number => {
-    switch (op) {
-      case '+': return a + b;
-      case '-': return a - b;
-      case '×': return a * b;
-      case '÷': return b !== 0 ? a / b : 0;
-      case '^':
-      case 'x^y': return Math.pow(a, b);
-      default: return b;
-    }
-
-  const handleScientificAction = (action: string) => {
-    const current = parseFloat(display);
-    let result = 0;
-
-    switch (action) {
-      case 'sin': result = Math.sin(current * Math.PI / 180); break;
-      case 'cos': result = Math.cos(current * Math.PI / 180); break;
-      case 'tan': result = Math.tan(current * Math.PI / 180); break;
-      case 'log': result = Math.log10(current); break;
-      case 'ln': result = Math.log(current); break;
-      case '√': result = Math.sqrt(current); break;
-      case 'x²': result = Math.pow(current, 2); break;
-      case 'π': result = Math.PI; break;
-      case 'e': result = Math.E; break;
-      default: return;
-    }
-
-    const resultStr = String(Number(result.toFixed(10)));
-    setDisplay(resultStr);
-    setNewNumber(true);
-
-    const expression = `${action}(${current})`;
-    const newHistory = [{ expression, result: resultStr }, ...history].slice(0, 10);
-    setHistory(newHistory);
-    localStorage.setItem('calc_history', JSON.stringify(newHistory));
-  }, [display, history]);
-
   const handleEquals = useCallback(() => {
-  };
-
-  const addToHistory = (expression: string, result: string) => {
-    const newHistory = [{ expression, result }, ...history].slice(0, 10);
-    setHistory(newHistory);
-    localStorage.setItem('calc_history', JSON.stringify(newHistory));
-  };
-
-  const handleEquals = () => {
     if (operation && previousValue !== null) {
       const current = parseFloat(display);
       const result = calculate(previousValue, current, operation);
       const expression = `${previousValue} ${operation} ${current}`;
-      const resultStr = String(Number(result.toFixed(8)));
+      const resultStr = isNaN(result) ? 'Erreur' : String(Number(result.toFixed(8)));
 
-      addToHistory(expression, resultStr);
+      if (resultStr !== 'Erreur') {
+        addToHistory(expression, resultStr);
+      }
       setDisplay(resultStr);
       setPreviousValue(null);
       setOperation(null);
       setNewNumber(true);
     }
-  }, [display, previousValue, operation, history, calculate]);
+  }, [display, previousValue, operation, calculate, addToHistory]);
+
+  const clearHistory = useCallback(() => {
+    setHistory([]);
+    localStorage.removeItem('calc_history');
+  }, []);
 
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
@@ -240,51 +196,6 @@ export function Calculator() {
     window.addEventListener('keydown', handleKeyDown);
     return () => window.removeEventListener('keydown', handleKeyDown);
   }, [handleNumber, handleDecimal, handleOperation, handleEquals, handleBackspace, handleClear]);
-
-  const standardButtons = [
-    ['C', '←', '÷', '×'],
-    ['7', '8', '9', '-'],
-    ['4', '5', '6', '+'],
-    ['1', '2', '3', '0'],
-    ['.', '=']
-  ];
-
-  const standardButtons = [
-    ['C', '←', '÷', '×'],
-    ['7', '8', '9', '-'],
-    ['4', '5', '6', '+'],
-    ['1', '2', '3', '0'],
-    ['.', '=']
-  ];
-
-  const clearHistory = () => {
-    setHistory([]);
-    localStorage.removeItem('calc_history');
-  };
-
-  useEffect(() => {
-    const handleKeyDown = (e: KeyboardEvent) => {
-      if (e.key >= '0' && e.key <= '9') handleNumber(e.key);
-      if (e.key === '.') handleDecimal();
-      if (e.key === ',') handleDecimal();
-      if (e.key === '+') handleOperation('+');
-      if (e.key === '-') handleOperation('-');
-      if (e.key === '*') handleOperation('×');
-      if (e.key === '/') {
-        e.preventDefault();
-        handleOperation('÷');
-      }
-      if (e.key === 'Enter' || e.key === '=') {
-        e.preventDefault();
-        handleEquals();
-      }
-      if (e.key === 'Backspace') handleBackspace();
-      if (e.key === 'Escape') handleClear();
-    };
-
-    window.addEventListener('keydown', handleKeyDown);
-    return () => window.removeEventListener('keydown', handleKeyDown);
-  }, [display, previousValue, operation, newNumber]);
 
   const simpleButtons = [
     ['C', '←', '÷', '×'],

@@ -86,6 +86,27 @@ export function HashGenerator() {
           </div>
         </div>
       </div>
+
+      {/* SEO Content Section */}
+      <div className="mt-12 grid grid-cols-1 md:grid-cols-2 gap-8 border-t border-gray-200 pt-12 text-left">
+        <div>
+          <h2 className="text-2xl font-bold text-gray-800 mb-4">Qu'est-ce qu'un Hash cryptographique ?</h2>
+          <p className="text-gray-600 mb-4">
+            Un hash est une "empreinte numérique" d'une donnée. Quelle que soit la taille de votre texte d'entrée, l'algorithme produit une chaîne de caractères de longueur fixe. C'est un processus à sens unique : il est impossible de retrouver le texte original à partir du hash.
+          </p>
+          <p className="text-gray-600">
+            Les algorithmes SHA-256 et SHA-512 sont largement utilisés pour vérifier l'intégrité des fichiers, stocker des mots de passe (avec du sel) et dans la technologie blockchain.
+          </p>
+        </div>
+        <div>
+          <h2 className="text-2xl font-bold text-gray-800 mb-4">Pourquoi utiliser notre générateur de hash ?</h2>
+          <ul className="list-disc pl-5 text-gray-600 space-y-2">
+            <li><strong>Sécurité locale :</strong> Les calculs sont effectués directement dans votre navigateur via l'API Web Crypto. Votre texte n'est jamais envoyé sur un serveur.</li>
+            <li><strong>Intégrité des données :</strong> Comparez le hash d'un fichier téléchargé avec celui fourni par la source pour vous assurer qu'il n'a pas été modifié.</li>
+            <li><strong>Support multi-format :</strong> Nous supportons les standards industriels SHA-256 et SHA-512.</li>
+          </ul>
+        </div>
+      </div>
     </div>
   );
 }

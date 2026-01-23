@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import {
   Calculator as CalcIcon,
   Ruler,
@@ -105,63 +105,58 @@ interface Category {
   color: string;
 }
 
-export default function App() {
-  const [selectedTool, setSelectedTool] = useState<string | null>(null);
-  const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
-  const [searchQuery, setSearchQuery] = useState("");
+const categories: Category[] = [
+  {
+    id: "all",
+    name: "Tous",
+    icon: <CalcIcon className="w-5 h-5" />,
+    color: "from-gray-500 to-gray-600",
+  },
+  {
+    id: "business",
+    name: "Business",
+    icon: <Briefcase className="w-5 h-5" />,
+    color: "from-purple-500 to-purple-600",
+  },
+  {
+    id: "budget",
+    name: "Budget & Finance",
+    icon: <Wallet className="w-5 h-5" />,
+    color: "from-green-500 to-green-600",
+  },
+  {
+    id: "calculators",
+    name: "Calculatrices",
+    icon: <CalcIcon className="w-5 h-5" />,
+    color: "from-blue-500 to-blue-600",
+  },
+  {
+    id: "converters",
+    name: "Convertisseurs",
+    icon: <Ruler className="w-5 h-5" />,
+    color: "from-orange-500 to-orange-600",
+  },
+  {
+    id: "text",
+    name: "Texte",
+    icon: <Type className="w-5 h-5" />,
+    color: "from-pink-500 to-pink-600",
+  },
+  {
+    id: "dev",
+    name: "Développement",
+    icon: <Code className="w-5 h-5" />,
+    color: "from-indigo-500 to-indigo-600",
+  },
+  {
+    id: "other",
+    name: "Autres",
+    icon: <Globe className="w-5 h-5" />,
+    color: "from-teal-500 to-teal-600",
+  },
+];
 
-  const categories: Category[] = [
-    {
-      id: "all",
-      name: "Tous",
-      icon: <CalcIcon className="w-5 h-5" />,
-      color: "from-gray-500 to-gray-600",
-    },
-    {
-      id: "business",
-      name: "Business",
-      icon: <Briefcase className="w-5 h-5" />,
-      color: "from-purple-500 to-purple-600",
-    },
-    {
-      id: "budget",
-      name: "Budget & Finance",
-      icon: <Wallet className="w-5 h-5" />,
-      color: "from-green-500 to-green-600",
-    },
-    {
-      id: "calculators",
-      name: "Calculatrices",
-      icon: <CalcIcon className="w-5 h-5" />,
-      color: "from-blue-500 to-blue-600",
-    },
-    {
-      id: "converters",
-      name: "Convertisseurs",
-      icon: <Ruler className="w-5 h-5" />,
-      color: "from-orange-500 to-orange-600",
-    },
-    {
-      id: "text",
-      name: "Texte",
-      icon: <Type className="w-5 h-5" />,
-      color: "from-pink-500 to-pink-600",
-    },
-    {
-      id: "dev",
-      name: "Développement",
-      icon: <Code className="w-5 h-5" />,
-      color: "from-indigo-500 to-indigo-600",
-    },
-    {
-      id: "other",
-      name: "Autres",
-      icon: <Globe className="w-5 h-5" />,
-      color: "from-teal-500 to-teal-600",
-    },
-  ];
-
-  const tools: Tool[] = [
+const tools: Tool[] = [
     // Business Tools
     {
       id: "invoice-generator",
@@ -506,15 +501,40 @@ export default function App() {
       component: <Contact />,
       category: "info",
     },
-    {
-      id: "privacy-policy",
-      name: "Politique de Confidentialité",
-      icon: <Shield className="w-6 h-6" />,
-      description: "Protection de vos données personnelles",
-      component: <PrivacyPolicy />,
-      category: "info",
-    },
-  ];
+  {
+    id: "privacy-policy",
+    name: "Politique de Confidentialité",
+    icon: <Shield className="w-6 h-6" />,
+    description: "Protection de vos données personnelles",
+    component: <PrivacyPolicy />,
+    category: "info",
+  },
+];
+
+export default function App() {
+  const [selectedTool, setSelectedTool] = useState<string | null>(null);
+
+  useEffect(() => {
+    if (selectedTool) {
+      const tool = tools.find(t => t.id === selectedTool);
+      if (tool) {
+        document.title = `${tool.name} - Boîte à Outils`;
+        const metaDesc = document.querySelector('meta[name="description"]');
+        if (metaDesc) {
+          metaDesc.setAttribute('content', tool.description);
+        }
+      }
+    } else {
+      document.title = "Boîte à Outils - Tous vos outils essentiels en un seul endroit";
+      const metaDesc = document.querySelector('meta[name="description"]');
+      if (metaDesc) {
+        metaDesc.setAttribute('content', "Découvrez une collection complète d'outils gratuits en ligne : calculatrices, convertisseurs, outils de texte et de développement. Simple, rapide et efficace.");
+      }
+    }
+  }, [selectedTool]);
+
+  const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
+  const [searchQuery, setSearchQuery] = useState("");
 
   const filteredTools = tools.filter((tool) => {
     if (tool.category === "info") return false;
@@ -693,9 +713,9 @@ export default function App() {
                 {currentTool?.icon}
               </div>
               <div>
-                <h2 className="text-2xl font-bold text-gray-900">
+                <h1 className="text-2xl font-bold text-gray-900">
                   {currentTool?.name}
-                </h2>
+                </h1>
                 <p className="text-gray-600">{currentTool?.description}</p>
               </div>
             </div>

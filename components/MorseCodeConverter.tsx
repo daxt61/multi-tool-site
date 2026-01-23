@@ -158,6 +158,27 @@ export function MorseCodeConverter() {
           ))}
         </div>
       </div>
+
+      {/* SEO Content Section */}
+      <div className="mt-12 grid grid-cols-1 md:grid-cols-2 gap-8 border-t border-gray-200 pt-12 text-left">
+        <div>
+          <h2 className="text-2xl font-bold text-gray-800 mb-4">Le Code Morse : Un langage universel</h2>
+          <p className="text-gray-600 mb-4">
+            Inventé au 19ème siècle, le code Morse utilise des impulsions courtes (points) et longues (traits) pour représenter des lettres et des chiffres. Bien qu'il soit moins utilisé aujourd'hui pour les communications officielles, il reste passionnant pour les amateurs de radio, les scouts et comme méthode de communication de secours.
+          </p>
+          <p className="text-gray-600">
+            Notre traducteur Morse en ligne vous permet de convertir instantanément du texte en Morse et vice-versa.
+          </p>
+        </div>
+        <div>
+          <h2 className="text-2xl font-bold text-gray-800 mb-4">Fonctionnalités de notre traducteur</h2>
+          <ul className="list-disc pl-5 text-gray-600 space-y-2">
+            <li><strong>Traduction bidirectionnelle :</strong> Tapez du texte pour obtenir du Morse, ou collez du Morse pour le décoder.</li>
+            <li><strong>Lecture audio :</strong> Utilisez le bouton "Écouter" pour entendre le code Morse généré via votre haut-parleur.</li>
+            <li><strong>Référence rapide :</strong> Consultez notre tableau alphabétique Morse en bas de page pour apprendre les bases.</li>
+          </ul>
+        </div>
+      </div>
     </div>
   );
 }

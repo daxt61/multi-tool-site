@@ -68,11 +68,25 @@ export function BPMCounter() {
         Réinitialiser
       </button>
 
-      <div className="mt-12 p-4 bg-gray-50 rounded-lg border border-gray-200 text-left">
-        <h3 className="font-semibold text-gray-800 mb-2">À quoi ça sert ?</h3>
-        <p className="text-sm text-gray-600">
-          Ce compteur de BPM vous permet de trouver le tempo d'une musique. Tapez simplement en rythme et la moyenne sera calculée sur les 10 dernières frappes.
-        </p>
+      {/* SEO Content Section */}
+      <div className="mt-12 grid grid-cols-1 md:grid-cols-2 gap-8 border-t border-gray-200 pt-12 text-left">
+        <div>
+          <h2 className="text-2xl font-bold text-gray-800 mb-4">Pourquoi utiliser un compteur de BPM ?</h2>
+          <p className="text-gray-600 mb-4">
+            Le tempo, mesuré en Battements Par Minute (BPM), est le cœur de toute composition musicale. Que vous soyez musicien, DJ ou producteur, connaître le tempo précis d'un morceau est indispensable pour le mixage, la synchronisation ou l'apprentissage d'un instrument.
+          </p>
+          <p className="text-gray-600">
+            Notre outil "Tap Tempo" vous permet de déterminer cette valeur en temps réel simplement en tapant sur votre clavier ou votre écran.
+          </p>
+        </div>
+        <div>
+          <h2 className="text-2xl font-bold text-gray-800 mb-4">Comment fonctionne cet outil ?</h2>
+          <ul className="list-disc pl-5 text-gray-600 space-y-2">
+            <li><strong>Moyenne glissante :</strong> Nous calculons la moyenne des intervalles entre vos 10 dernières frappes pour une précision maximale.</li>
+            <li><strong>Multi-plateforme :</strong> Utilisez le bouton tactile sur mobile ou la barre d'espace/entrée sur ordinateur.</li>
+            <li><strong>Gratuit et instantané :</strong> Pas besoin de logiciel complexe, obtenez le tempo en quelques secondes.</li>
+          </ul>
+        </div>
       </div>
     </div>
   );

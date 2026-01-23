@@ -158,6 +158,27 @@ export function PasswordGenerator() {
         <RefreshCw className="w-5 h-5" />
         Générer un mot de passe
       </button>
+
+      {/* SEO Content Section */}
+      <div className="mt-12 grid grid-cols-1 md:grid-cols-2 gap-8 border-t border-gray-200 pt-12 text-left">
+        <div>
+          <h2 className="text-2xl font-bold text-gray-800 mb-4">Pourquoi utiliser un générateur de mot de passe ?</h2>
+          <p className="text-gray-600 mb-4">
+            La sécurité en ligne commence par des mots de passe robustes. Utiliser le même mot de passe pour plusieurs sites ou choisir des termes faciles à deviner (comme "123456" ou "motdepasse") vous expose au piratage. Notre générateur crée des chaînes de caractères aléatoires impossibles à craquer par force brute.
+          </p>
+          <p className="text-gray-600">
+            En combinant majuscules, minuscules, chiffres et symboles, vous augmentez de manière exponentielle le temps nécessaire à un attaquant pour compromettre votre compte.
+          </p>
+        </div>
+        <div>
+          <h2 className="text-2xl font-bold text-gray-800 mb-4">Conseils pour une sécurité maximale</h2>
+          <ul className="list-disc pl-5 text-gray-600 space-y-2">
+            <li><strong>Longueur :</strong> Nous recommandons une longueur minimale de 12 à 16 caractères pour une sécurité optimale.</li>
+            <li><strong>Variété :</strong> Cochez toutes les options (Majuscules, Chiffres, Symboles) pour une complexité maximale.</li>
+            <li><strong>Gestionnaire de mots de passe :</strong> Puisque ces mots de passe sont complexes, utilisez un gestionnaire de mots de passe pour les stocker en toute sécurité.</li>
+          </ul>
+        </div>
+      </div>
     </div>
   );
 }

@@ -1,4 +1,2 @@
 User-agent: *
 Allow: /
-
-Sitemap: https://multitools-git-main-daxt61s-projects.vercel.app/sitemap.xml

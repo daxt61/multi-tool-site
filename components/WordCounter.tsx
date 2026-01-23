@@ -5,12 +5,6 @@ export function WordCounter() {
   const [text, setText] = useState('');
   const [copied, setCopied] = useState(false);
 
-  const copyToClipboard = () => {
-    navigator.clipboard.writeText(text);
-    setCopied(true);
-    setTimeout(() => setCopied(false), 2000);
-  };
-
   const stats = {
     characters: text.length,
     charactersNoSpaces: text.replace(/\s/g, '').length,
@@ -18,7 +12,14 @@ export function WordCounter() {
     lines: text === '' ? 0 : text.split('\n').length,
     sentences: text.trim() === '' ? 0 : text.split(/[.!?]+/).filter(s => s.trim().length > 0).length,
     paragraphs: text.trim() === '' ? 0 : text.split(/\n\s*\n/).filter(p => p.trim().length > 0).length,
-    readingTime: Math.ceil((text.trim() === '' ? 0 : text.trim().split(/\s+/).length) / 200) // Average reading speed: 200 words/min
+    readingTime: Math.ceil((text.trim() === '' ? 0 : text.trim().split(/\s+/).length) / 200), // Average reading speed: 200 words/min
+    speakingTime: Math.ceil((text.trim() === '' ? 0 : text.trim().split(/\s+/).length) / 130) // Average speaking speed: 130 words/min
+  };
+
+  const handleCopy = () => {
+    navigator.clipboard.writeText(text);
+    setCopied(true);
+    setTimeout(() => setCopied(false), 2000);
   };
 
   return (
@@ -61,40 +62,45 @@ export function WordCounter() {
           <div className="text-sm opacity-90">Paragraphes</div>
         </div>
         
-        <div className="bg-gradient-to-br from-amber-500 to-amber-600 text-white p-6 rounded-lg col-span-2">
+        <div className="bg-gradient-to-br from-amber-500 to-amber-600 text-white p-6 rounded-lg">
           <div className="text-3xl font-bold">{stats.readingTime} min</div>
-          <div className="text-sm opacity-90">Temps de lecture estimé</div>
+          <div className="text-sm opacity-90">Lecture</div>
+        </div>
+
+        <div className="bg-gradient-to-br from-orange-400 to-orange-500 text-white p-6 rounded-lg">
+          <div className="text-3xl font-bold">{stats.speakingTime} min</div>
+          <div className="text-sm opacity-90">Parole</div>
         </div>
       </div>
 
-      <div className="mt-6 flex gap-3">
+      <div className="mt-6 flex flex-wrap gap-3">
         <button
           onClick={() => setText(text.toUpperCase())}
-          className="flex-1 py-3 bg-gray-200 hover:bg-gray-300 rounded-lg font-semibold transition-colors"
+          className="flex-1 min-w-[120px] py-3 bg-gray-200 hover:bg-gray-300 rounded-lg font-semibold transition-colors"
         >
           MAJUSCULES
         </button>
         <button
           onClick={() => setText(text.toLowerCase())}
-          className="flex-1 py-3 bg-gray-200 hover:bg-gray-300 rounded-lg font-semibold transition-colors"
+          className="flex-1 min-w-[120px] py-3 bg-gray-200 hover:bg-gray-300 rounded-lg font-semibold transition-colors"
         >
           minuscules
         </button>
         <button
-          onClick={() => setText(text.split(' ').map(word => 
+          onClick={() => setText(text.replace(/\b\w+/g, (word) =>
             word.charAt(0).toUpperCase() + word.slice(1).toLowerCase()
-          ).join(' '))}
-          className="flex-1 py-3 bg-gray-200 hover:bg-gray-300 rounded-lg font-semibold transition-colors"
+          ))}
+          className="flex-1 min-w-[120px] py-3 bg-gray-200 hover:bg-gray-300 rounded-lg font-semibold transition-colors"
         >
           Capitaliser
         </button>
         <button
-          onClick={copyToClipboard}
+          onClick={handleCopy}
           disabled={!text}
-          className="flex-1 py-3 bg-blue-500 hover:bg-blue-600 text-white rounded-lg font-semibold transition-colors flex items-center justify-center gap-2 disabled:opacity-50"
+          className="flex-1 min-w-[120px] py-3 bg-blue-500 hover:bg-blue-600 text-white rounded-lg font-semibold transition-colors flex items-center justify-center gap-2 disabled:opacity-50"
         >
           {copied ? <Check className="w-5 h-5" /> : <Copy className="w-5 h-5" />}
-          Copier
+          {copied ? 'Copié !' : 'Copier'}
         </button>
         <button
           onClick={() => setText('')}

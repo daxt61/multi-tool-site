@@ -72,11 +72,11 @@ export function UnitConverter() {
       'cup': { name: 'Tasses (US)', toBase: (v) => v * 0.000236588, fromBase: (v) => v / 0.000236588 }
     },
     digital: {
-      'o': { name: 'Octets (o)', toBase: (v) => v, fromBase: (v) => v },
-      'ko': { name: 'Kilooctets (ko)', toBase: (v) => v * 1024, fromBase: (v) => v / 1024 },
-      'Mo': { name: 'Mégaoctets (Mo)', toBase: (v) => v * Math.pow(1024, 2), fromBase: (v) => v / Math.pow(1024, 2) },
-      'Go': { name: 'Gigaoctets (Go)', toBase: (v) => v * Math.pow(1024, 3), fromBase: (v) => v / Math.pow(1024, 3) },
-      'To': { name: 'Téraoctets (To)', toBase: (v) => v * Math.pow(1024, 4), fromBase: (v) => v / Math.pow(1024, 4) }
+      'B': { name: 'Octets (B)', toBase: (v) => v, fromBase: (v) => v },
+      'KB': { name: 'Kilooctets (KB)', toBase: (v) => v * 1024, fromBase: (v) => v / 1024 },
+      'MB': { name: 'Megaoctets (MB)', toBase: (v) => v * Math.pow(1024, 2), fromBase: (v) => v / Math.pow(1024, 2) },
+      'GB': { name: 'Gigaoctets (GB)', toBase: (v) => v * Math.pow(1024, 3), fromBase: (v) => v / Math.pow(1024, 3) },
+      'TB': { name: 'Teraoctets (TB)', toBase: (v) => v * Math.pow(1024, 4), fromBase: (v) => v / Math.pow(1024, 4) }
     }
   };
 
@@ -117,10 +117,10 @@ export function UnitConverter() {
   return (
     <div className="max-w-2xl mx-auto">
       {/* Category selector */}
-      <div className="flex gap-2 mb-6">
+      <div className="flex flex-wrap gap-2 mb-6">
         <button
           onClick={() => handleCategoryChange('length')}
-          className={`flex-1 py-3 rounded-lg font-semibold transition-all ${
+          className={`flex-1 min-w-[100px] py-3 rounded-lg font-semibold transition-all ${
             category === 'length'
               ? 'bg-blue-500 text-white'
               : 'bg-gray-200 hover:bg-gray-300'
@@ -130,7 +130,7 @@ export function UnitConverter() {
         </button>
         <button
           onClick={() => handleCategoryChange('weight')}
-          className={`flex-1 py-3 rounded-lg font-semibold transition-all ${
+          className={`flex-1 min-w-[100px] py-3 rounded-lg font-semibold transition-all ${
             category === 'weight'
               ? 'bg-blue-500 text-white'
               : 'bg-gray-200 hover:bg-gray-300'
@@ -140,7 +140,7 @@ export function UnitConverter() {
         </button>
         <button
           onClick={() => handleCategoryChange('temperature')}
-          className={`flex-1 py-3 rounded-lg font-semibold transition-all ${
+          className={`flex-1 min-w-[100px] py-3 rounded-lg font-semibold transition-all ${
             category === 'temperature'
               ? 'bg-blue-500 text-white'
               : 'bg-gray-200 hover:bg-gray-300'
@@ -150,7 +150,7 @@ export function UnitConverter() {
         </button>
         <button
           onClick={() => handleCategoryChange('area')}
-          className={`flex-1 py-3 rounded-lg font-semibold transition-all ${
+          className={`flex-1 min-w-[100px] py-3 rounded-lg font-semibold transition-all ${
             category === 'area'
               ? 'bg-blue-500 text-white'
               : 'bg-gray-200 hover:bg-gray-300'
@@ -160,7 +160,7 @@ export function UnitConverter() {
         </button>
         <button
           onClick={() => handleCategoryChange('volume')}
-          className={`flex-1 py-3 rounded-lg font-semibold transition-all ${
+          className={`flex-1 min-w-[100px] py-3 rounded-lg font-semibold transition-all ${
             category === 'volume'
               ? 'bg-blue-500 text-white'
               : 'bg-gray-200 hover:bg-gray-300'
@@ -170,7 +170,7 @@ export function UnitConverter() {
         </button>
         <button
           onClick={() => handleCategoryChange('digital')}
-          className={`flex-1 py-3 rounded-lg font-semibold transition-all ${
+          className={`flex-1 min-w-[100px] py-3 rounded-lg font-semibold transition-all ${
             category === 'digital'
               ? 'bg-blue-500 text-white'
               : 'bg-gray-200 hover:bg-gray-300'

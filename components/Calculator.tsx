@@ -262,12 +262,15 @@ export function Calculator() {
                     else if (btn === '.') handleDecimal();
                     else handleNumber(btn);
                   }}
-                  style={(isScientific && btn === '=') ? { gridColumn: 'span 4 / span 4' } : (!isScientific && btn === '=') ? { gridColumn: 'span 3 / span 3' } : {}}
+                  style={btn === '=' ? {
+                    gridColumn: isScientific ? 'span 4' : 'span 3',
+                    backgroundColor: 'var(--color-indigo-600)'
+                  } : {}}
                   className={`p-4 rounded-xl font-semibold text-lg transition-all active:scale-95 shadow-sm min-h-[64px] flex items-center justify-center ${
                     btn === 'C' || btn === '←'
                       ? 'bg-red-500 text-white hover:bg-red-600'
                       : btn === '='
-                      ? 'bg-indigo-600 text-white hover:bg-indigo-700'
+                      ? 'text-white hover:opacity-90'
                       : ['+', '-', '×', '÷', 'x^y'].includes(btn)
                       ? 'bg-blue-500 text-white hover:bg-blue-600'
                       : ['sin', 'cos', 'tan', 'log', 'ln', '√', 'x²', 'π', 'e'].includes(btn)

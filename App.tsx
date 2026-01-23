@@ -21,6 +21,9 @@ import {
   Image,
   Globe,
   CaseSensitive,
+  Columns,
+  Monitor,
+  Signal,
   Info,
   Mail,
   Shield,
@@ -64,6 +67,9 @@ import { URLEncoder } from "./components/URLEncoder";
 import { ImageCompressor } from "./components/ImageCompressor";
 import { IPAddressTool } from "./components/IPAddressTool";
 import { CaseConverter } from "./components/CaseConverter";
+import { DiffChecker } from "./components/DiffChecker";
+import { AspectRatioCalculator } from "./components/AspectRatioCalculator";
+import { MorseCodeConverter } from "./components/MorseCodeConverter";
 import { AdPlaceholder } from "./components/AdPlaceholder";
 import { About } from "./components/About";
 import { Contact } from "./components/Contact";
@@ -300,14 +306,6 @@ export default function App() {
       component: <NumberConverter />,
       category: "converters",
     },
-    {
-      id: "case-converter",
-      name: "Convertisseur de casse",
-      icon: <CaseSensitive className="w-6 h-6" />,
-      description: "camelCase, snake_case, kebab-case...",
-      component: <CaseConverter />,
-      category: "converters",
-    },
     // Text Tools
     {
       id: "word-counter",
@@ -315,6 +313,14 @@ export default function App() {
       icon: <Type className="w-6 h-6" />,
       description: "Compter les mots et caractères",
       component: <WordCounter />,
+      category: "text",
+    },
+    {
+      id: "case-converter",
+      name: "Convertisseur de casse",
+      icon: <CaseSensitive className="w-6 h-6" />,
+      description: "camelCase, snake_case, kebab-case...",
+      component: <CaseConverter />,
       category: "text",
     },
     {
@@ -339,6 +345,22 @@ export default function App() {
       icon: <FileCode className="w-6 h-6" />,
       description: "Prévisualiser votre Markdown",
       component: <MarkdownPreview />,
+      category: "text",
+    },
+    {
+      id: "diff-checker",
+      name: "Comparateur de texte",
+      icon: <Columns className="w-6 h-6" />,
+      description: "Comparer deux textes ligne par ligne",
+      component: <DiffChecker />,
+      category: "text",
+    },
+    {
+      id: "morse-code",
+      name: "Convertisseur Morse",
+      icon: <Signal className="w-6 h-6" />,
+      description: "Convertir texte en code Morse",
+      component: <MorseCodeConverter />,
       category: "text",
     },
     // Dev Tools
@@ -429,6 +451,14 @@ export default function App() {
       icon: <Globe className="w-6 h-6" />,
       description: "Afficher votre adresse IP et infos",
       component: <IPAddressTool />,
+      category: "other",
+    },
+    {
+      id: "aspect-ratio",
+      name: "Calculateur de Ratio",
+      icon: <Monitor className="w-6 h-6" />,
+      description: "Calculer les dimensions et l'aspect ratio",
+      component: <AspectRatioCalculator />,
       category: "other",
     },
     // Info Pages (hidden from categories)

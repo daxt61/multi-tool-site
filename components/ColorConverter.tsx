@@ -108,15 +108,79 @@ export function ColorConverter() {
   };
 
   return (
-    <div className="max-w-5xl mx-auto space-y-12">
-      {/* Visual Area */}
-      <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
-        <div className="lg:col-span-7 relative group">
-          <div
-            className="w-full h-[300px] lg:h-full min-h-[300px] rounded-[2.5rem] shadow-2xl transition-all duration-500 group-hover:scale-[1.01]"
-            style={{ backgroundColor: hex }}
+    <div className="max-w-2xl mx-auto">
+      {/* Color preview */}
+      <div
+        className="w-full h-48 rounded-lg mb-6 shadow-lg relative overflow-hidden focus-within:ring-4 focus-within:ring-indigo-500/20 transition-all"
+        style={{ backgroundColor: hex }}
+      >
+        <input
+          type="color"
+          value={hex}
+          onChange={(e) => updateFromHex(e.target.value)}
+          className="absolute inset-0 w-full h-full opacity-0 cursor-pointer outline-none"
+          title="Ouvrir le sélecteur de couleur"
+          aria-label="Sélecteur de couleur"
+        />
+      </div>
+
+      {/* HEX */}
+      <div className="bg-gray-50 p-6 rounded-lg mb-4">
+        <div className="flex items-center justify-between mb-3">
+          <label className="font-semibold text-lg">HEX</label>
+          <button
+            onClick={() => copyToClipboard(hex, 'hex')}
+            className="p-2 hover:bg-gray-200 rounded-lg transition-colors"
+            aria-label="Copier le code HEX"
           >
-            <div className="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent rounded-[2.5rem]"></div>
+            {copied === 'hex' ? <Check className="w-4 h-4" /> : <Copy className="w-4 h-4" />}
+          </button>
+        </div>
+        <input
+          type="text"
+          value={hex}
+          onChange={(e) => updateFromHex(e.target.value)}
+          className="w-full p-3 border border-gray-300 rounded-lg font-mono text-lg"
+        />
+      </div>
+
+      {/* RGB */}
+      <div className="bg-gray-50 p-6 rounded-lg mb-4">
+        <div className="flex items-center justify-between mb-3">
+          <label className="font-semibold text-lg">RGB</label>
+          <button
+            onClick={() => copyToClipboard(`rgb(${rgb.r}, ${rgb.g}, ${rgb.b})`, 'rgb')}
+            className="p-2 hover:bg-gray-200 rounded-lg transition-colors"
+            aria-label="Copier le code RGB"
+          >
+            {copied === 'rgb' ? <Check className="w-4 h-4" /> : <Copy className="w-4 h-4" />}
+          </button>
+        </div>
+        <div className="grid grid-cols-3 gap-3">
+          <div>
+            <label className="block text-sm text-gray-600 mb-1">R</label>
+            <input
+              type="number"
+              min="0"
+              max="255"
+              value={rgb.r}
+              onChange={(e) => updateFromRgb({ ...rgb, r: Number(e.target.value) })}
+              className="w-full p-3 border border-gray-300 rounded-lg"
+            />
+          </div>
+          <div>
+            <label className="block text-sm text-gray-600 mb-1">G</label>
+            <input
+              type="number"
+              min="0"
+              max="255"
+              value={rgb.g}
+              onChange={(e) => updateFromRgb({ ...rgb, g: Number(e.target.value) })}
+              className="w-full p-3 border border-gray-300 rounded-lg"
+            />
+          </div>
+          <div>
+            <label className="block text-sm text-gray-600 mb-1">B</label>
             <input
               type="color"
               value={hex}
@@ -126,30 +190,17 @@ export function ColorConverter() {
           </div>
         </div>
 
-        <div className="lg:col-span-5 space-y-4">
-          {[
-            { id: 'hex', label: 'HEX', value: hex.toUpperCase(), icon: <Hash className="w-4 h-4" /> },
-            { id: 'rgb', label: 'RGB', value: `rgb(${rgb.r}, ${rgb.g}, ${rgb.b})`, icon: <Palette className="w-4 h-4" /> },
-            { id: 'hsl', label: 'HSL', value: `hsl(${hsl.h}, ${hsl.s}%, ${hsl.l}%)`, icon: <Sliders className="w-4 h-4" /> },
-          ].map((item) => (
-            <div key={item.id} className="p-6 bg-slate-50 dark:bg-slate-900/50 border border-slate-200 dark:border-slate-800 rounded-3xl space-y-3 group transition-all hover:border-indigo-500/30">
-              <div className="flex items-center justify-between">
-                <div className="flex items-center gap-2 text-slate-400 group-hover:text-indigo-500 transition-colors">
-                  {item.icon}
-                  <span className="text-xs font-black uppercase tracking-widest">{item.label}</span>
-                </div>
-                <button
-                  onClick={() => copyToClipboard(item.value, item.id)}
-                  className={`p-2 rounded-xl transition-all ${copied === item.id ? 'bg-emerald-500 text-white' : 'text-slate-400 hover:bg-white dark:hover:bg-slate-800 hover:text-slate-600 shadow-sm border border-transparent hover:border-slate-100 dark:hover:border-slate-700'}`}
-                >
-                  {copied === item.id ? <Check className="w-4 h-4" /> : <Copy className="w-4 h-4" />}
-                </button>
-              </div>
-              <div className="text-2xl font-black font-mono dark:text-slate-200">
-                {item.value}
-              </div>
-            </div>
-          ))}
+      {/* HSL */}
+      <div className="bg-gray-50 p-6 rounded-lg">
+        <div className="flex items-center justify-between mb-3">
+          <label className="font-semibold text-lg">HSL</label>
+          <button
+            onClick={() => copyToClipboard(`hsl(${hsl.h}, ${hsl.s}%, ${hsl.l}%)`, 'hsl')}
+            className="p-2 hover:bg-gray-200 rounded-lg transition-colors"
+            aria-label="Copier le code HSL"
+          >
+            {copied === 'hsl' ? <Check className="w-4 h-4" /> : <Copy className="w-4 h-4" />}
+          </button>
         </div>
       </div>
 

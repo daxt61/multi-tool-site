@@ -1,219 +1,129 @@
+import { Mail, MessageSquare, Send, MapPin, Phone, Github, Twitter } from "lucide-react";
 import { useState } from "react";
-import { Mail, Send, User, MessageSquare, CheckCircle } from "lucide-react";
 
 export function Contact() {
-  const [formData, setFormData] = useState({
-    name: "",
-    email: "",
-    subject: "",
-    message: "",
-  });
   const [submitted, setSubmitted] = useState(false);
-
-  const handleChange = (
-    e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>
-  ) => {
-    const { name, value } = e.target;
-    setFormData((prev) => ({
-      ...prev,
-      [name]: value,
-    }));
-  };
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    // Simulation d'envoi - en production, intégrer avec un service d'email
     setSubmitted(true);
   };
 
-  if (submitted) {
-    return (
-      <div className="max-w-2xl mx-auto text-center py-12">
-        <div className="bg-green-50 rounded-xl p-8">
-          <div className="flex justify-center mb-4">
-            <div className="p-4 bg-green-500 text-white rounded-full">
-              <CheckCircle className="w-12 h-12" />
-            </div>
-          </div>
-          <h3 className="text-2xl font-bold text-green-800 mb-2">
-            Message Envoyé !
-          </h3>
-          <p className="text-green-700 mb-6">
-            Merci de nous avoir contactés. Nous reviendrons vers vous dans les
-            plus brefs délais.
-          </p>
-          <button
-            onClick={() => {
-              setSubmitted(false);
-              setFormData({ name: "", email: "", subject: "", message: "" });
-            }}
-            className="px-6 py-3 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors"
-          >
-            Envoyer un autre message
-          </button>
-        </div>
-      </div>
-    );
-  }
-
   return (
-    <div className="max-w-4xl mx-auto">
-      <div className="grid md:grid-cols-3 gap-8">
-        {/* Informations de contact */}
-        <div className="md:col-span-1 space-y-6">
-          <div className="bg-gradient-to-br from-blue-50 to-indigo-50 rounded-xl p-6">
-            <h3 className="text-lg font-semibold text-gray-900 mb-4">
-              Nous Contacter
-            </h3>
-            <p className="text-gray-600 text-sm mb-6">
-              Vous avez une question, une suggestion ou vous souhaitez nous
-              signaler un problème ? N'hésitez pas à nous écrire.
+    <div className="max-w-6xl mx-auto py-8">
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-16">
+        {/* Info Side */}
+        <div className="space-y-12">
+          <div>
+            <h2 className="text-4xl md:text-5xl font-black text-gray-900 dark:text-white mb-6">
+              Une question ? <br />
+              <span className="text-indigo-600 dark:text-indigo-400">Contactez-nous.</span>
+            </h2>
+            <p className="text-xl text-gray-500 dark:text-gray-400 leading-relaxed">
+              Nous sommes à votre écoute pour toute suggestion d'outil, signalement de bug ou demande de partenariat.
             </p>
+          </div>
 
-            <div className="space-y-4">
-              <div className="flex items-center gap-3">
-                <div className="p-2 bg-white rounded-lg shadow-sm">
-                  <Mail className="w-5 h-5 text-indigo-600" />
-                </div>
-                <div>
-                  <p className="text-xs text-gray-500">Email</p>
-                  <p className="text-sm font-medium text-gray-900">
-                    contact@boiteaoutils.fr
-                  </p>
-                </div>
+          <div className="space-y-6">
+            <div className="flex items-center gap-6 p-6 bg-white dark:bg-gray-800 rounded-3xl border border-gray-100 dark:border-gray-700 shadow-sm group hover:border-indigo-500 transition-colors">
+              <div className="p-4 bg-indigo-50 dark:bg-indigo-500/10 text-indigo-600 dark:text-indigo-400 rounded-2xl group-hover:bg-indigo-600 group-hover:text-white transition-all">
+                <Mail className="w-6 h-6" />
+              </div>
+              <div>
+                <p className="text-sm font-bold text-gray-400 uppercase tracking-widest mb-1">Email</p>
+                <p className="text-xl font-bold text-gray-900 dark:text-white">contact@boiteaoutils.com</p>
+              </div>
+            </div>
+
+            <div className="flex items-center gap-6 p-6 bg-white dark:bg-gray-800 rounded-3xl border border-gray-100 dark:border-gray-700 shadow-sm group hover:border-indigo-500 transition-colors">
+              <div className="p-4 bg-purple-50 dark:bg-purple-500/10 text-purple-600 dark:text-purple-400 rounded-2xl group-hover:bg-purple-600 group-hover:text-white transition-all">
+                <MessageSquare className="w-6 h-6" />
+              </div>
+              <div>
+                <p className="text-sm font-bold text-gray-400 uppercase tracking-widest mb-1">Support</p>
+                <p className="text-xl font-bold text-gray-900 dark:text-white">Réponse sous 24h</p>
               </div>
             </div>
           </div>
 
-          <div className="bg-white border border-gray-200 rounded-xl p-6">
-            <h4 className="font-semibold text-gray-900 mb-3">
-              Délai de réponse
-            </h4>
-            <p className="text-gray-600 text-sm">
-              Nous nous efforçons de répondre à tous les messages dans un délai
-              de 24 à 48 heures ouvrées.
-            </p>
+          <div className="flex gap-4">
+             <button className="p-4 bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-400 rounded-2xl hover:bg-indigo-600 hover:text-white transition-all shadow-sm">
+                <Github className="w-6 h-6" />
+             </button>
+             <button className="p-4 bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-400 rounded-2xl hover:bg-sky-500 hover:text-white transition-all shadow-sm">
+                <Twitter className="w-6 h-6" />
+             </button>
           </div>
         </div>
 
-        {/* Formulaire */}
-        <div className="md:col-span-2">
-          <form onSubmit={handleSubmit} className="bg-white border border-gray-200 rounded-xl p-6">
-            <h3 className="text-xl font-semibold text-gray-900 mb-6">
-              Envoyez-nous un message
-            </h3>
-
-            <div className="space-y-5">
-              {/* Nom */}
-              <div>
-                <label
-                  htmlFor="name"
-                  className="block text-sm font-medium text-gray-700 mb-1"
-                >
-                  Nom complet
-                </label>
-                <div className="relative">
-                  <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                    <User className="w-5 h-5 text-gray-400" />
-                  </div>
+        {/* Form Side */}
+        <div className="bg-white dark:bg-gray-800 p-10 rounded-[3rem] border border-gray-100 dark:border-gray-700 shadow-2xl shadow-indigo-500/5 relative overflow-hidden">
+          {submitted ? (
+            <div className="h-full flex flex-col items-center justify-center text-center space-y-6 py-12 animate-in fade-in zoom-in duration-500">
+              <div className="w-24 h-24 bg-green-100 dark:bg-green-500/20 text-green-600 dark:text-green-400 rounded-full flex items-center justify-center">
+                <Send className="w-12 h-12" />
+              </div>
+              <h3 className="text-3xl font-black text-gray-900 dark:text-white">Message envoyé !</h3>
+              <p className="text-gray-500 dark:text-gray-400 text-lg">Merci de nous avoir contactés. Nous vous répondrons dans les plus brefs délais.</p>
+              <button
+                onClick={() => setSubmitted(false)}
+                className="px-8 py-3 bg-indigo-600 text-white rounded-xl font-bold hover:bg-indigo-700 transition-colors"
+              >
+                Envoyer un autre message
+              </button>
+            </div>
+          ) : (
+            <form onSubmit={handleSubmit} className="space-y-8 relative z-10">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+                <div className="space-y-2">
+                  <label className="text-sm font-bold text-gray-500 dark:text-gray-400 uppercase tracking-widest ml-1">Nom complet</label>
                   <input
+                    required
                     type="text"
-                    id="name"
-                    name="name"
-                    value={formData.name}
-                    onChange={handleChange}
-                    required
-                    className="w-full pl-10 pr-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-colors"
-                    placeholder="Votre nom"
+                    className="w-full p-4 bg-gray-50 dark:bg-gray-900 border-2 border-transparent focus:border-indigo-500 rounded-2xl outline-none transition-all dark:text-white"
+                    placeholder="Jean Dupont"
                   />
                 </div>
-              </div>
-
-              {/* Email */}
-              <div>
-                <label
-                  htmlFor="email"
-                  className="block text-sm font-medium text-gray-700 mb-1"
-                >
-                  Adresse email
-                </label>
-                <div className="relative">
-                  <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                    <Mail className="w-5 h-5 text-gray-400" />
-                  </div>
+                <div className="space-y-2">
+                  <label className="text-sm font-bold text-gray-500 dark:text-gray-400 uppercase tracking-widest ml-1">Email</label>
                   <input
-                    type="email"
-                    id="email"
-                    name="email"
-                    value={formData.email}
-                    onChange={handleChange}
                     required
-                    className="w-full pl-10 pr-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-colors"
-                    placeholder="votre@email.com"
+                    type="email"
+                    className="w-full p-4 bg-gray-50 dark:bg-gray-900 border-2 border-transparent focus:border-indigo-500 rounded-2xl outline-none transition-all dark:text-white"
+                    placeholder="jean@exemple.com"
                   />
                 </div>
               </div>
 
-              {/* Sujet */}
-              <div>
-                <label
-                  htmlFor="subject"
-                  className="block text-sm font-medium text-gray-700 mb-1"
-                >
-                  Sujet
-                </label>
-                <select
-                  id="subject"
-                  name="subject"
-                  value={formData.subject}
-                  onChange={handleChange}
-                  required
-                  className="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-colors"
-                >
-                  <option value="">Sélectionnez un sujet</option>
-                  <option value="question">Question générale</option>
-                  <option value="suggestion">Suggestion d'amélioration</option>
-                  <option value="bug">Signaler un problème</option>
-                  <option value="partnership">Partenariat</option>
-                  <option value="other">Autre</option>
+              <div className="space-y-2">
+                <label className="text-sm font-bold text-gray-500 dark:text-gray-400 uppercase tracking-widest ml-1">Sujet</label>
+                <select className="w-full p-4 bg-gray-50 dark:bg-gray-900 border-2 border-transparent focus:border-indigo-500 rounded-2xl outline-none transition-all dark:text-white appearance-none">
+                  <option>Suggestion d'outil</option>
+                  <option>Signalement de bug</option>
+                  <option>Partenariat</option>
+                  <option>Autre</option>
                 </select>
               </div>
 
-              {/* Message */}
-              <div>
-                <label
-                  htmlFor="message"
-                  className="block text-sm font-medium text-gray-700 mb-1"
-                >
-                  Message
-                </label>
-                <div className="relative">
-                  <div className="absolute top-3 left-3 pointer-events-none">
-                    <MessageSquare className="w-5 h-5 text-gray-400" />
-                  </div>
-                  <textarea
-                    id="message"
-                    name="message"
-                    value={formData.message}
-                    onChange={handleChange}
-                    required
-                    rows={5}
-                    className="w-full pl-10 pr-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-colors resize-none"
-                    placeholder="Décrivez votre demande en détail..."
-                  />
-                </div>
+              <div className="space-y-2">
+                <label className="text-sm font-bold text-gray-500 dark:text-gray-400 uppercase tracking-widest ml-1">Message</label>
+                <textarea
+                  required
+                  rows={5}
+                  className="w-full p-4 bg-gray-50 dark:bg-gray-900 border-2 border-transparent focus:border-indigo-500 rounded-2xl outline-none transition-all dark:text-white resize-none"
+                  placeholder="Comment pouvons-nous vous aider ?"
+                />
               </div>
 
-              {/* Bouton d'envoi */}
               <button
                 type="submit"
-                className="w-full flex items-center justify-center gap-2 px-6 py-3 bg-gradient-to-r from-blue-600 to-indigo-600 text-white rounded-lg hover:from-blue-700 hover:to-indigo-700 transition-all font-medium"
+                className="w-full py-5 bg-indigo-600 text-white rounded-2xl font-black text-xl hover:bg-indigo-700 transition-all shadow-xl shadow-indigo-600/20 active:scale-[0.98] flex items-center justify-center gap-3"
               >
-                <Send className="w-5 h-5" />
                 Envoyer le message
+                <Send className="w-6 h-6" />
               </button>
-            </div>
-          </form>
+            </form>
+          )}
         </div>
       </div>
     </div>

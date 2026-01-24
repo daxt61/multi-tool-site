@@ -1,110 +1,94 @@
 import { useState } from 'react';
-import { Copy, Check } from 'lucide-react';
+import { Shield, Copy, Check, RefreshCcw } from 'lucide-react';
 
 export function HashGenerator() {
-  const [text, setText] = useState('');
-  const [hashes, setHashes] = useState({ sha256: '', sha512: '' });
+  const [inputText, setInputText] = useState('');
+  const [hashes, setHashes] = useState<{ [key: string]: string }>({
+    'SHA-256': '',
+    'SHA-512': '',
+  });
   const [copied, setCopied] = useState<string | null>(null);
 
-  const generateHashes = async (input: string) => {
-    setText(input);
-    if (!input) {
-      setHashes({ sha256: '', sha512: '' });
+  const generateHashes = async (text: string) => {
+    setInputText(text);
+    if (!text) {
+      setHashes({ 'SHA-256': '', 'SHA-512': '' });
       return;
     }
 
     const encoder = new TextEncoder();
-    const data = encoder.encode(input);
+    const data = encoder.encode(text);
 
-    const sha256Buffer = await crypto.subtle.digest('SHA-256', data);
-    const sha512Buffer = await crypto.subtle.digest('SHA-512', data);
+    const hashAlgorithms = ['SHA-256', 'SHA-512'];
+    const newHashes: { [key: string]: string } = {};
 
-    const bufferToHex = (buffer: ArrayBuffer) => {
-      return Array.from(new Uint8Array(buffer))
-        .map(b => b.toString(16).padStart(2, '0'))
-        .join('');
-    };
+    for (const algo of hashAlgorithms) {
+      const hashBuffer = await crypto.subtle.digest(algo, data);
+      const hashArray = Array.from(new Uint8Array(hashBuffer));
+      const hashHex = hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
+      newHashes[algo] = hashHex;
+    }
 
-    setHashes({
-      sha256: bufferToHex(sha256Buffer),
-      sha512: bufferToHex(sha512Buffer)
-    });
+    setHashes(newHashes);
   };
 
-  const copyToClipboard = (hash: string, type: string) => {
-    navigator.clipboard.writeText(hash);
-    setCopied(type);
+  const copyToClipboard = (text: string, algo: string) => {
+    navigator.clipboard.writeText(text);
+    setCopied(algo);
     setTimeout(() => setCopied(null), 2000);
   };
 
   return (
-    <div className="max-w-4xl mx-auto">
-      <div className="mb-8">
-        <label className="block text-sm font-semibold text-gray-700 mb-2">
+    <div className="max-w-4xl mx-auto space-y-8">
+      <div className="space-y-4">
+        <label className="block text-sm font-bold text-gray-700 dark:text-gray-300 uppercase tracking-wider">
           Texte à hasher
         </label>
         <textarea
-          value={text}
+          value={inputText}
           onChange={(e) => generateHashes(e.target.value)}
           placeholder="Entrez votre texte ici..."
-          className="w-full h-32 p-4 border border-gray-300 rounded-lg resize-none focus:outline-none focus:ring-2 focus:ring-blue-500"
+          className="w-full h-32 p-4 bg-white dark:bg-gray-800 border-2 border-gray-100 dark:border-gray-700 rounded-2xl focus:ring-4 focus:ring-indigo-500/10 focus:border-indigo-500 outline-none transition-all dark:text-white"
         />
       </div>
 
-      <div className="space-y-6">
-        <div>
-          <div className="flex items-center justify-between mb-2">
-            <span className="font-bold text-gray-700">SHA-256</span>
-            <button
-              onClick={() => copyToClipboard(hashes.sha256, 'sha256')}
-              disabled={!hashes.sha256}
-              className="flex items-center gap-2 text-sm text-blue-600 hover:text-blue-700 disabled:opacity-50"
-            >
-              {copied === 'sha256' ? <Check className="w-4 h-4" /> : <Copy className="w-4 h-4" />}
-              {copied === 'sha256' ? 'Copié !' : 'Copier'}
-            </button>
+      <div className="grid gap-6">
+        {Object.entries(hashes).map(([algo, hash]) => (
+          <div key={algo} className="bg-gray-50 dark:bg-gray-900/50 rounded-2xl p-6 border border-gray-100 dark:border-gray-800">
+            <div className="flex justify-between items-center mb-4">
+              <span className="px-3 py-1 bg-indigo-100 dark:bg-indigo-900/30 text-indigo-600 dark:text-indigo-400 rounded-lg text-xs font-bold tracking-widest">
+                {algo}
+              </span>
+              <button
+                onClick={() => copyToClipboard(hash, algo)}
+                disabled={!hash}
+                className="flex items-center gap-2 text-sm font-bold text-indigo-600 dark:text-indigo-400 hover:text-indigo-700 disabled:opacity-30 disabled:cursor-not-allowed transition-colors"
+              >
+                {copied === algo ? (
+                  <>
+                    <Check className="w-4 h-4" />
+                    Copié !
+                  </>
+                ) : (
+                  <>
+                    <Copy className="w-4 h-4" />
+                    Copier
+                  </>
+                )}
+              </button>
+            </div>
+            <div className="font-mono text-sm break-all bg-white dark:bg-gray-800 p-4 rounded-xl border border-gray-100 dark:border-gray-700 text-gray-700 dark:text-gray-300">
+              {hash || 'En attente de texte...'}
+            </div>
           </div>
-          <div className="bg-gray-50 p-4 rounded-lg font-mono text-sm break-all border border-gray-200">
-            {hashes.sha256 || <span className="text-gray-400">Le hash apparaîtra ici...</span>}
-          </div>
-        </div>
-
-        <div>
-          <div className="flex items-center justify-between mb-2">
-            <span className="font-bold text-gray-700">SHA-512</span>
-            <button
-              onClick={() => copyToClipboard(hashes.sha512, 'sha512')}
-              disabled={!hashes.sha512}
-              className="flex items-center gap-2 text-sm text-blue-600 hover:text-blue-700 disabled:opacity-50"
-            >
-              {copied === 'sha512' ? <Check className="w-4 h-4" /> : <Copy className="w-4 h-4" />}
-              {copied === 'sha512' ? 'Copié !' : 'Copier'}
-            </button>
-          </div>
-          <div className="bg-gray-50 p-4 rounded-lg font-mono text-sm break-all border border-gray-200">
-            {hashes.sha512 || <span className="text-gray-400">Le hash apparaîtra ici...</span>}
-          </div>
-        </div>
+        ))}
       </div>
 
-      {/* SEO Content Section */}
-      <div className="mt-12 grid grid-cols-1 md:grid-cols-2 gap-8 border-t border-gray-200 pt-12 text-left">
-        <div>
-          <h2 className="text-2xl font-bold text-gray-800 mb-4">Qu'est-ce qu'un Hash cryptographique ?</h2>
-          <p className="text-gray-600 mb-4">
-            Un hash est une "empreinte numérique" d'une donnée. Quelle que soit la taille de votre texte d'entrée, l'algorithme produit une chaîne de caractères de longueur fixe. C'est un processus à sens unique : il est impossible de retrouver le texte original à partir du hash.
-          </p>
-          <p className="text-gray-600">
-            Les algorithmes SHA-256 et SHA-512 sont largement utilisés pour vérifier l'intégrité des fichiers, stocker des mots de passe (avec du sel) et dans la technologie blockchain.
-          </p>
-        </div>
-        <div>
-          <h2 className="text-2xl font-bold text-gray-800 mb-4">Pourquoi utiliser notre générateur de hash ?</h2>
-          <ul className="list-disc pl-5 text-gray-600 space-y-2">
-            <li><strong>Sécurité locale :</strong> Les calculs sont effectués directement dans votre navigateur via l'API Web Crypto. Votre texte n'est jamais envoyé sur un serveur.</li>
-            <li><strong>Intégrité des données :</strong> Comparez le hash d'un fichier téléchargé avec celui fourni par la source pour vous assurer qu'il n'a pas été modifié.</li>
-            <li><strong>Support multi-format :</strong> Nous supportons les standards industriels SHA-256 et SHA-512.</li>
-          </ul>
+      <div className="bg-blue-50 dark:bg-blue-900/20 p-6 rounded-2xl flex items-start gap-4 border border-blue-100 dark:border-blue-900/30">
+        <Shield className="w-6 h-6 text-blue-600 dark:text-blue-400 flex-shrink-0" />
+        <div className="text-sm text-blue-800 dark:text-blue-300">
+          <p className="font-bold mb-1">Note sur la sécurité</p>
+          Le hashage est effectué localement dans votre navigateur. Votre texte n'est jamais envoyé à un serveur.
         </div>
       </div>
     </div>

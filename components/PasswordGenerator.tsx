@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { Copy, RefreshCw, Check } from 'lucide-react';
+import { Copy, RefreshCw, Check, Shield, ShieldAlert, ShieldCheck } from 'lucide-react';
 
 export function PasswordGenerator() {
   const [password, setPassword] = useState('');
@@ -23,12 +23,18 @@ export function PasswordGenerator() {
     }
 
     let newPassword = '';
+    const array = new Uint32Array(length);
+    window.crypto.getRandomValues(array);
     for (let i = 0; i < length; i++) {
-      newPassword += charset.charAt(Math.floor(Math.random() * charset.length));
+      newPassword += charset.charAt(array[i] % charset.length);
     }
     setPassword(newPassword);
     setCopied(false);
   };
+
+  useEffect(() => {
+    generatePassword();
+  }, []);
 
   const copyToClipboard = () => {
     navigator.clipboard.writeText(password);
@@ -37,18 +43,18 @@ export function PasswordGenerator() {
   };
 
   const getStrength = () => {
-    if (!password) return { label: '', color: '' };
+    if (!password) return { label: '', color: 'bg-gray-200', icon: <ShieldAlert /> };
     let score = 0;
     if (password.length >= 12) score++;
-    if (password.length >= 16) score++;
+    if (password.length >= 20) score++;
     if (/[a-z]/.test(password)) score++;
     if (/[A-Z]/.test(password)) score++;
     if (/[0-9]/.test(password)) score++;
     if (/[^a-zA-Z0-9]/.test(password)) score++;
 
-    if (score <= 2) return { label: 'Faible', color: 'bg-red-500' };
-    if (score <= 4) return { label: 'Moyen', color: 'bg-yellow-500' };
-    return { label: 'Fort', color: 'bg-green-500' };
+    if (score <= 3) return { label: 'Faible', color: 'bg-red-500', icon: <ShieldAlert className="w-5 h-5" /> };
+    if (score <= 5) return { label: 'Moyen', color: 'bg-yellow-500', icon: <Shield className="w-5 h-5" /> };
+    return { label: 'Fort', color: 'bg-green-500', icon: <ShieldCheck className="w-5 h-5" /> };
   };
 
   const strength = getStrength();
@@ -58,46 +64,68 @@ export function PasswordGenerator() {
   }, []);
 
   return (
-    <div className="max-w-2xl mx-auto">
+    <div className="max-w-3xl mx-auto">
       {/* Password display */}
-      <div className="bg-gray-900 text-white p-6 rounded-lg mb-6">
-        <div className="flex items-center gap-3 mb-3">
+      <div className="bg-gray-900 dark:bg-black p-8 rounded-[2.5rem] mb-8 shadow-2xl relative overflow-hidden group">
+        <div className="absolute top-0 right-0 w-64 h-64 bg-indigo-600/10 rounded-full blur-3xl -mr-32 -mt-32 transition-colors group-hover:bg-indigo-600/20"></div>
+
+        <div className="flex flex-col md:flex-row items-center gap-6 relative z-10">
           <input
             type="text"
             value={password}
             readOnly
-            placeholder="Cliquez sur Générer"
-            className="flex-1 bg-transparent text-2xl font-mono outline-none"
+            placeholder="Génération..."
+            className="flex-1 bg-transparent text-3xl md:text-4xl font-mono text-white outline-none tracking-wider w-full text-center md:text-left"
           />
-          <button
-            onClick={copyToClipboard}
-            disabled={!password}
-            className="p-3 hover:bg-gray-800 rounded-lg transition-colors disabled:opacity-50"
-            title="Copier"
-          >
-            {copied ? <Check className="w-5 h-5" /> : <Copy className="w-5 h-5" />}
-          </button>
+          <div className="flex gap-2">
+            <button
+              onClick={generatePassword}
+              className="p-4 bg-white/10 hover:bg-white/20 text-white rounded-2xl transition-all active:scale-95"
+              title="Régénérer"
+            >
+              <RefreshCw className="w-6 h-6" />
+            </button>
+            <button
+              onClick={copyToClipboard}
+              disabled={!password}
+              className={`p-4 rounded-2xl transition-all active:scale-95 flex items-center gap-2 font-bold ${
+                copied ? 'bg-green-500 text-white' : 'bg-indigo-600 hover:bg-indigo-500 text-white shadow-lg shadow-indigo-600/20'
+              }`}
+            >
+              {copied ? <Check className="w-6 h-6" /> : <Copy className="w-6 h-6" />}
+              {copied ? 'Copié' : 'Copier'}
+            </button>
+          </div>
         </div>
+
         {password && (
-          <div className="flex items-center gap-2">
-            <div className="flex-1 bg-gray-700 h-2 rounded-full overflow-hidden">
+          <div className="mt-8 pt-8 border-t border-white/10">
+            <div className="flex items-center justify-between mb-3 px-1">
+              <div className="flex items-center gap-2 text-white/60 font-bold uppercase tracking-widest text-xs">
+                {strength.icon} Sécurité : {strength.label}
+              </div>
+              <span className="text-white/40 font-mono text-xs">{password.length} caractères</span>
+            </div>
+            <div className="bg-white/5 h-3 rounded-full overflow-hidden p-0.5">
               <div
-                className={`h-full transition-all ${strength.color}`}
+                className={`h-full rounded-full transition-all duration-500 ${strength.color}`}
                 style={{
                   width: strength.label === 'Faible' ? '33%' : strength.label === 'Moyen' ? '66%' : '100%'
                 }}
               />
             </div>
-            <span className="text-sm">{strength.label}</span>
           </div>
         )}
       </div>
 
       {/* Options */}
-      <div className="space-y-4 mb-6">
-        <div>
-          <div className="flex justify-between mb-2">
-            <label className="font-semibold">Longueur: {length}</label>
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-8 mb-8">
+        <div className="bg-white dark:bg-gray-800 p-8 rounded-[2rem] border border-gray-100 dark:border-gray-700 shadow-sm">
+          <div className="flex justify-between items-center mb-6">
+            <label className="font-bold text-gray-900 dark:text-white text-lg">Longueur</label>
+            <span className="bg-indigo-50 dark:bg-indigo-500/10 text-indigo-600 dark:text-indigo-400 px-4 py-1 rounded-full font-mono font-bold text-xl">
+              {length}
+            </span>
           </div>
           <input
             type="range"
@@ -105,79 +133,51 @@ export function PasswordGenerator() {
             max="64"
             value={length}
             onChange={(e) => setLength(Number(e.target.value))}
-            className="w-full"
+            className="w-full h-2 bg-gray-200 dark:bg-gray-700 rounded-lg appearance-none cursor-pointer accent-indigo-600"
           />
+          <div className="flex justify-between mt-3 text-xs font-bold text-gray-400 uppercase tracking-tighter">
+            <span>4</span>
+            <span>64</span>
+          </div>
         </div>
 
-        <label className="flex items-center gap-3 p-3 bg-gray-50 rounded-lg cursor-pointer hover:bg-gray-100">
-          <input
-            type="checkbox"
-            checked={includeUppercase}
-            onChange={(e) => setIncludeUppercase(e.target.checked)}
-            className="w-5 h-5"
-          />
-          <span>Majuscules (A-Z)</span>
-        </label>
-
-        <label className="flex items-center gap-3 p-3 bg-gray-50 rounded-lg cursor-pointer hover:bg-gray-100">
-          <input
-            type="checkbox"
-            checked={includeLowercase}
-            onChange={(e) => setIncludeLowercase(e.target.checked)}
-            className="w-5 h-5"
-          />
-          <span>Minuscules (a-z)</span>
-        </label>
-
-        <label className="flex items-center gap-3 p-3 bg-gray-50 rounded-lg cursor-pointer hover:bg-gray-100">
-          <input
-            type="checkbox"
-            checked={includeNumbers}
-            onChange={(e) => setIncludeNumbers(e.target.checked)}
-            className="w-5 h-5"
-          />
-          <span>Chiffres (0-9)</span>
-        </label>
-
-        <label className="flex items-center gap-3 p-3 bg-gray-50 rounded-lg cursor-pointer hover:bg-gray-100">
-          <input
-            type="checkbox"
-            checked={includeSymbols}
-            onChange={(e) => setIncludeSymbols(e.target.checked)}
-            className="w-5 h-5"
-          />
-          <span>Symboles (!@#$%^&*)</span>
-        </label>
+        <div className="grid grid-cols-1 gap-3">
+          {[
+            { id: 'upper', label: 'Majuscules', sub: 'A-Z', state: includeUppercase, setState: setIncludeUppercase },
+            { id: 'lower', label: 'Minuscules', sub: 'a-z', state: includeLowercase, setState: setIncludeLowercase },
+            { id: 'numbers', label: 'Chiffres', sub: '0-9', state: includeNumbers, setState: setIncludeNumbers },
+            { id: 'symbols', label: 'Symboles', sub: '#@$!', state: includeSymbols, setState: setIncludeSymbols },
+          ].map((opt) => (
+            <button
+              key={opt.id}
+              onClick={() => opt.setState(!opt.state)}
+              className={`flex items-center justify-between p-4 rounded-2xl border-2 transition-all ${
+                opt.state
+                ? 'bg-indigo-50 dark:bg-indigo-500/10 border-indigo-600/20 dark:border-indigo-500/30 text-indigo-600 dark:text-indigo-400'
+                : 'bg-white dark:bg-gray-800 border-gray-100 dark:border-gray-700 text-gray-400'
+              }`}
+            >
+              <div className="text-left">
+                <div className="font-bold">{opt.label}</div>
+                <div className="text-xs opacity-60 font-mono">{opt.sub}</div>
+              </div>
+              <div className={`w-6 h-6 rounded-lg border-2 flex items-center justify-center transition-colors ${
+                opt.state ? 'bg-indigo-600 border-indigo-600 text-white' : 'border-gray-200 dark:border-gray-600'
+              }`}>
+                {opt.state && <Check className="w-4 h-4 stroke-[3]" />}
+              </div>
+            </button>
+          ))}
+        </div>
       </div>
 
-      {/* Generate button */}
-      <button
-        onClick={generatePassword}
-        className="w-full py-4 bg-gradient-to-r from-blue-500 to-indigo-600 text-white rounded-lg font-semibold hover:from-blue-600 hover:to-indigo-700 transition-all flex items-center justify-center gap-2"
-      >
-        <RefreshCw className="w-5 h-5" />
-        Générer un mot de passe
-      </button>
-
-      {/* SEO Content Section */}
-      <div className="mt-12 grid grid-cols-1 md:grid-cols-2 gap-8 border-t border-gray-200 pt-12 text-left">
-        <div>
-          <h2 className="text-2xl font-bold text-gray-800 mb-4">Pourquoi utiliser un générateur de mot de passe ?</h2>
-          <p className="text-gray-600 mb-4">
-            La sécurité en ligne commence par des mots de passe robustes. Utiliser le même mot de passe pour plusieurs sites ou choisir des termes faciles à deviner (comme "123456" ou "motdepasse") vous expose au piratage. Notre générateur crée des chaînes de caractères aléatoires impossibles à craquer par force brute.
-          </p>
-          <p className="text-gray-600">
-            En combinant majuscules, minuscules, chiffres et symboles, vous augmentez de manière exponentielle le temps nécessaire à un attaquant pour compromettre votre compte.
-          </p>
+      <div className="p-6 bg-indigo-50 dark:bg-indigo-500/5 rounded-2xl border border-indigo-100 dark:border-indigo-500/10 flex items-start gap-4">
+        <div className="p-2 bg-white dark:bg-gray-800 rounded-xl text-indigo-600 dark:text-indigo-400 shadow-sm">
+          <ShieldCheck className="w-6 h-6" />
         </div>
-        <div>
-          <h2 className="text-2xl font-bold text-gray-800 mb-4">Conseils pour une sécurité maximale</h2>
-          <ul className="list-disc pl-5 text-gray-600 space-y-2">
-            <li><strong>Longueur :</strong> Nous recommandons une longueur minimale de 12 à 16 caractères pour une sécurité optimale.</li>
-            <li><strong>Variété :</strong> Cochez toutes les options (Majuscules, Chiffres, Symboles) pour une complexité maximale.</li>
-            <li><strong>Gestionnaire de mots de passe :</strong> Puisque ces mots de passe sont complexes, utilisez un gestionnaire de mots de passe pour les stocker en toute sécurité.</li>
-          </ul>
-        </div>
+        <p className="text-indigo-700 dark:text-indigo-300/80 text-sm font-medium leading-relaxed">
+          Vos mots de passe sont générés localement dans votre navigateur en utilisant une source d'aléas cryptographiquement sûre. <strong>Aucune donnée n'est envoyée à nos serveurs.</strong>
+        </p>
       </div>
     </div>
   );

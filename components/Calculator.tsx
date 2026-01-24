@@ -51,7 +51,7 @@ export function Calculator() {
       case '+': return a + b;
       case '-': return a - b;
       case '×': return a * b;
-      case '÷': return b !== 0 ? a / b : 0;
+      case '÷': return b !== 0 ? a / b : NaN;
       case 'x^y': return Math.pow(a, b);
       default: return b;
     }
@@ -88,11 +88,11 @@ export function Calculator() {
       default: return;
     }
 
-    const resultStr = String(Number(result.toFixed(10)));
+    const resultStr = isNaN(result) ? 'Erreur' : String(Number(result.toFixed(10)));
     setDisplay(resultStr);
     setNewNumber(true);
 
-    const expression = `${action}(${current})`;
+    const expression = `${action}(${isNaN(current) ? 'Erreur' : current})`;
     const newHistory = [{ expression, result: resultStr }, ...history].slice(0, 10);
     setHistory(newHistory);
     localStorage.setItem('calc_history', JSON.stringify(newHistory));
@@ -102,8 +102,8 @@ export function Calculator() {
     if (operation && previousValue !== null) {
       const current = parseFloat(display);
       const result = calculate(previousValue, current, operation);
-      const expression = `${previousValue} ${operation} ${current}`;
-      const resultStr = String(result);
+      const expression = `${isNaN(previousValue) ? 'Erreur' : previousValue} ${operation} ${isNaN(current) ? 'Erreur' : current}`;
+      const resultStr = isNaN(result) ? 'Erreur' : String(result);
 
       const newHistory = [{ expression, result: resultStr }, ...history].slice(0, 10);
       setHistory(newHistory);
@@ -222,7 +222,7 @@ export function Calculator() {
             <div className="text-sm font-bold text-slate-400 dark:text-slate-500 mb-2 h-6 flex justify-end items-center gap-2">
               {previousValue !== null && operation && (
                 <>
-                  <span>{previousValue}</span>
+                  <span>{isNaN(previousValue) ? 'Erreur' : previousValue}</span>
                   <span className="text-indigo-500">{operation}</span>
                 </>
               )}

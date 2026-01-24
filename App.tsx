@@ -48,6 +48,7 @@ import {
   CreditCard,
   Briefcase,
   Search,
+  Shuffle,
   Sun,
   Moon,
   Music,
@@ -56,6 +57,33 @@ import {
   ArrowRight, Loader2,
   Sparkles,
 } from "lucide-react";
+import { Calculator } from "./components/Calculator";
+import { UnitConverter } from "./components/UnitConverter";
+import { PasswordGenerator } from "./components/PasswordGenerator";
+import { WordCounter } from "./components/WordCounter";
+import { ColorConverter } from "./components/ColorConverter";
+import { TimerTool } from "./components/TimerTool";
+import { TextFormatter } from "./components/TextFormatter";
+import { NumberConverter } from "./components/NumberConverter";
+import { QRCodeGenerator } from "./components/QRCodeGenerator";
+import { PercentageCalculator } from "./components/PercentageCalculator";
+import { LoremIpsumGenerator } from "./components/LoremIpsumGenerator";
+import { CurrencyConverter } from "./components/CurrencyConverter";
+import { BMICalculator } from "./components/BMICalculator";
+import { UUIDGenerator } from "./components/UUIDGenerator";
+import { Base64Tool } from "./components/Base64Tool";
+import { DateCalculator } from "./components/DateCalculator";
+import { MarkdownPreview } from "./components/MarkdownPreview";
+import { JSONFormatter } from "./components/JSONFormatter";
+import { URLEncoder } from "./components/URLEncoder";
+import { ImageCompressor } from "./components/ImageCompressor";
+import { IPAddressTool } from "./components/IPAddressTool";
+import { CaseConverter } from "./components/CaseConverter";
+import { DiffChecker } from "./components/DiffChecker";
+import { AspectRatioCalculator } from "./components/AspectRatioCalculator";
+import { MorseCodeConverter } from "./components/MorseCodeConverter";
+import { UnixTimestampConverter } from "./components/UnixTimestampConverter";
+import { RandomGenerator } from "./components/RandomGenerator";
 import { AdPlaceholder } from "./components/AdPlaceholder";
 
 
@@ -387,6 +415,14 @@ const tools: Tool[] = [
     category: "dev",
   },
   {
+    id: "unix-timestamp",
+    name: "Unix Timestamp",
+    icon: Clock,
+    description: "Convertisseur de temps Unix et dates",
+    Component: UnixTimestampConverter,
+    category: "dev",
+  },
+  {
     id: "url-encoder",
     name: "URL",
     icon: LinkIcon,
@@ -433,6 +469,14 @@ const tools: Tool[] = [
     icon: Music,
     description: "Compteur de battements par minute",
     Component: BPMCounter,
+    category: "other",
+  },
+  {
+    id: "random-generator",
+    name: "Aléatoire",
+    icon: Shuffle,
+    description: "Nombres, chaînes et listes aléatoires",
+    Component: RandomGenerator,
     category: "other",
   },
 ];

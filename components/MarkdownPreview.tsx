@@ -6,8 +6,18 @@ export function MarkdownPreview() {
   const [markdown, setMarkdown] = useState('# Titre\n\nVotre texte **Markdown** ici...');
   const [mode, setMode] = useState<'split' | 'edit' | 'preview'>('split');
 
+  const escapeHTML = (str: string) => {
+    return str
+      .replace(/&/g, '&amp;')
+      .replace(/</g, '&lt;')
+      .replace(/>/g, '&gt;')
+      .replace(/"/g, '&quot;')
+      .replace(/'/g, '&#39;');
+  };
+
   const renderMarkdown = (text: string) => {
-    let html = text;
+    // Escape input to prevent XSS
+    let html = escapeHTML(text);
     
     // Headers
     html = html.replace(/^### (.*$)/gim, '<h3 class="text-lg font-bold mt-4 mb-2">$1</h3>');
@@ -20,8 +30,13 @@ export function MarkdownPreview() {
     // Italic
     html = html.replace(/\*(.*?)\*/g, '<em class="italic">$1</em>');
     
-    // Links
-    html = html.replace(/\[(.*?)\]\((.*?)\)/g, '<a href="$2" class="text-blue-500 underline">$1</a>');
+    // Links with basic URL sanitization
+    html = html.replace(/\[(.*?)\]\((.*?)\)/g, (match, linkText, url) => {
+      const isSafe = /^(https?:\/\/|mailto:|tel:|\/|#)/i.test(url);
+      return isSafe
+        ? `<a href="${url}" class="text-blue-500 underline" rel="noopener noreferrer" target="_blank">${linkText}</a>`
+        : `<span class="text-blue-500 underline" title="Lien non sécurisé">${linkText}</span>`;
+    });
     
     // Code inline
     html = html.replace(/`(.*?)`/g, '<code class="bg-gray-100 px-1 rounded">$1</code>');

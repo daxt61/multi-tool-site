@@ -80,9 +80,10 @@ export function UnitConverter() {
     },
     pressure: {
       'Pa': { name: 'Pascal (Pa)', toBase: (v) => v, fromBase: (v) => v },
+      'hPa': { name: 'Hectopascal (hPa)', toBase: (v) => v * 100, fromBase: (v) => v / 100 },
       'bar': { name: 'Bar', toBase: (v) => v * 100000, fromBase: (v) => v / 100000 },
-      'atm': { name: 'Atmosphère (atm)', toBase: (v) => v * 101325, fromBase: (v) => v / 101325 },
-      'psi': { name: 'PSI', toBase: (v) => v * 6894.76, fromBase: (v) => v / 6894.76 }
+      'psi': { name: 'PSI', toBase: (v) => v * 6894.76, fromBase: (v) => v / 6894.76 },
+      'atm': { name: 'Atmosphère', toBase: (v) => v * 101325, fromBase: (v) => v / 101325 }
     },
     energy: {
       'J': { name: 'Joule (J)', toBase: (v) => v, fromBase: (v) => v },
@@ -128,138 +129,92 @@ export function UnitConverter() {
     setToValue(convert(fromValue, fromUnit, unit, category));
   };
 
+  const categoriesMap = [
+    { id: 'length', name: 'Longueur' },
+    { id: 'weight', name: 'Poids' },
+    { id: 'temperature', name: 'Température' },
+    { id: 'area', name: 'Surface' },
+    { id: 'volume', name: 'Volume' },
+    { id: 'digital', name: 'Informatique' },
+    { id: 'pressure', name: 'Pression' },
+    { id: 'energy', name: 'Énergie' }
+  ];
+
   return (
     <div className="max-w-2xl mx-auto">
       {/* Category selector */}
-      <div className="flex flex-wrap gap-2 mb-6">
-        <button
-          onClick={() => handleCategoryChange('length')}
-          className={`flex-1 min-w-[100px] py-3 rounded-lg font-semibold transition-all ${
-            category === 'length'
-              ? 'bg-blue-500 text-white shadow-lg'
-              : 'bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-200 hover:bg-gray-300 dark:hover:bg-gray-600'
-          }`}
-        >
-          Longueur
-        </button>
-        <button
-          onClick={() => handleCategoryChange('weight')}
-          className={`flex-1 min-w-[100px] py-3 rounded-lg font-semibold transition-all ${
-            category === 'weight'
-              ? 'bg-blue-500 text-white shadow-lg'
-              : 'bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-200 hover:bg-gray-300 dark:hover:bg-gray-600'
-          }`}
-        >
-          Poids
-        </button>
-        <button
-          onClick={() => handleCategoryChange('temperature')}
-          className={`flex-1 min-w-[100px] py-3 rounded-lg font-semibold transition-all ${
-            category === 'temperature'
-              ? 'bg-blue-500 text-white shadow-lg'
-              : 'bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-200 hover:bg-gray-300 dark:hover:bg-gray-600'
-          }`}
-        >
-          Température
-        </button>
-        <button
-          onClick={() => handleCategoryChange('area')}
-          className={`flex-1 min-w-[100px] py-3 rounded-lg font-semibold transition-all ${
-            category === 'area'
-              ? 'bg-blue-500 text-white shadow-lg'
-              : 'bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-200 hover:bg-gray-300 dark:hover:bg-gray-600'
-          }`}
-        >
-          Surface
-        </button>
-        <button
-          onClick={() => handleCategoryChange('volume')}
-          className={`flex-1 min-w-[100px] py-3 rounded-lg font-semibold transition-all ${
-            category === 'volume'
-              ? 'bg-blue-500 text-white shadow-lg'
-              : 'bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-200 hover:bg-gray-300 dark:hover:bg-gray-600'
-          }`}
-        >
-          Volume
-        </button>
-        <button
-          onClick={() => handleCategoryChange('digital')}
-          className={`flex-1 min-w-[100px] py-3 rounded-lg font-semibold transition-all ${
-            category === 'digital'
-              ? 'bg-blue-500 text-white shadow-lg'
-              : 'bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-200 hover:bg-gray-300 dark:hover:bg-gray-600'
-          }`}
-        >
-          Informatique
-        </button>
-        <button
-          onClick={() => handleCategoryChange('pressure')}
-          className={`flex-1 min-w-[100px] py-3 rounded-lg font-semibold transition-all ${
-            category === 'pressure'
-              ? 'bg-blue-500 text-white shadow-lg'
-              : 'bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-200 hover:bg-gray-300 dark:hover:bg-gray-600'
-          }`}
-        >
-          Pression
-        </button>
-        <button
-          onClick={() => handleCategoryChange('energy')}
-          className={`flex-1 min-w-[100px] py-3 rounded-lg font-semibold transition-all ${
-            category === 'energy'
-              ? 'bg-blue-500 text-white shadow-lg'
-              : 'bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-200 hover:bg-gray-300 dark:hover:bg-gray-600'
-          }`}
-        >
-          Énergie
-        </button>
+      <div className="flex flex-wrap gap-2 mb-8">
+        {categoriesMap.map((cat) => (
+          <button
+            key={cat.id}
+            onClick={() => handleCategoryChange(cat.id as ConversionCategory)}
+            className={`flex-1 min-w-[120px] py-3 px-4 rounded-xl font-bold transition-all ${
+              category === cat.id
+                ? 'bg-indigo-600 text-white shadow-lg shadow-indigo-600/20 scale-105'
+                : 'bg-white dark:bg-gray-800 text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-700 border border-gray-100 dark:border-gray-700'
+            }`}
+          >
+            {cat.name}
+          </button>
+        ))}
       </div>
 
-      {/* From */}
-      <div className="bg-gray-50 dark:bg-gray-900/50 p-6 rounded-lg mb-4 border border-gray-100 dark:border-gray-800">
-        <label className="block text-sm text-gray-600 dark:text-gray-400 mb-2">De</label>
-        <div className="flex flex-col sm:flex-row gap-3">
-          <input
-            type="number"
-            value={fromValue}
-            onChange={(e) => handleFromValueChange(e.target.value)}
-            className="flex-1 p-3 border border-gray-300 dark:border-gray-700 rounded-lg text-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 focus:ring-2 focus:ring-blue-500 outline-none"
-            placeholder="Valeur"
-          />
-          <select
-            value={fromUnit}
-            onChange={(e) => handleFromUnitChange(e.target.value)}
-            className="p-3 border border-gray-300 dark:border-gray-700 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 focus:ring-2 focus:ring-blue-500 outline-none"
-          >
-            {Object.entries(conversions[category]).map(([key, unit]) => (
-              <option key={key} value={key}>
-                {unit.name}
-              </option>
-            ))}
-          </select>
+      <div className="space-y-6">
+        {/* From */}
+        <div className="bg-white dark:bg-gray-800 p-8 rounded-3xl border border-gray-100 dark:border-gray-700 shadow-sm">
+          <label className="block text-sm font-bold text-gray-400 dark:text-gray-500 mb-4 uppercase tracking-wider">De</label>
+          <div className="flex flex-col sm:flex-row gap-4">
+            <input
+              type="number"
+              value={fromValue}
+              onChange={(e) => handleFromValueChange(e.target.value)}
+              className="flex-1 p-4 bg-gray-50 dark:bg-gray-900 border-none rounded-2xl text-2xl font-mono focus:ring-4 focus:ring-indigo-500/10 outline-none transition-all dark:text-white"
+              placeholder="0"
+            />
+            <select
+              value={fromUnit}
+              onChange={(e) => handleFromUnitChange(e.target.value)}
+              className="p-4 bg-white dark:bg-gray-800 border-2 border-gray-100 dark:border-gray-700 rounded-2xl font-bold text-gray-700 dark:text-gray-200 focus:border-indigo-500 outline-none transition-all min-w-[160px]"
+            >
+              {Object.entries(conversions[category]).map(([key, unit]) => (
+                <option key={key} value={key}>
+                  {unit.name}
+                </option>
+              ))}
+            </select>
+          </div>
         </div>
-      </div>
 
-      {/* To */}
-      <div className="bg-gray-50 dark:bg-gray-900/50 p-6 rounded-lg border border-gray-100 dark:border-gray-800">
-        <label className="block text-sm text-gray-600 dark:text-gray-400 mb-2">Vers</label>
-        <div className="flex flex-col sm:flex-row gap-3">
-          <input
-            type="text"
-            value={toValue}
-            readOnly
-            className="flex-1 p-3 border border-gray-300 dark:border-gray-700 rounded-lg text-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100"
-          />
-          <select
-            value={toUnit}
-            onChange={(e) => handleToUnitChange(e.target.value)}
-            className="p-3 border border-gray-300 dark:border-gray-700 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 focus:ring-2 focus:ring-blue-500 outline-none"
-          >
-            {Object.entries(conversions[category]).map(([key, unit]) => (
-              <option key={key} value={key}>
-                {unit.name}
-              </option>
-            ))}
-          </select>
+        <div className="flex justify-center -my-3 relative z-10">
+          <div className="bg-indigo-600 p-2 rounded-full shadow-lg text-white">
+            <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 14l-7 7m0 0l-7-7m7 7V3" />
+            </svg>
+          </div>
+        </div>
+
+        {/* To */}
+        <div className="bg-white dark:bg-gray-800 p-8 rounded-3xl border border-gray-100 dark:border-gray-700 shadow-sm">
+          <label className="block text-sm font-bold text-gray-400 dark:text-gray-500 mb-4 uppercase tracking-wider">Vers</label>
+          <div className="flex flex-col sm:flex-row gap-4">
+            <input
+              type="text"
+              value={toValue}
+              readOnly
+              className="flex-1 p-4 bg-gray-50 dark:bg-gray-900 border-none rounded-2xl text-2xl font-mono text-indigo-600 dark:text-indigo-400 transition-all outline-none"
+            />
+            <select
+              value={toUnit}
+              onChange={(e) => handleToUnitChange(e.target.value)}
+              className="p-4 bg-white dark:bg-gray-800 border-2 border-gray-100 dark:border-gray-700 rounded-2xl font-bold text-gray-700 dark:text-gray-200 focus:border-indigo-500 outline-none transition-all min-w-[160px]"
+            >
+              {Object.entries(conversions[category]).map(([key, unit]) => (
+                <option key={key} value={key}>
+                  {unit.name}
+                </option>
+              ))}
+            </select>
+          </div>
         </div>
       </div>
     </div>

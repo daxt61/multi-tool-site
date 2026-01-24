@@ -26,120 +26,105 @@ export function BMICalculator() {
   const bmi = calculateBMI();
 
   const getCategory = () => {
-    if (bmi < 18.5) return { label: 'Insuffisance pondérale', color: 'bg-blue-500' };
-    if (bmi < 25) return { label: 'Poids normal', color: 'bg-green-500' };
-    if (bmi < 30) return { label: 'Surpoids', color: 'bg-yellow-500' };
-    return { label: 'Obésité', color: 'bg-red-500' };
+    if (bmi < 18.5) return { label: 'Insuffisance pondérale', color: 'bg-blue-500', text: 'text-blue-500' };
+    if (bmi < 25) return { label: 'Poids normal', color: 'bg-green-500', text: 'text-green-500' };
+    if (bmi < 30) return { label: 'Surpoids', color: 'bg-yellow-500', text: 'text-yellow-500' };
+    return { label: 'Obésité', color: 'bg-red-500', text: 'text-red-500' };
   };
 
   const category = getCategory();
 
   return (
     <div className="max-w-2xl mx-auto">
-      <div className="bg-gray-50 dark:bg-gray-900/50 p-6 rounded-lg mb-6 border border-gray-100 dark:border-gray-800">
-        <div className="flex gap-2 mb-4">
+      <div className="bg-gray-50 dark:bg-gray-900 p-8 rounded-3xl mb-8 border border-gray-100 dark:border-gray-800 shadow-sm">
+        <div className="flex gap-2 mb-8 bg-gray-100 dark:bg-gray-800 p-1.5 rounded-2xl">
           <button
             onClick={() => setUnit('metric')}
-            className={`flex-1 py-2 rounded-lg font-semibold transition-all ${
+            className={`flex-1 py-3 rounded-xl font-bold transition-all ${
               unit === 'metric'
-                ? 'bg-blue-500 text-white shadow-lg'
-                : 'bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-200 hover:bg-gray-300 dark:hover:bg-gray-600'
+                ? 'bg-white dark:bg-gray-700 text-indigo-600 dark:text-indigo-400 shadow-sm'
+                : 'text-gray-500 hover:text-gray-700 dark:hover:text-gray-300'
             }`}
           >
             Métrique (kg/cm)
           </button>
           <button
             onClick={() => setUnit('imperial')}
-            className={`flex-1 py-2 rounded-lg font-semibold transition-all ${
+            className={`flex-1 py-3 rounded-xl font-bold transition-all ${
               unit === 'imperial'
-                ? 'bg-blue-500 text-white shadow-lg'
-                : 'bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-200 hover:bg-gray-300 dark:hover:bg-gray-600'
+                ? 'bg-white dark:bg-gray-700 text-indigo-600 dark:text-indigo-400 shadow-sm'
+                : 'text-gray-500 hover:text-gray-700 dark:hover:text-gray-300'
             }`}
           >
             Impérial (lb/in)
           </button>
         </div>
 
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
           <div>
-            <label className="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">
+            <label className="block text-sm font-bold text-gray-500 dark:text-gray-400 mb-3 uppercase tracking-wider">
               Poids ({unit === 'metric' ? 'kg' : 'lb'})
             </label>
             <input
               type="number"
               value={weight}
               onChange={(e) => setWeight(e.target.value)}
-              className="w-full p-3 border border-gray-300 dark:border-gray-700 rounded-lg text-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 focus:ring-2 focus:ring-blue-500 outline-none"
+              className="w-full p-4 bg-white dark:bg-gray-800 border-2 border-gray-100 dark:border-gray-700 rounded-2xl text-2xl font-mono focus:border-indigo-500 outline-none transition-all dark:text-white shadow-sm"
               placeholder="70"
             />
           </div>
           <div>
-            <label className="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">
+            <label className="block text-sm font-bold text-gray-500 dark:text-gray-400 mb-3 uppercase tracking-wider">
               Taille ({unit === 'metric' ? 'cm' : 'in'})
             </label>
             <input
               type="number"
               value={height}
               onChange={(e) => setHeight(e.target.value)}
-              className="w-full p-3 border border-gray-300 dark:border-gray-700 rounded-lg text-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 focus:ring-2 focus:ring-blue-500 outline-none"
+              className="w-full p-4 bg-white dark:bg-gray-800 border-2 border-gray-100 dark:border-gray-700 rounded-2xl text-2xl font-mono focus:border-indigo-500 outline-none transition-all dark:text-white shadow-sm"
               placeholder="170"
             />
           </div>
         </div>
       </div>
 
-      <div className={`${category.color} text-white p-8 rounded-lg text-center mb-6 shadow-lg transition-colors`}>
-        <div className="text-sm opacity-90 mb-2 font-medium">Votre IMC</div>
-        <div className="text-6xl font-bold mb-2">
+      <div className={`p-10 rounded-[2.5rem] text-center mb-10 transition-colors duration-500 shadow-xl ${category.color} text-white`}>
+        <div className="text-white/80 font-bold uppercase tracking-widest text-sm mb-4">Votre IMC</div>
+        <div className="text-7xl font-black mb-4">
           {bmi > 0 ? bmi.toFixed(1) : '0'}
         </div>
-        <div className="text-xl font-semibold">
+        <div className="text-2xl font-extrabold px-6 py-2 bg-white/20 backdrop-blur-md rounded-full inline-block">
           {category.label}
         </div>
-
-        {/* Visual Scale */}
-        {bmi > 0 && (
-          <div className="mt-8 relative pt-4">
-            <div className="h-4 w-full bg-white/20 rounded-full flex overflow-hidden">
-              <div className="h-full bg-blue-500" style={{ width: '18.5%' }}></div>
-              <div className="h-full bg-green-500" style={{ width: '25%' }}></div>
-              <div className="h-full bg-yellow-500" style={{ width: '25%' }}></div>
-              <div className="h-full bg-red-500" style={{ width: '31.5%' }}></div>
-            </div>
-            <div
-              className="absolute top-0 w-4 h-4 bg-white rounded-full border-2 border-gray-900 shadow-md transition-all duration-500"
-              style={{
-                left: `${Math.min(Math.max((bmi / 40) * 100, 0), 100)}%`,
-                transform: 'translateX(-50%)'
-              }}
-            ></div>
-          </div>
-        )}
       </div>
 
-      <div className="bg-gray-50 dark:bg-gray-900/50 p-6 rounded-lg border border-gray-100 dark:border-gray-800">
-        <h3 className="font-semibold text-lg mb-4 text-gray-800 dark:text-gray-200">Classification de l'IMC</h3>
-        <div className="space-y-2">
-          <div className="flex items-center gap-3 text-gray-700 dark:text-gray-300">
-            <div className="w-4 h-4 bg-blue-500 rounded"></div>
-            <span className="text-sm">Insuffisance pondérale : &lt; 18.5</span>
+      <div className="bg-white dark:bg-gray-800 p-8 rounded-[2rem] border border-gray-100 dark:border-gray-700 shadow-sm">
+        <h3 className="font-bold text-xl text-gray-900 dark:text-white mb-6 flex items-center gap-2">
+          Classification de l'IMC
+        </h3>
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div className={`flex items-center justify-between p-4 rounded-2xl border ${bmi > 0 && bmi < 18.5 ? 'border-blue-500 bg-blue-50/50 dark:bg-blue-500/10' : 'border-gray-100 dark:border-gray-700'}`}>
+            <span className="font-bold dark:text-gray-300">Insuffisance</span>
+            <span className="font-mono text-blue-500">&lt; 18.5</span>
           </div>
-          <div className="flex items-center gap-3 text-gray-700 dark:text-gray-300">
-            <div className="w-4 h-4 bg-green-500 rounded"></div>
-            <span className="text-sm">Poids normal : 18.5 - 24.9</span>
+          <div className={`flex items-center justify-between p-4 rounded-2xl border ${bmi >= 18.5 && bmi < 25 ? 'border-green-500 bg-green-50/50 dark:bg-green-500/10' : 'border-gray-100 dark:border-gray-700'}`}>
+            <span className="font-bold dark:text-gray-300">Poids normal</span>
+            <span className="font-mono text-green-500">18.5 - 24.9</span>
           </div>
-          <div className="flex items-center gap-3 text-gray-700 dark:text-gray-300">
-            <div className="w-4 h-4 bg-yellow-500 rounded"></div>
-            <span className="text-sm">Surpoids : 25 - 29.9</span>
+          <div className={`flex items-center justify-between p-4 rounded-2xl border ${bmi >= 25 && bmi < 30 ? 'border-yellow-500 bg-yellow-50/50 dark:bg-yellow-500/10' : 'border-gray-100 dark:border-gray-700'}`}>
+            <span className="font-bold dark:text-gray-300">Surpoids</span>
+            <span className="font-mono text-yellow-500">25 - 29.9</span>
           </div>
-          <div className="flex items-center gap-3 text-gray-700 dark:text-gray-300">
-            <div className="w-4 h-4 bg-red-500 rounded"></div>
-            <span className="text-sm">Obésité : ≥ 30</span>
+          <div className={`flex items-center justify-between p-4 rounded-2xl border ${bmi >= 30 ? 'border-red-500 bg-red-50/50 dark:bg-red-500/10' : 'border-gray-100 dark:border-gray-700'}`}>
+            <span className="font-bold dark:text-gray-300">Obésité</span>
+            <span className="font-mono text-red-500">≥ 30</span>
           </div>
         </div>
-        <p className="text-xs text-gray-500 dark:text-gray-400 mt-4 italic">
-          ℹ️ L'IMC est un indicateur général et ne tient pas compte de la composition corporelle, de l'âge ou du sexe.
-        </p>
+        <div className="mt-8 p-4 bg-indigo-50 dark:bg-indigo-500/10 rounded-2xl flex items-start gap-3">
+           <span className="text-indigo-600 dark:text-indigo-400 text-sm leading-relaxed font-medium">
+             ℹ️ L'indice de masse corporelle (IMC) est une mesure simple du poids par rapport à la taille. Il s'applique aux hommes et aux femmes adultes de 18 à 65 ans.
+           </span>
+        </div>
       </div>
     </div>
   );

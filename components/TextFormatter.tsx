@@ -67,10 +67,10 @@ export function TextFormatter() {
         value={text}
         onChange={(e) => setText(e.target.value)}
         placeholder="Tapez ou collez votre texte ici..."
-        className="w-full h-48 p-4 border border-gray-300 dark:border-gray-700 rounded-lg resize-none bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-blue-500 mb-6 transition-colors"
+        className="w-full h-48 p-4 border border-gray-300 rounded-lg resize-none focus:outline-none focus:ring-2 focus:ring-blue-500 mb-6"
       />
 
-      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3">
+      <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3">
         {formatters.map((formatter, index) => (
           <button
             key={index}

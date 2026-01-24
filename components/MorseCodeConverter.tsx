@@ -44,32 +44,32 @@ export function MorseCodeConverter() {
       <div className="grid grid-cols-1 md:grid-cols-2 gap-8 mb-8">
         {/* Text Input */}
         <div>
-          <label className="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">
+          <label className="block text-sm font-semibold text-gray-700 mb-2">
             Texte Normal
           </label>
           <textarea
             value={text}
             onChange={(e) => encode(e.target.value)}
             placeholder="Entrez votre texte ici..."
-            className="w-full h-48 p-4 border border-gray-300 dark:border-gray-700 rounded-lg resize-none bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 focus:outline-none focus:ring-2 focus:ring-blue-500 transition-colors"
+            className="w-full h-48 p-4 border border-gray-300 rounded-lg resize-none focus:outline-none focus:ring-2 focus:ring-blue-500"
           />
         </div>
 
         {/* Morse Input */}
         <div>
-          <label className="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">
+          <label className="block text-sm font-semibold text-gray-700 mb-2">
             Code Morse (. et -)
           </label>
           <textarea
             value={morse}
             onChange={(e) => decode(e.target.value)}
             placeholder="Ex: .... . .-.. .-.. ---"
-            className="w-full h-48 p-4 border border-gray-300 dark:border-gray-700 rounded-lg resize-none font-mono bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 focus:outline-none focus:ring-2 focus:ring-blue-500 transition-colors"
+            className="w-full h-48 p-4 border border-gray-300 rounded-lg resize-none font-mono focus:outline-none focus:ring-2 focus:ring-blue-500"
           />
         </div>
       </div>
 
-      <div className="flex flex-col sm:flex-row gap-4 justify-center">
+      <div className="flex gap-4 justify-center">
         <button
           onClick={handleCopy}
           className="px-6 py-3 bg-blue-500 text-white rounded-lg font-semibold hover:bg-blue-600 transition-colors flex items-center gap-2"
@@ -79,22 +79,22 @@ export function MorseCodeConverter() {
         </button>
         <button
           onClick={() => { setText(''); setMorse(''); }}
-          className="px-6 py-3 bg-gray-200 dark:bg-gray-700 text-gray-800 dark:text-gray-200 hover:bg-gray-300 dark:hover:bg-gray-600 rounded-lg font-semibold transition-colors"
+          className="px-6 py-3 bg-gray-200 hover:bg-gray-300 rounded-lg font-semibold transition-colors"
         >
           Effacer
         </button>
       </div>
 
-      <div className="mt-12 bg-gray-50 dark:bg-gray-900/50 p-6 rounded-xl border border-gray-200 dark:border-gray-800 transition-colors">
-        <h3 className="font-semibold text-gray-800 dark:text-gray-200 mb-4 flex items-center gap-2">
+      <div className="mt-12 bg-gray-50 p-6 rounded-xl border border-gray-200">
+        <h3 className="font-semibold text-gray-800 mb-4 flex items-center gap-2">
           <Signal className="w-5 h-5 text-orange-500" />
           Référence Morse Rapide
         </h3>
         <div className="grid grid-cols-4 sm:grid-cols-6 md:grid-cols-8 gap-4 text-xs font-mono">
           {Object.entries(MORSE_CODE).filter(([k]) => k !== ' ').map(([char, code]) => (
-            <div key={char} className="flex flex-col items-center p-2 bg-white dark:bg-gray-800 rounded shadow-sm border dark:border-gray-700">
-              <span className="font-bold text-gray-400 dark:text-gray-500">{char}</span>
-              <span className="text-gray-900 dark:text-gray-100">{code}</span>
+            <div key={char} className="flex flex-col items-center p-2 bg-white rounded shadow-sm">
+              <span className="font-bold text-gray-400">{char}</span>
+              <span className="text-gray-900">{code}</span>
             </div>
           ))}
         </div>

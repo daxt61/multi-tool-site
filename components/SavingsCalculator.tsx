@@ -43,26 +43,26 @@ export function SavingsCalculator() {
     <div className="space-y-6">
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         <div>
-          <label className="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-1">
+          <label className="block text-sm font-semibold text-gray-700 mb-1">
             Capital initial (€)
           </label>
           <input
             type="number"
             value={initialAmount}
             onChange={(e) => setInitialAmount(e.target.value)}
-            className="w-full p-3 border border-gray-300 dark:border-gray-700 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 focus:outline-none focus:ring-2 focus:ring-blue-500"
+            className="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
             placeholder="1000"
           />
         </div>
         <div>
-          <label className="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-1">
+          <label className="block text-sm font-semibold text-gray-700 mb-1">
             Versement mensuel (€)
           </label>
           <input
             type="number"
             value={monthlyDeposit}
             onChange={(e) => setMonthlyDeposit(e.target.value)}
-            className="w-full p-3 border border-gray-300 dark:border-gray-700 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 focus:outline-none focus:ring-2 focus:ring-blue-500"
+            className="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
             placeholder="100"
           />
         </div>
@@ -70,27 +70,27 @@ export function SavingsCalculator() {
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         <div>
-          <label className="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-1">
+          <label className="block text-sm font-semibold text-gray-700 mb-1">
             Taux d'intérêt annuel (%)
           </label>
           <input
             type="number"
             value={annualRate}
             onChange={(e) => setAnnualRate(e.target.value)}
-            className="w-full p-3 border border-gray-300 dark:border-gray-700 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 focus:outline-none focus:ring-2 focus:ring-blue-500"
+            className="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
             placeholder="3"
             step="0.01"
           />
         </div>
         <div>
-          <label className="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-1">
+          <label className="block text-sm font-semibold text-gray-700 mb-1">
             Durée (années)
           </label>
           <input
             type="number"
             value={years}
             onChange={(e) => setYears(e.target.value)}
-            className="w-full p-3 border border-gray-300 dark:border-gray-700 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 focus:outline-none focus:ring-2 focus:ring-blue-500"
+            className="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
             placeholder="10"
           />
         </div>
@@ -105,23 +105,23 @@ export function SavingsCalculator() {
 
       {result && (
         <div className="space-y-4">
-          <div className="bg-gradient-to-br from-green-50 to-green-100 dark:from-green-900/20 dark:to-green-800/10 border border-green-200 dark:border-green-800/50 p-6 rounded-lg text-center shadow-sm transition-colors">
-            <span className="text-sm text-gray-600 dark:text-gray-400 font-medium">Capital final</span>
-            <div className="text-4xl font-bold text-green-600 dark:text-green-400">
+          <div className="bg-gradient-to-br from-green-50 to-green-100 border border-green-200 p-6 rounded-lg text-center">
+            <span className="text-sm text-gray-600">Capital final</span>
+            <div className="text-4xl font-bold text-green-600">
               {result.finalAmount.toFixed(2)} €
             </div>
           </div>
 
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-            <div className="bg-gray-100 dark:bg-gray-900/50 border border-gray-200 dark:border-gray-800 p-4 rounded-lg text-center">
-              <span className="text-sm text-gray-600 dark:text-gray-400">Total versé</span>
-              <div className="text-2xl font-bold text-gray-800 dark:text-gray-100">
+          <div className="grid grid-cols-2 gap-4">
+            <div className="bg-gray-100 p-4 rounded-lg text-center">
+              <span className="text-sm text-gray-600">Total versé</span>
+              <div className="text-2xl font-bold text-gray-800">
                 {result.totalDeposited.toFixed(2)} €
               </div>
             </div>
-            <div className="bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-900/50 p-4 rounded-lg text-center">
-              <span className="text-sm text-gray-600 dark:text-gray-400">Intérêts gagnés</span>
-              <div className="text-2xl font-bold text-blue-600 dark:text-blue-400">
+            <div className="bg-blue-50 border border-blue-200 p-4 rounded-lg text-center">
+              <span className="text-sm text-gray-600">Intérêts gagnés</span>
+              <div className="text-2xl font-bold text-blue-600">
                 +{result.totalInterest.toFixed(2)} €
               </div>
             </div>

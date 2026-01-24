@@ -1,24 +1,32 @@
-import React, { useState, useEffect, useRef } from 'react';
-import { Play, RotateCcw, Music } from 'lucide-react';
+import { useState, useEffect, useCallback, useRef } from 'react';
+import { Music, RotateCcw } from 'lucide-react';
 
 export function BPMCounter() {
-  const [bpm, setBpm] = useState<number | null>(null);
   const [taps, setTaps] = useState<number[]>([]);
+  const [bpm, setBpm] = useState<number | null>(null);
+  const [isAnimate, setIsAnimate] = useState(false);
 
-  const handleTap = () => {
+  const handleTap = useCallback(() => {
     const now = Date.now();
-    const newTaps = [...taps, now].slice(-10); // Keep last 10 taps for average
-    setTaps(newTaps);
+    setIsAnimate(true);
+    setTimeout(() => setIsAnimate(false), 100);
 
-    if (newTaps.length > 1) {
+    setTaps(prev => {
+      const newTaps = [...prev, now].slice(-10); // Keep last 10 taps
+      if (newTaps.length < 2) return newTaps;
+
       const intervals = [];
       for (let i = 1; i < newTaps.length; i++) {
         intervals.push(newTaps[i] - newTaps[i - 1]);
       }
+
       const averageInterval = intervals.reduce((a, b) => a + b) / intervals.length;
-      setBpm(Math.round(60000 / averageInterval));
-    }
-  };
+      const calculatedBpm = Math.round(60000 / averageInterval);
+      setBpm(calculatedBpm);
+
+      return newTaps;
+    });
+  }, []);
 
   const reset = () => {
     setTaps([]);
@@ -34,55 +42,47 @@ export function BPMCounter() {
     };
     window.addEventListener('keydown', handleKeyDown);
     return () => window.removeEventListener('keydown', handleKeyDown);
-  }, [taps]);
+  }, [handleTap]);
 
   return (
-    <div className="max-w-md mx-auto text-center space-y-8 py-8">
-      <div className="relative inline-block">
-        <div className={`w-48 h-48 rounded-full flex items-center justify-center border-8 transition-all duration-100 ${
-          taps.length > 0 ? 'border-indigo-500 scale-105 shadow-lg shadow-indigo-500/20' : 'border-gray-200 dark:border-gray-700'
-        }`}>
-          <div className="text-5xl font-bold text-gray-900 dark:text-white font-mono">
-            {bpm || '--'}
-          </div>
+    <div className="max-w-md mx-auto text-center">
+      <div
+        className={`mb-8 p-12 rounded-full border-4 transition-all duration-100 flex flex-col items-center justify-center aspect-square mx-auto max-w-[300px] cursor-pointer select-none ${
+          isAnimate
+            ? 'bg-indigo-600 border-indigo-400 scale-95 text-white'
+            : 'bg-white dark:bg-gray-800 border-indigo-100 dark:border-gray-700 text-gray-800 dark:text-white hover:border-indigo-200'
+        }`}
+        onClick={handleTap}
+      >
+        <Music className={`w-12 h-12 mb-4 ${isAnimate ? 'text-white' : 'text-indigo-600'}`} />
+        <div className="text-6xl font-black font-mono">
+          {bpm || '--'}
         </div>
-        <div className="absolute -bottom-4 left-1/2 -translate-x-1/2 bg-gray-900 dark:bg-gray-700 text-white px-4 py-1 rounded-full text-sm font-bold">
+        <div className="text-sm font-bold uppercase tracking-widest mt-2 opacity-60">
           BPM
         </div>
       </div>
 
-      <div className="space-y-4">
-        <button
-          onClick={handleTap}
-          className="w-full py-12 bg-indigo-600 hover:bg-indigo-700 text-white rounded-3xl shadow-xl hover:shadow-2xl transition-all active:scale-95 text-2xl font-bold flex items-center justify-center gap-3"
-        >
-          <Music className="w-8 h-8" />
-          TAPPER ICI
-        </button>
-        <p className="text-gray-500 dark:text-gray-400 text-sm">
-          Ou appuyez sur <kbd className="px-2 py-1 bg-gray-100 dark:bg-gray-800 rounded border border-gray-300 dark:border-gray-600">Espace</kbd> ou <kbd className="px-2 py-1 bg-gray-100 dark:bg-gray-800 rounded border border-gray-300 dark:border-gray-600">Entrée</kbd>
+      <div className="space-y-6">
+        <p className="text-gray-500 dark:text-gray-400 font-medium">
+          Tapez sur le bouton, sur la barre d'espace ou sur Entrée au rythme de la musique.
         </p>
-      </div>
 
-      <div className="flex justify-center gap-4">
-        <button
-          onClick={reset}
-          className="flex items-center gap-2 px-6 py-2 bg-gray-200 dark:bg-gray-700 hover:bg-gray-300 dark:hover:bg-gray-600 text-gray-700 dark:text-gray-200 rounded-xl transition-colors font-semibold"
-        >
-          <RotateCcw className="w-4 h-4" />
-          Réinitialiser
-        </button>
-      </div>
+        <div className="flex justify-center gap-4">
+          <button
+            onClick={reset}
+            className="flex items-center gap-2 px-6 py-3 bg-gray-100 dark:bg-gray-700 hover:bg-gray-200 dark:hover:bg-gray-600 rounded-xl font-bold text-gray-700 dark:text-gray-200 transition-colors"
+          >
+            <RotateCcw className="w-5 h-5" />
+            Réinitialiser
+          </button>
+        </div>
 
-      <div className="grid grid-cols-2 gap-4 pt-4">
-        <div className="p-4 bg-gray-50 dark:bg-gray-800/50 rounded-2xl border border-gray-100 dark:border-gray-800">
-          <div className="text-sm text-gray-500 dark:text-gray-400">Battements</div>
-          <div className="text-xl font-bold text-gray-900 dark:text-white">{taps.length}</div>
-        </div>
-        <div className="p-4 bg-gray-50 dark:bg-gray-800/50 rounded-2xl border border-gray-100 dark:border-gray-800">
-          <div className="text-sm text-gray-500 dark:text-gray-400">Précision</div>
-          <div className="text-xl font-bold text-gray-900 dark:text-white">{taps.length > 5 ? 'Stable' : '...'}</div>
-        </div>
+        {taps.length > 0 && (
+          <div className="text-sm text-gray-400">
+            {taps.length} tap{taps.length > 1 ? 's' : ''} enregistré{taps.length > 1 ? 's' : ''}
+          </div>
+        )}
       </div>
     </div>
   );

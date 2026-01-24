@@ -29,13 +29,13 @@ export function VATCalculator() {
 
   return (
     <div className="space-y-6">
-      <div className="flex gap-2 p-1 bg-gray-100 dark:bg-gray-800 rounded-lg">
+      <div className="flex gap-2 p-1 bg-gray-100 rounded-lg">
         <button
           onClick={() => setMode("ht-to-ttc")}
           className={`flex-1 py-2 px-4 rounded-lg font-semibold transition-all ${
             mode === "ht-to-ttc"
-              ? "bg-white dark:bg-gray-700 shadow text-blue-600 dark:text-blue-400"
-              : "text-gray-600 dark:text-gray-400 hover:bg-gray-200 dark:hover:bg-gray-700"
+              ? "bg-white shadow text-blue-600"
+              : "text-gray-600 hover:bg-gray-200"
           }`}
         >
           HT → TTC
@@ -44,8 +44,8 @@ export function VATCalculator() {
           onClick={() => setMode("ttc-to-ht")}
           className={`flex-1 py-2 px-4 rounded-lg font-semibold transition-all ${
             mode === "ttc-to-ht"
-              ? "bg-white dark:bg-gray-700 shadow text-blue-600 dark:text-blue-400"
-              : "text-gray-600 dark:text-gray-400 hover:bg-gray-200 dark:hover:bg-gray-700"
+              ? "bg-white shadow text-blue-600"
+              : "text-gray-600 hover:bg-gray-200"
           }`}
         >
           TTC → HT
@@ -53,21 +53,21 @@ export function VATCalculator() {
       </div>
 
       <div>
-        <label className="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-1">
+        <label className="block text-sm font-semibold text-gray-700 mb-1">
           Montant {mode === "ht-to-ttc" ? "HT" : "TTC"} (€)
         </label>
         <input
           type="number"
           value={amount}
           onChange={(e) => setAmount(e.target.value)}
-          className="w-full p-3 border border-gray-300 dark:border-gray-700 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 focus:outline-none focus:ring-2 focus:ring-blue-500"
+          className="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
           placeholder="0.00"
           step="0.01"
         />
       </div>
 
       <div>
-        <label className="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">
+        <label className="block text-sm font-semibold text-gray-700 mb-2">
           Taux de TVA
         </label>
         <div className="grid grid-cols-2 md:grid-cols-4 gap-2 mb-2">
@@ -77,8 +77,8 @@ export function VATCalculator() {
               onClick={() => setVatRate(rate.value)}
               className={`py-2 px-3 rounded-lg text-sm font-semibold transition-all ${
                 vatRate === rate.value
-                  ? "bg-blue-500 text-white shadow-md"
-                  : "bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-600"
+                  ? "bg-blue-500 text-white"
+                  : "bg-gray-100 text-gray-700 hover:bg-gray-200"
               }`}
             >
               {rate.label}
@@ -90,38 +90,38 @@ export function VATCalculator() {
             type="number"
             value={vatRate}
             onChange={(e) => setVatRate(e.target.value)}
-            className="flex-1 p-3 border border-gray-300 dark:border-gray-700 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 focus:outline-none focus:ring-2 focus:ring-blue-500"
+            className="flex-1 p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
             placeholder="20"
             step="0.1"
           />
-          <span className="text-gray-600 dark:text-gray-400 font-semibold">%</span>
+          <span className="text-gray-600 font-semibold">%</span>
         </div>
       </div>
 
-      <div className="bg-gradient-to-br from-blue-50 to-indigo-100 dark:from-blue-900/20 dark:to-indigo-900/20 border border-blue-200 dark:border-blue-800/50 p-6 rounded-lg">
+      <div className="bg-gradient-to-br from-blue-50 to-indigo-100 border border-blue-200 p-6 rounded-lg">
         <div className="grid grid-cols-3 gap-4 text-center">
           <div>
-            <span className="text-sm text-gray-600 dark:text-gray-400">Montant HT</span>
-            <div className="text-xl font-bold text-gray-800 dark:text-gray-100">
+            <span className="text-sm text-gray-600">Montant HT</span>
+            <div className="text-xl font-bold text-gray-800">
               {ht.toFixed(2)} €
             </div>
           </div>
           <div>
-            <span className="text-sm text-gray-600 dark:text-gray-400">TVA ({vatRate}%)</span>
-            <div className="text-xl font-bold text-blue-600 dark:text-blue-400">
+            <span className="text-sm text-gray-600">TVA ({vatRate}%)</span>
+            <div className="text-xl font-bold text-blue-600">
               {tva.toFixed(2)} €
             </div>
           </div>
           <div>
-            <span className="text-sm text-gray-600 dark:text-gray-400">Montant TTC</span>
-            <div className="text-xl font-bold text-green-600 dark:text-green-400">
+            <span className="text-sm text-gray-600">Montant TTC</span>
+            <div className="text-xl font-bold text-green-600">
               {ttc.toFixed(2)} €
             </div>
           </div>
         </div>
       </div>
 
-      <div className="bg-yellow-50 dark:bg-yellow-900/20 border border-yellow-200 dark:border-yellow-800/50 p-4 rounded-lg text-sm text-gray-700 dark:text-gray-300">
+      <div className="bg-yellow-50 border border-yellow-200 p-4 rounded-lg text-sm text-gray-700">
         <p className="font-semibold mb-1">Taux de TVA en France (2024):</p>
         <ul className="list-disc list-inside space-y-1">
           <li><strong>20%</strong> - Taux normal (la plupart des biens/services)</li>

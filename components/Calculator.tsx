@@ -51,7 +51,7 @@ export function Calculator() {
       case '+': return a + b;
       case '-': return a - b;
       case '×': return a * b;
-      case '÷': return b !== 0 ? a / b : 0;
+      case '÷': return b !== 0 ? a / b : NaN;
       case 'x^y': return Math.pow(a, b);
       default: return b;
     }
@@ -93,7 +93,7 @@ export function Calculator() {
     setNewNumber(true);
 
     const expression = `${action}(${current})`;
-    const newHistory = [{ expression, result: resultStr }, ...history].slice(0, 10);
+    const newHistory = [{ expression, result: resultStr === 'NaN' ? 'Erreur' : resultStr }, ...history].slice(0, 10);
     setHistory(newHistory);
     localStorage.setItem('calc_history', JSON.stringify(newHistory));
   };
@@ -105,7 +105,7 @@ export function Calculator() {
       const expression = `${previousValue} ${operation} ${current}`;
       const resultStr = String(result);
 
-      const newHistory = [{ expression, result: resultStr }, ...history].slice(0, 10);
+      const newHistory = [{ expression, result: resultStr === 'NaN' ? 'Erreur' : resultStr }, ...history].slice(0, 10);
       setHistory(newHistory);
       localStorage.setItem('calc_history', JSON.stringify(newHistory));
 
@@ -228,7 +228,7 @@ export function Calculator() {
               )}
             </div>
             <div className="text-5xl md:text-6xl font-black font-mono tracking-tighter truncate dark:text-white">
-              {display}
+              {display === 'NaN' ? 'Erreur' : display}
             </div>
           </div>
 

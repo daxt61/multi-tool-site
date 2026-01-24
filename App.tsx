@@ -48,6 +48,7 @@ import {
   CreditCard,
   Briefcase,
   Search,
+  Shuffle,
   Sun,
   Moon,
   Music,
@@ -81,6 +82,8 @@ import { CaseConverter } from "./components/CaseConverter";
 import { DiffChecker } from "./components/DiffChecker";
 import { AspectRatioCalculator } from "./components/AspectRatioCalculator";
 import { MorseCodeConverter } from "./components/MorseCodeConverter";
+import { UnixTimestampConverter } from "./components/UnixTimestampConverter";
+import { RandomGenerator } from "./components/RandomGenerator";
 import { AdPlaceholder } from "./components/AdPlaceholder";
 import { About } from "./components/About";
 import { Contact } from "./components/Contact";
@@ -381,6 +384,14 @@ const tools: Tool[] = [
     category: "dev",
   },
   {
+    id: "unix-timestamp",
+    name: "Unix Timestamp",
+    icon: Clock,
+    description: "Convertisseur de temps Unix et dates",
+    Component: UnixTimestampConverter,
+    category: "dev",
+  },
+  {
     id: "url-encoder",
     name: "URL",
     icon: LinkIcon,
@@ -427,6 +438,14 @@ const tools: Tool[] = [
     icon: Music,
     description: "Compteur de battements par minute",
     Component: BPMCounter,
+    category: "other",
+  },
+  {
+    id: "random-generator",
+    name: "Aléatoire",
+    icon: Shuffle,
+    description: "Nombres, chaînes et listes aléatoires",
+    Component: RandomGenerator,
     category: "other",
   },
 ];

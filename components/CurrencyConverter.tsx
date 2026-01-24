@@ -1,189 +1,99 @@
 import { useState } from 'react';
+import { ArrowDown, Info } from 'lucide-react';
 
 export function CurrencyConverter() {
   const [amount, setAmount] = useState('100');
   const [fromCurrency, setFromCurrency] = useState('EUR');
   const [toCurrency, setToCurrency] = useState('USD');
 
-  // Taux de change fictifs (base EUR) - Updated with more realistic but still static values
   const rates: Record<string, number> = {
-    EUR: 1,
-    USD: 1.09,
-    GBP: 0.86,
-    JPY: 163.25,
-    CHF: 0.94,
-    CAD: 1.51,
-    AUD: 1.68,
-    CNY: 7.86,
-    INR: 90.45,
-    BRL: 5.42,
-    RUB: 100.12,
-    MXN: 18.65,
-    AED: 4.01,
-    SAR: 4.09,
-    KRW: 1450.50,
-    SGD: 1.47,
-    NZD: 1.82,
-    HKD: 8.52,
-    SEK: 11.45,
-    NOK: 11.55,
-    TRY: 33.20,
-    ZAR: 20.80,
-    ILS: 4.05,
-    PLN: 4.35,
-    THB: 39.50,
-    IDR: 17200.00,
-    TWD: 34.40,
-    MYR: 5.15,
-    PHP: 61.20,
-    CZK: 25.30,
-    HUF: 395.00,
-    CLP: 1020.00,
-    COP: 4250.00,
-    EGP: 52.40,
-    ARS: 950.00,
-    VND: 27000.00,
-    MAD: 11.05
+    EUR: 1, USD: 1.09, GBP: 0.86, JPY: 163.25, CHF: 0.94, CAD: 1.51, AUD: 1.68, CNY: 7.86, INR: 90.45, BRL: 5.42, RUB: 100.12, MXN: 18.65, AED: 4.01, SAR: 4.09
   };
 
   const currencies = [
     { code: 'EUR', name: 'Euro', symbol: '€' },
-    { code: 'USD', name: 'Dollar américain', symbol: '$' },
-    { code: 'GBP', name: 'Livre sterling', symbol: '£' },
-    { code: 'JPY', name: 'Yen japonais', symbol: '¥' },
-    { code: 'CHF', name: 'Franc suisse', symbol: 'CHF' },
-    { code: 'CAD', name: 'Dollar canadien', symbol: 'C$' },
-    { code: 'AUD', name: 'Dollar australien', symbol: 'A$' },
-    { code: 'CNY', name: 'Yuan chinois', symbol: '¥' },
-    { code: 'INR', name: 'Roupie indienne', symbol: '₹' },
-    { code: 'BRL', name: 'Real brésilien', symbol: 'R$' },
-    { code: 'RUB', name: 'Rouble russe', symbol: '₽' },
-    { code: 'MXN', name: 'Peso mexicain', symbol: 'MX$' },
-    { code: 'AED', name: 'Dirham émirati', symbol: 'AED' },
-    { code: 'SAR', name: 'Riyal saoudien', symbol: 'SAR' },
-    { code: 'KRW', name: 'Won sud-coréen', symbol: '₩' },
-    { code: 'SGD', name: 'Dollar de Singapour', symbol: 'S$' },
-    { code: 'NZD', name: 'Dollar néo-zélandais', symbol: 'NZ$' },
-    { code: 'HKD', name: 'Dollar de Hong Kong', symbol: 'HK$' },
-    { code: 'SEK', name: 'Couronne suédoise', symbol: 'kr' },
-    { code: 'NOK', name: 'Couronne norvégienne', symbol: 'kr' },
-    { code: 'TRY', name: 'Livre turque', symbol: '₺' },
-    { code: 'ZAR', name: 'Rand sud-africain', symbol: 'R' },
-    { code: 'ILS', name: 'Shekel israélien', symbol: '₪' },
-    { code: 'PLN', name: 'Zloty polonais', symbol: 'zł' },
-    { code: 'THB', name: 'Baht thaïlandais', symbol: '฿' },
-    { code: 'IDR', name: 'Roupie indonésienne', symbol: 'Rp' },
-    { code: 'TWD', name: 'Dollar de Taïwan', symbol: 'NT$' },
-    { code: 'MYR', name: 'Ringgit malaisien', symbol: 'RM' },
-    { code: 'PHP', name: 'Peso philippin', symbol: '₱' },
-    { code: 'CZK', name: 'Couronne tchèque', symbol: 'Kč' },
-    { code: 'HUF', name: 'Forint hongrois', symbol: 'Ft' },
-    { code: 'CLP', name: 'Peso chilien', symbol: '$' },
-    { code: 'COP', name: 'Peso colombien', symbol: '$' },
-    { code: 'EGP', name: 'Livre égyptienne', symbol: 'E£' },
-    { code: 'ARS', name: 'Peso argentin', symbol: '$' },
-    { code: 'VND', name: 'Dong vietnamien', symbol: '₫' },
-    { code: 'MAD', name: 'Dirham marocain', symbol: 'DH' }
-  ].sort((a, b) => a.name.localeCompare(b.name));
+    { code: 'USD', name: 'Dollar US', symbol: '$' },
+    { code: 'GBP', name: 'Livre Sterling', symbol: '£' },
+    { code: 'JPY', name: 'Yen Japonais', symbol: '¥' },
+    { code: 'CHF', name: 'Franc Suisse', symbol: 'CHF' },
+    { code: 'CAD', name: 'Dollar Canadien', symbol: 'C$' },
+    { code: 'AUD', name: 'Dollar Australien', symbol: 'A$' },
+    { code: 'CNY', name: 'Yuan Chinois', symbol: '¥' },
+    { code: 'INR', name: 'Roupie Indienne', symbol: '₹' },
+    { code: 'BRL', name: 'Real Brésilien', symbol: 'R$' },
+    { code: 'RUB', name: 'Rouble Russe', symbol: '₽' },
+    { code: 'MXN', name: 'Peso Mexicain', symbol: 'MX$' },
+    { code: 'AED', name: 'Dirham Émirati', symbol: 'AED' },
+    { code: 'SAR', name: 'Riyal Saoudien', symbol: 'SAR' }
+  ];
 
-  const convert = () => {
-    const amountNum = parseFloat(amount);
-    if (isNaN(amountNum)) return 0;
-    
-    // Convertir d'abord en EUR, puis vers la devise cible
-    const amountInEur = amountNum / rates[fromCurrency];
-    const result = amountInEur * rates[toCurrency];
-    
-    return result.toFixed(2);
-  };
-
-  const swapCurrencies = () => {
-    const temp = fromCurrency;
-    setFromCurrency(toCurrency);
-    setToCurrency(temp);
-  };
+  const result = (parseFloat(amount) / rates[fromCurrency]) * rates[toCurrency];
 
   return (
-    <div className="max-w-2xl mx-auto">
-      <div className="bg-amber-50 border border-amber-200 rounded-xl p-4 mb-8 text-sm text-amber-800 flex items-start gap-3 shadow-sm">
-        <span className="text-xl">⚠️</span>
-        <div>
-          <p className="font-bold">Attention</p>
-          <p className="opacity-90">Les taux de change sont indicatifs et basés sur des valeurs moyennes. Pour des transactions réelles, veuillez consulter une institution financière.</p>
-        </div>
-      </div>
-
-      <div className="bg-white p-6 rounded-2xl shadow-sm border border-gray-100 mb-6">
+    <div className="max-w-4xl mx-auto space-y-8">
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-8 items-center">
         <div className="space-y-6">
-          <div className="space-y-2">
-            <label className="block text-sm font-bold text-gray-700 ml-1">Montant à convertir</label>
-            <div className="relative">
-              <input
-                type="number"
-                value={amount}
-                onChange={(e) => setAmount(e.target.value)}
-                className="w-full p-4 bg-gray-50 border border-gray-200 rounded-xl text-3xl font-bold focus:ring-2 focus:ring-blue-500 outline-none transition-all pl-12"
-                placeholder="0.00"
-              />
-              <div className="absolute left-4 top-1/2 -translate-y-1/2 text-2xl text-gray-400 font-bold">
-                {currencies.find(c => c.code === fromCurrency)?.symbol}
-              </div>
-            </div>
+          <div className="space-y-3">
+            <label className="text-xs font-black uppercase tracking-widest text-slate-400 px-1">Montant</label>
+            <input
+              type="number"
+              value={amount}
+              onChange={(e) => setAmount(e.target.value)}
+              className="w-full p-6 bg-slate-50 dark:bg-slate-900/50 border border-slate-200 dark:border-slate-800 rounded-3xl text-4xl font-black font-mono outline-none focus:ring-2 focus:ring-indigo-500/20 transition-all dark:text-white"
+              placeholder="0.00"
+            />
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-[1fr,auto,1fr] items-center gap-4">
+          <div className="grid grid-cols-1 gap-4">
             <div className="space-y-2">
-              <label className="block text-sm font-bold text-gray-700 ml-1">De</label>
+              <label className="text-xs font-bold text-slate-400 px-1 uppercase tracking-widest">De</label>
               <select
                 value={fromCurrency}
                 onChange={(e) => setFromCurrency(e.target.value)}
-                className="w-full p-4 bg-gray-50 border border-gray-200 rounded-xl text-lg font-semibold outline-none hover:border-gray-300 transition-colors"
+                className="w-full p-4 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-2xl font-bold text-sm outline-none cursor-pointer"
               >
-                {currencies.map(currency => (
-                  <option key={currency.code} value={currency.code}>
-                    {currency.code} - {currency.name}
-                  </option>
-                ))}
+                {currencies.map(c => <option key={c.code} value={c.code}>{c.symbol} {c.name} ({c.code})</option>)}
               </select>
             </div>
-
-            <button
-              onClick={swapCurrencies}
-              className="mt-6 p-4 bg-blue-500 text-white rounded-xl hover:bg-blue-600 transition-all shadow-md active:scale-90"
-              title="Inverser les devises"
-            >
-              <span className="text-xl block rotate-90 md:rotate-0">⇄</span>
-            </button>
-
+            <div className="flex justify-center -my-2">
+               <button
+                onClick={() => {setFromCurrency(toCurrency); setToCurrency(fromCurrency);}}
+                className="w-10 h-10 bg-slate-100 dark:bg-slate-700 rounded-full flex items-center justify-center text-slate-400 hover:text-indigo-600 transition-colors border border-slate-200 dark:border-slate-600"
+               >
+                 <ArrowDown className="w-5 h-5" />
+               </button>
+            </div>
             <div className="space-y-2">
-              <label className="block text-sm font-bold text-gray-700 ml-1">Vers</label>
+              <label className="text-xs font-bold text-slate-400 px-1 uppercase tracking-widest">Vers</label>
               <select
                 value={toCurrency}
                 onChange={(e) => setToCurrency(e.target.value)}
-                className="w-full p-4 bg-gray-50 border border-gray-200 rounded-xl text-lg font-semibold outline-none hover:border-gray-300 transition-colors"
+                className="w-full p-4 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-2xl font-bold text-sm outline-none cursor-pointer"
               >
-                {currencies.map(currency => (
-                  <option key={currency.code} value={currency.code}>
-                    {currency.code} - {currency.name}
-                  </option>
-                ))}
+                {currencies.map(c => <option key={c.code} value={c.code}>{c.symbol} {c.name} ({c.code})</option>)}
               </select>
             </div>
+          </div>
+        </div>
+
+        <div className="bg-slate-900 dark:bg-black p-10 rounded-[2.5rem] text-center flex flex-col items-center justify-center space-y-4 shadow-xl shadow-indigo-500/5 min-h-[300px]">
+          <div className="text-slate-400 font-bold uppercase tracking-widest text-xs">Résultat Estimé</div>
+          <div className="text-6xl font-black text-white font-mono tracking-tighter">
+            {isNaN(result) ? '0.00' : result.toFixed(2)}
+          </div>
+          <div className="text-indigo-400 font-black text-2xl uppercase tracking-widest">
+            {toCurrency}
           </div>
         </div>
       </div>
 
-      <div className="bg-gradient-to-br from-indigo-600 to-blue-700 text-white p-10 rounded-2xl text-center shadow-xl">
-        <div className="text-sm font-medium opacity-70 mb-2 uppercase tracking-widest">Résultat de la conversion</div>
-        <div className="flex items-center justify-center gap-4">
-          <span className="text-2xl opacity-50 font-mono">{amount} {fromCurrency} =</span>
-          <div className="text-6xl font-black font-mono">
-            {convert()} <span className="text-2xl font-bold opacity-80">{toCurrency}</span>
-          </div>
+      <div className="bg-amber-50 dark:bg-amber-900/10 border border-amber-200 dark:border-amber-900/20 p-6 rounded-2xl flex items-start gap-4">
+        <div className="p-2 bg-white dark:bg-slate-800 text-amber-600 rounded-xl shadow-sm">
+          <Info className="w-6 h-6" />
         </div>
-        <div className="mt-6 pt-6 border-t border-white/10 text-xs opacity-60">
-          1 {fromCurrency} ≈ {(rates[toCurrency] / rates[fromCurrency]).toFixed(4)} {toCurrency}
-        </div>
+        <p className="text-sm text-amber-800 dark:text-amber-400 font-medium leading-relaxed">
+          <strong>Note importante :</strong> Ces taux de change sont fictifs et servent uniquement à des fins de démonstration UI. Pour des transactions réelles, veuillez consulter une source financière officielle.
+        </p>
       </div>
     </div>
   );

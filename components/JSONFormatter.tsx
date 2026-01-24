@@ -44,100 +44,78 @@ export function JSONFormatter() {
   };
 
   return (
-    <div className="max-w-7xl mx-auto space-y-8">
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+    <div className="max-w-6xl mx-auto space-y-6">
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         {/* Input */}
-        <div className="flex flex-col h-full">
-          <div className="flex justify-between items-center mb-4 px-2">
-            <label className="text-sm font-bold text-gray-500 dark:text-gray-400 uppercase tracking-widest flex items-center gap-2">
-              <FileJson className="w-4 h-4" /> Entrée JSON
+        <div className="space-y-3">
+          <div className="flex justify-between items-center px-1">
+            <label className="text-xs font-black uppercase tracking-widest text-slate-400 flex items-center gap-2">
+              <FileJson className="w-3 h-3" /> Entrée
             </label>
             <button
               onClick={clearAll}
-              className="p-2 text-gray-400 hover:text-red-500 transition-colors"
-              title="Tout effacer"
+              className="text-xs font-bold text-slate-400 hover:text-rose-500 transition-colors flex items-center gap-1"
             >
-              <Trash2 className="w-5 h-5" />
+              <Trash2 className="w-3 h-3" /> Effacer
             </button>
           </div>
-          <div className="relative group flex-grow">
-            <textarea
-              value={input}
-              onChange={(e) => setInput(e.target.value)}
-              className="w-full h-[500px] p-6 bg-gray-50 dark:bg-gray-900 border-2 border-transparent focus:border-indigo-500 rounded-[2rem] resize-none font-mono text-sm dark:text-gray-300 outline-none transition-all shadow-inner"
-              placeholder='{"nom": "Outil", "version": 4}'
-            />
-          </div>
+          <textarea
+            value={input}
+            onChange={(e) => setInput(e.target.value)}
+            className="w-full h-96 p-6 bg-slate-50 dark:bg-slate-900/50 border border-slate-200 dark:border-slate-800 focus:border-indigo-500 rounded-2xl resize-none font-mono text-sm outline-none transition-all dark:text-slate-300 shadow-inner"
+            placeholder='{"key": "value"}'
+          />
         </div>
 
         {/* Output */}
-        <div className="flex flex-col h-full">
-          <div className="flex justify-between items-center mb-4 px-2">
-            <label className="text-sm font-bold text-gray-500 dark:text-gray-400 uppercase tracking-widest flex items-center gap-2">
-              <Zap className="w-4 h-4" /> Résultat
+        <div className="space-y-3">
+          <div className="flex justify-between items-center px-1">
+            <label className="text-xs font-black uppercase tracking-widest text-slate-400 flex items-center gap-2">
+              <Zap className="w-3 h-3" /> Résultat
             </label>
             {output && (
               <button
                 onClick={copyToClipboard}
-                className={`flex items-center gap-2 text-sm font-bold px-4 py-1.5 rounded-full transition-all ${
-                  copied ? 'bg-green-500 text-white' : 'text-indigo-600 dark:text-indigo-400 hover:bg-indigo-50 dark:hover:bg-indigo-500/10'
+                className={`text-xs font-bold px-3 py-1 rounded-full transition-all flex items-center gap-1 ${
+                  copied ? 'bg-emerald-500 text-white' : 'text-indigo-600 bg-indigo-50 dark:bg-indigo-500/10 dark:text-indigo-400 hover:bg-indigo-100'
                 }`}
               >
-                {copied ? <Check className="w-4 h-4" /> : <Copy className="w-4 h-4" />}
-                {copied ? 'Copié !' : 'Copier'}
+                {copied ? <Check className="w-3 h-3" /> : <Copy className="w-3 h-3" />}
+                {copied ? 'Copié' : 'Copier'}
               </button>
             )}
           </div>
-          <div className="relative flex-grow">
-            <textarea
-              value={output}
-              readOnly
-              className="w-full h-[500px] p-6 bg-white dark:bg-gray-800 border-2 border-gray-100 dark:border-gray-700 rounded-[2rem] resize-none font-mono text-sm text-indigo-600 dark:text-indigo-400 outline-none shadow-sm"
-              placeholder="Le JSON formaté apparaîtra ici..."
-            />
-          </div>
+          <textarea
+            value={output}
+            readOnly
+            className="w-full h-96 p-6 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl resize-none font-mono text-sm text-indigo-600 dark:text-indigo-400 outline-none shadow-sm"
+            placeholder="Le résultat apparaîtra ici..."
+          />
         </div>
       </div>
 
       {error && (
-        <div className="bg-red-50 dark:bg-red-500/10 border-2 border-red-100 dark:border-red-500/20 rounded-[1.5rem] p-6 flex items-start gap-4 animate-in fade-in slide-in-from-top-4 duration-300">
-          <div className="p-2 bg-red-100 dark:bg-red-500/20 rounded-xl">
-            <AlertCircle className="w-6 h-6 text-red-600 dark:text-red-400" />
-          </div>
-          <div>
-            <h4 className="font-bold text-red-900 dark:text-red-200 mb-1">Erreur de syntaxe</h4>
-            <p className="text-red-700 dark:text-red-300/80 font-medium">{error}</p>
-          </div>
+        <div className="bg-rose-50 dark:bg-rose-500/10 border border-rose-200 dark:border-rose-500/20 rounded-xl p-4 flex items-start gap-3 animate-in fade-in slide-in-from-top-2">
+          <AlertCircle className="w-5 h-5 text-rose-500 flex-shrink-0" />
+          <p className="text-sm font-bold text-rose-700 dark:text-rose-400">{error}</p>
         </div>
       )}
 
-      <div className="flex flex-col sm:flex-row gap-4">
+      <div className="flex flex-col sm:flex-row gap-3">
         <button
           onClick={formatJSON}
           disabled={!input}
-          className="flex-1 py-5 bg-gradient-to-br from-indigo-600 to-indigo-700 text-white rounded-2xl font-bold hover:shadow-xl hover:shadow-indigo-500/20 transition-all active:scale-[0.98] disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2 text-lg"
+          className="flex-1 py-4 bg-slate-900 dark:bg-white text-white dark:text-slate-950 rounded-xl font-bold hover:opacity-90 transition-all active:scale-[0.98] disabled:opacity-50 flex items-center justify-center gap-2"
         >
-          <Zap className="w-5 h-5" /> Formatter (Pretty)
+          <Zap className="w-4 h-4 fill-current" /> Formatter (Pretty)
         </button>
         <button
           onClick={minifyJSON}
           disabled={!input}
-          className="flex-1 py-5 bg-white dark:bg-gray-800 text-gray-700 dark:text-gray-200 border-2 border-gray-100 dark:border-gray-700 rounded-2xl font-bold hover:bg-gray-50 dark:hover:bg-gray-700 transition-all active:scale-[0.98] disabled:opacity-50 disabled:cursor-not-allowed text-lg"
+          className="flex-1 py-4 bg-white dark:bg-slate-800 text-slate-700 dark:text-slate-200 border border-slate-200 dark:border-slate-700 rounded-xl font-bold hover:bg-slate-50 transition-all active:scale-[0.98] disabled:opacity-50"
         >
           Minifier (Compact)
         </button>
-      </div>
-
-      <div className="bg-indigo-50 dark:bg-indigo-500/5 rounded-3xl p-8 border border-indigo-100 dark:border-indigo-500/10">
-        <h4 className="font-bold text-indigo-900 dark:text-indigo-200 mb-4 flex items-center gap-2 text-lg">
-          <Check className="w-5 h-5 text-indigo-600 dark:text-indigo-400" /> Astuces JSON
-        </h4>
-        <ul className="grid grid-cols-1 md:grid-cols-2 gap-4 text-indigo-700 dark:text-indigo-300/80 font-medium">
-          <li className="flex items-center gap-2">• Utilisez des guillemets doubles (") pour les clés</li>
-          <li className="flex items-center gap-2">• Pas de virgule après le dernier élément</li>
-          <li className="flex items-center gap-2">• Les booléens sont en minuscules : true / false</li>
-          <li className="flex items-center gap-2">• Les chaînes de caractères supportent l'Unicode</li>
-        </ul>
       </div>
     </div>
   );

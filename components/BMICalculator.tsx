@@ -9,14 +9,12 @@ export function BMICalculator() {
     let weightKg = parseFloat(weight);
     let heightM = parseFloat(height);
 
-    if (isNaN(weightKg) || isNaN(heightM) || heightM === 0) return 0;
+    if (isNaN(weightKg) || isNaN(heightM) || heightM <= 0) return 0;
 
     if (unit === 'imperial') {
-      // Convert pounds to kg and inches to meters
       weightKg = weightKg * 0.453592;
       heightM = heightM * 0.0254;
     } else {
-      // Convert cm to meters
       heightM = heightM / 100;
     }
 
@@ -96,7 +94,9 @@ export function BMICalculator() {
         <div className="text-2xl font-extrabold px-6 py-2 bg-white/20 backdrop-blur-md rounded-full inline-block">
           {category.label}
         </div>
-      </div>
+        <div className="text-sm opacity-80">
+          Range: {category.range}
+        </div>
 
       <div className="bg-white dark:bg-gray-800 p-8 rounded-[2rem] border border-gray-100 dark:border-gray-700 shadow-sm">
         <h3 className="font-bold text-xl text-gray-900 dark:text-white mb-6 flex items-center gap-2">
@@ -124,6 +124,28 @@ export function BMICalculator() {
            <span className="text-indigo-600 dark:text-indigo-400 text-sm leading-relaxed font-medium">
              ℹ️ L'indice de masse corporelle (IMC) est une mesure simple du poids par rapport à la taille. Il s'applique aux hommes et aux femmes adultes de 18 à 65 ans.
            </span>
+        </div>
+      </div>
+
+      {/* SEO Content Section */}
+      <div className="mt-12 grid grid-cols-1 md:grid-cols-2 gap-8 border-t border-gray-200 pt-12 text-left">
+        <div>
+          <h2 className="text-2xl font-bold text-gray-800 mb-4">Qu'est-ce que l'Indice de Masse Corporelle (IMC) ?</h2>
+          <p className="text-gray-600 mb-4">
+            L'IMC est une mesure standardisée utilisée par l'Organisation Mondiale de la Santé (OMS) pour évaluer les risques pour la santé liés au surpoids ou à l'insuffisance pondérale. Il se calcule en divisant le poids (en kg) par le carré de la taille (en mètres).
+          </p>
+          <p className="text-gray-600">
+            Notre calculateur d'IMC en ligne vous permet d'obtenir rapidement votre score et de voir où vous vous situez sur l'échelle de classification officielle.
+          </p>
+        </div>
+        <div>
+          <h2 className="text-2xl font-bold text-gray-800 mb-4">Comment interpréter vos résultats ?</h2>
+          <ul className="list-disc pl-5 text-gray-600 space-y-2">
+            <li><strong>Moins de 18.5 :</strong> Insuffisance pondérale. Il peut être utile de consulter un professionnel de santé.</li>
+            <li><strong>18.5 à 24.9 :</strong> Poids normal. Votre poids est idéal par rapport à votre taille.</li>
+            <li><strong>25 à 29.9 :</strong> Surpoids. Un équilibrage alimentaire peut être envisagé.</li>
+            <li><strong>30 et plus :</strong> Obésité. Risque accru pour la santé (diabète, hypertension, etc.).</li>
+          </ul>
         </div>
       </div>
     </div>

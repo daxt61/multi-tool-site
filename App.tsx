@@ -48,6 +48,8 @@ import {
   ChevronRight,
 } from "lucide-react";
 import { Calculator } from "./components/Calculator";
+import { PomodoroTimer } from "./components/PomodoroTimer";
+import { TimestampConverter } from "./components/TimestampConverter";
 import { UnitConverter } from "./components/UnitConverter";
 import { PasswordGenerator } from "./components/PasswordGenerator";
 import { WordCounter } from "./components/WordCounter";
@@ -72,6 +74,9 @@ import { CaseConverter } from "./components/CaseConverter";
 import { DiffChecker } from "./components/DiffChecker";
 import { AspectRatioCalculator } from "./components/AspectRatioCalculator";
 import { MorseCodeConverter } from "./components/MorseCodeConverter";
+import { HashGenerator } from "./components/HashGenerator";
+import { BPMCounter } from "./components/BPMCounter";
+import { FindAndReplace } from "./components/FindAndReplace";
 import { AdPlaceholder } from "./components/AdPlaceholder";
 import { About } from "./components/About";
 import { Contact } from "./components/Contact";
@@ -194,7 +199,7 @@ function MainApp() {
     },
   ];
 
-  const tools: Tool[] = [
+const tools: Tool[] = [
     // Business Tools
     {
       id: "invoice-generator",
@@ -400,6 +405,14 @@ function MainApp() {
       component: <MorseCodeConverter />,
       category: "text",
     },
+    {
+      id: "find-replace",
+      name: "Chercher et Remplacer",
+      icon: <Search className="w-6 h-6" />,
+      description: "Rechercher et remplacer du texte",
+      component: <FindAndReplace />,
+      category: "text",
+    },
     // Dev Tools
     {
       id: "password-generator",
@@ -457,7 +470,31 @@ function MainApp() {
       component: <URLEncoder />,
       category: "dev",
     },
+    {
+      id: "timestamp-converter",
+      name: "Convertisseur de Timestamp",
+      icon: <History className="w-6 h-6" />,
+      description: "Convertir dates et timestamps Unix",
+      component: <TimestampConverter />,
+      category: "dev",
+    },
+    {
+      id: "hash-generator",
+      name: "Générateur de Hash",
+      icon: <Hash className="w-6 h-6" />,
+      description: "Générer des hashs SHA-256, SHA-512",
+      component: <HashGenerator />,
+      category: "dev",
+    },
     // Other Tools
+    {
+      id: "pomodoro",
+      name: "Pomodoro",
+      icon: <Brain className="w-6 h-6" />,
+      description: "Timer pour la méthode Pomodoro",
+      component: <PomodoroTimer />,
+      category: "other",
+    },
     {
       id: "timer",
       name: "Minuteur & Chronomètre",
@@ -515,15 +552,40 @@ function MainApp() {
       component: <Contact />,
       category: "info",
     },
-    {
-      id: "privacy-policy",
-      name: "Politique de Confidentialité",
-      icon: <Shield className="w-6 h-6" />,
-      description: "Protection de vos données personnelles",
-      component: <PrivacyPolicy />,
-      category: "info",
-    },
-  ];
+  {
+    id: "privacy-policy",
+    name: "Politique de Confidentialité",
+    icon: <Shield className="w-6 h-6" />,
+    description: "Protection de vos données personnelles",
+    component: <PrivacyPolicy />,
+    category: "info",
+  },
+];
+
+export default function App() {
+  const [selectedTool, setSelectedTool] = useState<string | null>(null);
+
+  useEffect(() => {
+    if (selectedTool) {
+      const tool = tools.find(t => t.id === selectedTool);
+      if (tool) {
+        document.title = `${tool.name} - Boîte à Outils`;
+        const metaDesc = document.querySelector('meta[name="description"]');
+        if (metaDesc) {
+          metaDesc.setAttribute('content', tool.description);
+        }
+      }
+    } else {
+      document.title = "Boîte à Outils - Tous vos outils essentiels en un seul endroit";
+      const metaDesc = document.querySelector('meta[name="description"]');
+      if (metaDesc) {
+        metaDesc.setAttribute('content', "Découvrez une collection complète d'outils gratuits en ligne : calculatrices, convertisseurs, outils de texte et de développement. Simple, rapide et efficace.");
+      }
+    }
+  }, [selectedTool]);
+
+  const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
+  const [searchQuery, setSearchQuery] = useState("");
 
   const filteredTools = tools.filter((tool) => {
     if (tool.category === "info") return false;

@@ -59,6 +59,10 @@ export function PasswordGenerator() {
 
   const strength = getStrength();
 
+  useEffect(() => {
+    generatePassword();
+  }, []);
+
   return (
     <div className="max-w-3xl mx-auto">
       {/* Password display */}

@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { History as HistoryIcon, Trash2 } from 'lucide-react';
 
 export function Calculator() {
@@ -13,53 +13,71 @@ export function Calculator() {
     return saved ? JSON.parse(saved) : [];
   });
 
-  const handleNumber = (num: string) => {
-    if (newNumber) {
+  const addToHistory = useCallback((expression: string, result: string) => {
+    setHistory(prev => {
+      const newHistory = [{ expression, result }, ...prev].slice(0, 10);
+      localStorage.setItem('calc_history', JSON.stringify(newHistory));
+      return newHistory;
+    });
+  }, []);
+
+  const handleBackspace = useCallback(() => {
+    if (display === 'Erreur') {
+      setDisplay('0');
+      setNewNumber(true);
+      return;
+    }
+    if (display.length > 1) {
+      setDisplay(display.slice(0, -1));
+    } else {
+      setDisplay('0');
+      setNewNumber(true);
+    }
+  }, [display]);
+
+  const handleClear = useCallback(() => {
+    setDisplay('0');
+    setPreviousValue(null);
+    setOperation(null);
+    setNewNumber(true);
+  }, []);
+
+  const handleNumber = useCallback((num: string) => {
+    if (newNumber || display === 'Erreur') {
       setDisplay(num);
       setNewNumber(false);
     } else {
       setDisplay(display === '0' ? num : display + num);
     }
-  };
+  }, [newNumber, display]);
 
-  const handleDecimal = () => {
-    if (newNumber) {
+  const handleDecimal = useCallback(() => {
+    if (newNumber || display === 'Erreur') {
       setDisplay('0.');
       setNewNumber(false);
     } else if (!display.includes('.')) {
       setDisplay(display + '.');
     }
-  };
+  }, [newNumber, display]);
 
-  const handleOperation = (op: string) => {
-    const current = parseFloat(display);
-    
-    if (previousValue === null) {
-      setPreviousValue(current);
-    } else if (operation) {
-      const result = calculate(previousValue, current, operation);
-      setDisplay(String(result));
-      setPreviousValue(result);
-    }
-    
-    setOperation(op);
-    setNewNumber(true);
-  };
-
-  const calculate = (a: number, b: number, op: string): number => {
+  const calculate = useCallback((a: number, b: number, op: string): number => {
     switch (op) {
       case '+': return a + b;
       case '-': return a - b;
       case '×': return a * b;
-      case '÷': return b !== 0 ? a / b : 0;
-      case 'x^y': return Math.pow(a, b);
+      case '÷': return b !== 0 ? a / b : NaN;
+      case 'x^y':
+      case '^': return Math.pow(a, b);
       default: return b;
     }
-  };
+  }, []);
 
-  const handleScientificAction = (action: string) => {
+  const handleScientific = useCallback((func: string) => {
     const current = parseFloat(display);
+    if (isNaN(current) && !['π', 'e'].includes(func)) return;
+
     let result = 0;
+    let expression = '';
 
     const angle = isRadians ? current : (current * Math.PI / 180);
 
@@ -88,40 +106,44 @@ export function Calculator() {
       default: return;
     }
 
-    const resultStr = String(Number(result.toFixed(10)));
+    const resultStr = String(Number(result.toFixed(8)));
+    addToHistory(expression, resultStr);
     setDisplay(resultStr);
     setNewNumber(true);
+  }, [display, angleUnit, addToHistory]);
 
-    const expression = `${action}(${current})`;
-    const newHistory = [{ expression, result: resultStr }, ...history].slice(0, 10);
-    setHistory(newHistory);
-    localStorage.setItem('calc_history', JSON.stringify(newHistory));
-  };
+  const handleOperation = useCallback((op: string) => {
+    const current = parseFloat(display);
+    
+    if (previousValue === null) {
+      setPreviousValue(isNaN(current) ? null : current);
+    } else if (operation) {
+      const result = calculate(previousValue, current, operation);
+      const resultStr = isNaN(result) ? 'Erreur' : String(result);
+      setDisplay(resultStr);
+      setPreviousValue(isNaN(result) ? null : result);
+    }
+    
+    setOperation(op === 'x^y' ? '^' : op);
+    setNewNumber(true);
+  }, [display, previousValue, operation, calculate]);
 
-  const handleEquals = () => {
+  const handleEquals = useCallback(() => {
     if (operation && previousValue !== null) {
       const current = parseFloat(display);
       const result = calculate(previousValue, current, operation);
       const expression = `${previousValue} ${operation} ${current}`;
-      const resultStr = String(result);
+      const resultStr = isNaN(result) ? 'Erreur' : String(Number(result.toFixed(8)));
 
-      const newHistory = [{ expression, result: resultStr }, ...history].slice(0, 10);
-      setHistory(newHistory);
-      localStorage.setItem('calc_history', JSON.stringify(newHistory));
-
+      if (resultStr !== 'Erreur') {
+        addToHistory(expression, resultStr);
+      }
       setDisplay(resultStr);
       setPreviousValue(null);
       setOperation(null);
       setNewNumber(true);
     }
-  };
-
-  const handleClear = () => {
-    setDisplay('0');
-    setPreviousValue(null);
-    setOperation(null);
-    setNewNumber(true);
-  };
+  }, [display, previousValue, operation, calculate, addToHistory]);
 
   const handleBackspace = () => {
     if (display.length > 1) {
@@ -153,31 +175,36 @@ export function Calculator() {
   const clearHistory = () => {
     setHistory([]);
     localStorage.removeItem('calc_history');
-  };
+  }, []);
 
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
-      if (e.key >= '0' && e.key <= '9') handleNumber(e.key);
-      if (e.key === '.') handleDecimal();
-      if (e.key === ',') handleDecimal();
-      if (e.key === '+') handleOperation('+');
-      if (e.key === '-') handleOperation('-');
-      if (e.key === '*') handleOperation('×');
-      if (e.key === '/') {
+      if (e.key >= '0' && e.key <= '9') {
+        handleNumber(e.key);
+      } else if (e.key === '.' || e.key === ',') {
+        handleDecimal();
+      } else if (e.key === '+') {
+        handleOperation('+');
+      } else if (e.key === '-') {
+        handleOperation('-');
+      } else if (e.key === '*') {
+        handleOperation('×');
+      } else if (e.key === '/') {
         e.preventDefault();
         handleOperation('÷');
-      }
-      if (e.key === 'Enter' || e.key === '=') {
+      } else if (e.key === 'Enter' || e.key === '=') {
         e.preventDefault();
         handleEquals();
+      } else if (e.key === 'Backspace') {
+        handleBackspace();
+      } else if (e.key === 'Escape') {
+        handleClear();
       }
-      if (e.key === 'Backspace') handleBackspace();
-      if (e.key === 'Escape') handleClear();
     };
 
     window.addEventListener('keydown', handleKeyDown);
     return () => window.removeEventListener('keydown', handleKeyDown);
-  }, [display, previousValue, operation, newNumber]);
+  }, [handleNumber, handleDecimal, handleOperation, handleEquals, handleBackspace, handleClear]);
 
   return (
     <div className="max-w-4xl mx-auto grid grid-cols-1 md:grid-cols-3 gap-4 md:gap-8">
@@ -251,8 +278,49 @@ export function Calculator() {
               </button>
             ))}
           </div>
-        ))}
-      </div>
+          <div className="text-5xl font-mono break-all overflow-hidden h-16 flex items-center justify-end">
+            {display}
+          </div>
+        </div>
+
+        <div className="grid gap-2">
+          {(isScientific ? scientificButtons : simpleButtons).map((row, i) => (
+            <div
+              key={i}
+              className="grid gap-2"
+              style={{ gridTemplateColumns: `repeat(${isScientific ? 5 : 4}, minmax(0, 1fr))` }}
+            >
+              {row.map((btn) => (
+                <button
+                  key={btn}
+                  onClick={() => {
+                    if (btn === 'C') handleClear();
+                    else if (btn === '←') handleBackspace();
+                    else if (btn === '=') handleEquals();
+                    else if (['+', '-', '×', '÷', 'x^y'].includes(btn)) handleOperation(btn);
+                    else if (['sin', 'cos', 'tan', 'log', 'ln', '√', 'x²', 'π', 'e'].includes(btn)) handleScientific(btn);
+                    else if (btn === '.') handleDecimal();
+                    else handleNumber(btn);
+                  }}
+                  style={(isScientific && btn === '=') ? { gridColumn: 'span 4 / span 4' } : (!isScientific && btn === '=') ? { gridColumn: 'span 3 / span 3' } : {}}
+                  className={`p-4 rounded-xl font-semibold text-lg transition-all active:scale-95 shadow-sm min-h-[64px] flex items-center justify-center ${
+                    btn === 'C' || btn === '←'
+                      ? 'bg-red-500 text-white hover:bg-red-600'
+                      : btn === '='
+                      ? 'bg-indigo-600 text-white hover:bg-indigo-700'
+                      : ['+', '-', '×', '÷', 'x^y'].includes(btn)
+                      ? 'bg-blue-500 text-white hover:bg-blue-600'
+                      : ['sin', 'cos', 'tan', 'log', 'ln', '√', 'x²', 'π', 'e'].includes(btn)
+                      ? 'bg-gray-700 text-gray-100 hover:bg-gray-600'
+                      : 'bg-gray-100 text-gray-800 hover:bg-gray-200'
+                  } ${isScientific && ['sin', 'cos', 'tan', 'log', 'ln', '√', 'x²', 'π', 'e'].includes(btn) ? 'text-sm' : ''}`}
+                >
+                  {btn}
+                </button>
+              ))}
+            </div>
+          ))}
+        </div>
       </div>
 
       <div className="bg-gray-50 dark:bg-gray-900/50 p-6 rounded-lg border border-gray-100 dark:border-gray-800">
@@ -264,7 +332,7 @@ export function Calculator() {
           {history.length > 0 && (
             <button
               onClick={clearHistory}
-              className="text-red-500 hover:text-red-600 p-1"
+              className="text-gray-400 hover:text-red-500 p-1 transition-colors"
               title="Effacer l'historique"
             >
               <Trash2 className="w-4 h-4" />
@@ -274,9 +342,12 @@ export function Calculator() {
 
         <div className="space-y-3">
           {history.length === 0 ? (
-            <p className="text-sm text-gray-500 text-center py-4">
-              Aucun historique
-            </p>
+            <div className="text-center py-12">
+              <HistoryIcon className="w-12 h-12 text-gray-200 mx-auto mb-3" />
+              <p className="text-sm text-gray-400">
+                Aucun historique récent
+              </p>
+            </div>
           ) : (
             history.map((item, index) => (
               <div
@@ -292,6 +363,30 @@ export function Calculator() {
               </div>
             ))
           )}
+        </div>
+      </div>
+
+      {/* SEO Content Section */}
+      <div className="lg:col-span-3 mt-12 grid grid-cols-1 md:grid-cols-2 gap-8 border-t border-gray-200 pt-12">
+        <div>
+          <h2 className="text-2xl font-bold text-gray-800 mb-4">Comment utiliser cette calculatrice en ligne ?</h2>
+          <p className="text-gray-600 mb-4">
+            Notre calculatrice gratuite propose deux modes : Simple et Scientifique. Utilisez le mode simple pour les opérations de base (addition, soustraction, multiplication, division). Basculez en mode scientifique pour accéder aux fonctions avancées comme la trigonométrie (sin, cos, tan), les logarithmes et les puissances.
+          </p>
+          <ul className="list-disc pl-5 text-gray-600 space-y-2">
+            <li><strong>Clavier supporté :</strong> Vous pouvez utiliser les touches de votre clavier pour saisir des chiffres et des opérateurs.</li>
+            <li><strong>Historique :</strong> Vos derniers calculs sont automatiquement enregistrés pour que vous puissiez les consulter plus tard.</li>
+            <li><strong>Unités d'angle :</strong> En mode scientifique, choisissez entre Degrés et Radians.</li>
+          </ul>
+        </div>
+        <div>
+          <h2 className="text-2xl font-bold text-gray-800 mb-4">Pourquoi utiliser notre outil ?</h2>
+          <p className="text-gray-600 mb-4">
+            Avoir une calculatrice fiable accessible directement dans votre navigateur est essentiel pour gagner du temps. Que vous soyez étudiant, ingénieur ou que vous ayez simplement besoin de faire un calcul rapide pour vos finances personnelles, notre outil est optimisé pour être rapide et précis.
+          </p>
+          <p className="text-gray-600">
+            Contrairement aux applications natives, notre calculatrice ne nécessite aucune installation et fonctionne sur tous les appareils, qu'il s'agisse d'un ordinateur de bureau, d'une tablette ou d'un smartphone.
+          </p>
         </div>
       </div>
     </div>

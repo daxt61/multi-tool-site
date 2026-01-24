@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Copy, Check } from 'lucide-react';
+import { Copy, Check, Trash2, Hash, Type, FileText, AlignLeft, Clock, MessageSquare } from 'lucide-react';
 
 export function WordCounter() {
   const [text, setText] = useState('');
@@ -7,13 +7,10 @@ export function WordCounter() {
 
   const stats = {
     characters: text.length,
-    charactersNoSpaces: text.replace(/\s/g, '').length,
     words: text.trim() === '' ? 0 : text.trim().split(/\s+/).length,
     lines: text === '' ? 0 : text.split('\n').length,
     sentences: text.trim() === '' ? 0 : text.split(/[.!?]+/).filter(s => s.trim().length > 0).length,
-    paragraphs: text.trim() === '' ? 0 : text.split(/\n\s*\n/).filter(p => p.trim().length > 0).length,
-    readingTime: Math.ceil((text.trim() === '' ? 0 : text.trim().split(/\s+/).length) / 200), // Average reading speed: 200 words/min
-    speakingTime: Math.ceil((text.trim() === '' ? 0 : text.trim().split(/\s+/).length) / 130) // Average speaking speed: 130 words/min
+    readingTime: Math.ceil((text.trim() === '' ? 0 : text.trim().split(/\s+/).length) / 200),
   };
 
   const handleCopy = () => {
@@ -23,89 +20,61 @@ export function WordCounter() {
   };
 
   return (
-    <div className="max-w-4xl mx-auto">
-      <textarea
-        value={text}
-        onChange={(e) => setText(e.target.value)}
-        placeholder="Tapez ou collez votre texte ici..."
-        className="w-full h-64 p-4 border border-gray-300 rounded-lg resize-none focus:outline-none focus:ring-2 focus:ring-blue-500"
-      />
-
-      <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mt-6">
-        <div className="bg-gradient-to-br from-blue-500 to-blue-600 text-white p-6 rounded-lg">
-          <div className="text-3xl font-bold">{stats.characters}</div>
-          <div className="text-sm opacity-90">Caractères</div>
+    <div className="max-w-5xl mx-auto space-y-8">
+      <div className="space-y-4">
+        <div className="flex justify-between items-center px-1">
+          <label className="text-xs font-black uppercase tracking-widest text-slate-400">Votre Texte</label>
+          <div className="flex gap-2">
+            <button onClick={handleCopy} className={`text-xs font-bold px-3 py-1 rounded-full transition-all flex items-center gap-1 ${copied ? 'bg-emerald-500 text-white' : 'text-slate-500 bg-slate-100 dark:bg-slate-800'}`}>
+              {copied ? <Check className="w-3 h-3" /> : <Copy className="w-3 h-3" />} {copied ? 'Copié' : 'Copier'}
+            </button>
+            <button onClick={() => setText('')} className="text-xs font-bold px-3 py-1 rounded-full text-rose-500 bg-rose-50 dark:bg-rose-500/10 hover:bg-rose-100 transition-all flex items-center gap-1">
+              <Trash2 className="w-3 h-3" /> Effacer
+            </button>
+          </div>
         </div>
-        
-        <div className="bg-gradient-to-br from-indigo-500 to-indigo-600 text-white p-6 rounded-lg">
-          <div className="text-3xl font-bold">{stats.charactersNoSpaces}</div>
-          <div className="text-sm opacity-90">Sans espaces</div>
-        </div>
-        
-        <div className="bg-gradient-to-br from-purple-500 to-purple-600 text-white p-6 rounded-lg">
-          <div className="text-3xl font-bold">{stats.words}</div>
-          <div className="text-sm opacity-90">Mots</div>
-        </div>
-        
-        <div className="bg-gradient-to-br from-pink-500 to-pink-600 text-white p-6 rounded-lg">
-          <div className="text-3xl font-bold">{stats.lines}</div>
-          <div className="text-sm opacity-90">Lignes</div>
-        </div>
-        
-        <div className="bg-gradient-to-br from-rose-500 to-rose-600 text-white p-6 rounded-lg">
-          <div className="text-3xl font-bold">{stats.sentences}</div>
-          <div className="text-sm opacity-90">Phrases</div>
-        </div>
-        
-        <div className="bg-gradient-to-br from-orange-500 to-orange-600 text-white p-6 rounded-lg">
-          <div className="text-3xl font-bold">{stats.paragraphs}</div>
-          <div className="text-sm opacity-90">Paragraphes</div>
-        </div>
-        
-        <div className="bg-gradient-to-br from-amber-500 to-amber-600 text-white p-6 rounded-lg">
-          <div className="text-3xl font-bold">{stats.readingTime} min</div>
-          <div className="text-sm opacity-90">Lecture</div>
-        </div>
-
-        <div className="bg-gradient-to-br from-orange-400 to-orange-500 text-white p-6 rounded-lg">
-          <div className="text-3xl font-bold">{stats.speakingTime} min</div>
-          <div className="text-sm opacity-90">Parole</div>
-        </div>
+        <textarea
+          value={text}
+          onChange={(e) => setText(e.target.value)}
+          placeholder="Commencez à taper..."
+          className="w-full h-80 p-8 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-[2rem] outline-none focus:ring-2 focus:ring-indigo-500/20 transition-all text-lg leading-relaxed dark:text-slate-300"
+        />
       </div>
 
-      <div className="mt-6 flex flex-wrap gap-3">
+      <div className="grid grid-cols-2 md:grid-cols-5 gap-4">
+        {[
+          { icon: <Hash className="w-4 h-4" />, label: 'Caractères', value: stats.characters },
+          { icon: <Type className="w-4 h-4" />, label: 'Mots', value: stats.words },
+          { icon: <FileText className="w-4 h-4" />, label: 'Lignes', value: stats.lines },
+          { icon: <AlignLeft className="w-4 h-4" />, label: 'Phrases', value: stats.sentences },
+          { icon: <Clock className="w-4 h-4" />, label: 'Lecture', value: `${stats.readingTime}m` },
+        ].map((stat) => (
+          <div key={stat.label} className="p-6 bg-white dark:bg-slate-900 border border-slate-100 dark:border-slate-800 rounded-2xl space-y-2">
+            <div className="text-indigo-500 dark:text-indigo-400">{stat.icon}</div>
+            <div className="text-2xl font-black font-mono tracking-tight dark:text-white">{stat.value}</div>
+            <div className="text-xs font-bold text-slate-400 uppercase tracking-wider">{stat.label}</div>
+          </div>
+        ))}
+      </div>
+
+      <div className="flex flex-wrap gap-3">
         <button
           onClick={() => setText(text.toUpperCase())}
-          className="flex-1 min-w-[120px] py-3 bg-gray-200 hover:bg-gray-300 rounded-lg font-semibold transition-colors"
+          className="px-6 py-3 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-sm font-bold hover:bg-slate-50 transition-all"
         >
           MAJUSCULES
         </button>
         <button
           onClick={() => setText(text.toLowerCase())}
-          className="flex-1 min-w-[120px] py-3 bg-gray-200 hover:bg-gray-300 rounded-lg font-semibold transition-colors"
+          className="px-6 py-3 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-sm font-bold hover:bg-slate-50 transition-all"
         >
           minuscules
         </button>
         <button
-          onClick={() => setText(text.replace(/\b\w+/g, (word) =>
-            word.charAt(0).toUpperCase() + word.slice(1).toLowerCase()
-          ))}
-          className="flex-1 min-w-[120px] py-3 bg-gray-200 hover:bg-gray-300 rounded-lg font-semibold transition-colors"
+          onClick={() => setText(text.replace(/\b\w+/g, w => w.charAt(0).toUpperCase() + w.slice(1).toLowerCase()))}
+          className="px-6 py-3 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-sm font-bold hover:bg-slate-50 transition-all"
         >
           Capitaliser
-        </button>
-        <button
-          onClick={handleCopy}
-          className="flex-1 min-w-[120px] py-3 bg-blue-500 hover:bg-blue-600 text-white rounded-lg font-semibold transition-colors flex items-center justify-center gap-2"
-        >
-          {copied ? <Check className="w-5 h-5" /> : <Copy className="w-5 h-5" />}
-          {copied ? 'Copié !' : 'Copier'}
-        </button>
-        <button
-          onClick={() => setText('')}
-          className="py-3 px-6 bg-red-500 hover:bg-red-600 text-white rounded-lg font-semibold transition-colors"
-        >
-          Effacer
         </button>
       </div>
     </div>

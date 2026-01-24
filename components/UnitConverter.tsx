@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { ArrowDown } from 'lucide-react';
 
 type ConversionCategory = 'length' | 'weight' | 'temperature' | 'area' | 'volume' | 'digital' | 'pressure' | 'energy';
 
@@ -35,21 +36,9 @@ export function UnitConverter() {
       't': { name: 'Tonnes', toBase: (v) => v * 1000, fromBase: (v) => v / 1000 }
     },
     temperature: {
-      'C': {
-        name: 'Celsius',
-        toBase: (v) => v,
-        fromBase: (v) => v
-      },
-      'F': {
-        name: 'Fahrenheit',
-        toBase: (v) => (v - 32) * 5/9,
-        fromBase: (v) => (v * 9/5) + 32
-      },
-      'K': {
-        name: 'Kelvin',
-        toBase: (v) => v - 273.15,
-        fromBase: (v) => v + 273.15
-      }
+      'C': { name: 'Celsius', toBase: (v) => v, fromBase: (v) => v },
+      'F': { name: 'Fahrenheit', toBase: (v) => (v - 32) * 5/9, fromBase: (v) => (v * 9/5) + 32 },
+      'K': { name: 'Kelvin', toBase: (v) => v - 273.15, fromBase: (v) => v + 273.15 }
     },
     area: {
       'm2': { name: 'Mètres carrés', toBase: (v) => v, fromBase: (v) => v },
@@ -95,19 +84,23 @@ export function UnitConverter() {
     }
   };
 
+  const categoriesMap = [
+    { id: 'length', name: 'Longueur' },
+    { id: 'weight', name: 'Poids' },
+    { id: 'temperature', name: 'Température' },
+    { id: 'area', name: 'Surface' },
+    { id: 'volume', name: 'Volume' },
+    { id: 'digital', name: 'Digital' },
+    { id: 'pressure', name: 'Pression' },
+    { id: 'energy', name: 'Énergie' }
+  ];
+
   const convert = (value: string, from: string, to: string, cat: ConversionCategory) => {
     const num = parseFloat(value);
     if (isNaN(num)) return '0';
-    
     const baseValue = conversions[cat][from].toBase(num);
     const result = conversions[cat][to].fromBase(baseValue);
-    
     return result.toFixed(6).replace(/\.?0+$/, '');
-  };
-
-  const handleFromValueChange = (value: string) => {
-    setFromValue(value);
-    setToValue(convert(value, fromUnit, toUnit, category));
   };
 
   const handleCategoryChange = (newCategory: ConversionCategory) => {
@@ -115,43 +108,21 @@ export function UnitConverter() {
     const units = Object.keys(conversions[newCategory]);
     setFromUnit(units[0]);
     setToUnit(units[1]);
-    setFromValue('1');
-    setToValue(convert('1', units[0], units[1], newCategory));
+    setToValue(convert(fromValue, units[0], units[1], newCategory));
   };
-
-  const handleFromUnitChange = (unit: string) => {
-    setFromUnit(unit);
-    setToValue(convert(fromValue, unit, toUnit, category));
-  };
-
-  const handleToUnitChange = (unit: string) => {
-    setToUnit(unit);
-    setToValue(convert(fromValue, fromUnit, unit, category));
-  };
-
-  const categoriesMap = [
-    { id: 'length', name: 'Longueur' },
-    { id: 'weight', name: 'Poids' },
-    { id: 'temperature', name: 'Température' },
-    { id: 'area', name: 'Surface' },
-    { id: 'volume', name: 'Volume' },
-    { id: 'digital', name: 'Informatique' },
-    { id: 'pressure', name: 'Pression' },
-    { id: 'energy', name: 'Énergie' }
-  ];
 
   return (
-    <div className="max-w-2xl mx-auto">
-      {/* Category selector */}
-      <div className="flex flex-wrap gap-2 mb-8">
+    <div className="max-w-4xl mx-auto space-y-12">
+      {/* Category Nav */}
+      <div className="flex flex-wrap gap-2 justify-center">
         {categoriesMap.map((cat) => (
           <button
             key={cat.id}
             onClick={() => handleCategoryChange(cat.id as ConversionCategory)}
-            className={`flex-1 min-w-[120px] py-3 px-4 rounded-xl font-bold transition-all ${
+            className={`px-5 py-2.5 rounded-xl font-bold text-sm transition-all border ${
               category === cat.id
-                ? 'bg-indigo-600 text-white shadow-lg shadow-indigo-600/20 scale-105'
-                : 'bg-white dark:bg-gray-800 text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-700 border border-gray-100 dark:border-gray-700'
+                ? 'bg-slate-900 text-white border-slate-900 dark:bg-white dark:text-slate-950 dark:border-white shadow-lg shadow-indigo-500/10'
+                : 'bg-white dark:bg-slate-800 text-slate-500 border-slate-200 dark:border-slate-700 hover:border-slate-300'
             }`}
           >
             {cat.name}
@@ -159,85 +130,69 @@ export function UnitConverter() {
         ))}
       </div>
 
-      <div className="space-y-6">
-        {/* From */}
-        <div className="bg-white dark:bg-gray-800 p-8 rounded-3xl border border-gray-100 dark:border-gray-700 shadow-sm">
-          <label className="block text-sm font-bold text-gray-400 dark:text-gray-500 mb-4 uppercase tracking-wider">De</label>
-          <div className="flex flex-col sm:flex-row gap-4">
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-8 items-center">
+        {/* De */}
+        <div className="space-y-4">
+          <label className="text-xs font-black uppercase tracking-widest text-slate-400 px-1">De</label>
+          <div className="flex flex-col gap-3 p-6 bg-slate-50 dark:bg-slate-900/50 rounded-3xl border border-slate-200 dark:border-slate-800 focus-within:ring-2 focus-within:ring-indigo-500/20 transition-all">
             <input
               type="number"
               value={fromValue}
-              onChange={(e) => handleFromValueChange(e.target.value)}
-              className="flex-1 p-4 bg-gray-50 dark:bg-gray-900 border-none rounded-2xl text-2xl font-mono focus:ring-4 focus:ring-indigo-500/10 outline-none transition-all dark:text-white"
-              placeholder="0"
+              onChange={(e) => {
+                setFromValue(e.target.value);
+                setToValue(convert(e.target.value, fromUnit, toUnit, category));
+              }}
+              className="bg-transparent text-4xl font-black font-mono outline-none dark:text-white"
             />
             <select
               value={fromUnit}
-              onChange={(e) => handleFromUnitChange(e.target.value)}
-              className="p-4 bg-white dark:bg-gray-800 border-2 border-gray-100 dark:border-gray-700 rounded-2xl font-bold text-gray-700 dark:text-gray-200 focus:border-indigo-500 outline-none transition-all min-w-[160px]"
+              onChange={(e) => {
+                setFromUnit(e.target.value);
+                setToValue(convert(fromValue, e.target.value, toUnit, category));
+              }}
+              className="bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl px-4 py-2 font-bold text-sm outline-none cursor-pointer"
             >
               {Object.entries(conversions[category]).map(([key, unit]) => (
-                <option key={key} value={key}>
-                  {unit.name}
-                </option>
+                <option key={key} value={key}>{unit.name}</option>
               ))}
             </select>
           </div>
         </div>
 
-        <div className="flex justify-center -my-3 relative z-10">
-          <div className="bg-indigo-600 p-2 rounded-full shadow-lg text-white">
-            <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 14l-7 7m0 0l-7-7m7 7V3" />
-            </svg>
-          </div>
+        <div className="hidden md:flex justify-center pt-8">
+           <div className="w-12 h-12 bg-indigo-600 text-white rounded-full flex items-center justify-center shadow-lg shadow-indigo-600/20 -rotate-90">
+             <ArrowDown className="w-6 h-6" />
+           </div>
+        </div>
+        <div className="md:hidden flex justify-center">
+           <div className="w-10 h-10 bg-indigo-600 text-white rounded-full flex items-center justify-center shadow-lg shadow-indigo-600/20">
+             <ArrowDown className="w-5 h-5" />
+           </div>
         </div>
 
-        {/* To */}
-        <div className="bg-white dark:bg-gray-800 p-8 rounded-3xl border border-gray-100 dark:border-gray-700 shadow-sm">
-          <label className="block text-sm font-bold text-gray-400 dark:text-gray-500 mb-4 uppercase tracking-wider">Vers</label>
-          <div className="flex flex-col sm:flex-row gap-4">
+        {/* Vers */}
+        <div className="space-y-4">
+          <label className="text-xs font-black uppercase tracking-widest text-slate-400 px-1">Vers</label>
+          <div className="flex flex-col gap-3 p-6 bg-slate-50 dark:bg-slate-900/50 rounded-3xl border border-slate-200 dark:border-slate-800 transition-all">
             <input
               type="text"
               value={toValue}
               readOnly
-              className="flex-1 p-4 bg-gray-50 dark:bg-gray-900 border-none rounded-2xl text-2xl font-mono text-indigo-600 dark:text-indigo-400 transition-all outline-none"
+              className="bg-transparent text-4xl font-black font-mono outline-none text-indigo-600 dark:text-indigo-400"
             />
             <select
               value={toUnit}
-              onChange={(e) => handleToUnitChange(e.target.value)}
-              className="p-4 bg-white dark:bg-gray-800 border-2 border-gray-100 dark:border-gray-700 rounded-2xl font-bold text-gray-700 dark:text-gray-200 focus:border-indigo-500 outline-none transition-all min-w-[160px]"
+              onChange={(e) => {
+                setToUnit(e.target.value);
+                setToValue(convert(fromValue, fromUnit, e.target.value, category));
+              }}
+              className="bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl px-4 py-2 font-bold text-sm outline-none cursor-pointer"
             >
               {Object.entries(conversions[category]).map(([key, unit]) => (
-                <option key={key} value={key}>
-                  {unit.name}
-                </option>
+                <option key={key} value={key}>{unit.name}</option>
               ))}
             </select>
           </div>
-        </div>
-      </div>
-
-      {/* SEO Content Section */}
-      <div className="mt-12 grid grid-cols-1 md:grid-cols-2 gap-8 border-t border-gray-200 pt-12 text-left">
-        <div>
-          <h2 className="text-2xl font-bold text-gray-800 mb-4">Un convertisseur d'unités complet et gratuit</h2>
-          <p className="text-gray-600 mb-4">
-            Besoin de convertir des mètres en miles, des kilogrammes en livres ou des Celsius en Fahrenheit ? Notre convertisseur universel prend en charge les catégories les plus courantes : Longueur, Poids, Température, Surface, Volume, Informatique, Vitesse et Pression.
-          </p>
-          <p className="text-gray-600">
-            C'est l'outil idéal pour les voyageurs, les étudiants, les cuisiniers ou toute personne travaillant avec des systèmes de mesure différents (métrique vs impérial).
-          </p>
-        </div>
-        <div>
-          <h2 className="text-2xl font-bold text-gray-800 mb-4">Pourquoi la précision est importante ?</h2>
-          <p className="text-gray-600 mb-4">
-            Dans de nombreux domaines comme la science, l'ingénierie ou même la cuisine, une erreur de conversion peut avoir des conséquences importantes. Notre outil utilise des facteurs de conversion précis et mis à jour.
-          </p>
-          <ul className="list-disc pl-5 text-gray-600 space-y-2">
-            <li><strong>Facilité d'utilisation :</strong> Sélectionnez simplement la catégorie, entrez la valeur et choisissez les unités.</li>
-            <li><strong>Résultats instantanés :</strong> Pas besoin de cliquer sur "calculer", la conversion se fait en temps réel.</li>
-          </ul>
         </div>
       </div>
     </div>

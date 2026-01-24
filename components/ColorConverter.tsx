@@ -110,9 +110,18 @@ export function ColorConverter() {
     <div className="max-w-2xl mx-auto">
       {/* Color preview */}
       <div
-        className="w-full h-48 rounded-lg mb-6 shadow-lg"
+        className="w-full h-48 rounded-lg mb-6 shadow-lg relative overflow-hidden focus-within:ring-4 focus-within:ring-indigo-500/20 transition-all"
         style={{ backgroundColor: hex }}
-      />
+      >
+        <input
+          type="color"
+          value={hex}
+          onChange={(e) => updateFromHex(e.target.value)}
+          className="absolute inset-0 w-full h-full opacity-0 cursor-pointer outline-none"
+          title="Ouvrir le sélecteur de couleur"
+          aria-label="Sélecteur de couleur"
+        />
+      </div>
 
       {/* HEX */}
       <div className="bg-gray-50 p-6 rounded-lg mb-4">
@@ -121,6 +130,7 @@ export function ColorConverter() {
           <button
             onClick={() => copyToClipboard(hex, 'hex')}
             className="p-2 hover:bg-gray-200 rounded-lg transition-colors"
+            aria-label="Copier le code HEX"
           >
             {copied === 'hex' ? <Check className="w-4 h-4" /> : <Copy className="w-4 h-4" />}
           </button>
@@ -140,6 +150,7 @@ export function ColorConverter() {
           <button
             onClick={() => copyToClipboard(`rgb(${rgb.r}, ${rgb.g}, ${rgb.b})`, 'rgb')}
             className="p-2 hover:bg-gray-200 rounded-lg transition-colors"
+            aria-label="Copier le code RGB"
           >
             {copied === 'rgb' ? <Check className="w-4 h-4" /> : <Copy className="w-4 h-4" />}
           </button>
@@ -188,6 +199,7 @@ export function ColorConverter() {
           <button
             onClick={() => copyToClipboard(`hsl(${hsl.h}, ${hsl.s}%, ${hsl.l}%)`, 'hsl')}
             className="p-2 hover:bg-gray-200 rounded-lg transition-colors"
+            aria-label="Copier le code HSL"
           >
             {copied === 'hsl' ? <Check className="w-4 h-4" /> : <Copy className="w-4 h-4" />}
           </button>

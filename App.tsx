@@ -1,4 +1,4 @@
-import { useState, useEffect, useMemo, lazy, Suspense } from "react";
+import { useState, useEffect, useMemo } from "react";
 import { ThemeProvider, useTheme } from "next-themes";
 import {
   Routes,
@@ -54,83 +54,52 @@ import {
   Music,
   Star,
   Clock,
-  ArrowRight, Loader2,
+  ArrowRight,
   Sparkles,
 } from "lucide-react";
-import { Calculator } from "./components/Calculator";
-import { UnitConverter } from "./components/UnitConverter";
-import { PasswordGenerator } from "./components/PasswordGenerator";
-import { WordCounter } from "./components/WordCounter";
-import { ColorConverter } from "./components/ColorConverter";
-import { TimerTool } from "./components/TimerTool";
-import { TextFormatter } from "./components/TextFormatter";
-import { NumberConverter } from "./components/NumberConverter";
-import { QRCodeGenerator } from "./components/QRCodeGenerator";
-import { PercentageCalculator } from "./components/PercentageCalculator";
-import { LoremIpsumGenerator } from "./components/LoremIpsumGenerator";
-import { CurrencyConverter } from "./components/CurrencyConverter";
-import { BMICalculator } from "./components/BMICalculator";
-import { UUIDGenerator } from "./components/UUIDGenerator";
-import { Base64Tool } from "./components/Base64Tool";
-import { DateCalculator } from "./components/DateCalculator";
-import { MarkdownPreview } from "./components/MarkdownPreview";
-import { JSONFormatter } from "./components/JSONFormatter";
-import { URLEncoder } from "./components/URLEncoder";
-import { ImageCompressor } from "./components/ImageCompressor";
-import { IPAddressTool } from "./components/IPAddressTool";
-import { CaseConverter } from "./components/CaseConverter";
-import { DiffChecker } from "./components/DiffChecker";
-import { AspectRatioCalculator } from "./components/AspectRatioCalculator";
-import { MorseCodeConverter } from "./components/MorseCodeConverter";
+import { Calculator as CalculatorTool } from "./components/Calculator";
+import { UnitConverter as UnitConverterTool } from "./components/UnitConverter";
+import { PasswordGenerator as PasswordGeneratorTool } from "./components/PasswordGenerator";
+import { WordCounter as WordCounterTool } from "./components/WordCounter";
+import { ColorConverter as ColorConverterTool } from "./components/ColorConverter";
+import { TimerTool as TimerToolComponent } from "./components/TimerTool";
+import { TextFormatter as TextFormatterTool } from "./components/TextFormatter";
+import { NumberConverter as NumberConverterTool } from "./components/NumberConverter";
+import { QRCodeGenerator as QRCodeGeneratorTool } from "./components/QRCodeGenerator";
+import { PercentageCalculator as PercentageCalculatorTool } from "./components/PercentageCalculator";
+import { LoremIpsumGenerator as LoremIpsumGeneratorTool } from "./components/LoremIpsumGenerator";
+import { CurrencyConverter as CurrencyConverterTool } from "./components/CurrencyConverter";
+import { BMICalculator as BMICalculatorTool } from "./components/BMICalculator";
+import { UUIDGenerator as UUIDGeneratorTool } from "./components/UUIDGenerator";
+import { Base64Tool as Base64ToolComponent } from "./components/Base64Tool";
+import { DateCalculator as DateCalculatorTool } from "./components/DateCalculator";
+import { MarkdownPreview as MarkdownPreviewTool } from "./components/MarkdownPreview";
+import { JSONFormatter as JSONFormatterTool } from "./components/JSONFormatter";
+import { URLEncoder as URLEncoderTool } from "./components/URLEncoder";
+import { ImageCompressor as ImageCompressorTool } from "./components/ImageCompressor";
+import { IPAddressTool as IPAddressToolComponent } from "./components/IPAddressTool";
+import { CaseConverter as CaseConverterTool } from "./components/CaseConverter";
+import { DiffChecker as DiffCheckerTool } from "./components/DiffChecker";
+import { AspectRatioCalculator as AspectRatioCalculatorTool } from "./components/AspectRatioCalculator";
+import { MorseCodeConverter as MorseCodeConverterTool } from "./components/MorseCodeConverter";
 import { UnixTimestampConverter } from "./components/UnixTimestampConverter";
 import { RandomGenerator } from "./components/RandomGenerator";
 import { AdPlaceholder } from "./components/AdPlaceholder";
-
-
-// ⚡ Bolt Optimization: Code Splitting
-// Using React.lazy to split each tool into its own chunk.
-// This reduces the initial JavaScript bundle by ~40% (from 386kB to 228kB),
-// significantly improving the initial load time and Time to Interactive (TTI).
-const Calculator = lazy(() => import("./components/Calculator").then(m => ({ default: m.Calculator })));
-const UnitConverter = lazy(() => import("./components/UnitConverter").then(m => ({ default: m.UnitConverter })));
-const PasswordGenerator = lazy(() => import("./components/PasswordGenerator").then(m => ({ default: m.PasswordGenerator })));
-const WordCounter = lazy(() => import("./components/WordCounter").then(m => ({ default: m.WordCounter })));
-const ColorConverter = lazy(() => import("./components/ColorConverter").then(m => ({ default: m.ColorConverter })));
-const TimerTool = lazy(() => import("./components/TimerTool").then(m => ({ default: m.TimerTool })));
-const TextFormatter = lazy(() => import("./components/TextFormatter").then(m => ({ default: m.TextFormatter })));
-const NumberConverter = lazy(() => import("./components/NumberConverter").then(m => ({ default: m.NumberConverter })));
-const QRCodeGenerator = lazy(() => import("./components/QRCodeGenerator").then(m => ({ default: m.QRCodeGenerator })));
-const PercentageCalculator = lazy(() => import("./components/PercentageCalculator").then(m => ({ default: m.PercentageCalculator })));
-const LoremIpsumGenerator = lazy(() => import("./components/LoremIpsumGenerator").then(m => ({ default: m.LoremIpsumGenerator })));
-const CurrencyConverter = lazy(() => import("./components/CurrencyConverter").then(m => ({ default: m.CurrencyConverter })));
-const BMICalculator = lazy(() => import("./components/BMICalculator").then(m => ({ default: m.BMICalculator })));
-const UUIDGenerator = lazy(() => import("./components/UUIDGenerator").then(m => ({ default: m.UUIDGenerator })));
-const Base64Tool = lazy(() => import("./components/Base64Tool").then(m => ({ default: m.Base64Tool })));
-const DateCalculator = lazy(() => import("./components/DateCalculator").then(m => ({ default: m.DateCalculator })));
-const MarkdownPreview = lazy(() => import("./components/MarkdownPreview").then(m => ({ default: m.MarkdownPreview })));
-const JSONFormatter = lazy(() => import("./components/JSONFormatter").then(m => ({ default: m.JSONFormatter })));
-const URLEncoder = lazy(() => import("./components/URLEncoder").then(m => ({ default: m.URLEncoder })));
-const ImageCompressor = lazy(() => import("./components/ImageCompressor").then(m => ({ default: m.ImageCompressor })));
-const IPAddressTool = lazy(() => import("./components/IPAddressTool").then(m => ({ default: m.IPAddressTool })));
-const CaseConverter = lazy(() => import("./components/CaseConverter").then(m => ({ default: m.CaseConverter })));
-const DiffChecker = lazy(() => import("./components/DiffChecker").then(m => ({ default: m.DiffChecker })));
-const AspectRatioCalculator = lazy(() => import("./components/AspectRatioCalculator").then(m => ({ default: m.AspectRatioCalculator })));
-const MorseCodeConverter = lazy(() => import("./components/MorseCodeConverter").then(m => ({ default: m.MorseCodeConverter })));
-const About = lazy(() => import("./components/About").then(m => ({ default: m.About })));
-const Contact = lazy(() => import("./components/Contact").then(m => ({ default: m.Contact })));
-const PrivacyPolicy = lazy(() => import("./components/PrivacyPolicy").then(m => ({ default: m.PrivacyPolicy })));
-const InvoiceGenerator = lazy(() => import("./components/InvoiceGenerator").then(m => ({ default: m.InvoiceGenerator })));
-const MarginCalculator = lazy(() => import("./components/MarginCalculator").then(m => ({ default: m.MarginCalculator })));
-const LoanCalculator = lazy(() => import("./components/LoanCalculator").then(m => ({ default: m.LoanCalculator })));
-const SavingsCalculator = lazy(() => import("./components/SavingsCalculator").then(m => ({ default: m.SavingsCalculator })));
-const BudgetPlanner = lazy(() => import("./components/BudgetPlanner").then(m => ({ default: m.BudgetPlanner })));
-const VATCalculator = lazy(() => import("./components/VATCalculator").then(m => ({ default: m.VATCalculator })));
-const TipCalculator = lazy(() => import("./components/TipCalculator").then(m => ({ default: m.TipCalculator })));
-const SalaryCalculator = lazy(() => import("./components/SalaryCalculator").then(m => ({ default: m.SalaryCalculator })));
-const ROICalculator = lazy(() => import("./components/ROICalculator").then(m => ({ default: m.ROICalculator })));
-const ExpenseTracker = lazy(() => import("./components/ExpenseTracker").then(m => ({ default: m.ExpenseTracker })));
-const BPMCounter = lazy(() => import("./components/BPMCounter").then(m => ({ default: m.BPMCounter })));
-const HashGenerator = lazy(() => import("./components/HashGenerator").then(m => ({ default: m.HashGenerator })));
+import { About } from "./components/About";
+import { Contact } from "./components/Contact";
+import { PrivacyPolicy } from "./components/PrivacyPolicy";
+import { InvoiceGenerator } from "./components/InvoiceGenerator";
+import { MarginCalculator } from "./components/MarginCalculator";
+import { LoanCalculator } from "./components/LoanCalculator";
+import { SavingsCalculator } from "./components/SavingsCalculator";
+import { BudgetPlanner } from "./components/BudgetPlanner";
+import { VATCalculator } from "./components/VATCalculator";
+import { TipCalculator } from "./components/TipCalculator";
+import { SalaryCalculator } from "./components/SalaryCalculator";
+import { ROICalculator } from "./components/ROICalculator";
+import { ExpenseTracker } from "./components/ExpenseTracker";
+import { BPMCounter } from "./components/BPMCounter";
+import { HashGenerator } from "./components/HashGenerator";
 
 interface Tool {
   id: string;
@@ -247,7 +216,7 @@ const tools: Tool[] = [
     name: "Devises",
     icon: DollarSign,
     description: "Convertisseur de devises en temps réel",
-    Component: CurrencyConverter,
+    Component: CurrencyConverterTool,
     category: "budget",
   },
   // Calculators
@@ -256,7 +225,7 @@ const tools: Tool[] = [
     name: "Calculatrice",
     icon: CalcIcon,
     description: "Calculatrice simple et scientifique",
-    Component: Calculator,
+    Component: CalculatorTool,
     category: "calculators",
   },
   {
@@ -264,7 +233,7 @@ const tools: Tool[] = [
     name: "Pourcentage",
     icon: Percent,
     description: "Calculs de variations et pourcentages",
-    Component: PercentageCalculator,
+    Component: PercentageCalculatorTool,
     category: "calculators",
   },
   {
@@ -272,7 +241,7 @@ const tools: Tool[] = [
     name: "IMC",
     icon: Heart,
     description: "Calcul de l'Indice de Masse Corporelle",
-    Component: BMICalculator,
+    Component: BMICalculatorTool,
     category: "calculators",
   },
   {
@@ -280,7 +249,7 @@ const tools: Tool[] = [
     name: "Dates",
     icon: Calendar,
     description: "Calcul de durée entre deux dates",
-    Component: DateCalculator,
+    Component: DateCalculatorTool,
     category: "calculators",
   },
   // Converters
@@ -289,7 +258,7 @@ const tools: Tool[] = [
     name: "Unités",
     icon: Ruler,
     description: "Longueurs, poids, températures",
-    Component: UnitConverter,
+    Component: UnitConverterTool,
     category: "converters",
   },
   {
@@ -297,7 +266,7 @@ const tools: Tool[] = [
     name: "Couleurs",
     icon: Palette,
     description: "HEX, RGB, HSL Converter",
-    Component: ColorConverter,
+    Component: ColorConverterTool,
     category: "converters",
   },
   {
@@ -305,7 +274,7 @@ const tools: Tool[] = [
     name: "Base",
     icon: Hash,
     description: "Binaire, Décimal, Hexadécimal",
-    Component: NumberConverter,
+    Component: NumberConverterTool,
     category: "converters",
   },
   // Text Tools
@@ -314,7 +283,7 @@ const tools: Tool[] = [
     name: "Mots",
     icon: Type,
     description: "Compteur de mots et caractères",
-    Component: WordCounter,
+    Component: WordCounterTool,
     category: "text",
   },
   {
@@ -322,7 +291,7 @@ const tools: Tool[] = [
     name: "Casse",
     icon: CaseSensitive,
     description: "camelCase, snake_case, kebab-case",
-    Component: CaseConverter,
+    Component: CaseConverterTool,
     category: "text",
   },
   {
@@ -330,7 +299,7 @@ const tools: Tool[] = [
     name: "Format",
     icon: FileText,
     description: "Mise en forme de texte simple",
-    Component: TextFormatter,
+    Component: TextFormatterTool,
     category: "text",
   },
   {
@@ -338,7 +307,7 @@ const tools: Tool[] = [
     name: "Lorem Ipsum",
     icon: FileType,
     description: "Générateur de texte de remplissage",
-    Component: LoremIpsumGenerator,
+    Component: LoremIpsumGeneratorTool,
     category: "text",
   },
   {
@@ -346,7 +315,7 @@ const tools: Tool[] = [
     name: "Markdown",
     icon: FileCode,
     description: "Éditeur et prévisualisation Markdown",
-    Component: MarkdownPreview,
+    Component: MarkdownPreviewTool,
     category: "text",
   },
   {
@@ -354,7 +323,7 @@ const tools: Tool[] = [
     name: "Diff",
     icon: Columns,
     description: "Comparateur de texte ligne par ligne",
-    Component: DiffChecker,
+    Component: DiffCheckerTool,
     category: "text",
   },
   {
@@ -362,7 +331,7 @@ const tools: Tool[] = [
     name: "Morse",
     icon: Signal,
     description: "Traducteur de texte en Morse",
-    Component: MorseCodeConverter,
+    Component: MorseCodeConverterTool,
     category: "text",
   },
   // Dev Tools
@@ -371,7 +340,7 @@ const tools: Tool[] = [
     name: "Mots de passe",
     icon: Key,
     description: "Générateur de clés sécurisées",
-    Component: PasswordGenerator,
+    Component: PasswordGeneratorTool,
     category: "dev",
   },
   {
@@ -379,7 +348,7 @@ const tools: Tool[] = [
     name: "QR Code",
     icon: QrCode,
     description: "Générateur de codes QR",
-    Component: QRCodeGenerator,
+    Component: QRCodeGeneratorTool,
     category: "dev",
   },
   {
@@ -387,7 +356,7 @@ const tools: Tool[] = [
     name: "UUID",
     icon: Fingerprint,
     description: "Générateur d'identifiants uniques",
-    Component: UUIDGenerator,
+    Component: UUIDGeneratorTool,
     category: "dev",
   },
   {
@@ -395,7 +364,7 @@ const tools: Tool[] = [
     name: "Base64",
     icon: Code,
     description: "Encodeur et décodeur Base64",
-    Component: Base64Tool,
+    Component: Base64ToolComponent,
     category: "dev",
   },
   {
@@ -403,7 +372,7 @@ const tools: Tool[] = [
     name: "JSON",
     icon: FileCode,
     description: "Validateur et formateur JSON",
-    Component: JSONFormatter,
+    Component: JSONFormatterTool,
     category: "dev",
   },
   {
@@ -427,7 +396,7 @@ const tools: Tool[] = [
     name: "URL",
     icon: LinkIcon,
     description: "Encodeur et décodeur d'URL",
-    Component: URLEncoder,
+    Component: URLEncoderTool,
     category: "dev",
   },
   // Other Tools
@@ -436,7 +405,7 @@ const tools: Tool[] = [
     name: "Timer",
     icon: Timer,
     description: "Minuteur et Chronomètre",
-    Component: TimerTool,
+    Component: TimerToolComponent,
     category: "other",
   },
   {
@@ -444,7 +413,7 @@ const tools: Tool[] = [
     name: "Images",
     icon: Image,
     description: "Compresseur d'images client-side",
-    Component: ImageCompressor,
+    Component: ImageCompressorTool,
     category: "other",
   },
   {
@@ -452,7 +421,7 @@ const tools: Tool[] = [
     name: "IP",
     icon: Globe,
     description: "Mon adresse IP et infos réseau",
-    Component: IPAddressTool,
+    Component: IPAddressToolComponent,
     category: "other",
   },
   {
@@ -460,7 +429,7 @@ const tools: Tool[] = [
     name: "Ratio",
     icon: Monitor,
     description: "Calculateur d'aspect ratio",
-    Component: AspectRatioCalculator,
+    Component: AspectRatioCalculatorTool,
     category: "other",
   },
   {
@@ -480,19 +449,6 @@ const tools: Tool[] = [
     category: "other",
   },
 ];
-
-
-function LoadingTool() {
-  return (
-    <div className="flex flex-col items-center justify-center min-h-[400px] space-y-4 animate-in fade-in duration-500">
-      <div className="relative">
-        <div className="w-12 h-12 border-4 border-indigo-500/20 rounded-full"></div>
-        <Loader2 className="w-12 h-12 text-indigo-500 animate-spin absolute top-0 left-0" />
-      </div>
-      <p className="text-sm font-medium text-slate-500 dark:text-slate-400 animate-pulse">Chargement de l'outil...</p>
-    </div>
-  );
-}
 
 function ThemeToggle() {
   const { theme, setTheme } = useTheme();
@@ -789,9 +745,7 @@ function ToolView({ favorites, toggleFavorite }: { favorites: string[], toggleFa
       </div>
 
       <div className="bg-white dark:bg-slate-900/40 rounded-[2.5rem] border border-slate-200 dark:border-slate-800 p-8 md:p-12 shadow-sm min-h-[500px]">
-        <Suspense fallback={<LoadingTool />}>
-          <currentTool.Component />
-        </Suspense>
+        <currentTool.Component />
       </div>
 
       <div className="mt-12">
@@ -813,9 +767,7 @@ function InfoPage({ title, component }: { title: string, component: React.ReactN
       </Link>
       <h2 className="text-4xl font-black mb-12">{title}</h2>
       <div className="bg-white dark:bg-slate-900/40 rounded-[2.5rem] border border-slate-200 dark:border-slate-800 p-8 md:p-12 shadow-sm">
-        <Suspense fallback={<LoadingTool />}>
-          {component}
-        </Suspense>
+        {component}
       </div>
     </div>
   );

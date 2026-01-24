@@ -1,6 +1,6 @@
 import { useState } from 'react';
 
-type ConversionCategory = 'length' | 'weight' | 'temperature' | 'area' | 'volume' | 'digital';
+type ConversionCategory = 'length' | 'weight' | 'temperature' | 'area' | 'volume' | 'digital' | 'pressure' | 'energy';
 
 interface ConversionUnit {
   name: string;
@@ -77,6 +77,20 @@ export function UnitConverter() {
       'MB': { name: 'Megaoctets (MB)', toBase: (v) => v * Math.pow(1024, 2), fromBase: (v) => v / Math.pow(1024, 2) },
       'GB': { name: 'Gigaoctets (GB)', toBase: (v) => v * Math.pow(1024, 3), fromBase: (v) => v / Math.pow(1024, 3) },
       'TB': { name: 'Teraoctets (TB)', toBase: (v) => v * Math.pow(1024, 4), fromBase: (v) => v / Math.pow(1024, 4) }
+    },
+    pressure: {
+      'Pa': { name: 'Pascal (Pa)', toBase: (v) => v, fromBase: (v) => v },
+      'bar': { name: 'Bar', toBase: (v) => v * 100000, fromBase: (v) => v / 100000 },
+      'atm': { name: 'Atmosphère (atm)', toBase: (v) => v * 101325, fromBase: (v) => v / 101325 },
+      'psi': { name: 'PSI', toBase: (v) => v * 6894.76, fromBase: (v) => v / 6894.76 }
+    },
+    energy: {
+      'J': { name: 'Joule (J)', toBase: (v) => v, fromBase: (v) => v },
+      'kJ': { name: 'Kilojoule (kJ)', toBase: (v) => v * 1000, fromBase: (v) => v / 1000 },
+      'cal': { name: 'Calorie (cal)', toBase: (v) => v * 4.184, fromBase: (v) => v / 4.184 },
+      'kcal': { name: 'Kilocalorie (kcal)', toBase: (v) => v * 4184, fromBase: (v) => v / 4184 },
+      'Wh': { name: 'Watt-heure (Wh)', toBase: (v) => v * 3600, fromBase: (v) => v / 3600 },
+      'kWh': { name: 'Kilowatt-heure (kWh)', toBase: (v) => v * 3600000, fromBase: (v) => v / 3600000 }
     }
   };
 
@@ -122,8 +136,8 @@ export function UnitConverter() {
           onClick={() => handleCategoryChange('length')}
           className={`flex-1 min-w-[100px] py-3 rounded-lg font-semibold transition-all ${
             category === 'length'
-              ? 'bg-blue-500 text-white'
-              : 'bg-gray-200 hover:bg-gray-300'
+              ? 'bg-blue-500 text-white shadow-lg'
+              : 'bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-200 hover:bg-gray-300 dark:hover:bg-gray-600'
           }`}
         >
           Longueur
@@ -132,8 +146,8 @@ export function UnitConverter() {
           onClick={() => handleCategoryChange('weight')}
           className={`flex-1 min-w-[100px] py-3 rounded-lg font-semibold transition-all ${
             category === 'weight'
-              ? 'bg-blue-500 text-white'
-              : 'bg-gray-200 hover:bg-gray-300'
+              ? 'bg-blue-500 text-white shadow-lg'
+              : 'bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-200 hover:bg-gray-300 dark:hover:bg-gray-600'
           }`}
         >
           Poids
@@ -142,8 +156,8 @@ export function UnitConverter() {
           onClick={() => handleCategoryChange('temperature')}
           className={`flex-1 min-w-[100px] py-3 rounded-lg font-semibold transition-all ${
             category === 'temperature'
-              ? 'bg-blue-500 text-white'
-              : 'bg-gray-200 hover:bg-gray-300'
+              ? 'bg-blue-500 text-white shadow-lg'
+              : 'bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-200 hover:bg-gray-300 dark:hover:bg-gray-600'
           }`}
         >
           Température
@@ -152,8 +166,8 @@ export function UnitConverter() {
           onClick={() => handleCategoryChange('area')}
           className={`flex-1 min-w-[100px] py-3 rounded-lg font-semibold transition-all ${
             category === 'area'
-              ? 'bg-blue-500 text-white'
-              : 'bg-gray-200 hover:bg-gray-300'
+              ? 'bg-blue-500 text-white shadow-lg'
+              : 'bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-200 hover:bg-gray-300 dark:hover:bg-gray-600'
           }`}
         >
           Surface
@@ -162,8 +176,8 @@ export function UnitConverter() {
           onClick={() => handleCategoryChange('volume')}
           className={`flex-1 min-w-[100px] py-3 rounded-lg font-semibold transition-all ${
             category === 'volume'
-              ? 'bg-blue-500 text-white'
-              : 'bg-gray-200 hover:bg-gray-300'
+              ? 'bg-blue-500 text-white shadow-lg'
+              : 'bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-200 hover:bg-gray-300 dark:hover:bg-gray-600'
           }`}
         >
           Volume
@@ -172,29 +186,49 @@ export function UnitConverter() {
           onClick={() => handleCategoryChange('digital')}
           className={`flex-1 min-w-[100px] py-3 rounded-lg font-semibold transition-all ${
             category === 'digital'
-              ? 'bg-blue-500 text-white'
-              : 'bg-gray-200 hover:bg-gray-300'
+              ? 'bg-blue-500 text-white shadow-lg'
+              : 'bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-200 hover:bg-gray-300 dark:hover:bg-gray-600'
           }`}
         >
           Informatique
         </button>
+        <button
+          onClick={() => handleCategoryChange('pressure')}
+          className={`flex-1 min-w-[100px] py-3 rounded-lg font-semibold transition-all ${
+            category === 'pressure'
+              ? 'bg-blue-500 text-white shadow-lg'
+              : 'bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-200 hover:bg-gray-300 dark:hover:bg-gray-600'
+          }`}
+        >
+          Pression
+        </button>
+        <button
+          onClick={() => handleCategoryChange('energy')}
+          className={`flex-1 min-w-[100px] py-3 rounded-lg font-semibold transition-all ${
+            category === 'energy'
+              ? 'bg-blue-500 text-white shadow-lg'
+              : 'bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-200 hover:bg-gray-300 dark:hover:bg-gray-600'
+          }`}
+        >
+          Énergie
+        </button>
       </div>
 
       {/* From */}
-      <div className="bg-gray-50 p-6 rounded-lg mb-4">
-        <label className="block text-sm text-gray-600 mb-2">De</label>
-        <div className="flex gap-3">
+      <div className="bg-gray-50 dark:bg-gray-900/50 p-6 rounded-lg mb-4 border border-gray-100 dark:border-gray-800">
+        <label className="block text-sm text-gray-600 dark:text-gray-400 mb-2">De</label>
+        <div className="flex flex-col sm:flex-row gap-3">
           <input
             type="number"
             value={fromValue}
             onChange={(e) => handleFromValueChange(e.target.value)}
-            className="flex-1 p-3 border border-gray-300 rounded-lg text-lg"
+            className="flex-1 p-3 border border-gray-300 dark:border-gray-700 rounded-lg text-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 focus:ring-2 focus:ring-blue-500 outline-none"
             placeholder="Valeur"
           />
           <select
             value={fromUnit}
             onChange={(e) => handleFromUnitChange(e.target.value)}
-            className="p-3 border border-gray-300 rounded-lg bg-white"
+            className="p-3 border border-gray-300 dark:border-gray-700 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 focus:ring-2 focus:ring-blue-500 outline-none"
           >
             {Object.entries(conversions[category]).map(([key, unit]) => (
               <option key={key} value={key}>
@@ -206,19 +240,19 @@ export function UnitConverter() {
       </div>
 
       {/* To */}
-      <div className="bg-gray-50 p-6 rounded-lg">
-        <label className="block text-sm text-gray-600 mb-2">Vers</label>
-        <div className="flex gap-3">
+      <div className="bg-gray-50 dark:bg-gray-900/50 p-6 rounded-lg border border-gray-100 dark:border-gray-800">
+        <label className="block text-sm text-gray-600 dark:text-gray-400 mb-2">Vers</label>
+        <div className="flex flex-col sm:flex-row gap-3">
           <input
             type="text"
             value={toValue}
             readOnly
-            className="flex-1 p-3 border border-gray-300 rounded-lg text-lg bg-white"
+            className="flex-1 p-3 border border-gray-300 dark:border-gray-700 rounded-lg text-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100"
           />
           <select
             value={toUnit}
             onChange={(e) => handleToUnitChange(e.target.value)}
-            className="p-3 border border-gray-300 rounded-lg bg-white"
+            className="p-3 border border-gray-300 dark:border-gray-700 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 focus:ring-2 focus:ring-blue-500 outline-none"
           >
             {Object.entries(conversions[category]).map(([key, unit]) => (
               <option key={key} value={key}>

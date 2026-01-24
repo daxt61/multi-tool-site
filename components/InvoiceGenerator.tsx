@@ -50,26 +50,26 @@ export function InvoiceGenerator() {
     <div className="space-y-6">
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         <div>
-          <label className="block text-sm font-semibold text-gray-700 mb-1">
+          <label className="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-1">
             Nom de l'entreprise
           </label>
           <input
             type="text"
             value={companyName}
             onChange={(e) => setCompanyName(e.target.value)}
-            className="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+            className="w-full p-3 border border-gray-300 dark:border-gray-700 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 focus:outline-none focus:ring-2 focus:ring-blue-500"
             placeholder="Votre entreprise"
           />
         </div>
         <div>
-          <label className="block text-sm font-semibold text-gray-700 mb-1">
+          <label className="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-1">
             Nom du client
           </label>
           <input
             type="text"
             value={clientName}
             onChange={(e) => setClientName(e.target.value)}
-            className="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+            className="w-full p-3 border border-gray-300 dark:border-gray-700 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 focus:outline-none focus:ring-2 focus:ring-blue-500"
             placeholder="Nom du client"
           />
         </div>
@@ -77,39 +77,39 @@ export function InvoiceGenerator() {
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         <div>
-          <label className="block text-sm font-semibold text-gray-700 mb-1">
+          <label className="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-1">
             Numéro de facture
           </label>
           <input
             type="text"
             value={invoiceNumber}
             onChange={(e) => setInvoiceNumber(e.target.value)}
-            className="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+            className="w-full p-3 border border-gray-300 dark:border-gray-700 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 focus:outline-none focus:ring-2 focus:ring-blue-500"
             placeholder="FAC-001"
           />
         </div>
         <div>
-          <label className="block text-sm font-semibold text-gray-700 mb-1">
+          <label className="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-1">
             Taux de TVA (%)
           </label>
           <input
             type="number"
             value={taxRate}
             onChange={(e) => setTaxRate(Number(e.target.value))}
-            className="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+            className="w-full p-3 border border-gray-300 dark:border-gray-700 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 focus:outline-none focus:ring-2 focus:ring-blue-500"
           />
         </div>
       </div>
 
       <div>
-        <label className="block text-sm font-semibold text-gray-700 mb-2">
+        <label className="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">
           Articles
         </label>
         <div className="space-y-2">
           {items.map((item, index) => (
             <div
               key={index}
-              className="grid grid-cols-1 md:grid-cols-4 gap-2 p-3 bg-gray-50 rounded-lg"
+              className="grid grid-cols-1 md:grid-cols-4 gap-2 p-3 bg-gray-50 dark:bg-gray-900/50 dark:border dark:border-gray-800 rounded-lg"
             >
               <input
                 type="text"
@@ -117,7 +117,7 @@ export function InvoiceGenerator() {
                 onChange={(e) =>
                   updateItem(index, "description", e.target.value)
                 }
-                className="p-2 border border-gray-300 rounded md:col-span-2"
+                className="p-2 border border-gray-300 dark:border-gray-700 rounded md:col-span-2 bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100"
                 placeholder="Description"
               />
               <input
@@ -126,7 +126,7 @@ export function InvoiceGenerator() {
                 onChange={(e) =>
                   updateItem(index, "quantity", Number(e.target.value))
                 }
-                className="p-2 border border-gray-300 rounded"
+                className="p-2 border border-gray-300 dark:border-gray-700 rounded bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100"
                 placeholder="Qté"
                 min="1"
               />
@@ -137,7 +137,7 @@ export function InvoiceGenerator() {
                   onChange={(e) =>
                     updateItem(index, "unitPrice", Number(e.target.value))
                   }
-                  className="p-2 border border-gray-300 rounded flex-1"
+                  className="p-2 border border-gray-300 dark:border-gray-700 rounded flex-1 bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100"
                   placeholder="Prix"
                   min="0"
                   step="0.01"
@@ -160,18 +160,18 @@ export function InvoiceGenerator() {
         </button>
       </div>
 
-      <div className="bg-gray-100 p-4 rounded-lg space-y-2">
-        <div className="flex justify-between">
+      <div className="bg-gray-100 dark:bg-gray-900/50 p-4 rounded-lg space-y-2 border border-gray-200 dark:border-gray-800 transition-colors">
+        <div className="flex justify-between text-gray-700 dark:text-gray-300">
           <span>Sous-total HT:</span>
           <span className="font-semibold">{subtotal.toFixed(2)} €</span>
         </div>
-        <div className="flex justify-between">
+        <div className="flex justify-between text-gray-700 dark:text-gray-300">
           <span>TVA ({taxRate}%):</span>
           <span className="font-semibold">{taxAmount.toFixed(2)} €</span>
         </div>
-        <div className="flex justify-between text-xl font-bold border-t pt-2">
+        <div className="flex justify-between text-xl font-bold border-t dark:border-gray-700 pt-2 text-gray-900 dark:text-gray-100">
           <span>Total TTC:</span>
-          <span className="text-green-600">{total.toFixed(2)} €</span>
+          <span className="text-green-600 dark:text-green-400">{total.toFixed(2)} €</span>
         </div>
       </div>
 

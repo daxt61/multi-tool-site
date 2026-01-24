@@ -1,4 +1,5 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import { ThemeProvider, useTheme } from "next-themes";
 import {
   Calculator as CalcIcon,
   Ruler,
@@ -39,6 +40,12 @@ import {
   CreditCard,
   Briefcase,
   Search,
+  Sun,
+  Moon,
+  Music,
+  Star,
+  Clock,
+  ChevronRight,
 } from "lucide-react";
 import { Calculator } from "./components/Calculator";
 import { UnitConverter } from "./components/UnitConverter";
@@ -79,6 +86,8 @@ import { TipCalculator } from "./components/TipCalculator";
 import { SalaryCalculator } from "./components/SalaryCalculator";
 import { ROICalculator } from "./components/ROICalculator";
 import { ExpenseTracker } from "./components/ExpenseTracker";
+import { BPMCounter } from "./components/BPMCounter";
+import { HashGenerator } from "./components/HashGenerator";
 
 interface Tool {
   id: string;
@@ -96,10 +105,37 @@ interface Category {
   color: string;
 }
 
-export default function App() {
+function ThemeToggle() {
+  const { theme, setTheme } = useTheme();
+  const [mounted, setMounted] = useState(false);
+
+  useEffect(() => setMounted(true), []);
+
+  if (!mounted) return null;
+
+  return (
+    <button
+      onClick={() => setTheme(theme === "dark" ? "light" : "dark")}
+      className="p-3 rounded-xl bg-white dark:bg-gray-800 shadow-lg hover:shadow-xl transition-all text-gray-700 dark:text-gray-200 border border-transparent dark:border-gray-700"
+      aria-label="Toggle theme"
+    >
+      {theme === "dark" ? <Sun className="w-5 h-5" /> : <Moon className="w-5 h-5" />}
+    </button>
+  );
+}
+
+function MainApp() {
   const [selectedTool, setSelectedTool] = useState<string | null>(null);
   const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
   const [searchQuery, setSearchQuery] = useState("");
+  const [favorites, setFavorites] = useState<string[]>(() => {
+    const saved = localStorage.getItem("favorites");
+    return saved ? JSON.parse(saved) : [];
+  });
+  const [recents, setRecents] = useState<string[]>(() => {
+    const saved = localStorage.getItem("recents");
+    return saved ? JSON.parse(saved) : [];
+  });
 
   const categories: Category[] = [
     {
@@ -107,6 +143,12 @@ export default function App() {
       name: "Tous",
       icon: <CalcIcon className="w-5 h-5" />,
       color: "from-gray-500 to-gray-600",
+    },
+    {
+      id: "favorites",
+      name: "Favoris",
+      icon: <Star className="w-5 h-5" />,
+      color: "from-yellow-400 to-orange-500",
     },
     {
       id: "business",
@@ -248,7 +290,7 @@ export default function App() {
       id: "calculator",
       name: "Calculatrice",
       icon: <CalcIcon className="w-6 h-6" />,
-      description: "Calculatrice simple et pratique",
+      description: "Calculatrice simple et scientifique",
       component: <Calculator />,
       category: "calculators",
     },
@@ -400,6 +442,14 @@ export default function App() {
       category: "dev",
     },
     {
+      id: "hash-generator",
+      name: "Générateur de Hash",
+      icon: <Shield className="w-6 h-6" />,
+      description: "Générer SHA-256, SHA-512...",
+      component: <HashGenerator />,
+      category: "dev",
+    },
+    {
       id: "url-encoder",
       name: "Encodeur URL",
       icon: <Link className="w-6 h-6" />,
@@ -440,6 +490,14 @@ export default function App() {
       component: <AspectRatioCalculator />,
       category: "other",
     },
+    {
+      id: "bpm-counter",
+      name: "Compteur BPM",
+      icon: <Music className="w-6 h-6" />,
+      description: "Calculer les battements par minute",
+      component: <BPMCounter />,
+      category: "other",
+    },
     // Info Pages (hidden from categories)
     {
       id: "about",
@@ -470,6 +528,10 @@ export default function App() {
   const filteredTools = tools.filter((tool) => {
     if (tool.category === "info") return false;
 
+    if (selectedCategory === "favorites") {
+      return favorites.includes(tool.id);
+    }
+
     const matchesSearch = tool.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
                          tool.description.toLowerCase().includes(searchQuery.toLowerCase());
 
@@ -481,7 +543,27 @@ export default function App() {
     return tool.category === selectedCategory;
   });
 
+  const recentTools = tools.filter(t => recents.includes(t.id))
+    .sort((a, b) => recents.indexOf(a.id) - recents.indexOf(b.id));
+
   const currentTool = tools.find((tool) => tool.id === selectedTool);
+
+  const toggleFavorite = (e: React.MouseEvent, id: string) => {
+    e.stopPropagation();
+    const newFavs = favorites.includes(id)
+      ? favorites.filter(f => f !== id)
+      : [...favorites, id];
+    setFavorites(newFavs);
+    localStorage.setItem("favorites", JSON.stringify(newFavs));
+  };
+
+  const handleToolSelect = (id: string) => {
+    setSelectedTool(id);
+    const newRecents = [id, ...recents.filter(r => r !== id)].slice(0, 4);
+    setRecents(newRecents);
+    localStorage.setItem("recents", JSON.stringify(newRecents));
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  };
 
   const getCategoryColor = (categoryId: string) => {
     const category = categories.find((c) => c.id === categoryId);
@@ -489,116 +571,180 @@ export default function App() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100">
-      <div className="container mx-auto px-4 py-8 max-w-7xl">
-        {/* Header */}
-        <div className="text-center mb-8">
-          <h1 className="text-5xl font-bold mb-4 bg-gradient-to-r from-blue-600 via-purple-600 to-indigo-600 bg-clip-text text-transparent">
-            🛠️ Boîte à Outils
-          </h1>
-          <p className="text-xl text-gray-600 mb-6">
-            Tous vos outils essentiels en un seul endroit
-          </p>
+    <div className="min-h-screen bg-gray-50 dark:bg-gray-950 transition-colors duration-300">
+      {/* Background Pattern */}
+      <div className="fixed inset-0 pointer-events-none opacity-[0.03] dark:opacity-[0.05]" style={{ backgroundImage: 'radial-gradient(#4f46e5 1px, transparent 1px)', backgroundSize: '24px 24px' }}></div>
 
-          {/* Top Banner Ad */}
-          {!selectedTool && (
-            <AdPlaceholder size="banner" className="max-w-4xl mx-auto" />
-          )}
+      <div className="container mx-auto px-4 py-8 max-w-7xl relative">
+        {/* Header */}
+        <div className="flex justify-between items-center mb-12">
+          <button
+            onClick={() => setSelectedTool(null)}
+            className="flex items-center gap-3 group"
+          >
+            <div className="p-3 bg-indigo-600 rounded-2xl shadow-lg shadow-indigo-600/20 group-hover:scale-110 transition-transform">
+              <CalcIcon className="w-8 h-8 text-white" />
+            </div>
+            <div className="text-left">
+              <h1 className="text-2xl font-bold text-gray-900 dark:text-white leading-tight">Boîte à Outils</h1>
+              <p className="text-sm text-gray-500 dark:text-gray-400">Utilitaires gratuits & simples</p>
+            </div>
+          </button>
+
+          <ThemeToggle />
         </div>
 
         {/* Back button when tool is selected */}
         {selectedTool && (
           <button
             onClick={() => setSelectedTool(null)}
-            className="mb-6 px-4 py-2 bg-white rounded-lg shadow hover:shadow-md transition-shadow flex items-center gap-2 text-gray-700"
+            className="mb-8 px-5 py-2.5 bg-white dark:bg-gray-800 rounded-xl shadow-sm hover:shadow-md transition-all flex items-center gap-2 text-gray-700 dark:text-gray-200 font-semibold border border-gray-100 dark:border-gray-700"
           >
-            ← Retour aux outils
+            ← Retour à l'accueil
           </button>
         )}
 
         {/* Tool Grid or Selected Tool */}
         {!selectedTool ? (
-          <div>
-            {/* Search Bar */}
-            <div className="max-w-2xl mx-auto mb-8 relative">
-              <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                <Search className="h-5 w-5 text-gray-400" />
+          <div className="space-y-12">
+            {/* Hero Section */}
+            <div className="text-center py-10 md:py-20 bg-gradient-to-br from-indigo-600 to-blue-700 rounded-[2.5rem] text-white shadow-2xl shadow-indigo-500/20 px-6 relative overflow-hidden">
+               <div className="absolute top-0 right-0 -translate-y-1/2 translate-x-1/2 w-96 h-96 bg-white/10 rounded-full blur-3xl"></div>
+               <div className="absolute bottom-0 left-0 translate-y-1/2 -translate-x-1/2 w-96 h-96 bg-blue-400/10 rounded-full blur-3xl"></div>
+
+               <h2 className="text-4xl md:text-6xl font-extrabold mb-6">Tous vos outils en un clic</h2>
+               <p className="text-lg md:text-xl text-indigo-100 mb-10 max-w-2xl mx-auto">
+                 Plus de 35 outils gratuits pour simplifier votre quotidien. Calculatrices, convertisseurs, générateurs et bien plus encore.
+               </p>
+
+               <div className="max-w-2xl mx-auto relative group">
+                <div className="absolute inset-y-0 left-5 flex items-center pointer-events-none">
+                  <Search className="h-6 w-6 text-gray-400 group-focus-within:text-indigo-600 transition-colors" />
+                </div>
+                <input
+                  type="text"
+                  placeholder="Que cherchez-vous aujourd'hui ?"
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                  className="block w-full pl-14 pr-6 py-5 border-none rounded-2xl leading-5 bg-white text-gray-900 placeholder-gray-400 focus:outline-none focus:ring-4 focus:ring-white/20 shadow-xl text-lg"
+                />
               </div>
-              <input
-                type="text"
-                placeholder="Rechercher un outil..."
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-                className="block w-full pl-10 pr-3 py-3 border border-gray-300 rounded-xl leading-5 bg-white placeholder-gray-500 focus:outline-none focus:placeholder-gray-400 focus:ring-1 focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm shadow-sm transition-all"
-              />
             </div>
 
-            {/* Category Filter */}
-            <div className="mb-8">
-              <div className="flex flex-wrap justify-center gap-2">
-                {categories.map((category) => (
+            {/* Recents Section */}
+            {!searchQuery && recentTools.length > 0 && (
+              <section>
+                <div className="flex items-center gap-2 mb-6 ml-2">
+                  <Clock className="w-5 h-5 text-indigo-500" />
+                  <h3 className="text-xl font-bold text-gray-900 dark:text-white">Récemment utilisés</h3>
+                </div>
+                <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                  {recentTools.map(tool => (
+                    <button
+                      key={tool.id}
+                      onClick={() => handleToolSelect(tool.id)}
+                      className="flex items-center gap-3 p-4 bg-white dark:bg-gray-800 rounded-2xl shadow-sm border border-gray-100 dark:border-gray-700 hover:shadow-md transition-all text-left"
+                    >
+                      <div className={`p-2 rounded-lg bg-gradient-to-br ${getCategoryColor(tool.category)} text-white`}>
+                        {tool.icon}
+                      </div>
+                      <span className="font-semibold text-gray-800 dark:text-gray-200 truncate">{tool.name}</span>
+                    </button>
+                  ))}
+                </div>
+              </section>
+            )}
+
+            {/* Category Filter - Sticky */}
+            <div className="sticky top-4 z-40 py-2 -mx-4 px-4">
+              <div className="bg-white/80 dark:bg-gray-900/80 backdrop-blur-xl rounded-2xl shadow-lg border border-gray-100 dark:border-gray-800 p-2 overflow-x-auto no-scrollbar">
+                <div className="flex gap-2 min-w-max">
+                  {categories.map((category) => (
+                    <button
+                      key={category.id}
+                      onClick={() =>
+                        setSelectedCategory(
+                          category.id === "all" ? null : category.id
+                        )
+                      }
+                      className={`flex items-center gap-2 px-5 py-2.5 rounded-xl font-bold transition-all whitespace-nowrap ${
+                        (selectedCategory === category.id) ||
+                        (category.id === "all" && !selectedCategory)
+                          ? `bg-gradient-to-br ${category.color} text-white shadow-lg`
+                          : "text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-800"
+                      }`}
+                    >
+                      {category.icon}
+                      <span>{category.name}</span>
+                    </button>
+                  ))}
+                </div>
+              </div>
+            </div>
+
+            {/* Main Grid */}
+            <div className="space-y-8">
+              <div className="flex justify-between items-center ml-2">
+                <div className="text-gray-600 dark:text-gray-400 font-medium">
+                  {filteredTools.length} outil{filteredTools.length > 1 ? "s" : ""}{" "}
+                  {selectedCategory && selectedCategory !== "all"
+                    ? `dans ${categories.find((c) => c.id === selectedCategory)?.name}`
+                    : "disponibles"}
+                </div>
+              </div>
+
+              {filteredTools.length > 0 ? (
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+                {filteredTools.map((tool) => (
                   <button
-                    key={category.id}
-                    onClick={() =>
-                      setSelectedCategory(
-                        category.id === "all" ? null : category.id
-                      )
-                    }
-                    className={`flex items-center gap-2 px-4 py-2 rounded-lg font-semibold transition-all ${
-                      (selectedCategory === category.id) ||
-                      (category.id === "all" && !selectedCategory)
-                        ? `bg-gradient-to-br ${category.color} text-white shadow-lg`
-                        : "bg-white text-gray-700 hover:bg-gray-100 shadow"
-                    }`}
+                    key={tool.id}
+                    onClick={() => handleToolSelect(tool.id)}
+                    className="group bg-white dark:bg-gray-800 rounded-3xl shadow-sm hover:shadow-2xl transition-all duration-300 p-6 text-left border border-gray-100 dark:border-gray-700 relative overflow-hidden flex flex-col h-full"
                   >
-                    {category.icon}
-                    <span className="hidden sm:inline">{category.name}</span>
+                    {/* Hover Decoration */}
+                    <div className={`absolute top-0 right-0 w-32 h-32 bg-gradient-to-br ${getCategoryColor(tool.category)} opacity-0 group-hover:opacity-5 transition-opacity blur-3xl -mr-16 -mt-16`}></div>
+
+                    <div className="flex justify-between items-start mb-6">
+                      <div
+                        className={`p-4 bg-gradient-to-br ${getCategoryColor(tool.category)} text-white rounded-2xl group-hover:scale-110 transition-transform shadow-lg shadow-indigo-500/10`}
+                      >
+                        {tool.icon}
+                      </div>
+                      <button
+                        onClick={(e) => toggleFavorite(e, tool.id)}
+                        className={`p-2 rounded-full transition-colors ${favorites.includes(tool.id) ? 'text-yellow-500' : 'text-gray-300 hover:text-yellow-500'}`}
+                      >
+                        <Star className={`w-6 h-6 ${favorites.includes(tool.id) ? 'fill-current' : ''}`} />
+                      </button>
+                    </div>
+
+                    <h3 className="font-bold text-xl text-gray-900 dark:text-white mb-3 group-hover:text-indigo-600 dark:group-hover:text-indigo-400 transition-colors">
+                      {tool.name}
+                    </h3>
+                    <p className="text-gray-500 dark:text-gray-400 text-sm leading-relaxed flex-grow">{tool.description}</p>
+
+                    <div className="mt-6 flex items-center text-indigo-600 dark:text-indigo-400 font-bold text-sm opacity-0 group-hover:opacity-100 transition-all translate-x-2 group-hover:translate-x-0">
+                      Ouvrir l'outil <ChevronRight className="w-4 h-4 ml-1" />
+                    </div>
                   </button>
                 ))}
               </div>
-            </div>
-
-            {/* Tools Count */}
-            <div className="text-center mb-4 text-gray-600">
-              {filteredTools.length} outil{filteredTools.length > 1 ? "s" : ""}{" "}
-              {selectedCategory && selectedCategory !== "all"
-                ? `dans ${categories.find((c) => c.id === selectedCategory)?.name}`
-                : "disponibles"}
-            </div>
-
-            {filteredTools.length > 0 ? (
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-              {filteredTools.map((tool) => (
-                <button
-                  key={tool.id}
-                  onClick={() => setSelectedTool(tool.id)}
-                  className="bg-white rounded-xl shadow-lg hover:shadow-xl transition-all duration-300 p-6 text-left group hover:-translate-y-1"
-                >
-                  <div className="flex items-center gap-4 mb-3">
-                    <div
-                      className={`p-3 bg-gradient-to-br ${getCategoryColor(tool.category)} text-white rounded-lg group-hover:scale-110 transition-transform`}
-                    >
-                      {tool.icon}
-                    </div>
+              ) : (
+                <div className="text-center py-20 bg-white dark:bg-gray-800 rounded-[2rem] border border-dashed border-gray-300 dark:border-gray-700">
+                  <div className="bg-gray-100 dark:bg-gray-700 w-20 h-20 rounded-full flex items-center justify-center mx-auto mb-6">
+                    <Search className="w-10 h-10 text-gray-400" />
                   </div>
-                  <h3 className="font-semibold text-lg text-gray-900 mb-2">
-                    {tool.name}
-                  </h3>
-                  <p className="text-gray-600 text-sm">{tool.description}</p>
-                </button>
-              ))}
+                  <p className="text-xl font-bold text-gray-900 dark:text-white mb-2">Aucun outil trouvé</p>
+                  <p className="text-gray-500 dark:text-gray-400 mb-8">Nous n'avons pas pu trouver d'outil correspondant à "{searchQuery}"</p>
+                  <button
+                    onClick={() => {setSearchQuery(""); setSelectedCategory(null);}}
+                    className="px-6 py-2 bg-indigo-600 text-white rounded-xl font-bold hover:bg-indigo-700 transition-colors"
+                  >
+                    Voir tous les outils
+                  </button>
+                </div>
+              )}
             </div>
-            ) : (
-              <div className="text-center py-12">
-                <p className="text-xl text-gray-500">Aucun outil trouvé pour "{searchQuery}"</p>
-                <button
-                  onClick={() => setSearchQuery("")}
-                  className="mt-4 text-blue-600 hover:underline"
-                >
-                  Effacer la recherche
-                </button>
-              </div>
-            )}
 
             {/* Bottom Ad */}
             <div className="mt-8">
@@ -606,54 +752,72 @@ export default function App() {
             </div>
 
             {/* Footer */}
-            <footer className="mt-12 pt-8 border-t border-gray-200">
-              <div className="max-w-4xl mx-auto text-center">
-                <div className="flex justify-center gap-6 mb-4">
-                  <button
-                    onClick={() => setSelectedTool("about")}
-                    className="text-gray-600 hover:text-indigo-600 transition-colors text-sm"
-                  >
-                    À propos
-                  </button>
-                  <button
-                    onClick={() => setSelectedTool("contact")}
-                    className="text-gray-600 hover:text-indigo-600 transition-colors text-sm"
-                  >
-                    Contact
-                  </button>
-                  <button
-                    onClick={() => setSelectedTool("privacy-policy")}
-                    className="text-gray-600 hover:text-indigo-600 transition-colors text-sm"
-                  >
-                    Politique de Confidentialité
-                  </button>
+            <footer className="mt-20 py-10 border-t border-gray-200 dark:border-gray-800">
+              <div className="flex flex-col md:flex-row justify-between items-center gap-8">
+                <div className="flex items-center gap-3">
+                  <div className="p-2 bg-indigo-600 rounded-lg">
+                    <CalcIcon className="w-5 h-5 text-white" />
+                  </div>
+                  <span className="font-bold text-gray-900 dark:text-white text-lg">Boîte à Outils</span>
                 </div>
-                <p className="text-gray-500 text-xs">
-                  © {new Date().getFullYear()} Boîte à Outils. Tous droits
-                  réservés.
+
+                <div className="flex flex-wrap justify-center gap-8">
+                  <button onClick={() => setSelectedTool("about")} className="text-gray-500 dark:text-gray-400 hover:text-indigo-600 transition-colors font-medium">À propos</button>
+                  <button onClick={() => setSelectedTool("contact")} className="text-gray-500 dark:text-gray-400 hover:text-indigo-600 transition-colors font-medium">Contact</button>
+                  <button onClick={() => setSelectedTool("privacy-policy")} className="text-gray-500 dark:text-gray-400 hover:text-indigo-600 transition-colors font-medium">Confidentialité</button>
+                </div>
+
+                <p className="text-gray-400 text-sm">
+                  © {new Date().getFullYear()} Boîte à Outils. Tous droits réservés.
                 </p>
               </div>
             </footer>
           </div>
         ) : (
-          <div className="bg-white rounded-xl shadow-xl p-8">
-            <div className="flex items-center gap-4 mb-6">
-              <div
-                className={`p-3 bg-gradient-to-br ${getCategoryColor(currentTool?.category || "")} text-white rounded-lg`}
-              >
-                {currentTool?.icon}
-              </div>
-              <div>
-                <h2 className="text-2xl font-bold text-gray-900">
-                  {currentTool?.name}
-                </h2>
-                <p className="text-gray-600">{currentTool?.description}</p>
+          <div className="bg-white dark:bg-gray-800 rounded-[2.5rem] shadow-2xl overflow-hidden border border-gray-100 dark:border-gray-700 min-h-[600px] flex flex-col">
+            <div className={`p-8 bg-gradient-to-br ${getCategoryColor(currentTool?.category || "")} text-white`}>
+              <div className="flex flex-col md:flex-row md:items-center justify-between gap-6">
+                <div className="flex items-center gap-6">
+                  <div className="p-5 bg-white/20 backdrop-blur-md rounded-2xl shadow-xl">
+                    {currentTool?.icon}
+                  </div>
+                  <div>
+                    <h2 className="text-3xl md:text-4xl font-extrabold mb-2">
+                      {currentTool?.name}
+                    </h2>
+                    <p className="text-indigo-100 font-medium">{currentTool?.description}</p>
+                  </div>
+                </div>
+                <div className="flex gap-3">
+                   <button
+                    onClick={(e) => toggleFavorite(e, currentTool?.id || "")}
+                    className="p-3 bg-white/10 hover:bg-white/20 backdrop-blur-md rounded-xl transition-all flex items-center gap-2 font-bold"
+                  >
+                    <Star className={`w-5 h-5 ${favorites.includes(currentTool?.id || "") ? 'fill-yellow-400 text-yellow-400' : ''}`} />
+                    {favorites.includes(currentTool?.id || "") ? 'Favori' : 'Ajouter aux favoris'}
+                  </button>
+                </div>
               </div>
             </div>
-            <div className="mt-6">{currentTool?.component}</div>
+            <div className="flex-grow p-6 md:p-12 bg-white dark:bg-gray-800">
+              {currentTool?.component}
+            </div>
+
+            {/* Tool Footer Ad */}
+            <div className="p-4 bg-gray-50 dark:bg-gray-900 border-t border-gray-100 dark:border-gray-800">
+              <AdPlaceholder size="banner" />
+            </div>
           </div>
         )}
       </div>
     </div>
+  );
+}
+
+export default function App() {
+  return (
+    <ThemeProvider attribute="class" defaultTheme="system" enableSystem>
+      <MainApp />
+    </ThemeProvider>
   );
 }

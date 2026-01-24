@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Copy, RefreshCw, Check } from 'lucide-react';
 
 export function PasswordGenerator() {
@@ -51,12 +51,16 @@ export function PasswordGenerator() {
     return { label: 'Fort', color: 'bg-green-500' };
   };
 
+  useEffect(() => {
+    generatePassword();
+  }, []);
+
   const strength = getStrength();
 
   return (
     <div className="max-w-2xl mx-auto">
       {/* Password display */}
-      <div className="bg-gray-900 text-white p-6 rounded-lg mb-6">
+      <div className="bg-gray-900 dark:bg-black text-white p-6 rounded-lg mb-6 shadow-inner">
         <div className="flex items-center gap-3 mb-3">
           <input
             type="text"
@@ -93,7 +97,7 @@ export function PasswordGenerator() {
       <div className="space-y-4 mb-6">
         <div>
           <div className="flex justify-between mb-2">
-            <label className="font-semibold">Longueur: {length}</label>
+            <label className="font-semibold text-gray-700 dark:text-gray-300">Longueur: {length}</label>
           </div>
           <input
             type="range"
@@ -101,49 +105,51 @@ export function PasswordGenerator() {
             max="64"
             value={length}
             onChange={(e) => setLength(Number(e.target.value))}
-            className="w-full"
+            className="w-full accent-blue-600"
           />
         </div>
 
-        <label className="flex items-center gap-3 p-3 bg-gray-50 rounded-lg cursor-pointer hover:bg-gray-100">
-          <input
-            type="checkbox"
-            checked={includeUppercase}
-            onChange={(e) => setIncludeUppercase(e.target.checked)}
-            className="w-5 h-5"
-          />
-          <span>Majuscules (A-Z)</span>
-        </label>
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+          <label className="flex items-center gap-3 p-3 bg-gray-50 dark:bg-gray-900/50 dark:border dark:border-gray-800 rounded-lg cursor-pointer hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors text-gray-700 dark:text-gray-300">
+            <input
+              type="checkbox"
+              checked={includeUppercase}
+              onChange={(e) => setIncludeUppercase(e.target.checked)}
+              className="w-5 h-5 accent-blue-600"
+            />
+            <span>Majuscules (A-Z)</span>
+          </label>
 
-        <label className="flex items-center gap-3 p-3 bg-gray-50 rounded-lg cursor-pointer hover:bg-gray-100">
-          <input
-            type="checkbox"
-            checked={includeLowercase}
-            onChange={(e) => setIncludeLowercase(e.target.checked)}
-            className="w-5 h-5"
-          />
-          <span>Minuscules (a-z)</span>
-        </label>
+          <label className="flex items-center gap-3 p-3 bg-gray-50 dark:bg-gray-900/50 dark:border dark:border-gray-800 rounded-lg cursor-pointer hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors text-gray-700 dark:text-gray-300">
+            <input
+              type="checkbox"
+              checked={includeLowercase}
+              onChange={(e) => setIncludeLowercase(e.target.checked)}
+              className="w-5 h-5 accent-blue-600"
+            />
+            <span>Minuscules (a-z)</span>
+          </label>
 
-        <label className="flex items-center gap-3 p-3 bg-gray-50 rounded-lg cursor-pointer hover:bg-gray-100">
-          <input
-            type="checkbox"
-            checked={includeNumbers}
-            onChange={(e) => setIncludeNumbers(e.target.checked)}
-            className="w-5 h-5"
-          />
-          <span>Chiffres (0-9)</span>
-        </label>
+          <label className="flex items-center gap-3 p-3 bg-gray-50 dark:bg-gray-900/50 dark:border dark:border-gray-800 rounded-lg cursor-pointer hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors text-gray-700 dark:text-gray-300">
+            <input
+              type="checkbox"
+              checked={includeNumbers}
+              onChange={(e) => setIncludeNumbers(e.target.checked)}
+              className="w-5 h-5 accent-blue-600"
+            />
+            <span>Chiffres (0-9)</span>
+          </label>
 
-        <label className="flex items-center gap-3 p-3 bg-gray-50 rounded-lg cursor-pointer hover:bg-gray-100">
-          <input
-            type="checkbox"
-            checked={includeSymbols}
-            onChange={(e) => setIncludeSymbols(e.target.checked)}
-            className="w-5 h-5"
-          />
-          <span>Symboles (!@#$%^&*)</span>
-        </label>
+          <label className="flex items-center gap-3 p-3 bg-gray-50 dark:bg-gray-900/50 dark:border dark:border-gray-800 rounded-lg cursor-pointer hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors text-gray-700 dark:text-gray-300">
+            <input
+              type="checkbox"
+              checked={includeSymbols}
+              onChange={(e) => setIncludeSymbols(e.target.checked)}
+              className="w-5 h-5 accent-blue-600"
+            />
+            <span>Symboles (!@#$...)</span>
+          </label>
+        </div>
       </div>
 
       {/* Generate button */}

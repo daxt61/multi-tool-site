@@ -28,7 +28,7 @@ export function WordCounter() {
         value={text}
         onChange={(e) => setText(e.target.value)}
         placeholder="Tapez ou collez votre texte ici..."
-        className="w-full h-64 p-4 border border-gray-300 rounded-lg resize-none focus:outline-none focus:ring-2 focus:ring-blue-500"
+        className="w-full h-64 p-4 border border-gray-300 dark:border-gray-700 rounded-lg resize-none bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 focus:outline-none focus:ring-2 focus:ring-blue-500 transition-colors"
       />
 
       <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mt-6">
@@ -76,13 +76,13 @@ export function WordCounter() {
       <div className="mt-6 flex flex-wrap gap-3">
         <button
           onClick={() => setText(text.toUpperCase())}
-          className="flex-1 min-w-[120px] py-3 bg-gray-200 hover:bg-gray-300 rounded-lg font-semibold transition-colors"
+          className="flex-1 min-w-[120px] py-3 bg-gray-200 dark:bg-gray-700 text-gray-800 dark:text-gray-200 hover:bg-gray-300 dark:hover:bg-gray-600 rounded-lg font-semibold transition-colors"
         >
           MAJUSCULES
         </button>
         <button
           onClick={() => setText(text.toLowerCase())}
-          className="flex-1 min-w-[120px] py-3 bg-gray-200 hover:bg-gray-300 rounded-lg font-semibold transition-colors"
+          className="flex-1 min-w-[120px] py-3 bg-gray-200 dark:bg-gray-700 text-gray-800 dark:text-gray-200 hover:bg-gray-300 dark:hover:bg-gray-600 rounded-lg font-semibold transition-colors"
         >
           minuscules
         </button>
@@ -90,7 +90,7 @@ export function WordCounter() {
           onClick={() => setText(text.replace(/\b\w+/g, (word) =>
             word.charAt(0).toUpperCase() + word.slice(1).toLowerCase()
           ))}
-          className="flex-1 min-w-[120px] py-3 bg-gray-200 hover:bg-gray-300 rounded-lg font-semibold transition-colors"
+          className="flex-1 min-w-[120px] py-3 bg-gray-200 dark:bg-gray-700 text-gray-800 dark:text-gray-200 hover:bg-gray-300 dark:hover:bg-gray-600 rounded-lg font-semibold transition-colors"
         >
           Capitaliser
         </button>

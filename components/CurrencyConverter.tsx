@@ -59,27 +59,27 @@ export function CurrencyConverter() {
 
   return (
     <div className="max-w-2xl mx-auto">
-      <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-4 mb-6 text-sm text-yellow-800">
+      <div className="bg-yellow-50 dark:bg-yellow-900/20 border border-yellow-200 dark:border-yellow-800/50 rounded-lg p-4 mb-6 text-sm text-yellow-800 dark:text-yellow-200">
         ℹ️ Note : Ces taux de change sont fictifs et à titre d'exemple uniquement.
       </div>
 
-      <div className="bg-gray-50 p-6 rounded-lg mb-4">
-        <label className="block text-sm font-semibold text-gray-700 mb-2">Montant</label>
+      <div className="bg-gray-50 dark:bg-gray-900/50 p-6 rounded-lg mb-4 border border-transparent dark:border-gray-800">
+        <label className="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">Montant</label>
         <input
           type="number"
           value={amount}
           onChange={(e) => setAmount(e.target.value)}
-          className="w-full p-4 border border-gray-300 rounded-lg text-2xl"
+          className="w-full p-4 border border-gray-300 dark:border-gray-700 rounded-lg text-2xl bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 focus:outline-none focus:ring-2 focus:ring-blue-500"
           placeholder="0.00"
         />
       </div>
 
-      <div className="bg-gray-50 p-6 rounded-lg mb-4">
-        <label className="block text-sm font-semibold text-gray-700 mb-2">De</label>
+      <div className="bg-gray-50 dark:bg-gray-900/50 p-6 rounded-lg mb-4 border border-transparent dark:border-gray-800">
+        <label className="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">De</label>
         <select
           value={fromCurrency}
           onChange={(e) => setFromCurrency(e.target.value)}
-          className="w-full p-4 border border-gray-300 rounded-lg text-lg bg-white"
+          className="w-full p-4 border border-gray-300 dark:border-gray-700 rounded-lg text-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 focus:outline-none focus:ring-2 focus:ring-blue-500"
         >
           {currencies.map(currency => (
             <option key={currency.code} value={currency.code}>
@@ -92,18 +92,19 @@ export function CurrencyConverter() {
       <div className="flex justify-center mb-4">
         <button
           onClick={swapCurrencies}
-          className="p-3 bg-blue-500 text-white rounded-full hover:bg-blue-600 transition-colors"
+          className="p-3 bg-blue-500 text-white rounded-full hover:bg-blue-600 transition-colors shadow-lg"
+          title="Inverser les devises"
         >
           ⇅
         </button>
       </div>
 
-      <div className="bg-gray-50 p-6 rounded-lg mb-4">
-        <label className="block text-sm font-semibold text-gray-700 mb-2">Vers</label>
+      <div className="bg-gray-50 dark:bg-gray-900/50 p-6 rounded-lg mb-4 border border-transparent dark:border-gray-800">
+        <label className="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">Vers</label>
         <select
           value={toCurrency}
           onChange={(e) => setToCurrency(e.target.value)}
-          className="w-full p-4 border border-gray-300 rounded-lg text-lg bg-white"
+          className="w-full p-4 border border-gray-300 dark:border-gray-700 rounded-lg text-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 focus:outline-none focus:ring-2 focus:ring-blue-500"
         >
           {currencies.map(currency => (
             <option key={currency.code} value={currency.code}>

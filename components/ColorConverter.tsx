@@ -1,10 +1,10 @@
 import { useState, useEffect } from 'react';
-import { Copy, Check } from 'lucide-react';
+import { Copy, Check, Palette, Hash, Sliders } from 'lucide-react';
 
 export function ColorConverter() {
-  const [hex, setHex] = useState('#3B82F6');
-  const [rgb, setRgb] = useState({ r: 59, g: 130, b: 246 });
-  const [hsl, setHsl] = useState({ h: 217, s: 91, l: 60 });
+  const [hex, setHex] = useState('#6366f1');
+  const [rgb, setRgb] = useState({ r: 99, g: 102, b: 241 });
+  const [hsl, setHsl] = useState({ h: 239, s: 84, l: 67 });
   const [copied, setCopied] = useState('');
 
   const hexToRgb = (hex: string) => {
@@ -79,6 +79,7 @@ export function ColorConverter() {
   };
 
   const updateFromHex = (newHex: string) => {
+    if (!newHex.startsWith('#')) newHex = '#' + newHex;
     setHex(newHex);
     const rgbValue = hexToRgb(newHex);
     if (rgbValue) {
@@ -100,9 +101,9 @@ export function ColorConverter() {
     setHex(rgbToHex(rgbValue.r, rgbValue.g, rgbValue.b));
   };
 
-  const copyToClipboard = (text: string, type: string) => {
+  const copyToClipboard = (text: string, id: string) => {
     navigator.clipboard.writeText(text);
-    setCopied(type);
+    setCopied(id);
     setTimeout(() => setCopied(''), 2000);
   };
 
@@ -181,16 +182,13 @@ export function ColorConverter() {
           <div>
             <label className="block text-sm text-gray-600 mb-1">B</label>
             <input
-              type="number"
-              min="0"
-              max="255"
-              value={rgb.b}
-              onChange={(e) => updateFromRgb({ ...rgb, b: Number(e.target.value) })}
-              className="w-full p-3 border border-gray-300 rounded-lg"
+              type="color"
+              value={hex}
+              onChange={(e) => updateFromHex(e.target.value)}
+              className="absolute bottom-8 right-8 w-16 h-16 rounded-full border-4 border-white dark:border-slate-800 cursor-pointer shadow-xl overflow-hidden"
             />
           </div>
         </div>
-      </div>
 
       {/* HSL */}
       <div className="bg-gray-50 p-6 rounded-lg">
@@ -204,39 +202,83 @@ export function ColorConverter() {
             {copied === 'hsl' ? <Check className="w-4 h-4" /> : <Copy className="w-4 h-4" />}
           </button>
         </div>
-        <div className="grid grid-cols-3 gap-3">
-          <div>
-            <label className="block text-sm text-gray-600 mb-1">H (0-360)</label>
-            <input
-              type="number"
-              min="0"
-              max="360"
-              value={hsl.h}
-              onChange={(e) => updateFromHsl({ ...hsl, h: Number(e.target.value) })}
-              className="w-full p-3 border border-gray-300 rounded-lg"
-            />
+      </div>
+
+      {/* Inputs Area */}
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+        {/* RGB Sliders */}
+        <div className="bg-white dark:bg-slate-900/40 border border-slate-200 dark:border-slate-800 p-8 rounded-[2.5rem] space-y-8">
+          <h4 className="text-xs font-black uppercase tracking-widest text-slate-400 px-1">Composantes RGB</h4>
+          <div className="space-y-6">
+            {[
+              { label: 'Rouge', key: 'r', color: 'bg-rose-500' },
+              { label: 'Vert', key: 'g', color: 'bg-emerald-500' },
+              { label: 'Bleu', key: 'b', color: 'bg-blue-500' },
+            ].map((chan) => (
+              <div key={chan.key} className="space-y-2">
+                <div className="flex justify-between items-center px-1">
+                  <label className="text-xs font-bold text-slate-500">{chan.label}</label>
+                  <span className="text-sm font-black font-mono">{rgb[chan.key as keyof typeof rgb]}</span>
+                </div>
+                <input
+                  type="range"
+                  min="0"
+                  max="255"
+                  value={rgb[chan.key as keyof typeof rgb]}
+                  onChange={(e) => updateFromRgb({ ...rgb, [chan.key]: Number(e.target.value) })}
+                  className={`w-full h-1.5 rounded-lg appearance-none cursor-pointer bg-slate-100 dark:bg-slate-800 accent-indigo-600`}
+                />
+              </div>
+            ))}
           </div>
-          <div>
-            <label className="block text-sm text-gray-600 mb-1">S (%)</label>
-            <input
-              type="number"
-              min="0"
-              max="100"
-              value={hsl.s}
-              onChange={(e) => updateFromHsl({ ...hsl, s: Number(e.target.value) })}
-              className="w-full p-3 border border-gray-300 rounded-lg"
-            />
-          </div>
-          <div>
-            <label className="block text-sm text-gray-600 mb-1">L (%)</label>
-            <input
-              type="number"
-              min="0"
-              max="100"
-              value={hsl.l}
-              onChange={(e) => updateFromHsl({ ...hsl, l: Number(e.target.value) })}
-              className="w-full p-3 border border-gray-300 rounded-lg"
-            />
+        </div>
+
+        {/* HSL Sliders */}
+        <div className="bg-white dark:bg-slate-900/40 border border-slate-200 dark:border-slate-800 p-8 rounded-[2.5rem] space-y-8">
+          <h4 className="text-xs font-black uppercase tracking-widest text-slate-400 px-1">Composantes HSL</h4>
+          <div className="space-y-6">
+            <div className="space-y-2">
+              <div className="flex justify-between items-center px-1">
+                <label className="text-xs font-bold text-slate-500">Teinte</label>
+                <span className="text-sm font-black font-mono">{hsl.h}°</span>
+              </div>
+              <input
+                type="range"
+                min="0"
+                max="360"
+                value={hsl.h}
+                onChange={(e) => updateFromHsl({ ...hsl, h: Number(e.target.value) })}
+                className="w-full h-1.5 rounded-lg appearance-none cursor-pointer bg-slate-100 dark:bg-slate-800 accent-indigo-600"
+              />
+            </div>
+            <div className="space-y-2">
+              <div className="flex justify-between items-center px-1">
+                <label className="text-xs font-bold text-slate-500">Saturation</label>
+                <span className="text-sm font-black font-mono">{hsl.s}%</span>
+              </div>
+              <input
+                type="range"
+                min="0"
+                max="100"
+                value={hsl.s}
+                onChange={(e) => updateFromHsl({ ...hsl, s: Number(e.target.value) })}
+                className="w-full h-1.5 rounded-lg appearance-none cursor-pointer bg-slate-100 dark:bg-slate-800 accent-indigo-600"
+              />
+            </div>
+            <div className="space-y-2">
+              <div className="flex justify-between items-center px-1">
+                <label className="text-xs font-bold text-slate-500">Luminosité</label>
+                <span className="text-sm font-black font-mono">{hsl.l}%</span>
+              </div>
+              <input
+                type="range"
+                min="0"
+                max="100"
+                value={hsl.l}
+                onChange={(e) => updateFromHsl({ ...hsl, l: Number(e.target.value) })}
+                className="w-full h-1.5 rounded-lg appearance-none cursor-pointer bg-slate-100 dark:bg-slate-800 accent-indigo-600"
+              />
+            </div>
           </div>
         </div>
       </div>

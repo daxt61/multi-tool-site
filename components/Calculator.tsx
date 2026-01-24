@@ -325,30 +325,6 @@ export function Calculator() {
           )}
         </div>
       </div>
-
-      {/* SEO Content Section */}
-      <div className="lg:col-span-3 mt-12 grid grid-cols-1 md:grid-cols-2 gap-8 border-t border-gray-200 pt-12">
-        <div>
-          <h2 className="text-2xl font-bold text-gray-800 mb-4">Comment utiliser cette calculatrice en ligne ?</h2>
-          <p className="text-gray-600 mb-4">
-            Notre calculatrice gratuite propose deux modes : Simple et Scientifique. Utilisez le mode simple pour les opérations de base (addition, soustraction, multiplication, division). Basculez en mode scientifique pour accéder aux fonctions avancées comme la trigonométrie (sin, cos, tan), les logarithmes et les puissances.
-          </p>
-          <ul className="list-disc pl-5 text-gray-600 space-y-2">
-            <li><strong>Clavier supporté :</strong> Vous pouvez utiliser les touches de votre clavier pour saisir des chiffres et des opérateurs.</li>
-            <li><strong>Historique :</strong> Vos derniers calculs sont automatiquement enregistrés pour que vous puissiez les consulter plus tard.</li>
-            <li><strong>Unités d'angle :</strong> En mode scientifique, choisissez entre Degrés et Radians.</li>
-          </ul>
-        </div>
-        <div>
-          <h2 className="text-2xl font-bold text-gray-800 mb-4">Pourquoi utiliser notre outil ?</h2>
-          <p className="text-gray-600 mb-4">
-            Avoir une calculatrice fiable accessible directement dans votre navigateur est essentiel pour gagner du temps. Que vous soyez étudiant, ingénieur ou que vous ayez simplement besoin de faire un calcul rapide pour vos finances personnelles, notre outil est optimisé pour être rapide et précis.
-          </p>
-          <p className="text-gray-600">
-            Contrairement aux applications natives, notre calculatrice ne nécessite aucune installation et fonctionne sur tous les appareils, qu'il s'agisse d'un ordinateur de bureau, d'une tablette ou d'un smartphone.
-          </p>
-        </div>
-      </div>
     </div>
   );
 }

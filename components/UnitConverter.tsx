@@ -204,29 +204,6 @@ export function UnitConverter() {
           </select>
         </div>
       </div>
-
-      {/* SEO Content Section */}
-      <div className="mt-12 grid grid-cols-1 md:grid-cols-2 gap-8 border-t border-gray-200 pt-12 text-left">
-        <div>
-          <h2 className="text-2xl font-bold text-gray-800 mb-4">Un convertisseur d'unités complet et gratuit</h2>
-          <p className="text-gray-600 mb-4">
-            Besoin de convertir des mètres en miles, des kilogrammes en livres ou des Celsius en Fahrenheit ? Notre convertisseur universel prend en charge les catégories les plus courantes : Longueur, Poids, Température, Surface, Volume, Informatique, Vitesse et Pression.
-          </p>
-          <p className="text-gray-600">
-            C'est l'outil idéal pour les voyageurs, les étudiants, les cuisiniers ou toute personne travaillant avec des systèmes de mesure différents (métrique vs impérial).
-          </p>
-        </div>
-        <div>
-          <h2 className="text-2xl font-bold text-gray-800 mb-4">Pourquoi la précision est importante ?</h2>
-          <p className="text-gray-600 mb-4">
-            Dans de nombreux domaines comme la science, l'ingénierie ou même la cuisine, une erreur de conversion peut avoir des conséquences importantes. Notre outil utilise des facteurs de conversion précis et mis à jour.
-          </p>
-          <ul className="list-disc pl-5 text-gray-600 space-y-2">
-            <li><strong>Facilité d'utilisation :</strong> Sélectionnez simplement la catégorie, entrez la valeur et choisissez les unités.</li>
-            <li><strong>Résultats instantanés :</strong> Pas besoin de cliquer sur "calculer", la conversion se fait en temps réel.</li>
-          </ul>
-        </div>
-      </div>
     </div>
   );
 }

@@ -51,7 +51,7 @@ export function Calculator() {
       case '+': return a + b;
       case '-': return a - b;
       case '×': return a * b;
-      case '÷': return b !== 0 ? a / b : 0;
+      case '÷': return b !== 0 ? a / b : NaN;
       case 'x^y': return Math.pow(a, b);
       default: return b;
     }
@@ -222,13 +222,13 @@ export function Calculator() {
             <div className="text-sm font-bold text-slate-400 dark:text-slate-500 mb-2 h-6 flex justify-end items-center gap-2">
               {previousValue !== null && operation && (
                 <>
-                  <span>{previousValue}</span>
+                  <span>{isNaN(previousValue) ? 'Erreur' : previousValue}</span>
                   <span className="text-indigo-500">{operation}</span>
                 </>
               )}
             </div>
-            <div className="text-5xl md:text-6xl font-black font-mono tracking-tighter truncate dark:text-white">
-              {display}
+            <div className="text-4xl md:text-6xl font-black font-mono tracking-tighter truncate dark:text-white">
+                {display === 'NaN' ? 'Erreur' : display}
             </div>
           </div>
 
@@ -309,7 +309,7 @@ export function Calculator() {
                   }}
                 >
                   <div className="text-xs font-bold text-slate-400 mb-1 group-hover:text-slate-500 transition-colors">{item.expression}</div>
-                  <div className="text-lg font-black font-mono dark:text-slate-200">{item.result}</div>
+                  <div className="text-lg font-black font-mono dark:text-slate-200">{item.result === 'NaN' ? 'Erreur' : item.result}</div>
                 </button>
               ))
             )}

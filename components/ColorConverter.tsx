@@ -182,13 +182,25 @@ export function ColorConverter() {
           <div>
             <label className="block text-sm text-gray-600 mb-1">B</label>
             <input
-              type="color"
-              value={hex}
-              onChange={(e) => updateFromHex(e.target.value)}
-              className="absolute bottom-8 right-8 w-16 h-16 rounded-full border-4 border-white dark:border-slate-800 cursor-pointer shadow-xl overflow-hidden"
+              type="number"
+              min="0"
+              max="255"
+              value={rgb.b}
+              onChange={(e) => updateFromRgb({ ...rgb, b: Number(e.target.value) })}
+              className="w-full p-3 border border-gray-300 rounded-lg"
             />
           </div>
         </div>
+      </div>
+
+      {/* Floating Color Picker Button */}
+      <input
+        type="color"
+        value={hex}
+        onChange={(e) => updateFromHex(e.target.value)}
+        className="fixed bottom-8 right-8 w-16 h-16 rounded-full border-4 border-white dark:border-slate-800 cursor-pointer shadow-xl overflow-hidden z-50 transition-transform hover:scale-110 active:scale-95"
+        title="Ouvrir le sélecteur de couleur"
+      />
 
       {/* HSL */}
       <div className="bg-gray-50 p-6 rounded-lg">

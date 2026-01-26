@@ -35,8 +35,7 @@ export function BMICalculator() {
 
   const category = getCategory();
 
-  const copyToClipboard = () => {
-    if (bmi === 0) return;
+  const handleCopy = () => {
     const text = `Mon IMC est de ${bmi.toFixed(1)} (${category.label})`;
     navigator.clipboard.writeText(text);
     setCopied(true);
@@ -86,6 +85,13 @@ export function BMICalculator() {
 
         <div className="flex flex-col gap-6">
           <div className="flex-grow bg-slate-900 dark:bg-black p-10 rounded-[2.5rem] text-center flex flex-col items-center justify-center space-y-4 shadow-xl shadow-indigo-500/10 relative group">
+            <button
+              onClick={handleCopy}
+              className={`absolute top-6 right-6 p-3 rounded-2xl transition-all ${copied ? 'bg-emerald-500 text-white' : 'bg-white/10 text-white/40 hover:text-white hover:bg-white/20 md:opacity-0 md:group-hover:opacity-100'}`}
+              title="Copier le résultat"
+            >
+              {copied ? <Check className="w-5 h-5" /> : <Copy className="w-5 h-5" />}
+            </button>
             <div className="text-slate-400 font-bold uppercase tracking-widest text-xs">Votre IMC</div>
             <div className="text-8xl font-black text-white font-mono tracking-tighter">
               {bmi > 0 ? bmi.toFixed(1) : '0.0'}

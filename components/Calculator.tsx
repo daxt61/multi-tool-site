@@ -93,7 +93,7 @@ export function Calculator() {
     setNewNumber(true);
 
     const expression = `${action}(${current})`;
-    const newHistory = [{ expression, result: resultStr }, ...history].slice(0, 10);
+    const newHistory = [{ expression, result: resultStr === 'NaN' ? 'Erreur' : resultStr }, ...history].slice(0, 10);
     setHistory(newHistory);
     localStorage.setItem('calc_history', JSON.stringify(newHistory));
   };
@@ -105,7 +105,7 @@ export function Calculator() {
       const expression = `${previousValue} ${operation} ${current}`;
       const resultStr = String(result);
 
-      const newHistory = [{ expression, result: resultStr }, ...history].slice(0, 10);
+      const newHistory = [{ expression, result: resultStr === 'NaN' ? 'Erreur' : resultStr }, ...history].slice(0, 10);
       setHistory(newHistory);
       localStorage.setItem('calc_history', JSON.stringify(newHistory));
 
@@ -227,8 +227,8 @@ export function Calculator() {
                 </>
               )}
             </div>
-            <div className="text-4xl md:text-6xl font-black font-mono tracking-tighter truncate dark:text-white">
-                {display === 'NaN' ? 'Erreur' : display}
+            <div className="text-5xl md:text-6xl font-black font-mono tracking-tighter truncate dark:text-white">
+              {display === 'NaN' ? 'Erreur' : display}
             </div>
           </div>
 

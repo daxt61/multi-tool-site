@@ -60,6 +60,8 @@ import {
   ArrowRight, Loader2,
   Sparkles,
 } from "lucide-react";
+import { AdPlaceholder } from "./components/AdPlaceholder";
+
 
 // ⚡ Bolt Optimization: Code Splitting
 // Using React.lazy to split each tool into its own chunk.
@@ -90,6 +92,8 @@ const CaseConverter = lazy(() => import("./components/CaseConverter").then(m => 
 const DiffChecker = lazy(() => import("./components/DiffChecker").then(m => ({ default: m.DiffChecker })));
 const AspectRatioCalculator = lazy(() => import("./components/AspectRatioCalculator").then(m => ({ default: m.AspectRatioCalculator })));
 const MorseCodeConverter = lazy(() => import("./components/MorseCodeConverter").then(m => ({ default: m.MorseCodeConverter })));
+const UnixTimestampConverter = lazy(() => import("./components/UnixTimestampConverter").then(m => ({ default: m.UnixTimestampConverter })));
+const RandomGenerator = lazy(() => import("./components/RandomGenerator").then(m => ({ default: m.RandomGenerator })));
 const About = lazy(() => import("./components/About").then(m => ({ default: m.About })));
 const Contact = lazy(() => import("./components/Contact").then(m => ({ default: m.Contact })));
 const PrivacyPolicy = lazy(() => import("./components/PrivacyPolicy").then(m => ({ default: m.PrivacyPolicy })));
@@ -572,6 +576,40 @@ function MainApp() {
 
   const isHome = location.pathname === "/";
 
+  useEffect(() => {
+    const updateSEO = () => {
+      const path = location.pathname;
+      let title = "Boîte à Outils - Outils simples pour tâches complexes";
+      let description = "Une collection d'utilitaires gratuits, privés et open-source pour booster votre productivité au quotidien.";
+
+      if (path.startsWith("/outil/")) {
+        const id = path.split("/")[2];
+        const tool = tools.find(t => t.id === id);
+        if (tool) {
+          title = `${tool.name} - Boîte à Outils`;
+          description = tool.description;
+        }
+      } else if (path === "/a-propos") {
+        title = "À propos - Boîte à Outils";
+      } else if (path === "/contact") {
+        title = "Contact - Boîte à Outils";
+      } else if (path === "/confidentialite") {
+        title = "Confidentialité - Boîte à Outils";
+      }
+
+      document.title = title;
+      let meta = document.querySelector('meta[name="description"]');
+      if (!meta) {
+        meta = document.createElement('meta');
+        meta.setAttribute('name', 'description');
+        document.head.appendChild(meta);
+      }
+      meta.setAttribute("content", description);
+    };
+
+    updateSEO();
+  }, [location]);
+
   return (
     <div className="min-h-screen bg-white dark:bg-slate-950 text-slate-900 dark:text-slate-100 selection:bg-indigo-100 dark:selection:bg-indigo-900/50">
       {/* Background Decor */}
@@ -607,9 +645,9 @@ function MainApp() {
             <div className="space-y-20">
               {/* Minimal Hero */}
               <div className="max-w-2xl mx-auto text-center space-y-8">
-                <h2 className="text-4xl md:text-6xl font-extrabold tracking-tight leading-[1.1]">
+                <h1 className="text-4xl md:text-6xl font-extrabold tracking-tight leading-[1.1]">
                   Des outils simples pour des <span className="text-slate-400 dark:text-slate-600">tâches complexes.</span>
-                </h2>
+                </h1>
                 <p className="text-lg text-slate-500 dark:text-slate-400 leading-relaxed">
                   Une collection d'utilitaires gratuits, privés et open-source pour booster votre productivité au quotidien.
                 </p>
@@ -769,7 +807,7 @@ function ToolView({ favorites, toggleFavorite }: { favorites: string[], toggleFa
             <div className="inline-flex items-center gap-2 px-3 py-1 bg-indigo-50 dark:bg-indigo-900/20 text-indigo-600 dark:text-indigo-400 rounded-full text-xs font-bold uppercase tracking-widest">
               <currentTool.icon className="w-3 h-3" /> {currentTool.category}
             </div>
-            <h2 className="text-4xl md:text-5xl font-black tracking-tight">{currentTool.name}</h2>
+            <h1 className="text-4xl md:text-5xl font-black tracking-tight">{currentTool.name}</h1>
             <p className="text-lg text-slate-500 dark:text-slate-400 max-w-2xl">{currentTool.description}</p>
           </div>
           <button
@@ -809,7 +847,7 @@ function InfoPage({ title, component }: { title: string, component: React.ReactN
         <ArrowRight className="w-4 h-4 rotate-180" />
         Retour au tableau de bord
       </Link>
-      <h2 className="text-4xl font-black mb-12">{title}</h2>
+      <h1 className="text-4xl font-black mb-12">{title}</h1>
       <div className="bg-white dark:bg-slate-900/40 rounded-[2.5rem] border border-slate-200 dark:border-slate-800 p-8 md:p-12 shadow-sm">
         <Suspense fallback={<LoadingTool />}>
           {component}

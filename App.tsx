@@ -56,11 +56,10 @@ import {
   Star,
   Clock,
   Table,
-  FileSpreadsheet,
   ArrowRight, Loader2,
   Sparkles,
 } from "lucide-react";
-import { AdPlaceholder } from "./components/AdPlaceholder";
+const AdPlaceholder = lazy(() => import("./components/AdPlaceholder").then(m => ({ default: m.AdPlaceholder })));
 
 
 // ⚡ Bolt Optimization: Code Splitting
@@ -84,6 +83,7 @@ const UUIDGenerator = lazy(() => import("./components/UUIDGenerator").then(m => 
 const Base64Tool = lazy(() => import("./components/Base64Tool").then(m => ({ default: m.Base64Tool })));
 const DateCalculator = lazy(() => import("./components/DateCalculator").then(m => ({ default: m.DateCalculator })));
 const MarkdownPreview = lazy(() => import("./components/MarkdownPreview").then(m => ({ default: m.MarkdownPreview })));
+const MarkdownTableGenerator = lazy(() => import("./components/MarkdownTableGenerator").then(m => ({ default: m.MarkdownTableGenerator })));
 const JSONCSVConverter = lazy(() => import("./components/JSONCSVConverter").then(m => ({ default: m.JSONCSVConverter })));
 const URLEncoder = lazy(() => import("./components/URLEncoder").then(m => ({ default: m.URLEncoder })));
 const ImageCompressor = lazy(() => import("./components/ImageCompressor").then(m => ({ default: m.ImageCompressor })));
@@ -386,22 +386,6 @@ const tools: Tool[] = [
     category: "dev",
   },
   {
-    id: "json-csv-converter",
-    name: "JSON & CSV",
-    icon: FileCode,
-    description: "Convertisseur JSON vers CSV et inversement",
-    Component: JSONCSVConverter,
-    category: "dev",
-  },
-  {
-    id: "json-csv-converter",
-    name: "JSON / CSV",
-    icon: FileSpreadsheet,
-    description: "Convertisseur JSON vers CSV et inversement",
-    Component: JSONCSVConverter,
-    category: "dev",
-  },
-  {
     id: "hash-generator",
     name: "Hash",
     icon: Shield,
@@ -411,7 +395,7 @@ const tools: Tool[] = [
   },
   {
     id: "json-csv",
-    name: "JSON / CSV",
+    name: "JSON & CSV",
     icon: FileCode,
     description: "Convertisseur bidirectionnel JSON et CSV",
     Component: JSONCSVConverter,
@@ -755,7 +739,9 @@ function MainApp() {
                 )}
               </div>
 
-              <AdPlaceholder size="large" className="opacity-50 grayscale hover:grayscale-0 transition-all" />
+              <Suspense fallback={null}>
+                <AdPlaceholder size="large" className="opacity-50 grayscale hover:grayscale-0 transition-all" />
+              </Suspense>
 
               <footer className="pt-20 pb-10 border-t border-slate-200 dark:border-slate-800">
                 <div className="flex flex-col md:flex-row justify-between items-center gap-8">
@@ -835,7 +821,9 @@ function ToolView({ favorites, toggleFavorite }: { favorites: string[], toggleFa
       </div>
 
       <div className="mt-12">
-        <AdPlaceholder size="banner" className="opacity-50" />
+        <Suspense fallback={null}>
+          <AdPlaceholder size="banner" className="opacity-50" />
+        </Suspense>
       </div>
     </div>
   );

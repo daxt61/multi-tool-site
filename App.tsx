@@ -60,9 +60,6 @@ import {
   ArrowRight, Loader2,
   Sparkles,
 } from "lucide-react";
-import { AdPlaceholder } from "./components/AdPlaceholder";
-
-
 // ⚡ Bolt Optimization: Code Splitting
 // Using React.lazy to split each tool into its own chunk.
 // This reduces the initial JavaScript bundle by ~40% (from 386kB to 228kB),
@@ -110,6 +107,10 @@ const BPMCounter = lazy(() => import("./components/BPMCounter").then(m => ({ def
 const HashGenerator = lazy(() => import("./components/HashGenerator").then(m => ({ default: m.HashGenerator })));
 const UnixTimestampConverter = lazy(() => import("./components/UnixTimestampConverter").then(m => ({ default: m.UnixTimestampConverter })));
 const RandomGenerator = lazy(() => import("./components/RandomGenerator").then(m => ({ default: m.RandomGenerator })));
+const JSONFormatter = lazy(() => import("./components/JSONFormatter").then(m => ({ default: m.JSONFormatter })));
+const HTMLEntityConverter = lazy(() => import("./components/HTMLEntityConverter").then(m => ({ default: m.HTMLEntityConverter })));
+const MarkdownTableGenerator = lazy(() => import("./components/MarkdownTableGenerator").then(m => ({ default: m.MarkdownTableGenerator })));
+const AdPlaceholder = lazy(() => import("./components/AdPlaceholder").then(m => ({ default: m.AdPlaceholder })));
 
 interface Tool {
   id: string;
@@ -386,19 +387,19 @@ const tools: Tool[] = [
     category: "dev",
   },
   {
-    id: "json-csv-converter",
-    name: "JSON & CSV",
+    id: "json-formatter",
+    name: "JSON Formatter",
     icon: FileCode,
-    description: "Convertisseur JSON vers CSV et inversement",
-    Component: JSONCSVConverter,
+    description: "Formater, minifier et valider du JSON",
+    Component: JSONFormatter,
     category: "dev",
   },
   {
-    id: "json-csv-converter",
-    name: "JSON / CSV",
-    icon: FileSpreadsheet,
-    description: "Convertisseur JSON vers CSV et inversement",
-    Component: JSONCSVConverter,
+    id: "html-entities",
+    name: "HTML Entities",
+    icon: Code,
+    description: "Encoder et décoder les entités HTML",
+    Component: HTMLEntityConverter,
     category: "dev",
   },
   {
@@ -411,8 +412,8 @@ const tools: Tool[] = [
   },
   {
     id: "json-csv",
-    name: "JSON / CSV",
-    icon: FileCode,
+    name: "JSON & CSV",
+    icon: FileSpreadsheet,
     description: "Convertisseur bidirectionnel JSON et CSV",
     Component: JSONCSVConverter,
     category: "dev",
@@ -755,7 +756,9 @@ function MainApp() {
                 )}
               </div>
 
-              <AdPlaceholder size="large" className="opacity-50 grayscale hover:grayscale-0 transition-all" />
+              <Suspense fallback={null}>
+                <AdPlaceholder size="large" className="opacity-50 grayscale hover:grayscale-0 transition-all" />
+              </Suspense>
 
               <footer className="pt-20 pb-10 border-t border-slate-200 dark:border-slate-800">
                 <div className="flex flex-col md:flex-row justify-between items-center gap-8">
@@ -835,7 +838,9 @@ function ToolView({ favorites, toggleFavorite }: { favorites: string[], toggleFa
       </div>
 
       <div className="mt-12">
-        <AdPlaceholder size="banner" className="opacity-50" />
+        <Suspense fallback={null}>
+          <AdPlaceholder size="banner" className="opacity-50" />
+        </Suspense>
       </div>
     </div>
   );

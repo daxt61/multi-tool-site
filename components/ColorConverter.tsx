@@ -168,9 +168,9 @@ export function ColorConverter() {
           </h4>
           <div className="space-y-6">
             {[
-              { label: 'Rouge', key: 'r', color: 'bg-rose-500' },
-              { label: 'Vert', key: 'g', color: 'bg-emerald-500' },
-              { label: 'Bleu', key: 'b', color: 'bg-blue-500' },
+              { label: 'Rouge', key: 'r' },
+              { label: 'Vert', key: 'g' },
+              { label: 'Bleu', key: 'b' },
             ].map((chan) => (
               <div key={chan.key} className="space-y-2">
                 <div className="flex justify-between items-center px-1">
@@ -188,6 +188,7 @@ export function ColorConverter() {
               </div>
             ))}
           </div>
+        </div>
 
         {/* HSL Sliders */}
         <div className="bg-white dark:bg-slate-900/40 border border-slate-200 dark:border-slate-800 p-8 rounded-[2.5rem] space-y-8 shadow-sm">
@@ -201,10 +202,12 @@ export function ColorConverter() {
                 <span className="text-sm font-black font-mono dark:text-slate-300">{hsl.h}°</span>
               </div>
               <input
-                type="text"
-                value={hex}
-                onChange={(e) => updateFromHex(e.target.value)}
-                className="w-full bg-transparent text-xl font-black font-mono outline-none dark:text-white uppercase"
+                type="range"
+                min="0"
+                max="360"
+                value={hsl.h}
+                onChange={(e) => updateFromHsl({ ...hsl, h: Number(e.target.value) })}
+                className="w-full h-1.5 rounded-lg appearance-none cursor-pointer bg-slate-100 dark:bg-slate-800 accent-indigo-600"
               />
             </div>
             <div className="space-y-2">
@@ -212,97 +215,30 @@ export function ColorConverter() {
                 <label className="text-xs font-bold text-slate-500">Saturation</label>
                 <span className="text-sm font-black font-mono dark:text-slate-300">{hsl.s}%</span>
               </div>
+              <input
+                type="range"
+                min="0"
+                max="100"
+                value={hsl.s}
+                onChange={(e) => updateFromHsl({ ...hsl, s: Number(e.target.value) })}
+                className="w-full h-1.5 rounded-lg appearance-none cursor-pointer bg-slate-100 dark:bg-slate-800 accent-indigo-600"
+              />
             </div>
             <div className="space-y-2">
               <div className="flex justify-between items-center px-1">
                 <label className="text-xs font-bold text-slate-500">Luminosité</label>
                 <span className="text-sm font-black font-mono dark:text-slate-300">{hsl.l}%</span>
               </div>
+              <input
+                type="range"
+                min="0"
+                max="100"
+                value={hsl.l}
+                onChange={(e) => updateFromHsl({ ...hsl, l: Number(e.target.value) })}
+                className="w-full h-1.5 rounded-lg appearance-none cursor-pointer bg-slate-100 dark:bg-slate-800 accent-indigo-600"
+              />
             </div>
           </div>
-        </div>
-
-        {/* Sliders Area */}
-        <div className="lg:col-span-5 space-y-6">
-            {/* RGB Sliders */}
-            <div className="bg-white dark:bg-slate-900/40 border border-slate-200 dark:border-slate-800 p-8 rounded-[2.5rem] space-y-8">
-              <h4 className="text-xs font-black uppercase tracking-widest text-slate-400 flex items-center gap-2">
-                <Sliders className="w-4 h-4" /> Composantes RGB
-              </h4>
-              <div className="space-y-6">
-                {[
-                  { label: 'Rouge', key: 'r', color: 'bg-rose-500' },
-                  { label: 'Vert', key: 'g', color: 'bg-emerald-500' },
-                  { label: 'Bleu', key: 'b', color: 'bg-blue-500' },
-                ].map((chan) => (
-                  <div key={chan.key} className="space-y-2">
-                    <div className="flex justify-between items-center px-1">
-                      <label className="text-xs font-bold text-slate-500">{chan.label}</label>
-                      <span className="text-sm font-black font-mono">{rgb[chan.key as keyof typeof rgb]}</span>
-                    </div>
-                    <input
-                      type="range"
-                      min="0"
-                      max="255"
-                      value={rgb[chan.key as keyof typeof rgb]}
-                      onChange={(e) => updateFromRgb({ ...rgb, [chan.key]: Number(e.target.value) })}
-                      className="w-full h-1.5 rounded-lg appearance-none cursor-pointer bg-slate-100 dark:bg-slate-800 accent-indigo-600"
-                    />
-                  </div>
-                ))}
-              </div>
-            </div>
-
-            {/* HSL Sliders */}
-            <div className="bg-white dark:bg-slate-900/40 border border-slate-200 dark:border-slate-800 p-8 rounded-[2.5rem] space-y-8">
-              <h4 className="text-xs font-black uppercase tracking-widest text-slate-400 flex items-center gap-2">
-                <Palette className="w-4 h-4" /> Composantes HSL
-              </h4>
-              <div className="space-y-6">
-                <div className="space-y-2">
-                  <div className="flex justify-between items-center px-1">
-                    <label className="text-xs font-bold text-slate-500">Teinte</label>
-                    <span className="text-sm font-black font-mono">{hsl.h}°</span>
-                  </div>
-                  <input
-                    type="range"
-                    min="0"
-                    max="360"
-                    value={hsl.h}
-                    onChange={(e) => updateFromHsl({ ...hsl, h: Number(e.target.value) })}
-                    className="w-full h-1.5 rounded-lg appearance-none cursor-pointer bg-slate-100 dark:bg-slate-800 accent-indigo-600"
-                  />
-                </div>
-                <div className="space-y-2">
-                  <div className="flex justify-between items-center px-1">
-                    <label className="text-xs font-bold text-slate-500">Saturation</label>
-                    <span className="text-sm font-black font-mono">{hsl.s}%</span>
-                  </div>
-                  <input
-                    type="range"
-                    min="0"
-                    max="100"
-                    value={hsl.s}
-                    onChange={(e) => updateFromHsl({ ...hsl, s: Number(e.target.value) })}
-                    className="w-full h-1.5 rounded-lg appearance-none cursor-pointer bg-slate-100 dark:bg-slate-800 accent-indigo-600"
-                  />
-                </div>
-                <div className="space-y-2">
-                  <div className="flex justify-between items-center px-1">
-                    <label className="text-xs font-bold text-slate-500">Luminosité</label>
-                    <span className="text-sm font-black font-mono">{hsl.l}%</span>
-                  </div>
-                  <input
-                    type="range"
-                    min="0"
-                    max="100"
-                    value={hsl.l}
-                    onChange={(e) => updateFromHsl({ ...hsl, l: Number(e.target.value) })}
-                    className="w-full h-1.5 rounded-lg appearance-none cursor-pointer bg-slate-100 dark:bg-slate-800 accent-indigo-600"
-                  />
-                </div>
-              </div>
-            </div>
         </div>
       </div>
     </div>

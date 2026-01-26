@@ -1,10 +1,11 @@
 import { useState } from 'react';
-import { Activity, Info } from 'lucide-react';
+import { Activity, Info, Copy, Check } from 'lucide-react';
 
 export function BMICalculator() {
   const [weight, setWeight] = useState('70');
   const [height, setHeight] = useState('170');
   const [unit, setUnit] = useState<'metric' | 'imperial'>('metric');
+  const [copied, setCopied] = useState(false);
 
   const calculateBMI = () => {
     let weightKg = parseFloat(weight);
@@ -33,6 +34,13 @@ export function BMICalculator() {
   };
 
   const category = getCategory();
+
+  const handleCopy = () => {
+    const text = `Mon IMC est de ${bmi.toFixed(1)} (${category.label})`;
+    navigator.clipboard.writeText(text);
+    setCopied(true);
+    setTimeout(() => setCopied(false), 2000);
+  };
 
   return (
     <div className="max-w-4xl mx-auto space-y-8">
@@ -76,7 +84,14 @@ export function BMICalculator() {
         </div>
 
         <div className="flex flex-col gap-6">
-          <div className="flex-grow bg-slate-900 dark:bg-black p-10 rounded-[2.5rem] text-center flex flex-col items-center justify-center space-y-4 shadow-xl shadow-indigo-500/10">
+          <div className="flex-grow bg-slate-900 dark:bg-black p-10 rounded-[2.5rem] text-center flex flex-col items-center justify-center space-y-4 shadow-xl shadow-indigo-500/10 relative group">
+            <button
+              onClick={handleCopy}
+              className={`absolute top-6 right-6 p-3 rounded-2xl transition-all ${copied ? 'bg-emerald-500 text-white' : 'bg-white/10 text-white/40 hover:text-white hover:bg-white/20 md:opacity-0 md:group-hover:opacity-100'}`}
+              title="Copier le résultat"
+            >
+              {copied ? <Check className="w-5 h-5" /> : <Copy className="w-5 h-5" />}
+            </button>
             <div className="text-slate-400 font-bold uppercase tracking-widest text-xs">Votre IMC</div>
             <div className="text-8xl font-black text-white font-mono tracking-tighter">
               {bmi > 0 ? bmi.toFixed(1) : '0.0'}
@@ -84,6 +99,20 @@ export function BMICalculator() {
             <div className={`px-6 py-2 rounded-full font-black text-sm uppercase tracking-widest ${category.color} text-white`}>
               {category.label}
             </div>
+
+            {bmi > 0 && (
+              <button
+                onClick={copyToClipboard}
+                className={`absolute top-6 right-6 p-3 rounded-2xl transition-all ${
+                  copied
+                    ? 'bg-emerald-500 text-white scale-110'
+                    : 'bg-white/10 text-white/40 hover:text-white hover:bg-white/20 opacity-0 group-hover:opacity-100'
+                }`}
+                title="Copier le résultat"
+              >
+                {copied ? <Check className="w-5 h-5" /> : <Copy className="w-5 h-5" />}
+              </button>
+            )}
           </div>
 
           <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 p-6 rounded-[2rem] flex items-start gap-4">

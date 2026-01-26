@@ -49,11 +49,14 @@ import {
   Briefcase,
   Search,
   Shuffle,
+  X,
   Sun,
   Moon,
   Music,
   Star,
   Clock,
+  Table,
+  FileSpreadsheet,
   ArrowRight, Loader2,
   Sparkles,
 } from "lucide-react";
@@ -81,7 +84,7 @@ const UUIDGenerator = lazy(() => import("./components/UUIDGenerator").then(m => 
 const Base64Tool = lazy(() => import("./components/Base64Tool").then(m => ({ default: m.Base64Tool })));
 const DateCalculator = lazy(() => import("./components/DateCalculator").then(m => ({ default: m.DateCalculator })));
 const MarkdownPreview = lazy(() => import("./components/MarkdownPreview").then(m => ({ default: m.MarkdownPreview })));
-const JSONFormatter = lazy(() => import("./components/JSONFormatter").then(m => ({ default: m.JSONFormatter })));
+const JSONCSVConverter = lazy(() => import("./components/JSONCSVConverter").then(m => ({ default: m.JSONCSVConverter })));
 const URLEncoder = lazy(() => import("./components/URLEncoder").then(m => ({ default: m.URLEncoder })));
 const ImageCompressor = lazy(() => import("./components/ImageCompressor").then(m => ({ default: m.ImageCompressor })));
 const IPAddressTool = lazy(() => import("./components/IPAddressTool").then(m => ({ default: m.IPAddressTool })));
@@ -326,6 +329,14 @@ const tools: Tool[] = [
     category: "text",
   },
   {
+    id: "markdown-table",
+    name: "Tableau Markdown",
+    icon: Table,
+    description: "Générateur de tableaux Markdown visuel",
+    Component: MarkdownTableGenerator,
+    category: "text",
+  },
+  {
     id: "diff-checker",
     name: "Diff",
     icon: Columns,
@@ -375,11 +386,19 @@ const tools: Tool[] = [
     category: "dev",
   },
   {
-    id: "json-formatter",
-    name: "JSON",
+    id: "json-csv-converter",
+    name: "JSON & CSV",
     icon: FileCode,
-    description: "Validateur et formateur JSON",
-    Component: JSONFormatter,
+    description: "Convertisseur JSON vers CSV et inversement",
+    Component: JSONCSVConverter,
+    category: "dev",
+  },
+  {
+    id: "json-csv-converter",
+    name: "JSON / CSV",
+    icon: FileSpreadsheet,
+    description: "Convertisseur JSON vers CSV et inversement",
+    Component: JSONCSVConverter,
     category: "dev",
   },
   {
@@ -388,6 +407,14 @@ const tools: Tool[] = [
     icon: Shield,
     description: "SHA-256, SHA-512 Generator",
     Component: HashGenerator,
+    category: "dev",
+  },
+  {
+    id: "json-csv",
+    name: "JSON / CSV",
+    icon: FileCode,
+    description: "Convertisseur bidirectionnel JSON et CSV",
+    Component: JSONCSVConverter,
     category: "dev",
   },
   {
@@ -553,6 +580,40 @@ function MainApp() {
 
   const isHome = location.pathname === "/";
 
+  useEffect(() => {
+    const updateSEO = () => {
+      const path = location.pathname;
+      let title = "Boîte à Outils - Outils simples pour tâches complexes";
+      let description = "Une collection d'utilitaires gratuits, privés et open-source pour booster votre productivité au quotidien.";
+
+      if (path.startsWith("/outil/")) {
+        const id = path.split("/")[2];
+        const tool = tools.find(t => t.id === id);
+        if (tool) {
+          title = `${tool.name} - Boîte à Outils`;
+          description = tool.description;
+        }
+      } else if (path === "/a-propos") {
+        title = "À propos - Boîte à Outils";
+      } else if (path === "/contact") {
+        title = "Contact - Boîte à Outils";
+      } else if (path === "/confidentialite") {
+        title = "Confidentialité - Boîte à Outils";
+      }
+
+      document.title = title;
+      let meta = document.querySelector('meta[name="description"]');
+      if (!meta) {
+        meta = document.createElement('meta');
+        meta.setAttribute('name', 'description');
+        document.head.appendChild(meta);
+      }
+      meta.setAttribute("content", description);
+    };
+
+    updateSEO();
+  }, [location]);
+
   return (
     <div className="min-h-screen bg-white dark:bg-slate-950 text-slate-900 dark:text-slate-100 selection:bg-indigo-100 dark:selection:bg-indigo-900/50">
       {/* Background Decor */}
@@ -588,24 +649,18 @@ function MainApp() {
             <div className="space-y-20">
               {/* Minimal Hero */}
               <div className="max-w-2xl mx-auto text-center space-y-8">
-                <h2 className="text-4xl md:text-6xl font-extrabold tracking-tight leading-[1.1]">
+                <h1 className="text-4xl md:text-6xl font-extrabold tracking-tight leading-[1.1]">
                   Des outils simples pour des <span className="text-slate-400 dark:text-slate-600">tâches complexes.</span>
-                </h2>
+                </h1>
                 <p className="text-lg text-slate-500 dark:text-slate-400 leading-relaxed">
                   Une collection d'utilitaires gratuits, privés et open-source pour booster votre productivité au quotidien.
                 </p>
 
                 <div className="relative group max-w-lg mx-auto">
-                  <div className="absolute inset-y-0 left-4 flex items-center pointer-events-none">
-                    <Search className="h-5 w-5 text-slate-400" />
-                  </div>
-                  <input
-                    type="text"
-                    placeholder="Rechercher un outil..."
-                    value={searchQuery}
-                    onChange={(e) => setSearchQuery(e.target.value)}
-                    className="block w-full pl-11 pr-4 py-4 bg-slate-50 dark:bg-slate-900/50 border border-slate-200 dark:border-slate-800 rounded-2xl focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 outline-none transition-all placeholder:text-slate-400"
-                  />
+                  <label htmlFor="tool-search" className="sr-only">Rechercher</label>
+                  <div className="absolute inset-y-0 left-4 flex items-center pointer-events-none"><Search className="h-5 w-5 text-slate-400" /></div>
+                  <input id="tool-search" type="text" placeholder="Rechercher un outil..." value={searchQuery} onChange={(e) => setSearchQuery(e.target.value)} className={`block w-full pl-11 ${searchQuery ? 'pr-12' : 'pr-4'} py-4 bg-slate-50 dark:bg-slate-900/50 border border-slate-200 dark:border-slate-800 rounded-2xl focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 outline-none transition-all placeholder:text-slate-400`} />
+                  {searchQuery && <button onClick={() => setSearchQuery("")} className="absolute inset-y-0 right-4 flex items-center text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 transition-colors" aria-label="Effacer"><X className="h-5 w-5" /></button>}
                 </div>
               </div>
 
@@ -668,6 +723,7 @@ function MainApp() {
                           <button
                             onClick={(e) => toggleFavorite(e, tool.id)}
                             className={`p-1.5 rounded-lg transition-colors ${favorites.includes(tool.id) ? 'text-amber-500' : 'text-slate-300 hover:text-slate-400'}`}
+                            aria-label={favorites.includes(tool.id) ? "Retirer des favoris" : "Ajouter aux favoris"}
                           >
                             <Star className={`w-5 h-5 ${favorites.includes(tool.id) ? 'fill-current' : ''}`} />
                           </button>
@@ -755,7 +811,7 @@ function ToolView({ favorites, toggleFavorite }: { favorites: string[], toggleFa
             <div className="inline-flex items-center gap-2 px-3 py-1 bg-indigo-50 dark:bg-indigo-900/20 text-indigo-600 dark:text-indigo-400 rounded-full text-xs font-bold uppercase tracking-widest">
               <currentTool.icon className="w-3 h-3" /> {currentTool.category}
             </div>
-            <h2 className="text-4xl md:text-5xl font-black tracking-tight">{currentTool.name}</h2>
+            <h1 className="text-4xl md:text-5xl font-black tracking-tight">{currentTool.name}</h1>
             <p className="text-lg text-slate-500 dark:text-slate-400 max-w-2xl">{currentTool.description}</p>
           </div>
           <button
@@ -795,7 +851,7 @@ function InfoPage({ title, component }: { title: string, component: React.ReactN
         <ArrowRight className="w-4 h-4 rotate-180" />
         Retour au tableau de bord
       </Link>
-      <h2 className="text-4xl font-black mb-12">{title}</h2>
+      <h1 className="text-4xl font-black mb-12">{title}</h1>
       <div className="bg-white dark:bg-slate-900/40 rounded-[2.5rem] border border-slate-200 dark:border-slate-800 p-8 md:p-12 shadow-sm">
         <Suspense fallback={<LoadingTool />}>
           {component}

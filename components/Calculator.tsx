@@ -105,7 +105,7 @@ export function Calculator() {
       const expression = `${isNaN(previousValue) ? 'Erreur' : previousValue} ${operation} ${isNaN(current) ? 'Erreur' : current}`;
       const resultStr = isNaN(result) ? 'Erreur' : String(result);
 
-      const newHistory = [{ expression, result: resultStr }, ...history].slice(0, 10);
+      const newHistory = [{ expression, result: resultStr === 'NaN' ? 'Erreur' : resultStr }, ...history].slice(0, 10);
       setHistory(newHistory);
       localStorage.setItem('calc_history', JSON.stringify(newHistory));
 
@@ -228,7 +228,7 @@ export function Calculator() {
               )}
             </div>
             <div className="text-5xl md:text-6xl font-black font-mono tracking-tighter truncate dark:text-white">
-              {display}
+              {display === 'NaN' ? 'Erreur' : display}
             </div>
           </div>
 
@@ -309,7 +309,7 @@ export function Calculator() {
                   }}
                 >
                   <div className="text-xs font-bold text-slate-400 mb-1 group-hover:text-slate-500 transition-colors">{item.expression}</div>
-                  <div className="text-lg font-black font-mono dark:text-slate-200">{item.result}</div>
+                  <div className="text-lg font-black font-mono dark:text-slate-200">{item.result === 'NaN' ? 'Erreur' : item.result}</div>
                 </button>
               ))
             )}

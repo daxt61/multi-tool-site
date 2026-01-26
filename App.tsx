@@ -57,34 +57,6 @@ import {
   ArrowRight, Loader2,
   Sparkles,
 } from "lucide-react";
-import { Calculator } from "./components/Calculator";
-import { UnitConverter } from "./components/UnitConverter";
-import { PasswordGenerator } from "./components/PasswordGenerator";
-import { WordCounter } from "./components/WordCounter";
-import { ColorConverter } from "./components/ColorConverter";
-import { TimerTool } from "./components/TimerTool";
-import { TextFormatter } from "./components/TextFormatter";
-import { NumberConverter } from "./components/NumberConverter";
-import { QRCodeGenerator } from "./components/QRCodeGenerator";
-import { PercentageCalculator } from "./components/PercentageCalculator";
-import { LoremIpsumGenerator } from "./components/LoremIpsumGenerator";
-import { CurrencyConverter } from "./components/CurrencyConverter";
-import { BMICalculator } from "./components/BMICalculator";
-import { UUIDGenerator } from "./components/UUIDGenerator";
-import { Base64Tool } from "./components/Base64Tool";
-import { DateCalculator } from "./components/DateCalculator";
-import { MarkdownPreview } from "./components/MarkdownPreview";
-import { JSONFormatter } from "./components/JSONFormatter";
-import { URLEncoder } from "./components/URLEncoder";
-import { ImageCompressor } from "./components/ImageCompressor";
-import { IPAddressTool } from "./components/IPAddressTool";
-import { CaseConverter } from "./components/CaseConverter";
-import { DiffChecker } from "./components/DiffChecker";
-import { AspectRatioCalculator } from "./components/AspectRatioCalculator";
-import { MorseCodeConverter } from "./components/MorseCodeConverter";
-import { UnixTimestampConverter } from "./components/UnixTimestampConverter";
-import { RandomGenerator } from "./components/RandomGenerator";
-import { AdPlaceholder } from "./components/AdPlaceholder";
 
 
 // ⚡ Bolt Optimization: Code Splitting
@@ -131,6 +103,10 @@ const ROICalculator = lazy(() => import("./components/ROICalculator").then(m => 
 const ExpenseTracker = lazy(() => import("./components/ExpenseTracker").then(m => ({ default: m.ExpenseTracker })));
 const BPMCounter = lazy(() => import("./components/BPMCounter").then(m => ({ default: m.BPMCounter })));
 const HashGenerator = lazy(() => import("./components/HashGenerator").then(m => ({ default: m.HashGenerator })));
+const JSONCSVConverter = lazy(() => import("./components/JSONCSVConverter").then(m => ({ default: m.JSONCSVConverter })));
+const UnixTimestampConverter = lazy(() => import("./components/UnixTimestampConverter").then(m => ({ default: m.UnixTimestampConverter })));
+const RandomGenerator = lazy(() => import("./components/RandomGenerator").then(m => ({ default: m.RandomGenerator })));
+const AdPlaceholder = lazy(() => import("./components/AdPlaceholder").then(m => ({ default: m.AdPlaceholder })));
 
 interface Tool {
   id: string;
@@ -412,6 +388,14 @@ const tools: Tool[] = [
     icon: Shield,
     description: "SHA-256, SHA-512 Generator",
     Component: HashGenerator,
+    category: "dev",
+  },
+  {
+    id: "json-csv",
+    name: "JSON / CSV",
+    icon: FileCode,
+    description: "Convertisseur bidirectionnel JSON et CSV",
+    Component: JSONCSVConverter,
     category: "dev",
   },
   {

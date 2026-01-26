@@ -82,7 +82,7 @@ const UUIDGenerator = lazy(() => import("./components/UUIDGenerator").then(m => 
 const Base64Tool = lazy(() => import("./components/Base64Tool").then(m => ({ default: m.Base64Tool })));
 const DateCalculator = lazy(() => import("./components/DateCalculator").then(m => ({ default: m.DateCalculator })));
 const MarkdownPreview = lazy(() => import("./components/MarkdownPreview").then(m => ({ default: m.MarkdownPreview })));
-const JSONFormatter = lazy(() => import("./components/JSONFormatter").then(m => ({ default: m.JSONFormatter })));
+const JSONCSVConverter = lazy(() => import("./components/JSONCSVConverter").then(m => ({ default: m.JSONCSVConverter })));
 const URLEncoder = lazy(() => import("./components/URLEncoder").then(m => ({ default: m.URLEncoder })));
 const ImageCompressor = lazy(() => import("./components/ImageCompressor").then(m => ({ default: m.ImageCompressor })));
 const IPAddressTool = lazy(() => import("./components/IPAddressTool").then(m => ({ default: m.IPAddressTool })));
@@ -375,11 +375,11 @@ const tools: Tool[] = [
     category: "dev",
   },
   {
-    id: "json-formatter",
-    name: "JSON",
+    id: "json-csv-converter",
+    name: "JSON & CSV",
     icon: FileCode,
-    description: "Validateur et formateur JSON",
-    Component: JSONFormatter,
+    description: "Convertisseur JSON vers CSV et inversement",
+    Component: JSONCSVConverter,
     category: "dev",
   },
   {
@@ -388,6 +388,14 @@ const tools: Tool[] = [
     icon: Shield,
     description: "SHA-256, SHA-512 Generator",
     Component: HashGenerator,
+    category: "dev",
+  },
+  {
+    id: "json-csv",
+    name: "JSON / CSV",
+    icon: FileCode,
+    description: "Convertisseur bidirectionnel JSON et CSV",
+    Component: JSONCSVConverter,
     category: "dev",
   },
   {

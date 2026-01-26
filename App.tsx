@@ -57,6 +57,7 @@ import {
   ArrowRight, Loader2,
   Sparkles,
 } from "lucide-react";
+import { AdPlaceholder } from "./components/AdPlaceholder";
 
 
 // ⚡ Bolt Optimization: Code Splitting
@@ -80,7 +81,7 @@ const UUIDGenerator = lazy(() => import("./components/UUIDGenerator").then(m => 
 const Base64Tool = lazy(() => import("./components/Base64Tool").then(m => ({ default: m.Base64Tool })));
 const DateCalculator = lazy(() => import("./components/DateCalculator").then(m => ({ default: m.DateCalculator })));
 const MarkdownPreview = lazy(() => import("./components/MarkdownPreview").then(m => ({ default: m.MarkdownPreview })));
-const JSONFormatter = lazy(() => import("./components/JSONFormatter").then(m => ({ default: m.JSONFormatter })));
+const JSONCSVConverter = lazy(() => import("./components/JSONCSVConverter").then(m => ({ default: m.JSONCSVConverter })));
 const URLEncoder = lazy(() => import("./components/URLEncoder").then(m => ({ default: m.URLEncoder })));
 const ImageCompressor = lazy(() => import("./components/ImageCompressor").then(m => ({ default: m.ImageCompressor })));
 const IPAddressTool = lazy(() => import("./components/IPAddressTool").then(m => ({ default: m.IPAddressTool })));
@@ -103,10 +104,8 @@ const ROICalculator = lazy(() => import("./components/ROICalculator").then(m => 
 const ExpenseTracker = lazy(() => import("./components/ExpenseTracker").then(m => ({ default: m.ExpenseTracker })));
 const BPMCounter = lazy(() => import("./components/BPMCounter").then(m => ({ default: m.BPMCounter })));
 const HashGenerator = lazy(() => import("./components/HashGenerator").then(m => ({ default: m.HashGenerator })));
-const JSONCSVConverter = lazy(() => import("./components/JSONCSVConverter").then(m => ({ default: m.JSONCSVConverter })));
 const UnixTimestampConverter = lazy(() => import("./components/UnixTimestampConverter").then(m => ({ default: m.UnixTimestampConverter })));
 const RandomGenerator = lazy(() => import("./components/RandomGenerator").then(m => ({ default: m.RandomGenerator })));
-const AdPlaceholder = lazy(() => import("./components/AdPlaceholder").then(m => ({ default: m.AdPlaceholder })));
 
 interface Tool {
   id: string;
@@ -375,11 +374,11 @@ const tools: Tool[] = [
     category: "dev",
   },
   {
-    id: "json-formatter",
-    name: "JSON",
+    id: "json-csv-converter",
+    name: "JSON & CSV",
     icon: FileCode,
-    description: "Validateur et formateur JSON",
-    Component: JSONFormatter,
+    description: "Convertisseur JSON vers CSV et inversement",
+    Component: JSONCSVConverter,
     category: "dev",
   },
   {

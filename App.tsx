@@ -55,11 +55,11 @@ import {
   Music,
   Star,
   Clock,
+  Table,
+  FileSpreadsheet,
   ArrowRight, Loader2,
   Sparkles,
 } from "lucide-react";
-import { AdPlaceholder } from "./components/AdPlaceholder";
-
 
 // ⚡ Bolt Optimization: Code Splitting
 // Using React.lazy to split each tool into its own chunk.
@@ -105,8 +105,11 @@ const ROICalculator = lazy(() => import("./components/ROICalculator").then(m => 
 const ExpenseTracker = lazy(() => import("./components/ExpenseTracker").then(m => ({ default: m.ExpenseTracker })));
 const BPMCounter = lazy(() => import("./components/BPMCounter").then(m => ({ default: m.BPMCounter })));
 const HashGenerator = lazy(() => import("./components/HashGenerator").then(m => ({ default: m.HashGenerator })));
+const JSONCSVConverter = lazy(() => import("./components/JSONCSVConverter").then(m => ({ default: m.JSONCSVConverter })));
+const MarkdownTableGenerator = lazy(() => import("./components/MarkdownTableGenerator").then(m => ({ default: m.MarkdownTableGenerator })));
 const UnixTimestampConverter = lazy(() => import("./components/UnixTimestampConverter").then(m => ({ default: m.UnixTimestampConverter })));
 const RandomGenerator = lazy(() => import("./components/RandomGenerator").then(m => ({ default: m.RandomGenerator })));
+const AdPlaceholder = lazy(() => import("./components/AdPlaceholder").then(m => ({ default: m.AdPlaceholder })));
 
 interface Tool {
   id: string;
@@ -326,6 +329,14 @@ const tools: Tool[] = [
     category: "text",
   },
   {
+    id: "markdown-table",
+    name: "Tableau Markdown",
+    icon: Table,
+    description: "Générateur de tableaux Markdown visuel",
+    Component: MarkdownTableGenerator,
+    category: "text",
+  },
+  {
     id: "diff-checker",
     name: "Diff",
     icon: Columns,
@@ -378,6 +389,14 @@ const tools: Tool[] = [
     id: "json-csv-converter",
     name: "JSON & CSV",
     icon: FileCode,
+    description: "Convertisseur JSON vers CSV et inversement",
+    Component: JSONCSVConverter,
+    category: "dev",
+  },
+  {
+    id: "json-csv-converter",
+    name: "JSON / CSV",
+    icon: FileSpreadsheet,
     description: "Convertisseur JSON vers CSV et inversement",
     Component: JSONCSVConverter,
     category: "dev",

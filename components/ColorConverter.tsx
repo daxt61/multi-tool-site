@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Copy, Check, Palette, Hash, SlidersHorizontal } from 'lucide-react';
 
 export function ColorConverter() {
@@ -109,167 +109,113 @@ export function ColorConverter() {
   };
 
   return (
-    <div className="max-w-6xl mx-auto space-y-8">
-      {/* Main Preview & HEX Card */}
+    <div className="max-w-5xl mx-auto space-y-8">
+      {/* Main Preview Card */}
+      <div
+        className="w-full h-64 rounded-[2.5rem] shadow-xl relative overflow-hidden group focus-within:ring-4 focus-within:ring-indigo-500/20 transition-all border border-slate-200 dark:border-slate-800"
+        style={{ backgroundColor: hex }}
+      >
+        <div className="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent pointer-events-none"></div>
+        <input
+          type="color"
+          value={hex}
+          onChange={(e) => updateFromHex(e.target.value)}
+          className="absolute inset-0 w-full h-full opacity-0 cursor-pointer outline-none"
+          title="Ouvrir le sélecteur de couleur"
+        />
+        <div className="absolute bottom-8 right-8 w-16 h-16 rounded-full border-4 border-white dark:border-slate-800 bg-white/10 backdrop-blur-md flex items-center justify-center text-white pointer-events-none group-hover:scale-110 transition-transform">
+          <Palette className="w-8 h-8" />
+        </div>
+      </div>
+
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
-        <div
-          className="lg:col-span-8 h-80 rounded-[2.5rem] shadow-xl relative overflow-hidden group border-4 border-white dark:border-slate-800 transition-all focus-within:ring-4 focus-within:ring-indigo-500/20"
-          style={{ backgroundColor: hex }}
-        >
-          <input
-            type="color"
-            value={hex}
-            onChange={(e) => updateFromHex(e.target.value)}
-            className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
-            aria-label="Sélecteur de couleur"
-          />
-          <div className="absolute inset-0 flex items-center justify-center pointer-events-none opacity-0 group-hover:opacity-100 transition-opacity bg-black/10">
-            <div className="bg-white/90 dark:bg-slate-900/90 px-6 py-3 rounded-full shadow-xl flex items-center gap-3">
-              <Palette className="w-5 h-5 text-indigo-600" />
-              <span className="font-bold text-sm">Cliquer pour choisir une couleur</span>
+        {/* Color Codes */}
+        <div className="lg:col-span-4 space-y-4">
+          {[
+            { label: 'HEX', value: hex, id: 'hex' },
+            { label: 'RGB', value: `rgb(${rgb.r}, ${rgb.g}, ${rgb.b})`, id: 'rgb' },
+            { label: 'HSL', value: `hsl(${hsl.h}, ${hsl.s}%, ${hsl.l}%)`, id: 'hsl' },
+          ].map((item) => (
+            <div key={item.id} className="p-6 bg-slate-50 dark:bg-slate-900/50 rounded-3xl border border-slate-200 dark:border-slate-800 group relative">
+              <label className="text-[10px] font-black uppercase tracking-widest text-slate-400 mb-1 block">{item.label}</label>
+              <div className="flex items-center justify-between">
+                <span className="font-mono font-black text-lg truncate dark:text-white">{item.value}</span>
+                <button
+                  onClick={() => copyToClipboard(item.value, item.id)}
+                  className="p-2 hover:bg-white dark:hover:bg-slate-800 rounded-xl transition-all text-slate-400 hover:text-indigo-500 shadow-sm border border-transparent hover:border-slate-200 dark:hover:border-slate-700"
+                >
+                  {copied === item.id ? <Check className="w-4 h-4 text-emerald-500" /> : <Copy className="w-4 h-4" />}
+                </button>
+              </div>
             </div>
+          ))}
+
+          <div className="p-6 bg-indigo-600 rounded-3xl text-white space-y-2">
+            <Hash className="w-5 h-5 opacity-50" />
+            <h5 className="font-black text-sm uppercase tracking-wider">Note</h5>
+            <p className="text-xs font-medium text-indigo-100 leading-relaxed">Cliquez sur la zone de couleur pour ouvrir le sélecteur natif de votre système.</p>
           </div>
         </div>
 
-        <div className="lg:col-span-4 bg-slate-50 dark:bg-slate-900/50 p-8 rounded-[2.5rem] border border-slate-200 dark:border-slate-800 flex flex-col justify-center space-y-6">
-          <div className="space-y-2">
-            <div className="flex justify-between items-center px-1">
-              <label className="text-xs font-black uppercase tracking-widest text-slate-400 flex items-center gap-2">
-                <Hash className="w-3 h-3" /> Code HEX
-              </label>
-              <button
-                onClick={() => copyToClipboard(hex, 'hex')}
-                className={`p-2 rounded-xl transition-all ${copied === 'hex' ? 'bg-emerald-500 text-white' : 'hover:bg-slate-200 dark:hover:bg-slate-800 text-slate-500'}`}
-              >
-                {copied === 'hex' ? <Check className="w-4 h-4" /> : <Copy className="w-4 h-4" />}
-              </button>
+        {/* Sliders Area */}
+        <div className="lg:col-span-8 grid grid-cols-1 md:grid-cols-2 gap-8">
+          {/* RGB Sliders */}
+          <div className="bg-white dark:bg-slate-900/40 border border-slate-200 dark:border-slate-800 p-8 rounded-[2.5rem] space-y-8 shadow-sm">
+            <div className="flex items-center gap-2">
+              <SlidersHorizontal className="w-4 h-4 text-indigo-500" />
+              <h4 className="text-xs font-black uppercase tracking-widest text-slate-400">RGB</h4>
             </div>
-            <input
-              type="number"
-              min="0"
-              max="255"
-              value={rgb.b}
-              onChange={(e) => updateFromRgb({ ...rgb, b: Number(e.target.value) })}
-              className="w-full p-3 border border-gray-300 rounded-lg"
-            />
-          </div>
-        </div>
-      </div>
-
-          <div className="grid grid-cols-2 gap-4">
-             <button
-                onClick={() => copyToClipboard(`rgb(${rgb.r}, ${rgb.g}, ${rgb.b})`, 'rgb')}
-                className="flex flex-col items-start p-4 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-2xl hover:border-indigo-500/50 transition-all group"
-             >
-                <span className="text-[10px] font-black uppercase tracking-widest text-slate-400 mb-1">Copier RGB</span>
-                <span className="text-xs font-bold font-mono truncate w-full text-slate-600 dark:text-slate-400 group-hover:text-indigo-500 transition-colors">
-                  {rgb.r}, {rgb.g}, {rgb.b}
-                </span>
-             </button>
-             <button
-                onClick={() => copyToClipboard(`hsl(${hsl.h}, ${hsl.s}%, ${hsl.l}%)`, 'hsl')}
-                className="flex flex-col items-start p-4 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-2xl hover:border-indigo-500/50 transition-all group"
-             >
-                <span className="text-[10px] font-black uppercase tracking-widest text-slate-400 mb-1">Copier HSL</span>
-                <span className="text-xs font-bold font-mono truncate w-full text-slate-600 dark:text-slate-400 group-hover:text-indigo-500 transition-colors">
-                  {hsl.h}°, {hsl.s}%, {hsl.l}%
-                </span>
-             </button>
-          </div>
-        </div>
-      </div>
-
-      {/* Sliders Area */}
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-        {/* RGB Sliders */}
-        <div className="bg-white dark:bg-slate-900/40 border border-slate-200 dark:border-slate-800 p-8 rounded-[2.5rem] space-y-8">
-          <div className="flex justify-between items-center px-1">
-            <h4 className="text-xs font-black uppercase tracking-widest text-slate-400 flex items-center gap-2">
-              <SlidersHorizontal className="w-3 h-3" /> Composantes RGB
-            </h4>
-          </div>
-          <div className="space-y-6">
-            {[
-              { label: 'Rouge', key: 'r', color: 'accent-rose-500' },
-              { label: 'Vert', key: 'g', color: 'accent-emerald-500' },
-              { label: 'Bleu', key: 'b', color: 'accent-blue-500' },
-            ].map((chan) => (
-              <div key={chan.key} className="space-y-3">
-                <div className="flex justify-between items-center px-1">
-                  <label className="text-sm font-bold text-slate-500 dark:text-slate-400">{chan.label}</label>
-                  <div className="flex items-center gap-2">
-                    <input
-                      type="number"
-                      min="0"
-                      max="255"
-                      value={rgb[chan.key as keyof typeof rgb]}
-                      onChange={(e) => updateFromRgb({ ...rgb, [chan.key]: Number(e.target.value) })}
-                      className="w-16 p-1 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded text-center text-xs font-bold font-mono outline-none"
-                    />
+            <div className="space-y-6">
+              {[
+                { label: 'Rouge', key: 'r' },
+                { label: 'Vert', key: 'g' },
+                { label: 'Bleu', key: 'b' },
+              ].map((chan) => (
+                <div key={chan.key} className="space-y-2">
+                  <div className="flex justify-between items-center px-1">
+                    <label className="text-xs font-bold text-slate-500">{chan.label}</label>
+                    <span className="text-sm font-black font-mono">{rgb[chan.key as keyof typeof rgb]}</span>
                   </div>
+                  <input
+                    type="range"
+                    min="0"
+                    max="255"
+                    value={rgb[chan.key as keyof typeof rgb]}
+                    onChange={(e) => updateFromRgb({ ...rgb, [chan.key]: Number(e.target.value) })}
+                    className="w-full h-2 bg-slate-100 dark:bg-slate-800 rounded-lg appearance-none cursor-pointer accent-indigo-600"
+                  />
                 </div>
-                <input
-                  type="range"
-                  min="0"
-                  max="255"
-                  value={rgb[chan.key as keyof typeof rgb]}
-                  onChange={(e) => updateFromRgb({ ...rgb, [chan.key]: Number(e.target.value) })}
-                  className={`w-full h-2 rounded-lg appearance-none cursor-pointer bg-slate-100 dark:bg-slate-800 ${chan.color}`}
-                />
-              </div>
-            ))}
+              ))}
+            </div>
           </div>
-        </div>
 
-        {/* HSL Sliders */}
-        <div className="bg-white dark:bg-slate-900/40 border border-slate-200 dark:border-slate-800 p-8 rounded-[2.5rem] space-y-8">
-          <div className="flex justify-between items-center px-1">
-            <h4 className="text-xs font-black uppercase tracking-widest text-slate-400 flex items-center gap-2">
-              <SlidersHorizontal className="w-3 h-3" /> Composantes HSL
-            </h4>
-          </div>
-          <div className="space-y-6">
-            <div className="space-y-3">
-              <div className="flex justify-between items-center px-1">
-                <label className="text-sm font-bold text-slate-500 dark:text-slate-400">Teinte</label>
-                <span className="text-xs font-bold font-mono bg-slate-50 dark:bg-slate-800 px-2 py-1 rounded border border-slate-200 dark:border-slate-700">{hsl.h}°</span>
-              </div>
-              <input
-                type="range"
-                min="0"
-                max="360"
-                value={hsl.h}
-                onChange={(e) => updateFromHsl({ ...hsl, h: Number(e.target.value) })}
-                className="w-full h-2 rounded-lg appearance-none cursor-pointer bg-slate-100 dark:bg-slate-800 accent-indigo-500"
-              />
+          {/* HSL Sliders */}
+          <div className="bg-white dark:bg-slate-900/40 border border-slate-200 dark:border-slate-800 p-8 rounded-[2.5rem] space-y-8 shadow-sm">
+            <div className="flex items-center gap-2">
+              <SlidersHorizontal className="w-4 h-4 text-indigo-500" />
+              <h4 className="text-xs font-black uppercase tracking-widest text-slate-400">HSL</h4>
             </div>
-            <div className="space-y-3">
-              <div className="flex justify-between items-center px-1">
-                <label className="text-sm font-bold text-slate-500 dark:text-slate-400">Saturation</label>
-                <span className="text-xs font-bold font-mono bg-slate-50 dark:bg-slate-800 px-2 py-1 rounded border border-slate-200 dark:border-slate-700">{hsl.s}%</span>
-              </div>
-              <input
-                type="range"
-                min="0"
-                max="100"
-                value={hsl.s}
-                onChange={(e) => updateFromHsl({ ...hsl, s: Number(e.target.value) })}
-                className="w-full h-2 rounded-lg appearance-none cursor-pointer bg-slate-100 dark:bg-slate-800 accent-indigo-500"
-              />
-            </div>
-            <div className="space-y-3">
-              <div className="flex justify-between items-center px-1">
-                <label className="text-sm font-bold text-slate-500 dark:text-slate-400">Luminosité</label>
-                <span className="text-xs font-bold font-mono bg-slate-50 dark:bg-slate-800 px-2 py-1 rounded border border-slate-200 dark:border-slate-700">{hsl.l}%</span>
-              </div>
-              <input
-                type="range"
-                min="0"
-                max="100"
-                value={hsl.l}
-                onChange={(e) => updateFromHsl({ ...hsl, l: Number(e.target.value) })}
-                className="w-full h-2 rounded-lg appearance-none cursor-pointer bg-slate-100 dark:bg-slate-800 accent-indigo-500"
-              />
+            <div className="space-y-6">
+              {[
+                { label: 'Teinte', key: 'h', max: 360, unit: '°' },
+                { label: 'Saturation', key: 's', max: 100, unit: '%' },
+                { label: 'Luminosité', key: 'l', max: 100, unit: '%' },
+              ].map((chan) => (
+                <div key={chan.key} className="space-y-2">
+                  <div className="flex justify-between items-center px-1">
+                    <label className="text-xs font-bold text-slate-500">{chan.label}</label>
+                    <span className="text-sm font-black font-mono">{hsl[chan.key as keyof typeof hsl]}{chan.unit}</span>
+                  </div>
+                  <input
+                    type="range"
+                    min="0"
+                    max={chan.max}
+                    value={hsl[chan.key as keyof typeof hsl]}
+                    onChange={(e) => updateFromHsl({ ...hsl, [chan.key]: Number(e.target.value) })}
+                    className="w-full h-2 bg-slate-100 dark:bg-slate-800 rounded-lg appearance-none cursor-pointer accent-indigo-600"
+                  />
+                </div>
+              ))}
             </div>
           </div>
         </div>

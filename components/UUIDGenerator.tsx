@@ -7,10 +7,14 @@ export function UUIDGenerator() {
   const [copiedIndex, setCopiedIndex] = useState<number | null>(null);
 
   const generateUUID = () => {
-    return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function(c) {
-      const r = Math.random() * 16 | 0;
-      const v = c === 'x' ? r : (r & 0x3 | 0x8);
-      return v.toString(16);
+    if (typeof crypto.randomUUID === 'function') {
+      return crypto.randomUUID();
+    }
+    return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, (c) => {
+      const array = new Uint8Array(1);
+      window.crypto.getRandomValues(array);
+      const r = array[0] % 16;
+      return (c === 'x' ? r : (r & 0x3 | 0x8)).toString(16);
     });
   };
 

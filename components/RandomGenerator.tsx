@@ -17,9 +17,20 @@ export function RandomGenerator() {
 
   const [copied, setCopied] = useState('');
 
+  const getRandomInt = (range: number) => {
+    if (range <= 0) return 0;
+    const array = new Uint32Array(1);
+    const limit = 4294967296 - (4294967296 % range);
+    let rand;
+    do {
+      window.crypto.getRandomValues(array);
+      rand = array[0];
+    } while (rand >= limit);
+    return rand % range;
+  };
+
   const generateNumber = () => {
-    const val = Math.floor(Math.random() * (max - min + 1)) + min;
-    setRandomNumber(val);
+    setRandomNumber(getRandomInt(max - min + 1) + min);
   };
 
   const generateString = () => {
@@ -27,21 +38,20 @@ export function RandomGenerator() {
     if (includeUpper) charset += 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
     if (includeLower) charset += 'abcdefghijklmnopqrstuvwxyz';
     if (includeNumbers) charset += '0123456789';
-
     if (charset === '') return;
 
     let result = '';
     for (let i = 0; i < strLength; i++) {
-      result += charset.charAt(Math.floor(Math.random() * charset.length));
+      result += charset.charAt(getRandomInt(charset.length));
     }
     setRandomString(result);
   };
 
   const shuffleList = () => {
-    const items = list.split('\n').filter(i => i.trim() !== '');
+    const items = list.split('\n').filter((i) => i.trim() !== '');
     const shuffled = [...items];
     for (let i = shuffled.length - 1; i > 0; i--) {
-      const j = Math.floor(Math.random() * (i + 1));
+      const j = getRandomInt(i + 1);
       [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
     }
     setShuffledList(shuffled);

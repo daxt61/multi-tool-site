@@ -17,9 +17,10 @@ export function ColorConverter() {
   };
 
   const rgbToHex = (r: number, g: number, b: number) => {
-    return '#' + [r, g, b].map(x => {
-      const hex = x.toString(16);
-      return hex.length === 1 ? '0' + hex : hex;
+    const clamp = (n: number) => Math.max(0, Math.min(255, Math.round(n)));
+    return '#' + [clamp(r), clamp(g), clamp(b)].map(x => {
+      const h = x.toString(16);
+      return h.length === 1 ? '0' + h : h;
     }).join('');
   };
 
@@ -79,7 +80,7 @@ export function ColorConverter() {
   };
 
   const updateFromHex = (newHex: string) => {
-    if (!newHex.startsWith('#')) newHex = '#' + newHex;
+    if (!newHex.startsWith('#') && newHex.length > 0) newHex = '#' + newHex;
     setHex(newHex);
     const rgbValue = hexToRgb(newHex);
     if (rgbValue) {

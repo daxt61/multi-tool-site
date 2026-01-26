@@ -63,8 +63,9 @@ export function BMICalculator() {
 
           <div className="space-y-6">
             <div className="space-y-3">
-              <label className="text-xs font-black uppercase tracking-widest text-slate-400 px-1">Poids ({unit === 'metric' ? 'kg' : 'lb'})</label>
+              <label htmlFor="bmi-weight" className="text-xs font-black uppercase tracking-widest text-slate-400 px-1">Poids ({unit === 'metric' ? 'kg' : 'lb'})</label>
               <input
+                id="bmi-weight"
                 type="number"
                 value={weight}
                 onChange={(e) => setWeight(e.target.value)}
@@ -72,8 +73,9 @@ export function BMICalculator() {
               />
             </div>
             <div className="space-y-3">
-              <label className="text-xs font-black uppercase tracking-widest text-slate-400 px-1">Taille ({unit === 'metric' ? 'cm' : 'in'})</label>
+              <label htmlFor="bmi-height" className="text-xs font-black uppercase tracking-widest text-slate-400 px-1">Taille ({unit === 'metric' ? 'cm' : 'in'})</label>
               <input
+                id="bmi-height"
                 type="number"
                 value={height}
                 onChange={(e) => setHeight(e.target.value)}

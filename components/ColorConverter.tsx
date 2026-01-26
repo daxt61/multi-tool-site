@@ -174,10 +174,11 @@ export function ColorConverter() {
             ].map((chan) => (
               <div key={chan.key} className="space-y-2">
                 <div className="flex justify-between items-center px-1">
-                  <label className="text-xs font-bold text-slate-500">{chan.label}</label>
+                  <label htmlFor={`rgb-${chan.key}`} className="text-xs font-bold text-slate-500">{chan.label}</label>
                   <span className="text-sm font-black font-mono dark:text-slate-300">{rgb[chan.key as keyof typeof rgb]}</span>
                 </div>
                 <input
+                  id={`rgb-${chan.key}`}
                   type="range"
                   min="0"
                   max="255"
@@ -198,10 +199,11 @@ export function ColorConverter() {
           <div className="space-y-6">
             <div className="space-y-2">
               <div className="flex justify-between items-center px-1">
-                <label className="text-xs font-bold text-slate-500">Teinte</label>
+                <label htmlFor="hsl-h" className="text-xs font-bold text-slate-500">Teinte</label>
                 <span className="text-sm font-black font-mono dark:text-slate-300">{hsl.h}°</span>
               </div>
               <input
+                id="hsl-h"
                 type="range"
                 min="0"
                 max="360"
@@ -212,10 +214,11 @@ export function ColorConverter() {
             </div>
             <div className="space-y-2">
               <div className="flex justify-between items-center px-1">
-                <label className="text-xs font-bold text-slate-500">Saturation</label>
+                <label htmlFor="hsl-s" className="text-xs font-bold text-slate-500">Saturation</label>
                 <span className="text-sm font-black font-mono dark:text-slate-300">{hsl.s}%</span>
               </div>
               <input
+                id="hsl-s"
                 type="range"
                 min="0"
                 max="100"
@@ -226,10 +229,11 @@ export function ColorConverter() {
             </div>
             <div className="space-y-2">
               <div className="flex justify-between items-center px-1">
-                <label className="text-xs font-bold text-slate-500">Luminosité</label>
+                <label htmlFor="hsl-l" className="text-xs font-bold text-slate-500">Luminosité</label>
                 <span className="text-sm font-black font-mono dark:text-slate-300">{hsl.l}%</span>
               </div>
               <input
+                id="hsl-l"
                 type="range"
                 min="0"
                 max="100"

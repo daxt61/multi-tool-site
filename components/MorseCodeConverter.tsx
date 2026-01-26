@@ -39,6 +39,48 @@ export function MorseCodeConverter() {
     setTimeout(() => setCopied(false), 2000);
   };
 
+  const playMorse = async () => {
+    if (!morse) return;
+    const audioCtx = new (window.AudioContext || (window as any).webkitAudioContext)();
+    const dot = 100;
+    const dash = 300;
+    const freq = 600;
+
+    const playTone = (duration: number) => {
+      return new Promise<void>(resolve => {
+        const osc = audioCtx.createOscillator();
+        const gain = audioCtx.createGain();
+        osc.type = 'sine';
+        osc.frequency.setValueAtTime(freq, audioCtx.currentTime);
+        gain.gain.setValueAtTime(0.1, audioCtx.currentTime);
+        osc.connect(gain);
+        gain.connect(audioCtx.destination);
+        osc.start();
+        setTimeout(() => {
+          osc.stop();
+          resolve();
+        }, duration);
+      });
+    };
+
+    const sleep = (ms: number) => new Promise(resolve => setTimeout(resolve, ms));
+
+    for (const char of morse) {
+      if (char === '.') {
+        await playTone(dot);
+        await sleep(dot);
+      } else if (char === '-') {
+        await playTone(dash);
+        await sleep(dot);
+      } else if (char === ' ') {
+        await sleep(dash);
+      } else if (char === '/') {
+        await sleep(dot * 7);
+      }
+    }
+    await audioCtx.close();
+  };
+
   return (
     <div className="max-w-4xl mx-auto">
       <div className="grid grid-cols-1 md:grid-cols-2 gap-8 mb-8">
@@ -69,13 +111,21 @@ export function MorseCodeConverter() {
         </div>
       </div>
 
-      <div className="flex gap-4 justify-center">
+      <div className="flex gap-4 justify-center flex-wrap">
         <button
           onClick={handleCopy}
           className="px-6 py-3 bg-blue-500 text-white rounded-lg font-semibold hover:bg-blue-600 transition-colors flex items-center gap-2"
         >
           {copied ? <Check className="w-5 h-5" /> : <Copy className="w-5 h-5" />}
           Copier le Code Morse
+        </button>
+        <button
+          onClick={playMorse}
+          disabled={!morse}
+          className="px-6 py-3 bg-orange-500 text-white rounded-lg font-semibold hover:bg-orange-600 transition-colors flex items-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
+        >
+          <Volume2 className="w-5 h-5" />
+          Écouter
         </button>
         <button
           onClick={() => { setText(''); setMorse(''); }}

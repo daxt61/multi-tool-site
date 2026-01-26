@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { FileCode, FileSpreadsheet, Copy, Check, Trash2, AlertCircle } from 'lucide-react';
+import { FileCode, FileSpreadsheet, Copy, Check, Trash2, AlertCircle, Download } from 'lucide-react';
 
 export function JSONCSVConverter() {
   const [jsonInput, setJsonInput] = useState('');
@@ -101,6 +101,19 @@ export function JSONCSVConverter() {
     setTimeout(() => setCopied(null), 2000);
   };
 
+  const downloadFile = (text: string, filename: string, type: string) => {
+    if (!text) return;
+    const blob = new Blob([text], { type });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    link.href = url;
+    link.download = filename;
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    URL.revokeObjectURL(url);
+  };
+
   return (
     <div className="max-w-6xl mx-auto space-y-8">
       {error && (
@@ -124,6 +137,12 @@ export function JSONCSVConverter() {
                 className={`text-xs font-bold px-3 py-1 rounded-full transition-all flex items-center gap-1 ${copied === 'json' ? 'bg-emerald-500 text-white' : 'text-slate-500 bg-slate-100 dark:bg-slate-800'}`}
               >
                 {copied === 'json' ? <Check className="w-3 h-3" /> : <Copy className="w-3 h-3" />} {copied === 'json' ? 'Copié' : 'Copier'}
+              </button>
+              <button
+                onClick={() => downloadFile(jsonInput, 'data.json', 'application/json')}
+                className="text-xs font-bold px-3 py-1 rounded-full text-slate-500 bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 transition-all flex items-center gap-1"
+              >
+                <Download className="w-3 h-3" /> Télécharger
               </button>
               <button
                 onClick={() => {setJsonInput(''); setCsvInput(''); setError('');}}
@@ -154,6 +173,12 @@ export function JSONCSVConverter() {
                 className={`text-xs font-bold px-3 py-1 rounded-full transition-all flex items-center gap-1 ${copied === 'csv' ? 'bg-emerald-500 text-white' : 'text-slate-500 bg-slate-100 dark:bg-slate-800'}`}
               >
                 {copied === 'csv' ? <Check className="w-3 h-3" /> : <Copy className="w-3 h-3" />} {copied === 'csv' ? 'Copié' : 'Copier'}
+              </button>
+              <button
+                onClick={() => downloadFile(csvInput, 'data.csv', 'text/csv')}
+                className="text-xs font-bold px-3 py-1 rounded-full text-slate-500 bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 transition-all flex items-center gap-1"
+              >
+                <Download className="w-3 h-3" /> Télécharger
               </button>
             </div>
           </div>

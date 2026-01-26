@@ -110,6 +110,8 @@ const BPMCounter = lazy(() => import("./components/BPMCounter").then(m => ({ def
 const HashGenerator = lazy(() => import("./components/HashGenerator").then(m => ({ default: m.HashGenerator })));
 const UnixTimestampConverter = lazy(() => import("./components/UnixTimestampConverter").then(m => ({ default: m.UnixTimestampConverter })));
 const RandomGenerator = lazy(() => import("./components/RandomGenerator").then(m => ({ default: m.RandomGenerator })));
+const JSONFormatter = lazy(() => import("./components/JSONFormatter").then(m => ({ default: m.JSONFormatter })));
+const HTMLEntityConverter = lazy(() => import("./components/HTMLEntityConverter").then(m => ({ default: m.HTMLEntityConverter })));
 
 interface Tool {
   id: string;
@@ -399,6 +401,22 @@ const tools: Tool[] = [
     icon: FileCode,
     description: "Convertisseur bidirectionnel JSON et CSV",
     Component: JSONCSVConverter,
+    category: "dev",
+  },
+  {
+    id: "json-formatter",
+    name: "Formatteur JSON",
+    icon: FileCode,
+    description: "Embellir, minifier et valider du JSON",
+    Component: JSONFormatter,
+    category: "dev",
+  },
+  {
+    id: "html-entities",
+    name: "Entités HTML",
+    icon: Code,
+    description: "Encodeur et décodeur d'entités HTML",
+    Component: HTMLEntityConverter,
     category: "dev",
   },
   {

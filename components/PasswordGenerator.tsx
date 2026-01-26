@@ -96,7 +96,14 @@ export function PasswordGenerator() {
               <div className={`flex items-center gap-2 px-4 py-1.5 rounded-full font-black text-xs uppercase tracking-widest text-white ${strength.color}`}>
                 {strength.icon} {strength.label}
               </div>
-              <div className="h-1.5 w-32 bg-white/10 rounded-full overflow-hidden">
+              <div
+                className="h-1.5 w-32 bg-white/10 rounded-full overflow-hidden"
+                role="progressbar"
+                aria-valuenow={strength.label === 'Faible' ? 33 : strength.label === 'Moyen' ? 66 : 100}
+                aria-valuemin={0}
+                aria-valuemax={100}
+                aria-label="Force du mot de passe"
+              >
                 <div
                   className={`h-full transition-all duration-700 ${strength.color}`}
                   style={{ width: strength.label === 'Faible' ? '33%' : strength.label === 'Moyen' ? '66%' : '100%' }}

@@ -75,6 +75,7 @@ export function PasswordGenerator() {
               onClick={generatePassword}
               className="p-4 bg-white/10 hover:bg-white/20 text-white rounded-2xl transition-all active:scale-95"
               title="Régénérer"
+              aria-label="Régénérer le mot de passe"
             >
               <RefreshCw className="w-6 h-6" />
             </button>

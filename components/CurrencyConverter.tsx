@@ -7,7 +7,9 @@ export function CurrencyConverter() {
   const [toCurrency, setToCurrency] = useState('USD');
 
   const rates: Record<string, number> = {
-    EUR: 1, USD: 1.09, GBP: 0.86, JPY: 163.25, CHF: 0.94, CAD: 1.51, AUD: 1.68, CNY: 7.86, INR: 90.45, BRL: 5.42, RUB: 100.12, MXN: 18.65, AED: 4.01, SAR: 4.09
+    EUR: 1, USD: 1.09, GBP: 0.86, JPY: 163.25, CHF: 0.94, CAD: 1.51, AUD: 1.68, CNY: 7.86, INR: 90.45, BRL: 5.42, RUB: 100.12, MXN: 18.65, AED: 4.01, SAR: 4.09,
+    NZD: 1.82, SEK: 11.45, NOK: 11.58, DKK: 7.46, TRY: 35.12, SGD: 1.46, HKD: 8.52, KRW: 1452.36, ZAR: 20.45, PLN: 4.32, PHP: 61.23, IDR: 17235.45, MYR: 5.18,
+    THB: 39.45, HUF: 395.12, CZK: 25.32, ILS: 4.02, CLP: 1025.45, PKR: 304.12, EGP: 53.45, TWD: 34.12, VND: 26850.12, COP: 4250.45, QAR: 3.97, KWD: 0.33, BHD: 0.41
   };
 
   const currencies = [
@@ -24,7 +26,33 @@ export function CurrencyConverter() {
     { code: 'RUB', name: 'Rouble Russe', symbol: '₽' },
     { code: 'MXN', name: 'Peso Mexicain', symbol: 'MX$' },
     { code: 'AED', name: 'Dirham Émirati', symbol: 'AED' },
-    { code: 'SAR', name: 'Riyal Saoudien', symbol: 'SAR' }
+    { code: 'SAR', name: 'Riyal Saoudien', symbol: 'SAR' },
+    { code: 'NZD', name: 'Dollar Néo-Zélandais', symbol: 'NZ$' },
+    { code: 'SEK', name: 'Couronne Suédoise', symbol: 'kr' },
+    { code: 'NOK', name: 'Couronne Norvégienne', symbol: 'kr' },
+    { code: 'DKK', name: 'Couronne Danoise', symbol: 'kr' },
+    { code: 'TRY', name: 'Lire Turque', symbol: '₺' },
+    { code: 'SGD', name: 'Dollar Singapourien', symbol: 'S$' },
+    { code: 'HKD', name: 'Dollar de Hong Kong', symbol: 'HK$' },
+    { code: 'KRW', name: 'Won Sud-Coréen', symbol: '₩' },
+    { code: 'ZAR', name: 'Rand Sud-Africain', symbol: 'R' },
+    { code: 'PLN', name: 'Zloty Polonais', symbol: 'zł' },
+    { code: 'PHP', name: 'Peso Philippin', symbol: '₱' },
+    { code: 'IDR', name: 'Roupie Indonésienne', symbol: 'Rp' },
+    { code: 'MYR', name: 'Ringgit Malaisien', symbol: 'RM' },
+    { code: 'THB', name: 'Baht Thaïlandais', symbol: '฿' },
+    { code: 'HUF', name: 'Forint Hongrois', symbol: 'Ft' },
+    { code: 'CZK', name: 'Couronne Tchèque', symbol: 'Kč' },
+    { code: 'ILS', name: 'Nouveau Shekel Israélien', symbol: '₪' },
+    { code: 'CLP', name: 'Peso Chilien', symbol: 'CLP$' },
+    { code: 'PKR', name: 'Roupie Pakistanaise', symbol: '₨' },
+    { code: 'EGP', name: 'Livre Égyptienne', symbol: 'E£' },
+    { code: 'TWD', name: 'Nouveau Dollar Taïwanais', symbol: 'NT$' },
+    { code: 'VND', name: 'Dong Vietnamien', symbol: '₫' },
+    { code: 'COP', name: 'Peso Colombien', symbol: 'COL$' },
+    { code: 'QAR', name: 'Riyal Qatari', symbol: 'QR' },
+    { code: 'KWD', name: 'Dinar Koweïtien', symbol: 'KD' },
+    { code: 'BHD', name: 'Dinar Bahreïni', symbol: 'BD' }
   ];
 
   const result = (parseFloat(amount) / rates[fromCurrency]) * rates[toCurrency];

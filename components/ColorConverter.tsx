@@ -118,42 +118,87 @@ export function ColorConverter() {
   };
 
   return (
-    <div className="max-w-5xl mx-auto space-y-8">
-      <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
-        {/* Preview and Text Inputs */}
-        <div className="lg:col-span-7 space-y-8">
-          {/* Main Preview */}
-          <div
-            className="w-full h-64 rounded-[2.5rem] shadow-2xl shadow-indigo-500/10 relative overflow-hidden group border-8 border-white dark:border-slate-800 transition-all focus-within:ring-4 focus-within:ring-indigo-500/20"
-            style={{ backgroundColor: hex }}
-          >
-            <input
-              type="color"
-              value={hex.length === 7 ? hex : '#000000'}
-              onChange={(e) => updateFromHex(e.target.value)}
-              className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
-              aria-label="Sélecteur de couleur"
-            />
-            <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none">
-                <div className="px-4 py-2 bg-black/50 backdrop-blur-md rounded-full text-white text-xs font-bold uppercase tracking-widest">
-                    Changer la couleur
-                </div>
+    <div className="max-w-4xl mx-auto space-y-12">
+      {/* Visual Preview Area */}
+      <div className="relative group">
+        <div
+          className="w-full h-64 rounded-[2.5rem] shadow-2xl shadow-indigo-500/10 transition-all duration-500 group-hover:scale-[1.01]"
+          style={{ backgroundColor: hex }}
+        />
+        <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
+          <input
+            type="color"
+            value={hex}
+            onChange={(e) => updateFromHex(e.target.value)}
+            className="w-20 h-20 rounded-full border-4 border-white dark:border-slate-800 cursor-pointer shadow-xl overflow-hidden"
+          />
+        </div>
+      </div>
+
+      {/* Main Formats Display */}
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+        {[
+          { label: 'HEX', value: hex, id: 'hex' },
+          { label: 'RGB', value: `rgb(${rgb.r}, ${rgb.g}, ${rgb.b})`, id: 'rgb' },
+          { label: 'HSL', value: `hsl(${hsl.h}, ${hsl.s}%, ${hsl.l}%)`, id: 'hsl' },
+        ].map((format) => (
+          <div key={format.id} className="bg-slate-50 dark:bg-slate-900/50 p-6 rounded-3xl border border-slate-200 dark:border-slate-800 space-y-4">
+            <div className="flex justify-between items-center">
+              <span className="text-xs font-black uppercase tracking-widest text-slate-400">{format.label}</span>
+              <button
+                onClick={() => copyToClipboard(format.value, format.id)}
+                className={`p-2 rounded-xl transition-all ${copied === format.id ? 'bg-emerald-500 text-white' : 'text-slate-400 hover:text-indigo-500 bg-white dark:bg-slate-800 shadow-sm'}`}
+              >
+                {copied === format.id ? <Check className="w-4 h-4" /> : <Copy className="w-4 h-4" />}
+              </button>
+            </div>
+            <div className="text-xl font-black font-mono truncate dark:text-white">
+              {format.value}
             </div>
           </div>
+        ))}
+      </div>
 
-          {/* Formats Grid */}
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-            {/* HEX */}
-            <div className="bg-slate-50 dark:bg-slate-900/50 p-6 rounded-3xl border border-slate-200 dark:border-slate-800 space-y-3">
-              <div className="flex items-center justify-between">
-                <label className="text-[10px] font-black uppercase tracking-widest text-slate-400">HEX</label>
-                <button
-                  onClick={() => copyToClipboard(hex, 'hex')}
-                  className={`p-2 rounded-lg transition-all ${copied === 'hex' ? 'text-emerald-500 bg-emerald-50 dark:bg-emerald-500/10' : 'text-slate-400 hover:bg-slate-200 dark:hover:bg-slate-800'}`}
-                  aria-label="Copier le code HEX"
-                >
-                  {copied === 'hex' ? <Check className="w-4 h-4" /> : <Copy className="w-4 h-4" />}
-                </button>
+      {/* Inputs Area */}
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+        {/* RGB Sliders */}
+        <div className="bg-white dark:bg-slate-900/40 border border-slate-200 dark:border-slate-800 p-8 rounded-[2.5rem] space-y-8 shadow-sm">
+          <h4 className="text-xs font-black uppercase tracking-widest text-slate-400 px-1 flex items-center gap-2">
+            <Palette className="w-4 h-4" /> Composantes RGB
+          </h4>
+          <div className="space-y-6">
+            {[
+              { label: 'Rouge', key: 'r', color: 'bg-rose-500' },
+              { label: 'Vert', key: 'g', color: 'bg-emerald-500' },
+              { label: 'Bleu', key: 'b', color: 'bg-blue-500' },
+            ].map((chan) => (
+              <div key={chan.key} className="space-y-2">
+                <div className="flex justify-between items-center px-1">
+                  <label className="text-xs font-bold text-slate-500">{chan.label}</label>
+                  <span className="text-sm font-black font-mono dark:text-slate-300">{rgb[chan.key as keyof typeof rgb]}</span>
+                </div>
+                <input
+                  type="range"
+                  min="0"
+                  max="255"
+                  value={rgb[chan.key as keyof typeof rgb]}
+                  onChange={(e) => updateFromRgb({ ...rgb, [chan.key]: Number(e.target.value) })}
+                  className="w-full h-1.5 rounded-lg appearance-none cursor-pointer bg-slate-100 dark:bg-slate-800 accent-indigo-600"
+                />
+              </div>
+            ))}
+          </div>
+
+        {/* HSL Sliders */}
+        <div className="bg-white dark:bg-slate-900/40 border border-slate-200 dark:border-slate-800 p-8 rounded-[2.5rem] space-y-8 shadow-sm">
+          <h4 className="text-xs font-black uppercase tracking-widest text-slate-400 px-1 flex items-center gap-2">
+            <Sliders className="w-4 h-4" /> Composantes HSL
+          </h4>
+          <div className="space-y-6">
+            <div className="space-y-2">
+              <div className="flex justify-between items-center px-1">
+                <label className="text-xs font-bold text-slate-500">Teinte</label>
+                <span className="text-sm font-black font-mono dark:text-slate-300">{hsl.h}°</span>
               </div>
               <input
                 type="text"
@@ -162,38 +207,16 @@ export function ColorConverter() {
                 className="w-full bg-transparent text-xl font-black font-mono outline-none dark:text-white uppercase"
               />
             </div>
-
-            {/* RGB */}
-            <div className="bg-slate-50 dark:bg-slate-900/50 p-6 rounded-3xl border border-slate-200 dark:border-slate-800 space-y-3">
-              <div className="flex items-center justify-between">
-                <label className="text-[10px] font-black uppercase tracking-widest text-slate-400">RGB</label>
-                <button
-                  onClick={() => copyToClipboard(`rgb(${rgb.r}, ${rgb.g}, ${rgb.b})`, 'rgb')}
-                  className={`p-2 rounded-lg transition-all ${copied === 'rgb' ? 'text-emerald-500 bg-emerald-50 dark:bg-emerald-500/10' : 'text-slate-400 hover:bg-slate-200 dark:hover:bg-slate-800'}`}
-                  aria-label="Copier le code RGB"
-                >
-                  {copied === 'rgb' ? <Check className="w-4 h-4" /> : <Copy className="w-4 h-4" />}
-                </button>
-              </div>
-              <div className="text-xl font-black font-mono dark:text-white truncate">
-                {rgb.r}, {rgb.g}, {rgb.b}
+            <div className="space-y-2">
+              <div className="flex justify-between items-center px-1">
+                <label className="text-xs font-bold text-slate-500">Saturation</label>
+                <span className="text-sm font-black font-mono dark:text-slate-300">{hsl.s}%</span>
               </div>
             </div>
-
-            {/* HSL */}
-            <div className="bg-slate-50 dark:bg-slate-900/50 p-6 rounded-3xl border border-slate-200 dark:border-slate-800 space-y-3">
-              <div className="flex items-center justify-between">
-                <label className="text-[10px] font-black uppercase tracking-widest text-slate-400">HSL</label>
-                <button
-                  onClick={() => copyToClipboard(`hsl(${hsl.h}, ${hsl.s}%, ${hsl.l}%)`, 'hsl')}
-                  className={`p-2 rounded-lg transition-all ${copied === 'hsl' ? 'text-emerald-500 bg-emerald-50 dark:bg-emerald-500/10' : 'text-slate-400 hover:bg-slate-200 dark:hover:bg-slate-800'}`}
-                  aria-label="Copier le code HSL"
-                >
-                  {copied === 'hsl' ? <Check className="w-4 h-4" /> : <Copy className="w-4 h-4" />}
-                </button>
-              </div>
-              <div className="text-xl font-black font-mono dark:text-white truncate">
-                {hsl.h}°, {hsl.s}%, {hsl.l}%
+            <div className="space-y-2">
+              <div className="flex justify-between items-center px-1">
+                <label className="text-xs font-bold text-slate-500">Luminosité</label>
+                <span className="text-sm font-black font-mono dark:text-slate-300">{hsl.l}%</span>
               </div>
             </div>
           </div>

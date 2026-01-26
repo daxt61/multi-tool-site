@@ -92,8 +92,7 @@ const CaseConverter = lazy(() => import("./components/CaseConverter").then(m => 
 const DiffChecker = lazy(() => import("./components/DiffChecker").then(m => ({ default: m.DiffChecker })));
 const AspectRatioCalculator = lazy(() => import("./components/AspectRatioCalculator").then(m => ({ default: m.AspectRatioCalculator })));
 const MorseCodeConverter = lazy(() => import("./components/MorseCodeConverter").then(m => ({ default: m.MorseCodeConverter })));
-const UnixTimestampConverter = lazy(() => import("./components/UnixTimestampConverter").then(m => ({ default: m.UnixTimestampConverter })));
-const RandomGenerator = lazy(() => import("./components/RandomGenerator").then(m => ({ default: m.RandomGenerator })));
+const ImageToBase64 = lazy(() => import("./components/ImageToBase64").then(m => ({ default: m.ImageToBase64 })));
 const About = lazy(() => import("./components/About").then(m => ({ default: m.About })));
 const Contact = lazy(() => import("./components/Contact").then(m => ({ default: m.Contact })));
 const PrivacyPolicy = lazy(() => import("./components/PrivacyPolicy").then(m => ({ default: m.PrivacyPolicy })));
@@ -109,11 +108,8 @@ const ROICalculator = lazy(() => import("./components/ROICalculator").then(m => 
 const ExpenseTracker = lazy(() => import("./components/ExpenseTracker").then(m => ({ default: m.ExpenseTracker })));
 const BPMCounter = lazy(() => import("./components/BPMCounter").then(m => ({ default: m.BPMCounter })));
 const HashGenerator = lazy(() => import("./components/HashGenerator").then(m => ({ default: m.HashGenerator })));
-const JSONCSVConverter = lazy(() => import("./components/JSONCSVConverter").then(m => ({ default: m.JSONCSVConverter })));
-const MarkdownTableGenerator = lazy(() => import("./components/MarkdownTableGenerator").then(m => ({ default: m.MarkdownTableGenerator })));
 const UnixTimestampConverter = lazy(() => import("./components/UnixTimestampConverter").then(m => ({ default: m.UnixTimestampConverter })));
 const RandomGenerator = lazy(() => import("./components/RandomGenerator").then(m => ({ default: m.RandomGenerator })));
-const AdPlaceholder = lazy(() => import("./components/AdPlaceholder").then(m => ({ default: m.AdPlaceholder })));
 
 interface Tool {
   id: string;
@@ -435,6 +431,14 @@ const tools: Tool[] = [
     icon: LinkIcon,
     description: "Encodeur et décodeur d'URL",
     Component: URLEncoder,
+    category: "dev",
+  },
+  {
+    id: "image-to-base64",
+    name: "Image en Base64",
+    icon: Image,
+    description: "Convertir une image en chaîne Base64",
+    Component: ImageToBase64,
     category: "dev",
   },
   // Other Tools

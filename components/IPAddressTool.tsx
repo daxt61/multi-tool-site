@@ -12,24 +12,50 @@ export function IPAddressTool() {
     isp: 'Fournisseur d\'accès Internet'
   });
 
-  // Simuler la récupération des infos IP
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+
   useEffect(() => {
-    // En production, vous utiliseriez une vraie API comme ipapi.co ou ip-api.com
-    // fetch('https://ipapi.co/json/')
-    //   .then(res => res.json())
-    //   .then(data => setIpInfo(data));
+    fetch('https://ipapi.co/json/')
+      .then(res => {
+        if (!res.ok) throw new Error('Échec du chargement des données');
+        return res.json();
+      })
+      .then(data => {
+        if (data.ip) {
+          setIpInfo({
+            ip: data.ip,
+            city: data.city || 'Inconnu',
+            region: data.region || 'Inconnu',
+            country: data.country_name || 'Inconnu',
+            timezone: data.timezone || 'Inconnu',
+            isp: data.org || 'Inconnu'
+          });
+        }
+      })
+      .catch(err => {
+        console.error('Erreur IP:', err);
+        setError('Impossible de récupérer vos informations de connexion. Veuillez vérifier votre connexion ou désactiver votre bloqueur de publicités.');
+      })
+      .finally(() => setLoading(false));
   }, []);
 
   return (
     <div className="max-w-3xl mx-auto">
       <AdPlaceholder size="banner" className="mb-6" />
 
-      <div className="bg-gradient-to-br from-blue-500 to-indigo-600 text-white p-8 rounded-lg mb-6 text-center">
+      <div className={`bg-gradient-to-br ${error ? 'from-rose-500 to-rose-600' : 'from-blue-500 to-indigo-600'} text-white p-8 rounded-lg mb-6 text-center transition-colors duration-500`}>
         <Globe className="w-16 h-16 mx-auto mb-4" />
-        <div className="text-sm opacity-90 mb-2">Votre adresse IP</div>
-        <div className="text-5xl font-bold mb-2">{ipInfo.ip}</div>
+        <div className="text-sm opacity-90 mb-2">Votre adresse IP publique</div>
+        {loading ? (
+          <div className="h-12 w-48 bg-white/20 animate-pulse rounded-lg mx-auto mb-2"></div>
+        ) : error ? (
+          <div className="text-lg font-bold mb-2">{error}</div>
+        ) : (
+          <div className="text-5xl font-bold mb-2 break-all">{ipInfo.ip}</div>
+        )}
         <div className="text-sm opacity-75">
-          ⚠️ Données fictives à titre d'exemple
+          {loading ? 'Chargement des données...' : error ? 'Erreur de détection' : 'Données détectées automatiquement'}
         </div>
       </div>
 

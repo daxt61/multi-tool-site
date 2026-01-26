@@ -88,12 +88,12 @@ export function Calculator() {
       default: return;
     }
 
-    const resultStr = String(Number(result.toFixed(10)));
+    const resultStr = isNaN(result) ? 'Erreur' : String(Number(result.toFixed(10)));
     setDisplay(resultStr);
     setNewNumber(true);
 
-    const expression = `${action}(${current})`;
-    const newHistory = [{ expression, result: resultStr === 'NaN' ? 'Erreur' : resultStr }, ...history].slice(0, 10);
+    const expression = `${action}(${isNaN(current) ? 'Erreur' : current})`;
+    const newHistory = [{ expression, result: resultStr }, ...history].slice(0, 10);
     setHistory(newHistory);
     localStorage.setItem('calc_history', JSON.stringify(newHistory));
   };
@@ -102,8 +102,8 @@ export function Calculator() {
     if (operation && previousValue !== null) {
       const current = parseFloat(display);
       const result = calculate(previousValue, current, operation);
-      const expression = `${previousValue} ${operation} ${current}`;
-      const resultStr = String(result);
+      const expression = `${isNaN(previousValue) ? 'Erreur' : previousValue} ${operation} ${isNaN(current) ? 'Erreur' : current}`;
+      const resultStr = isNaN(result) ? 'Erreur' : String(result);
 
       const newHistory = [{ expression, result: resultStr === 'NaN' ? 'Erreur' : resultStr }, ...history].slice(0, 10);
       setHistory(newHistory);

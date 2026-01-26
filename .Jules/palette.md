@@ -5,3 +5,7 @@
 ## 2026-01-25 - [Search Input UX and Global A11y]
 **Learning:** Adding a 'Clear' button to a search input is a highly appreciated micro-UX that significantly improves usability on mobile. Additionally, icon-only buttons like favorite toggles are often missed in accessibility audits but are critical for screen reader users.
 **Action:** Always include a clear button for search inputs and ensure all icon-only buttons have descriptive aria-labels in the target language.
+
+## 2026-02-03 - [Password Generator Accessibility & Focus Indicators]
+**Learning:** For interactive tools like the Password Generator, it is essential to provide multiple layers of accessibility: localized ARIA labels for icon-only buttons, proper label-input association for sliders, and 'role="progressbar"' with dynamic 'aria-valuenow' for strength meters. Additionally, when the main interaction element has 'outline-none', using 'focus-within:ring' on its container ensures that keyboard users have a clear visual focus indicator.
+**Action:** Always implement full ARIA suites (labels, roles, states) for interactive tools and ensure focus visibility on containers when internal inputs are unstyled.

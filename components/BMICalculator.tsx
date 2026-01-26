@@ -99,6 +99,20 @@ export function BMICalculator() {
             <div className={`px-6 py-2 rounded-full font-black text-sm uppercase tracking-widest ${category.color} text-white`}>
               {category.label}
             </div>
+
+            {bmi > 0 && (
+              <button
+                onClick={copyToClipboard}
+                className={`absolute top-6 right-6 p-3 rounded-2xl transition-all ${
+                  copied
+                    ? 'bg-emerald-500 text-white scale-110'
+                    : 'bg-white/10 text-white/40 hover:text-white hover:bg-white/20 opacity-0 group-hover:opacity-100'
+                }`}
+                title="Copier le résultat"
+              >
+                {copied ? <Check className="w-5 h-5" /> : <Copy className="w-5 h-5" />}
+              </button>
+            )}
           </div>
 
           <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 p-6 rounded-[2rem] flex items-start gap-4">

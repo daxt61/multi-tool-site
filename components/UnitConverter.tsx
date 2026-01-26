@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { ArrowDown } from 'lucide-react';
 
-type ConversionCategory = 'length' | 'weight' | 'temperature' | 'area' | 'volume' | 'digital' | 'pressure' | 'energy';
+type ConversionCategory = 'length' | 'weight' | 'temperature' | 'area' | 'volume' | 'digital' | 'pressure' | 'energy' | 'speed' | 'time';
 
 interface ConversionUnit {
   name: string;
@@ -67,6 +67,21 @@ export function UnitConverter() {
       'GB': { name: 'Gigaoctets (GB)', toBase: (v) => v * Math.pow(1024, 3), fromBase: (v) => v / Math.pow(1024, 3) },
       'TB': { name: 'Teraoctets (TB)', toBase: (v) => v * Math.pow(1024, 4), fromBase: (v) => v / Math.pow(1024, 4) }
     },
+    speed: {
+      'm/s': { name: 'Mètres par seconde (m/s)', toBase: (v) => v, fromBase: (v) => v },
+      'km/h': { name: 'Kilomètres par heure (km/h)', toBase: (v) => v / 3.6, fromBase: (v) => v * 3.6 },
+      'mph': { name: 'Miles par heure (mph)', toBase: (v) => v * 0.44704, fromBase: (v) => v / 0.44704 },
+      'kn': { name: 'Noeuds (kn)', toBase: (v) => v * 0.514444, fromBase: (v) => v / 0.514444 }
+    },
+    time: {
+      's': { name: 'Secondes (s)', toBase: (v) => v, fromBase: (v) => v },
+      'ms': { name: 'Millisecondes (ms)', toBase: (v) => v / 1000, fromBase: (v) => v * 1000 },
+      'min': { name: 'Minutes (min)', toBase: (v) => v * 60, fromBase: (v) => v / 60 },
+      'h': { name: 'Heures (h)', toBase: (v) => v * 3600, fromBase: (v) => v / 3600 },
+      'd': { name: 'Jours (j)', toBase: (v) => v * 86400, fromBase: (v) => v / 86400 },
+      'w': { name: 'Semaines', toBase: (v) => v * 604800, fromBase: (v) => v / 604800 },
+      'y': { name: 'Années', toBase: (v) => v * 31536000, fromBase: (v) => v / 31536000 }
+    },
     pressure: {
       'Pa': { name: 'Pascal (Pa)', toBase: (v) => v, fromBase: (v) => v },
       'hPa': { name: 'Hectopascal (hPa)', toBase: (v) => v * 100, fromBase: (v) => v / 100 },
@@ -81,6 +96,20 @@ export function UnitConverter() {
       'kcal': { name: 'Kilocalorie (kcal)', toBase: (v) => v * 4184, fromBase: (v) => v / 4184 },
       'Wh': { name: 'Watt-heure (Wh)', toBase: (v) => v * 3600, fromBase: (v) => v / 3600 },
       'kWh': { name: 'Kilowatt-heure (kWh)', toBase: (v) => v * 3600000, fromBase: (v) => v / 3600000 }
+    },
+    speed: {
+      'm/s': { name: 'Mètres/seconde', toBase: (v) => v, fromBase: (v) => v },
+      'km/h': { name: 'Kilomètres/heure', toBase: (v) => v / 3.6, fromBase: (v) => v * 3.6 },
+      'mph': { name: 'Miles/heure', toBase: (v) => v * 0.44704, fromBase: (v) => v / 0.44704 },
+      'knot': { name: 'Noeuds', toBase: (v) => v * 0.514444, fromBase: (v) => v / 0.514444 }
+    },
+    time: {
+      's': { name: 'Secondes', toBase: (v) => v, fromBase: (v) => v },
+      'min': { name: 'Minutes', toBase: (v) => v * 60, fromBase: (v) => v / 60 },
+      'h': { name: 'Heures', toBase: (v) => v * 3600, fromBase: (v) => v / 3600 },
+      'd': { name: 'Jours', toBase: (v) => v * 86400, fromBase: (v) => v / 86400 },
+      'week': { name: 'Semaines', toBase: (v) => v * 604800, fromBase: (v) => v / 604800 },
+      'year': { name: 'Années (365j)', toBase: (v) => v * 31536000, fromBase: (v) => v / 31536000 }
     }
   };
 
@@ -91,8 +120,12 @@ export function UnitConverter() {
     { id: 'area', name: 'Surface' },
     { id: 'volume', name: 'Volume' },
     { id: 'digital', name: 'Digital' },
+    { id: 'speed', name: 'Vitesse' },
+    { id: 'time', name: 'Temps' },
     { id: 'pressure', name: 'Pression' },
-    { id: 'energy', name: 'Énergie' }
+    { id: 'energy', name: 'Énergie' },
+    { id: 'speed', name: 'Vitesse' },
+    { id: 'time', name: 'Temps' }
   ];
 
   const convert = (value: string, from: string, to: string, cat: ConversionCategory) => {

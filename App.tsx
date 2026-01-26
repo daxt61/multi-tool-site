@@ -390,6 +390,14 @@ const tools: Tool[] = [
     category: "dev",
   },
   {
+    id: "json-csv",
+    name: "JSON / CSV",
+    icon: FileCode,
+    description: "Convertisseur bidirectionnel JSON et CSV",
+    Component: JSONCSVConverter,
+    category: "dev",
+  },
+  {
     id: "unix-timestamp",
     name: "Unix Timestamp",
     icon: Clock,

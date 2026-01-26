@@ -49,6 +49,7 @@ import {
   Briefcase,
   Search,
   Shuffle,
+  X,
   Sun,
   Moon,
   Music,
@@ -595,16 +596,10 @@ function MainApp() {
                 </p>
 
                 <div className="relative group max-w-lg mx-auto">
-                  <div className="absolute inset-y-0 left-4 flex items-center pointer-events-none">
-                    <Search className="h-5 w-5 text-slate-400" />
-                  </div>
-                  <input
-                    type="text"
-                    placeholder="Rechercher un outil..."
-                    value={searchQuery}
-                    onChange={(e) => setSearchQuery(e.target.value)}
-                    className="block w-full pl-11 pr-4 py-4 bg-slate-50 dark:bg-slate-900/50 border border-slate-200 dark:border-slate-800 rounded-2xl focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 outline-none transition-all placeholder:text-slate-400"
-                  />
+                  <label htmlFor="tool-search" className="sr-only">Rechercher</label>
+                  <div className="absolute inset-y-0 left-4 flex items-center pointer-events-none"><Search className="h-5 w-5 text-slate-400" /></div>
+                  <input id="tool-search" type="text" placeholder="Rechercher un outil..." value={searchQuery} onChange={(e) => setSearchQuery(e.target.value)} className={`block w-full pl-11 ${searchQuery ? 'pr-12' : 'pr-4'} py-4 bg-slate-50 dark:bg-slate-900/50 border border-slate-200 dark:border-slate-800 rounded-2xl focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 outline-none transition-all placeholder:text-slate-400`} />
+                  {searchQuery && <button onClick={() => setSearchQuery("")} className="absolute inset-y-0 right-4 flex items-center text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 transition-colors" aria-label="Effacer"><X className="h-5 w-5" /></button>}
                 </div>
               </div>
 
@@ -667,6 +662,7 @@ function MainApp() {
                           <button
                             onClick={(e) => toggleFavorite(e, tool.id)}
                             className={`p-1.5 rounded-lg transition-colors ${favorites.includes(tool.id) ? 'text-amber-500' : 'text-slate-300 hover:text-slate-400'}`}
+                            aria-label={favorites.includes(tool.id) ? "Retirer des favoris" : "Ajouter aux favoris"}
                           >
                             <Star className={`w-5 h-5 ${favorites.includes(tool.id) ? 'fill-current' : ''}`} />
                           </button>

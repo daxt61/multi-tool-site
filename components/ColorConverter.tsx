@@ -148,6 +148,7 @@ export function ColorConverter() {
               <button
                 onClick={() => copyToClipboard(format.value, format.id)}
                 className={`p-2 rounded-xl transition-all ${copied === format.id ? 'bg-emerald-500 text-white' : 'text-slate-400 hover:text-indigo-500 bg-white dark:bg-slate-800 shadow-sm'}`}
+                aria-label={`Copier le format ${format.label}`}
               >
                 {copied === format.id ? <Check className="w-4 h-4" /> : <Copy className="w-4 h-4" />}
               </button>

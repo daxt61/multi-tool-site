@@ -17,8 +17,22 @@ export function RandomGenerator() {
 
   const [copied, setCopied] = useState('');
 
+  const generateSecureRandomInt = (min: number, max: number) => {
+    const range = max - min + 1;
+    if (range <= 0) return min;
+    const maxUint32 = 4294967295;
+    const limit = maxUint32 - (maxUint32 % range);
+    let rand;
+    const array = new Uint32Array(1);
+    do {
+      window.crypto.getRandomValues(array);
+      rand = array[0];
+    } while (rand >= limit);
+    return (rand % range) + min;
+  };
+
   const generateNumber = () => {
-    const val = Math.floor(Math.random() * (max - min + 1)) + min;
+    const val = generateSecureRandomInt(min, max);
     setRandomNumber(val);
   };
 
@@ -32,7 +46,7 @@ export function RandomGenerator() {
 
     let result = '';
     for (let i = 0; i < strLength; i++) {
-      result += charset.charAt(Math.floor(Math.random() * charset.length));
+      result += charset.charAt(generateSecureRandomInt(0, charset.length - 1));
     }
     setRandomString(result);
   };
@@ -41,7 +55,7 @@ export function RandomGenerator() {
     const items = list.split('\n').filter(i => i.trim() !== '');
     const shuffled = [...items];
     for (let i = shuffled.length - 1; i > 0; i--) {
-      const j = Math.floor(Math.random() * (i + 1));
+      const j = generateSecureRandomInt(0, i);
       [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
     }
     setShuffledList(shuffled);
@@ -91,7 +105,11 @@ export function RandomGenerator() {
           {randomNumber !== null && (
             <div className="h-14 bg-white dark:bg-slate-800 border border-indigo-200 dark:border-indigo-900/30 rounded-2xl flex items-center justify-between px-6 animate-in zoom-in-95 duration-300">
               <span className="text-2xl font-black font-mono text-indigo-600 dark:text-indigo-400">{randomNumber}</span>
-              <button onClick={() => copyToClipboard(randomNumber.toString(), 'num')} className="text-slate-400 hover:text-indigo-500 transition-colors">
+              <button
+                onClick={() => copyToClipboard(randomNumber.toString(), 'num')}
+                className="text-slate-400 hover:text-indigo-500 transition-colors"
+                aria-label="Copier le nombre généré"
+              >
                 {copied === 'num' ? <Check className="w-5 h-5 text-emerald-500" /> : <Copy className="w-5 h-5" />}
               </button>
             </div>

@@ -62,12 +62,13 @@ export function PasswordGenerator() {
   return (
     <div className="max-w-4xl mx-auto space-y-8">
       {/* Display Area */}
-      <div className="bg-slate-900 dark:bg-black p-8 md:p-12 rounded-[2.5rem] shadow-xl shadow-indigo-500/5 relative overflow-hidden group">
+      <div className="bg-slate-900 dark:bg-black p-8 md:p-12 rounded-[2.5rem] shadow-xl shadow-indigo-500/5 relative overflow-hidden group focus-within:ring-2 focus-within:ring-white/20">
         <div className="flex flex-col md:flex-row items-center gap-8 relative z-10">
           <input
             type="text"
             value={password}
             readOnly
+            aria-label="Mot de passe généré"
             className="flex-1 bg-transparent text-3xl md:text-5xl font-mono text-white outline-none tracking-tight w-full text-center md:text-left selection:bg-indigo-500/30"
           />
           <div className="flex gap-3">
@@ -75,6 +76,7 @@ export function PasswordGenerator() {
               onClick={generatePassword}
               className="p-4 bg-white/10 hover:bg-white/20 text-white rounded-2xl transition-all active:scale-95"
               title="Régénérer"
+              aria-label="Régénérer le mot de passe"
             >
               <RefreshCw className="w-6 h-6" />
             </button>
@@ -96,7 +98,14 @@ export function PasswordGenerator() {
               <div className={`flex items-center gap-2 px-4 py-1.5 rounded-full font-black text-xs uppercase tracking-widest text-white ${strength.color}`}>
                 {strength.icon} {strength.label}
               </div>
-              <div className="h-1.5 w-32 bg-white/10 rounded-full overflow-hidden">
+              <div
+                className="h-1.5 w-32 bg-white/10 rounded-full overflow-hidden"
+                role="progressbar"
+                aria-label="Force du mot de passe"
+                aria-valuenow={strength.label === 'Faible' ? 33 : strength.label === 'Moyen' ? 66 : strength.label === 'Fort' ? 100 : 0}
+                aria-valuemin={0}
+                aria-valuemax={100}
+              >
                 <div
                   className={`h-full transition-all duration-700 ${strength.color}`}
                   style={{ width: strength.label === 'Faible' ? '33%' : strength.label === 'Moyen' ? '66%' : '100%' }}
@@ -115,10 +124,11 @@ export function PasswordGenerator() {
         <div className="bg-slate-50 dark:bg-slate-900/50 p-8 rounded-[2.5rem] border border-slate-200 dark:border-slate-800 space-y-8">
           <div className="space-y-6">
             <div className="flex justify-between items-center px-1">
-              <label className="text-xs font-black uppercase tracking-widest text-slate-400">Longueur</label>
+              <label htmlFor="password-length" className="text-xs font-black uppercase tracking-widest text-slate-400">Longueur</label>
               <span className="text-2xl font-black font-mono text-indigo-600 dark:text-indigo-400">{length}</span>
             </div>
             <input
+              id="password-length"
               type="range"
               min="4"
               max="64"
@@ -138,6 +148,7 @@ export function PasswordGenerator() {
               <button
                 key={opt.label}
                 onClick={() => opt.setState(!opt.state)}
+                aria-pressed={opt.state}
                 className={`flex items-center justify-between p-4 rounded-2xl border transition-all ${
                   opt.state
                   ? 'bg-indigo-50 dark:bg-indigo-500/10 border-indigo-200 dark:border-indigo-500/20 text-indigo-600 dark:text-indigo-400'

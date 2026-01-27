@@ -7,8 +7,17 @@ export function UUIDGenerator() {
   const [copiedIndex, setCopiedIndex] = useState<number | null>(null);
 
   const generateUUID = () => {
-    return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function(c) {
-      const r = Math.random() * 16 | 0;
+    // Utilisation de l'API standard si disponible
+    if (typeof window.crypto.randomUUID === 'function') {
+      return window.crypto.randomUUID();
+    }
+
+    // Fallback cryptographiquement sécurisé pour les anciens navigateurs
+    const array = new Uint8Array(32);
+    window.crypto.getRandomValues(array);
+    let i = 0;
+    return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, (c) => {
+      const r = array[i++] & 15;
       const v = c === 'x' ? r : (r & 0x3 | 0x8);
       return v.toString(16);
     });

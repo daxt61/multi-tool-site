@@ -50,6 +50,7 @@ import {
   Briefcase,
   Search,
   Shuffle,
+  ArrowLeft,
   Database,
   ArrowLeftRight,
   X,
@@ -549,7 +550,7 @@ function ThemeToggle() {
     <button
       onClick={() => setTheme(theme === "dark" ? "light" : "dark")}
       className="p-2 rounded-lg bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 transition-colors text-slate-600 dark:text-slate-300 border border-slate-200 dark:border-slate-700"
-      aria-label="Toggle theme"
+      aria-label="Changer de thème"
     >
       {theme === "dark" ? <Sun className="w-5 h-5" /> : <Moon className="w-5 h-5" />}
     </button>
@@ -611,6 +612,17 @@ function MainApp() {
   };
 
   const isHome = location.pathname === "/";
+
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === "/" && document.activeElement?.tagName !== "INPUT" && document.activeElement?.tagName !== "TEXTAREA") {
+        e.preventDefault();
+        document.getElementById("tool-search")?.focus();
+      }
+    };
+    window.addEventListener("keydown", handleKeyDown);
+    return () => window.removeEventListener("keydown", handleKeyDown);
+  }, []);
 
   useEffect(() => {
     const updateSEO = () => {
@@ -692,6 +704,13 @@ function MainApp() {
                   <label htmlFor="tool-search" className="sr-only">Rechercher</label>
                   <div className="absolute inset-y-0 left-4 flex items-center pointer-events-none"><Search className="h-5 w-5 text-slate-400" /></div>
                   <input id="tool-search" type="text" placeholder="Rechercher un outil..." value={searchQuery} onChange={(e) => setSearchQuery(e.target.value)} className={`block w-full pl-11 ${searchQuery ? 'pr-12' : 'pr-4'} py-4 bg-slate-50 dark:bg-slate-900/50 border border-slate-200 dark:border-slate-800 rounded-2xl focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 outline-none transition-all placeholder:text-slate-400`} />
+                  {!searchQuery && (
+                    <div className="absolute inset-y-0 right-4 flex items-center pointer-events-none">
+                      <kbd className="hidden sm:inline-flex items-center gap-1 px-2 py-0.5 border border-slate-200 dark:border-slate-700 rounded text-[10px] font-bold text-slate-400 bg-white dark:bg-slate-800">
+                        /
+                      </kbd>
+                    </div>
+                  )}
                   {searchQuery && <button onClick={() => setSearchQuery("")} className="absolute inset-y-0 right-4 flex items-center text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 transition-colors" aria-label="Effacer"><X className="h-5 w-5" /></button>}
                 </div>
               </div>
@@ -726,6 +745,7 @@ function MainApp() {
                       <button
                         key={cat.id}
                         onClick={() => setSelectedCategory(cat.id === "all" ? null : cat.id)}
+                        aria-pressed={(selectedCategory === cat.id) || (cat.id === "all" && !selectedCategory)}
                         className={`flex items-center gap-2 px-4 py-2 rounded-full text-sm font-bold transition-all whitespace-nowrap border ${
                           (selectedCategory === cat.id) || (cat.id === "all" && !selectedCategory)
                             ? "bg-slate-900 text-white border-slate-900 dark:bg-white dark:text-slate-950 dark:border-white shadow-md shadow-indigo-500/10"
@@ -835,7 +855,7 @@ function ToolView({ favorites, toggleFavorite }: { favorites: string[], toggleFa
         to="/"
         className="mb-8 inline-flex items-center gap-2 text-sm font-semibold text-slate-500 hover:text-slate-900 dark:text-slate-400 dark:hover:text-white transition-colors"
       >
-        <ArrowRight className="w-4 h-4 rotate-180" />
+        <ArrowLeft className="w-4 h-4" />
         Retour au tableau de bord
       </Link>
 

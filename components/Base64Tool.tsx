@@ -1,12 +1,14 @@
 import { useState } from 'react';
-import { ArrowRight, ArrowLeft } from 'lucide-react';
+import { Copy, Check, Trash2, ArrowRightLeft, FileCode, Type } from 'lucide-react';
 
 export function Base64Tool() {
   const [text, setText] = useState('');
   const [base64, setBase64] = useState('');
+  const [copied, setCopied] = useState<'text' | 'base64' | null>(null);
 
   const encode = (input: string) => {
     try {
+      if (!input) return '';
       return btoa(unescape(encodeURIComponent(input)));
     } catch (e) {
       return 'Erreur d\'encodage';
@@ -15,6 +17,7 @@ export function Base64Tool() {
 
   const decode = (input: string) => {
     try {
+      if (!input) return '';
       return decodeURIComponent(escape(atob(input)));
     } catch (e) {
       return 'Erreur de décodage';
@@ -31,76 +34,82 @@ export function Base64Tool() {
     setText(decode(value));
   };
 
+  const copyToClipboard = (val: string, type: 'text' | 'base64') => {
+    if (!val) return;
+    navigator.clipboard.writeText(val);
+    setCopied(type);
+    setTimeout(() => setCopied(null), 2000);
+  };
+
   return (
-    <div className="max-w-4xl mx-auto">
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        {/* Text Input */}
-        <div>
-          <div className="flex items-center justify-between mb-3">
-            <label className="font-semibold text-lg">Texte</label>
-            <button
-              onClick={() => handleTextChange('')}
-              className="text-sm text-red-500 hover:text-red-600"
-            >
-              Effacer
-            </button>
+    <div className="max-w-6xl mx-auto space-y-8">
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 relative">
+        <div className="hidden lg:flex absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 z-10">
+          <div className="bg-white dark:bg-slate-800 p-3 rounded-full shadow-xl border border-slate-200 dark:border-slate-700 text-indigo-600">
+            <ArrowRightLeft className="w-6 h-6" />
+          </div>
+        </div>
+
+        {/* Text Section */}
+        <div className="space-y-4">
+          <div className="flex justify-between items-center px-1">
+            <div className="flex items-center gap-2">
+              <Type className="w-4 h-4 text-indigo-500" />
+              <label className="text-xs font-black uppercase tracking-widest text-slate-400">Texte Clair</label>
+            </div>
+            <div className="flex gap-2">
+              <button
+                onClick={() => copyToClipboard(text, 'text')}
+                className={`text-xs font-bold px-3 py-1 rounded-full transition-all flex items-center gap-1 ${copied === 'text' ? 'bg-emerald-500 text-white' : 'text-slate-500 bg-slate-100 dark:bg-slate-800'}`}
+              >
+                {copied === 'text' ? <Check className="w-3 h-3" /> : <Copy className="w-3 h-3" />} {copied === 'text' ? 'Copié' : 'Copier'}
+              </button>
+              <button
+                onClick={() => {setText(''); setBase64('');}}
+                className="text-xs font-bold px-3 py-1 rounded-full text-rose-500 bg-rose-50 dark:bg-rose-500/10 hover:bg-rose-100 transition-all flex items-center gap-1"
+              >
+                <Trash2 className="w-3 h-3" />
+              </button>
+            </div>
           </div>
           <textarea
             value={text}
             onChange={(e) => handleTextChange(e.target.value)}
-            placeholder="Entrez du texte à encoder..."
-            className="w-full h-64 p-4 border border-gray-300 rounded-lg resize-none focus:outline-none focus:ring-2 focus:ring-blue-500 font-mono text-sm"
+            placeholder="Entrez votre texte ici..."
+            className="w-full h-[400px] p-6 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-3xl outline-none focus:ring-2 focus:ring-indigo-500/20 transition-all font-mono text-sm leading-relaxed dark:text-slate-300 resize-none"
           />
-          <div className="mt-2 text-sm text-gray-600">
-            {text.length} caractères
-          </div>
         </div>
 
-        {/* Base64 Output */}
-        <div>
-          <div className="flex items-center justify-between mb-3">
-            <label className="font-semibold text-lg">Base64</label>
-            <button
-              onClick={() => handleBase64Change('')}
-              className="text-sm text-red-500 hover:text-red-600"
-            >
-              Effacer
-            </button>
+        {/* Base64 Section */}
+        <div className="space-y-4">
+          <div className="flex justify-between items-center px-1">
+            <div className="flex items-center gap-2">
+              <FileCode className="w-4 h-4 text-indigo-500" />
+              <label className="text-xs font-black uppercase tracking-widest text-slate-400">Base64</label>
+            </div>
+            <div className="flex gap-2">
+              <button
+                onClick={() => copyToClipboard(base64, 'base64')}
+                className={`text-xs font-bold px-3 py-1 rounded-full transition-all flex items-center gap-1 ${copied === 'base64' ? 'bg-emerald-500 text-white' : 'text-slate-500 bg-slate-100 dark:bg-slate-800'}`}
+              >
+                {copied === 'base64' ? <Check className="w-3 h-3" /> : <Copy className="w-3 h-3" />} {copied === 'base64' ? 'Copié' : 'Copier'}
+              </button>
+            </div>
           </div>
           <textarea
             value={base64}
             onChange={(e) => handleBase64Change(e.target.value)}
-            placeholder="Ou entrez du Base64 à décoder..."
-            className="w-full h-64 p-4 border border-gray-300 rounded-lg resize-none focus:outline-none focus:ring-2 focus:ring-blue-500 font-mono text-sm break-all"
+            placeholder="Le résultat Base64 apparaîtra ici..."
+            className="w-full h-[400px] p-6 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-3xl outline-none focus:ring-2 focus:ring-indigo-500/20 transition-all font-mono text-sm leading-relaxed text-indigo-600 dark:text-indigo-400 break-all resize-none"
           />
-          <div className="mt-2 text-sm text-gray-600">
-            {base64.length} caractères
-          </div>
         </div>
       </div>
 
-      <div className="mt-8 grid grid-cols-1 md:grid-cols-2 gap-4">
-        <button
-          onClick={() => setBase64(encode(text))}
-          className="py-4 bg-gradient-to-r from-blue-500 to-indigo-600 text-white rounded-lg font-semibold hover:from-blue-600 hover:to-indigo-700 transition-all flex items-center justify-center gap-2"
-        >
-          <ArrowRight className="w-5 h-5" />
-          Encoder en Base64
-        </button>
-        <button
-          onClick={() => setText(decode(base64))}
-          className="py-4 bg-gradient-to-r from-purple-500 to-pink-600 text-white rounded-lg font-semibold hover:from-purple-600 hover:to-pink-700 transition-all flex items-center justify-center gap-2"
-        >
-          <ArrowLeft className="w-5 h-5" />
-          Décoder depuis Base64
-        </button>
-      </div>
-
-      <div className="mt-6 bg-gray-50 p-4 rounded-lg text-sm text-gray-700">
-        <p className="font-semibold mb-2">À propos du Base64</p>
-        <p>
-          Le Base64 est un système d'encodage qui convertit des données binaires en texte ASCII.
-          Il est couramment utilisé pour encoder des données dans les emails, les URLs, et les fichiers de configuration.
+      <div className="bg-slate-50 dark:bg-slate-900/50 p-8 rounded-[2.5rem] border border-slate-200 dark:border-slate-800">
+        <h4 className="font-bold text-slate-900 dark:text-white mb-4">À propos du Base64</h4>
+        <p className="text-sm text-slate-500 dark:text-slate-400 leading-relaxed">
+          Le Base64 est un schéma d'encodage binaire vers texte qui représente des données binaires dans un format de chaîne ASCII en les traduisant dans une représentation radix-64.
+          C'est particulièrement utile pour transmettre des données qui pourraient être mal interprétées par certains protocoles (comme les caractères spéciaux dans les URLs ou les données binaires dans les e-mails).
         </p>
       </div>
     </div>

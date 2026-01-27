@@ -1,5 +1,6 @@
-import { useState, useEffect, useMemo, lazy, Suspense, memo, useCallback, useDeferredValue } from "react";
+import { useState, useEffect, useMemo, lazy, Suspense } from "react";
 import { ThemeProvider, useTheme } from "next-themes";
+import { Analytics } from "@vercel/analytics/react";
 import {
   Routes,
   Route,
@@ -49,6 +50,8 @@ import {
   Briefcase,
   Search,
   Shuffle,
+  Database,
+  ArrowLeftRight,
   X,
   Sun,
   Moon,
@@ -110,6 +113,10 @@ const BPMCounter = lazy(() => import("./components/BPMCounter").then(m => ({ def
 const HashGenerator = lazy(() => import("./components/HashGenerator").then(m => ({ default: m.HashGenerator })));
 const UnixTimestampConverter = lazy(() => import("./components/UnixTimestampConverter").then(m => ({ default: m.UnixTimestampConverter })));
 const RandomGenerator = lazy(() => import("./components/RandomGenerator").then(m => ({ default: m.RandomGenerator })));
+const JSONFormatter = lazy(() => import("./components/JSONFormatter").then(m => ({ default: m.JSONFormatter })));
+const SQLFormatter = lazy(() => import("./components/SQLFormatter").then(m => ({ default: m.SQLFormatter })));
+const YAMLJSONConverter = lazy(() => import("./components/YAMLJSONConverter").then(m => ({ default: m.YAMLJSONConverter })));
+const CronGenerator = lazy(() => import("./components/CronGenerator").then(m => ({ default: m.CronGenerator })));
 const HTMLEntityConverter = lazy(() => import("./components/HTMLEntityConverter").then(m => ({ default: m.HTMLEntityConverter })));
 
 interface Tool {
@@ -403,6 +410,46 @@ const tools: Tool[] = [
     category: "dev",
   },
   {
+    id: "json-formatter",
+    name: "JSON Formatter",
+    icon: FileCode,
+    description: "Prettify, minify et valide votre JSON",
+    Component: JSONFormatter,
+    category: "dev",
+  },
+  {
+    id: "sql-formatter",
+    name: "SQL Formatter",
+    icon: Database,
+    description: "Formater vos requêtes SQL pour la lecture",
+    Component: SQLFormatter,
+    category: "dev",
+  },
+  {
+    id: "yaml-json",
+    name: "YAML <> JSON",
+    icon: ArrowLeftRight,
+    description: "Convertisseur bidirectionnel YAML et JSON",
+    Component: YAMLJSONConverter,
+    category: "dev",
+  },
+  {
+    id: "cron-generator",
+    name: "Cron Generator",
+    icon: Clock,
+    description: "Générateur visuel d'expressions Cron",
+    Component: CronGenerator,
+    category: "dev",
+  },
+  {
+    id: "html-entity",
+    name: "HTML Entities",
+    icon: Code,
+    description: "Convertir des caractères en entités HTML",
+    Component: HTMLEntityConverter,
+    category: "dev",
+  },
+  {
     id: "unix-timestamp",
     name: "Unix Timestamp",
     icon: Clock,
@@ -475,14 +522,6 @@ const tools: Tool[] = [
     Component: RandomGenerator,
     category: "other",
   },
-  {
-    id: "html-entities",
-    name: "Entités HTML",
-    icon: Code,
-    description: "Encoder et décoder des entités HTML",
-    Component: HTMLEntityConverter,
-    category: "dev",
-  },
 ];
 
 
@@ -498,44 +537,6 @@ function LoadingTool() {
   );
 }
 
-interface ToolCardProps {
-  tool: Tool;
-  isFavorite: boolean;
-  onToggleFavorite: (e: React.MouseEvent, id: string) => void;
-  onSelect: (id: string) => void;
-}
-
-const ToolCard = memo(({ tool, isFavorite, onToggleFavorite, onSelect }: ToolCardProps) => {
-  return (
-    <button
-      onClick={() => onSelect(tool.id)}
-      className="group p-5 bg-white dark:bg-slate-900/40 rounded-2xl border border-slate-200 dark:border-slate-800 hover:border-indigo-500/50 dark:hover:border-indigo-500/50 hover:shadow-xl hover:shadow-indigo-500/5 transition-all text-left flex flex-col h-full relative"
-    >
-      <div className="flex justify-between items-start mb-4">
-        <div className="w-10 h-10 rounded-xl bg-slate-50 dark:bg-slate-800 flex items-center justify-center text-slate-400 group-hover:text-indigo-500 group-hover:bg-indigo-50 dark:group-hover:bg-indigo-900/20 transition-all">
-          <tool.icon className="w-5 h-5" />
-        </div>
-        <button
-          onClick={(e) => onToggleFavorite(e, tool.id)}
-          className={`p-1.5 rounded-lg transition-colors ${isFavorite ? 'text-amber-500' : 'text-slate-300 hover:text-slate-400'}`}
-          aria-label={isFavorite ? "Retirer des favoris" : "Ajouter aux favoris"}
-        >
-          <Star className={`w-5 h-5 ${isFavorite ? 'fill-current' : ''}`} />
-        </button>
-      </div>
-
-      <h4 className="font-bold text-slate-900 dark:text-white mb-2">{tool.name}</h4>
-      <p className="text-sm text-slate-500 dark:text-slate-400 line-clamp-2 flex-grow leading-relaxed">{tool.description}</p>
-
-      <div className="mt-4 flex items-center gap-2 text-xs font-bold text-indigo-500 opacity-0 group-hover:opacity-100 transition-all -translate-x-2 group-hover:translate-x-0">
-        Ouvrir <ArrowRight className="w-3 h-3" />
-      </div>
-    </button>
-  );
-});
-
-ToolCard.displayName = 'ToolCard';
-
 function ThemeToggle() {
   const { theme, setTheme } = useTheme();
   const [mounted, setMounted] = useState(false);
@@ -548,7 +549,7 @@ function ThemeToggle() {
     <button
       onClick={() => setTheme(theme === "dark" ? "light" : "dark")}
       className="p-2 rounded-lg bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 transition-colors text-slate-600 dark:text-slate-300 border border-slate-200 dark:border-slate-700"
-      aria-label="Changer le thème"
+      aria-label="Toggle theme"
     >
       {theme === "dark" ? <Sun className="w-5 h-5" /> : <Moon className="w-5 h-5" />}
     </button>
@@ -560,7 +561,6 @@ function MainApp() {
   const location = useLocation();
   const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
   const [searchQuery, setSearchQuery] = useState("");
-  const deferredSearchQuery = useDeferredValue(searchQuery);
   const [favorites, setFavorites] = useState<string[]>(() => {
     const saved = localStorage.getItem("favorites");
     return saved ? JSON.parse(saved) : [];
@@ -571,49 +571,44 @@ function MainApp() {
   });
 
   const filteredTools = useMemo(() => {
-    const query = deferredSearchQuery.toLowerCase().trim();
     return tools.filter((tool) => {
       if (selectedCategory === "favorites") {
         return favorites.includes(tool.id);
       }
 
-      if (query) {
-        const matchesSearch = tool.name.toLowerCase().includes(query) ||
-                             tool.description.toLowerCase().includes(query);
-        if (!matchesSearch) return false;
-      }
+      const matchesSearch = tool.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+                           tool.description.toLowerCase().includes(searchQuery.toLowerCase());
+
+      if (!matchesSearch) return false;
+
+      if (searchQuery) return true;
 
       if (!selectedCategory || selectedCategory === "all") return true;
       return tool.category === selectedCategory;
     });
-  }, [selectedCategory, deferredSearchQuery, favorites]);
+  }, [selectedCategory, searchQuery, favorites]);
 
   const recentTools = useMemo(() => {
-    return recents
-      .map(id => tools.find(t => t.id === id))
-      .filter((t): t is Tool => !!t);
+    return tools.filter(t => recents.includes(t.id))
+      .sort((a, b) => recents.indexOf(a.id) - recents.indexOf(b.id));
   }, [recents]);
 
-  const toggleFavorite = useCallback((e: React.MouseEvent, id: string) => {
+  const toggleFavorite = (e: React.MouseEvent, id: string) => {
     e.stopPropagation();
-    setFavorites(prev => {
-      const newFavs = prev.includes(id)
-        ? prev.filter(f => f !== id)
-        : [...prev, id];
-      localStorage.setItem("favorites", JSON.stringify(newFavs));
-      return newFavs;
-    });
-  }, []);
+    const newFavs = favorites.includes(id)
+      ? favorites.filter(f => f !== id)
+      : [...favorites, id];
+    setFavorites(newFavs);
+    localStorage.setItem("favorites", JSON.stringify(newFavs));
+  };
 
-  const handleToolSelect = useCallback((id: string) => {
-    setRecents(prev => {
-      const newRecents = [id, ...prev.filter(r => r !== id)].slice(0, 4);
-      localStorage.setItem("recents", JSON.stringify(newRecents));
-      return newRecents;
-    });
+  const handleToolSelect = (id: string) => {
+    const newRecents = [id, ...recents.filter(r => r !== id)].slice(0, 4);
+    setRecents(newRecents);
+    localStorage.setItem("recents", JSON.stringify(newRecents));
     navigate(`/outil/${id}`);
     window.scrollTo({ top: 0, behavior: 'smooth' });
-  }, [navigate]);
+  };
 
   const isHome = location.pathname === "/";
 
@@ -748,13 +743,31 @@ function MainApp() {
                 {filteredTools.length > 0 ? (
                   <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
                     {filteredTools.map((tool) => (
-                      <ToolCard
+                      <button
                         key={tool.id}
-                        tool={tool}
-                        isFavorite={favorites.includes(tool.id)}
-                        onToggleFavorite={toggleFavorite}
-                        onSelect={handleToolSelect}
-                      />
+                        onClick={() => handleToolSelect(tool.id)}
+                        className="group p-5 bg-white dark:bg-slate-900/40 rounded-2xl border border-slate-200 dark:border-slate-800 hover:border-indigo-500/50 dark:hover:border-indigo-500/50 hover:shadow-xl hover:shadow-indigo-500/5 transition-all text-left flex flex-col h-full relative"
+                      >
+                        <div className="flex justify-between items-start mb-4">
+                          <div className="w-10 h-10 rounded-xl bg-slate-50 dark:bg-slate-800 flex items-center justify-center text-slate-400 group-hover:text-indigo-500 group-hover:bg-indigo-50 dark:group-hover:bg-indigo-900/20 transition-all">
+                            <tool.icon className="w-5 h-5" />
+                          </div>
+                          <button
+                            onClick={(e) => toggleFavorite(e, tool.id)}
+                            className={`p-1.5 rounded-lg transition-colors ${favorites.includes(tool.id) ? 'text-amber-500' : 'text-slate-300 hover:text-slate-400'}`}
+                            aria-label={favorites.includes(tool.id) ? "Retirer des favoris" : "Ajouter aux favoris"}
+                          >
+                            <Star className={`w-5 h-5 ${favorites.includes(tool.id) ? 'fill-current' : ''}`} />
+                          </button>
+                        </div>
+
+                        <h4 className="font-bold text-slate-900 dark:text-white mb-2">{tool.name}</h4>
+                        <p className="text-sm text-slate-500 dark:text-slate-400 line-clamp-2 flex-grow leading-relaxed">{tool.description}</p>
+
+                        <div className="mt-4 flex items-center gap-2 text-xs font-bold text-indigo-500 opacity-0 group-hover:opacity-100 transition-all -translate-x-2 group-hover:translate-x-0">
+                          Ouvrir <ArrowRight className="w-3 h-3" />
+                        </div>
+                      </button>
                     ))}
                   </div>
                 ) : (
@@ -899,6 +912,7 @@ export default function App() {
   return (
     <ThemeProvider attribute="class" defaultTheme="system" enableSystem>
       <MainApp />
+      <Analytics />
     </ThemeProvider>
   );
 }

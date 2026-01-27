@@ -1,6 +1,7 @@
 import { useState, useEffect, useMemo, lazy, Suspense } from "react";
 import { ThemeProvider, useTheme } from "next-themes";
 import { Analytics } from "@vercel/analytics/react";
+import { SpeedInsights } from "@vercel/speed-insights/react";
 import {
   Routes,
   Route,
@@ -913,6 +914,7 @@ export default function App() {
     <ThemeProvider attribute="class" defaultTheme="system" enableSystem>
       <MainApp />
       <Analytics />
+      <SpeedInsights />
     </ThemeProvider>
   );
 }

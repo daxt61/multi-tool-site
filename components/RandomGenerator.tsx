@@ -17,8 +17,22 @@ export function RandomGenerator() {
 
   const [copied, setCopied] = useState('');
 
+  const generateSecureRandomInt = (min: number, max: number) => {
+    const range = max - min + 1;
+    if (range <= 0) return min;
+    const maxUint32 = 4294967295;
+    const limit = maxUint32 - (maxUint32 % range);
+    let rand;
+    const array = new Uint32Array(1);
+    do {
+      window.crypto.getRandomValues(array);
+      rand = array[0];
+    } while (rand >= limit);
+    return (rand % range) + min;
+  };
+
   const generateNumber = () => {
-    const val = Math.floor(Math.random() * (max - min + 1)) + min;
+    const val = generateSecureRandomInt(min, max);
     setRandomNumber(val);
   };
 
@@ -32,7 +46,7 @@ export function RandomGenerator() {
 
     let result = '';
     for (let i = 0; i < strLength; i++) {
-      result += charset.charAt(Math.floor(Math.random() * charset.length));
+      result += charset.charAt(generateSecureRandomInt(0, charset.length - 1));
     }
     setRandomString(result);
   };
@@ -41,7 +55,7 @@ export function RandomGenerator() {
     const items = list.split('\n').filter(i => i.trim() !== '');
     const shuffled = [...items];
     for (let i = shuffled.length - 1; i > 0; i--) {
-      const j = Math.floor(Math.random() * (i + 1));
+      const j = generateSecureRandomInt(0, i);
       [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
     }
     setShuffledList(shuffled);

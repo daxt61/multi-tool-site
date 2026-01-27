@@ -1,5 +1,6 @@
 import { useState, useEffect, useMemo, lazy, Suspense } from "react";
 import { ThemeProvider, useTheme } from "next-themes";
+import { Analytics } from "@vercel/analytics/react";
 import {
   Routes,
   Route,
@@ -902,6 +903,7 @@ export default function App() {
   return (
     <ThemeProvider attribute="class" defaultTheme="system" enableSystem>
       <MainApp />
+      <Analytics />
     </ThemeProvider>
   );
 }

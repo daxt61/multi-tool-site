@@ -7,11 +7,22 @@ export function UUIDGenerator() {
   const [copiedIndex, setCopiedIndex] = useState<number | null>(null);
 
   const generateUUID = () => {
-    return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function(c) {
-      const r = Math.random() * 16 | 0;
-      const v = c === 'x' ? r : (r & 0x3 | 0x8);
-      return v.toString(16);
-    });
+    // Use the native and secure crypto.randomUUID if available
+    if (typeof crypto.randomUUID === 'function') {
+      return crypto.randomUUID();
+    }
+
+    // Secure fallback for browsers not supporting randomUUID
+    const array = new Uint8Array(16);
+    window.crypto.getRandomValues(array);
+
+    // Set version 4 (13th bit is 4)
+    array[6] = (array[6] & 0x0f) | 0x40;
+    // Set variant (17th bit is 10)
+    array[8] = (array[8] & 0x3f) | 0x80;
+
+    const hex = Array.from(array).map(b => b.toString(16).padStart(2, '0')).join('');
+    return `${hex.slice(0, 8)}-${hex.slice(8, 12)}-${hex.slice(12, 16)}-${hex.slice(16, 20)}-${hex.slice(20, 32)}`;
   };
 
   const generateUUIDs = () => {

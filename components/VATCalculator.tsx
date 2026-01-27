@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { Info } from "lucide-react";
 
 export function VATCalculator() {
   const [amount, setAmount] = useState<string>("");
@@ -21,114 +22,115 @@ export function VATCalculator() {
   }
 
   const commonRates = [
-    { label: "20% (normal)", value: "20" },
-    { label: "10% (intermédiaire)", value: "10" },
-    { label: "5.5% (réduit)", value: "5.5" },
-    { label: "2.1% (super réduit)", value: "2.1" },
+    { label: "20% (Normal)", value: "20" },
+    { label: "10% (Inter)", value: "10" },
+    { label: "5.5% (Réduit)", value: "5.5" },
+    { label: "2.1% (Super)", value: "2.1" },
   ];
 
   return (
-    <div className="space-y-6">
-      <div className="flex gap-2 p-1 bg-gray-100 rounded-lg">
-        <button
-          onClick={() => setMode("ht-to-ttc")}
-          className={`flex-1 py-2 px-4 rounded-lg font-semibold transition-all ${
-            mode === "ht-to-ttc"
-              ? "bg-white shadow text-blue-600"
-              : "text-gray-600 hover:bg-gray-200"
-          }`}
-        >
-          HT → TTC
-        </button>
-        <button
-          onClick={() => setMode("ttc-to-ht")}
-          className={`flex-1 py-2 px-4 rounded-lg font-semibold transition-all ${
-            mode === "ttc-to-ht"
-              ? "bg-white shadow text-blue-600"
-              : "text-gray-600 hover:bg-gray-200"
-          }`}
-        >
-          TTC → HT
-        </button>
-      </div>
-
-      <div>
-        <label className="block text-sm font-semibold text-gray-700 mb-1">
-          Montant {mode === "ht-to-ttc" ? "HT" : "TTC"} (€)
-        </label>
-        <input
-          type="number"
-          value={amount}
-          onChange={(e) => setAmount(e.target.value)}
-          className="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-          placeholder="0.00"
-          step="0.01"
-        />
-      </div>
-
-      <div>
-        <label className="block text-sm font-semibold text-gray-700 mb-2">
-          Taux de TVA
-        </label>
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-2 mb-2">
-          {commonRates.map((rate) => (
+    <div className="max-w-4xl mx-auto space-y-8">
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+        <div className="space-y-6">
+          <div className="flex bg-slate-100 dark:bg-slate-800 p-1 rounded-2xl">
             <button
-              key={rate.value}
-              onClick={() => setVatRate(rate.value)}
-              className={`py-2 px-3 rounded-lg text-sm font-semibold transition-all ${
-                vatRate === rate.value
-                  ? "bg-blue-500 text-white"
-                  : "bg-gray-100 text-gray-700 hover:bg-gray-200"
-              }`}
+              onClick={() => setMode("ht-to-ttc")}
+              className={`flex-1 py-3 rounded-xl text-sm font-bold transition-all ${mode === "ht-to-ttc" ? "bg-white dark:bg-slate-700 text-indigo-600 shadow-sm" : "text-slate-500"}`}
             >
-              {rate.label}
+              HT → TTC
             </button>
-          ))}
-        </div>
-        <div className="flex items-center gap-2">
-          <input
-            type="number"
-            value={vatRate}
-            onChange={(e) => setVatRate(e.target.value)}
-            className="flex-1 p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-            placeholder="20"
-            step="0.1"
-          />
-          <span className="text-gray-600 font-semibold">%</span>
-        </div>
-      </div>
+            <button
+              onClick={() => setMode("ttc-to-ht")}
+              className={`flex-1 py-3 rounded-xl text-sm font-bold transition-all ${mode === "ttc-to-ht" ? "bg-white dark:bg-slate-700 text-indigo-600 shadow-sm" : "text-slate-500"}`}
+            >
+              TTC → HT
+            </button>
+          </div>
 
-      <div className="bg-gradient-to-br from-blue-50 to-indigo-100 border border-blue-200 p-6 rounded-lg">
-        <div className="grid grid-cols-3 gap-4 text-center">
-          <div>
-            <span className="text-sm text-gray-600">Montant HT</span>
-            <div className="text-xl font-bold text-gray-800">
-              {ht.toFixed(2)} €
+          <div className="space-y-3">
+            <label className="text-xs font-black uppercase tracking-widest text-slate-400 px-1">
+              Montant {mode === "ht-to-ttc" ? "HT" : "TTC"}
+            </label>
+            <div className="relative">
+               <input
+                type="number"
+                value={amount}
+                onChange={(e) => setAmount(e.target.value)}
+                className="w-full p-6 bg-slate-50 dark:bg-slate-900/50 border border-slate-200 dark:border-slate-800 rounded-3xl text-4xl font-black font-mono outline-none focus:ring-2 focus:ring-indigo-500/20 transition-all dark:text-white"
+                placeholder="0.00"
+                step="0.01"
+              />
+              <span className="absolute right-6 top-1/2 -translate-y-1/2 text-2xl font-black text-slate-300">€</span>
             </div>
           </div>
-          <div>
-            <span className="text-sm text-gray-600">TVA ({vatRate}%)</span>
-            <div className="text-xl font-bold text-blue-600">
-              {tva.toFixed(2)} €
-            </div>
-          </div>
-          <div>
-            <span className="text-sm text-gray-600">Montant TTC</span>
-            <div className="text-xl font-bold text-green-600">
-              {ttc.toFixed(2)} €
-            </div>
+
+          <div className="space-y-3">
+             <label className="text-xs font-black uppercase tracking-widest text-slate-400 px-1">Taux de TVA</label>
+             <div className="grid grid-cols-2 gap-2">
+                {commonRates.map((rate) => (
+                  <button
+                    key={rate.value}
+                    onClick={() => setVatRate(rate.value)}
+                    className={`py-3 rounded-xl font-bold text-sm transition-all border ${
+                      vatRate === rate.value
+                        ? "bg-indigo-600 text-white border-indigo-600 shadow-lg shadow-indigo-600/20"
+                        : "bg-white dark:bg-slate-800 text-slate-500 border-slate-200 dark:border-slate-700 hover:border-slate-300"
+                    }`}
+                  >
+                    {rate.label}
+                  </button>
+                ))}
+             </div>
+             <div className="relative mt-2">
+                <input
+                  type="number"
+                  value={vatRate}
+                  onChange={(e) => setVatRate(e.target.value)}
+                  className="w-full p-4 bg-slate-50 dark:bg-slate-900/50 border border-slate-200 dark:border-slate-800 rounded-2xl font-black font-mono outline-none focus:ring-2 focus:ring-indigo-500/20 transition-all dark:text-white"
+                  placeholder="20"
+                  step="0.1"
+                />
+                <span className="absolute right-4 top-1/2 -translate-y-1/2 font-black text-slate-400">%</span>
+             </div>
           </div>
         </div>
-      </div>
 
-      <div className="bg-yellow-50 border border-yellow-200 p-4 rounded-lg text-sm text-gray-700">
-        <p className="font-semibold mb-1">Taux de TVA en France (2024):</p>
-        <ul className="list-disc list-inside space-y-1">
-          <li><strong>20%</strong> - Taux normal (la plupart des biens/services)</li>
-          <li><strong>10%</strong> - Restauration, transport, travaux</li>
-          <li><strong>5.5%</strong> - Alimentation, livres, énergie</li>
-          <li><strong>2.1%</strong> - Médicaments, presse</li>
-        </ul>
+        <div className="space-y-6">
+          <div className="bg-slate-900 dark:bg-black p-10 rounded-[2.5rem] shadow-xl shadow-indigo-500/10 space-y-8">
+             <div className="text-center pb-4">
+                <div className="text-slate-400 font-bold uppercase tracking-widest text-xs mb-2">Montant TTC</div>
+                <div className="text-6xl font-black text-white font-mono tracking-tighter">
+                  {ttc.toFixed(2)}€
+                </div>
+             </div>
+
+             <div className="grid grid-cols-2 gap-4 pt-4 border-t border-slate-800">
+                <div className="text-center">
+                   <div className="text-slate-500 text-xs font-bold uppercase tracking-widest mb-1">Montant HT</div>
+                   <div className="text-2xl font-black text-white font-mono">{ht.toFixed(2)}€</div>
+                </div>
+                <div className="text-center border-l border-slate-800">
+                   <div className="text-slate-500 text-xs font-bold uppercase tracking-widest mb-1">TVA ({vatRate}%)</div>
+                   <div className="text-2xl font-black text-indigo-400 font-mono">{tva.toFixed(2)}€</div>
+                </div>
+             </div>
+          </div>
+
+          <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 p-6 rounded-[2rem] flex items-start gap-4">
+             <div className="p-3 bg-indigo-50 dark:bg-indigo-900/20 text-indigo-600 dark:text-indigo-400 rounded-2xl">
+                <Info className="w-6 h-6" />
+             </div>
+             <div className="text-sm text-slate-500 dark:text-slate-400 leading-relaxed space-y-2">
+                <p className="font-bold text-slate-900 dark:text-white">Taux en France :</p>
+                <ul className="grid grid-cols-2 gap-x-4 gap-y-1">
+                  <li>Normal: 20%</li>
+                  <li>Intermédiaire: 10%</li>
+                  <li>Réduit: 5.5%</li>
+                  <li>Super réduit: 2.1%</li>
+                </ul>
+             </div>
+          </div>
+        </div>
       </div>
     </div>
   );

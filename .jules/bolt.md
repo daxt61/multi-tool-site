@@ -5,3 +5,7 @@
 ## 2026-01-25 - [Eliminating Redundant Static Imports]
 **Learning:** Redundant static imports in files already using React.lazy negate the benefits of code splitting because the components are still included in the main bundle. Removing these static imports and ensuring all modular components use lazy loading is critical for maintaining a small initial bundle size.
 **Action:** Regularly audit entry points for static imports that shadow or duplicate lazy-loaded components.
+
+## 2026-01-27 - [Optimizing Dashboard Grid and Lookups]
+**Learning:** For dashboard-style applications with many items, combining React.memo for item cards, useDeferredValue for search inputs, and O(1) Map/Set lookups for filtering/retrieval eliminates UI stuttering and redundant computations. Even small lists (~40 items) benefit noticeably from avoiding complete grid re-renders on every keystroke.
+**Action:** Always pair expensive list filtering with useDeferredValue and ensure item components are memoized with stable callback references.

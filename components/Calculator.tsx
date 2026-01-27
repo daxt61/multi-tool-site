@@ -233,11 +233,11 @@ export function Calculator() {
           </div>
 
           {/* Keypad */}
-          <div className={`grid ${isScientific ? 'gap-1.5 sm:gap-2' : 'gap-2'}`}>
+          <div className="grid gap-2">
             {(isScientific ? scientificButtons : standardButtons).map((row, i) => (
               <div
                 key={i}
-                className={`grid ${isScientific ? 'gap-1.5 sm:gap-2' : 'gap-2'}`}
+                className="grid gap-2"
                 style={{
                   gridTemplateColumns: `repeat(${row.length === 1 ? (isScientific ? 5 : 4) : row.length}, minmax(0, 1fr))`
                 }}
@@ -254,8 +254,7 @@ export function Calculator() {
                       else if (btn === '.') handleDecimal();
                       else handleNumber(btn);
                     }}
-                    aria-label={btn === 'C' ? 'Effacer tout' : btn === '←' ? 'Retour arrière' : undefined}
-                    className={`${isScientific ? 'h-14 sm:h-20 text-sm sm:text-xl' : 'h-16 md:h-20 text-xl'} rounded-2xl font-bold transition-all active:scale-95 flex items-center justify-center ${
+                    className={`h-16 md:h-20 rounded-2xl text-xl font-bold transition-all active:scale-95 flex items-center justify-center ${
                       btn === 'C'
                         ? 'bg-rose-50 text-rose-600 dark:bg-rose-500/10 dark:text-rose-400 hover:bg-rose-100'
                         : btn === '←'

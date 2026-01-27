@@ -110,6 +110,7 @@ const BPMCounter = lazy(() => import("./components/BPMCounter").then(m => ({ def
 const HashGenerator = lazy(() => import("./components/HashGenerator").then(m => ({ default: m.HashGenerator })));
 const UnixTimestampConverter = lazy(() => import("./components/UnixTimestampConverter").then(m => ({ default: m.UnixTimestampConverter })));
 const RandomGenerator = lazy(() => import("./components/RandomGenerator").then(m => ({ default: m.RandomGenerator })));
+const HTMLEntityConverter = lazy(() => import("./components/HTMLEntityConverter").then(m => ({ default: m.HTMLEntityConverter })));
 
 interface Tool {
   id: string;
@@ -473,6 +474,14 @@ const tools: Tool[] = [
     description: "Nombres, chaînes et listes aléatoires",
     Component: RandomGenerator,
     category: "other",
+  },
+  {
+    id: "html-entities",
+    name: "Entités HTML",
+    icon: Code,
+    description: "Encoder et décoder des entités HTML",
+    Component: HTMLEntityConverter,
+    category: "dev",
   },
 ];
 

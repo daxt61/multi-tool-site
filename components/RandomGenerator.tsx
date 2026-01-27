@@ -91,7 +91,11 @@ export function RandomGenerator() {
           {randomNumber !== null && (
             <div className="h-14 bg-white dark:bg-slate-800 border border-indigo-200 dark:border-indigo-900/30 rounded-2xl flex items-center justify-between px-6 animate-in zoom-in-95 duration-300">
               <span className="text-2xl font-black font-mono text-indigo-600 dark:text-indigo-400">{randomNumber}</span>
-              <button onClick={() => copyToClipboard(randomNumber.toString(), 'num')} className="text-slate-400 hover:text-indigo-500 transition-colors">
+              <button
+                onClick={() => copyToClipboard(randomNumber.toString(), 'num')}
+                className="text-slate-400 hover:text-indigo-500 transition-colors"
+                aria-label="Copier le nombre généré"
+              >
                 {copied === 'num' ? <Check className="w-5 h-5 text-emerald-500" /> : <Copy className="w-5 h-5" />}
               </button>
             </div>

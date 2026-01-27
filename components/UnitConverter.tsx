@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { ArrowDown } from 'lucide-react';
+import { ArrowDown, Copy, Check } from 'lucide-react';
 
 type ConversionCategory = 'length' | 'weight' | 'temperature' | 'area' | 'volume' | 'digital' | 'pressure' | 'energy' | 'speed' | 'time';
 
@@ -15,6 +15,7 @@ export function UnitConverter() {
   const [toUnit, setToUnit] = useState('km');
   const [fromValue, setFromValue] = useState('1');
   const [toValue, setToValue] = useState('0.001');
+  const [copied, setCopied] = useState(false);
 
   const conversions: Record<ConversionCategory, Record<string, ConversionUnit>> = {
     length: {
@@ -48,7 +49,7 @@ export function UnitConverter() {
       'ha': { name: 'Hectares', toBase: (v) => v * 10000, fromBase: (v) => v / 10000 },
       'ac': { name: 'Acres', toBase: (v) => v * 4046.86, fromBase: (v) => v / 4046.86 },
       'ft2': { name: 'Pieds carrés', toBase: (v) => v * 0.092903, fromBase: (v) => v / 0.092903 },
-      'in2': { name: 'Pouces carrés', toBase: (v) => v * 0.00064516, fromBase: (v) => v * 1550.0031 }
+      'in2': { name: 'Pouces carrés', toBase: (v) => v * 0.00064516, fromBase: (v) => v / 0.00064516 }
     },
     volume: {
       'm3': { name: 'Mètres cubes', toBase: (v) => v, fromBase: (v) => v },
@@ -61,11 +62,11 @@ export function UnitConverter() {
       'cup': { name: 'Tasses (US)', toBase: (v) => v * 0.000236588, fromBase: (v) => v / 0.000236588 }
     },
     digital: {
-      'B': { name: 'Octets (B)', toBase: (v) => v, fromBase: (v) => v },
-      'KB': { name: 'Kilooctets (KB)', toBase: (v) => v * 1024, fromBase: (v) => v / 1024 },
-      'MB': { name: 'Megaoctets (MB)', toBase: (v) => v * Math.pow(1024, 2), fromBase: (v) => v / Math.pow(1024, 2) },
-      'GB': { name: 'Gigaoctets (GB)', toBase: (v) => v * Math.pow(1024, 3), fromBase: (v) => v / Math.pow(1024, 3) },
-      'TB': { name: 'Teraoctets (TB)', toBase: (v) => v * Math.pow(1024, 4), fromBase: (v) => v / Math.pow(1024, 4) }
+      'B': { name: 'Octets (o)', toBase: (v) => v, fromBase: (v) => v },
+      'KB': { name: 'Kibioctets (Kio)', toBase: (v) => v * 1024, fromBase: (v) => v / 1024 },
+      'MB': { name: 'Mébioctets (Mio)', toBase: (v) => v * Math.pow(1024, 2), fromBase: (v) => v / Math.pow(1024, 2) },
+      'GB': { name: 'Gibioctets (Gio)', toBase: (v) => v * Math.pow(1024, 3), fromBase: (v) => v / Math.pow(1024, 3) },
+      'TB': { name: 'Tébioctets (Tio)', toBase: (v) => v * Math.pow(1024, 4), fromBase: (v) => v / Math.pow(1024, 4) }
     },
     speed: {
       'm/s': { name: 'Mètres par seconde (m/s)', toBase: (v) => v, fromBase: (v) => v },
@@ -128,10 +129,17 @@ export function UnitConverter() {
     setToValue(convert(fromValue, units[0], units[1], newCategory));
   };
 
+  const handleCopy = () => {
+    const text = `${toValue} ${conversions[category][toUnit].name}`;
+    navigator.clipboard.writeText(text);
+    setCopied(true);
+    setTimeout(() => setCopied(false), 2000);
+  };
+
   return (
     <div className="max-w-4xl mx-auto space-y-12">
       {/* Category Nav */}
-      <div className="flex flex-wrap gap-2 justify-center">
+      <div className="flex overflow-x-auto no-scrollbar gap-2 pb-2 -mx-4 px-4 md:mx-0 md:px-0 md:justify-center">
         {categoriesMap.map((cat) => (
           <button
             key={cat.id}
@@ -189,13 +197,22 @@ export function UnitConverter() {
 
         {/* Vers */}
         <div className="space-y-4">
-          <label className="text-xs font-black uppercase tracking-widest text-slate-400 px-1">Vers</label>
+          <div className="flex justify-between items-center px-1">
+            <label className="text-xs font-black uppercase tracking-widest text-slate-400">Vers</label>
+            <button
+              onClick={handleCopy}
+              className={`p-2 rounded-lg transition-all ${copied ? 'bg-emerald-500 text-white' : 'text-slate-400 hover:text-indigo-500 hover:bg-indigo-50 dark:hover:bg-indigo-900/20'}`}
+              aria-label="Copier le résultat"
+            >
+              {copied ? <Check className="w-4 h-4" /> : <Copy className="w-4 h-4" />}
+            </button>
+          </div>
           <div className="flex flex-col gap-3 p-6 bg-slate-50 dark:bg-slate-900/50 rounded-3xl border border-slate-200 dark:border-slate-800 transition-all">
             <input
               type="text"
               value={toValue}
               readOnly
-              className="bg-transparent text-4xl font-black font-mono outline-none text-indigo-600 dark:text-indigo-400"
+              className="bg-transparent text-4xl font-black font-mono outline-none text-indigo-600 dark:text-indigo-400 w-full"
             />
             <select
               value={toUnit}

@@ -49,6 +49,8 @@ import {
   Briefcase,
   Search,
   Shuffle,
+  Database,
+  ArrowLeftRight,
   X,
   Sun,
   Moon,
@@ -110,6 +112,10 @@ const BPMCounter = lazy(() => import("./components/BPMCounter").then(m => ({ def
 const HashGenerator = lazy(() => import("./components/HashGenerator").then(m => ({ default: m.HashGenerator })));
 const UnixTimestampConverter = lazy(() => import("./components/UnixTimestampConverter").then(m => ({ default: m.UnixTimestampConverter })));
 const RandomGenerator = lazy(() => import("./components/RandomGenerator").then(m => ({ default: m.RandomGenerator })));
+const JSONFormatter = lazy(() => import("./components/JSONFormatter").then(m => ({ default: m.JSONFormatter })));
+const SQLFormatter = lazy(() => import("./components/SQLFormatter").then(m => ({ default: m.SQLFormatter })));
+const YAMLJSONConverter = lazy(() => import("./components/YAMLJSONConverter").then(m => ({ default: m.YAMLJSONConverter })));
+const CronGenerator = lazy(() => import("./components/CronGenerator").then(m => ({ default: m.CronGenerator })));
 
 interface Tool {
   id: string;
@@ -399,6 +405,38 @@ const tools: Tool[] = [
     icon: FileCode,
     description: "Convertisseur bidirectionnel JSON et CSV",
     Component: JSONCSVConverter,
+    category: "dev",
+  },
+  {
+    id: "json-formatter",
+    name: "JSON Formatter",
+    icon: FileCode,
+    description: "Prettify, minify et valide votre JSON",
+    Component: JSONFormatter,
+    category: "dev",
+  },
+  {
+    id: "sql-formatter",
+    name: "SQL Formatter",
+    icon: Database,
+    description: "Formater vos requêtes SQL pour la lecture",
+    Component: SQLFormatter,
+    category: "dev",
+  },
+  {
+    id: "yaml-json",
+    name: "YAML <> JSON",
+    icon: ArrowLeftRight,
+    description: "Convertisseur bidirectionnel YAML et JSON",
+    Component: YAMLJSONConverter,
+    category: "dev",
+  },
+  {
+    id: "cron-generator",
+    name: "Cron Generator",
+    icon: Clock,
+    description: "Générateur visuel d'expressions Cron",
+    Component: CronGenerator,
     category: "dev",
   },
   {

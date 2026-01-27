@@ -75,6 +75,7 @@ export function PasswordGenerator() {
               onClick={generatePassword}
               className="p-4 bg-white/10 hover:bg-white/20 text-white rounded-2xl transition-all active:scale-95"
               title="Régénérer"
+              aria-label="Régénérer le mot de passe"
             >
               <RefreshCw className="w-6 h-6" />
             </button>
@@ -138,6 +139,7 @@ export function PasswordGenerator() {
               <button
                 key={opt.label}
                 onClick={() => opt.setState(!opt.state)}
+                aria-pressed={opt.state}
                 className={`flex items-center justify-between p-4 rounded-2xl border transition-all ${
                   opt.state
                   ? 'bg-indigo-50 dark:bg-indigo-500/10 border-indigo-200 dark:border-indigo-500/20 text-indigo-600 dark:text-indigo-400'

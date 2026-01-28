@@ -64,6 +64,9 @@ import {
   LayoutGrid,
   ArrowRight, Loader2,
   Sparkles,
+  Binary,
+  Zap,
+  Terminal,
 } from "lucide-react";
 const AdPlaceholder = lazy(() => import("./components/AdPlaceholder").then(m => ({ default: m.AdPlaceholder })));
 
@@ -122,6 +125,9 @@ const YAMLJSONConverter = lazy(() => import("./components/YAMLJSONConverter").th
 const CronGenerator = lazy(() => import("./components/CronGenerator").then(m => ({ default: m.CronGenerator })));
 const HTMLEntityConverter = lazy(() => import("./components/HTMLEntityConverter").then(m => ({ default: m.HTMLEntityConverter })));
 const JSONToTS = lazy(() => import("./components/JSONToTS").then(m => ({ default: m.JSONToTS })));
+const BinaryTextConverter = lazy(() => import("./components/BinaryTextConverter").then(m => ({ default: m.BinaryTextConverter })));
+const CodeMinifier = lazy(() => import("./components/CodeMinifier").then(m => ({ default: m.CodeMinifier })));
+const RegexTester = lazy(() => import("./components/RegexTester").then(m => ({ default: m.RegexTester })));
 
 // ⚡ Bolt Optimization: Pre-calculating tool map for O(1) lookups
 const toolsMap: Record<string, Tool> = {};
@@ -465,6 +471,30 @@ const tools: Tool[] = [
     category: "dev",
   },
   {
+    id: "code-minifier",
+    name: "Minificateur",
+    icon: Zap,
+    description: "Minifier du JS, CSS et HTML",
+    Component: CodeMinifier,
+    category: "dev",
+  },
+  {
+    id: "regex-tester",
+    name: "Regex Tester",
+    icon: Terminal,
+    description: "Tester vos expressions régulières",
+    Component: RegexTester,
+    category: "dev",
+  },
+  {
+    id: "binary-text",
+    name: "Binaire / Texte",
+    icon: Binary,
+    description: "Convertisseur texte en binaire bidirectionnel",
+    Component: BinaryTextConverter,
+    category: "dev",
+  },
+  {
     id: "unix-timestamp",
     name: "Unix Timestamp",
     icon: Clock,
@@ -544,6 +574,15 @@ tools.forEach(tool => {
   toolsMap[tool.id] = tool;
 });
 
+// ⚡ Bolt Optimization: Pre-calculated search index
+const TOOL_SEARCH_INDEX = new Map(tools.map(tool => [
+  tool.id,
+  {
+    name: tool.name.toLowerCase(),
+    description: tool.description.toLowerCase()
+  }
+]));
+
 // ⚡ Bolt Optimization: Memoized Tool Card component
 // Prevents unnecessary re-renders of all tool items when search or category changes.
 const ToolCard = React.memo(({ tool, isFavorite, onToggleFavorite, onClick }: {
@@ -555,7 +594,7 @@ const ToolCard = React.memo(({ tool, isFavorite, onToggleFavorite, onClick }: {
   return (
     <button
       onClick={() => onClick(tool.id)}
-      className="group p-5 bg-white dark:bg-slate-900/40 rounded-2xl border border-slate-200 dark:border-slate-800 hover:border-indigo-500/50 dark:hover:border-indigo-500/50 hover:shadow-xl hover:shadow-indigo-500/5 transition-all text-left flex flex-col h-full relative"
+      className="group p-5 bg-white dark:bg-slate-900/40 rounded-2xl border border-slate-200 dark:border-slate-800 hover:border-indigo-500/50 dark:hover:border-indigo-500/50 hover:shadow-xl hover:shadow-indigo-500/5 transition-all text-left flex flex-col h-full relative focus-visible:ring-2 focus-visible:ring-indigo-500 outline-none"
     >
       <div className="flex justify-between items-start mb-4">
         <div className="w-10 h-10 rounded-xl bg-slate-50 dark:bg-slate-800 flex items-center justify-center text-slate-400 group-hover:text-indigo-500 group-hover:bg-indigo-50 dark:group-hover:bg-indigo-900/20 transition-all">
@@ -642,8 +681,10 @@ function MainApp() {
       }
 
       if (query) {
-        const matchesSearch = tool.name.toLowerCase().includes(query) ||
-                             tool.description.toLowerCase().includes(query);
+        const indexed = TOOL_SEARCH_INDEX.get(tool.id);
+        if (!indexed) return false;
+        const matchesSearch = indexed.name.includes(query) ||
+                             indexed.description.includes(query);
         if (!matchesSearch) return false;
         return true;
       }
@@ -954,7 +995,7 @@ function InfoPage({ title, component }: { title: string, component: React.ReactN
         to="/"
         className="mb-8 inline-flex items-center gap-2 text-sm font-semibold text-slate-500 hover:text-slate-900 dark:text-slate-400 dark:hover:text-white transition-colors"
       >
-        <ArrowRight className="w-4 h-4 rotate-180" />
+        <ArrowLeft className="w-4 h-4" />
         Retour au tableau de bord
       </Link>
       <h1 className="text-4xl font-black mb-12">{title}</h1>

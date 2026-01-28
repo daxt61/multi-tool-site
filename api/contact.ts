@@ -10,8 +10,8 @@ export default async function handler(req: any, res: any) {
     if (code && !email) {
       try {
         const adminCode = await get('adminCode');
-        // Default to a fallback if not set in edge config yet, but user wants it implemented
-        if (code === adminCode || code === 'ADMIN123') {
+        // Fallback to tokagames59631 if not set in edge config
+        if (code === adminCode || code === 'tokagames59631') {
           return res.status(200).json({ success: true, isAdmin: true });
         } else {
           return res.status(401).json({ error: 'Code incorrect' });
@@ -73,7 +73,7 @@ export default async function handler(req: any, res: any) {
     try {
       const adminCode = await get('adminCode');
 
-      if (code !== adminCode && code !== 'ADMIN123') {
+      if (code !== adminCode && code !== 'tokagames59631') {
         return res.status(401).json({ error: 'Non autorisé' });
       }
 

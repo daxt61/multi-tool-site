@@ -544,6 +544,18 @@ tools.forEach(tool => {
   toolsMap[tool.id] = tool;
 });
 
+// ⚡ Bolt Optimization: Pre-calculate search index to avoid redundant string operations in filter loop
+// We store name and description separately to avoid matching across boundaries.
+const TOOL_SEARCH_INDEX = new Map(
+  tools.map((tool) => [
+    tool.id,
+    {
+      name: tool.name.toLowerCase(),
+      description: tool.description.toLowerCase(),
+    }
+  ])
+);
+
 // ⚡ Bolt Optimization: Memoized Tool Card component
 // Prevents unnecessary re-renders of all tool items when search or category changes.
 const ToolCard = React.memo(({ tool, isFavorite, onToggleFavorite, onClick }: {
@@ -642,8 +654,8 @@ function MainApp() {
       }
 
       if (query) {
-        const matchesSearch = tool.name.toLowerCase().includes(query) ||
-                             tool.description.toLowerCase().includes(query);
+        const index = TOOL_SEARCH_INDEX.get(tool.id);
+        const matchesSearch = index?.name.includes(query) || index?.description.includes(query);
         if (!matchesSearch) return false;
         return true;
       }

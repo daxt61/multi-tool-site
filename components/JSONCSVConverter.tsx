@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { FileCode, FileSpreadsheet, Copy, Check, Trash2, AlertCircle } from 'lucide-react';
+import { FileCode, FileSpreadsheet, Copy, Check, Trash2, AlertCircle, Download } from 'lucide-react';
 
 export function JSONCSVConverter() {
   const [jsonInput, setJsonInput] = useState('');
@@ -101,6 +101,19 @@ export function JSONCSVConverter() {
     setTimeout(() => setCopied(null), 2000);
   };
 
+  const handleDownload = (content: string, filename: string) => {
+    if (!content) return;
+    const blob = new Blob([content], { type: 'text/plain' });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    link.href = url;
+    link.download = filename;
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    URL.revokeObjectURL(url);
+  };
+
   return (
     <div className="max-w-6xl mx-auto space-y-8">
       {error && (
@@ -119,6 +132,13 @@ export function JSONCSVConverter() {
               <label className="text-xs font-black uppercase tracking-widest text-slate-400">JSON</label>
             </div>
             <div className="flex gap-2">
+              <button
+                onClick={() => handleDownload(jsonInput, 'data.json')}
+                disabled={!jsonInput}
+                className="text-xs font-bold px-3 py-1 rounded-full text-indigo-500 bg-indigo-50 dark:bg-indigo-500/10 hover:bg-indigo-100 transition-all flex items-center gap-1 disabled:opacity-50"
+              >
+                <Download className="w-3 h-3" /> Télécharger
+              </button>
               <button
                 onClick={() => copyToClipboard(jsonInput, 'json')}
                 className={`text-xs font-bold px-3 py-1 rounded-full transition-all flex items-center gap-1 ${copied === 'json' ? 'bg-emerald-500 text-white' : 'text-slate-500 bg-slate-100 dark:bg-slate-800'}`}
@@ -149,6 +169,13 @@ export function JSONCSVConverter() {
               <label className="text-xs font-black uppercase tracking-widest text-slate-400">CSV</label>
             </div>
             <div className="flex gap-2">
+              <button
+                onClick={() => handleDownload(csvInput, 'data.csv')}
+                disabled={!csvInput}
+                className="text-xs font-bold px-3 py-1 rounded-full text-indigo-500 bg-indigo-50 dark:bg-indigo-500/10 hover:bg-indigo-100 transition-all flex items-center gap-1 disabled:opacity-50"
+              >
+                <Download className="w-3 h-3" /> Télécharger
+              </button>
               <button
                 onClick={() => copyToClipboard(csvInput, 'csv')}
                 className={`text-xs font-bold px-3 py-1 rounded-full transition-all flex items-center gap-1 ${copied === 'csv' ? 'bg-emerald-500 text-white' : 'text-slate-500 bg-slate-100 dark:bg-slate-800'}`}

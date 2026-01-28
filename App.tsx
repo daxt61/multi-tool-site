@@ -121,6 +121,7 @@ const SQLFormatter = lazy(() => import("./components/SQLFormatter").then(m => ({
 const YAMLJSONConverter = lazy(() => import("./components/YAMLJSONConverter").then(m => ({ default: m.YAMLJSONConverter })));
 const CronGenerator = lazy(() => import("./components/CronGenerator").then(m => ({ default: m.CronGenerator })));
 const HTMLEntityConverter = lazy(() => import("./components/HTMLEntityConverter").then(m => ({ default: m.HTMLEntityConverter })));
+const JSONToTS = lazy(() => import("./components/JSONToTS").then(m => ({ default: m.JSONToTS })));
 
 interface Tool {
   id: string;
@@ -418,6 +419,14 @@ const tools: Tool[] = [
     icon: FileCode,
     description: "Prettify, minify et valide votre JSON",
     Component: JSONFormatter,
+    category: "dev",
+  },
+  {
+    id: "json-to-ts",
+    name: "JSON en TS",
+    icon: Code,
+    description: "Convertir du JSON en interfaces TypeScript",
+    Component: JSONToTS,
     category: "dev",
   },
   {

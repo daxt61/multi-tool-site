@@ -17,8 +17,26 @@ export function RandomGenerator() {
 
   const [copied, setCopied] = useState('');
 
+  // Secure random generator using crypto.getRandomValues with rejection sampling
+  const getSecureRandom = (range: number): number => {
+    if (range <= 0) return 0;
+    const array = new Uint32Array(1);
+    const maxUint32 = 0xffffffff;
+    const limit = maxUint32 - (maxUint32 % range);
+
+    let randomVal;
+    do {
+      window.crypto.getRandomValues(array);
+      randomVal = array[0];
+    } while (randomVal >= limit);
+
+    return randomVal % range;
+  };
+
   const generateNumber = () => {
-    const val = Math.floor(Math.random() * (max - min + 1)) + min;
+    const range = max - min + 1;
+    if (range <= 0) return;
+    const val = getSecureRandom(range) + min;
     setRandomNumber(val);
   };
 
@@ -32,7 +50,7 @@ export function RandomGenerator() {
 
     let result = '';
     for (let i = 0; i < strLength; i++) {
-      result += charset.charAt(Math.floor(Math.random() * charset.length));
+      result += charset.charAt(getSecureRandom(charset.length));
     }
     setRandomString(result);
   };
@@ -41,7 +59,7 @@ export function RandomGenerator() {
     const items = list.split('\n').filter(i => i.trim() !== '');
     const shuffled = [...items];
     for (let i = shuffled.length - 1; i > 0; i--) {
-      const j = Math.floor(Math.random() * (i + 1));
+      const j = getSecureRandom(i + 1);
       [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
     }
     setShuffledList(shuffled);

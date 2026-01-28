@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { TrendingUp, Info, DollarSign, Percent, Calculator as CalcIcon } from "lucide-react";
 
 export function MarginCalculator() {
   const [costPrice, setCostPrice] = useState<string>("");
@@ -11,7 +12,7 @@ export function MarginCalculator() {
     const selling = parseFloat(sellingPrice);
     if (!isNaN(cost) && !isNaN(selling) && selling > 0) {
       const margin = ((selling - cost) / selling) * 100;
-      const markup = ((selling - cost) / cost) * 100;
+      const markup = cost !== 0 ? ((selling - cost) / cost) * 100 : 0;
       setMarginPercent(margin.toFixed(2));
       setMarkupPercent(markup.toFixed(2));
     }
@@ -43,113 +44,115 @@ export function MarginCalculator() {
     parseFloat(sellingPrice) - parseFloat(costPrice) || 0;
 
   return (
-    <div className="space-y-6">
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-        <div>
-          <label className="block text-sm font-semibold text-gray-700 mb-1">
-            Prix d'achat (coût)
-          </label>
-          <input
-            type="number"
-            value={costPrice}
-            onChange={(e) => setCostPrice(e.target.value)}
-            className="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-            placeholder="0.00"
-            step="0.01"
-          />
-        </div>
-        <div>
-          <label className="block text-sm font-semibold text-gray-700 mb-1">
-            Prix de vente
-          </label>
-          <input
-            type="number"
-            value={sellingPrice}
-            onChange={(e) => setSellingPrice(e.target.value)}
-            className="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-            placeholder="0.00"
-            step="0.01"
-          />
-        </div>
-      </div>
-
-      <button
-        onClick={calculateFromCostAndSelling}
-        className="w-full py-3 bg-blue-500 text-white rounded-lg font-semibold hover:bg-blue-600 transition-all"
-      >
-        Calculer marge et coefficient
-      </button>
-
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-        <div>
-          <label className="block text-sm font-semibold text-gray-700 mb-1">
-            Marge (%)
-          </label>
-          <div className="flex gap-2">
-            <input
-              type="number"
-              value={marginPercent}
-              onChange={(e) => setMarginPercent(e.target.value)}
-              className="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-              placeholder="0.00"
-              step="0.01"
-            />
-            <button
-              onClick={calculateFromCostAndMargin}
-              className="px-4 py-2 bg-green-500 text-white rounded-lg hover:bg-green-600"
-              title="Calculer à partir du coût et de la marge"
-            >
-              Calc
-            </button>
+    <div className="max-w-4xl mx-auto space-y-8">
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+        <div className="space-y-6">
+          <div className="grid grid-cols-1 gap-6">
+            <div className="space-y-3">
+              <label className="text-xs font-black uppercase tracking-widest text-slate-400 px-1 flex items-center gap-2">
+                <DollarSign className="w-3 h-3" /> Prix d'achat (Coût)
+              </label>
+              <input
+                type="number"
+                value={costPrice}
+                onChange={(e) => setCostPrice(e.target.value)}
+                className="w-full p-4 bg-slate-50 dark:bg-slate-900/50 border border-slate-200 dark:border-slate-800 rounded-2xl text-2xl font-black font-mono focus:border-indigo-500 outline-none transition-all dark:text-white"
+                placeholder="0.00"
+              />
+            </div>
+            <div className="space-y-3">
+              <label className="text-xs font-black uppercase tracking-widest text-slate-400 px-1 flex items-center gap-2">
+                <TrendingUp className="w-3 h-3" /> Prix de vente
+              </label>
+              <input
+                type="number"
+                value={sellingPrice}
+                onChange={(e) => setSellingPrice(e.target.value)}
+                className="w-full p-4 bg-slate-50 dark:bg-slate-900/50 border border-slate-200 dark:border-slate-800 rounded-2xl text-2xl font-black font-mono focus:border-indigo-500 outline-none transition-all dark:text-white"
+                placeholder="0.00"
+              />
+            </div>
           </div>
-        </div>
-        <div>
-          <label className="block text-sm font-semibold text-gray-700 mb-1">
-            Coefficient (markup %)
-          </label>
-          <div className="flex gap-2">
-            <input
-              type="number"
-              value={markupPercent}
-              onChange={(e) => setMarkupPercent(e.target.value)}
-              className="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-              placeholder="0.00"
-              step="0.01"
-            />
-            <button
-              onClick={calculateFromCostAndMarkup}
-              className="px-4 py-2 bg-green-500 text-white rounded-lg hover:bg-green-600"
-              title="Calculer à partir du coût et du coefficient"
-            >
-              Calc
-            </button>
-          </div>
-        </div>
-      </div>
 
-      {profit !== 0 && !isNaN(profit) && (
-        <div className="bg-gradient-to-br from-green-50 to-green-100 border border-green-200 p-4 rounded-lg">
-          <div className="text-center">
-            <span className="text-sm text-gray-600">Bénéfice par unité</span>
-            <div
-              className={`text-3xl font-bold ${profit >= 0 ? "text-green-600" : "text-red-600"}`}
-            >
-              {profit.toFixed(2)} €
+          <button
+            onClick={calculateFromCostAndSelling}
+            className="w-full py-4 bg-indigo-600 text-white rounded-2xl font-bold flex items-center justify-center gap-2 shadow-lg shadow-indigo-600/20 hover:bg-indigo-700 transition-all"
+          >
+            <CalcIcon className="w-5 h-5" /> Calculer marge et coefficient
+          </button>
+
+          <div className="grid grid-cols-1 gap-6">
+            <div className="space-y-3">
+              <label className="text-xs font-black uppercase tracking-widest text-slate-400 px-1 flex items-center gap-2">
+                <Percent className="w-3 h-3" /> Marge (%)
+              </label>
+              <div className="flex gap-2">
+                <input
+                  type="number"
+                  value={marginPercent}
+                  onChange={(e) => setMarginPercent(e.target.value)}
+                  className="flex-1 p-4 bg-slate-50 dark:bg-slate-900/50 border border-slate-200 dark:border-slate-800 rounded-2xl text-xl font-black font-mono focus:border-indigo-500 outline-none transition-all dark:text-white"
+                  placeholder="0.00"
+                />
+                <button
+                  onClick={calculateFromCostAndMargin}
+                  className="px-6 bg-slate-100 dark:bg-slate-800 text-indigo-600 dark:text-indigo-400 rounded-2xl font-bold hover:bg-slate-200 dark:hover:bg-slate-700 transition-all border border-slate-200 dark:border-slate-700"
+                >
+                  Calculer
+                </button>
+              </div>
+            </div>
+            <div className="space-y-3">
+              <label className="text-xs font-black uppercase tracking-widest text-slate-400 px-1 flex items-center gap-2">
+                <TrendingUp className="w-3 h-3" /> Coefficient (Markup %)
+              </label>
+              <div className="flex gap-2">
+                <input
+                  type="number"
+                  value={markupPercent}
+                  onChange={(e) => setMarkupPercent(e.target.value)}
+                  className="flex-1 p-4 bg-slate-50 dark:bg-slate-900/50 border border-slate-200 dark:border-slate-800 rounded-2xl text-xl font-black font-mono focus:border-indigo-500 outline-none transition-all dark:text-white"
+                  placeholder="0.00"
+                />
+                <button
+                  onClick={calculateFromCostAndMarkup}
+                  className="px-6 bg-slate-100 dark:bg-slate-800 text-indigo-600 dark:text-indigo-400 rounded-2xl font-bold hover:bg-slate-200 dark:hover:bg-slate-700 transition-all border border-slate-200 dark:border-slate-700"
+                >
+                  Calculer
+                </button>
+              </div>
             </div>
           </div>
         </div>
-      )}
 
-      <div className="bg-blue-50 border border-blue-200 p-4 rounded-lg text-sm text-gray-700">
-        <p className="font-semibold mb-2">Formules:</p>
-        <ul className="list-disc list-inside space-y-1">
-          <li>
-            <strong>Marge</strong> = (Prix de vente - Coût) / Prix de vente × 100
-          </li>
-          <li>
-            <strong>Markup</strong> = (Prix de vente - Coût) / Coût × 100
-          </li>
-        </ul>
+        <div className="space-y-6">
+          <div className="bg-slate-900 dark:bg-black p-10 rounded-[2.5rem] shadow-xl shadow-indigo-500/10 flex flex-col items-center justify-center space-y-4 min-h-[300px]">
+             <div className="text-slate-400 font-bold uppercase tracking-widest text-xs">Bénéfice par unité</div>
+             <div className={`text-6xl font-black font-mono tracking-tighter ${profit >= 0 ? "text-emerald-400" : "text-rose-400"}`}>
+               {profit.toFixed(2)}€
+             </div>
+             <div className={`${profit >= 0 ? "text-emerald-500/50" : "text-rose-500/50"} font-black text-2xl uppercase tracking-widest`}>
+               {profit >= 0 ? "Profit" : "Perte"}
+             </div>
+          </div>
+
+          <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 p-8 rounded-[2rem] space-y-4">
+             <div className="flex items-center gap-2 text-indigo-500 mb-2">
+                <Info className="w-5 h-5" />
+                <span className="font-bold text-sm uppercase tracking-wider">Formules</span>
+             </div>
+             <div className="space-y-4 text-sm text-slate-500 dark:text-slate-400 leading-relaxed">
+                <div className="p-4 bg-slate-50 dark:bg-slate-800/50 rounded-2xl border border-slate-100 dark:border-slate-700">
+                  <p className="font-bold text-slate-900 dark:text-white mb-1">Marge</p>
+                  <code className="text-indigo-600 dark:text-indigo-400">(Prix de vente - Coût) / Prix de vente × 100</code>
+                </div>
+                <div className="p-4 bg-slate-50 dark:bg-slate-800/50 rounded-2xl border border-slate-100 dark:border-slate-700">
+                  <p className="font-bold text-slate-900 dark:text-white mb-1">Markup (Coefficient)</p>
+                  <code className="text-indigo-600 dark:text-indigo-400">(Prix de vente - Coût) / Coût × 100</code>
+                </div>
+             </div>
+          </div>
+        </div>
       </div>
     </div>
   );

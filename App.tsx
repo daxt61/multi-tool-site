@@ -49,6 +49,8 @@ import {
   LineChart,
   CreditCard,
   Briefcase,
+  ListChecks,
+  Volume2,
   Search,
   Shuffle,
   ArrowLeft,
@@ -122,6 +124,8 @@ const YAMLJSONConverter = lazy(() => import("./components/YAMLJSONConverter").th
 const CronGenerator = lazy(() => import("./components/CronGenerator").then(m => ({ default: m.CronGenerator })));
 const HTMLEntityConverter = lazy(() => import("./components/HTMLEntityConverter").then(m => ({ default: m.HTMLEntityConverter })));
 const JSONToTS = lazy(() => import("./components/JSONToTS").then(m => ({ default: m.JSONToTS })));
+const TodoList = lazy(() => import("./components/TodoList").then(m => ({ default: m.TodoList })));
+const TextToSpeech = lazy(() => import("./components/TextToSpeech").then(m => ({ default: m.TextToSpeech })));
 
 // ⚡ Bolt Optimization: Pre-calculating tool map for O(1) lookups
 const toolsMap: Record<string, Tool> = {};
@@ -367,6 +371,14 @@ const tools: Tool[] = [
     Component: MorseCodeConverter,
     category: "text",
   },
+  {
+    id: "text-to-speech",
+    name: "Synthèse vocale",
+    icon: Volume2,
+    description: "Convertir du texte en parole naturelle",
+    Component: TextToSpeech,
+    category: "text",
+  },
   // Dev Tools
   {
     id: "password-generator",
@@ -535,6 +547,14 @@ const tools: Tool[] = [
     icon: Shuffle,
     description: "Nombres, chaînes et listes aléatoires",
     Component: RandomGenerator,
+    category: "other",
+  },
+  {
+    id: "todo-list",
+    name: "To-Do List",
+    icon: ListChecks,
+    description: "Gestionnaire de tâches simple et efficace",
+    Component: TodoList,
     category: "other",
   },
 ];

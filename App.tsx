@@ -51,6 +51,7 @@ import {
   Briefcase,
   Search,
   Shuffle,
+  Binary,
   ArrowLeft,
   Database,
   ArrowLeftRight,
@@ -122,6 +123,7 @@ const YAMLJSONConverter = lazy(() => import("./components/YAMLJSONConverter").th
 const CronGenerator = lazy(() => import("./components/CronGenerator").then(m => ({ default: m.CronGenerator })));
 const HTMLEntityConverter = lazy(() => import("./components/HTMLEntityConverter").then(m => ({ default: m.HTMLEntityConverter })));
 const JSONToTS = lazy(() => import("./components/JSONToTS").then(m => ({ default: m.JSONToTS })));
+const BinaryTextConverter = lazy(() => import("./components/BinaryTextConverter").then(m => ({ default: m.BinaryTextConverter })));
 
 // ⚡ Bolt Optimization: Pre-calculating tool map for O(1) lookups
 const toolsMap: Record<string, Tool> = {};
@@ -369,6 +371,14 @@ const tools: Tool[] = [
   },
   // Dev Tools
   {
+    id: "binary-text",
+    name: "Binaire / Texte",
+    icon: Binary,
+    description: "Convertisseur texte en binaire et inversement",
+    Component: BinaryTextConverter,
+    category: "dev",
+  },
+  {
     id: "password-generator",
     name: "Mots de passe",
     icon: Key,
@@ -552,31 +562,38 @@ const ToolCard = React.memo(({ tool, isFavorite, onToggleFavorite, onClick }: {
   onToggleFavorite: (e: React.MouseEvent, id: string) => void;
   onClick: (id: string) => void;
 }) => {
+  const titleId = `tool-title-${tool.id}`;
+  const descId = `tool-desc-${tool.id}`;
+
   return (
-    <button
-      onClick={() => onClick(tool.id)}
-      className="group p-5 bg-white dark:bg-slate-900/40 rounded-2xl border border-slate-200 dark:border-slate-800 hover:border-indigo-500/50 dark:hover:border-indigo-500/50 hover:shadow-xl hover:shadow-indigo-500/5 transition-all text-left flex flex-col h-full relative"
-    >
-      <div className="flex justify-between items-start mb-4">
+    <div className="group relative p-5 bg-white dark:bg-slate-900/40 rounded-2xl border border-slate-200 dark:border-slate-800 hover:border-indigo-500/50 dark:hover:border-indigo-500/50 hover:shadow-xl hover:shadow-indigo-500/5 transition-all flex flex-col h-full">
+      <button
+        onClick={() => onClick(tool.id)}
+        className="absolute inset-0 z-10 w-full h-full rounded-2xl cursor-pointer"
+        aria-labelledby={titleId}
+        aria-describedby={descId}
+      />
+
+      <div className="flex justify-between items-start mb-4 relative z-20">
         <div className="w-10 h-10 rounded-xl bg-slate-50 dark:bg-slate-800 flex items-center justify-center text-slate-400 group-hover:text-indigo-500 group-hover:bg-indigo-50 dark:group-hover:bg-indigo-900/20 transition-all">
           <tool.icon className="w-5 h-5" />
         </div>
         <button
           onClick={(e) => onToggleFavorite(e, tool.id)}
-          className={`p-1.5 rounded-lg transition-colors ${isFavorite ? 'text-amber-500' : 'text-slate-300 hover:text-slate-400'}`}
-          aria-label={isFavorite ? "Retirer des favoris" : "Ajouter aux favoris"}
+          className={`p-1.5 rounded-lg transition-colors pointer-events-auto ${isFavorite ? 'text-amber-500' : 'text-slate-300 hover:text-slate-400'}`}
+          aria-label={isFavorite ? `Retirer ${tool.name} des favoris` : `Ajouter ${tool.name} aux favoris`}
         >
           <Star className={`w-5 h-5 ${isFavorite ? 'fill-current' : ''}`} />
         </button>
       </div>
 
-      <h4 className="font-bold text-slate-900 dark:text-white mb-2">{tool.name}</h4>
-      <p className="text-sm text-slate-500 dark:text-slate-400 line-clamp-2 flex-grow leading-relaxed">{tool.description}</p>
+      <h4 id={titleId} className="font-bold text-slate-900 dark:text-white mb-2 relative z-0">{tool.name}</h4>
+      <p id={descId} className="text-sm text-slate-500 dark:text-slate-400 line-clamp-2 flex-grow leading-relaxed relative z-0">{tool.description}</p>
 
-      <div className="mt-4 flex items-center gap-2 text-xs font-bold text-indigo-500 opacity-0 group-hover:opacity-100 transition-all -translate-x-2 group-hover:translate-x-0">
+      <div className="mt-4 flex items-center gap-2 text-xs font-bold text-indigo-500 opacity-0 group-hover:opacity-100 transition-all -translate-x-2 group-hover:translate-x-0 relative z-0">
         Ouvrir <ArrowRight className="w-3 h-3" />
       </div>
-    </button>
+    </div>
   );
 });
 ToolCard.displayName = "ToolCard";
@@ -637,19 +654,18 @@ function MainApp() {
     const query = deferredSearchQuery.trim().toLowerCase();
 
     return tools.filter((tool) => {
-      if (selectedCategory === "favorites") {
-        return favoriteSet.has(tool.id);
-      }
+      const matchesCategory = !selectedCategory ||
+                              selectedCategory === "all" ||
+                              (selectedCategory === "favorites" ? favoriteSet.has(tool.id) : tool.category === selectedCategory);
+
+      if (!matchesCategory) return false;
 
       if (query) {
-        const matchesSearch = tool.name.toLowerCase().includes(query) ||
-                             tool.description.toLowerCase().includes(query);
-        if (!matchesSearch) return false;
-        return true;
+        return tool.name.toLowerCase().includes(query) ||
+               tool.description.toLowerCase().includes(query);
       }
 
-      if (!selectedCategory || selectedCategory === "all") return true;
-      return tool.category === selectedCategory;
+      return true;
     });
   }, [selectedCategory, deferredSearchQuery, favoriteSet]);
 
@@ -954,7 +970,7 @@ function InfoPage({ title, component }: { title: string, component: React.ReactN
         to="/"
         className="mb-8 inline-flex items-center gap-2 text-sm font-semibold text-slate-500 hover:text-slate-900 dark:text-slate-400 dark:hover:text-white transition-colors"
       >
-        <ArrowRight className="w-4 h-4 rotate-180" />
+        <ArrowLeft className="w-4 h-4" />
         Retour au tableau de bord
       </Link>
       <h1 className="text-4xl font-black mb-12">{title}</h1>

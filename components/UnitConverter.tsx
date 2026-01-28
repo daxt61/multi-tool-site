@@ -63,10 +63,11 @@ export function UnitConverter() {
     },
     digital: {
       'B': { name: 'Octets (B)', toBase: (v) => v, fromBase: (v) => v },
-      'KB': { name: 'Kilooctets (KB)', toBase: (v) => v * 1024, fromBase: (v) => v / 1024 },
-      'MB': { name: 'Megaoctets (MB)', toBase: (v) => v * Math.pow(1024, 2), fromBase: (v) => v / Math.pow(1024, 2) },
-      'GB': { name: 'Gigaoctets (GB)', toBase: (v) => v * Math.pow(1024, 3), fromBase: (v) => v / Math.pow(1024, 3) },
-      'TB': { name: 'Teraoctets (TB)', toBase: (v) => v * Math.pow(1024, 4), fromBase: (v) => v / Math.pow(1024, 4) }
+      'Kio': { name: 'Kibioctets (Kio)', toBase: (v) => v * 1024, fromBase: (v) => v / 1024 },
+      'Mio': { name: 'Mébioctets (Mio)', toBase: (v) => v * Math.pow(1024, 2), fromBase: (v) => v / Math.pow(1024, 2) },
+      'Gio': { name: 'Gibioctets (Gio)', toBase: (v) => v * Math.pow(1024, 3), fromBase: (v) => v / Math.pow(1024, 3) },
+      'Tio': { name: 'Tébioctets (Tio)', toBase: (v) => v * Math.pow(1024, 4), fromBase: (v) => v / Math.pow(1024, 4) },
+      'Pio': { name: 'Pébioctets (Pio)', toBase: (v) => v * Math.pow(1024, 5), fromBase: (v) => v / Math.pow(1024, 5) }
     },
     speed: {
       'm/s': { name: 'Mètres par seconde (m/s)', toBase: (v) => v, fromBase: (v) => v },
@@ -106,7 +107,7 @@ export function UnitConverter() {
     { id: 'temperature', name: 'Température' },
     { id: 'area', name: 'Surface' },
     { id: 'volume', name: 'Volume' },
-    { id: 'digital', name: 'Digital' },
+    { id: 'digital', name: 'Informatique' },
     { id: 'speed', name: 'Vitesse' },
     { id: 'time', name: 'Temps' },
     { id: 'pressure', name: 'Pression' },

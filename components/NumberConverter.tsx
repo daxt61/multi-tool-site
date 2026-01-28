@@ -27,6 +27,12 @@ export function NumberConverter() {
 
   const updateFromDecimal = (value: string) => {
     setDecimal(value);
+    if (!value.trim()) {
+      setBinary('');
+      setOctal('');
+      setHexadecimal('');
+      return;
+    }
     const num = parseInt(value, 10);
     if (!isNaN(num)) {
       setBinary(num.toString(2));
@@ -37,6 +43,12 @@ export function NumberConverter() {
 
   const updateFromBinary = (value: string) => {
     setBinary(value);
+    if (!value.trim()) {
+      setDecimal('');
+      setOctal('');
+      setHexadecimal('');
+      return;
+    }
     if (isValidNumber(value, 2)) {
       const num = parseInt(value, 2);
       setDecimal(num.toString(10));
@@ -47,6 +59,12 @@ export function NumberConverter() {
 
   const updateFromOctal = (value: string) => {
     setOctal(value);
+    if (!value.trim()) {
+      setDecimal('');
+      setBinary('');
+      setHexadecimal('');
+      return;
+    }
     if (isValidNumber(value, 8)) {
       const num = parseInt(value, 8);
       setDecimal(num.toString(10));
@@ -57,6 +75,12 @@ export function NumberConverter() {
 
   const updateFromHexadecimal = (value: string) => {
     setHexadecimal(value);
+    if (!value.trim()) {
+      setDecimal('');
+      setBinary('');
+      setOctal('');
+      return;
+    }
     if (isValidNumber(value, 16)) {
       const num = parseInt(value, 16);
       setDecimal(num.toString(10));

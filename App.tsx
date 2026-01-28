@@ -63,6 +63,9 @@ import {
   Table,
   ArrowRight, Loader2,
   Sparkles,
+  ListTodo,
+  Minimize2,
+  Volume2,
 } from "lucide-react";
 const AdPlaceholder = lazy(() => import("./components/AdPlaceholder").then(m => ({ default: m.AdPlaceholder })));
 
@@ -121,6 +124,10 @@ const YAMLJSONConverter = lazy(() => import("./components/YAMLJSONConverter").th
 const CronGenerator = lazy(() => import("./components/CronGenerator").then(m => ({ default: m.CronGenerator })));
 const HTMLEntityConverter = lazy(() => import("./components/HTMLEntityConverter").then(m => ({ default: m.HTMLEntityConverter })));
 const JSONToTS = lazy(() => import("./components/JSONToTS").then(m => ({ default: m.JSONToTS })));
+const ToDoList = lazy(() => import("./components/ToDoList").then(m => ({ default: m.ToDoList })));
+const CodeMinifier = lazy(() => import("./components/CodeMinifier").then(m => ({ default: m.CodeMinifier })));
+const RegexTester = lazy(() => import("./components/RegexTester").then(m => ({ default: m.RegexTester })));
+const TextToSpeech = lazy(() => import("./components/TextToSpeech").then(m => ({ default: m.TextToSpeech })));
 
 interface Tool {
   id: string;
@@ -181,6 +188,14 @@ const tools: Tool[] = [
     icon: LineChart,
     description: "Calcul du retour sur investissement",
     Component: ROICalculator,
+    category: "business",
+  },
+  {
+    id: "todo-list",
+    name: "Liste de tâches",
+    icon: ListTodo,
+    description: "Gérez vos tâches quotidiennement en local",
+    Component: ToDoList,
     category: "business",
   },
   // Budget & Finance Tools
@@ -429,6 +444,22 @@ const tools: Tool[] = [
     category: "dev",
   },
   {
+    id: "code-minifier",
+    name: "Minificateur",
+    icon: Minimize2,
+    description: "Minifier HTML, CSS et JavaScript",
+    Component: CodeMinifier,
+    category: "dev",
+  },
+  {
+    id: "regex-tester",
+    name: "Testeur Regex",
+    icon: Search,
+    description: "Tester vos expressions régulières en direct",
+    Component: RegexTester,
+    category: "dev",
+  },
+  {
     id: "sql-formatter",
     name: "SQL Formatter",
     icon: Database,
@@ -531,6 +562,14 @@ const tools: Tool[] = [
     icon: Shuffle,
     description: "Nombres, chaînes et listes aléatoires",
     Component: RandomGenerator,
+    category: "other",
+  },
+  {
+    id: "text-to-speech",
+    name: "Texte en Voix",
+    icon: Volume2,
+    description: "Lire du texte avec différentes voix",
+    Component: TextToSpeech,
     category: "other",
   },
 ];

@@ -79,8 +79,8 @@ export function ImageCompressor() {
   const compressionRate = originalSize > 0 ? ((1 - compressedSize / originalSize) * 100).toFixed(1) : 0;
 
   return (
-    <div className="max-w-4xl mx-auto">
-      <AdPlaceholder size="banner" className="mb-6" />
+    <div className="max-w-4xl mx-auto space-y-8">
+      <AdPlaceholder size="banner" className="mb-6 opacity-50 grayscale hover:grayscale-0 transition-all" />
 
       <input
         ref={fileInputRef}
@@ -93,65 +93,72 @@ export function ImageCompressor() {
       {!originalImage ? (
         <div
           onClick={() => fileInputRef.current?.click()}
-          className="border-4 border-dashed border-gray-300 rounded-lg p-12 text-center cursor-pointer hover:border-blue-500 transition-colors"
+          className="border-4 border-dashed border-slate-200 dark:border-slate-800 rounded-[2.5rem] p-16 text-center cursor-pointer hover:border-indigo-500/50 hover:bg-indigo-50/30 dark:hover:bg-indigo-900/10 transition-all group"
         >
-          <Upload className="w-16 h-16 mx-auto mb-4 text-gray-400" />
-          <p className="text-xl font-semibold text-gray-700 mb-2">
-            Cliquez pour uploader une image
-          </p>
-          <p className="text-gray-500">JPG, PNG, WEBP, GIF</p>
+          <div className="w-20 h-20 bg-slate-100 dark:bg-slate-800 rounded-3xl flex items-center justify-center mx-auto mb-6 text-slate-400 group-hover:text-indigo-500 group-hover:scale-110 transition-all">
+            <Upload className="w-10 h-10" />
+          </div>
+          <h3 className="text-2xl font-black mb-2 dark:text-white">Glissez une image ici</h3>
+          <p className="text-slate-500 dark:text-slate-400">ou cliquez pour parcourir vos fichiers</p>
+          <p className="text-xs font-bold text-slate-400 mt-8 uppercase tracking-widest">JPG, PNG, WEBP, GIF</p>
         </div>
       ) : (
-        <div>
-          <div className="mb-6">
-            <label className="block text-sm font-semibold text-gray-700 mb-2">
-              Qualité: {quality}%
-            </label>
+        <div className="bg-white dark:bg-slate-900/40 rounded-[2.5rem] border border-slate-200 dark:border-slate-800 p-8 md:p-12 shadow-sm space-y-8">
+          <div className="space-y-6">
+            <div className="flex justify-between items-center px-1">
+              <label className="text-xs font-black uppercase tracking-widest text-slate-400">
+                Qualité de compression
+              </label>
+              <span className="text-2xl font-black font-mono text-indigo-600">{quality}%</span>
+            </div>
             <input
               type="range"
               min="1"
               max="100"
               value={quality}
               onChange={(e) => handleQualityChange(Number(e.target.value))}
-              className="w-full"
+              className="w-full h-2 bg-slate-100 dark:bg-slate-800 rounded-lg appearance-none cursor-pointer accent-indigo-600"
             />
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
-            <div className="bg-gray-50 p-4 rounded-lg">
-              <h3 className="font-semibold mb-2">Image originale</h3>
-              <img src={originalImage} alt="Original" className="w-full rounded mb-2" />
-              <p className="text-sm text-gray-600">{formatFileSize(originalSize)}</p>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+            <div className="space-y-4">
+              <div className="text-[10px] font-black uppercase tracking-widest text-slate-400 px-1">Original ({formatFileSize(originalSize)})</div>
+              <div className="aspect-video bg-slate-50 dark:bg-slate-950 rounded-2xl border border-slate-100 dark:border-slate-800 overflow-hidden flex items-center justify-center p-2">
+                <img src={originalImage} alt="Original" className="max-w-full max-h-full object-contain rounded-lg" />
+              </div>
             </div>
 
             {compressedImage && (
-              <div className="bg-gray-50 p-4 rounded-lg">
-                <h3 className="font-semibold mb-2">Image compressée</h3>
-                <img src={compressedImage} alt="Compressed" className="w-full rounded mb-2" />
-                <p className="text-sm text-gray-600">{formatFileSize(compressedSize)}</p>
+              <div className="space-y-4">
+                <div className="text-[10px] font-black uppercase tracking-widest text-slate-400 px-1">Compressé ({formatFileSize(compressedSize)})</div>
+                <div className="aspect-video bg-slate-50 dark:bg-slate-950 rounded-2xl border border-slate-100 dark:border-slate-800 overflow-hidden flex items-center justify-center p-2">
+                  <img src={compressedImage} alt="Compressed" className="max-w-full max-h-full object-contain rounded-lg" />
+                </div>
               </div>
             )}
           </div>
 
           {compressedImage && (
-            <div className="bg-green-50 border border-green-200 rounded-lg p-4 mb-4">
-              <p className="text-green-700 font-semibold">
-                Compression: {compressionRate}% de réduction
+            <div className="bg-emerald-50 dark:bg-emerald-500/10 border border-emerald-100 dark:border-emerald-800/50 rounded-2xl p-4 flex items-center justify-center gap-3">
+              <div className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
+              <p className="text-emerald-600 dark:text-emerald-400 font-bold text-sm">
+                Gain de taille : {compressionRate}% de réduction
               </p>
             </div>
           )}
 
-          <div className="flex gap-3">
+          <div className="flex flex-col sm:flex-row gap-4">
             <button
               onClick={() => fileInputRef.current?.click()}
-              className="flex-1 py-3 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition-colors font-semibold"
+              className="flex-1 py-4 bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-600 dark:text-slate-300 rounded-2xl font-bold transition-all active:scale-95 flex items-center justify-center gap-2"
             >
-              Nouvelle image
+              Changer d'image
             </button>
             {compressedImage && (
               <button
                 onClick={downloadImage}
-                className="flex-1 py-3 bg-green-500 text-white rounded-lg hover:bg-green-600 transition-colors font-semibold flex items-center justify-center gap-2"
+                className="flex-1 py-4 bg-indigo-600 hover:bg-indigo-700 text-white rounded-2xl font-black text-lg transition-all active:scale-95 flex items-center justify-center gap-2 shadow-lg shadow-indigo-600/20"
               >
                 <Download className="w-5 h-5" />
                 Télécharger

@@ -13,9 +13,10 @@ export function JSONToTS() {
 
     if (Array.isArray(json)) {
       if (json.length === 0) return 'any[]';
-      // Use the first item to infer the type of the array
-      const itemType = convertJSONToTS(json[0], indent);
-      return `${itemType}[]`;
+      // Try to infer types from multiple items to be more complete
+      const types = Array.from(new Set(json.slice(0, 5).map(item => convertJSONToTS(item, indent))));
+      const typeStr = types.length > 1 ? `(${types.join(' | ')})` : types[0];
+      return `${typeStr}[]`;
     }
 
     let result = '{\n';
@@ -23,7 +24,9 @@ export function JSONToTS() {
     for (const key in json) {
       const value = json[key];
       const type = convertJSONToTS(value, nextIndent);
-      result += `${nextIndent}${key}: ${type};\n`;
+      // Quote key if it's not a valid identifier
+      const safeKey = /^[a-zA-Z_$][a-zA-Z0-9_$]*$/.test(key) ? key : `"${key}"`;
+      result += `${nextIndent}${safeKey}: ${type};\n`;
     }
     result += `${indent}}`;
     return result;

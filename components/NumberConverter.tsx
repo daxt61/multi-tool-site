@@ -27,6 +27,12 @@ export function NumberConverter() {
 
   const updateFromDecimal = (value: string) => {
     setDecimal(value);
+    if (!value) {
+      setBinary('');
+      setOctal('');
+      setHexadecimal('');
+      return;
+    }
     const num = parseInt(value, 10);
     if (!isNaN(num)) {
       setBinary(num.toString(2));
@@ -37,6 +43,12 @@ export function NumberConverter() {
 
   const updateFromBinary = (value: string) => {
     setBinary(value);
+    if (!value) {
+      setDecimal('');
+      setOctal('');
+      setHexadecimal('');
+      return;
+    }
     if (isValidNumber(value, 2)) {
       const num = parseInt(value, 2);
       setDecimal(num.toString(10));
@@ -47,6 +59,12 @@ export function NumberConverter() {
 
   const updateFromOctal = (value: string) => {
     setOctal(value);
+    if (!value) {
+      setDecimal('');
+      setBinary('');
+      setHexadecimal('');
+      return;
+    }
     if (isValidNumber(value, 8)) {
       const num = parseInt(value, 8);
       setDecimal(num.toString(10));
@@ -57,6 +75,12 @@ export function NumberConverter() {
 
   const updateFromHexadecimal = (value: string) => {
     setHexadecimal(value);
+    if (!value) {
+      setDecimal('');
+      setBinary('');
+      setOctal('');
+      return;
+    }
     if (isValidNumber(value, 16)) {
       const num = parseInt(value, 16);
       setDecimal(num.toString(10));
@@ -93,6 +117,7 @@ export function NumberConverter() {
               </div>
               <button
                 onClick={() => copyToClipboard(base.getter({decimal, binary, octal, hexadecimal}), base.id)}
+                aria-label={`Copier le résultat en ${base.label}`}
                 className={`p-2 rounded-xl transition-all ${copied === base.id ? 'bg-emerald-500 text-white' : 'text-slate-400 hover:text-indigo-500 bg-white dark:bg-slate-800 shadow-sm border border-slate-100 dark:border-slate-700'}`}
               >
                 {copied === base.id ? <Check className="w-4 h-4" /> : <Copy className="w-4 h-4" />}

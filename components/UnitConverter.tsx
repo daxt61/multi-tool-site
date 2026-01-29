@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { ArrowDown, Copy, Check, Trash2 } from 'lucide-react';
+import { ArrowDown, Copy, Check, Trash2, ArrowLeftRight } from 'lucide-react';
 
 type ConversionCategory = 'length' | 'weight' | 'temperature' | 'area' | 'volume' | 'digital' | 'pressure' | 'energy' | 'speed' | 'time';
 
@@ -63,10 +63,11 @@ export function UnitConverter() {
     },
     digital: {
       'B': { name: 'Octets (B)', toBase: (v) => v, fromBase: (v) => v },
-      'KB': { name: 'Kilooctets (KB)', toBase: (v) => v * 1024, fromBase: (v) => v / 1024 },
-      'MB': { name: 'Megaoctets (MB)', toBase: (v) => v * Math.pow(1024, 2), fromBase: (v) => v / Math.pow(1024, 2) },
-      'GB': { name: 'Gigaoctets (GB)', toBase: (v) => v * Math.pow(1024, 3), fromBase: (v) => v / Math.pow(1024, 3) },
-      'TB': { name: 'Teraoctets (TB)', toBase: (v) => v * Math.pow(1024, 4), fromBase: (v) => v / Math.pow(1024, 4) }
+      'KiB': { name: 'Kibioctets (Kio)', toBase: (v) => v * 1024, fromBase: (v) => v / 1024 },
+      'MiB': { name: 'Mebioctets (Mio)', toBase: (v) => v * Math.pow(1024, 2), fromBase: (v) => v / Math.pow(1024, 2) },
+      'GiB': { name: 'Gibioctets (Gio)', toBase: (v) => v * Math.pow(1024, 3), fromBase: (v) => v / Math.pow(1024, 3) },
+      'TiB': { name: 'Tebioctets (Tio)', toBase: (v) => v * Math.pow(1024, 4), fromBase: (v) => v / Math.pow(1024, 4) },
+      'PiB': { name: 'Pebioctets (Pio)', toBase: (v) => v * Math.pow(1024, 5), fromBase: (v) => v / Math.pow(1024, 5) }
     },
     speed: {
       'm/s': { name: 'Mètres par seconde (m/s)', toBase: (v) => v, fromBase: (v) => v },
@@ -106,7 +107,7 @@ export function UnitConverter() {
     { id: 'temperature', name: 'Température' },
     { id: 'area', name: 'Surface' },
     { id: 'volume', name: 'Volume' },
-    { id: 'digital', name: 'Digital' },
+    { id: 'digital', name: 'Informatique' },
     { id: 'speed', name: 'Vitesse' },
     { id: 'time', name: 'Temps' },
     { id: 'pressure', name: 'Pression' },
@@ -138,6 +139,18 @@ export function UnitConverter() {
   const handleClear = () => {
     setFromValue('');
     setToValue('0');
+  };
+
+  const handleSwap = () => {
+    const oldFromUnit = fromUnit;
+    const oldToUnit = toUnit;
+    const oldFromValue = fromValue;
+    const oldToValue = toValue;
+
+    setFromUnit(oldToUnit);
+    setToUnit(oldFromUnit);
+    setFromValue(oldToValue);
+    setToValue(oldFromValue);
   };
 
   return (
@@ -200,14 +213,22 @@ export function UnitConverter() {
         </div>
 
         <div className="hidden md:flex justify-center pt-8">
-           <div className="w-12 h-12 bg-indigo-600 text-white rounded-full flex items-center justify-center shadow-lg shadow-indigo-600/20 -rotate-90">
-             <ArrowDown className="w-6 h-6" />
-           </div>
+           <button
+             onClick={handleSwap}
+             aria-label="Inverser les unités"
+             className="w-12 h-12 bg-indigo-600 text-white rounded-full flex items-center justify-center shadow-lg shadow-indigo-600/20 transition-all hover:scale-110 active:scale-95 group"
+           >
+             <ArrowLeftRight className="w-6 h-6 transition-transform group-hover:rotate-180 duration-500" />
+           </button>
         </div>
         <div className="md:hidden flex justify-center">
-           <div className="w-10 h-10 bg-indigo-600 text-white rounded-full flex items-center justify-center shadow-lg shadow-indigo-600/20">
-             <ArrowDown className="w-5 h-5" />
-           </div>
+           <button
+             onClick={handleSwap}
+             aria-label="Inverser les unités"
+             className="w-10 h-10 bg-indigo-600 text-white rounded-full flex items-center justify-center shadow-lg shadow-indigo-600/20 transition-all active:scale-95 group"
+           >
+             <ArrowDown className="w-5 h-5 transition-transform group-hover:rotate-180 duration-500" />
+           </button>
         </div>
 
         {/* Vers */}

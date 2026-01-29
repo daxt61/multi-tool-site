@@ -64,6 +64,8 @@ import {
   LayoutGrid,
   ArrowRight, Loader2,
   Sparkles,
+  Binary,
+  Filter,
 } from "lucide-react";
 const AdPlaceholder = lazy(() => import("./components/AdPlaceholder").then(m => ({ default: m.AdPlaceholder })));
 
@@ -122,6 +124,10 @@ const YAMLJSONConverter = lazy(() => import("./components/YAMLJSONConverter").th
 const CronGenerator = lazy(() => import("./components/CronGenerator").then(m => ({ default: m.CronGenerator })));
 const HTMLEntityConverter = lazy(() => import("./components/HTMLEntityConverter").then(m => ({ default: m.HTMLEntityConverter })));
 const JSONToTS = lazy(() => import("./components/JSONToTS").then(m => ({ default: m.JSONToTS })));
+const RegexTester = lazy(() => import("./components/RegexTester").then(m => ({ default: m.RegexTester })));
+const ListCleaner = lazy(() => import("./components/ListCleaner").then(m => ({ default: m.ListCleaner })));
+const BinaryTextConverter = lazy(() => import("./components/BinaryTextConverter").then(m => ({ default: m.BinaryTextConverter })));
+const JWTDecoder = lazy(() => import("./components/JWTDecoder").then(m => ({ default: m.JWTDecoder })));
 
 // ⚡ Bolt Optimization: Pre-calculating tool map for O(1) lookups
 const toolsMap: Record<string, Tool> = {};
@@ -367,6 +373,14 @@ const tools: Tool[] = [
     Component: MorseCodeConverter,
     category: "text",
   },
+  {
+    id: "list-cleaner",
+    name: "Nettoyeur de Liste",
+    icon: Filter,
+    description: "Trier, dédoublonner et nettoyer vos listes de texte",
+    Component: ListCleaner,
+    category: "text",
+  },
   // Dev Tools
   {
     id: "password-generator",
@@ -465,6 +479,30 @@ const tools: Tool[] = [
     category: "dev",
   },
   {
+    id: "regex-tester",
+    name: "Regex Tester",
+    icon: Search,
+    description: "Tester et valider vos expressions régulières en temps réel",
+    Component: RegexTester,
+    category: "dev",
+  },
+  {
+    id: "jwt-decoder",
+    name: "JWT Decoder",
+    icon: Shield,
+    description: "Décoder et inspecter vos jetons JSON Web Token",
+    Component: JWTDecoder,
+    category: "dev",
+  },
+  {
+    id: "binary-text",
+    name: "Binaire <> Texte",
+    icon: Binary,
+    description: "Convertisseur bidirectionnel de texte en binaire",
+    Component: BinaryTextConverter,
+    category: "dev",
+  },
+  {
     id: "unix-timestamp",
     name: "Unix Timestamp",
     icon: Clock,
@@ -543,6 +581,15 @@ const tools: Tool[] = [
 tools.forEach(tool => {
   toolsMap[tool.id] = tool;
 });
+
+// ⚡ Bolt Optimization: Pre-calculating search index for faster filtering
+const TOOL_SEARCH_INDEX = new Map(tools.map(tool => [
+  tool.id,
+  {
+    name: tool.name.toLowerCase(),
+    description: tool.description.toLowerCase()
+  }
+]));
 
 // ⚡ Bolt Optimization: Memoized Tool Card component
 // Prevents unnecessary re-renders of all tool items when search or category changes.
@@ -642,8 +689,9 @@ function MainApp() {
       }
 
       if (query) {
-        const matchesSearch = tool.name.toLowerCase().includes(query) ||
-                             tool.description.toLowerCase().includes(query);
+        const index = TOOL_SEARCH_INDEX.get(tool.id);
+        const matchesSearch = index?.name.includes(query) ||
+                             index?.description.includes(query);
         if (!matchesSearch) return false;
         return true;
       }

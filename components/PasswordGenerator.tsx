@@ -8,14 +8,33 @@ export function PasswordGenerator() {
   const [includeLowercase, setIncludeLowercase] = useState(true);
   const [includeNumbers, setIncludeNumbers] = useState(true);
   const [includeSymbols, setIncludeSymbols] = useState(true);
+  const [excludeSimilar, setExcludeSimilar] = useState(false);
   const [copied, setCopied] = useState(false);
+
+  const getRandomInt = (max: number) => {
+    const range = Math.floor(0xffffffff / max) * max;
+    let rand;
+    const array = new Uint32Array(1);
+    do {
+      window.crypto.getRandomValues(array);
+      rand = array[0];
+    } while (rand >= range);
+    return rand % max;
+  };
 
   const generatePassword = () => {
     let charset = '';
-    if (includeUppercase) charset += 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
-    if (includeLowercase) charset += 'abcdefghijklmnopqrstuvwxyz';
-    if (includeNumbers) charset += '0123456789';
-    if (includeSymbols) charset += '!@#$%^&*()_+-=[]{}|;:,.<>?';
+    const excluded = 'il1Lo0O';
+
+    const filterCharset = (base: string) => {
+      if (!excludeSimilar) return base;
+      return base.split('').filter(c => !excluded.includes(c)).join('');
+    };
+
+    if (includeUppercase) charset += filterCharset('ABCDEFGHIJKLMNOPQRSTUVWXYZ');
+    if (includeLowercase) charset += filterCharset('abcdefghijklmnopqrstuvwxyz');
+    if (includeNumbers) charset += filterCharset('0123456789');
+    if (includeSymbols) charset += filterCharset('!@#$%^&*()_+-=[]{}|;:,.<>?');
 
     if (charset === '') {
       setPassword('');
@@ -23,10 +42,8 @@ export function PasswordGenerator() {
     }
 
     let newPassword = '';
-    const array = new Uint32Array(length);
-    window.crypto.getRandomValues(array);
     for (let i = 0; i < length; i++) {
-      newPassword += charset.charAt(array[i] % charset.length);
+      newPassword += charset.charAt(getRandomInt(charset.length));
     }
     setPassword(newPassword);
     setCopied(false);
@@ -135,6 +152,7 @@ export function PasswordGenerator() {
               { label: 'Minuscules', state: includeLowercase, setState: setIncludeLowercase },
               { label: 'Chiffres', state: includeNumbers, setState: setIncludeNumbers },
               { label: 'Symboles', state: includeSymbols, setState: setIncludeSymbols },
+              { label: 'Exclure similaires', state: excludeSimilar, setState: setExcludeSimilar },
             ].map((opt) => (
               <button
                 key={opt.label}
@@ -144,7 +162,7 @@ export function PasswordGenerator() {
                   opt.state
                   ? 'bg-indigo-50 dark:bg-indigo-500/10 border-indigo-200 dark:border-indigo-500/20 text-indigo-600 dark:text-indigo-400'
                   : 'bg-white dark:bg-slate-800 border-slate-200 dark:border-slate-700 text-slate-400'
-                }`}
+                } ${opt.label === 'Exclure similaires' ? 'col-span-2' : ''}`}
               >
                 <span className="font-bold text-sm">{opt.label}</span>
                 <div className={`w-5 h-5 rounded-md border flex items-center justify-center transition-all ${

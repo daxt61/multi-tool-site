@@ -51,6 +51,7 @@ import {
   Briefcase,
   Search,
   Shuffle,
+  ListFilter,
   ArrowLeft,
   Database,
   ArrowLeftRight,
@@ -122,6 +123,8 @@ const YAMLJSONConverter = lazy(() => import("./components/YAMLJSONConverter").th
 const CronGenerator = lazy(() => import("./components/CronGenerator").then(m => ({ default: m.CronGenerator })));
 const HTMLEntityConverter = lazy(() => import("./components/HTMLEntityConverter").then(m => ({ default: m.HTMLEntityConverter })));
 const JSONToTS = lazy(() => import("./components/JSONToTS").then(m => ({ default: m.JSONToTS })));
+const ListCleaner = lazy(() => import("./components/ListCleaner").then(m => ({ default: m.ListCleaner })));
+const JWTDecoder = lazy(() => import("./components/JWTDecoder").then(m => ({ default: m.JWTDecoder })));
 
 // ⚡ Bolt Optimization: Pre-calculating tool map for O(1) lookups
 const toolsMap: Record<string, Tool> = {};
@@ -336,6 +339,14 @@ const tools: Tool[] = [
     category: "text",
   },
   {
+    id: "list-cleaner",
+    name: "Nettoyeur de liste",
+    icon: ListFilter,
+    description: "Trier, dédoublonner et nettoyer vos listes",
+    Component: ListCleaner,
+    category: "text",
+  },
+  {
     id: "markdown-preview",
     name: "Markdown",
     icon: FileCode,
@@ -422,6 +433,14 @@ const tools: Tool[] = [
     icon: FileCode,
     description: "Prettify, minify et valide votre JSON",
     Component: JSONFormatter,
+    category: "dev",
+  },
+  {
+    id: "jwt-decoder",
+    name: "Décodeur JWT",
+    icon: Shield,
+    description: "Décoder et inspecter vos JSON Web Tokens",
+    Component: JWTDecoder,
     category: "dev",
   },
   {
@@ -552,31 +571,42 @@ const ToolCard = React.memo(({ tool, isFavorite, onToggleFavorite, onClick }: {
   onToggleFavorite: (e: React.MouseEvent, id: string) => void;
   onClick: (id: string) => void;
 }) => {
+  const titleId = `tool-title-${tool.id}`;
+  const descId = `tool-desc-${tool.id}`;
+
   return (
-    <button
-      onClick={() => onClick(tool.id)}
+    <div
       className="group p-5 bg-white dark:bg-slate-900/40 rounded-2xl border border-slate-200 dark:border-slate-800 hover:border-indigo-500/50 dark:hover:border-indigo-500/50 hover:shadow-xl hover:shadow-indigo-500/5 transition-all text-left flex flex-col h-full relative"
     >
-      <div className="flex justify-between items-start mb-4">
+      {/* Main Action Button */}
+      <button
+        onClick={() => onClick(tool.id)}
+        className="absolute inset-0 z-10 w-full h-full cursor-pointer rounded-2xl focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 dark:focus:ring-offset-slate-950"
+        aria-labelledby={titleId}
+        aria-describedby={descId}
+      />
+
+      <div className="flex justify-between items-start mb-4 relative z-20 pointer-events-none">
         <div className="w-10 h-10 rounded-xl bg-slate-50 dark:bg-slate-800 flex items-center justify-center text-slate-400 group-hover:text-indigo-500 group-hover:bg-indigo-50 dark:group-hover:bg-indigo-900/20 transition-all">
           <tool.icon className="w-5 h-5" />
         </div>
         <button
           onClick={(e) => onToggleFavorite(e, tool.id)}
-          className={`p-1.5 rounded-lg transition-colors ${isFavorite ? 'text-amber-500' : 'text-slate-300 hover:text-slate-400'}`}
+          className={`p-1.5 rounded-lg transition-colors pointer-events-auto ${isFavorite ? 'text-amber-500' : 'text-slate-300 hover:text-slate-400'}`}
           aria-label={isFavorite ? "Retirer des favoris" : "Ajouter aux favoris"}
+          aria-pressed={isFavorite}
         >
           <Star className={`w-5 h-5 ${isFavorite ? 'fill-current' : ''}`} />
         </button>
       </div>
 
-      <h4 className="font-bold text-slate-900 dark:text-white mb-2">{tool.name}</h4>
-      <p className="text-sm text-slate-500 dark:text-slate-400 line-clamp-2 flex-grow leading-relaxed">{tool.description}</p>
+      <h4 id={titleId} className="font-bold text-slate-900 dark:text-white mb-2 relative z-20 pointer-events-none">{tool.name}</h4>
+      <p id={descId} className="text-sm text-slate-500 dark:text-slate-400 line-clamp-2 flex-grow leading-relaxed relative z-20 pointer-events-none">{tool.description}</p>
 
-      <div className="mt-4 flex items-center gap-2 text-xs font-bold text-indigo-500 opacity-0 group-hover:opacity-100 transition-all -translate-x-2 group-hover:translate-x-0">
+      <div className="mt-4 flex items-center gap-2 text-xs font-bold text-indigo-500 opacity-0 group-hover:opacity-100 transition-all -translate-x-2 group-hover:translate-x-0 relative z-20 pointer-events-none">
         Ouvrir <ArrowRight className="w-3 h-3" />
       </div>
-    </button>
+    </div>
   );
 });
 ToolCard.displayName = "ToolCard";

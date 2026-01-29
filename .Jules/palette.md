@@ -9,3 +9,7 @@
 ## 2025-05-15 - [Keyboard Shortcuts & Semantic Navigation]
 **Learning:** Adding a global keyboard shortcut (like '/') to focus the primary search or action significantly improves the "pro" feel of a tool-based dashboard. Coupling this with a visual `<kbd>` hint ensures the feature is discoverable. Additionally, using semantic icons (e.g., `ArrowLeft` instead of rotated `ArrowRight`) and `aria-pressed` for toggles are high-impact micro-UX improvements that combine accessibility with cleaner code.
 **Action:** Consider search focus shortcuts for dashboards and prioritize semantic icons over CSS transforms for basic navigation.
+
+## 2024-05-23 - [Functional Micro-Interactions & Semantic Icons]
+**Learning:** Transforming decorative icons into functional "Swap" buttons (with appropriate `aria-label`) in conversion tools significantly enhances usability by reducing user input steps. Using orientation-aware icons (`ArrowLeftRight` for horizontal, `ArrowUpDown` for vertical) and micro-animations (like `rotate-180` on hover) adds a layer of delight that makes the tool feel responsive and polished.
+**Action:** Always look for opportunities to turn static icons between inputs into functional controls in conversion-based utilities.

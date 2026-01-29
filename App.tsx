@@ -954,7 +954,7 @@ function InfoPage({ title, component }: { title: string, component: React.ReactN
         to="/"
         className="mb-8 inline-flex items-center gap-2 text-sm font-semibold text-slate-500 hover:text-slate-900 dark:text-slate-400 dark:hover:text-white transition-colors"
       >
-        <ArrowRight className="w-4 h-4 rotate-180" />
+        <ArrowLeft className="w-4 h-4" />
         Retour au tableau de bord
       </Link>
       <h1 className="text-4xl font-black mb-12">{title}</h1>

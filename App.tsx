@@ -127,8 +127,9 @@ const JSONToTS = lazy(() => import("./components/JSONToTS").then(m => ({ default
 const ListCleaner = lazy(() => import("./components/ListCleaner").then(m => ({ default: m.ListCleaner })));
 const JWTDecoder = lazy(() => import("./components/JWTDecoder").then(m => ({ default: m.JWTDecoder })));
 
-// ⚡ Bolt Optimization: Pre-calculating tool map for O(1) lookups
+// ⚡ Bolt Optimization: Pre-calculating tool map and search index for O(1) lookups and faster filtering
 const toolsMap: Record<string, Tool> = {};
+const TOOL_SEARCH_INDEX = new Map<string, { name: string; description: string }>();
 
 interface Tool {
   id: string;
@@ -559,9 +560,13 @@ const tools: Tool[] = [
   },
 ];
 
-// Initialize toolsMap
+// Initialize toolsMap and search index
 tools.forEach(tool => {
   toolsMap[tool.id] = tool;
+  TOOL_SEARCH_INDEX.set(tool.id, {
+    name: tool.name.toLowerCase(),
+    description: tool.description.toLowerCase(),
+  });
 });
 
 // ⚡ Bolt Optimization: Memoized Tool Card component
@@ -662,8 +667,9 @@ function MainApp() {
       }
 
       if (query) {
-        const matchesSearch = tool.name.toLowerCase().includes(query) ||
-                             tool.description.toLowerCase().includes(query);
+        const searchEntry = TOOL_SEARCH_INDEX.get(tool.id);
+        const matchesSearch = searchEntry?.name.includes(query) ||
+                             searchEntry?.description.includes(query);
         if (!matchesSearch) return false;
         return true;
       }

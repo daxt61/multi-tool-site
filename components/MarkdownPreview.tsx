@@ -18,30 +18,31 @@ export function MarkdownPreview() {
   const renderMarkdown = (text: string) => {
     // Escape input to prevent XSS
     let html = escapeHTML(text);
+
+    // 1. Code inline (processed first to protect content)
+    html = html.replace(/`(.*?)`/g, '<code class="bg-gray-100 px-1 rounded">$1</code>');
     
-    // Headers
+    // 2. Headers
     html = html.replace(/^### (.*$)/gim, '<h3 class="text-lg font-bold mt-4 mb-2">$1</h3>');
     html = html.replace(/^## (.*$)/gim, '<h2 class="text-xl font-bold mt-4 mb-2">$1</h2>');
     html = html.replace(/^# (.*$)/gim, '<h1 class="text-2xl font-bold mt-4 mb-2">$1</h1>');
     
-    // Bold
+    // 3. Bold
     html = html.replace(/\*\*(.*?)\*\*/g, '<strong class="font-bold">$1</strong>');
     
-    // Italic
+    // 4. Italic
     html = html.replace(/\*(.*?)\*/g, '<em class="italic">$1</em>');
     
-    // Links with basic URL sanitization
-    html = html.replace(/\[(.*?)\]\((.*?)\)/g, (match, linkText, url) => {
+    // 5. Links (processed after bold/italic to ensure we don't match if tags were injected into URL)
+    // The URL regex excludes < and > to prevent attribute breakout from previous rules
+    html = html.replace(/\[(.*?)\]\(([^)\s\<\>]+)\)/g, (match, linkText, url) => {
       const isSafe = /^(https?:\/\/|mailto:|tel:|\/|#)/i.test(url);
       return isSafe
         ? `<a href="${url}" class="text-blue-500 underline" rel="noopener noreferrer" target="_blank">${linkText}</a>`
         : `<span class="text-blue-500 underline" title="Lien non sécurisé">${linkText}</span>`;
     });
     
-    // Code inline
-    html = html.replace(/`(.*?)`/g, '<code class="bg-gray-100 px-1 rounded">$1</code>');
-    
-    // Line breaks
+    // 6. Line breaks
     html = html.replace(/\n/g, '<br>');
     
     return html;

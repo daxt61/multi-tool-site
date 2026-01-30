@@ -9,3 +9,7 @@
 ## 2025-05-15 - [Keyboard Shortcuts & Semantic Navigation]
 **Learning:** Adding a global keyboard shortcut (like '/') to focus the primary search or action significantly improves the "pro" feel of a tool-based dashboard. Coupling this with a visual `<kbd>` hint ensures the feature is discoverable. Additionally, using semantic icons (e.g., `ArrowLeft` instead of rotated `ArrowRight`) and `aria-pressed` for toggles are high-impact micro-UX improvements that combine accessibility with cleaner code.
 **Action:** Consider search focus shortcuts for dashboards and prioritize semantic icons over CSS transforms for basic navigation.
+
+## 2025-05-16 - [Semantic Navigation & Valid HTML Structure]
+**Learning:** Avoid nesting buttons inside buttons or links as it is invalid HTML and breaks keyboard/screen reader navigation. Instead, use a `div` container with a "stretched link" (absolute button with `z-10`) and place other interactive elements (like favorites) as siblings with higher `z-index`. Additionally, use semantic icons like `ArrowLeft` instead of rotated icons for back navigation to maintain consistency and clarity.
+**Action:** Use the `z-index` stacking pattern for complex cards and prioritize semantic icons over CSS transforms.

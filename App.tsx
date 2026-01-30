@@ -968,7 +968,7 @@ function ToolView({ favorites, toggleFavorite }: { favorites: string[], toggleFa
         </div>
       </div>
 
-      <div className="bg-white dark:bg-slate-900/40 rounded-[2.5rem] border border-slate-200 dark:border-slate-800 p-8 md:p-12 shadow-sm min-h-[500px]">
+      <div className="bg-white dark:bg-slate-900/40 rounded-[2.5rem] border border-slate-200 dark:border-slate-800 p-5 md:p-12 shadow-sm min-h-[500px]">
         <Suspense fallback={<LoadingTool />}>
           <currentTool.Component />
         </Suspense>
@@ -994,7 +994,7 @@ function InfoPage({ title, component }: { title: string, component: React.ReactN
         Retour au tableau de bord
       </Link>
       <h1 className="text-4xl font-black mb-12">{title}</h1>
-      <div className="bg-white dark:bg-slate-900/40 rounded-[2.5rem] border border-slate-200 dark:border-slate-800 p-8 md:p-12 shadow-sm">
+      <div className="bg-white dark:bg-slate-900/40 rounded-[2.5rem] border border-slate-200 dark:border-slate-800 p-5 md:p-12 shadow-sm">
         <Suspense fallback={<LoadingTool />}>
           {component}
         </Suspense>

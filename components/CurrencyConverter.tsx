@@ -1,15 +1,37 @@
-import { useState } from 'react';
-import { ArrowDown, Info } from 'lucide-react';
+import { useState, useEffect } from 'react';
+import { ArrowUpDown, Info, Copy, Check, Loader2, RefreshCw } from 'lucide-react';
 
 export function CurrencyConverter() {
   const [amount, setAmount] = useState('100');
   const [fromCurrency, setFromCurrency] = useState('EUR');
   const [toCurrency, setToCurrency] = useState('USD');
-
-  const rates: Record<string, number> = {
+  const [rates, setRates] = useState<Record<string, number>>({
     EUR: 1, USD: 1.09, GBP: 0.86, JPY: 163.25, CHF: 0.94, CAD: 1.51, AUD: 1.68, CNY: 7.86, INR: 90.45, BRL: 5.42, RUB: 100.12, MXN: 18.65, AED: 4.01, SAR: 4.09,
     NZD: 1.82, SEK: 11.45, NOK: 11.58, DKK: 7.46, TRY: 35.12, SGD: 1.46, HKD: 8.52, KRW: 1452.36, ZAR: 20.45, PLN: 4.32, PHP: 61.23, IDR: 17235.45, MYR: 5.18,
     THB: 39.45, HUF: 395.12, CZK: 25.32, ILS: 4.02, CLP: 1025.45, PKR: 304.12, EGP: 53.45, TWD: 34.12, VND: 26850.12, COP: 4250.45, QAR: 3.97, KWD: 0.33, BHD: 0.41
+  });
+  const [loading, setLoading] = useState(false);
+  const [copied, setCopied] = useState(false);
+  const [lastUpdated, setLastUpdated] = useState<string | null>(null);
+
+  useEffect(() => {
+    fetchRates();
+  }, []);
+
+  const fetchRates = async () => {
+    setLoading(true);
+    try {
+      const response = await fetch('https://api.frankfurter.app/latest?from=EUR');
+      const data = await response.json();
+      if (data.rates) {
+        setRates({ EUR: 1, ...data.rates });
+        setLastUpdated(new Date().toLocaleTimeString());
+      }
+    } catch (error) {
+      console.error('Failed to fetch rates:', error);
+    } finally {
+      setLoading(false);
+    }
   };
 
   const currencies = [
@@ -57,12 +79,26 @@ export function CurrencyConverter() {
 
   const result = (parseFloat(amount) / rates[fromCurrency]) * rates[toCurrency];
 
+  const handleCopy = () => {
+    navigator.clipboard.writeText(result.toFixed(2));
+    setCopied(true);
+    setTimeout(() => setCopied(false), 2000);
+  };
+
   return (
-    <div className="max-w-4xl mx-auto space-y-8">
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-8 items-center">
-        <div className="space-y-6">
+    <div className="max-w-4xl mx-auto space-y-12">
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-12 items-center">
+        <div className="space-y-8">
           <div className="space-y-3">
-            <label className="text-xs font-black uppercase tracking-widest text-slate-400 px-1">Montant</label>
+            <div className="flex justify-between items-center px-1">
+              <label className="text-xs font-black uppercase tracking-widest text-slate-400">Montant à convertir</label>
+              {lastUpdated && (
+                <div className="text-[10px] font-bold text-slate-400 flex items-center gap-1">
+                  <RefreshCw className={`w-3 h-3 ${loading ? 'animate-spin' : ''}`} />
+                  Actualisé à {lastUpdated}
+                </div>
+              )}
+            </div>
             <input
               type="number"
               value={amount}
@@ -72,31 +108,34 @@ export function CurrencyConverter() {
             />
           </div>
 
-          <div className="grid grid-cols-1 gap-4">
+          <div className="grid grid-cols-1 gap-4 relative">
             <div className="space-y-2">
               <label className="text-xs font-bold text-slate-400 px-1 uppercase tracking-widest">De</label>
               <select
                 value={fromCurrency}
                 onChange={(e) => setFromCurrency(e.target.value)}
-                className="w-full p-4 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-2xl font-bold text-sm outline-none cursor-pointer"
+                className="w-full p-4 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-2xl font-bold text-sm outline-none cursor-pointer focus:border-indigo-500 transition-colors"
               >
                 {currencies.map(c => <option key={c.code} value={c.code}>{c.symbol} {c.name} ({c.code})</option>)}
               </select>
             </div>
-            <div className="flex justify-center -my-2">
+
+            <div className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 z-10 pt-4">
                <button
                 onClick={() => {setFromCurrency(toCurrency); setToCurrency(fromCurrency);}}
-                className="w-10 h-10 bg-slate-100 dark:bg-slate-700 rounded-full flex items-center justify-center text-slate-400 hover:text-indigo-600 transition-colors border border-slate-200 dark:border-slate-600"
+                className="w-10 h-10 bg-indigo-600 text-white rounded-full flex items-center justify-center shadow-lg shadow-indigo-600/20 hover:scale-110 active:scale-95 transition-all border-4 border-white dark:border-slate-950"
+                aria-label="Inverser les devises"
                >
-                 <ArrowDown className="w-5 h-5" />
+                 <ArrowUpDown className="w-5 h-5" />
                </button>
             </div>
-            <div className="space-y-2">
+
+            <div className="space-y-2 pt-4">
               <label className="text-xs font-bold text-slate-400 px-1 uppercase tracking-widest">Vers</label>
               <select
                 value={toCurrency}
                 onChange={(e) => setToCurrency(e.target.value)}
-                className="w-full p-4 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-2xl font-bold text-sm outline-none cursor-pointer"
+                className="w-full p-4 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-2xl font-bold text-sm outline-none cursor-pointer focus:border-indigo-500 transition-colors"
               >
                 {currencies.map(c => <option key={c.code} value={c.code}>{c.symbol} {c.name} ({c.code})</option>)}
               </select>
@@ -104,23 +143,45 @@ export function CurrencyConverter() {
           </div>
         </div>
 
-        <div className="bg-slate-900 dark:bg-black p-10 rounded-[2.5rem] text-center flex flex-col items-center justify-center space-y-4 shadow-xl shadow-indigo-500/5 min-h-[300px]">
+        <div className="bg-slate-900 dark:bg-black p-10 rounded-[2.5rem] text-center flex flex-col items-center justify-center space-y-6 shadow-2xl shadow-indigo-500/10 min-h-[350px] relative overflow-hidden group">
+          <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-indigo-500 to-blue-500 opacity-50"></div>
+
           <div className="text-slate-400 font-bold uppercase tracking-widest text-xs">Résultat Estimé</div>
-          <div className="text-6xl font-black text-white font-mono tracking-tighter">
-            {isNaN(result) ? '0.00' : result.toFixed(2)}
+
+          <div className="space-y-1">
+            <div className="text-6xl md:text-7xl font-black text-white font-mono tracking-tighter">
+              {loading ? (
+                <Loader2 className="w-12 h-12 animate-spin mx-auto text-indigo-500" />
+              ) : (
+                isNaN(result) ? '0.00' : result.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })
+              )}
+            </div>
+            <div className="text-indigo-400 font-black text-2xl uppercase tracking-widest">
+              {toCurrency}
+            </div>
           </div>
-          <div className="text-indigo-400 font-black text-2xl uppercase tracking-widest">
-            {toCurrency}
-          </div>
+
+          <button
+            onClick={handleCopy}
+            disabled={loading || isNaN(result)}
+            className={`flex items-center gap-2 px-6 py-3 rounded-xl font-bold transition-all ${
+              copied
+                ? 'bg-emerald-500 text-white'
+                : 'bg-white/10 text-white hover:bg-white/20'
+            }`}
+          >
+            {copied ? <Check className="w-4 h-4" /> : <Copy className="w-4 h-4" />}
+            {copied ? 'Copié !' : 'Copier le montant'}
+          </button>
         </div>
       </div>
 
-      <div className="bg-amber-50 dark:bg-amber-900/10 border border-amber-200 dark:border-amber-900/20 p-6 rounded-2xl flex items-start gap-4">
-        <div className="p-2 bg-white dark:bg-slate-800 text-amber-600 rounded-xl shadow-sm">
+      <div className="bg-indigo-50 dark:bg-indigo-900/10 border border-indigo-100 dark:border-indigo-900/20 p-6 rounded-[2rem] flex items-start gap-4">
+        <div className="p-2 bg-white dark:bg-slate-800 text-indigo-600 rounded-xl shadow-sm">
           <Info className="w-6 h-6" />
         </div>
-        <p className="text-sm text-amber-800 dark:text-amber-400 font-medium leading-relaxed">
-          <strong>Note importante :</strong> Ces taux de change sont fictifs et servent uniquement à des fins de démonstration UI. Pour des transactions réelles, veuillez consulter une source financière officielle.
+        <p className="text-sm text-indigo-800 dark:text-indigo-400 font-medium leading-relaxed">
+          <strong>Source des données :</strong> Les taux de change sont récupérés en temps réel via l'API Frankfurter. Bien que nous nous efforcions de fournir des données précises, ces taux sont à titre indicatif et peuvent varier légèrement des taux de change officiels de votre banque.
         </p>
       </div>
     </div>

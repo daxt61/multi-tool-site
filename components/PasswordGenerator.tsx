@@ -27,16 +27,23 @@ export function PasswordGenerator() {
       return;
     }
 
-    let newPassword = '';
-    const array = new Uint32Array(1);
-    const maxValid = Math.floor(4294967296 / charset.length) * charset.length;
+    const getSecureRandomIndex = (range: number) => {
+      const array = new Uint32Array(1);
+      const maxUint32 = 0xffffffff;
+      const limit = maxUint32 - (maxUint32 % range);
+      let randomVal;
+      do {
+        window.crypto.getRandomValues(array);
+        randomVal = array[0];
+      } while (randomVal >= limit);
+      return randomVal % range;
+    };
 
-    while (newPassword.length < length) {
-      window.crypto.getRandomValues(array);
-      if (array[0] < maxValid) {
-        newPassword += charset.charAt(array[0] % charset.length);
-      }
+    let newPassword = '';
+    for (let i = 0; i < length; i++) {
+      newPassword += charset.charAt(getSecureRandomIndex(charset.length));
     }
+
     setPassword(newPassword);
     setCopied(false);
   };

@@ -1,0 +1,4 @@
+User-agent: *
+Allow: /
+
+Sitemap: https://multitools-five.vercel.app/sitemap.xml

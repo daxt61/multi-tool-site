@@ -1,6 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
-  <!-- Pages Principales -->
   <url>
     <loc>https://multitools-five.vercel.app/</loc>
     <changefreq>weekly</changefreq>
@@ -21,8 +20,6 @@
     <changefreq>monthly</changefreq>
     <priority>0.3</priority>
   </url>
-
-  <!-- Outils Business -->
   <url>
     <loc>https://multitools-five.vercel.app/outil/invoice-generator</loc>
     <changefreq>monthly</changefreq>
@@ -43,8 +40,6 @@
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
   </url>
-
-  <!-- Outils Finance & Budget -->
   <url>
     <loc>https://multitools-five.vercel.app/outil/budget-planner</loc>
     <changefreq>monthly</changefreq>
@@ -80,8 +75,6 @@
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
   </url>
-
-  <!-- Calculatrices -->
   <url>
     <loc>https://multitools-five.vercel.app/outil/calculator</loc>
     <changefreq>monthly</changefreq>
@@ -102,8 +95,6 @@
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
   </url>
-
-  <!-- Convertisseurs -->
   <url>
     <loc>https://multitools-five.vercel.app/outil/unit-converter</loc>
     <changefreq>monthly</changefreq>
@@ -119,8 +110,6 @@
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
   </url>
-
-  <!-- Outils de Texte -->
   <url>
     <loc>https://multitools-five.vercel.app/outil/word-counter</loc>
     <changefreq>monthly</changefreq>
@@ -147,6 +136,11 @@
     <priority>0.8</priority>
   </url>
   <url>
+    <loc>https://multitools-five.vercel.app/outil/markdown-table</loc>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
     <loc>https://multitools-five.vercel.app/outil/diff-checker</loc>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
@@ -156,10 +150,18 @@
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
   </url>
-
-  <!-- Outils Développeur -->
+  <url>
+    <loc>https://multitools-five.vercel.app/outil/list-cleaner</loc>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
   <url>
     <loc>https://multitools-five.vercel.app/outil/password-generator</loc>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://multitools-five.vercel.app/outil/jwt-decoder</loc>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
   </url>
@@ -179,12 +181,47 @@
     <priority>0.8</priority>
   </url>
   <url>
+    <loc>https://multitools-five.vercel.app/outil/hash-generator</loc>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://multitools-five.vercel.app/outil/json-csv</loc>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
     <loc>https://multitools-five.vercel.app/outil/json-formatter</loc>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
-    <loc>https://multitools-five.vercel.app/outil/hash-generator</loc>
+    <loc>https://multitools-five.vercel.app/outil/json-to-ts</loc>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://multitools-five.vercel.app/outil/sql-formatter</loc>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://multitools-five.vercel.app/outil/yaml-json</loc>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://multitools-five.vercel.app/outil/cron-generator</loc>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://multitools-five.vercel.app/outil/html-entity</loc>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://multitools-five.vercel.app/outil/unix-timestamp</loc>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
   </url>
@@ -193,8 +230,11 @@
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
   </url>
-
-  <!-- Autres Utilitaires -->
+  <url>
+    <loc>https://multitools-five.vercel.app/outil/image-to-base64</loc>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
   <url>
     <loc>https://multitools-five.vercel.app/outil/timer</loc>
     <changefreq>monthly</changefreq>
@@ -217,6 +257,11 @@
   </url>
   <url>
     <loc>https://multitools-five.vercel.app/outil/bpm-counter</loc>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://multitools-five.vercel.app/outil/random-generator</loc>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
   </url>

@@ -7,3 +7,8 @@
 **Vulnerability:** Tools designed for generating random numbers, strings, or UUIDs were using `Math.random()`, which is not cryptographically secure and can lead to predictable outputs.
 **Learning:** Even if a tool is not explicitly labeled as "secure," users often expect utility generators (especially for UUIDs) to have high entropy and unpredictability. Relying on `Math.random()` in a security-conscious application is a risk.
 **Prevention:** Always use `window.crypto.getRandomValues()` or `crypto.randomUUID()` for any random generation. When using `getRandomValues` for numbers, implement rejection sampling to avoid modulo bias.
+
+## 2025-05-28 - [Modulo Bias in Password Generation]
+**Vulnerability:** The PasswordGenerator was using `array[i] % charset.length` to select characters, which introduced a slight bias towards certain characters when the random space (2^32) was not a multiple of the charset size.
+**Learning:** Even when using cryptographically secure random values (CSPRNG), improper mathematical operations like modulo can degrade the entropy and introduce predictability.
+**Prevention:** Always use rejection sampling when mapping a large random range to a smaller one that does not divide it evenly. This ensures a perfectly uniform distribution across all possible outputs.

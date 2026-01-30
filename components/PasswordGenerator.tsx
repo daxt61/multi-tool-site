@@ -8,6 +8,7 @@ export function PasswordGenerator() {
   const [includeLowercase, setIncludeLowercase] = useState(true);
   const [includeNumbers, setIncludeNumbers] = useState(true);
   const [includeSymbols, setIncludeSymbols] = useState(true);
+  const [excludeSimilar, setExcludeSimilar] = useState(false);
   const [copied, setCopied] = useState(false);
 
   const generatePassword = () => {
@@ -17,16 +18,26 @@ export function PasswordGenerator() {
     if (includeNumbers) charset += '0123456789';
     if (includeSymbols) charset += '!@#$%^&*()_+-=[]{}|;:,.<>?';
 
+    if (excludeSimilar) {
+      charset = charset.replace(/[il1Lo0O]/g, '');
+    }
+
     if (charset === '') {
       setPassword('');
       return;
     }
 
     let newPassword = '';
-    const array = new Uint32Array(length);
-    window.crypto.getRandomValues(array);
-    for (let i = 0; i < length; i++) {
-      newPassword += charset.charAt(array[i] % charset.length);
+    const array = new Uint32Array(1);
+    const maxUint32 = Math.pow(2, 32);
+    const range = charset.length;
+    const limit = maxUint32 - (maxUint32 % range);
+
+    while (newPassword.length < length) {
+      window.crypto.getRandomValues(array);
+      if (array[0] < limit) {
+        newPassword += charset.charAt(array[0] % range);
+      }
     }
     setPassword(newPassword);
     setCopied(false);
@@ -135,6 +146,7 @@ export function PasswordGenerator() {
               { label: 'Minuscules', state: includeLowercase, setState: setIncludeLowercase },
               { label: 'Chiffres', state: includeNumbers, setState: setIncludeNumbers },
               { label: 'Symboles', state: includeSymbols, setState: setIncludeSymbols },
+              { label: 'Exclure similaires', state: excludeSimilar, setState: setExcludeSimilar },
             ].map((opt) => (
               <button
                 key={opt.label}

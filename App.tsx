@@ -64,6 +64,8 @@ import {
   LayoutGrid,
   ArrowRight, Loader2,
   Sparkles,
+  ListChecks,
+  ShieldCheck,
 } from "lucide-react";
 const AdPlaceholder = lazy(() => import("./components/AdPlaceholder").then(m => ({ default: m.AdPlaceholder })));
 
@@ -122,6 +124,8 @@ const YAMLJSONConverter = lazy(() => import("./components/YAMLJSONConverter").th
 const CronGenerator = lazy(() => import("./components/CronGenerator").then(m => ({ default: m.CronGenerator })));
 const HTMLEntityConverter = lazy(() => import("./components/HTMLEntityConverter").then(m => ({ default: m.HTMLEntityConverter })));
 const JSONToTS = lazy(() => import("./components/JSONToTS").then(m => ({ default: m.JSONToTS })));
+const ListCleaner = lazy(() => import("./components/ListCleaner").then(m => ({ default: m.ListCleaner })));
+const JWTDecoder = lazy(() => import("./components/JWTDecoder").then(m => ({ default: m.JWTDecoder })));
 
 // ⚡ Bolt Optimization: Pre-calculating tool map for O(1) lookups
 const toolsMap: Record<string, Tool> = {};
@@ -367,6 +371,14 @@ const tools: Tool[] = [
     Component: MorseCodeConverter,
     category: "text",
   },
+  {
+    id: "list-cleaner",
+    name: "Nettoyeur de liste",
+    icon: ListChecks,
+    description: "Trier, dédoublonner et nettoyer vos listes",
+    Component: ListCleaner,
+    category: "text",
+  },
   // Dev Tools
   {
     id: "password-generator",
@@ -374,6 +386,14 @@ const tools: Tool[] = [
     icon: Key,
     description: "Générateur de clés sécurisées",
     Component: PasswordGenerator,
+    category: "dev",
+  },
+  {
+    id: "jwt-decoder",
+    name: "Décodeur JWT",
+    icon: ShieldCheck,
+    description: "Décoder et analyser vos jetons JWT",
+    Component: JWTDecoder,
     category: "dev",
   },
   {

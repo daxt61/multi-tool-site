@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { ArrowDown, Copy, Check, Trash2 } from 'lucide-react';
+import { ArrowDown, Copy, Check, Trash2, ArrowUpDown } from 'lucide-react';
 
 type ConversionCategory = 'length' | 'weight' | 'temperature' | 'area' | 'volume' | 'digital' | 'pressure' | 'energy' | 'speed' | 'time';
 
@@ -140,6 +140,18 @@ export function UnitConverter() {
     setToValue('0');
   };
 
+  const handleSwap = () => {
+    const oldFromUnit = fromUnit;
+    const oldToUnit = toUnit;
+    const oldFromValue = fromValue;
+    const oldToValue = toValue;
+
+    setFromUnit(oldToUnit);
+    setToUnit(oldFromUnit);
+    setFromValue(oldToValue);
+    setToValue(oldFromValue);
+  };
+
   return (
     <div className="max-w-4xl mx-auto space-y-12">
       {/* Category Nav - Scrollable on mobile */}
@@ -200,14 +212,22 @@ export function UnitConverter() {
         </div>
 
         <div className="hidden md:flex justify-center pt-8">
-           <div className="w-12 h-12 bg-indigo-600 text-white rounded-full flex items-center justify-center shadow-lg shadow-indigo-600/20 -rotate-90">
-             <ArrowDown className="w-6 h-6" />
-           </div>
+          <button
+            onClick={handleSwap}
+            className="w-12 h-12 bg-indigo-600 text-white rounded-full flex items-center justify-center shadow-lg shadow-indigo-600/20 transition-all hover:scale-110 active:scale-95 group"
+            aria-label="Inverser les unités"
+          >
+            <ArrowUpDown className="w-6 h-6 transition-transform group-hover:rotate-180 duration-500" />
+          </button>
         </div>
         <div className="md:hidden flex justify-center">
-           <div className="w-10 h-10 bg-indigo-600 text-white rounded-full flex items-center justify-center shadow-lg shadow-indigo-600/20">
-             <ArrowDown className="w-5 h-5" />
-           </div>
+          <button
+            onClick={handleSwap}
+            className="w-10 h-10 bg-indigo-600 text-white rounded-full flex items-center justify-center shadow-lg shadow-indigo-600/20 transition-all active:scale-95 group"
+            aria-label="Inverser les unités"
+          >
+            <ArrowUpDown className="w-5 h-5 transition-transform group-hover:rotate-180 duration-500" />
+          </button>
         </div>
 
         {/* Vers */}

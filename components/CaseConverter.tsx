@@ -34,38 +34,41 @@ export function CaseConverter() {
   };
 
   return (
-    <div className="max-w-4xl mx-auto">
+    <div className="max-w-6xl mx-auto space-y-8">
       <AdPlaceholder size="banner" className="mb-6" />
 
-      <textarea
-        value={text}
-        onChange={(e) => setText(e.target.value)}
-        placeholder="Entrez votre texte ici..."
-        className="w-full h-32 p-4 border border-gray-300 rounded-lg resize-none focus:outline-none focus:ring-2 focus:ring-blue-500 mb-6"
-      />
+      <div className="space-y-4">
+        <label className="text-xs font-black uppercase tracking-widest text-slate-400 px-1">Votre Texte</label>
+        <textarea
+          value={text}
+          onChange={(e) => setText(e.target.value)}
+          placeholder="Entrez votre texte ici..."
+          className="w-full h-48 p-8 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-[2.5rem] outline-none focus:ring-2 focus:ring-indigo-500/20 transition-all text-lg leading-relaxed dark:text-slate-300 shadow-sm resize-none"
+        />
+      </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
         {Object.entries(conversions).map(([name, converter]) => {
           const converted = text ? converter(text) : '';
           return (
-            <div key={name} className="bg-white border border-gray-300 rounded-lg p-4">
-              <div className="flex items-center justify-between mb-2">
-                <span className="font-semibold text-sm text-gray-700">{name}</span>
+            <div key={name} className="bg-slate-50 dark:bg-slate-900/50 border border-slate-200 dark:border-slate-800 rounded-3xl p-6 transition-all hover:shadow-lg hover:shadow-indigo-500/5 group">
+              <div className="flex items-center justify-between mb-4">
+                <span className="font-black text-[10px] uppercase tracking-widest text-slate-400">{name}</span>
                 <button
                   onClick={() => copyToClipboard(converted, name)}
                   disabled={!text}
-                  className="p-1 hover:bg-gray-100 rounded transition-colors disabled:opacity-50"
+                  className="p-2 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl hover:text-indigo-500 transition-all disabled:opacity-50 shadow-sm"
                   title="Copier"
                 >
                   {copied === name ? (
-                    <Check className="w-4 h-4 text-green-500" />
+                    <Check className="w-4 h-4 text-emerald-500" />
                   ) : (
-                    <Copy className="w-4 h-4 text-gray-500" />
+                    <Copy className="w-4 h-4 text-slate-400" />
                   )}
                 </button>
               </div>
-              <div className="bg-gray-50 p-3 rounded font-mono text-sm min-h-[3rem] break-all">
-                {converted || <span className="text-gray-400">Résultat...</span>}
+              <div className="bg-white dark:bg-slate-900 p-4 rounded-2xl font-mono text-sm min-h-[4rem] break-all border border-slate-100 dark:border-slate-800 text-indigo-600 dark:text-indigo-400 leading-relaxed">
+                {converted || <span className="text-slate-300 dark:text-slate-700">Le résultat apparaîtra ici...</span>}
               </div>
             </div>
           );

@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { ArrowDown, Copy, Check, Trash2, ArrowUpDown } from 'lucide-react';
 
-type ConversionCategory = 'length' | 'weight' | 'temperature' | 'area' | 'volume' | 'digital' | 'pressure' | 'energy' | 'speed' | 'time';
+type ConversionCategory = 'length' | 'weight' | 'temperature' | 'area' | 'volume' | 'informatique' | 'pressure' | 'energy' | 'speed' | 'time';
 
 interface ConversionUnit {
   name: string;
@@ -54,12 +54,13 @@ const CONVERSIONS: Record<ConversionCategory, Record<string, ConversionUnit>> = 
     'pt': { name: 'Pintes (US)', toBase: (v) => v * 0.000473176, fromBase: (v) => v / 0.000473176 },
     'cup': { name: 'Tasses (US)', toBase: (v) => v * 0.000236588, fromBase: (v) => v / 0.000236588 }
   },
-  digital: {
+  informatique: {
     'B': { name: 'Octets (B)', toBase: (v) => v, fromBase: (v) => v },
-    'KB': { name: 'Kilooctets (KB)', toBase: (v) => v * 1024, fromBase: (v) => v / 1024 },
-    'MB': { name: 'Megaoctets (MB)', toBase: (v) => v * Math.pow(1024, 2), fromBase: (v) => v / Math.pow(1024, 2) },
-    'GB': { name: 'Gigaoctets (GB)', toBase: (v) => v * Math.pow(1024, 3), fromBase: (v) => v / Math.pow(1024, 3) },
-    'TB': { name: 'Teraoctets (TB)', toBase: (v) => v * Math.pow(1024, 4), fromBase: (v) => v / Math.pow(1024, 4) }
+    'Kio': { name: 'Kibioctets (Kio)', toBase: (v) => v * 1024, fromBase: (v) => v / 1024 },
+    'Mio': { name: 'Mébioctets (Mio)', toBase: (v) => v * Math.pow(1024, 2), fromBase: (v) => v / Math.pow(1024, 2) },
+    'Gio': { name: 'Gibioctets (Gio)', toBase: (v) => v * Math.pow(1024, 3), fromBase: (v) => v / Math.pow(1024, 3) },
+    'Tio': { name: 'Tébioctets (Tio)', toBase: (v) => v * Math.pow(1024, 4), fromBase: (v) => v / Math.pow(1024, 4) },
+    'Pio': { name: 'Pébioctets (Pio)', toBase: (v) => v * Math.pow(1024, 5), fromBase: (v) => v / Math.pow(1024, 5) }
   },
   speed: {
     'm/s': { name: 'Mètres par seconde (m/s)', toBase: (v) => v, fromBase: (v) => v },
@@ -99,7 +100,7 @@ const CATEGORIES_MAP = [
   { id: 'temperature', name: 'Température' },
   { id: 'area', name: 'Surface' },
   { id: 'volume', name: 'Volume' },
-  { id: 'digital', name: 'Digital' },
+  { id: 'informatique', name: 'Informatique' },
   { id: 'speed', name: 'Vitesse' },
   { id: 'time', name: 'Temps' },
   { id: 'pressure', name: 'Pression' },
@@ -157,7 +158,7 @@ export function UnitConverter() {
     <div className="max-w-4xl mx-auto space-y-12">
       {/* Category Nav - Scrollable on mobile */}
       <div className="sticky top-0 z-10 bg-white dark:bg-slate-950/80 backdrop-blur-sm py-2 md:py-4 -mx-8 md:-mx-12 px-10 md:px-14 border-b border-slate-100 dark:border-slate-800 md:border-none md:bg-transparent md:static">
-        <div className="flex gap-2 overflow-x-auto no-scrollbar justify-start md:justify-center">
+        <div className="flex gap-2 overflow-x-auto no-scrollbar justify-start">
           {CATEGORIES_MAP.map((cat) => (
             <button
               key={cat.id}

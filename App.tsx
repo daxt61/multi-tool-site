@@ -696,9 +696,9 @@ function MainApp() {
       }
 
       if (query) {
-        const searchEntry = TOOL_SEARCH_INDEX.get(tool.id);
-        const matchesSearch = searchEntry?.name.includes(query) ||
-                             searchEntry?.description.includes(query);
+        const index = TOOL_SEARCH_INDEX.get(tool.id);
+        const matchesSearch = index?.name.includes(query) ||
+                             index?.description.includes(query);
         if (!matchesSearch) return false;
         return true;
       }

@@ -16,3 +16,8 @@
 **Vulnerability:** The PasswordGenerator was using `array[i] % charset.length` to select characters, which introduced a slight bias towards certain characters when the random space (2^32) was not a multiple of the charset size.
 **Learning:** Even when using cryptographically secure random values (CSPRNG), improper mathematical operations like modulo can degrade the entropy and introduce predictability.
 **Prevention:** Always use rejection sampling when mapping a large random range to a smaller one that does not divide it evenly. This ensures a perfectly uniform distribution across all possible outputs.
+
+## 2025-06-05 - [Regression in Password Generation Fix]
+**Vulnerability:** A previous attempt to eliminate modulo bias in the PasswordGenerator component resulted in broken logic and a syntax error, making the security tool non-functional.
+**Learning:** Security fixes, especially those involving cryptographic logic or PRNGs, must be verified with automated builds and tests. Incomplete refactoring can leave behind "dead code" or unreachable logic that degrades the maintainability and auditability of security components.
+**Prevention:** Always verify security tools with functional tests and ensure that any refactoring of random generation logic results in a single, clean, and well-documented implementation.

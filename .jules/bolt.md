@@ -13,3 +13,7 @@
 ## 2026-05-22 - [Search Indexing and Static Data Decoupling]
 **Learning:** Even with useDeferredValue, search filtering can be optimized by pre-calculating expensive string transformations (like .toLowerCase()) into a Map or secondary index. In components with high-frequency user input (like UnitConverter), defining large static objects inside the component causes redundant allocations and GC pressure on every keystroke.
 **Action:** Always pre-calculate search searchable fields at the module level and move large static configuration objects out of React components.
+
+## 2026-01-30 - [Single-Pass O(n) Aggregation for Dashboard-style Tools]
+**Learning:** In tools like ExpenseTracker that perform multiple aggregations (total sum, category breakdown) over the same data set, using multiple .filter().reduce() calls results in O(n * m) complexity. Refactoring these into a single-pass O(n) loop within useMemo significantly reduces computation time as the data set grows.
+**Action:** Prefer single-pass aggregation loops over multiple array iterations for complex dashboard metrics.

@@ -42,6 +42,7 @@ export function PasswordGenerator() {
     let newPassword = '';
     for (let i = 0; i < length; i++) {
       newPassword += charset.charAt(getSecureRandomIndex(charset.length));
+    }
     const array = new Uint32Array(1);
     const maxUint32 = Math.pow(2, 32);
     const range = charset.length;

@@ -13,7 +13,3 @@
 ## 2025-05-16 - [Semantic Navigation & Valid HTML Structure]
 **Learning:** Avoid nesting buttons inside buttons or links as it is invalid HTML and breaks keyboard/screen reader navigation. Instead, use a `div` container with a "stretched link" (absolute button with `z-10`) and place other interactive elements (like favorites) as siblings with higher `z-index`. Additionally, use semantic icons like `ArrowLeft` instead of rotated icons for back navigation to maintain consistency and clarity.
 **Action:** Use the `z-index` stacking pattern for complex cards and prioritize semantic icons over CSS transforms.
-
-## 2026-01-30 - [Enhanced Color Converter A11y & Focus UX]
-**Learning:** Hidden interactive elements (like color pickers overlaid on previews) must be made visible on focus using `group-focus-within` to support keyboard navigation. Additionally, linking range sliders to their labels via `id` and `htmlFor` is a critical but often overlooked a11y requirement that significantly improves the experience for screen reader users.
-**Action:** Always verify that hidden inputs have a focus-triggered visibility state and ensure all form elements are correctly labeled.

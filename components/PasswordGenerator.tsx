@@ -1,6 +1,13 @@
 import { useState, useEffect } from 'react';
 import { Copy, RefreshCw, Check, Shield, ShieldAlert, ShieldCheck } from 'lucide-react';
 
+/**
+ * Sentinel Security Fix:
+ * 1. Resolved a critical syntax error in the generatePassword function (missing closing brace for 'for' loop).
+ * 2. Simplified the password generation logic by removing a redundant and unreachable loop.
+ * 3. Ensured uniform distribution (eliminating modulo bias) by using the secure getSecureRandomIndex helper.
+ */
+
 export function PasswordGenerator() {
   const [password, setPassword] = useState('');
   const [length, setLength] = useState(16);

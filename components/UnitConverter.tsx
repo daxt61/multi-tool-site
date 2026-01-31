@@ -178,7 +178,7 @@ export function UnitConverter() {
         {/* De */}
         <div className="space-y-4">
           <div className="flex justify-between items-center px-1">
-            <label className="text-xs font-black uppercase tracking-widest text-slate-400">De</label>
+            <label htmlFor="unit-from-val" className="text-xs font-black uppercase tracking-widest text-slate-400 cursor-pointer">De</label>
             <button
               onClick={handleClear}
               className="text-xs font-bold text-rose-500 hover:text-rose-600 flex items-center gap-1 transition-colors"
@@ -188,6 +188,7 @@ export function UnitConverter() {
           </div>
           <div className="flex flex-col gap-3 p-6 bg-slate-50 dark:bg-slate-900/50 rounded-3xl border border-slate-200 dark:border-slate-800 focus-within:ring-2 focus-within:ring-indigo-500/20 transition-all">
             <input
+              id="unit-from-val"
               type="number"
               value={fromValue}
               onChange={(e) => {
@@ -225,7 +226,7 @@ export function UnitConverter() {
         {/* Vers */}
         <div className="space-y-4">
           <div className="flex justify-between items-center px-1">
-            <label className="text-xs font-black uppercase tracking-widest text-slate-400">Vers</label>
+            <label htmlFor="unit-to-val" className="text-xs font-black uppercase tracking-widest text-slate-400 cursor-pointer">Vers</label>
             <button
               onClick={handleCopy}
               className={`text-xs font-bold flex items-center gap-1 transition-colors ${copied ? 'text-emerald-500' : 'text-indigo-500 hover:text-indigo-600'}`}
@@ -236,6 +237,7 @@ export function UnitConverter() {
           </div>
           <div className="flex flex-col gap-3 p-6 bg-slate-50 dark:bg-slate-900/50 rounded-3xl border border-slate-200 dark:border-slate-800 transition-all">
             <input
+              id="unit-to-val"
               type="text"
               value={toValue}
               readOnly

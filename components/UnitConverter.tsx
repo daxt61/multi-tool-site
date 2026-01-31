@@ -156,7 +156,7 @@ export function UnitConverter() {
   return (
     <div className="max-w-4xl mx-auto space-y-12">
       {/* Category Nav - Scrollable on mobile */}
-      <div className="sticky top-0 z-10 bg-white dark:bg-slate-950/80 backdrop-blur-sm py-2 md:py-4 -mx-8 md:-mx-12 px-10 md:px-14 border-b border-slate-100 dark:border-slate-800 md:border-none md:bg-transparent md:static">
+      <div className="sticky top-0 z-50 bg-white dark:bg-slate-950/80 backdrop-blur-sm py-2 md:py-4 -mx-8 md:-mx-12 px-10 md:px-14 border-b border-slate-100 dark:border-slate-800 md:border-none md:bg-transparent md:static">
         <div className="flex gap-2 overflow-x-auto no-scrollbar justify-start md:justify-center">
           {CATEGORIES_MAP.map((cat) => (
             <button
@@ -212,22 +212,13 @@ export function UnitConverter() {
           </div>
         </div>
 
-        <div className="hidden md:flex justify-center pt-8">
+        <div className="flex justify-center md:pt-8">
           <button
             onClick={handleSwap}
-            className="w-12 h-12 bg-indigo-600 text-white rounded-full flex items-center justify-center shadow-lg shadow-indigo-600/20 transition-all hover:scale-110 active:scale-95 group"
+            className="w-10 h-10 md:w-12 md:h-12 bg-indigo-600 text-white rounded-full flex items-center justify-center shadow-lg shadow-indigo-600/20 transition-all hover:scale-110 active:scale-95 group"
             aria-label="Inverser les unités"
           >
-            <ArrowUpDown className="w-6 h-6 transition-transform group-hover:rotate-180 duration-500" />
-          </button>
-        </div>
-        <div className="md:hidden flex justify-center">
-          <button
-            onClick={handleSwap}
-            className="w-10 h-10 bg-indigo-600 text-white rounded-full flex items-center justify-center shadow-lg shadow-indigo-600/20 transition-all active:scale-95 group"
-            aria-label="Inverser les unités"
-          >
-            <ArrowUpDown className="w-5 h-5 transition-transform group-hover:rotate-180 duration-500" />
+            <ArrowUpDown className="w-5 h-5 md:w-6 md:h-6 transition-transform group-hover:rotate-180 duration-500" />
           </button>
         </div>
 

@@ -1,7 +1,7 @@
 import { useState } from 'react';
-import { ArrowDown, Copy, Check, Trash2, ArrowUpDown } from 'lucide-react';
+import { Copy, Check, Trash2, ArrowUpDown } from 'lucide-react';
 
-type ConversionCategory = 'length' | 'weight' | 'temperature' | 'area' | 'volume' | 'digital' | 'pressure' | 'energy' | 'speed' | 'time';
+type ConversionCategory = 'length' | 'weight' | 'temperature' | 'area' | 'volume' | 'informatique' | 'pressure' | 'energy' | 'power' | 'speed' | 'time';
 
 interface ConversionUnit {
   name: string;
@@ -54,12 +54,13 @@ const CONVERSIONS: Record<ConversionCategory, Record<string, ConversionUnit>> = 
     'pt': { name: 'Pintes (US)', toBase: (v) => v * 0.000473176, fromBase: (v) => v / 0.000473176 },
     'cup': { name: 'Tasses (US)', toBase: (v) => v * 0.000236588, fromBase: (v) => v / 0.000236588 }
   },
-  digital: {
-    'B': { name: 'Octets (B)', toBase: (v) => v, fromBase: (v) => v },
-    'KB': { name: 'Kilooctets (KB)', toBase: (v) => v * 1024, fromBase: (v) => v / 1024 },
-    'MB': { name: 'Megaoctets (MB)', toBase: (v) => v * Math.pow(1024, 2), fromBase: (v) => v / Math.pow(1024, 2) },
-    'GB': { name: 'Gigaoctets (GB)', toBase: (v) => v * Math.pow(1024, 3), fromBase: (v) => v / Math.pow(1024, 3) },
-    'TB': { name: 'Teraoctets (TB)', toBase: (v) => v * Math.pow(1024, 4), fromBase: (v) => v / Math.pow(1024, 4) }
+  informatique: {
+    'o': { name: 'Octets (o)', toBase: (v) => v, fromBase: (v) => v },
+    'Kio': { name: 'Kibioctets (Kio)', toBase: (v) => v * 1024, fromBase: (v) => v / 1024 },
+    'Mio': { name: 'Mébioctets (Mio)', toBase: (v) => v * Math.pow(1024, 2), fromBase: (v) => v / Math.pow(1024, 2) },
+    'Gio': { name: 'Gibioctets (Gio)', toBase: (v) => v * Math.pow(1024, 3), fromBase: (v) => v / Math.pow(1024, 3) },
+    'Tio': { name: 'Tébioctets (Tio)', toBase: (v) => v * Math.pow(1024, 4), fromBase: (v) => v / Math.pow(1024, 4) },
+    'Pio': { name: 'Pébioctets (Pio)', toBase: (v) => v * Math.pow(1024, 5), fromBase: (v) => v / Math.pow(1024, 5) }
   },
   speed: {
     'm/s': { name: 'Mètres par seconde (m/s)', toBase: (v) => v, fromBase: (v) => v },
@@ -90,6 +91,11 @@ const CONVERSIONS: Record<ConversionCategory, Record<string, ConversionUnit>> = 
     'kcal': { name: 'Kilocalorie (kcal)', toBase: (v) => v * 4184, fromBase: (v) => v / 4184 },
     'Wh': { name: 'Watt-heure (Wh)', toBase: (v) => v * 3600, fromBase: (v) => v / 3600 },
     'kWh': { name: 'Kilowatt-heure (kWh)', toBase: (v) => v * 3600000, fromBase: (v) => v / 3600000 }
+  },
+  power: {
+    'W': { name: 'Watts (W)', toBase: (v) => v, fromBase: (v) => v },
+    'kW': { name: 'Kilowatts (kW)', toBase: (v) => v * 1000, fromBase: (v) => v / 1000 },
+    'hp': { name: 'Chevaux (hp)', toBase: (v) => v * 745.7, fromBase: (v) => v / 745.7 }
   }
 };
 
@@ -99,11 +105,12 @@ const CATEGORIES_MAP = [
   { id: 'temperature', name: 'Température' },
   { id: 'area', name: 'Surface' },
   { id: 'volume', name: 'Volume' },
-  { id: 'digital', name: 'Digital' },
+  { id: 'informatique', name: 'Informatique' },
   { id: 'speed', name: 'Vitesse' },
   { id: 'time', name: 'Temps' },
   { id: 'pressure', name: 'Pression' },
-  { id: 'energy', name: 'Énergie' }
+  { id: 'energy', name: 'Énergie' },
+  { id: 'power', name: 'Puissance' }
 ];
 
 const convert = (value: string, from: string, to: string, cat: ConversionCategory) => {
@@ -111,7 +118,13 @@ const convert = (value: string, from: string, to: string, cat: ConversionCategor
   if (isNaN(num)) return '0';
   const baseValue = CONVERSIONS[cat][from].toBase(num);
   const result = CONVERSIONS[cat][to].fromBase(baseValue);
-  return result.toFixed(6).replace(/\.?0+$/, '');
+
+  // Use Intl.NumberFormat for better precision and localized display if needed,
+  // but for the raw value we use maximumFractionDigits: 10
+  return new Intl.NumberFormat('en-US', {
+    useGrouping: false,
+    maximumFractionDigits: 10
+  }).format(result);
 };
 
 export function UnitConverter() {
@@ -178,7 +191,7 @@ export function UnitConverter() {
         {/* De */}
         <div className="space-y-4">
           <div className="flex justify-between items-center px-1">
-            <label className="text-xs font-black uppercase tracking-widest text-slate-400">De</label>
+            <label htmlFor="from-value" className="text-xs font-black uppercase tracking-widest text-slate-400 cursor-pointer">De</label>
             <button
               onClick={handleClear}
               className="text-xs font-bold text-rose-500 hover:text-rose-600 flex items-center gap-1 transition-colors"
@@ -186,8 +199,9 @@ export function UnitConverter() {
               <Trash2 className="w-3 h-3" /> Effacer
             </button>
           </div>
-          <div className="flex flex-col gap-3 p-6 bg-slate-50 dark:bg-slate-900/50 rounded-3xl border border-slate-200 dark:border-slate-800 focus-within:ring-2 focus-within:ring-indigo-500/20 transition-all">
+          <div className="flex flex-col gap-3 p-6 bg-slate-50 dark:bg-slate-900/50 rounded-[2.5rem] border border-slate-200 dark:border-slate-800 focus-within:ring-2 focus-within:ring-indigo-500/20 transition-all">
             <input
+              id="from-value"
               type="number"
               value={fromValue}
               onChange={(e) => {
@@ -197,7 +211,9 @@ export function UnitConverter() {
               className="bg-transparent text-4xl font-black font-mono outline-none dark:text-white"
               placeholder="0"
             />
+            <label htmlFor="from-unit" className="sr-only">Unité de départ</label>
             <select
+              id="from-unit"
               value={fromUnit}
               onChange={(e) => {
                 setFromUnit(e.target.value);
@@ -225,7 +241,7 @@ export function UnitConverter() {
         {/* Vers */}
         <div className="space-y-4">
           <div className="flex justify-between items-center px-1">
-            <label className="text-xs font-black uppercase tracking-widest text-slate-400">Vers</label>
+            <label htmlFor="to-value" className="text-xs font-black uppercase tracking-widest text-slate-400 cursor-pointer">Vers</label>
             <button
               onClick={handleCopy}
               className={`text-xs font-bold flex items-center gap-1 transition-colors ${copied ? 'text-emerald-500' : 'text-indigo-500 hover:text-indigo-600'}`}
@@ -234,14 +250,17 @@ export function UnitConverter() {
               {copied ? 'Copié' : 'Copier'}
             </button>
           </div>
-          <div className="flex flex-col gap-3 p-6 bg-slate-50 dark:bg-slate-900/50 rounded-3xl border border-slate-200 dark:border-slate-800 transition-all">
+          <div className="flex flex-col gap-3 p-6 bg-slate-50 dark:bg-slate-900/50 rounded-[2.5rem] border border-slate-200 dark:border-slate-800 transition-all">
             <input
+              id="to-value"
               type="text"
               value={toValue}
               readOnly
               className="bg-transparent text-4xl font-black font-mono outline-none text-indigo-600 dark:text-indigo-400"
             />
+            <label htmlFor="to-unit" className="sr-only">Unité d'arrivée</label>
             <select
+              id="to-unit"
               value={toUnit}
               onChange={(e) => {
                 setToUnit(e.target.value);

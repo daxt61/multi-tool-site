@@ -91,7 +91,7 @@ export function CurrencyConverter() {
         <div className="space-y-8">
           <div className="space-y-3">
             <div className="flex justify-between items-center px-1">
-              <label className="text-xs font-black uppercase tracking-widest text-slate-400">Montant à convertir</label>
+              <label htmlFor="currency-amount" className="text-xs font-black uppercase tracking-widest text-slate-400 cursor-pointer">Montant à convertir</label>
               {lastUpdated && (
                 <div className="text-[10px] font-bold text-slate-400 flex items-center gap-1">
                   <RefreshCw className={`w-3 h-3 ${loading ? 'animate-spin' : ''}`} />
@@ -100,6 +100,7 @@ export function CurrencyConverter() {
               )}
             </div>
             <input
+              id="currency-amount"
               type="number"
               value={amount}
               onChange={(e) => setAmount(e.target.value)}

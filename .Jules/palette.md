@@ -13,3 +13,7 @@
 ## 2025-05-16 - [Semantic Navigation & Valid HTML Structure]
 **Learning:** Avoid nesting buttons inside buttons or links as it is invalid HTML and breaks keyboard/screen reader navigation. Instead, use a `div` container with a "stretched link" (absolute button with `z-10`) and place other interactive elements (like favorites) as siblings with higher `z-index`. Additionally, use semantic icons like `ArrowLeft` instead of rotated icons for back navigation to maintain consistency and clarity.
 **Action:** Use the `z-index` stacking pattern for complex cards and prioritize semantic icons over CSS transforms.
+
+## 2025-05-17 - [Label-Input Association & Visual Affordance]
+**Learning:** Linking labels to inputs via `id` and `htmlFor` is a fundamental accessibility requirement that also improves UX by increasing the clickable area for form controls. Adding the `cursor-pointer` class to these labels provides a necessary visual affordance that the text is interactive.
+**Action:** Always link form labels to their inputs and ensure labels have a pointer cursor to signal interactivity.

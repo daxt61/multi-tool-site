@@ -94,6 +94,7 @@ export function PasswordGenerator() {
             type="text"
             value={password}
             readOnly
+            aria-label="Mot de passe généré"
             className="flex-1 bg-transparent text-3xl md:text-5xl font-mono text-white outline-none tracking-tight w-full text-center md:text-left selection:bg-indigo-500/30"
           />
           <div className="flex gap-3">
@@ -142,10 +143,11 @@ export function PasswordGenerator() {
         <div className="bg-slate-50 dark:bg-slate-900/50 p-8 rounded-[2.5rem] border border-slate-200 dark:border-slate-800 space-y-8">
           <div className="space-y-6">
             <div className="flex justify-between items-center px-1">
-              <label className="text-xs font-black uppercase tracking-widest text-slate-400">Longueur</label>
+              <label htmlFor="password-length" className="text-xs font-black uppercase tracking-widest text-slate-400 cursor-pointer">Longueur</label>
               <span className="text-2xl font-black font-mono text-indigo-600 dark:text-indigo-400">{length}</span>
             </div>
             <input
+              id="password-length"
               type="range"
               min="4"
               max="64"

@@ -63,8 +63,9 @@ export function BMICalculator() {
 
           <div className="space-y-6">
             <div className="space-y-3">
-              <label className="text-xs font-black uppercase tracking-widest text-slate-400 px-1">Poids ({unit === 'metric' ? 'kg' : 'lb'})</label>
+              <label htmlFor="bmi-weight" className="text-xs font-black uppercase tracking-widest text-slate-400 px-1 cursor-pointer">Poids ({unit === 'metric' ? 'kg' : 'lb'})</label>
               <input
+                id="bmi-weight"
                 type="number"
                 value={weight}
                 onChange={(e) => setWeight(e.target.value)}
@@ -72,8 +73,9 @@ export function BMICalculator() {
               />
             </div>
             <div className="space-y-3">
-              <label className="text-xs font-black uppercase tracking-widest text-slate-400 px-1">Taille ({unit === 'metric' ? 'cm' : 'in'})</label>
+              <label htmlFor="bmi-height" className="text-xs font-black uppercase tracking-widest text-slate-400 px-1 cursor-pointer">Taille ({unit === 'metric' ? 'cm' : 'in'})</label>
               <input
+                id="bmi-height"
                 type="number"
                 value={height}
                 onChange={(e) => setHeight(e.target.value)}
@@ -89,6 +91,7 @@ export function BMICalculator() {
               onClick={handleCopy}
               className={`absolute top-6 right-6 p-3 rounded-2xl transition-all ${copied ? 'bg-emerald-500 text-white' : 'bg-white/10 text-white/40 hover:text-white hover:bg-white/20 md:opacity-0 md:group-hover:opacity-100'}`}
               title="Copier le résultat"
+              aria-label="Copier le résultat de l'IMC"
             >
               {copied ? <Check className="w-5 h-5" /> : <Copy className="w-5 h-5" />}
             </button>

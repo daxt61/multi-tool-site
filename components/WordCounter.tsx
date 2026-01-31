@@ -1,18 +1,29 @@
-import { useState } from 'react';
+import { useState, useMemo, useDeferredValue } from 'react';
 import { Copy, Check, Trash2, Hash, Type, FileText, AlignLeft, Clock, MessageSquare } from 'lucide-react';
 
 export function WordCounter() {
   const [text, setText] = useState('');
   const [copied, setCopied] = useState(false);
 
-  const stats = {
-    characters: text.length,
-    words: text.trim() === '' ? 0 : text.trim().split(/\s+/).length,
-    lines: text === '' ? 0 : text.split('\n').length,
-    sentences: text.trim() === '' ? 0 : text.split(/[.!?]+/).filter(s => s.trim().length > 0).length,
-    readingTime: Math.ceil((text.trim() === '' ? 0 : text.trim().split(/\s+/).length) / 200),
-    speakingTime: Math.ceil((text.trim() === '' ? 0 : text.trim().split(/\s+/).length) / 130),
-  };
+  // ⚡ Bolt Optimization: useDeferredValue for responsive typing
+  // This defers the expensive text analysis so it doesn't block the main thread during typing.
+  const deferredText = useDeferredValue(text);
+
+  // ⚡ Bolt Optimization: useMemo to prevent redundant calculations
+  // Consolidates multiple trim() and split() calls into a single-pass calculation.
+  const stats = useMemo(() => {
+    const trimmed = deferredText.trim();
+    const wordsCount = trimmed === '' ? 0 : trimmed.split(/\s+/).length;
+
+    return {
+      characters: deferredText.length,
+      words: wordsCount,
+      lines: deferredText === '' ? 0 : deferredText.split('\n').length,
+      sentences: trimmed === '' ? 0 : deferredText.split(/[.!?]+/).filter(s => s.trim().length > 0).length,
+      readingTime: Math.ceil(wordsCount / 200),
+      speakingTime: Math.ceil(wordsCount / 130),
+    };
+  }, [deferredText]);
 
   const handleCopy = () => {
     navigator.clipboard.writeText(text);

@@ -17,3 +17,7 @@
 ## 2026-01-30 - [Single-Pass O(n) Aggregation for Dashboard-style Tools]
 **Learning:** In tools like ExpenseTracker that perform multiple aggregations (total sum, category breakdown) over the same data set, using multiple .filter().reduce() calls results in O(n * m) complexity. Refactoring these into a single-pass O(n) loop within useMemo significantly reduces computation time as the data set grows.
 **Action:** Prefer single-pass aggregation loops over multiple array iterations for complex dashboard metrics.
+
+## 2026-05-23 - [Optimizing High-Frequency Input with useDeferredValue]
+**Learning:** Tools that perform regex-heavy or large-string analysis (like WordCounter) on every keystroke can cause input lag. Pairing `useDeferredValue` for the analysis state with `useMemo` to consolidate redundant string operations (like multiple .trim() and .split() calls) ensures the UI remains responsive while maintaining accurate real-time statistics.
+**Action:** Use `useDeferredValue` for expensive derivations from high-frequency input and always consolidate redundant string processing within `useMemo`.

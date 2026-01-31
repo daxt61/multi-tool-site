@@ -1,4 +1,5 @@
 import { useState, useEffect, useMemo } from "react";
+import { Plus, Trash2, CreditCard, PieChart, History, Calendar, Tag, Euro } from "lucide-react";
 
 interface Expense {
   id: string;
@@ -20,14 +21,14 @@ const CATEGORIES = [
 ];
 
 const CATEGORY_COLORS: Record<string, string> = {
-  Alimentation: "bg-green-500",
+  Alimentation: "bg-emerald-500",
   Transport: "bg-blue-500",
-  Logement: "bg-purple-500",
-  Loisirs: "bg-pink-500",
-  Santé: "bg-red-500",
-  Shopping: "bg-yellow-500",
-  Factures: "bg-indigo-500",
-  Autre: "bg-gray-500",
+  Logement: "bg-indigo-500",
+  Loisirs: "bg-rose-500",
+  Santé: "bg-teal-500",
+  Shopping: "bg-amber-500",
+  Factures: "bg-violet-500",
+  Autre: "bg-slate-500",
 };
 
 export function ExpenseTracker() {
@@ -63,8 +64,6 @@ export function ExpenseTracker() {
     setExpenses(expenses.filter((e) => e.id !== id));
   };
 
-  // ⚡ Bolt Optimization: Single-pass O(n) calculation for totals and categories
-  // instead of O(n * m) where m is the number of categories.
   const { totalExpenses, expensesByCategory } = useMemo(() => {
     let total = 0;
     const totals: Record<string, number> = {};
@@ -85,119 +84,166 @@ export function ExpenseTracker() {
   }, [expenses]);
 
   return (
-    <div className="space-y-6">
-      <div className="bg-gray-50 p-4 rounded-lg space-y-3">
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-          <input
-            type="text"
-            value={description}
-            onChange={(e) => setDescription(e.target.value)}
-            className="p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-            placeholder="Description de la dépense"
-          />
-          <input
-            type="number"
-            value={amount}
-            onChange={(e) => setAmount(e.target.value)}
-            className="p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-            placeholder="Montant (€)"
-            step="0.01"
-          />
-        </div>
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-          <select
-            value={category}
-            onChange={(e) => setCategory(e.target.value)}
-            className="p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white"
-          >
-            {CATEGORIES.map((cat) => (
-              <option key={cat} value={cat}>
-                {cat}
-              </option>
-            ))}
-          </select>
-          <input
-            type="date"
-            value={date}
-            onChange={(e) => setDate(e.target.value)}
-            className="p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-          />
+    <div className="max-w-5xl mx-auto space-y-8">
+      {/* Form Section */}
+      <div className="bg-slate-50 dark:bg-slate-900/50 p-6 md:p-8 rounded-[2.5rem] border border-slate-200 dark:border-slate-800 space-y-6">
+        <h3 className="text-xs font-black uppercase tracking-widest text-slate-400 px-2 flex items-center gap-2">
+          <Plus className="w-4 h-4" /> Nouvelle Dépense
+        </h3>
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+          <div className="space-y-2">
+            <label className="text-[10px] font-black uppercase tracking-widest text-slate-400 px-1">Description</label>
+            <input
+              type="text"
+              value={description}
+              onChange={(e) => setDescription(e.target.value)}
+              placeholder="Ex: Courses"
+              className="w-full p-3.5 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-2xl outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 transition-all font-medium dark:text-white"
+            />
+          </div>
+          <div className="space-y-2">
+            <label className="text-[10px] font-black uppercase tracking-widest text-slate-400 px-1">Montant (€)</label>
+            <input
+              type="number"
+              value={amount}
+              onChange={(e) => setAmount(e.target.value)}
+              placeholder="0.00"
+              step="0.01"
+              className="w-full p-3.5 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-2xl outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 transition-all font-black font-mono dark:text-white"
+            />
+          </div>
+          <div className="space-y-2">
+            <label className="text-[10px] font-black uppercase tracking-widest text-slate-400 px-1">Catégorie</label>
+            <select
+              value={category}
+              onChange={(e) => setCategory(e.target.value)}
+              className="w-full p-3.5 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-2xl outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 transition-all font-bold cursor-pointer dark:text-white"
+            >
+              {CATEGORIES.map((cat) => (
+                <option key={cat} value={cat}>{cat}</option>
+              ))}
+            </select>
+          </div>
+          <div className="space-y-2">
+            <label className="text-[10px] font-black uppercase tracking-widest text-slate-400 px-1">Date</label>
+            <input
+              type="date"
+              value={date}
+              onChange={(e) => setDate(e.target.value)}
+              className="w-full p-3.5 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-2xl outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 transition-all font-bold dark:text-white"
+            />
+          </div>
         </div>
         <button
           onClick={addExpense}
-          className="w-full py-3 bg-blue-500 text-white rounded-lg font-semibold hover:bg-blue-600 transition-all"
+          className="w-full py-4 bg-indigo-600 hover:bg-indigo-700 text-white rounded-2xl font-black text-sm transition-all active:scale-[0.98] shadow-lg shadow-indigo-600/20 flex items-center justify-center gap-2"
         >
-          Ajouter la dépense
+          <Plus className="w-5 h-5" /> Ajouter à la liste
         </button>
       </div>
 
-      <div className="bg-gradient-to-br from-red-50 to-red-100 border border-red-200 p-4 rounded-lg text-center">
-        <span className="text-sm text-gray-600">Total des dépenses</span>
-        <div className="text-3xl font-bold text-red-600">
-          {totalExpenses.toFixed(2)} €
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+        {/* Total Card */}
+        <div className="lg:col-span-1 bg-slate-900 dark:bg-black p-8 rounded-[2.5rem] text-white flex flex-col justify-center items-center space-y-4 shadow-xl shadow-indigo-500/5 relative overflow-hidden group">
+          <div className="absolute top-0 right-0 w-32 h-32 bg-indigo-500/10 rounded-full blur-3xl -mr-16 -mt-16"></div>
+          <CreditCard className="w-8 h-8 text-indigo-400 mb-2" />
+          <span className="text-xs font-black uppercase tracking-widest text-slate-500">Dépenses Totales</span>
+          <div className="text-5xl font-black font-mono tracking-tighter">
+            {totalExpenses.toLocaleString('fr-FR', { minimumFractionDigits: 2 })}<span className="text-indigo-500 ml-1">€</span>
+          </div>
+          {expenses.length > 0 && (
+            <div className="mt-4 px-4 py-1.5 bg-white/5 rounded-full text-[10px] font-black uppercase tracking-widest text-slate-400 border border-white/5">
+              {expenses.length} Transaction{expenses.length > 1 ? 's' : ''}
+            </div>
+          )}
+        </div>
+
+        {/* Categories Breakdown */}
+        <div className="lg:col-span-2 bg-white dark:bg-slate-900/40 p-8 rounded-[2.5rem] border border-slate-200 dark:border-slate-800 space-y-6">
+          <h3 className="text-xs font-black uppercase tracking-widest text-slate-400 px-1 flex items-center gap-2">
+            <PieChart className="w-4 h-4" /> Analyse par catégorie
+          </h3>
+          {expensesByCategory.length > 0 ? (
+            <div className="space-y-4">
+              {expensesByCategory.map((cat) => (
+                <div key={cat.category} className="space-y-2">
+                  <div className="flex justify-between items-center text-sm font-bold">
+                    <div className="flex items-center gap-2">
+                      <div className={`w-2 h-2 rounded-full ${CATEGORY_COLORS[cat.category] || 'bg-slate-500'}`} />
+                      <span className="dark:text-slate-300">{cat.category}</span>
+                    </div>
+                    <div className="flex gap-3">
+                      <span className="text-slate-400 text-xs">({((cat.total / (totalExpenses || 1)) * 100).toFixed(0)}%)</span>
+                      <span className="dark:text-white font-mono">{cat.total.toLocaleString('fr-FR', { minimumFractionDigits: 2 })} €</span>
+                    </div>
+                  </div>
+                  <div className="h-2 bg-slate-100 dark:bg-slate-800 rounded-full overflow-hidden">
+                    <div
+                      className={`h-full transition-all duration-1000 ${CATEGORY_COLORS[cat.category] || 'bg-slate-500'}`}
+                      style={{ width: `${(cat.total / (totalExpenses || 1)) * 100}%` }}
+                    />
+                  </div>
+                </div>
+              ))}
+            </div>
+          ) : (
+            <div className="h-full flex flex-col items-center justify-center py-10 text-slate-400 space-y-3">
+              <PieChart className="w-10 h-10 opacity-10" />
+              <p className="text-sm font-medium italic">En attente de données...</p>
+            </div>
+          )}
         </div>
       </div>
 
-      {expensesByCategory.length > 0 && (
-        <div className="bg-gray-100 p-4 rounded-lg">
-          <h3 className="font-semibold text-gray-700 mb-3">Par catégorie</h3>
-          <div className="space-y-2">
-            {expensesByCategory.map((cat) => (
-              <div key={cat.category} className="flex items-center gap-2">
-                <div
-                  className={`w-3 h-3 rounded-full ${CATEGORY_COLORS[cat.category] || 'bg-gray-500'}`}
-                />
-                <span className="flex-1 text-sm">{cat.category}</span>
-                <span className="font-semibold">{cat.total.toFixed(2)} €</span>
-                <span className="text-sm text-gray-500">
-                  ({totalExpenses > 0 ? ((cat.total / totalExpenses) * 100).toFixed(0) : 0}%)
-                </span>
-              </div>
-            ))}
-          </div>
-        </div>
-      )}
-
-      {expenses.length > 0 && (
-        <div>
-          <h3 className="font-semibold text-gray-700 mb-2">
-            Historique ({expenses.length} dépense{expenses.length > 1 ? "s" : ""})
+      {/* History */}
+      <div className="bg-white dark:bg-slate-900/40 rounded-[2.5rem] border border-slate-200 dark:border-slate-800 overflow-hidden">
+        <div className="p-8 border-b border-slate-100 dark:border-slate-800 flex justify-between items-center">
+          <h3 className="text-xs font-black uppercase tracking-widest text-slate-400 flex items-center gap-2">
+            <History className="w-4 h-4" /> Historique récent
           </h3>
-          <div className="space-y-2 max-h-64 overflow-y-auto">
-            {expenses.map((expense) => (
-              <div
-                key={expense.id}
-                className="flex items-center gap-2 p-3 bg-white border rounded-lg"
-              >
-                <div
-                  className={`w-2 h-8 rounded ${CATEGORY_COLORS[expense.category] || 'bg-gray-500'}`}
-                />
-                <div className="flex-1">
-                  <div className="font-semibold">{expense.description}</div>
-                  <div className="text-xs text-gray-500">
-                    {expense.category} • {new Date(expense.date).toLocaleDateString("fr-FR")}
+        </div>
+        <div className="divide-y divide-slate-100 dark:divide-slate-800 max-h-[400px] overflow-y-auto no-scrollbar">
+          {expenses.length > 0 ? (
+            expenses.map((expense) => (
+              <div key={expense.id} className="p-6 flex items-center justify-between hover:bg-slate-50 dark:hover:bg-white/5 transition-colors group">
+                <div className="flex items-center gap-5">
+                  <div className={`w-12 h-12 rounded-2xl flex items-center justify-center ${CATEGORY_COLORS[expense.category] || 'bg-slate-500'} bg-opacity-10 text-opacity-100`}>
+                     <Tag className={`w-5 h-5 ${CATEGORY_COLORS[expense.category]?.replace('bg-', 'text-') || 'text-slate-500'}`} />
+                  </div>
+                  <div>
+                    <div className="font-black text-slate-900 dark:text-white">{expense.description}</div>
+                    <div className="flex items-center gap-3 mt-1">
+                      <span className="text-[10px] font-black uppercase tracking-widest text-slate-400 flex items-center gap-1">
+                        <Calendar className="w-3 h-3" /> {new Date(expense.date).toLocaleDateString("fr-FR")}
+                      </span>
+                      <span className="text-[10px] font-black uppercase tracking-widest text-slate-400 flex items-center gap-1">
+                        <Euro className="w-3 h-3" /> {expense.category}
+                      </span>
+                    </div>
                   </div>
                 </div>
-                <span className="font-bold text-red-600">
-                  -{expense.amount.toFixed(2)} €
-                </span>
-                <button
-                  onClick={() => removeExpense(expense.id)}
-                  className="p-1 text-gray-400 hover:text-red-600"
-                >
-                  ×
-                </button>
+                <div className="flex items-center gap-6">
+                  <span className="text-lg font-black font-mono text-rose-500">
+                    -{expense.amount.toLocaleString('fr-FR', { minimumFractionDigits: 2 })} €
+                  </span>
+                  <button
+                    onClick={() => removeExpense(expense.id)}
+                    className="p-2 text-slate-300 hover:text-rose-500 hover:bg-rose-50 dark:hover:bg-rose-500/10 rounded-xl transition-all md:opacity-0 group-hover:opacity-100"
+                    aria-label="Supprimer"
+                  >
+                    <Trash2 className="w-4 h-4" />
+                  </button>
+                </div>
               </div>
-            ))}
-          </div>
+            ))
+          ) : (
+            <div className="py-20 text-center text-slate-400 space-y-4">
+               <History className="w-12 h-12 mx-auto opacity-10" />
+               <p className="text-sm font-bold uppercase tracking-widest">Aucune dépense enregistrée</p>
+            </div>
+          )}
         </div>
-      )}
-
-      {expenses.length === 0 && (
-        <div className="text-center py-8 text-gray-500">
-          Aucune dépense enregistrée. Ajoutez votre première dépense ci-dessus.
-        </div>
-      )}
+      </div>
     </div>
   );
 }

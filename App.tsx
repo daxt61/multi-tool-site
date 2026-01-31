@@ -126,6 +126,7 @@ const HTMLEntityConverter = lazy(() => import("./components/HTMLEntityConverter"
 const JSONToTS = lazy(() => import("./components/JSONToTS").then(m => ({ default: m.JSONToTS })));
 const ListCleaner = lazy(() => import("./components/ListCleaner").then(m => ({ default: m.ListCleaner })));
 const JWTDecoder = lazy(() => import("./components/JWTDecoder").then(m => ({ default: m.JWTDecoder })));
+const BinaryTextConverter = lazy(() => import("./components/BinaryTextConverter").then(m => ({ default: m.BinaryTextConverter })));
 
 // ⚡ Bolt Optimization: Pre-calculating tool map and search index for O(1) lookups and faster filtering
 const toolsMap: Record<string, Tool> = {};
@@ -403,6 +404,14 @@ const tools: Tool[] = [
     icon: QrCode,
     description: "Générateur de codes QR",
     Component: QRCodeGenerator,
+    category: "dev",
+  },
+  {
+    id: "binary-text",
+    name: "Texte en Binaire",
+    icon: FileCode,
+    description: "Convertisseur bidirectionnel texte et binaire",
+    Component: BinaryTextConverter,
     category: "dev",
   },
   {

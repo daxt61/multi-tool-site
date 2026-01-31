@@ -20,12 +20,28 @@ export function WordCounter() {
     setTimeout(() => setCopied(false), 2000);
   };
 
+  const handleCopyStats = () => {
+    const statsText = `Statistiques du texte :
+- Caractères : ${stats.characters}
+- Mots : ${stats.words}
+- Lignes : ${stats.lines}
+- Phrases : ${stats.sentences}
+- Temps de lecture : ${stats.readingTime} min
+- Temps de parole : ${stats.speakingTime} min`;
+    navigator.clipboard.writeText(statsText);
+    setCopied(true);
+    setTimeout(() => setCopied(false), 2000);
+  };
+
   return (
     <div className="max-w-5xl mx-auto space-y-8">
       <div className="space-y-4">
         <div className="flex justify-between items-center px-1">
-          <label className="text-xs font-black uppercase tracking-widest text-slate-400">Votre Texte</label>
+          <label htmlFor="text-input" className="text-xs font-black uppercase tracking-widest text-slate-400 cursor-pointer">Votre Texte</label>
           <div className="flex gap-2">
+            <button onClick={handleCopyStats} className="text-xs font-bold px-3 py-1 rounded-full text-indigo-500 bg-indigo-50 dark:bg-indigo-500/10 hover:bg-indigo-100 transition-all flex items-center gap-1">
+               Stats <Copy className="w-3 h-3" />
+            </button>
             <button onClick={handleCopy} className={`text-xs font-bold px-3 py-1 rounded-full transition-all flex items-center gap-1 ${copied ? 'bg-emerald-500 text-white' : 'text-slate-500 bg-slate-100 dark:bg-slate-800'}`}>
               {copied ? <Check className="w-3 h-3" /> : <Copy className="w-3 h-3" />} {copied ? 'Copié' : 'Copier'}
             </button>
@@ -35,10 +51,11 @@ export function WordCounter() {
           </div>
         </div>
         <textarea
+          id="text-input"
           value={text}
           onChange={(e) => setText(e.target.value)}
           placeholder="Commencez à taper..."
-          className="w-full h-80 p-8 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-[2rem] outline-none focus:ring-2 focus:ring-indigo-500/20 transition-all text-lg leading-relaxed dark:text-slate-300"
+          className="w-full h-80 p-8 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-[2.5rem] outline-none focus:ring-2 focus:ring-indigo-500/20 transition-all text-lg leading-relaxed dark:text-slate-300"
         />
       </div>
 

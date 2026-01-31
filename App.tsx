@@ -671,20 +671,22 @@ function MainApp() {
     const query = deferredSearchQuery.trim().toLowerCase();
 
     return tools.filter((tool) => {
+      // 1. Category Filter
       if (selectedCategory === "favorites") {
-        return favoriteSet.has(tool.id);
+        if (!favoriteSet.has(tool.id)) return false;
+      } else if (selectedCategory && selectedCategory !== "all") {
+        if (tool.category !== selectedCategory) return false;
       }
 
+      // 2. Search Filter (applies on top of category if category is selected)
       if (query) {
         const searchEntry = TOOL_SEARCH_INDEX.get(tool.id);
         const matchesSearch = searchEntry?.name.includes(query) ||
                              searchEntry?.description.includes(query);
         if (!matchesSearch) return false;
-        return true;
       }
 
-      if (!selectedCategory || selectedCategory === "all") return true;
-      return tool.category === selectedCategory;
+      return true;
     });
   }, [selectedCategory, deferredSearchQuery, favoriteSet]);
 

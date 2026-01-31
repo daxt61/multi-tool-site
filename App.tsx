@@ -653,12 +653,22 @@ function MainApp() {
   const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
   const [searchQuery, setSearchQuery] = useState("");
   const [favorites, setFavorites] = useState<string[]>(() => {
-    const saved = localStorage.getItem("favorites");
-    return saved ? JSON.parse(saved) : [];
+    try {
+      const saved = localStorage.getItem("favorites");
+      const parsed = saved ? JSON.parse(saved) : [];
+      return Array.isArray(parsed) ? parsed : [];
+    } catch {
+      return [];
+    }
   });
   const [recents, setRecents] = useState<string[]>(() => {
-    const saved = localStorage.getItem("recents");
-    return saved ? JSON.parse(saved) : [];
+    try {
+      const saved = localStorage.getItem("recents");
+      const parsed = saved ? JSON.parse(saved) : [];
+      return Array.isArray(parsed) ? parsed : [];
+    } catch {
+      return [];
+    }
   });
 
   // ⚡ Bolt Optimization: useDeferredValue for responsive search

@@ -12,6 +12,11 @@
 **Vulnerability:** The linear regex-based markdown parser allowed for XSS by matching markdown symbols inside a URL and replacing them with HTML tags (like `<strong>`). These tags contained double quotes that broke out of the `href` attribute in the final `<a>` tag.
 **Learning:** In multi-pass string replacement parsers, rules that add HTML attributes must be extremely restrictive about the characters they capture. Any rule that generates HTML tags can potentially "poison" the input for subsequent rules if they are not aware of existing tags.
 **Prevention:** Ensure that rules capturing content for HTML attributes (like URLs) explicitly exclude tag-defining characters (`<` and `>`). Process such rules after any other rules that might inject tags into that context.
+
+## 2025-06-15 - [DoS via Unsafe LocalStorage Parsing]
+**Vulnerability:** Initializing state from `localStorage` without validating the data type or handling `JSON.parse` errors could lead to a complete application crash if the data was corrupted or manipulated.
+**Learning:** Browser storage should be treated as untrusted input. Malformed data in `localStorage` can break iteration-dependent logic (like `new Set()` or `.map()`) if not validated upon loading.
+**Prevention:** Always wrap `JSON.parse` of persistent storage in a `try...catch` block and validate the structure/type of the result (e.g., `Array.isArray()`) before using it to initialize state.
 ## 2025-05-28 - [Modulo Bias in Password Generation]
 **Vulnerability:** The PasswordGenerator was using `array[i] % charset.length` to select characters, which introduced a slight bias towards certain characters when the random space (2^32) was not a multiple of the charset size.
 **Learning:** Even when using cryptographically secure random values (CSPRNG), improper mathematical operations like modulo can degrade the entropy and introduce predictability.

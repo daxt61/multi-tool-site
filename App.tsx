@@ -653,12 +653,29 @@ function MainApp() {
   const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
   const [searchQuery, setSearchQuery] = useState("");
   const [favorites, setFavorites] = useState<string[]>(() => {
-    const saved = localStorage.getItem("favorites");
-    return saved ? JSON.parse(saved) : [];
+    try {
+      // Sentinel: Securely parse localStorage data to prevent app crashes (local DoS)
+      // if the data is malformed or tampered with.
+      const saved = localStorage.getItem("favorites");
+      const parsed = saved ? JSON.parse(saved) : [];
+      // Sentinel: Validate that the parsed data is an array before setting state.
+      return Array.isArray(parsed) ? parsed : [];
+    } catch (e) {
+      console.error("Failed to load favorites from localStorage", e);
+      return [];
+    }
   });
   const [recents, setRecents] = useState<string[]>(() => {
-    const saved = localStorage.getItem("recents");
-    return saved ? JSON.parse(saved) : [];
+    try {
+      // Sentinel: Securely parse localStorage data to prevent app crashes (local DoS).
+      const saved = localStorage.getItem("recents");
+      const parsed = saved ? JSON.parse(saved) : [];
+      // Sentinel: Validate that the parsed data is an array before setting state.
+      return Array.isArray(parsed) ? parsed : [];
+    } catch (e) {
+      console.error("Failed to load recents from localStorage", e);
+      return [];
+    }
   });
 
   // ⚡ Bolt Optimization: useDeferredValue for responsive search

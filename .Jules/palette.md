@@ -13,3 +13,7 @@
 ## 2025-05-16 - [Semantic Navigation & Valid HTML Structure]
 **Learning:** Avoid nesting buttons inside buttons or links as it is invalid HTML and breaks keyboard/screen reader navigation. Instead, use a `div` container with a "stretched link" (absolute button with `z-10`) and place other interactive elements (like favorites) as siblings with higher `z-index`. Additionally, use semantic icons like `ArrowLeft` instead of rotated icons for back navigation to maintain consistency and clarity.
 **Action:** Use the `z-index` stacking pattern for complex cards and prioritize semantic icons over CSS transforms.
+
+## 2026-01-26 - [Interactive Feedback & Reset Actions]
+**Learning:** For utility tools like calculators, providing immediate interactive feedback (like a "Copy" button with success state) and a clear way to reset the form ("Clear" button) significantly reduces friction. Additionally, ensuring all form inputs are explicitly linked to labels via `id` and `htmlFor` is a fundamental accessibility requirement that also improves the clickable area for users.
+**Action:** Always include reset and copy actions for calculator tools, and ensure strict `id`/`htmlFor` associations for all form elements.

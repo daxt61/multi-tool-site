@@ -768,9 +768,9 @@ function MainApp() {
         <div className="absolute top-1/2 -right-24 w-80 h-80 bg-blue-500/10 rounded-full blur-[100px]"></div>
       </div>
 
-      <div className="container mx-auto px-4 py-8 max-w-6xl relative">
+      <div className="container mx-auto px-5 py-8 max-w-6xl relative">
         {/* Nav Header */}
-        <header className="flex justify-between items-center mb-16">
+        <header className="flex justify-between items-center mb-12 md:mb-16">
           <Link
             to="/"
             className="flex items-center gap-2 group"
@@ -841,8 +841,8 @@ function MainApp() {
               {/* Main Content */}
               <div className="space-y-12">
                 {/* Category Nav */}
-                <div className="sticky top-4 z-40 bg-white/80 dark:bg-slate-950/80 backdrop-blur-md py-4 border-b border-slate-200/50 dark:border-slate-800/50 -mx-4 px-4">
-                  <div className="flex gap-2 overflow-x-auto no-scrollbar">
+                <div className="sticky top-4 z-40 bg-white/80 dark:bg-slate-950/80 backdrop-blur-md py-4 border-b border-slate-200/50 dark:border-slate-800/50 -mx-5 px-5">
+                  <div className="flex gap-2 overflow-x-auto no-scrollbar md:justify-center">
                     {categories.map((cat) => (
                       <button
                         key={cat.id}

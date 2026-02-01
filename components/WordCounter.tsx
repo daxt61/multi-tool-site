@@ -4,6 +4,7 @@ import { Copy, Check, Trash2, Hash, Type, FileText, AlignLeft, Clock, MessageSqu
 export function WordCounter() {
   const [text, setText] = useState('');
   const [copied, setCopied] = useState(false);
+  const [copiedStats, setCopiedStats] = useState(false);
 
   const stats = {
     characters: text.length,
@@ -18,6 +19,19 @@ export function WordCounter() {
     navigator.clipboard.writeText(text);
     setCopied(true);
     setTimeout(() => setCopied(false), 2000);
+  };
+
+  const handleCopyStats = () => {
+    const report = `Statistiques du texte :
+- Caractères : ${stats.characters}
+- Mots : ${stats.words}
+- Lignes : ${stats.lines}
+- Phrases : ${stats.sentences}
+- Temps de lecture : ${stats.readingTime} min
+- Temps de parole : ${stats.speakingTime} min`;
+    navigator.clipboard.writeText(report);
+    setCopiedStats(true);
+    setTimeout(() => setCopiedStats(false), 2000);
   };
 
   return (
@@ -42,21 +56,32 @@ export function WordCounter() {
         />
       </div>
 
-      <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
-        {[
-          { icon: <Hash className="w-4 h-4" />, label: 'Caractères', value: stats.characters },
-          { icon: <Type className="w-4 h-4" />, label: 'Mots', value: stats.words },
-          { icon: <FileText className="w-4 h-4" />, label: 'Lignes', value: stats.lines },
-          { icon: <AlignLeft className="w-4 h-4" />, label: 'Phrases', value: stats.sentences },
-          { icon: <Clock className="w-4 h-4" />, label: 'Lecture', value: `${stats.readingTime}m` },
-          { icon: <MessageSquare className="w-4 h-4" />, label: 'Parole', value: `${stats.speakingTime}m` },
-        ].map((stat) => (
-          <div key={stat.label} className="p-6 bg-white dark:bg-slate-900 border border-slate-100 dark:border-slate-800 rounded-2xl space-y-2">
-            <div className="text-indigo-500 dark:text-indigo-400">{stat.icon}</div>
-            <div className="text-2xl font-black font-mono tracking-tight dark:text-white">{stat.value}</div>
-            <div className="text-xs font-bold text-slate-400 uppercase tracking-wider">{stat.label}</div>
-          </div>
-        ))}
+      <div className="space-y-4">
+        <div className="flex justify-between items-center px-1">
+          <label className="text-xs font-black uppercase tracking-widest text-slate-400">Statistiques</label>
+          <button
+            onClick={handleCopyStats}
+            className={`text-xs font-bold px-3 py-1 rounded-full transition-all flex items-center gap-1 ${copiedStats ? 'bg-emerald-500 text-white' : 'text-indigo-500 bg-indigo-50 dark:bg-indigo-900/20 hover:bg-indigo-100'}`}
+          >
+            {copiedStats ? <Check className="w-3 h-3" /> : <Copy className="w-3 h-3" />} {copiedStats ? 'Stats copiées' : 'Copier les stats'}
+          </button>
+        </div>
+        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
+          {[
+            { icon: <Hash className="w-4 h-4" />, label: 'Caractères', value: stats.characters },
+            { icon: <Type className="w-4 h-4" />, label: 'Mots', value: stats.words },
+            { icon: <FileText className="w-4 h-4" />, label: 'Lignes', value: stats.lines },
+            { icon: <AlignLeft className="w-4 h-4" />, label: 'Phrases', value: stats.sentences },
+            { icon: <Clock className="w-4 h-4" />, label: 'Lecture', value: `${stats.readingTime}m` },
+            { icon: <MessageSquare className="w-4 h-4" />, label: 'Parole', value: `${stats.speakingTime}m` },
+          ].map((stat) => (
+            <div key={stat.label} className="p-6 bg-white dark:bg-slate-900 border border-slate-100 dark:border-slate-800 rounded-2xl space-y-2">
+              <div className="text-indigo-500 dark:text-indigo-400">{stat.icon}</div>
+              <div className="text-2xl font-black font-mono tracking-tight dark:text-white">{stat.value}</div>
+              <div className="text-xs font-bold text-slate-400 uppercase tracking-wider">{stat.label}</div>
+            </div>
+          ))}
+        </div>
       </div>
 
       <div className="flex flex-wrap gap-3">

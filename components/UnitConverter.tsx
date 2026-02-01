@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { ArrowDown, Copy, Check, Trash2, ArrowUpDown } from 'lucide-react';
 
-type ConversionCategory = 'length' | 'weight' | 'temperature' | 'area' | 'volume' | 'digital' | 'pressure' | 'energy' | 'speed' | 'time';
+type ConversionCategory = 'length' | 'weight' | 'temperature' | 'area' | 'volume' | 'digital' | 'pressure' | 'energy' | 'speed' | 'time' | 'frequency' | 'power' | 'consumption';
 
 interface ConversionUnit {
   name: string;
@@ -90,6 +90,25 @@ const CONVERSIONS: Record<ConversionCategory, Record<string, ConversionUnit>> = 
     'kcal': { name: 'Kilocalorie (kcal)', toBase: (v) => v * 4184, fromBase: (v) => v / 4184 },
     'Wh': { name: 'Watt-heure (Wh)', toBase: (v) => v * 3600, fromBase: (v) => v / 3600 },
     'kWh': { name: 'Kilowatt-heure (kWh)', toBase: (v) => v * 3600000, fromBase: (v) => v / 3600000 }
+  },
+  frequency: {
+    'Hz': { name: 'Hertz (Hz)', toBase: (v) => v, fromBase: (v) => v },
+    'kHz': { name: 'Kilohertz (kHz)', toBase: (v) => v * 1000, fromBase: (v) => v / 1000 },
+    'MHz': { name: 'Mégahertz (MHz)', toBase: (v) => v * 1e6, fromBase: (v) => v / 1e6 },
+    'GHz': { name: 'Gigahertz (GHz)', toBase: (v) => v * 1e9, fromBase: (v) => v / 1e9 },
+    'THz': { name: 'Térahertz (THz)', toBase: (v) => v * 1e12, fromBase: (v) => v / 1e12 }
+  },
+  power: {
+    'W': { name: 'Watt (W)', toBase: (v) => v, fromBase: (v) => v },
+    'kW': { name: 'Kilowatt (kW)', toBase: (v) => v * 1000, fromBase: (v) => v / 1000 },
+    'MW': { name: 'Mégawatt (MW)', toBase: (v) => v * 1e6, fromBase: (v) => v / 1e6 },
+    'hp': { name: 'Chevaux (hp)', toBase: (v) => v * 745.7, fromBase: (v) => v / 745.7 }
+  },
+  consumption: {
+    'l100': { name: 'L/100km', toBase: (v) => v / 100, fromBase: (v) => v * 100 },
+    'kml': { name: 'km/L', toBase: (v) => v === 0 ? 0 : 1 / v, fromBase: (v) => v === 0 ? 0 : 1 / v },
+    'mpg_us': { name: 'MPG (US)', toBase: (v) => v === 0 ? 0 : 1 / (v * 0.425144), fromBase: (v) => v === 0 ? 0 : 1 / (v * 0.425144) },
+    'mpg_uk': { name: 'MPG (UK)', toBase: (v) => v === 0 ? 0 : 1 / (v * 0.354006), fromBase: (v) => v === 0 ? 0 : 1 / (v * 0.354006) }
   }
 };
 
@@ -103,7 +122,10 @@ const CATEGORIES_MAP = [
   { id: 'speed', name: 'Vitesse' },
   { id: 'time', name: 'Temps' },
   { id: 'pressure', name: 'Pression' },
-  { id: 'energy', name: 'Énergie' }
+  { id: 'energy', name: 'Énergie' },
+  { id: 'frequency', name: 'Fréquence' },
+  { id: 'power', name: 'Puissance' },
+  { id: 'consumption', name: 'Consommation' }
 ];
 
 const convert = (value: string, from: string, to: string, cat: ConversionCategory) => {
@@ -154,15 +176,15 @@ export function UnitConverter() {
   };
 
   return (
-    <div className="max-w-4xl mx-auto space-y-12">
+    <div className="max-w-4xl mx-auto space-y-8 md:space-y-12">
       {/* Category Nav - Scrollable on mobile */}
-      <div className="sticky top-0 z-50 bg-white dark:bg-slate-950/80 backdrop-blur-sm py-2 md:py-4 -mx-8 md:-mx-12 px-10 md:px-14 border-b border-slate-100 dark:border-slate-800 md:border-none md:bg-transparent md:static">
-        <div className="flex gap-2 overflow-x-auto no-scrollbar justify-start md:justify-center">
+      <div className="sticky top-0 z-50 bg-white/90 dark:bg-slate-950/90 backdrop-blur-md py-3 md:py-4 -mx-5 md:-mx-12 px-5 md:px-14 border-b border-slate-100 dark:border-slate-800 md:border-none md:bg-transparent md:static">
+        <div className="flex gap-1.5 md:gap-2 overflow-x-auto no-scrollbar justify-start md:justify-center">
           {CATEGORIES_MAP.map((cat) => (
             <button
               key={cat.id}
               onClick={() => handleCategoryChange(cat.id as ConversionCategory)}
-              className={`px-5 py-2.5 rounded-xl font-bold text-sm transition-all border whitespace-nowrap ${
+              className={`px-3 md:px-5 py-2 md:py-2.5 rounded-lg md:rounded-xl font-bold text-xs md:text-sm transition-all border whitespace-nowrap ${
                 category === cat.id
                   ? 'bg-slate-900 text-white border-slate-900 dark:bg-white dark:text-slate-950 dark:border-white shadow-lg shadow-indigo-500/10'
                   : 'bg-white dark:bg-slate-800 text-slate-500 border-slate-200 dark:border-slate-700 hover:border-slate-300'

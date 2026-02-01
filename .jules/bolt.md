@@ -17,3 +17,7 @@
 ## 2026-01-30 - [Single-Pass O(n) Aggregation for Dashboard-style Tools]
 **Learning:** In tools like ExpenseTracker that perform multiple aggregations (total sum, category breakdown) over the same data set, using multiple .filter().reduce() calls results in O(n * m) complexity. Refactoring these into a single-pass O(n) loop within useMemo significantly reduces computation time as the data set grows.
 **Action:** Prefer single-pass aggregation loops over multiple array iterations for complex dashboard metrics.
+
+## 2026-02-01 - [Batched Entropy and UI Memoization]
+**Learning:** Calling `window.crypto.getRandomValues` in a loop for each character in a generator (like PasswordGenerator) introduces unnecessary overhead from crossing the JS-to-system bridge. Batching these calls by requesting a `Uint32Array` of the total required length once is significantly more efficient. Additionally, memoizing strength calculations and stabilizing generation functions with `useCallback` prevents redundant UI churn during unrelated re-renders.
+**Action:** Always batch cryptographic entropy requests and memoize expensive UI calculations that depend on high-frequency state changes.

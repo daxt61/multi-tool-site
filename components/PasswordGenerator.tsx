@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback, useMemo } from 'react';
 import { Copy, RefreshCw, Check, Shield, ShieldAlert, ShieldCheck } from 'lucide-react';
 
 export function PasswordGenerator() {
@@ -11,7 +11,7 @@ export function PasswordGenerator() {
   const [excludeSimilar, setExcludeSimilar] = useState(false);
   const [copied, setCopied] = useState(false);
 
-  const generatePassword = () => {
+  const generatePassword = useCallback(() => {
     let charset = '';
     if (includeUppercase) charset += 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
     if (includeLowercase) charset += 'abcdefghijklmnopqrstuvwxyz';
@@ -27,40 +27,32 @@ export function PasswordGenerator() {
       return;
     }
 
-    const getSecureRandomIndex = (range: number) => {
-      const array = new Uint32Array(1);
-      const maxUint32 = 0xffffffff;
-      const limit = maxUint32 - (maxUint32 % range);
-      let randomVal;
-      do {
-        window.crypto.getRandomValues(array);
-        randomVal = array[0];
-      } while (randomVal >= limit);
-      return randomVal % range;
-    };
+    const range = charset.length;
+    const maxUint32 = 0xffffffff;
+    const limit = maxUint32 - (maxUint32 % range);
+    const randomValues = new Uint32Array(length);
+    window.crypto.getRandomValues(randomValues);
 
     let newPassword = '';
     for (let i = 0; i < length; i++) {
-      newPassword += charset.charAt(getSecureRandomIndex(charset.length));
-    }
-    const array = new Uint32Array(1);
-    const maxUint32 = Math.pow(2, 32);
-    const range = charset.length;
-    const limit = maxUint32 - (maxUint32 % range);
-
-    while (newPassword.length < length) {
-      window.crypto.getRandomValues(array);
-      if (array[0] < limit) {
-        newPassword += charset.charAt(array[0] % range);
+      let val = randomValues[i];
+      // Rejection sampling for cryptographic fairness (rarely triggered)
+      if (val >= limit) {
+        const fallback = new Uint32Array(1);
+        do {
+          window.crypto.getRandomValues(fallback);
+          val = fallback[0];
+        } while (val >= limit);
       }
+      newPassword += charset.charAt(val % range);
     }
     setPassword(newPassword);
     setCopied(false);
-  };
+  }, [length, includeUppercase, includeLowercase, includeNumbers, includeSymbols, excludeSimilar]);
 
   useEffect(() => {
     generatePassword();
-  }, []);
+  }, [generatePassword]);
 
   const copyToClipboard = () => {
     navigator.clipboard.writeText(password);
@@ -68,7 +60,7 @@ export function PasswordGenerator() {
     setTimeout(() => setCopied(false), 2000);
   };
 
-  const getStrength = () => {
+  const strength = useMemo(() => {
     if (!password) return { label: '', color: 'bg-slate-200', icon: <ShieldAlert /> };
     let score = 0;
     if (password.length >= 12) score++;
@@ -81,9 +73,7 @@ export function PasswordGenerator() {
     if (score <= 3) return { label: 'Faible', color: 'bg-rose-500', icon: <ShieldAlert className="w-4 h-4" /> };
     if (score <= 5) return { label: 'Moyen', color: 'bg-amber-500', icon: <Shield className="w-4 h-4" /> };
     return { label: 'Fort', color: 'bg-emerald-500', icon: <ShieldCheck className="w-4 h-4" /> };
-  };
-
-  const strength = getStrength();
+  }, [password]);
 
   return (
     <div className="max-w-4xl mx-auto space-y-8">

@@ -51,6 +51,7 @@ import {
   Briefcase,
   Search,
   Shuffle,
+  Zap,
   ArrowLeft,
   Database,
   ArrowLeftRight,
@@ -126,6 +127,8 @@ const HTMLEntityConverter = lazy(() => import("./components/HTMLEntityConverter"
 const JSONToTS = lazy(() => import("./components/JSONToTS").then(m => ({ default: m.JSONToTS })));
 const ListCleaner = lazy(() => import("./components/ListCleaner").then(m => ({ default: m.ListCleaner })));
 const JWTDecoder = lazy(() => import("./components/JWTDecoder").then(m => ({ default: m.JWTDecoder })));
+const CodeToImage = lazy(() => import("./components/CodeToImage").then(m => ({ default: m.CodeToImage })));
+const CodeMinifier = lazy(() => import("./components/CodeMinifier").then(m => ({ default: m.CodeMinifier })));
 
 // ⚡ Bolt Optimization: Pre-calculating tool map and search index for O(1) lookups and faster filtering
 const toolsMap: Record<string, Tool> = {};
@@ -507,6 +510,22 @@ const tools: Tool[] = [
     icon: Image,
     description: "Convertir une image en chaîne Base64",
     Component: ImageToBase64,
+    category: "dev",
+  },
+  {
+    id: "code-to-image",
+    name: "Code en Image",
+    icon: Image,
+    description: "Générer de superbes images de votre code",
+    Component: CodeToImage,
+    category: "dev",
+  },
+  {
+    id: "code-minifier",
+    name: "Minificateur",
+    icon: Zap,
+    description: "Minifier JS, CSS et HTML instantanément",
+    Component: CodeMinifier,
     category: "dev",
   },
   // Other Tools

@@ -10,6 +10,10 @@ export function PasswordGenerator() {
   const [includeSymbols, setIncludeSymbols] = useState(true);
   const [excludeSimilar, setExcludeSimilar] = useState(false);
   const [copied, setCopied] = useState(false);
+  const [history, setHistory] = useState<string[]>(() => {
+    const saved = localStorage.getItem('password_history');
+    return saved ? JSON.parse(saved) : [];
+  });
 
   const generatePassword = () => {
     let charset = '';
@@ -56,6 +60,12 @@ export function PasswordGenerator() {
     }
     setPassword(newPassword);
     setCopied(false);
+
+    setHistory(prev => {
+      const newHistory = [newPassword, ...prev].slice(0, 5);
+      localStorage.setItem('password_history', JSON.stringify(newHistory));
+      return newHistory;
+    });
   };
 
   useEffect(() => {
@@ -84,6 +94,10 @@ export function PasswordGenerator() {
   };
 
   const strength = getStrength();
+
+  const copyHistoryItem = (pwd: string) => {
+    navigator.clipboard.writeText(pwd);
+  };
 
   return (
     <div className="max-w-4xl mx-auto space-y-8">
@@ -184,14 +198,39 @@ export function PasswordGenerator() {
           </div>
         </div>
 
-        {/* Info */}
-        <div className="bg-indigo-600 rounded-[2.5rem] p-10 text-white shadow-xl shadow-indigo-600/10 relative overflow-hidden flex flex-col justify-center">
-           <div className="absolute top-0 right-0 w-48 h-48 bg-white/10 rounded-full blur-3xl -mr-24 -mt-24"></div>
-           <ShieldCheck className="w-12 h-12 mb-6 opacity-50" />
-           <h3 className="text-2xl font-black mb-4">Sécurité maximale</h3>
-           <p className="text-indigo-100 font-medium leading-relaxed">
-             Nous utilisons <code>window.crypto</code> pour générer des mots de passe avec une entropie élevée. Vos clés ne quittent jamais votre appareil et ne sont jamais enregistrées.
-           </p>
+        {/* Info & History */}
+        <div className="space-y-8">
+          <div className="bg-indigo-600 rounded-[2.5rem] p-10 text-white shadow-xl shadow-indigo-600/10 relative overflow-hidden flex flex-col justify-center">
+             <div className="absolute top-0 right-0 w-48 h-48 bg-white/10 rounded-full blur-3xl -mr-24 -mt-24"></div>
+             <ShieldCheck className="w-12 h-12 mb-6 opacity-50" />
+             <h3 className="text-2xl font-black mb-4">Sécurité maximale</h3>
+             <p className="text-indigo-100 font-medium leading-relaxed">
+               Nous utilisons <code>window.crypto</code> pour générer des mots de passe avec une entropie élevée.
+             </p>
+          </div>
+
+          {history.length > 1 && (
+            <div className="bg-slate-50 dark:bg-slate-900/50 p-8 rounded-[2.5rem] border border-slate-200 dark:border-slate-800">
+              <h3 className="text-xs font-black uppercase tracking-widest text-slate-400 mb-6 px-1">Historique récent</h3>
+              <div className="space-y-3">
+                {history.slice(1).map((pwd, i) => (
+                  <div key={i} className="flex items-center justify-between p-4 bg-white dark:bg-slate-800 rounded-2xl border border-slate-100 dark:border-slate-700 group hover:border-indigo-500/30 transition-all">
+                    <code className="text-slate-600 dark:text-slate-300 font-mono truncate mr-4">{pwd}</code>
+                    <button
+                      onClick={() => {
+                        copyHistoryItem(pwd);
+                        // Optional: show a small feedback
+                      }}
+                      className="p-2 text-slate-400 hover:text-indigo-600 transition-colors"
+                      title="Copier"
+                    >
+                      <Copy className="w-4 h-4" />
+                    </button>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
         </div>
       </div>
     </div>

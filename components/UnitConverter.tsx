@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { ArrowDown, Copy, Check, Trash2, ArrowUpDown } from 'lucide-react';
 
-type ConversionCategory = 'length' | 'weight' | 'temperature' | 'area' | 'volume' | 'digital' | 'pressure' | 'energy' | 'speed' | 'time';
+type ConversionCategory = 'length' | 'weight' | 'temperature' | 'area' | 'volume' | 'digital' | 'pressure' | 'energy' | 'speed' | 'time' | 'frequency' | 'consumption';
 
 interface ConversionUnit {
   name: string;
@@ -90,6 +90,18 @@ const CONVERSIONS: Record<ConversionCategory, Record<string, ConversionUnit>> = 
     'kcal': { name: 'Kilocalorie (kcal)', toBase: (v) => v * 4184, fromBase: (v) => v / 4184 },
     'Wh': { name: 'Watt-heure (Wh)', toBase: (v) => v * 3600, fromBase: (v) => v / 3600 },
     'kWh': { name: 'Kilowatt-heure (kWh)', toBase: (v) => v * 3600000, fromBase: (v) => v / 3600000 }
+  },
+  frequency: {
+    'Hz': { name: 'Hertz (Hz)', toBase: (v) => v, fromBase: (v) => v },
+    'kHz': { name: 'Kilohertz (kHz)', toBase: (v) => v * 1000, fromBase: (v) => v / 1000 },
+    'MHz': { name: 'Mégahertz (MHz)', toBase: (v) => v * 1e6, fromBase: (v) => v / 1e6 },
+    'GHz': { name: 'Gigahertz (GHz)', toBase: (v) => v * 1e9, fromBase: (v) => v / 1e9 },
+    'THz': { name: 'Térahertz (THz)', toBase: (v) => v * 1e12, fromBase: (v) => v / 1e12 }
+  },
+  consumption: {
+    'l100': { name: 'L/100km', toBase: (v) => v, fromBase: (v) => v },
+    'mpg_us': { name: 'MPG (US)', toBase: (v) => 235.215 / v, fromBase: (v) => 235.215 / v },
+    'mpg_uk': { name: 'MPG (UK)', toBase: (v) => 282.481 / v, fromBase: (v) => 282.481 / v }
   }
 };
 
@@ -103,7 +115,9 @@ const CATEGORIES_MAP = [
   { id: 'speed', name: 'Vitesse' },
   { id: 'time', name: 'Temps' },
   { id: 'pressure', name: 'Pression' },
-  { id: 'energy', name: 'Énergie' }
+  { id: 'energy', name: 'Énergie' },
+  { id: 'frequency', name: 'Fréquence' },
+  { id: 'consumption', name: 'Consommation' }
 ];
 
 const convert = (value: string, from: string, to: string, cat: ConversionCategory) => {

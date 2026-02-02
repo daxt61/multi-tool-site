@@ -66,6 +66,8 @@ import {
   Sparkles,
   ListChecks,
   ShieldCheck,
+  Scissors,
+  Binary,
 } from "lucide-react";
 const AdPlaceholder = lazy(() => import("./components/AdPlaceholder").then(m => ({ default: m.AdPlaceholder })));
 
@@ -126,6 +128,9 @@ const HTMLEntityConverter = lazy(() => import("./components/HTMLEntityConverter"
 const JSONToTS = lazy(() => import("./components/JSONToTS").then(m => ({ default: m.JSONToTS })));
 const ListCleaner = lazy(() => import("./components/ListCleaner").then(m => ({ default: m.ListCleaner })));
 const JWTDecoder = lazy(() => import("./components/JWTDecoder").then(m => ({ default: m.JWTDecoder })));
+const CodeMinifier = lazy(() => import("./components/CodeMinifier").then(m => ({ default: m.CodeMinifier })));
+const BinaryTextConverter = lazy(() => import("./components/BinaryTextConverter").then(m => ({ default: m.BinaryTextConverter })));
+const Base64ToImage = lazy(() => import("./components/Base64ToImage").then(m => ({ default: m.Base64ToImage })));
 
 // ⚡ Bolt Optimization: Pre-calculating tool map and search index for O(1) lookups and faster filtering
 const toolsMap: Record<string, Tool> = {};
@@ -507,6 +512,30 @@ const tools: Tool[] = [
     icon: Image,
     description: "Convertir une image en chaîne Base64",
     Component: ImageToBase64,
+    category: "dev",
+  },
+  {
+    id: "base64-to-image",
+    name: "Base64 en Image",
+    icon: Image,
+    description: "Convertir des chaînes Base64 en images",
+    Component: Base64ToImage,
+    category: "dev",
+  },
+  {
+    id: "code-minifier",
+    name: "Minificateur de code",
+    icon: Scissors,
+    description: "Minifier JS, CSS et HTML pour le web",
+    Component: CodeMinifier,
+    category: "dev",
+  },
+  {
+    id: "binary-converter",
+    name: "Texte en Binaire",
+    icon: Binary,
+    description: "Convertisseur bidirectionnel texte et binaire",
+    Component: BinaryTextConverter,
     category: "dev",
   },
   // Other Tools

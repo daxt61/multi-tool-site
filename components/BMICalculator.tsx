@@ -63,21 +63,25 @@ export function BMICalculator() {
 
           <div className="space-y-6">
             <div className="space-y-3">
-              <label className="text-xs font-black uppercase tracking-widest text-slate-400 px-1">Poids ({unit === 'metric' ? 'kg' : 'lb'})</label>
+              <label htmlFor="weight" className="text-xs font-black uppercase tracking-widest text-slate-400 px-1 cursor-pointer">Poids ({unit === 'metric' ? 'kg' : 'lb'})</label>
               <input
+                id="weight"
                 type="number"
                 value={weight}
                 onChange={(e) => setWeight(e.target.value)}
                 className="w-full p-4 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-2xl text-2xl font-black font-mono focus:border-indigo-500 outline-none transition-all dark:text-white"
+                aria-label={`Poids en ${unit === 'metric' ? 'kilogrammes' : 'livres'}`}
               />
             </div>
             <div className="space-y-3">
-              <label className="text-xs font-black uppercase tracking-widest text-slate-400 px-1">Taille ({unit === 'metric' ? 'cm' : 'in'})</label>
+              <label htmlFor="height" className="text-xs font-black uppercase tracking-widest text-slate-400 px-1 cursor-pointer">Taille ({unit === 'metric' ? 'cm' : 'in'})</label>
               <input
+                id="height"
                 type="number"
                 value={height}
                 onChange={(e) => setHeight(e.target.value)}
                 className="w-full p-4 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-2xl text-2xl font-black font-mono focus:border-indigo-500 outline-none transition-all dark:text-white"
+                aria-label={`Taille en ${unit === 'metric' ? 'centimètres' : 'pouces'}`}
               />
             </div>
           </div>

@@ -13,6 +13,33 @@ export function TimerTool() {
   const [stopwatchRunning, setStopwatchRunning] = useState(false);
   const [laps, setLaps] = useState<number[]>([]);
   const intervalRef = useRef<number | null>(null);
+  const audioContextRef = useRef<AudioContext | null>(null);
+
+  const playBeep = () => {
+    if (!soundEnabled) return;
+    try {
+      if (!audioContextRef.current) {
+        audioContextRef.current = new (window.AudioContext || (window as any).webkitAudioContext)();
+      }
+      const ctx = audioContextRef.current;
+      const osc = ctx.createOscillator();
+      const gain = ctx.createGain();
+
+      osc.type = 'sine';
+      osc.frequency.setValueAtTime(880, ctx.currentTime);
+      osc.connect(gain);
+      gain.connect(ctx.destination);
+
+      gain.gain.setValueAtTime(0, ctx.currentTime);
+      gain.gain.linearRampToValueAtTime(0.5, ctx.currentTime + 0.1);
+      gain.gain.exponentialRampToValueAtTime(0.01, ctx.currentTime + 1);
+
+      osc.start(ctx.currentTime);
+      osc.stop(ctx.currentTime + 1);
+    } catch (e) {
+      console.error('Audio play failed:', e);
+    }
+  };
 
   useEffect(() => {
     if (timerRunning && mode === 'timer') {
@@ -22,6 +49,7 @@ export function TimerTool() {
           if (prev <= 1) {
             setTimerRunning(false);
             setTimerDone(true);
+            playBeep();
             return 0;
           }
           return prev - 1;
@@ -81,22 +109,38 @@ export function TimerTool() {
             {!timerRunning && (
               <div className="flex justify-center items-end gap-4">
                 <div className="space-y-2">
-                  <label className="text-xs font-black uppercase tracking-widest text-slate-400 px-1">Minutes</label>
+                  <label htmlFor="timerMinutes" className="text-xs font-black uppercase tracking-widest text-slate-400 px-1 cursor-pointer">Minutes</label>
                   <input
+                    id="timerMinutes"
                     type="number"
+                    min="0"
+                    max="999"
                     value={timerMinutes}
-                    onChange={(e) => { setTimerMinutes(Number(e.target.value)); setTimerTime(Number(e.target.value) * 60 + timerSeconds); }}
-                    className="w-24 p-4 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl text-center text-3xl font-black font-mono outline-none"
+                    onChange={(e) => {
+                      const val = Math.max(0, Math.min(999, Number(e.target.value)));
+                      setTimerMinutes(val);
+                      setTimerTime(val * 60 + timerSeconds);
+                    }}
+                    className="w-24 p-4 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl text-center text-3xl font-black font-mono outline-none focus:border-indigo-500 transition-colors"
+                    aria-label="Minutes du minuteur"
                   />
                 </div>
-                <div className="text-3xl font-black text-slate-300 pb-4">:</div>
+                <div className="text-3xl font-black text-slate-300 pb-4" aria-hidden="true">:</div>
                 <div className="space-y-2">
-                  <label className="text-xs font-black uppercase tracking-widest text-slate-400 px-1">Secondes</label>
+                  <label htmlFor="timerSeconds" className="text-xs font-black uppercase tracking-widest text-slate-400 px-1 cursor-pointer">Secondes</label>
                   <input
+                    id="timerSeconds"
                     type="number"
+                    min="0"
+                    max="59"
                     value={timerSeconds}
-                    onChange={(e) => { setTimerSeconds(Number(e.target.value)); setTimerTime(timerMinutes * 60 + Number(e.target.value)); }}
-                    className="w-24 p-4 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl text-center text-3xl font-black font-mono outline-none"
+                    onChange={(e) => {
+                      const val = Math.max(0, Math.min(59, Number(e.target.value)));
+                      setTimerSeconds(val);
+                      setTimerTime(timerMinutes * 60 + val);
+                    }}
+                    className="w-24 p-4 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl text-center text-3xl font-black font-mono outline-none focus:border-indigo-500 transition-colors"
+                    aria-label="Secondes du minuteur"
                   />
                 </div>
               </div>

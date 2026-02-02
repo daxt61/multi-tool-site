@@ -1,7 +1,7 @@
 import { useState } from 'react';
-import { ArrowDown, Copy, Check, Trash2, ArrowUpDown } from 'lucide-react';
+import { Copy, Check, Trash2, ArrowUpDown } from 'lucide-react';
 
-type ConversionCategory = 'length' | 'weight' | 'temperature' | 'area' | 'volume' | 'digital' | 'pressure' | 'energy' | 'speed' | 'time';
+type ConversionCategory = 'length' | 'weight' | 'temperature' | 'area' | 'volume' | 'digital' | 'pressure' | 'energy' | 'speed' | 'time' | 'power' | 'frequency' | 'consumption';
 
 interface ConversionUnit {
   name: string;
@@ -9,7 +9,6 @@ interface ConversionUnit {
   fromBase: (value: number) => number;
 }
 
-// ⚡ Bolt Optimization: Static data moved to module level to avoid re-allocation on every render.
 const CONVERSIONS: Record<ConversionCategory, Record<string, ConversionUnit>> = {
   length: {
     'm': { name: 'Mètres', toBase: (v) => v, fromBase: (v) => v },
@@ -90,6 +89,25 @@ const CONVERSIONS: Record<ConversionCategory, Record<string, ConversionUnit>> = 
     'kcal': { name: 'Kilocalorie (kcal)', toBase: (v) => v * 4184, fromBase: (v) => v / 4184 },
     'Wh': { name: 'Watt-heure (Wh)', toBase: (v) => v * 3600, fromBase: (v) => v / 3600 },
     'kWh': { name: 'Kilowatt-heure (kWh)', toBase: (v) => v * 3600000, fromBase: (v) => v / 3600000 }
+  },
+  power: {
+    'W': { name: 'Watt (W)', toBase: (v) => v, fromBase: (v) => v },
+    'kW': { name: 'Kilowatt (kW)', toBase: (v) => v * 1000, fromBase: (v) => v / 1000 },
+    'MW': { name: 'Mégawatt (MW)', toBase: (v) => v * 1000000, fromBase: (v) => v / 1000000 },
+    'hp': { name: 'Chevaux (hp)', toBase: (v) => v * 745.7, fromBase: (v) => v / 745.7 },
+  },
+  frequency: {
+    'Hz': { name: 'Hertz (Hz)', toBase: (v) => v, fromBase: (v) => v },
+    'kHz': { name: 'Kilohertz (kHz)', toBase: (v) => v * 1000, fromBase: (v) => v / 1000 },
+    'MHz': { name: 'Mégahertz (MHz)', toBase: (v) => v * 1000000, fromBase: (v) => v / 1000000 },
+    'GHz': { name: 'Gigahertz (GHz)', toBase: (v) => v * 1000000000, fromBase: (v) => v / 1000000000 },
+    'THz': { name: 'Térahertz (THz)', toBase: (v) => v * 1000000000000, fromBase: (v) => v / 1000000000000 },
+  },
+  consumption: {
+    'l/100km': { name: 'L/100km', toBase: (v) => v, fromBase: (v) => v },
+    'mpg_us': { name: 'MPG (US)', toBase: (v) => 235.215 / v, fromBase: (v) => 235.215 / v },
+    'mpg_uk': { name: 'MPG (UK)', toBase: (v) => 282.481 / v, fromBase: (v) => 282.481 / v },
+    'km/l': { name: 'km/L', toBase: (v) => 100 / v, fromBase: (v) => 100 / v },
   }
 };
 
@@ -103,15 +121,23 @@ const CATEGORIES_MAP = [
   { id: 'speed', name: 'Vitesse' },
   { id: 'time', name: 'Temps' },
   { id: 'pressure', name: 'Pression' },
-  { id: 'energy', name: 'Énergie' }
+  { id: 'energy', name: 'Énergie' },
+  { id: 'power', name: 'Puissance' },
+  { id: 'frequency', name: 'Fréquence' },
+  { id: 'consumption', name: 'Consommation' }
 ];
+
+const formatter = new Intl.NumberFormat('fr-FR', {
+  maximumFractionDigits: 10,
+  minimumFractionDigits: 0,
+});
 
 const convert = (value: string, from: string, to: string, cat: ConversionCategory) => {
   const num = parseFloat(value);
-  if (isNaN(num)) return '0';
+  if (isNaN(num)) return 0;
   const baseValue = CONVERSIONS[cat][from].toBase(num);
   const result = CONVERSIONS[cat][to].fromBase(baseValue);
-  return result.toFixed(6).replace(/\.?0+$/, '');
+  return result;
 };
 
 export function UnitConverter() {
@@ -119,7 +145,7 @@ export function UnitConverter() {
   const [fromUnit, setFromUnit] = useState('m');
   const [toUnit, setToUnit] = useState('km');
   const [fromValue, setFromValue] = useState('1');
-  const [toValue, setToValue] = useState('0.001');
+  const [toValue, setToValue] = useState(0.001);
   const [copied, setCopied] = useState(false);
 
   const handleCategoryChange = (newCategory: ConversionCategory) => {
@@ -131,14 +157,14 @@ export function UnitConverter() {
   };
 
   const handleCopy = () => {
-    navigator.clipboard.writeText(toValue);
+    navigator.clipboard.writeText(String(toValue));
     setCopied(true);
     setTimeout(() => setCopied(false), 2000);
   };
 
   const handleClear = () => {
     setFromValue('');
-    setToValue('0');
+    setToValue(0);
   };
 
   const handleSwap = () => {
@@ -149,8 +175,8 @@ export function UnitConverter() {
 
     setFromUnit(oldToUnit);
     setToUnit(oldFromUnit);
-    setFromValue(oldToValue);
-    setToValue(oldFromValue);
+    setFromValue(String(oldToValue));
+    setToValue(Number(oldFromValue));
   };
 
   return (
@@ -235,12 +261,9 @@ export function UnitConverter() {
             </button>
           </div>
           <div className="flex flex-col gap-3 p-6 bg-slate-50 dark:bg-slate-900/50 rounded-3xl border border-slate-200 dark:border-slate-800 transition-all">
-            <input
-              type="text"
-              value={toValue}
-              readOnly
-              className="bg-transparent text-4xl font-black font-mono outline-none text-indigo-600 dark:text-indigo-400"
-            />
+            <div className="bg-transparent text-4xl font-black font-mono outline-none text-indigo-600 dark:text-indigo-400 truncate">
+              {formatter.format(toValue)}
+            </div>
             <select
               value={toUnit}
               onChange={(e) => {

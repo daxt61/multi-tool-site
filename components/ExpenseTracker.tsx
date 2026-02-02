@@ -32,8 +32,13 @@ const CATEGORY_COLORS: Record<string, string> = {
 
 export function ExpenseTracker() {
   const [expenses, setExpenses] = useState<Expense[]>(() => {
-    const saved = localStorage.getItem("expenses");
-    return saved ? JSON.parse(saved) : [];
+    try {
+      const saved = localStorage.getItem("expenses");
+      const parsed = saved ? JSON.parse(saved) : [];
+      return Array.isArray(parsed) ? parsed : [];
+    } catch {
+      return [];
+    }
   });
   const [description, setDescription] = useState("");
   const [amount, setAmount] = useState("");

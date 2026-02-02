@@ -150,7 +150,9 @@ export function JWTDecoder() {
               ].map((claim) => (
                 <div key={claim.label} className="p-4 bg-slate-50 dark:bg-slate-800/50 rounded-2xl border border-slate-100 dark:border-slate-800">
                   <div className="text-[10px] font-black uppercase tracking-widest text-slate-400 mb-1">{claim.label}</div>
-                  <div className="font-bold text-sm truncate">{claim.value}</div>
+                  <div className="font-bold text-sm truncate">
+                    {typeof claim.value === 'object' ? JSON.stringify(claim.value) : String(claim.value)}
+                  </div>
                 </div>
               ))}
             </div>

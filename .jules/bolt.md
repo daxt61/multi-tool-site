@@ -17,3 +17,7 @@
 ## 2026-01-30 - [Single-Pass O(n) Aggregation for Dashboard-style Tools]
 **Learning:** In tools like ExpenseTracker that perform multiple aggregations (total sum, category breakdown) over the same data set, using multiple .filter().reduce() calls results in O(n * m) complexity. Refactoring these into a single-pass O(n) loop within useMemo significantly reduces computation time as the data set grows.
 **Action:** Prefer single-pass aggregation loops over multiple array iterations for complex dashboard metrics.
+
+## 2026-02-02 - [Responsive Text Analysis via useDeferredValue]
+**Learning:** For tools performing heavy regex-based text analysis (like WordCounter), useDeferredValue is essential to keep the input responsive. Pairing it with useMemo prevents redundant string operations (like multiple .trim().split() calls) on every keystroke, which otherwise causes visible lag on large documents.
+**Action:** Always apply useDeferredValue and useMemo for real-time text analysis tools to decouple UI input from expensive computations.

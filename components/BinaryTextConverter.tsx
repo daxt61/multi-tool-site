@@ -119,12 +119,30 @@ export function BinaryTextConverter() {
       </div>
 
       <div className="bg-slate-50 dark:bg-slate-900/50 p-8 rounded-[2.5rem] border border-slate-200 dark:border-slate-800">
-        <h4 className="font-bold text-slate-900 dark:text-white mb-4">À propos du système binaire</h4>
-        <p className="text-sm text-slate-500 dark:text-slate-400 leading-relaxed">
-          Le système binaire est un système de numération utilisant la base 2 avec seulement deux symboles : 0 et 1.
-          Chaque caractère de votre texte est converti en son code ASCII, puis représenté par une séquence de 8 bits (un octet).
-          C'est le langage fondamental utilisé par tous les ordinateurs pour traiter et stocker des informations.
-        </p>
+        <h2 className="text-2xl font-black text-slate-900 dark:text-white mb-6">Comprendre le langage des machines</h2>
+
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-8 mb-12">
+          <div className="space-y-4">
+            <h3 className="font-bold text-indigo-600 dark:text-indigo-400">Qu'est-ce que le binaire ?</h3>
+            <p className="text-sm text-slate-600 dark:text-slate-400 leading-relaxed">
+              Le système binaire est un système de numération en base 2, utilisant uniquement les chiffres <strong>0</strong> et <strong>1</strong>. En informatique, ces "bits" (BInary digiTs) représentent les deux états d'un composant électronique : allumé (1) ou éteint (0).
+            </p>
+          </div>
+
+          <div className="space-y-4">
+            <h3 className="font-bold text-indigo-600 dark:text-indigo-400">Le rôle de l'ASCII et de l'UTF-8</h3>
+            <p className="text-sm text-slate-600 dark:text-slate-400 leading-relaxed">
+              Pour que les humains puissent lire du texte, chaque caractère est associé à un nombre via des standards comme <strong>ASCII</strong> ou <strong>UTF-8</strong>. Par exemple, la lettre 'A' majuscule correspond au nombre 65, qui s'écrit <code>01000001</code> en binaire.
+            </p>
+          </div>
+        </div>
+
+        <div className="p-6 bg-white dark:bg-slate-800 rounded-3xl border border-slate-100 dark:border-slate-700 shadow-sm">
+          <h3 className="font-bold text-slate-900 dark:text-white mb-4">Pourquoi 8 bits ?</h3>
+          <p className="text-sm text-slate-600 dark:text-slate-400 leading-relaxed">
+            Un groupe de 8 bits forme un <strong>octet</strong> (byte). Avec 8 bits, on peut représenter 256 valeurs différentes (2^8), ce qui était suffisant à l'origine pour encoder toutes les lettres de l'alphabet latin, les chiffres et les symboles de ponctuation. Aujourd'hui, l'UTF-8 utilise plusieurs octets pour représenter des milliers de caractères, incluant les emojis et les alphabets non-latins.
+          </p>
+        </div>
       </div>
     </div>
   );

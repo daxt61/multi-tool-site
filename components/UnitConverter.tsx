@@ -1,5 +1,17 @@
-import { useState } from 'react';
-import { Copy, Check, Trash2, ArrowUpDown } from 'lucide-react';
+import { useState, useMemo } from 'react';
+import {
+  Copy,
+  Check,
+  Trash2,
+  ArrowUpDown,
+  Zap,
+  History,
+  Info,
+  BookOpen,
+  HelpCircle,
+  Lightbulb,
+  Scale
+} from 'lucide-react';
 
 type ConversionCategory = 'length' | 'weight' | 'temperature' | 'area' | 'volume' | 'digital' | 'pressure' | 'energy' | 'speed' | 'time' | 'power' | 'frequency' | 'consumption';
 
@@ -276,6 +288,44 @@ export function UnitConverter() {
                 <option key={key} value={key}>{unit.name}</option>
               ))}
             </select>
+          </div>
+        </div>
+      </div>
+
+      {/* Educational Section */}
+      <div className="bg-slate-50 dark:bg-slate-900/50 p-8 md:p-12 rounded-[2.5rem] border border-slate-200 dark:border-slate-800 space-y-8 mt-12">
+        <div className="max-w-3xl">
+          <h2 className="text-2xl font-black text-slate-900 dark:text-white mb-6 flex items-center gap-3">
+            <BookOpen className="w-6 h-6 text-indigo-500" /> Comprendre les systèmes de mesure
+          </h2>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+            <div className="space-y-4">
+              <h3 className="font-bold text-indigo-600 dark:text-indigo-400 flex items-center gap-2">
+                <Scale className="w-4 h-4" /> Système Métrique vs Impérial
+              </h3>
+              <p className="text-sm text-slate-600 dark:text-slate-400 leading-relaxed">
+                Le système métrique (SI), basé sur des puissances de 10, est la norme mondiale pour la science et le commerce. Le système impérial reste principalement utilisé aux États-Unis, au Libéria et au Myanmar. Passer de l'un à l'autre demande une précision rigoureuse, car une simple erreur d'arrondi peut avoir des conséquences majeures en ingénierie.
+              </p>
+            </div>
+
+            <div className="space-y-4">
+              <h3 className="font-bold text-indigo-600 dark:text-indigo-400 flex items-center gap-2">
+                <Zap className="w-4 h-4" /> L'importance de la précision
+              </h3>
+              <p className="text-sm text-slate-600 dark:text-slate-400 leading-relaxed">
+                Notre convertisseur utilise des facteurs de conversion de haute précision et formate les résultats jusqu'à 10 décimales pour garantir la fiabilité de vos calculs, que ce soit pour une recette de cuisine ou un projet technique.
+              </p>
+            </div>
+          </div>
+
+          <div className="mt-12 p-6 bg-white dark:bg-slate-800 rounded-3xl border border-slate-100 dark:border-slate-700 shadow-sm">
+            <h3 className="font-bold text-slate-900 dark:text-white mb-4 flex items-center gap-2">
+              <Lightbulb className="w-5 h-5 text-amber-500" /> Le saviez-vous ?
+            </h3>
+            <p className="text-sm text-slate-600 dark:text-slate-400 italic">
+              "En 1999, la NASA a perdu la sonde Mars Climate Orbiter car une équipe utilisait des unités impériales (pound-seconds) tandis que l'autre utilisait des unités métriques (newton-seconds) pour les calculs de poussée. Cette erreur a coûté 125 millions de dollars."
+            </p>
           </div>
         </div>
       </div>

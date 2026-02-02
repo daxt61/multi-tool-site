@@ -259,6 +259,49 @@ export function ExpenseTracker() {
           </div>
         </div>
       </div>
+
+      {/* Educational Section */}
+      <div className="bg-slate-50 dark:bg-slate-900/50 p-8 md:p-12 rounded-[2.5rem] border border-slate-200 dark:border-slate-800 space-y-8 mt-12">
+        <div className="max-w-3xl">
+          <h2 className="text-2xl font-black text-slate-900 dark:text-white mb-6">Maîtriser vos finances personnelles</h2>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+            <div className="space-y-4">
+              <h3 className="font-bold text-indigo-600 dark:text-indigo-400">Pourquoi suivre ses dépenses ?</h3>
+              <p className="text-sm text-slate-600 dark:text-slate-400 leading-relaxed">
+                Le suivi quotidien de vos dépenses est la première étape vers la liberté financière. En identifiant précisément où va votre argent, vous pouvez éliminer les achats impulsifs et les abonnements inutiles, tout en priorisant ce qui compte vraiment pour vous.
+              </p>
+            </div>
+
+            <div className="space-y-4">
+              <h3 className="font-bold text-indigo-600 dark:text-indigo-400">La règle du 50/30/20</h3>
+              <p className="text-sm text-slate-600 dark:text-slate-400 leading-relaxed">
+                Une méthode simple pour gérer son budget : allouez <strong>50%</strong> de vos revenus aux besoins (loyer, factures), <strong>30%</strong> aux envies (loisirs, shopping), et <strong>20%</strong> à l'épargne ou au remboursement de dettes.
+              </p>
+            </div>
+          </div>
+
+          <div className="mt-12 p-6 bg-white dark:bg-slate-800 rounded-3xl border border-slate-100 dark:border-slate-700 shadow-sm">
+            <h3 className="font-bold text-slate-900 dark:text-white mb-4 flex items-center gap-2">
+              <TrendingDown className="w-5 h-5 text-rose-500" /> Conseils pour épargner efficacement
+            </h3>
+            <ul className="space-y-3 text-sm text-slate-600 dark:text-slate-400">
+              <li className="flex gap-3">
+                <span className="text-indigo-500 font-bold">•</span>
+                <span><strong>Automatisez votre épargne :</strong> Programmez un virement dès la réception de votre salaire.</span>
+              </li>
+              <li className="flex gap-3">
+                <span className="text-indigo-500 font-bold">•</span>
+                <span><strong>Le fonds d'urgence :</strong> Visez à mettre de côté 3 à 6 mois de dépenses courantes pour parer aux imprévus.</span>
+              </li>
+              <li className="flex gap-3">
+                <span className="text-indigo-500 font-bold">•</span>
+                <span><strong>Analysez vos catégories :</strong> Si votre budget "Loisirs" dépasse vos prévisions, cherchez des alternatives gratuites ou moins coûteuses.</span>
+              </li>
+            </ul>
+          </div>
+        </div>
+      </div>
     </div>
   );
 }

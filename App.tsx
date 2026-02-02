@@ -924,6 +924,78 @@ function MainApp() {
                 <AdPlaceholder size="large" className="opacity-50 grayscale hover:grayscale-0 transition-all" />
               </Suspense>
 
+              {/* Guide & FAQ Section */}
+              <section className="space-y-16 py-12 border-t border-slate-200 dark:border-slate-800">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-12">
+                  <div className="space-y-6">
+                    <h2 className="text-3xl font-black tracking-tight">Guide d'utilisation</h2>
+                    <p className="text-slate-500 dark:text-slate-400 leading-relaxed">
+                      Bienvenue sur la <strong>Boîte à Outils</strong>, votre compagnon quotidien pour simplifier vos tâches techniques et administratives. Notre plateforme est conçue pour être rapide, intuitive et surtout respectueuse de votre vie privée.
+                    </p>
+                    <div className="space-y-4">
+                      <div className="flex gap-4 p-4 bg-slate-50 dark:bg-slate-900/50 rounded-2xl border border-slate-100 dark:border-slate-800">
+                        <div className="w-8 h-8 rounded-full bg-indigo-100 dark:bg-indigo-900/30 flex items-center justify-center text-indigo-600 dark:text-indigo-400 font-bold text-sm">1</div>
+                        <div>
+                          <h4 className="font-bold text-sm">Choisissez votre outil</h4>
+                          <p className="text-xs text-slate-500 dark:text-slate-400 mt-1">Utilisez la barre de recherche ou parcourez les catégories pour trouver l'utilitaire dont vous avez besoin.</p>
+                        </div>
+                      </div>
+                      <div className="flex gap-4 p-4 bg-slate-50 dark:bg-slate-900/50 rounded-2xl border border-slate-100 dark:border-slate-800">
+                        <div className="w-8 h-8 rounded-full bg-indigo-100 dark:bg-indigo-900/30 flex items-center justify-center text-indigo-600 dark:text-indigo-400 font-bold text-sm">2</div>
+                        <div>
+                          <h4 className="font-bold text-sm">Saisissez vos données</h4>
+                          <p className="text-xs text-slate-500 dark:text-slate-400 mt-1">Entrez les informations requises. Les calculs et conversions se font instantanément dans votre navigateur.</p>
+                        </div>
+                      </div>
+                      <div className="flex gap-4 p-4 bg-slate-50 dark:bg-slate-900/50 rounded-2xl border border-slate-100 dark:border-slate-800">
+                        <div className="w-8 h-8 rounded-full bg-indigo-100 dark:bg-indigo-900/30 flex items-center justify-center text-indigo-600 dark:text-indigo-400 font-bold text-sm">3</div>
+                        <div>
+                          <h4 className="font-bold text-sm">Copiez et utilisez</h4>
+                          <p className="text-xs text-slate-500 dark:text-slate-400 mt-1">Utilisez les boutons "Copier" pour récupérer vos résultats en un clic et les intégrer à vos projets.</p>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div className="space-y-6">
+                    <h2 className="text-3xl font-black tracking-tight">Questions Fréquentes</h2>
+                    <div className="space-y-6">
+                      <div>
+                        <h4 className="font-bold text-slate-900 dark:text-white mb-2">Mes données sont-elles enregistrées ?</h4>
+                        <p className="text-sm text-slate-500 dark:text-slate-400 leading-relaxed">
+                          Non. Tous les traitements (minification, conversion, calculs) sont effectués côté client en JavaScript. Vos données ne quittent jamais votre ordinateur, sauf pour les outils nécessitant une API externe (comme la conversion de devises ou la détection d'IP).
+                        </p>
+                      </div>
+                      <div>
+                        <h4 className="font-bold text-slate-900 dark:text-white mb-2">L'utilisation est-elle gratuite ?</h4>
+                        <p className="text-sm text-slate-500 dark:text-slate-400 leading-relaxed">
+                          Oui, 100% gratuit. Nous finançons l'hébergement via des publicités non-intrusives pour permettre à tout le monde d'accéder à ces outils sans abonnement.
+                        </p>
+                      </div>
+                      <div>
+                        <h4 className="font-bold text-slate-900 dark:text-white mb-2">Puis-je utiliser ces outils hors-ligne ?</h4>
+                        <p className="text-sm text-slate-500 dark:text-slate-400 leading-relaxed">
+                          Une fois la page chargée, la majorité des outils fonctionnent sans connexion internet. Nous travaillons également sur une version PWA pour une installation complète.
+                        </p>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                <div className="p-8 bg-indigo-600 rounded-[2.5rem] text-white text-center space-y-4">
+                  <h3 className="text-2xl font-black">Prêt à booster votre productivité ?</h3>
+                  <p className="text-indigo-100 max-w-2xl mx-auto">
+                    Rejoignez des milliers d'utilisateurs qui simplifient leurs flux de travail chaque jour avec nos utilitaires open-source. Plus besoin de chercher des sites douteux, tout est ici, sécurisé et rapide.
+                  </p>
+                  <button
+                    onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
+                    className="inline-flex items-center gap-2 px-8 py-3 bg-white text-indigo-600 rounded-2xl font-black hover:bg-indigo-50 transition-all active:scale-95"
+                  >
+                    Découvrir les outils <ArrowRight className="w-5 h-5" />
+                  </button>
+                </div>
+              </section>
+
               <footer className="pt-20 pb-10 border-t border-slate-200 dark:border-slate-800">
                 <div className="flex flex-col md:flex-row justify-between items-center gap-8">
                   <div className="flex items-center gap-2 text-slate-400">

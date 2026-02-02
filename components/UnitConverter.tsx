@@ -168,15 +168,14 @@ export function UnitConverter() {
   };
 
   const handleSwap = () => {
-    const oldFromUnit = fromUnit;
-    const oldToUnit = toUnit;
-    const oldFromValue = fromValue;
-    const oldToValue = toValue;
+    const newFromUnit = toUnit;
+    const newToUnit = fromUnit;
+    const newFromValue = toValue.toString();
 
-    setFromUnit(oldToUnit);
-    setToUnit(oldFromUnit);
-    setFromValue(String(oldToValue));
-    setToValue(Number(oldFromValue));
+    setFromUnit(newFromUnit);
+    setToUnit(newToUnit);
+    setFromValue(newFromValue);
+    setToValue(convert(newFromValue, newFromUnit, newToUnit, category));
   };
 
   return (
@@ -204,7 +203,7 @@ export function UnitConverter() {
         {/* De */}
         <div className="space-y-4">
           <div className="flex justify-between items-center px-1">
-            <label className="text-xs font-black uppercase tracking-widest text-slate-400">De</label>
+            <label htmlFor="fromValue" className="text-xs font-black uppercase tracking-widest text-slate-400 cursor-pointer">De</label>
             <button
               onClick={handleClear}
               className="text-xs font-bold text-rose-500 hover:text-rose-600 flex items-center gap-1 transition-colors"
@@ -214,6 +213,7 @@ export function UnitConverter() {
           </div>
           <div className="flex flex-col gap-3 p-6 bg-slate-50 dark:bg-slate-900/50 rounded-3xl border border-slate-200 dark:border-slate-800 focus-within:ring-2 focus-within:ring-indigo-500/20 transition-all">
             <input
+              id="fromValue"
               type="number"
               value={fromValue}
               onChange={(e) => {
@@ -222,14 +222,17 @@ export function UnitConverter() {
               }}
               className="bg-transparent text-4xl font-black font-mono outline-none dark:text-white"
               placeholder="0"
+              aria-label="Valeur à convertir"
             />
             <select
+              id="fromUnit"
               value={fromUnit}
               onChange={(e) => {
                 setFromUnit(e.target.value);
                 setToValue(convert(fromValue, e.target.value, toUnit, category));
               }}
               className="bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl px-4 py-2 font-bold text-sm outline-none cursor-pointer"
+              aria-label="Unité de départ"
             >
               {Object.entries(CONVERSIONS[category]).map(([key, unit]) => (
                 <option key={key} value={key}>{unit.name}</option>
@@ -251,7 +254,7 @@ export function UnitConverter() {
         {/* Vers */}
         <div className="space-y-4">
           <div className="flex justify-between items-center px-1">
-            <label className="text-xs font-black uppercase tracking-widest text-slate-400">Vers</label>
+            <label htmlFor="toUnit" className="text-xs font-black uppercase tracking-widest text-slate-400 cursor-pointer">Vers</label>
             <button
               onClick={handleCopy}
               className={`text-xs font-bold flex items-center gap-1 transition-colors ${copied ? 'text-emerald-500' : 'text-indigo-500 hover:text-indigo-600'}`}
@@ -261,16 +264,18 @@ export function UnitConverter() {
             </button>
           </div>
           <div className="flex flex-col gap-3 p-6 bg-slate-50 dark:bg-slate-900/50 rounded-3xl border border-slate-200 dark:border-slate-800 transition-all">
-            <div className="bg-transparent text-4xl font-black font-mono outline-none text-indigo-600 dark:text-indigo-400 truncate">
+            <div className="bg-transparent text-4xl font-black font-mono outline-none text-indigo-600 dark:text-indigo-400 truncate" aria-live="polite">
               {formatter.format(toValue)}
             </div>
             <select
+              id="toUnit"
               value={toUnit}
               onChange={(e) => {
                 setToUnit(e.target.value);
                 setToValue(convert(fromValue, fromUnit, e.target.value, category));
               }}
               className="bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl px-4 py-2 font-bold text-sm outline-none cursor-pointer"
+              aria-label="Unité de destination"
             >
               {Object.entries(CONVERSIONS[category]).map(([key, unit]) => (
                 <option key={key} value={key}>{unit.name}</option>

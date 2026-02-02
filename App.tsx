@@ -61,6 +61,7 @@ import {
   Star,
   Clock,
   Table,
+  Tag,
   LayoutGrid,
   ArrowRight, Loader2,
   Sparkles,
@@ -131,6 +132,7 @@ const JWTDecoder = lazy(() => import("./components/JWTDecoder").then(m => ({ def
 const CodeMinifier = lazy(() => import("./components/CodeMinifier").then(m => ({ default: m.CodeMinifier })));
 const BinaryTextConverter = lazy(() => import("./components/BinaryTextConverter").then(m => ({ default: m.BinaryTextConverter })));
 const Base64ToImage = lazy(() => import("./components/Base64ToImage").then(m => ({ default: m.Base64ToImage })));
+const UnitPriceCalculator = lazy(() => import("./components/UnitPriceCalculator").then(m => ({ default: m.UnitPriceCalculator })));
 
 // ⚡ Bolt Optimization: Pre-calculating tool map and search index for O(1) lookups and faster filtering
 const toolsMap: Record<string, Tool> = {};
@@ -252,6 +254,14 @@ const tools: Tool[] = [
     icon: DollarSign,
     description: "Convertisseur de devises en temps réel",
     Component: CurrencyConverter,
+    category: "budget",
+  },
+  {
+    id: "unit-price-calculator",
+    name: "Prix Unitaire",
+    icon: Tag,
+    description: "Comparer le prix au kilo ou à l'unité",
+    Component: UnitPriceCalculator,
     category: "budget",
   },
   // Calculators

@@ -30,7 +30,7 @@ export function TimerTool() {
     } else if (stopwatchRunning && mode === 'stopwatch') {
       intervalRef.current = window.setInterval(() => {
         setStopwatchTime((prev) => prev + 1);
-      }, 1000);
+      }, 10);
     } else if (intervalRef.current) {
       clearInterval(intervalRef.current);
     }
@@ -54,6 +54,14 @@ export function TimerTool() {
     const minutes = Math.floor((totalSeconds % 3600) / 60);
     const seconds = totalSeconds % 60;
     return `${hours > 0 ? hours.toString().padStart(2, '0') + ':' : ''}${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+  };
+
+  const formatStopwatchTime = (time: number) => {
+    const hours = Math.floor(time / 360000);
+    const minutes = Math.floor((time % 360000) / 6000);
+    const seconds = Math.floor((time % 6000) / 100);
+    const ms = time % 100;
+    return `${hours > 0 ? hours.toString().padStart(2, '0') + ':' : ''}${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}.${ms.toString().padStart(2, '0')}`;
   };
 
   const progress = (timerMinutes * 60 + timerSeconds - timerTime) / (timerMinutes * 60 + timerSeconds || 1);
@@ -141,7 +149,7 @@ export function TimerTool() {
         <div className="space-y-12">
           <div className="text-center py-16 bg-slate-50 dark:bg-slate-900/50 rounded-[3rem] border border-slate-200 dark:border-slate-800">
             <div className="text-8xl md:text-9xl font-black font-mono tracking-tighter dark:text-white">
-              {formatTime(stopwatchTime)}
+              {formatStopwatchTime(stopwatchTime)}
             </div>
           </div>
 
@@ -175,7 +183,7 @@ export function TimerTool() {
                 {laps.map((lap, i) => (
                   <div key={i} className="flex justify-between items-center p-4">
                     <span className="text-xs font-bold text-slate-400">TOUR {laps.length - i}</span>
-                    <span className="font-mono font-black dark:text-white">{formatTime(lap)}</span>
+                    <span className="font-mono font-black dark:text-white">{formatStopwatchTime(lap)}</span>
                   </div>
                 ))}
               </div>

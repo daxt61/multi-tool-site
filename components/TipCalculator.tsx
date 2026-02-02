@@ -1,10 +1,11 @@
 import { useState } from "react";
-import { UtensilsCrossed, Users, Euro, Percent } from "lucide-react";
+import { UtensilsCrossed, Users, Euro, Percent, Copy, Check, Trash2 } from "lucide-react";
 
 export function TipCalculator() {
   const [billAmount, setBillAmount] = useState<string>("");
   const [tipPercent, setTipPercent] = useState<number>(15);
   const [numberOfPeople, setNumberOfPeople] = useState<string>("1");
+  const [copied, setCopied] = useState(false);
 
   const bill = parseFloat(billAmount) || 0;
   const people = parseInt(numberOfPeople) || 1;
@@ -14,16 +15,39 @@ export function TipCalculator() {
 
   const tipButtons = [10, 15, 18, 20, 25];
 
+  const handleCopy = () => {
+    const text = `Addition: ${bill.toFixed(2)}€\nPourboire (${tipPercent}%): ${tipAmount.toFixed(2)}€\nTotal: ${totalAmount.toFixed(2)}€${people > 1 ? `\nPar personne: ${perPerson.toFixed(2)}€` : ''}`;
+    navigator.clipboard.writeText(text);
+    setCopied(true);
+    setTimeout(() => setCopied(false), 2000);
+  };
+
+  const handleClear = () => {
+    setBillAmount("");
+    setTipPercent(15);
+    setNumberOfPeople("1");
+  };
+
   return (
     <div className="max-w-4xl mx-auto space-y-8">
       <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
         <div className="space-y-6">
-          <div className="space-y-3">
-            <label className="text-xs font-black uppercase tracking-widest text-slate-400 px-1 flex items-center gap-2">
+          <div className="flex justify-between items-center px-1">
+            <label htmlFor="bill-amount" className="text-xs font-black uppercase tracking-widest text-slate-400 flex items-center gap-2 cursor-pointer">
               <Euro className="w-3 h-3" /> Montant de l'addition
             </label>
+            <button
+              onClick={handleClear}
+              className="text-xs font-bold text-rose-500 hover:text-rose-600 flex items-center gap-1 transition-colors"
+              aria-label="Effacer tout"
+            >
+              <Trash2 className="w-3 h-3" /> Effacer
+            </button>
+          </div>
+          <div className="space-y-3">
             <div className="relative">
                <input
+                id="bill-amount"
                 type="number"
                 value={billAmount}
                 onChange={(e) => setBillAmount(e.target.value)}
@@ -36,7 +60,7 @@ export function TipCalculator() {
           </div>
 
           <div className="space-y-3">
-             <label className="text-xs font-black uppercase tracking-widest text-slate-400 px-1 flex items-center gap-2">
+             <label htmlFor="tip-range" className="text-xs font-black uppercase tracking-widest text-slate-400 px-1 flex items-center gap-2 cursor-pointer">
                <Percent className="w-3 h-3" /> Pourboire: {tipPercent}%
              </label>
              <div className="grid grid-cols-5 gap-2">
@@ -55,6 +79,7 @@ export function TipCalculator() {
                 ))}
              </div>
              <input
+                id="tip-range"
                 type="range"
                 min="0"
                 max="50"
@@ -65,17 +90,19 @@ export function TipCalculator() {
           </div>
 
           <div className="space-y-3">
-            <label className="text-xs font-black uppercase tracking-widest text-slate-400 px-1 flex items-center gap-2">
+            <label htmlFor="people-count" className="text-xs font-black uppercase tracking-widest text-slate-400 px-1 flex items-center gap-2 cursor-pointer">
               <Users className="w-3 h-3" /> Nombre de personnes
             </label>
             <div className="flex items-center gap-4">
               <button
                 onClick={() => setNumberOfPeople(String(Math.max(1, people - 1)))}
                 className="w-14 h-14 bg-slate-100 dark:bg-slate-800 rounded-2xl flex items-center justify-center text-2xl font-black hover:bg-slate-200 dark:hover:bg-slate-700 transition-colors"
+                aria-label="Diminuer le nombre de personnes"
               >
                 -
               </button>
               <input
+                id="people-count"
                 type="number"
                 value={numberOfPeople}
                 onChange={(e) => setNumberOfPeople(e.target.value)}
@@ -85,6 +112,7 @@ export function TipCalculator() {
               <button
                 onClick={() => setNumberOfPeople(String(people + 1))}
                 className="w-14 h-14 bg-slate-100 dark:bg-slate-800 rounded-2xl flex items-center justify-center text-2xl font-black hover:bg-slate-200 dark:hover:bg-slate-700 transition-colors"
+                aria-label="Augmenter le nombre de personnes"
               >
                 +
               </button>
@@ -93,7 +121,15 @@ export function TipCalculator() {
         </div>
 
         <div className="space-y-6">
-          <div className="bg-slate-900 dark:bg-black p-10 rounded-[2.5rem] shadow-xl shadow-indigo-500/10 space-y-8">
+          <div className="bg-slate-900 dark:bg-black p-10 rounded-[2.5rem] shadow-xl shadow-indigo-500/10 space-y-8 relative group">
+            <button
+              onClick={handleCopy}
+              className={`absolute top-6 right-6 p-3 rounded-2xl transition-all ${copied ? 'bg-emerald-500 text-white' : 'bg-white/10 text-white/40 hover:text-white hover:bg-white/20 md:opacity-0 md:group-hover:opacity-100'}`}
+              title="Copier le résumé"
+              aria-label="Copier le résumé"
+            >
+              {copied ? <Check className="w-5 h-5" /> : <Copy className="w-5 h-5" />}
+            </button>
             <div className="flex justify-between items-center border-b border-slate-800 pb-6">
               <div className="space-y-1">
                 <div className="text-white font-black text-xl">Pourboire</div>

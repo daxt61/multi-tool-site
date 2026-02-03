@@ -17,3 +17,7 @@
 ## 2025-05-23 - [Utility Tool Micro-UX & a11y]
 **Learning:** For utility-heavy tools like calculators, "Clear" and "Copy" buttons are high-impact micro-UX features that users expect. Additionally, always ensure that all inputs (including number and range types) are properly linked to labels with `id` and `htmlFor` to maintain baseline accessibility.
 **Action:** Prioritize adding reset and copy features to utility tools and audit components for missing input-label associations.
+
+## 2025-02-03 - [Stable Generation & Bento Consistency]
+**Learning:** In text generation tools, random output must be stabilized using `useMemo` to prevent frustrating regenerations during unrelated state updates (like "Copied" feedback). Additionally, modernizing legacy components to the Bento design system (slate-50 backgrounds, rounded-3xl corners, indigo accents) significantly improves brand cohesion and trust.
+**Action:** Use `useMemo` for random text and prioritize visual alignment with the Bento system for older components.

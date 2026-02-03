@@ -1,7 +1,7 @@
 import { useState } from 'react';
-import { Copy, Check, Trash2, ArrowUpDown } from 'lucide-react';
+import { Copy, Check, Trash2, ArrowUpDown, Info, Ruler } from 'lucide-react';
 
-type ConversionCategory = 'length' | 'weight' | 'temperature' | 'area' | 'volume' | 'digital' | 'pressure' | 'energy' | 'speed' | 'time' | 'power' | 'frequency' | 'consumption';
+type ConversionCategory = 'length' | 'weight' | 'temperature' | 'area' | 'volume' | 'digital' | 'pressure' | 'energy' | 'speed' | 'time' | 'power' | 'frequency' | 'consumption' | 'angle';
 
 interface ConversionUnit {
   name: string;
@@ -108,6 +108,12 @@ const CONVERSIONS: Record<ConversionCategory, Record<string, ConversionUnit>> = 
     'mpg_us': { name: 'MPG (US)', toBase: (v) => 235.215 / v, fromBase: (v) => 235.215 / v },
     'mpg_uk': { name: 'MPG (UK)', toBase: (v) => 282.481 / v, fromBase: (v) => 282.481 / v },
     'km/l': { name: 'km/L', toBase: (v) => 100 / v, fromBase: (v) => 100 / v },
+  },
+  angle: {
+    'deg': { name: 'Degrés', toBase: (v) => v, fromBase: (v) => v },
+    'rad': { name: 'Radians', toBase: (v) => v * (180 / Math.PI), fromBase: (v) => v * (Math.PI / 180) },
+    'grad': { name: 'Grades', toBase: (v) => v * (9 / 10), fromBase: (v) => v * (10 / 9) },
+    'tr': { name: 'Tours', toBase: (v) => v * 360, fromBase: (v) => v / 360 }
   }
 };
 
@@ -124,7 +130,8 @@ const CATEGORIES_MAP = [
   { id: 'energy', name: 'Énergie' },
   { id: 'power', name: 'Puissance' },
   { id: 'frequency', name: 'Fréquence' },
-  { id: 'consumption', name: 'Consommation' }
+  { id: 'consumption', name: 'Consommation' },
+  { id: 'angle', name: 'Angle' }
 ];
 
 const formatter = new Intl.NumberFormat('fr-FR', {
@@ -282,6 +289,34 @@ export function UnitConverter() {
               ))}
             </select>
           </div>
+        </div>
+      </div>
+
+      {/* Educational Content */}
+      <div className="mt-20 grid grid-cols-1 md:grid-cols-3 gap-12 pt-16 border-t border-slate-100 dark:border-slate-800">
+        <div className="space-y-4">
+          <h4 className="font-bold dark:text-white flex items-center gap-2">
+            <Info className="w-4 h-4 text-indigo-500" /> Guide d'utilisation
+          </h4>
+          <p className="text-sm text-slate-500 dark:text-slate-400 leading-relaxed">
+            Choisissez d'abord une catégorie (Longueur, Poids, Angle, etc.) dans le menu supérieur. Saisissez ensuite la valeur à convertir dans le champ "De" et sélectionnez les unités correspondantes. Le résultat s'affiche instantanément.
+          </p>
+        </div>
+        <div className="space-y-4">
+          <h4 className="font-bold dark:text-white flex items-center gap-2">
+            <Ruler className="w-4 h-4 text-indigo-500" /> Précision & Calculs
+          </h4>
+          <p className="text-sm text-slate-500 dark:text-slate-400 leading-relaxed">
+            Toutes les conversions utilisent une unité de base interne pour chaque catégorie afin de garantir une précision maximale. Les résultats sont formatés selon les standards français pour une lecture aisée.
+          </p>
+        </div>
+        <div className="space-y-4">
+          <h4 className="font-bold dark:text-white flex items-center gap-2">
+            <Check className="w-4 h-4 text-indigo-500" /> Fiabilité
+          </h4>
+          <p className="text-sm text-slate-500 dark:text-slate-400 leading-relaxed">
+            Les facteurs de conversion sont basés sur les standards internationaux (SI). Pour les unités de stockage numérique, nous utilisons la base 1024 (Kio, Mio, etc.) conformément aux usages informatiques.
+          </p>
         </div>
       </div>
     </div>

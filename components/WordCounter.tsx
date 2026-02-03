@@ -1,5 +1,5 @@
 import { useState, useMemo, useDeferredValue } from 'react';
-import { Copy, Check, Trash2, Hash, Type, FileText, AlignLeft, Clock, MessageSquare, BarChart3 } from 'lucide-react';
+import { Copy, Check, Trash2, Hash, Type, FileText, AlignLeft, Clock, MessageSquare, BarChart3, Info } from 'lucide-react';
 
 export function WordCounter() {
   const [text, setText] = useState('');
@@ -18,13 +18,26 @@ export function WordCounter() {
     const words = trimmed === '' ? [] : trimmed.split(/\s+/);
     const wordCount = words.length;
 
+    const wordFreq: Record<string, number> = {};
+    words.forEach(w => {
+      const clean = w.toLowerCase().replace(/[.,/#!$%^&*;:{}=\-_`~()]/g, "");
+      if (clean && clean.length > 1) {
+        wordFreq[clean] = (wordFreq[clean] || 0) + 1;
+      }
+    });
+
+    const topWords = Object.entries(wordFreq)
+      .sort((a, b) => b[1] - a[1])
+      .slice(0, 10);
+
     return {
       characters: deferredText.length,
       words: wordCount,
       lines: deferredText === '' ? 0 : deferredText.split('\n').length,
-      sentences: trimmed === '' ? 0 : deferredText.split(/[.!?]+/).filter(s => s.trim().length > 0).length,
+      sentences: trimmed === '' ? 0 : deferredText.split(/[.!?]+(?:\s|$)/).filter(s => s.trim().length > 0).length,
       readingTime: Math.ceil(wordCount / 200),
       speakingTime: Math.ceil(wordCount / 130),
+      topWords
     };
   }, [deferredText]);
 
@@ -118,6 +131,55 @@ export function WordCounter() {
         >
           Capitaliser
         </button>
+      </div>
+
+      {stats.topWords.length > 0 && (
+        <div className="pt-8 border-t border-slate-100 dark:border-slate-800">
+          <h3 className="text-xs font-black uppercase tracking-widest text-slate-400 mb-6 flex items-center gap-2">
+            <BarChart3 className="w-4 h-4" /> Mots les plus fréquents
+          </h3>
+          <div className="flex flex-wrap gap-3">
+            {stats.topWords.map(([word, count]) => (
+              <div
+                key={word}
+                className="px-4 py-2 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl flex items-center gap-3 group transition-all hover:border-indigo-500/30"
+              >
+                <span className="font-bold text-slate-700 dark:text-slate-300">{word}</span>
+                <span className="px-2 py-0.5 bg-indigo-100 dark:bg-indigo-900/30 text-indigo-600 dark:text-indigo-400 text-[10px] font-black rounded-md group-hover:bg-indigo-600 group-hover:text-white transition-colors">
+                  {count}
+                </span>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
+
+      {/* Educational Content */}
+      <div className="mt-16 grid grid-cols-1 md:grid-cols-3 gap-8 pt-16 border-t border-slate-100 dark:border-slate-800">
+        <div className="space-y-4">
+          <h4 className="font-bold dark:text-white flex items-center gap-2">
+            <Info className="w-4 h-4 text-indigo-500" /> Guide d'utilisation
+          </h4>
+          <p className="text-sm text-slate-500 dark:text-slate-400 leading-relaxed">
+            Collez simplement votre texte dans la zone de saisie. Les statistiques se mettent à jour instantanément. Vous pouvez utiliser les boutons pour changer la casse du texte ou copier les rapports de statistiques détaillés.
+          </p>
+        </div>
+        <div className="space-y-4">
+          <h4 className="font-bold dark:text-white flex items-center gap-2">
+            <FileText className="w-4 h-4 text-indigo-500" /> Détails Techniques
+          </h4>
+          <p className="text-sm text-slate-500 dark:text-slate-400 leading-relaxed">
+            Le comptage des mots utilise une expression régulière robuste pour identifier les séparateurs. Le temps de lecture est estimé sur une base de 200 mots/minute, tandis que le temps de parole est calculé sur 130 mots/minute.
+          </p>
+        </div>
+        <div className="space-y-4">
+          <h4 className="font-bold dark:text-white flex items-center gap-2">
+            <MessageSquare className="w-4 h-4 text-indigo-500" /> FAQ
+          </h4>
+          <p className="text-sm text-slate-500 dark:text-slate-400 leading-relaxed">
+            <strong>Mes données sont-elles privées ?</strong> Absolument. Aucun texte n'est envoyé à un serveur. Tout le traitement est effectué localement sur votre appareil.
+          </p>
+        </div>
       </div>
     </div>
   );

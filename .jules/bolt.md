@@ -21,3 +21,7 @@
 ## 2026-02-02 - [Responsive Text Analysis via useDeferredValue]
 **Learning:** For tools performing heavy regex-based text analysis (like WordCounter), useDeferredValue is essential to keep the input responsive. Pairing it with useMemo prevents redundant string operations (like multiple .trim().split() calls) on every keystroke, which otherwise causes visible lag on large documents.
 **Action:** Always apply useDeferredValue and useMemo for real-time text analysis tools to decouple UI input from expensive computations.
+
+## 2026-05-25 - [Static Data Externalization and Memoized Conversions]
+**Learning:** In tools like CurrencyConverter that rely on large static arrays (e.g., 40+ currency objects), defining these inside the component causes redundant allocations and GC pressure on every keystroke. Additionally, simple but frequent arithmetic operations and `parseFloat` calls should be stabilized with `useMemo` to prevent execution during unrelated state updates (like UI feedback toggles).
+**Action:** Externalize large static arrays to the module level and memoize derived conversion results.

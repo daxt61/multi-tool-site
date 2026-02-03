@@ -133,6 +133,8 @@ const CodeMinifier = lazy(() => import("./components/CodeMinifier").then(m => ({
 const BinaryTextConverter = lazy(() => import("./components/BinaryTextConverter").then(m => ({ default: m.BinaryTextConverter })));
 const Base64ToImage = lazy(() => import("./components/Base64ToImage").then(m => ({ default: m.Base64ToImage })));
 const UnitPriceCalculator = lazy(() => import("./components/UnitPriceCalculator").then(m => ({ default: m.UnitPriceCalculator })));
+const AgeCalculator = lazy(() => import("./components/AgeCalculator").then(m => ({ default: m.AgeCalculator })));
+const ColorPaletteGenerator = lazy(() => import("./components/ColorPaletteGenerator").then(m => ({ default: m.ColorPaletteGenerator })));
 
 // ⚡ Bolt Optimization: Pre-calculating tool map and search index for O(1) lookups and faster filtering
 const toolsMap: Record<string, Tool> = {};
@@ -297,6 +299,14 @@ const tools: Tool[] = [
     Component: DateCalculator,
     category: "calculators",
   },
+  {
+    id: "age-calculator",
+    name: "Âge",
+    icon: Calendar,
+    description: "Calculer votre âge exact et prochain anniversaire",
+    Component: AgeCalculator,
+    category: "calculators",
+  },
   // Converters
   {
     id: "unit-converter",
@@ -320,6 +330,14 @@ const tools: Tool[] = [
     icon: Hash,
     description: "Binaire, Décimal, Hexadécimal",
     Component: NumberConverter,
+    category: "converters",
+  },
+  {
+    id: "color-palette",
+    name: "Palette de couleurs",
+    icon: Palette,
+    description: "Générer des harmonies de couleurs et palettes",
+    Component: ColorPaletteGenerator,
     category: "converters",
   },
   // Text Tools

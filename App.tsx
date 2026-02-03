@@ -715,8 +715,11 @@ function MainApp() {
       // if the data is malformed or tampered with.
       const saved = localStorage.getItem("favorites");
       const parsed = saved ? JSON.parse(saved) : [];
-      // Sentinel: Validate that the parsed data is an array before setting state.
-      return Array.isArray(parsed) ? parsed : [];
+      // Sentinel: Validate data structure and content to prevent state poisoning.
+      // Filter to ensure only valid tool IDs are stored and limit to 100 favorites.
+      return Array.isArray(parsed)
+        ? parsed.filter(id => Object.prototype.hasOwnProperty.call(toolsMap, id)).slice(0, 100)
+        : [];
     } catch (e) {
       console.error("Failed to load favorites from localStorage", e);
       return [];
@@ -727,8 +730,10 @@ function MainApp() {
       // Sentinel: Securely parse localStorage data to prevent app crashes (local DoS).
       const saved = localStorage.getItem("recents");
       const parsed = saved ? JSON.parse(saved) : [];
-      // Sentinel: Validate that the parsed data is an array before setting state.
-      return Array.isArray(parsed) ? parsed : [];
+      // Sentinel: Validate that the parsed data is an array and only contains valid tool IDs.
+      return Array.isArray(parsed)
+        ? parsed.filter(id => Object.prototype.hasOwnProperty.call(toolsMap, id)).slice(0, 4)
+        : [];
     } catch (e) {
       console.error("Failed to load recents from localStorage", e);
       return [];
@@ -768,16 +773,22 @@ function MainApp() {
 
   const toggleFavorite = useCallback((e: React.MouseEvent, id: string) => {
     e.stopPropagation();
+    // Sentinel: Validate tool ID before toggling favorite status.
+    if (!Object.prototype.hasOwnProperty.call(toolsMap, id)) return;
+
     setFavorites(prev => {
       const newFavs = prev.includes(id)
         ? prev.filter(f => f !== id)
-        : [...prev, id];
+        : [...prev, id].slice(0, 100); // Sentinel: Enforce max 100 favorites limit.
       localStorage.setItem("favorites", JSON.stringify(newFavs));
       return newFavs;
     });
   }, []);
 
   const handleToolSelect = useCallback((id: string) => {
+    // Sentinel: Validate tool ID before adding to recent history.
+    if (!Object.prototype.hasOwnProperty.call(toolsMap, id)) return;
+
     setRecents(prev => {
       const newRecents = [id, ...prev.filter(r => r !== id)].slice(0, 4);
       localStorage.setItem("recents", JSON.stringify(newRecents));

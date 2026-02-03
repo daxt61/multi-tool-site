@@ -55,8 +55,15 @@ export function MarkdownPreview() {
     html = html.replace(/\*(.*?)\*/g, '<em class="italic">$1</em>');
     
     // 8. Links
-    html = html.replace(/\[(.*?)\]\(([^)\s\<\>]+)\)/g, (match, linkText, url) => {
-      const isSafe = /^(https?:\/\/|mailto:|tel:|\/|#)/i.test(url);
+    // Sentinel: Exclude quotes and other attribute-breaking characters from the URL match.
+    html = html.replace(/\[(.*?)\]\(([^)\s\<\>"\']+)\)/g, (match, linkText, url) => {
+      // Sentinel: Improved protocol check to prevent XSS.
+      // We whitelist common safe protocols and ensure the URL doesn't contain
+      // encoded characters that could be used for bypasses.
+      const isSafe = /^(https?:\/\/|mailto:|tel:|\/|#)/i.test(url) &&
+                    !/[\u0000-\u001F\u007F-\u009F]/.test(url) && // No control characters
+                    !url.includes('&#') && // No HTML entities in URL part
+                    !url.toLowerCase().includes('javascript:'); // Double check for javascript:
       return isSafe
         ? `<a href="${url}" class="text-indigo-600 dark:text-indigo-400 underline underline-offset-4 hover:text-indigo-500 transition-colors" rel="noopener noreferrer" target="_blank">${linkText}</a>`
         : `<span class="text-slate-400 underline decoration-dotted" title="Lien non sécurisé">${linkText}</span>`;

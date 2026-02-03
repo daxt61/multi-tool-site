@@ -16,35 +16,64 @@ export function MarkdownPreview() {
   };
 
   const renderMarkdown = (text: string) => {
+    const placeholders: string[] = [];
+
     // Escape input to prevent XSS
     let html = escapeHTML(text);
 
-    // 1. Code inline (processed first to protect content)
-    html = html.replace(/`(.*?)`/g, '<code class="bg-gray-100 px-1 rounded">$1</code>');
+    // 1. Multi-line code blocks (Protect them from subsequent rules)
+    html = html.replace(/```(?:[a-z]*)\n?([\s\S]*?)```/g, (_, code) => {
+      const p = `__BLOCK_${placeholders.length}__`;
+      placeholders.push(`<pre class="bg-gray-100 dark:bg-slate-800 p-4 rounded-lg my-4 font-mono text-sm overflow-x-auto text-slate-900 dark:text-slate-100"><code>${code}</code></pre>`);
+      return p;
+    });
+
+    // 2. Code inline (Protect them)
+    html = html.replace(/`(.*?)`/g, (_, code) => {
+      const p = `__INLINE_${placeholders.length}__`;
+      placeholders.push(`<code class="bg-gray-100 dark:bg-slate-800 px-1 rounded text-indigo-600 dark:text-indigo-400 font-mono text-sm">${code}</code>`);
+      return p;
+    });
     
-    // 2. Headers
-    html = html.replace(/^### (.*$)/gim, '<h3 class="text-lg font-bold mt-4 mb-2">$1</h3>');
-    html = html.replace(/^## (.*$)/gim, '<h2 class="text-xl font-bold mt-4 mb-2">$1</h2>');
-    html = html.replace(/^# (.*$)/gim, '<h1 class="text-2xl font-bold mt-4 mb-2">$1</h1>');
+    // 3. Headers
+    html = html.replace(/^### (.*$)/gim, '<h3 class="text-lg font-bold mt-6 mb-2 text-slate-900 dark:text-white">$1</h3>');
+    html = html.replace(/^## (.*$)/gim, '<h2 class="text-xl font-bold mt-8 mb-4 text-slate-900 dark:text-white">$1</h2>');
+    html = html.replace(/^# (.*$)/gim, '<h1 class="text-2xl font-black mt-10 mb-6 text-slate-900 dark:text-white border-b border-slate-200 dark:border-slate-800 pb-2">$1</h1>');
     
-    // 3. Bold
-    html = html.replace(/\*\*(.*?)\*\*/g, '<strong class="font-bold">$1</strong>');
+    // 4. Blockquotes
+    html = html.replace(/^\s*&gt;\s+(.*)$/gim, '<blockquote class="border-l-4 border-slate-300 dark:border-slate-700 pl-4 italic my-6 text-slate-600 dark:text-slate-400">$1</blockquote>');
     
-    // 4. Italic
+    // 5. Unordered lists
+    html = html.replace(/^\s*[-*]\s+(.*)$/gim, '<li class="ml-6 list-disc text-slate-700 dark:text-slate-300 my-1">$1</li>');
+    // Wrap adjacent <li> in <ul>
+    html = html.replace(/((?:<li.*?>.*?<\/li>\s*)+)/g, '<ul class="my-4">$1</ul>');
+
+    // 6. Bold
+    html = html.replace(/\*\*(.*?)\*\*/g, '<strong class="font-bold text-slate-900 dark:text-white">$1</strong>');
+
+    // 7. Italic
     html = html.replace(/\*(.*?)\*/g, '<em class="italic">$1</em>');
     
-    // 5. Links (processed after bold/italic to ensure we don't match if tags were injected into URL)
-    // The URL regex excludes < and > to prevent attribute breakout from previous rules
+    // 8. Links
     html = html.replace(/\[(.*?)\]\(([^)\s\<\>]+)\)/g, (match, linkText, url) => {
       const isSafe = /^(https?:\/\/|mailto:|tel:|\/|#)/i.test(url);
       return isSafe
-        ? `<a href="${url}" class="text-blue-500 underline" rel="noopener noreferrer" target="_blank">${linkText}</a>`
-        : `<span class="text-blue-500 underline" title="Lien non sécurisé">${linkText}</span>`;
+        ? `<a href="${url}" class="text-indigo-600 dark:text-indigo-400 underline underline-offset-4 hover:text-indigo-500 transition-colors" rel="noopener noreferrer" target="_blank">${linkText}</a>`
+        : `<span class="text-slate-400 underline decoration-dotted" title="Lien non sécurisé">${linkText}</span>`;
     });
     
-    // 6. Line breaks
+    // 9. Line breaks (apply only to non-block content)
     html = html.replace(/\n/g, '<br>');
+
+    // Clean up breaks around block elements to avoid excessive spacing
+    html = html.replace(/<br>\s*<(ul|li|blockquote|pre|h1|h2|h3)/gi, '<$1');
+    html = html.replace(/<\/(ul|li|blockquote|pre|h1|h2|h3)>\s*<br>/gi, '</$1>');
     
+    // 10. Restore placeholders
+    placeholders.forEach((content, i) => {
+      html = html.replace(new RegExp(`__(?:BLOCK|INLINE)_${i}__`, 'g'), content);
+    });
+
     return html;
   };
 

@@ -1,5 +1,5 @@
 import { useState, useEffect, useMemo } from "react";
-import { Trash2, Plus, Receipt, TrendingDown, PieChart, History, Calendar as CalendarIcon } from "lucide-react";
+import { Trash2, Plus, Receipt, TrendingDown, PieChart, History, Calendar as CalendarIcon, Download, RotateCcw } from "lucide-react";
 
 interface Expense {
   id: string;
@@ -67,6 +67,33 @@ export function ExpenseTracker() {
 
   const removeExpense = (id: string) => {
     setExpenses(expenses.filter((e) => e.id !== id));
+  };
+
+  const exportToCSV = () => {
+    if (expenses.length === 0) return;
+    const headers = ["Description", "Montant", "Categorie", "Date"];
+    const rows = expenses.map(e => [
+      `"${e.description.replace(/"/g, '""')}"`,
+      e.amount,
+      `"${e.category}"`,
+      e.date
+    ]);
+    const csvContent = [headers, ...rows].map(r => r.join(",")).join("\n");
+    const blob = new Blob([csvContent], { type: "text/csv;charset=utf-8;" });
+    const link = document.createElement("a");
+    const url = URL.createObjectURL(blob);
+    link.setAttribute("href", url);
+    link.setAttribute("download", `depenses_${new Date().toISOString().split("T")[0]}.csv`);
+    link.style.visibility = "hidden";
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+  };
+
+  const clearAll = () => {
+    if (window.confirm("Êtes-vous sûr de vouloir tout effacer ? Cette action est irréversible.")) {
+      setExpenses([]);
+    }
   };
 
   const { totalExpenses, expensesByCategory } = useMemo(() => {
@@ -214,9 +241,29 @@ export function ExpenseTracker() {
                 </div>
                 <h3 className="text-sm font-black uppercase tracking-widest text-slate-400">Historique</h3>
               </div>
-              <span className="text-[10px] font-black uppercase tracking-widest text-slate-400 bg-slate-100 dark:bg-slate-800 px-3 py-1 rounded-full">
-                {expenses.length} Entrées
-              </span>
+              <div className="flex items-center gap-2">
+                {expenses.length > 0 && (
+                  <>
+                    <button
+                      onClick={exportToCSV}
+                      className="p-2 text-slate-400 hover:text-indigo-500 transition-colors"
+                      title="Exporter en CSV"
+                    >
+                      <Download className="w-4 h-4" />
+                    </button>
+                    <button
+                      onClick={clearAll}
+                      className="p-2 text-slate-400 hover:text-rose-500 transition-colors"
+                      title="Tout effacer"
+                    >
+                      <RotateCcw className="w-4 h-4" />
+                    </button>
+                  </>
+                )}
+                <span className="text-[10px] font-black uppercase tracking-widest text-slate-400 bg-slate-100 dark:bg-slate-800 px-3 py-1 rounded-full">
+                  {expenses.length} Entrées
+                </span>
+              </div>
             </div>
 
             <div className="space-y-3 max-h-[500px] overflow-y-auto pr-2 no-scrollbar">

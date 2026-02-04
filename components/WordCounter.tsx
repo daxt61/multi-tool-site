@@ -65,7 +65,7 @@ export function WordCounter() {
     <div className="max-w-5xl mx-auto space-y-8">
       <div className="space-y-4">
         <div className="flex justify-between items-center px-1">
-          <label className="text-xs font-black uppercase tracking-widest text-slate-400">Votre Texte</label>
+          <label htmlFor="word-counter-input" className="text-xs font-black uppercase tracking-widest text-slate-400 cursor-pointer">Votre Texte</label>
           <div className="flex gap-2">
             <button
               onClick={handleCopyStats}
@@ -88,10 +88,11 @@ export function WordCounter() {
           </div>
         </div>
         <textarea
+          id="word-counter-input"
           value={text}
           onChange={(e) => setText(e.target.value)}
           placeholder="Commencez à taper..."
-          className="w-full h-80 p-8 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-[2rem] outline-none focus:ring-2 focus:ring-indigo-500/20 transition-all text-lg leading-relaxed dark:text-slate-300"
+          className="w-full h-80 p-8 bg-slate-50 dark:bg-slate-900/50 border border-slate-200 dark:border-slate-800 rounded-[2.5rem] outline-none focus:ring-2 focus:ring-indigo-500/20 transition-all text-lg leading-relaxed dark:text-slate-300"
         />
       </div>
 
@@ -104,7 +105,7 @@ export function WordCounter() {
           { icon: <Clock className="w-4 h-4" />, label: 'Lecture', value: `${stats.readingTime}m` },
           { icon: <MessageSquare className="w-4 h-4" />, label: 'Parole', value: `${stats.speakingTime}m` },
         ].map((stat) => (
-          <div key={stat.label} className="p-6 bg-white dark:bg-slate-900 border border-slate-100 dark:border-slate-800 rounded-2xl space-y-2">
+          <div key={stat.label} className="p-6 bg-white dark:bg-slate-900/40 border border-slate-200 dark:border-slate-800 rounded-2xl space-y-2">
             <div className="text-indigo-500 dark:text-indigo-400">{stat.icon}</div>
             <div className="text-2xl font-black font-mono tracking-tight dark:text-white">{stat.value}</div>
             <div className="text-xs font-bold text-slate-400 uppercase tracking-wider">{stat.label}</div>

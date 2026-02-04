@@ -74,7 +74,7 @@ export function BMICalculator() {
   return (
     <div className="max-w-4xl mx-auto space-y-8">
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-        <div className="bg-slate-50 dark:bg-slate-900/50 p-8 rounded-[2rem] border border-slate-200 dark:border-slate-800 space-y-8">
+        <div className="bg-white dark:bg-slate-900/40 p-8 rounded-[2.5rem] border border-slate-200 dark:border-slate-800 space-y-8">
           <div className="flex justify-between items-center px-1">
              <div className="flex bg-slate-100 dark:bg-slate-800 p-1 rounded-xl w-48">
               <button

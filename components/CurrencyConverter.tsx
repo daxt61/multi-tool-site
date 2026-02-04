@@ -1,5 +1,5 @@
 import { useState, useEffect, useMemo } from 'react';
-import { ArrowUpDown, Info, Copy, Check, Loader2, RefreshCw } from 'lucide-react';
+import { ArrowUpDown, Info, Copy, Check, Loader2, RefreshCw, RotateCcw, AlertCircle } from 'lucide-react';
 
 // ⚡ Bolt Optimization: Moved static currencies array outside component
 // to prevent redundant allocations and GC pressure on every render.
@@ -58,6 +58,7 @@ export function CurrencyConverter() {
   const [loading, setLoading] = useState(false);
   const [copied, setCopied] = useState(false);
   const [lastUpdated, setLastUpdated] = useState<string | null>(null);
+  const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
     fetchRates();
@@ -65,8 +66,10 @@ export function CurrencyConverter() {
 
   const fetchRates = async () => {
     setLoading(true);
+    setError(null);
     try {
       const response = await fetch('https://api.frankfurter.app/latest?from=EUR');
+      if (!response.ok) throw new Error('API Error');
       const data = await response.json();
       if (data.rates) {
         setRates({ EUR: 1, ...data.rates });
@@ -74,6 +77,7 @@ export function CurrencyConverter() {
       }
     } catch (error) {
       console.error('Failed to fetch rates:', error);
+      setError("Note : Les taux en temps réel n'ont pas pu être chargés. Utilisation des taux par défaut.");
     } finally {
       setLoading(false);
     }
@@ -93,13 +97,27 @@ export function CurrencyConverter() {
     setTimeout(() => setCopied(false), 2000);
   };
 
+  const handleReset = () => {
+    setAmount('100');
+    setFromCurrency('EUR');
+    setToCurrency('USD');
+  };
+
   return (
     <div className="max-w-4xl mx-auto space-y-12">
       <div className="grid grid-cols-1 md:grid-cols-2 gap-12 items-center">
         <div className="space-y-8">
           <div className="space-y-3">
             <div className="flex justify-between items-center px-1">
-              <label htmlFor="amount" className="text-xs font-black uppercase tracking-widest text-slate-400 cursor-pointer">Montant à convertir</label>
+              <div className="flex items-center gap-3">
+                <label htmlFor="amount" className="text-xs font-black uppercase tracking-widest text-slate-400 cursor-pointer">Montant à convertir</label>
+                <button
+                  onClick={handleReset}
+                  className="text-[10px] font-bold text-indigo-500 hover:text-indigo-600 uppercase tracking-widest transition-colors flex items-center gap-1"
+                >
+                  <RotateCcw className="w-2.5 h-2.5" /> Reset
+                </button>
+              </div>
               {lastUpdated && (
                 <div className="text-[10px] font-bold text-slate-400 flex items-center gap-1">
                   <RefreshCw className={`w-3 h-3 ${loading ? 'animate-spin' : ''}`} />
@@ -116,6 +134,13 @@ export function CurrencyConverter() {
               placeholder="0.00"
             />
           </div>
+
+          {error && (
+            <div className="flex items-center gap-2 p-3 bg-amber-50 dark:bg-amber-900/20 text-amber-600 dark:text-amber-400 rounded-xl text-[10px] font-bold border border-amber-100 dark:border-amber-900/30 animate-in fade-in zoom-in duration-300">
+              <AlertCircle className="w-3.5 h-3.5" />
+              {error}
+            </div>
+          )}
 
           <div className="grid grid-cols-1 gap-4 relative">
             <div className="space-y-2">

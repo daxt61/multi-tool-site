@@ -65,6 +65,8 @@ import {
   LayoutGrid,
   ArrowRight, Loader2,
   Sparkles,
+  Share2,
+  Check,
   ListChecks,
   ShieldCheck,
   Scissors,
@@ -642,7 +644,7 @@ const ToolCard = React.memo(({ tool, isFavorite, onToggleFavorite, onClick }: {
       className="group p-5 bg-white dark:bg-slate-900/40 rounded-2xl border border-slate-200 dark:border-slate-800 hover:border-indigo-500/50 dark:hover:border-indigo-500/50 hover:shadow-xl hover:shadow-indigo-500/5 transition-all text-left flex flex-col h-full relative"
     >
       <div className="flex justify-between items-start mb-4 relative z-20">
-        <div className="w-10 h-10 rounded-xl bg-slate-50 dark:bg-slate-800 flex items-center justify-center text-slate-400 group-hover:text-indigo-500 group-hover:bg-indigo-50 dark:group-hover:bg-indigo-900/20 transition-all">
+        <div className="w-10 h-10 rounded-xl bg-slate-50 dark:bg-slate-800 flex items-center justify-center text-slate-500 dark:text-slate-400 group-hover:text-indigo-500 group-hover:bg-indigo-50 dark:group-hover:bg-indigo-900/20 transition-all">
           <tool.icon className="w-5 h-5" />
         </div>
         <button
@@ -853,9 +855,9 @@ function MainApp() {
         <div className="absolute top-1/2 -right-24 w-80 h-80 bg-blue-500/10 rounded-full blur-[100px]"></div>
       </div>
 
-      <div className="container mx-auto px-4 py-8 max-w-6xl relative">
+      <div className="container mx-auto px-4 py-6 md:py-8 max-w-6xl relative">
         {/* Nav Header */}
-        <header className="flex justify-between items-center mb-16">
+        <header className="flex justify-between items-center mb-10 md:mb-16">
           <Link
             to="/"
             className="flex items-center gap-2 group"
@@ -877,13 +879,13 @@ function MainApp() {
 
         <Routes>
           <Route path="/" element={
-            <div className="space-y-20">
+            <div className="space-y-12 md:space-y-20">
               {/* Minimal Hero */}
-              <div className="max-w-2xl mx-auto text-center space-y-8">
-                <h1 className="text-4xl md:text-6xl font-extrabold tracking-tight leading-[1.1]">
+              <div className="max-w-2xl mx-auto text-center space-y-6 md:space-y-8">
+                <h1 className="text-3xl md:text-6xl font-extrabold tracking-tight leading-[1.1]">
                   Des outils simples pour des <span className="text-slate-400 dark:text-slate-600">tâches complexes.</span>
                 </h1>
-                <p className="text-lg text-slate-500 dark:text-slate-400 leading-relaxed">
+                <p className="text-base md:text-lg text-slate-500 dark:text-slate-400 leading-relaxed">
                   Une collection d'utilitaires gratuits, privés et open-source pour booster votre productivité au quotidien.
                 </p>
 
@@ -924,31 +926,42 @@ function MainApp() {
               )}
 
               {/* Main Content */}
-              <div className="space-y-12">
+              <div className="space-y-8 md:space-y-12">
                 {/* Category Nav */}
-                <div className="sticky top-4 z-40 bg-white/80 dark:bg-slate-950/80 backdrop-blur-md py-4 border-b border-slate-200/50 dark:border-slate-800/50 -mx-4 px-4">
-                  <div className="flex gap-2 overflow-x-auto no-scrollbar">
-                    {categories.map((cat) => (
-                      <button
-                        key={cat.id}
-                        onClick={() => setSelectedCategory(cat.id === "all" ? null : cat.id)}
-                        aria-pressed={(selectedCategory === cat.id) || (cat.id === "all" && !selectedCategory)}
-                        className={`flex items-center gap-2 px-4 py-2 rounded-full text-sm font-bold transition-all whitespace-nowrap border ${
-                          (selectedCategory === cat.id) || (cat.id === "all" && !selectedCategory)
-                            ? "bg-slate-900 text-white border-slate-900 dark:bg-white dark:text-slate-950 dark:border-white shadow-md shadow-indigo-500/10"
-                            : "bg-slate-50 text-slate-500 border-slate-200 hover:border-slate-300 dark:bg-slate-900 dark:text-slate-400 dark:border-slate-800 dark:hover:border-slate-700"
-                        }`}
-                      >
-                        <cat.icon className="w-4 h-4" />
-                        {cat.name}
-                      </button>
-                    ))}
+                <div className="sticky top-4 z-40 bg-white/80 dark:bg-slate-950/80 backdrop-blur-md py-3 md:py-4 border-b border-slate-200/50 dark:border-slate-800/50 -mx-4 px-4">
+                  <div className="relative">
+                    <div className="absolute left-0 top-0 bottom-0 w-8 bg-gradient-to-r from-white dark:from-slate-950 to-transparent z-10 pointer-events-none md:hidden" />
+                    <div className="absolute right-0 top-0 bottom-0 w-8 bg-gradient-to-l from-white dark:from-slate-950 to-transparent z-10 pointer-events-none md:hidden" />
+                    <div className="flex gap-2 overflow-x-auto no-scrollbar px-2">
+                      {categories.map((cat) => (
+                        <button
+                          key={cat.id}
+                          onClick={() => setSelectedCategory(cat.id === "all" ? null : cat.id)}
+                          aria-pressed={(selectedCategory === cat.id) || (cat.id === "all" && !selectedCategory)}
+                          className={`flex items-center gap-2 px-4 py-2 rounded-full text-sm font-bold transition-all whitespace-nowrap border ${
+                            (selectedCategory === cat.id) || (cat.id === "all" && !selectedCategory)
+                              ? "bg-slate-900 text-white border-slate-900 dark:bg-white dark:text-slate-950 dark:border-white shadow-md shadow-indigo-500/10"
+                              : "bg-slate-50 text-slate-500 border-slate-200 hover:border-slate-300 dark:bg-slate-900 dark:text-slate-400 dark:border-slate-800 dark:hover:border-slate-700"
+                          }`}
+                        >
+                          <cat.icon className="w-4 h-4" />
+                          {cat.name}
+                        </button>
+                      ))}
+                    </div>
                   </div>
                 </div>
 
                 {/* Grid */}
                 {filteredTools.length > 0 ? (
-                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
+                  <div className="space-y-6">
+                    <div className="flex justify-between items-center px-1">
+                      <h3 className="text-xs font-bold uppercase tracking-widest text-slate-400 dark:text-slate-500">Outils</h3>
+                      <span className="text-[10px] font-black uppercase tracking-widest text-slate-400 bg-slate-100 dark:bg-slate-800 px-2 py-1 rounded-md">
+                        {filteredTools.length} {filteredTools.length > 1 ? 'outils' : 'outil'} trouvé{filteredTools.length > 1 ? 's' : ''}
+                      </span>
+                    </div>
+                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
                     {filteredTools.map((tool) => (
                       <ToolCard
                         key={tool.id}
@@ -958,6 +971,7 @@ function MainApp() {
                         onClick={handleToolSelect}
                       />
                     ))}
+                    </div>
                   </div>
                 ) : (
                   <div className="text-center py-24 border-2 border-dashed border-slate-200 dark:border-slate-800 rounded-[2.5rem]">
@@ -1007,8 +1021,20 @@ function MainApp() {
 
 function ToolView({ favorites, toggleFavorite }: { favorites: string[], toggleFavorite: (e: React.MouseEvent, id: string) => void }) {
   const { toolId } = useParams();
+  const [shared, setShared] = useState(false);
+
+  useEffect(() => {
+    window.scrollTo(0, 0);
+  }, [toolId]);
+
   // ⚡ Bolt Optimization: Use toolsMap for O(1) lookup
   const currentTool = toolId ? toolsMap[toolId] : null;
+
+  const handleShare = () => {
+    navigator.clipboard.writeText(window.location.href);
+    setShared(true);
+    setTimeout(() => setShared(false), 2000);
+  };
 
   if (!currentTool) {
     return (
@@ -1038,18 +1064,27 @@ function ToolView({ favorites, toggleFavorite }: { favorites: string[], toggleFa
             <h1 className="text-4xl md:text-5xl font-black tracking-tight">{currentTool.name}</h1>
             <p className="text-lg text-slate-500 dark:text-slate-400 max-w-2xl">{currentTool.description}</p>
           </div>
-          <button
-            onClick={(e) => toggleFavorite(e, currentTool.id)}
-            aria-pressed={favorites.includes(currentTool.id)}
-            className={`flex items-center gap-2 px-6 py-3 rounded-2xl font-bold transition-all border ${
-              favorites.includes(currentTool.id)
-                ? "bg-amber-50 text-amber-600 border-amber-200"
-                : "bg-slate-50 text-slate-500 border-slate-200 dark:bg-slate-900 dark:border-slate-800"
-            }`}
-          >
-            <Star className={`w-5 h-5 ${favorites.includes(currentTool.id) ? 'fill-current' : ''}`} />
-            {favorites.includes(currentTool.id) ? "Favori" : "Mettre en favori"}
-          </button>
+          <div className="flex flex-wrap gap-2">
+            <button
+              onClick={handleShare}
+              className="flex-1 md:flex-none flex items-center justify-center gap-2 px-6 py-3 rounded-2xl font-bold transition-all border bg-slate-50 text-slate-500 border-slate-200 dark:bg-slate-900 dark:border-slate-800 hover:bg-slate-100 dark:hover:bg-slate-800/50"
+            >
+              {shared ? <Check className="w-5 h-5 text-emerald-500" /> : <Share2 className="w-5 h-5" />}
+              {shared ? "Copié" : "Partager"}
+            </button>
+            <button
+              onClick={(e) => toggleFavorite(e, currentTool.id)}
+              aria-pressed={favorites.includes(currentTool.id)}
+              className={`flex-1 md:flex-none flex items-center justify-center gap-2 px-6 py-3 rounded-2xl font-bold transition-all border ${
+                favorites.includes(currentTool.id)
+                  ? "bg-amber-50 text-amber-600 border-amber-200"
+                  : "bg-slate-50 text-slate-500 border-slate-200 dark:bg-slate-900 dark:border-slate-800"
+              }`}
+            >
+              <Star className={`w-5 h-5 ${favorites.includes(currentTool.id) ? 'fill-current' : ''}`} />
+              {favorites.includes(currentTool.id) ? "Favori" : "Mettre en favori"}
+            </button>
+          </div>
         </div>
       </div>
 

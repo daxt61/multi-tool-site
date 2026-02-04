@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Plus, Trash2, Printer } from "lucide-react";
+import { Plus, Trash2, Printer, RotateCcw } from "lucide-react";
 
 interface InvoiceItem {
   description: string;
@@ -45,6 +45,16 @@ export function InvoiceGenerator() {
 
   const printInvoice = () => {
     window.print();
+  };
+
+  const resetInvoice = () => {
+    if (window.confirm("Réinitialiser toute la facture ?")) {
+      setCompanyName("");
+      setClientName("");
+      setInvoiceNumber("");
+      setItems([{ description: "", quantity: 1, unitPrice: 0 }]);
+      setTaxRate(20);
+    }
   };
 
   return (
@@ -103,10 +113,20 @@ export function InvoiceGenerator() {
       </div>
 
       <div className="space-y-6">
-        <label className="text-xs font-black uppercase tracking-widest text-slate-400 px-1 flex justify-between items-center">
-          Articles & Services
-          <span className="text-[10px] font-bold text-indigo-500">Total Articles: {items.length}</span>
-        </label>
+        <div className="flex justify-between items-center px-1">
+          <label className="text-xs font-black uppercase tracking-widest text-slate-400">
+            Articles & Services
+          </label>
+          <div className="flex items-center gap-4">
+            <span className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Total Articles: {items.length}</span>
+            <button
+              onClick={resetInvoice}
+              className="text-[10px] font-black uppercase tracking-widest text-rose-500 hover:text-rose-600 flex items-center gap-1 transition-colors"
+            >
+              <RotateCcw className="w-3 h-3" /> Réinitialiser
+            </button>
+          </div>
+        </div>
         <div className="space-y-4">
           {items.map((item, index) => (
             <div

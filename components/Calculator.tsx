@@ -218,7 +218,7 @@ export function Calculator() {
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
         <div className="lg:col-span-8 space-y-6">
           {/* Display */}
-          <div className="bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-3xl p-8 text-right overflow-hidden group transition-all focus-within:ring-2 focus-within:ring-indigo-500/20">
+          <div className="bg-slate-50 dark:bg-slate-900/50 border border-slate-200 dark:border-slate-800 rounded-[2.5rem] p-8 text-right overflow-hidden group transition-all focus-within:ring-2 focus-within:ring-indigo-500/20">
             <div className="text-sm font-bold text-slate-400 dark:text-slate-500 mb-2 h-6 flex justify-end items-center gap-2">
               {previousValue !== null && operation && (
                 <>
@@ -275,7 +275,7 @@ export function Calculator() {
         </div>
 
         {/* History */}
-        <div className="lg:col-span-4 bg-slate-50 dark:bg-slate-900/50 rounded-[2rem] border border-slate-200 dark:border-slate-800 p-8">
+        <div className="lg:col-span-4 bg-white dark:bg-slate-900/40 rounded-[2.5rem] border border-slate-200 dark:border-slate-800 p-8">
           <div className="flex items-center justify-between mb-8 px-2">
             <h3 className="text-sm font-black uppercase tracking-widest text-slate-400 flex items-center gap-2">
               <HistoryIcon className="w-4 h-4" /> Historique

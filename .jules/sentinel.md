@@ -16,3 +16,8 @@
 **Vulnerability:** The PasswordGenerator was using `array[i] % charset.length` to select characters, which introduced a slight bias towards certain characters when the random space (2^32) was not a multiple of the charset size.
 **Learning:** Even when using cryptographically secure random values (CSPRNG), improper mathematical operations like modulo can degrade the entropy and introduce predictability.
 **Prevention:** Always use rejection sampling when mapping a large random range to a smaller one that does not divide it evenly. This ensures a perfectly uniform distribution across all possible outputs.
+
+## 2025-06-15 - [React Rendering Crash on Non-Primitive Claim Values]
+**Vulnerability:** The JWT Decoder crashed when processing tokens containing objects or arrays in standard claims like `sub` or `aud`, as it attempted to render them directly as React children.
+**Learning:** Even well-intended display tools can suffer from availability issues (local DoS) if they assume input data will always be primitive types. Robustness in developer tools is critical as they are often used to inspect edge-case or malformed data.
+**Prevention:** Always stringify or explicitly convert complex state values to strings before rendering them in the JSX, especially when the data originates from external sources like a decoded JWT.

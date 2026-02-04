@@ -144,13 +144,28 @@ export function JWTDecoder() {
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               {[
                 { label: 'Émis le (iat)', value: decoded.payload.iat ? formatDate(decoded.payload.iat) : 'N/A' },
-                { label: 'Expire le (exp)', value: decoded.payload.exp ? formatDate(decoded.payload.exp) : 'N/A' },
+                {
+                  label: 'Expire le (exp)',
+                  value: decoded.payload.exp ? formatDate(decoded.payload.exp) : 'N/A',
+                  status: decoded.payload.exp && decoded.payload.exp < Date.now() / 1000 ? 'expired' : null
+                },
+                {
+                  label: 'Valide après (nbf)',
+                  value: decoded.payload.nbf ? formatDate(decoded.payload.nbf) : 'N/A',
+                  status: decoded.payload.nbf && decoded.payload.nbf > Date.now() / 1000 ? 'not-yet' : null
+                },
+                { label: 'Audience (aud)', value: decoded.payload.aud || 'N/A' },
                 { label: 'Sujet (sub)', value: decoded.payload.sub || 'N/A' },
                 { label: 'Émetteur (iss)', value: decoded.payload.iss || 'N/A' },
               ].map((claim) => (
                 <div key={claim.label} className="p-4 bg-slate-50 dark:bg-slate-800/50 rounded-2xl border border-slate-100 dark:border-slate-800">
                   <div className="text-[10px] font-black uppercase tracking-widest text-slate-400 mb-1">{claim.label}</div>
-                  <div className="font-bold text-sm truncate">{claim.value}</div>
+                  <div className={`font-bold text-sm truncate ${
+                    claim.status === 'expired' ? 'text-rose-500' :
+                    claim.status === 'not-yet' ? 'text-amber-500' : ''
+                  }`}>
+                    {typeof claim.value === 'object' ? JSON.stringify(claim.value) : String(claim.value)}
+                  </div>
                 </div>
               ))}
             </div>

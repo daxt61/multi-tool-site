@@ -1,5 +1,50 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import { ArrowUpDown, Info, Copy, Check, Loader2, RefreshCw } from 'lucide-react';
+
+// ⚡ Bolt Optimization: Moved static currencies array outside component
+// to prevent redundant allocations and GC pressure on every render.
+const CURRENCIES = [
+  { code: 'EUR', name: 'Euro', symbol: '€' },
+  { code: 'USD', name: 'Dollar US', symbol: '$' },
+  { code: 'GBP', name: 'Livre Sterling', symbol: '£' },
+  { code: 'JPY', name: 'Yen Japonais', symbol: '¥' },
+  { code: 'CHF', name: 'Franc Suisse', symbol: 'CHF' },
+  { code: 'CAD', name: 'Dollar Canadien', symbol: 'C$' },
+  { code: 'AUD', name: 'Dollar Australien', symbol: 'A$' },
+  { code: 'CNY', name: 'Yuan Chinois', symbol: '¥' },
+  { code: 'INR', name: 'Roupie Indienne', symbol: '₹' },
+  { code: 'BRL', name: 'Real Brésilien', symbol: 'R$' },
+  { code: 'RUB', name: 'Rouble Russe', symbol: '₽' },
+  { code: 'MXN', name: 'Peso Mexicain', symbol: 'MX$' },
+  { code: 'AED', name: 'Dirham Émirati', symbol: 'AED' },
+  { code: 'SAR', name: 'Riyal Saoudien', symbol: 'SAR' },
+  { code: 'NZD', name: 'Dollar Néo-Zélandais', symbol: 'NZ$' },
+  { code: 'SEK', name: 'Couronne Suédoise', symbol: 'kr' },
+  { code: 'NOK', name: 'Couronne Norvégienne', symbol: 'kr' },
+  { code: 'DKK', name: 'Couronne Danoise', symbol: 'kr' },
+  { code: 'TRY', name: 'Lire Turque', symbol: '₺' },
+  { code: 'SGD', name: 'Dollar Singapourien', symbol: 'S$' },
+  { code: 'HKD', name: 'Dollar de Hong Kong', symbol: 'HK$' },
+  { code: 'KRW', name: 'Won Sud-Coréen', symbol: '₩' },
+  { code: 'ZAR', name: 'Rand Sud-Africain', symbol: 'R' },
+  { code: 'PLN', name: 'Zloty Polonais', symbol: 'zł' },
+  { code: 'PHP', name: 'Peso Philippin', symbol: '₱' },
+  { code: 'IDR', name: 'Roupie Indonésienne', symbol: 'Rp' },
+  { code: 'MYR', name: 'Ringgit Malaisien', symbol: 'RM' },
+  { code: 'THB', name: 'Baht Thaïlandais', symbol: '฿' },
+  { code: 'HUF', name: 'Forint Hongrois', symbol: 'Ft' },
+  { code: 'CZK', name: 'Couronne Tchèque', symbol: 'Kč' },
+  { code: 'ILS', name: 'Nouveau Shekel Israélien', symbol: '₪' },
+  { code: 'CLP', name: 'Peso Chilien', symbol: 'CLP$' },
+  { code: 'PKR', name: 'Roupie Pakistanaise', symbol: '₨' },
+  { code: 'EGP', name: 'Livre Égyptienne', symbol: 'E£' },
+  { code: 'TWD', name: 'Nouveau Dollar Taïwanais', symbol: 'NT$' },
+  { code: 'VND', name: 'Dong Vietnamien', symbol: '₫' },
+  { code: 'COP', name: 'Peso Colombien', symbol: 'COL$' },
+  { code: 'QAR', name: 'Riyal Qatari', symbol: 'QR' },
+  { code: 'KWD', name: 'Dinar Koweïtien', symbol: 'KD' },
+  { code: 'BHD', name: 'Dinar Bahreïni', symbol: 'BD' }
+];
 
 export function CurrencyConverter() {
   const [amount, setAmount] = useState('100');
@@ -34,50 +79,13 @@ export function CurrencyConverter() {
     }
   };
 
-  const currencies = [
-    { code: 'EUR', name: 'Euro', symbol: '€' },
-    { code: 'USD', name: 'Dollar US', symbol: '$' },
-    { code: 'GBP', name: 'Livre Sterling', symbol: '£' },
-    { code: 'JPY', name: 'Yen Japonais', symbol: '¥' },
-    { code: 'CHF', name: 'Franc Suisse', symbol: 'CHF' },
-    { code: 'CAD', name: 'Dollar Canadien', symbol: 'C$' },
-    { code: 'AUD', name: 'Dollar Australien', symbol: 'A$' },
-    { code: 'CNY', name: 'Yuan Chinois', symbol: '¥' },
-    { code: 'INR', name: 'Roupie Indienne', symbol: '₹' },
-    { code: 'BRL', name: 'Real Brésilien', symbol: 'R$' },
-    { code: 'RUB', name: 'Rouble Russe', symbol: '₽' },
-    { code: 'MXN', name: 'Peso Mexicain', symbol: 'MX$' },
-    { code: 'AED', name: 'Dirham Émirati', symbol: 'AED' },
-    { code: 'SAR', name: 'Riyal Saoudien', symbol: 'SAR' },
-    { code: 'NZD', name: 'Dollar Néo-Zélandais', symbol: 'NZ$' },
-    { code: 'SEK', name: 'Couronne Suédoise', symbol: 'kr' },
-    { code: 'NOK', name: 'Couronne Norvégienne', symbol: 'kr' },
-    { code: 'DKK', name: 'Couronne Danoise', symbol: 'kr' },
-    { code: 'TRY', name: 'Lire Turque', symbol: '₺' },
-    { code: 'SGD', name: 'Dollar Singapourien', symbol: 'S$' },
-    { code: 'HKD', name: 'Dollar de Hong Kong', symbol: 'HK$' },
-    { code: 'KRW', name: 'Won Sud-Coréen', symbol: '₩' },
-    { code: 'ZAR', name: 'Rand Sud-Africain', symbol: 'R' },
-    { code: 'PLN', name: 'Zloty Polonais', symbol: 'zł' },
-    { code: 'PHP', name: 'Peso Philippin', symbol: '₱' },
-    { code: 'IDR', name: 'Roupie Indonésienne', symbol: 'Rp' },
-    { code: 'MYR', name: 'Ringgit Malaisien', symbol: 'RM' },
-    { code: 'THB', name: 'Baht Thaïlandais', symbol: '฿' },
-    { code: 'HUF', name: 'Forint Hongrois', symbol: 'Ft' },
-    { code: 'CZK', name: 'Couronne Tchèque', symbol: 'Kč' },
-    { code: 'ILS', name: 'Nouveau Shekel Israélien', symbol: '₪' },
-    { code: 'CLP', name: 'Peso Chilien', symbol: 'CLP$' },
-    { code: 'PKR', name: 'Roupie Pakistanaise', symbol: '₨' },
-    { code: 'EGP', name: 'Livre Égyptienne', symbol: 'E£' },
-    { code: 'TWD', name: 'Nouveau Dollar Taïwanais', symbol: 'NT$' },
-    { code: 'VND', name: 'Dong Vietnamien', symbol: '₫' },
-    { code: 'COP', name: 'Peso Colombien', symbol: 'COL$' },
-    { code: 'QAR', name: 'Riyal Qatari', symbol: 'QR' },
-    { code: 'KWD', name: 'Dinar Koweïtien', symbol: 'KD' },
-    { code: 'BHD', name: 'Dinar Bahreïni', symbol: 'BD' }
-  ];
-
-  const result = (parseFloat(amount) / rates[fromCurrency]) * rates[toCurrency];
+  // ⚡ Bolt Optimization: result calculation memoized to avoid redundant parseFloat
+  // and arithmetic operations on every re-render (e.g. when 'copied' state changes).
+  const result = useMemo(() => {
+    const num = parseFloat(amount);
+    if (isNaN(num)) return 0;
+    return (num / rates[fromCurrency]) * rates[toCurrency];
+  }, [amount, rates, fromCurrency, toCurrency]);
 
   const handleCopy = () => {
     navigator.clipboard.writeText(result.toFixed(2));
@@ -91,7 +99,7 @@ export function CurrencyConverter() {
         <div className="space-y-8">
           <div className="space-y-3">
             <div className="flex justify-between items-center px-1">
-              <label className="text-xs font-black uppercase tracking-widest text-slate-400">Montant à convertir</label>
+              <label htmlFor="amount" className="text-xs font-black uppercase tracking-widest text-slate-400 cursor-pointer">Montant à convertir</label>
               {lastUpdated && (
                 <div className="text-[10px] font-bold text-slate-400 flex items-center gap-1">
                   <RefreshCw className={`w-3 h-3 ${loading ? 'animate-spin' : ''}`} />
@@ -100,6 +108,7 @@ export function CurrencyConverter() {
               )}
             </div>
             <input
+              id="amount"
               type="number"
               value={amount}
               onChange={(e) => setAmount(e.target.value)}
@@ -110,13 +119,14 @@ export function CurrencyConverter() {
 
           <div className="grid grid-cols-1 gap-4 relative">
             <div className="space-y-2">
-              <label className="text-xs font-bold text-slate-400 px-1 uppercase tracking-widest">De</label>
+              <label htmlFor="fromCurrency" className="text-xs font-bold text-slate-400 px-1 uppercase tracking-widest cursor-pointer">De</label>
               <select
+                id="fromCurrency"
                 value={fromCurrency}
                 onChange={(e) => setFromCurrency(e.target.value)}
                 className="w-full p-4 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-2xl font-bold text-sm outline-none cursor-pointer focus:border-indigo-500 transition-colors"
               >
-                {currencies.map(c => <option key={c.code} value={c.code}>{c.symbol} {c.name} ({c.code})</option>)}
+                {CURRENCIES.map(c => <option key={c.code} value={c.code}>{c.symbol} {c.name} ({c.code})</option>)}
               </select>
             </div>
 
@@ -131,13 +141,14 @@ export function CurrencyConverter() {
             </div>
 
             <div className="space-y-2 pt-4">
-              <label className="text-xs font-bold text-slate-400 px-1 uppercase tracking-widest">Vers</label>
+              <label htmlFor="toCurrency" className="text-xs font-bold text-slate-400 px-1 uppercase tracking-widest cursor-pointer">Vers</label>
               <select
+                id="toCurrency"
                 value={toCurrency}
                 onChange={(e) => setToCurrency(e.target.value)}
                 className="w-full p-4 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-2xl font-bold text-sm outline-none cursor-pointer focus:border-indigo-500 transition-colors"
               >
-                {currencies.map(c => <option key={c.code} value={c.code}>{c.symbol} {c.name} ({c.code})</option>)}
+                {CURRENCIES.map(c => <option key={c.code} value={c.code}>{c.symbol} {c.name} ({c.code})</option>)}
               </select>
             </div>
           </div>

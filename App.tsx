@@ -138,7 +138,7 @@ const ColorPaletteGenerator = lazy(() => import("./components/ColorPaletteGenera
 
 // ⚡ Bolt Optimization: Pre-calculating tool map and search index for O(1) lookups and faster filtering
 const toolsMap: Record<string, Tool> = {};
-const TOOL_SEARCH_INDEX = new Map<string, { name: string; description: string }>();
+const TOOL_SEARCH_INDEX = new Map<string, { name: string; description: string; normalizedName: string; normalizedDescription: string }>();
 
 interface Tool {
   id: string;
@@ -619,10 +619,14 @@ const tools: Tool[] = [
 
 // Initialize toolsMap and search index
 tools.forEach(tool => {
+  const name = tool.name.toLowerCase();
+  const description = tool.description.toLowerCase();
   toolsMap[tool.id] = tool;
   TOOL_SEARCH_INDEX.set(tool.id, {
-    name: tool.name.toLowerCase(),
-    description: tool.description.toLowerCase(),
+    name,
+    description,
+    normalizedName: name.normalize("NFD").replace(/[\u0300-\u036f]/g, ""),
+    normalizedDescription: description.normalize("NFD").replace(/[\u0300-\u036f]/g, ""),
   });
 });
 
@@ -748,6 +752,7 @@ function MainApp() {
 
   const filteredTools = useMemo(() => {
     const query = deferredSearchQuery.trim().toLowerCase();
+    const normalizedQuery = query.normalize("NFD").replace(/[\u0300-\u036f]/g, "");
 
     return tools.filter((tool) => {
       if (selectedCategory === "favorites") {
@@ -757,7 +762,9 @@ function MainApp() {
       if (query) {
         const searchEntry = TOOL_SEARCH_INDEX.get(tool.id);
         const matchesSearch = searchEntry?.name.includes(query) ||
-                             searchEntry?.description.includes(query);
+                             searchEntry?.description.includes(query) ||
+                             searchEntry?.normalizedName.includes(normalizedQuery) ||
+                             searchEntry?.normalizedDescription.includes(normalizedQuery);
         if (!matchesSearch) return false;
         return true;
       }
@@ -805,6 +812,11 @@ function MainApp() {
       if (e.key === "/" && document.activeElement?.tagName !== "INPUT" && document.activeElement?.tagName !== "TEXTAREA") {
         e.preventDefault();
         document.getElementById("tool-search")?.focus();
+      } else if (e.key === "Escape") {
+        setSearchQuery("");
+        if (document.activeElement instanceof HTMLElement) {
+          document.activeElement.blur();
+        }
       }
     };
     window.addEventListener("keydown", handleKeyDown);
@@ -898,7 +910,14 @@ function MainApp() {
                       </kbd>
                     </div>
                   )}
-                  {searchQuery && <button onClick={() => setSearchQuery("")} className="absolute inset-y-0 right-4 flex items-center text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 transition-colors" aria-label="Effacer"><X className="h-5 w-5" /></button>}
+                  {searchQuery && (
+                    <div className="absolute inset-y-0 right-4 flex items-center gap-2">
+                      <kbd className="hidden sm:inline-flex items-center px-1.5 py-0.5 border border-slate-200 dark:border-slate-700 rounded text-[10px] font-bold text-slate-400 bg-white dark:bg-slate-800">
+                        Esc
+                      </kbd>
+                      <button onClick={() => setSearchQuery("")} className="text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 transition-colors" aria-label="Effacer"><X className="h-5 w-5" /></button>
+                    </div>
+                  )}
                 </div>
               </div>
 

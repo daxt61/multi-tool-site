@@ -1,9 +1,13 @@
 import { useState } from 'react';
-import { Copy, Check, Trash2, SortAsc, SortDesc, ListChecks, Type, FileDown, Scissors } from 'lucide-react';
+import { Copy, Check, Trash2, SortAsc, SortDesc, ListChecks, Type, FileDown, Scissors, Search, Plus, Shuffle, ArrowDownUp } from 'lucide-react';
 
 export function ListCleaner() {
   const [text, setText] = useState('');
   const [copied, setCopied] = useState(false);
+  const [prefix, setPrefix] = useState('');
+  const [suffix, setSuffix] = useState('');
+  const [searchQuery, setSearchQuery] = useState('');
+  const [replaceValue, setReplaceValue] = useState('');
 
   const handleCopy = () => {
     navigator.clipboard.writeText(text);
@@ -50,7 +54,36 @@ export function ListCleaner() {
   };
 
   const sortLength = () => {
-    processList(lines => [...lines].sort((a, b) => a.length - b.length));
+    processList(lines => [...lines].sort((a, b) => a.length - b.length || a.localeCompare(b)));
+  };
+
+  const addPrefixSuffix = () => {
+    processList(lines => lines.map(line => `${prefix}${line}${suffix}`));
+  };
+
+  const searchReplace = () => {
+    if (!searchQuery) return;
+    // We use split/join pattern for replacement to avoid regex issues or target ES compatibility
+    setText(text.split(searchQuery).join(replaceValue));
+  };
+
+  const removePunctuation = () => {
+    processList(lines => lines.map(line => line.replace(/[.,/#!$%^&*;:{}=\-_`~()]/g, "")));
+  };
+
+  const reverseList = () => {
+    processList(lines => [...lines].reverse());
+  };
+
+  const shuffleList = () => {
+    processList(lines => {
+      const shuffled = [...lines];
+      for (let i = shuffled.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
+      }
+      return shuffled;
+    });
   };
 
   return (
@@ -184,6 +217,95 @@ export function ListCleaner() {
               <span className="font-bold text-sm">Capitaliser</span>
               <Type className="w-4 h-4 text-slate-400 group-hover:text-indigo-500" />
             </button>
+          </div>
+        </div>
+
+        {/* Options Avancées */}
+        <div className="p-8 bg-white dark:bg-slate-900/50 border border-slate-200 dark:border-slate-800 rounded-[2.5rem] space-y-8 md:col-span-2 lg:col-span-3">
+          <div className="flex items-center gap-3 text-indigo-500">
+            <Plus className="w-5 h-5" />
+            <h3 className="font-black uppercase tracking-widest text-xs text-slate-400">Options Avancées</h3>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+            <div className="space-y-4">
+              <h4 className="text-xs font-bold uppercase tracking-wider text-slate-500 px-1">Préfixe & Suffixe</h4>
+              <div className="grid grid-cols-2 gap-3">
+                <input
+                  type="text"
+                  placeholder="Préfixe..."
+                  value={prefix}
+                  onChange={(e) => setPrefix(e.target.value)}
+                  className="p-3 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-sm outline-none focus:border-indigo-500 transition-colors"
+                />
+                <input
+                  type="text"
+                  placeholder="Suffixe..."
+                  value={suffix}
+                  onChange={(e) => setSuffix(e.target.value)}
+                  className="p-3 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-sm outline-none focus:border-indigo-500 transition-colors"
+                />
+              </div>
+              <button
+                onClick={addPrefixSuffix}
+                className="w-full flex items-center justify-center gap-2 p-3 bg-indigo-600 text-white rounded-xl font-bold text-sm hover:bg-indigo-700 transition-all active:scale-[0.98]"
+              >
+                <Plus className="w-4 h-4" /> Appliquer
+              </button>
+            </div>
+
+            <div className="space-y-4">
+              <h4 className="text-xs font-bold uppercase tracking-wider text-slate-500 px-1">Rechercher & Remplacer</h4>
+              <div className="grid grid-cols-2 gap-3">
+                <input
+                  type="text"
+                  placeholder="Rechercher..."
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                  className="p-3 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-sm outline-none focus:border-indigo-500 transition-colors"
+                />
+                <input
+                  type="text"
+                  placeholder="Remplacer par..."
+                  value={replaceValue}
+                  onChange={(e) => setReplaceValue(e.target.value)}
+                  className="p-3 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-sm outline-none focus:border-indigo-500 transition-colors"
+                />
+              </div>
+              <button
+                onClick={searchReplace}
+                className="w-full flex items-center justify-center gap-2 p-3 bg-slate-900 dark:bg-white text-white dark:text-slate-900 rounded-xl font-bold text-sm hover:opacity-90 transition-all active:scale-[0.98]"
+              >
+                <Search className="w-4 h-4" /> Remplacer tout
+              </button>
+            </div>
+          </div>
+
+          <div className="pt-8 border-t border-slate-100 dark:border-slate-800">
+            <h4 className="text-xs font-bold uppercase tracking-wider text-slate-500 px-1 mb-4">Autres Manipulations</h4>
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
+              <button
+                onClick={removePunctuation}
+                className="flex items-center justify-center gap-2 p-4 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-2xl font-bold text-sm hover:bg-indigo-50 dark:hover:bg-indigo-900/20 transition-all group"
+              >
+                <Scissors className="w-4 h-4 text-slate-400 group-hover:text-indigo-500" />
+                Supprimer ponctuation
+              </button>
+              <button
+                onClick={reverseList}
+                className="flex items-center justify-center gap-2 p-4 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-2xl font-bold text-sm hover:bg-indigo-50 dark:hover:bg-indigo-900/20 transition-all group"
+              >
+                <ArrowDownUp className="w-4 h-4 text-slate-400 group-hover:text-indigo-500" />
+                Inverser la liste
+              </button>
+              <button
+                onClick={shuffleList}
+                className="flex items-center justify-center gap-2 p-4 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-2xl font-bold text-sm hover:bg-indigo-50 dark:hover:bg-indigo-900/20 transition-all group"
+              >
+                <Shuffle className="w-4 h-4 text-slate-400 group-hover:text-indigo-500" />
+                Mélanger (Aléatoire)
+              </button>
+            </div>
           </div>
         </div>
       </div>

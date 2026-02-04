@@ -805,6 +805,9 @@ function MainApp() {
       if (e.key === "/" && document.activeElement?.tagName !== "INPUT" && document.activeElement?.tagName !== "TEXTAREA") {
         e.preventDefault();
         document.getElementById("tool-search")?.focus();
+      } else if (e.key === "Escape" && document.activeElement === document.getElementById("tool-search")) {
+        setSearchQuery("");
+        (document.activeElement as HTMLElement).blur();
       }
     };
     window.addEventListener("keydown", handleKeyDown);
@@ -898,7 +901,14 @@ function MainApp() {
                       </kbd>
                     </div>
                   )}
-                  {searchQuery && <button onClick={() => setSearchQuery("")} className="absolute inset-y-0 right-4 flex items-center text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 transition-colors" aria-label="Effacer"><X className="h-5 w-5" /></button>}
+                  {searchQuery && (
+                    <div className="absolute inset-y-0 right-4 flex items-center gap-2">
+                      <kbd className="hidden sm:inline-flex items-center gap-1 px-2 py-0.5 border border-slate-200 dark:border-slate-700 rounded text-[10px] font-bold text-slate-400 bg-white dark:bg-slate-800">
+                        Esc
+                      </kbd>
+                      <button onClick={() => setSearchQuery("")} className="text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 transition-colors" aria-label="Effacer"><X className="h-5 w-5" /></button>
+                    </div>
+                  )}
                 </div>
               </div>
 

@@ -21,3 +21,7 @@
 ## 2025-02-03 - [Stable Generation & Bento Consistency]
 **Learning:** In text generation tools, random output must be stabilized using `useMemo` to prevent frustrating regenerations during unrelated state updates (like "Copied" feedback). Additionally, modernizing legacy components to the Bento design system (slate-50 backgrounds, rounded-3xl corners, indigo accents) significantly improves brand cohesion and trust.
 **Action:** Use `useMemo` for random text and prioritize visual alignment with the Bento system for older components.
+
+## 2025-02-04 - [Search Shortcut & Accessibility Feedback]
+**Learning:** Adding an 'Escape' shortcut to clear and blur a search bar improves the "speed-to-action" for power users. Pairing this with a contextual <kbd>Esc</kbd> hint that only appears when relevant (i.e., when searching) makes the feature discoverable without cluttering the UI. Additionally, dynamic ARIA labels for toggle buttons (like sound on/off) are essential for providing real-time state feedback to screen reader users.
+**Action:** Implement Escape shortcuts for search inputs and ensure all stateful icon buttons have dynamic aria-labels.

@@ -1,10 +1,11 @@
-import { useState } from 'react';
-import { Copy, Check } from 'lucide-react';
+import { useState, useMemo, useCallback } from 'react';
+import { Copy, Check, RefreshCw } from 'lucide-react';
 
 export function LoremIpsumGenerator() {
   const [count, setCount] = useState(3);
   const [type, setType] = useState<'paragraphs' | 'sentences' | 'words'>('paragraphs');
   const [copied, setCopied] = useState(false);
+  const [refreshTrigger, setRefreshTrigger] = useState(0);
 
   const loremWords = [
     'lorem', 'ipsum', 'dolor', 'sit', 'amet', 'consectetur', 'adipiscing', 'elit',
@@ -35,29 +36,34 @@ export function LoremIpsumGenerator() {
     return sentences.join(' ');
   };
 
-  const generateText = () => {
-    if (type === 'words') {
-      const words = [];
-      for (let i = 0; i < count; i++) {
-        words.push(loremWords[Math.floor(Math.random() * loremWords.length)]);
+  const text = useMemo(() => {
+    const generateText = () => {
+      if (type === 'words') {
+        const words = [];
+        for (let i = 0; i < count; i++) {
+          words.push(loremWords[Math.floor(Math.random() * loremWords.length)]);
+        }
+        return words.join(' ');
+      } else if (type === 'sentences') {
+        const sentences = [];
+        for (let i = 0; i < count; i++) {
+          sentences.push(generateSentence());
+        }
+        return sentences.join(' ');
+      } else {
+        const paragraphs = [];
+        for (let i = 0; i < count; i++) {
+          paragraphs.push(generateParagraph());
+        }
+        return paragraphs.join('\n\n');
       }
-      return words.join(' ');
-    } else if (type === 'sentences') {
-      const sentences = [];
-      for (let i = 0; i < count; i++) {
-        sentences.push(generateSentence());
-      }
-      return sentences.join(' ');
-    } else {
-      const paragraphs = [];
-      for (let i = 0; i < count; i++) {
-        paragraphs.push(generateParagraph());
-      }
-      return paragraphs.join('\n\n');
-    }
-  };
+    };
+    return generateText();
+  }, [count, type, refreshTrigger]);
 
-  const text = generateText();
+  const handleRegenerate = useCallback(() => {
+    setRefreshTrigger(prev => prev + 1);
+  }, []);
 
   const copyToClipboard = () => {
     navigator.clipboard.writeText(text);
@@ -66,30 +72,32 @@ export function LoremIpsumGenerator() {
   };
 
   return (
-    <div className="max-w-4xl mx-auto">
-      <div className="bg-gray-50 p-6 rounded-lg mb-6">
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
-          <div>
-            <label className="block text-sm font-semibold text-gray-700 mb-2">
+    <div className="max-w-4xl mx-auto space-y-8">
+      <div className="bg-slate-50 dark:bg-slate-900/50 p-8 rounded-3xl border border-slate-200 dark:border-slate-800">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
+          <div className="space-y-2">
+            <label htmlFor="lorem-count" className="text-xs font-black uppercase tracking-widest text-slate-400 px-1">
               Nombre
             </label>
             <input
+              id="lorem-count"
               type="number"
               min="1"
               max="100"
               value={count}
               onChange={(e) => setCount(Number(e.target.value))}
-              className="w-full p-3 border border-gray-300 rounded-lg"
+              className="w-full p-4 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-2xl font-bold focus:ring-2 focus:ring-indigo-500/20 outline-none transition-all dark:text-white"
             />
           </div>
-          <div>
-            <label className="block text-sm font-semibold text-gray-700 mb-2">
+          <div className="space-y-2">
+            <label htmlFor="lorem-type" className="text-xs font-black uppercase tracking-widest text-slate-400 px-1">
               Type
             </label>
             <select
+              id="lorem-type"
               value={type}
               onChange={(e) => setType(e.target.value as any)}
-              className="w-full p-3 border border-gray-300 rounded-lg bg-white"
+              className="w-full p-4 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-2xl font-bold focus:ring-2 focus:ring-indigo-500/20 outline-none transition-all dark:text-white cursor-pointer"
             >
               <option value="paragraphs">Paragraphes</option>
               <option value="sentences">Phrases</option>
@@ -98,17 +106,30 @@ export function LoremIpsumGenerator() {
           </div>
         </div>
 
-        <button
-          onClick={copyToClipboard}
-          className="w-full py-3 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition-colors flex items-center justify-center gap-2"
-        >
-          {copied ? <Check className="w-5 h-5" /> : <Copy className="w-5 h-5" />}
-          {copied ? 'Copié !' : 'Copier le texte'}
-        </button>
+        <div className="flex flex-col sm:flex-row gap-4">
+          <button
+            onClick={handleRegenerate}
+            className="flex-1 py-4 bg-white dark:bg-slate-800 text-slate-600 dark:text-slate-300 border border-slate-200 dark:border-slate-700 rounded-2xl hover:bg-slate-50 dark:hover:bg-slate-700 transition-all flex items-center justify-center gap-2 font-black active:scale-95"
+          >
+            <RefreshCw className="w-5 h-5" />
+            Régénérer
+          </button>
+          <button
+            onClick={copyToClipboard}
+            className={`flex-[2] py-4 rounded-2xl transition-all flex items-center justify-center gap-2 font-black active:scale-95 ${
+              copied
+                ? 'bg-emerald-500 text-white shadow-lg shadow-emerald-500/20'
+                : 'bg-indigo-600 text-white shadow-lg shadow-indigo-600/20 hover:bg-indigo-700'
+            }`}
+          >
+            {copied ? <Check className="w-5 h-5" /> : <Copy className="w-5 h-5" />}
+            {copied ? 'Copié !' : 'Copier le texte'}
+          </button>
+        </div>
       </div>
 
-      <div className="bg-white border border-gray-300 rounded-lg p-6 max-h-96 overflow-y-auto">
-        <p className="text-gray-700 whitespace-pre-wrap leading-relaxed">
+      <div className="bg-white dark:bg-slate-950/50 border border-slate-200 dark:border-slate-800 rounded-[2.5rem] p-8 max-h-[500px] overflow-y-auto shadow-sm">
+        <p className="text-slate-700 dark:text-slate-300 whitespace-pre-wrap leading-relaxed text-lg">
           {text}
         </p>
       </div>

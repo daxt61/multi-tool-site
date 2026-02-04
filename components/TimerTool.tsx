@@ -183,7 +183,11 @@ export function TimerTool() {
               <div className={`text-6xl font-black font-mono tracking-tighter ${timerDone ? 'text-rose-500' : 'dark:text-white'}`}>
                 {formatTime(timerTime)}
               </div>
-              <button onClick={() => setSoundEnabled(!soundEnabled)} className={`mt-4 p-2 rounded-full transition-colors ${soundEnabled ? 'text-indigo-600' : 'text-slate-300'}`}>
+              <button
+                onClick={() => setSoundEnabled(!soundEnabled)}
+                className={`mt-4 p-2 rounded-full transition-colors ${soundEnabled ? 'text-indigo-600' : 'text-slate-300'}`}
+                aria-label={soundEnabled ? "Désactiver le son" : "Activer le son"}
+              >
                 {soundEnabled ? <Bell className="w-5 h-5" /> : <BellOff className="w-5 h-5" />}
               </button>
             </div>

@@ -103,7 +103,7 @@ const CaseConverter = lazy(() => import("./components/CaseConverter").then(m => 
 const DiffChecker = lazy(() => import("./components/DiffChecker").then(m => ({ default: m.DiffChecker })));
 const AspectRatioCalculator = lazy(() => import("./components/AspectRatioCalculator").then(m => ({ default: m.AspectRatioCalculator })));
 const MorseCodeConverter = lazy(() => import("./components/MorseCodeConverter").then(m => ({ default: m.MorseCodeConverter })));
-const ImageToBase64 = lazy(() => import("./components/ImageToBase64").then(m => ({ default: m.ImageToBase64 })));
+const FileToBase64 = lazy(() => import("./components/FileToBase64").then(m => ({ default: m.FileToBase64 })));
 const About = lazy(() => import("./components/About").then(m => ({ default: m.About })));
 const Contact = lazy(() => import("./components/Contact").then(m => ({ default: m.Contact })));
 const PrivacyPolicy = lazy(() => import("./components/PrivacyPolicy").then(m => ({ default: m.PrivacyPolicy })));
@@ -535,11 +535,11 @@ const tools: Tool[] = [
     category: "dev",
   },
   {
-    id: "image-to-base64",
-    name: "Image en Base64",
-    icon: Image,
-    description: "Convertir une image en chaîne Base64",
-    Component: ImageToBase64,
+    id: "file-to-base64",
+    name: "Fichier en Base64",
+    icon: FileCode,
+    description: "Convertir n'importe quel fichier en chaîne Base64",
+    Component: FileToBase64,
     category: "dev",
   },
   {

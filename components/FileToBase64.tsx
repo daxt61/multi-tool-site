@@ -1,9 +1,10 @@
 import { useState, useRef } from 'react';
 import { Upload, Image as ImageIcon, Copy, Check, Trash2, FileCode } from 'lucide-react';
 
-export function ImageToBase64() {
+export function FileToBase64() {
   const [base64, setBase64] = useState('');
-  const [imagePreview, setImagePreview] = useState<string | null>(null);
+  const [isImage, setIsImage] = useState(false);
+  const [hasFile, setHasFile] = useState(false);
   const [copied, setCopied] = useState(false);
   const [fileInfo, setFileInfo] = useState<{ name: string; size: string; type: string } | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
@@ -16,20 +17,16 @@ export function ImageToBase64() {
   };
 
   const processFile = (file: File) => {
-    if (!file.type.startsWith('image/')) {
-      alert('Veuillez sélectionner une image.');
-      return;
-    }
-
     const reader = new FileReader();
     reader.onloadend = () => {
       const result = reader.result as string;
       setBase64(result);
-      setImagePreview(result);
+      setIsImage(file.type.startsWith('image/'));
+      setHasFile(true);
       setFileInfo({
         name: file.name,
         size: (file.size / 1024).toFixed(2) + ' KB',
-        type: file.type
+        type: file.type || 'application/octet-stream'
       });
     };
     reader.readAsDataURL(file);
@@ -43,7 +40,8 @@ export function ImageToBase64() {
 
   const handleClear = () => {
     setBase64('');
-    setImagePreview(null);
+    setIsImage(false);
+    setHasFile(false);
     setFileInfo(null);
     if (fileInputRef.current) fileInputRef.current.value = '';
   };
@@ -62,7 +60,7 @@ export function ImageToBase64() {
 
   return (
     <div className="max-w-5xl mx-auto space-y-8">
-      {!imagePreview ? (
+      {!hasFile ? (
         <div
           onDragOver={handleDragOver}
           onDrop={handleDrop}
@@ -73,22 +71,28 @@ export function ImageToBase64() {
             type="file"
             ref={fileInputRef}
             onChange={handleFileChange}
-            accept="image/*"
             className="hidden"
           />
           <div className="w-20 h-20 bg-slate-100 dark:bg-slate-800 rounded-3xl flex items-center justify-center mx-auto mb-6 text-slate-400 group-hover:text-indigo-500 group-hover:scale-110 transition-all">
             <Upload className="w-10 h-10" />
           </div>
-          <h3 className="text-2xl font-black mb-2 dark:text-white">Glissez une image ici</h3>
+          <h3 className="text-2xl font-black mb-2 dark:text-white">Glissez un fichier ici</h3>
           <p className="text-slate-500 dark:text-slate-400">ou cliquez pour parcourir vos fichiers</p>
-          <p className="text-xs font-bold text-slate-400 mt-8 uppercase tracking-widest">PNG, JPG, WEBP, GIF (Max 5MB)</p>
+          <p className="text-xs font-bold text-slate-400 mt-8 uppercase tracking-widest">Tous types de fichiers supportés (Max 5MB)</p>
         </div>
       ) : (
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
           <div className="lg:col-span-4 space-y-6">
             <div className="bg-slate-50 dark:bg-slate-900/50 border border-slate-200 dark:border-slate-800 rounded-[2rem] overflow-hidden">
               <div className="aspect-square relative flex items-center justify-center bg-white dark:bg-slate-950 p-4">
-                <img src={imagePreview} alt="Preview" className="max-w-full max-h-full object-contain rounded-lg shadow-sm" />
+                {isImage ? (
+                  <img src={base64} alt="Preview" className="max-w-full max-h-full object-contain rounded-lg shadow-sm" />
+                ) : (
+                  <div className="flex flex-col items-center gap-4 text-slate-300">
+                    <FileCode className="w-20 h-20" />
+                    <span className="text-xs font-bold uppercase tracking-widest text-slate-400 text-center px-4">Aperçu non disponible pour ce type de fichier</span>
+                  </div>
+                )}
               </div>
               <div className="p-6 space-y-4">
                 <div className="space-y-1">
@@ -109,7 +113,7 @@ export function ImageToBase64() {
                   onClick={handleClear}
                   className="w-full py-3 bg-rose-50 dark:bg-rose-500/10 text-rose-600 dark:text-rose-400 rounded-xl font-bold text-sm hover:bg-rose-100 transition-all flex items-center justify-center gap-2"
                 >
-                  <Trash2 className="w-4 h-4" /> Changer d'image
+                  <Trash2 className="w-4 h-4" /> Changer de fichier
                 </button>
               </div>
             </div>
@@ -146,14 +150,14 @@ export function ImageToBase64() {
 
       <div className="bg-indigo-50 dark:bg-indigo-900/10 border border-indigo-100 dark:border-indigo-900/20 p-8 rounded-[2rem] flex items-start gap-6">
         <div className="w-12 h-12 bg-white dark:bg-slate-800 rounded-2xl flex items-center justify-center text-indigo-600 shrink-0 shadow-sm">
-          <ImageIcon className="w-6 h-6" />
+          <FileCode className="w-6 h-6" />
         </div>
         <div className="space-y-2">
-          <h4 className="font-bold dark:text-white">Pourquoi utiliser le Base64 pour les images ?</h4>
+          <h4 className="font-bold dark:text-white">Pourquoi utiliser l'encodage Base64 ?</h4>
           <p className="text-sm text-slate-500 dark:text-slate-400 leading-relaxed">
-            L'encodage Base64 permet d'intégrer des images directement dans votre code (HTML, CSS, JSON).
-            C'est particulièrement utile pour les petites icônes ou pour éviter des requêtes HTTP supplémentaires,
-            ce qui peut améliorer le temps de chargement perçu pour les éléments critiques du dessus de la ligne de flottaison.
+            L'encodage Base64 permet de convertir des données binaires en texte ASCII.
+            C'est particulièrement utile pour intégrer des fichiers (images, polices, petits documents) directement dans du code HTML, CSS ou JSON sans avoir besoin de fichiers séparés.
+            Cela peut réduire le nombre de requêtes HTTP et simplifier le transport de données binaires dans des formats textuels.
           </p>
         </div>
       </div>

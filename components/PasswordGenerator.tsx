@@ -49,7 +49,7 @@ export function PasswordGenerator() {
 
   useEffect(() => {
     generatePassword();
-  }, []);
+  }, [length, includeUppercase, includeLowercase, includeNumbers, includeSymbols, excludeSimilar]);
 
   const copyToClipboard = () => {
     navigator.clipboard.writeText(password);

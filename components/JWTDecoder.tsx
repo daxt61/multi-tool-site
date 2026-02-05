@@ -144,13 +144,23 @@ export function JWTDecoder() {
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               {[
                 { label: 'Émis le (iat)', value: decoded.payload.iat ? formatDate(decoded.payload.iat) : 'N/A' },
-                { label: 'Expire le (exp)', value: decoded.payload.exp ? formatDate(decoded.payload.exp) : 'N/A' },
-                { label: 'Sujet (sub)', value: decoded.payload.sub || 'N/A' },
-                { label: 'Émetteur (iss)', value: decoded.payload.iss || 'N/A' },
-              ].map((claim) => (
+                {
+                  label: 'Expire le (exp)',
+                  value: decoded.payload.exp ? formatDate(decoded.payload.exp) : 'N/A',
+                  color: decoded.payload.exp && (decoded.payload.exp < Date.now() / 1000) ? 'text-rose-600 dark:text-rose-400' : ''
+                },
+                {
+                  label: 'Valide à partir du (nbf)',
+                  value: decoded.payload.nbf ? formatDate(decoded.payload.nbf) : 'N/A',
+                  color: decoded.payload.nbf && (decoded.payload.nbf > Date.now() / 1000) ? 'text-amber-600 dark:text-amber-400' : ''
+                },
+                { label: 'Sujet (sub)', value: typeof decoded.payload.sub === 'object' ? JSON.stringify(decoded.payload.sub) : (decoded.payload.sub || 'N/A') },
+                { label: 'Émetteur (iss)', value: typeof decoded.payload.iss === 'object' ? JSON.stringify(decoded.payload.iss) : (decoded.payload.iss || 'N/A') },
+                { label: 'Audience (aud)', value: typeof decoded.payload.aud === 'object' ? JSON.stringify(decoded.payload.aud) : (decoded.payload.aud || 'N/A') },
+              ].map((claim: { label: string; value: string; color?: string }) => (
                 <div key={claim.label} className="p-4 bg-slate-50 dark:bg-slate-800/50 rounded-2xl border border-slate-100 dark:border-slate-800">
                   <div className="text-[10px] font-black uppercase tracking-widest text-slate-400 mb-1">{claim.label}</div>
-                  <div className="font-bold text-sm truncate">{claim.value}</div>
+                  <div className={`font-bold text-sm truncate ${claim.color || ''}`}>{claim.value}</div>
                 </div>
               ))}
             </div>

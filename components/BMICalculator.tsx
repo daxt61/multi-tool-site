@@ -173,6 +173,37 @@ export function BMICalculator() {
         <h3 className="text-sm font-black uppercase tracking-widest text-slate-400 mb-8 px-2 flex items-center gap-2">
           <Activity className="w-4 h-4" /> Classifications OMS
         </h3>
+
+        {/* ⚡ Bolt Optimization: Visual BMI Scale Indicator */}
+        <div className="relative mb-12 px-2">
+          <div className="h-3 w-full bg-slate-200 dark:bg-slate-800 rounded-full overflow-hidden flex">
+            <div className="h-full bg-blue-500" style={{ width: '46.25%' }}></div>
+            <div className="h-full bg-emerald-500" style={{ width: '16.25%' }}></div>
+            <div className="h-full bg-amber-500" style={{ width: '12.5%' }}></div>
+            <div className="h-full bg-rose-500 flex-1"></div>
+          </div>
+
+          {bmi > 0 && (
+            <div
+              className="absolute top-0 -mt-2 h-7 w-1 bg-slate-900 dark:bg-white shadow-xl transition-all duration-1000 ease-out z-10"
+              style={{ left: `${Math.min(99, (bmi / 40) * 100)}%` }}
+            >
+              <div className="absolute -top-7 left-1/2 -translate-x-1/2 bg-slate-900 dark:bg-white text-white dark:text-slate-900 text-[10px] font-black px-2 py-0.5 rounded shadow-lg whitespace-nowrap">
+                {bmi.toFixed(1)}
+              </div>
+              <div className="absolute -bottom-1.5 left-1/2 -translate-x-1/2 w-0 h-0 border-l-[4px] border-l-transparent border-r-[4px] border-r-transparent border-t-[6px] border-t-slate-900 dark:border-t-white"></div>
+            </div>
+          )}
+
+          <div className="flex justify-between mt-2 text-[10px] font-bold text-slate-400 font-mono">
+            <span>0</span>
+            <span style={{ marginLeft: '46.25%' }} className="-translate-x-1/2">18.5</span>
+            <span style={{ marginLeft: '16.25%' }} className="-translate-x-1/2">25</span>
+            <span style={{ marginLeft: '12.5%' }} className="-translate-x-1/2">30</span>
+            <span className="ml-auto">40+</span>
+          </div>
+        </div>
+
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
           {[
             { label: 'Insuffisance', range: '< 18.5', color: 'bg-blue-500' },

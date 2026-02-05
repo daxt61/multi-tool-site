@@ -52,6 +52,7 @@ export function Calculator() {
       case '-': return a - b;
       case '×': return a * b;
       case '÷': return b !== 0 ? a / b : NaN;
+      case '%': return a % b;
       case 'x^y': return Math.pow(a, b);
       default: return b;
     }
@@ -142,6 +143,7 @@ export function Calculator() {
       if (e.key >= '0' && e.key <= '9') handleNumber(e.key);
       if (e.key === '.') handleDecimal();
       if (e.key === ',') handleDecimal();
+      if (e.key === '%') handleOperation('%');
       if (e.key === '+') handleOperation('+');
       if (e.key === '-') handleOperation('-');
       if (e.key === '*') handleOperation('×');
@@ -162,21 +164,21 @@ export function Calculator() {
   }, [display, previousValue, operation, newNumber]);
 
   const standardButtons = [
-    ['C', '←', '÷', '×'],
-    ['7', '8', '9', '-'],
-    ['4', '5', '6', '+'],
-    ['1', '2', '3', '.'],
-    ['0', '=']
+    ['C', '←', '%', '÷'],
+    ['7', '8', '9', '×'],
+    ['4', '5', '6', '-'],
+    ['1', '2', '3', '+'],
+    ['0', '.', '=']
   ];
 
   const scientificButtons = [
     ['sin', 'cos', 'tan', 'abs', 'n!'],
     ['log', 'ln', '√', 'exp', 'π'],
-    ['C', '←', '÷', '×', 'e'],
-    ['7', '8', '9', '-', 'x²'],
-    ['4', '5', '6', '+', 'x^y'],
-    ['1', '2', '3', '0', '.'],
-    ['=']
+    ['C', '←', '%', '÷', 'e'],
+    ['7', '8', '9', '×', 'x²'],
+    ['4', '5', '6', '-', 'x^y'],
+    ['1', '2', '3', '+', '.'],
+    ['0', '=']
   ];
 
   return (
@@ -249,19 +251,19 @@ export function Calculator() {
                       if (btn === 'C') handleClear();
                       else if (btn === '←') handleBackspace();
                       else if (btn === '=') handleEquals();
-                      else if (['+', '-', '×', '÷', 'x^y'].includes(btn)) handleOperation(btn);
+                      else if (['+', '-', '×', '÷', '%', 'x^y'].includes(btn)) handleOperation(btn);
                       else if (['sin', 'cos', 'tan', 'log', 'ln', '√', 'x²', 'π', 'e', 'exp', 'abs', 'n!'].includes(btn)) handleScientificAction(btn);
                       else if (btn === '.') handleDecimal();
                       else handleNumber(btn);
                     }}
-                    className={`h-16 md:h-20 rounded-2xl text-xl font-bold transition-all active:scale-95 flex items-center justify-center ${
+                    className={`h-16 md:h-20 rounded-2xl ${isScientific ? 'text-sm md:text-xl' : 'text-xl'} font-bold transition-all active:scale-95 flex items-center justify-center ${
                       btn === 'C'
                         ? 'bg-rose-50 text-rose-600 dark:bg-rose-500/10 dark:text-rose-400 hover:bg-rose-100'
                         : btn === '←'
                         ? 'bg-slate-100 text-slate-600 dark:bg-slate-800 dark:text-slate-400 hover:bg-slate-200'
                         : btn === '='
                         ? 'bg-indigo-600 text-white shadow-lg shadow-indigo-600/20 hover:bg-indigo-700'
-                        : ['+', '-', '×', '÷', 'x^y'].includes(btn)
+                        : ['+', '-', '×', '÷', '%', 'x^y'].includes(btn)
                         ? 'bg-indigo-50 text-indigo-600 dark:bg-indigo-500/10 dark:text-indigo-400 hover:bg-indigo-100'
                         : 'bg-white dark:bg-slate-800 text-slate-900 dark:text-white border border-slate-100 dark:border-slate-700 hover:border-slate-300 dark:hover:border-slate-600 shadow-sm'
                     } ${row.length === 1 ? 'col-span-full' : ''}`}

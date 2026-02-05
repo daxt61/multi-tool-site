@@ -1,5 +1,5 @@
 import { useState, useEffect, useMemo } from 'react';
-import { ArrowUpDown, Info, Copy, Check, Loader2, RefreshCw } from 'lucide-react';
+import { ArrowUpDown, Info, Copy, Check, Loader2, RefreshCw, TrendingUp } from 'lucide-react';
 
 // ⚡ Bolt Optimization: Moved static currencies array outside component
 // to prevent redundant allocations and GC pressure on every render.
@@ -58,6 +58,7 @@ export function CurrencyConverter() {
   const [loading, setLoading] = useState(false);
   const [copied, setCopied] = useState(false);
   const [lastUpdated, setLastUpdated] = useState<string | null>(null);
+  const popularAmounts = [1, 5, 10, 25, 50, 100, 500, 1000];
 
   useEffect(() => {
     fetchRates();
@@ -194,6 +195,23 @@ export function CurrencyConverter() {
         <p className="text-sm text-indigo-800 dark:text-indigo-400 font-medium leading-relaxed">
           <strong>Source des données :</strong> Les taux de change sont récupérés en temps réel via l'API Frankfurter. Bien que nous nous efforcions de fournir des données précises, ces taux sont à titre indicatif et peuvent varier légèrement des taux de change officiels de votre banque.
         </p>
+      </div>
+
+      {/* Popular Conversions */}
+      <div className="pt-12 border-t border-slate-100 dark:border-slate-800">
+        <h3 className="text-xs font-black uppercase tracking-widest text-slate-400 mb-6 flex items-center gap-2 px-1">
+          <TrendingUp className="w-4 h-4 text-indigo-500" /> Conversions populaires
+        </h3>
+        <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+          {popularAmounts.map(amt => (
+            <div key={amt} className="p-4 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl flex flex-col shadow-sm transition-all hover:border-indigo-500/30">
+              <div className="text-[10px] font-bold text-slate-400 uppercase mb-1">{amt} {fromCurrency} =</div>
+              <div className="text-sm font-black dark:text-white font-mono">
+                {((amt / rates[fromCurrency]) * rates[toCurrency]).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })} <span className="text-indigo-500">{toCurrency}</span>
+              </div>
+            </div>
+          ))}
+        </div>
       </div>
     </div>
   );

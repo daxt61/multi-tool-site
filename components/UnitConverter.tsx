@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { Copy, Check, Trash2, ArrowUpDown, Info, Ruler } from 'lucide-react';
 
-type ConversionCategory = 'length' | 'weight' | 'temperature' | 'area' | 'volume' | 'digital' | 'pressure' | 'energy' | 'speed' | 'time' | 'power' | 'frequency' | 'consumption' | 'angle';
+type ConversionCategory = 'length' | 'weight' | 'temperature' | 'area' | 'volume' | 'digital' | 'pressure' | 'energy' | 'speed' | 'time' | 'power' | 'frequency' | 'consumption' | 'angle' | 'force' | 'torque';
 
 interface ConversionUnit {
   name: string;
@@ -59,6 +59,17 @@ const CONVERSIONS: Record<ConversionCategory, Record<string, ConversionUnit>> = 
     'MB': { name: 'Megaoctets (MB)', toBase: (v) => v * Math.pow(1024, 2), fromBase: (v) => v / Math.pow(1024, 2) },
     'GB': { name: 'Gigaoctets (GB)', toBase: (v) => v * Math.pow(1024, 3), fromBase: (v) => v / Math.pow(1024, 3) },
     'TB': { name: 'Teraoctets (TB)', toBase: (v) => v * Math.pow(1024, 4), fromBase: (v) => v / Math.pow(1024, 4) }
+  },
+  force: {
+    'N': { name: 'Newtons (N)', toBase: (v) => v, fromBase: (v) => v },
+    'kN': { name: 'Kilonewtons (kN)', toBase: (v) => v * 1000, fromBase: (v) => v / 1000 },
+    'lbf': { name: 'Livres-force (lbf)', toBase: (v) => v * 4.44822, fromBase: (v) => v / 4.44822 },
+    'kgf': { name: 'Kilogrammes-force (kgf)', toBase: (v) => v * 9.80665, fromBase: (v) => v / 9.80665 }
+  },
+  torque: {
+    'Nm': { name: 'Newton-mètres (Nm)', toBase: (v) => v, fromBase: (v) => v },
+    'lbft': { name: 'Livres-pieds (lb-ft)', toBase: (v) => v * 1.35582, fromBase: (v) => v / 1.35582 },
+    'kgm': { name: 'Kilogramme-mètres (kg-m)', toBase: (v) => v * 9.80665, fromBase: (v) => v / 9.80665 }
   },
   speed: {
     'm/s': { name: 'Mètres par seconde (m/s)', toBase: (v) => v, fromBase: (v) => v },
@@ -123,7 +134,9 @@ const CATEGORIES_MAP = [
   { id: 'temperature', name: 'Température' },
   { id: 'area', name: 'Surface' },
   { id: 'volume', name: 'Volume' },
-  { id: 'digital', name: 'Digital' },
+  { id: 'digital', name: 'Numérique' },
+  { id: 'force', name: 'Force' },
+  { id: 'torque', name: 'Couple' },
   { id: 'speed', name: 'Vitesse' },
   { id: 'time', name: 'Temps' },
   { id: 'pressure', name: 'Pression' },

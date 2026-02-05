@@ -77,14 +77,20 @@ export function PasswordGenerator() {
   return (
     <div className="max-w-4xl mx-auto space-y-8">
       {/* Display Area */}
-      <div className="bg-slate-900 dark:bg-black p-8 md:p-12 rounded-[2.5rem] shadow-xl shadow-indigo-500/5 relative overflow-hidden group">
+      <div className="bg-slate-900 dark:bg-black p-8 md:p-12 rounded-[2.5rem] shadow-xl shadow-indigo-500/5 relative overflow-hidden group min-h-[160px] flex flex-col justify-center">
         <div className="flex flex-col md:flex-row items-center gap-8 relative z-10">
-          <input
-            type="text"
-            value={password}
-            readOnly
-            className="flex-1 bg-transparent text-3xl md:text-5xl font-mono text-white outline-none tracking-tight w-full text-center md:text-left selection:bg-indigo-500/30"
-          />
+          {password ? (
+            <input
+              type="text"
+              value={password}
+              readOnly
+              className="flex-1 bg-transparent text-3xl md:text-5xl font-mono text-white outline-none tracking-tight w-full text-center md:text-left selection:bg-indigo-500/30"
+            />
+          ) : (
+            <div className="flex-1 text-white/40 text-lg font-medium italic text-center md:text-left">
+              Veuillez sélectionner au moins une option ci-dessous...
+            </div>
+          )}
           <div className="flex gap-3">
             <button
               onClick={generatePassword}

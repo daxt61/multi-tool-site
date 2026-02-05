@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { Copy, Check, Trash2, ArrowUpDown, Info, Ruler } from 'lucide-react';
 
-type ConversionCategory = 'length' | 'weight' | 'temperature' | 'area' | 'volume' | 'digital' | 'pressure' | 'energy' | 'speed' | 'time' | 'power' | 'frequency' | 'consumption' | 'angle';
+type ConversionCategory = 'length' | 'weight' | 'temperature' | 'area' | 'volume' | 'digital' | 'pressure' | 'energy' | 'speed' | 'time' | 'power' | 'frequency' | 'consumption' | 'angle' | 'force' | 'torque';
 
 interface ConversionUnit {
   name: string;
@@ -114,6 +114,17 @@ const CONVERSIONS: Record<ConversionCategory, Record<string, ConversionUnit>> = 
     'rad': { name: 'Radians', toBase: (v) => v * (180 / Math.PI), fromBase: (v) => v * (Math.PI / 180) },
     'grad': { name: 'Grades', toBase: (v) => v * (9 / 10), fromBase: (v) => v * (10 / 9) },
     'tr': { name: 'Tours', toBase: (v) => v * 360, fromBase: (v) => v / 360 }
+  },
+  force: {
+    'N': { name: 'Newton (N)', toBase: (v) => v, fromBase: (v) => v },
+    'kN': { name: 'Kilonewton (kN)', toBase: (v) => v * 1000, fromBase: (v) => v / 1000 },
+    'lbf': { name: 'Livre-force (lbf)', toBase: (v) => v * 4.44822, fromBase: (v) => v / 4.44822 },
+    'dyn': { name: 'Dynes (dyn)', toBase: (v) => v * 0.00001, fromBase: (v) => v / 0.00001 }
+  },
+  torque: {
+    'Nm': { name: 'Newton-mètre (Nm)', toBase: (v) => v, fromBase: (v) => v },
+    'lb-ft': { name: 'Livre-pied (lb-ft)', toBase: (v) => v * 1.35582, fromBase: (v) => v / 1.35582 },
+    'lb-in': { name: 'Livre-pouce (lb-in)', toBase: (v) => v * 0.11298, fromBase: (v) => v / 0.11298 }
   }
 };
 
@@ -131,7 +142,9 @@ const CATEGORIES_MAP = [
   { id: 'power', name: 'Puissance' },
   { id: 'frequency', name: 'Fréquence' },
   { id: 'consumption', name: 'Consommation' },
-  { id: 'angle', name: 'Angle' }
+  { id: 'angle', name: 'Angle' },
+  { id: 'force', name: 'Force' },
+  { id: 'torque', name: 'Couple' }
 ];
 
 const formatter = new Intl.NumberFormat('fr-FR', {

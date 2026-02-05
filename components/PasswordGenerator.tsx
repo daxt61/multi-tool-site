@@ -9,6 +9,7 @@ export function PasswordGenerator() {
   const [includeNumbers, setIncludeNumbers] = useState(true);
   const [includeSymbols, setIncludeSymbols] = useState(true);
   const [excludeSimilar, setExcludeSimilar] = useState(false);
+  const [excludedChars, setExcludedChars] = useState('');
   const [copied, setCopied] = useState(false);
 
   const generatePassword = () => {
@@ -20,6 +21,14 @@ export function PasswordGenerator() {
 
     if (excludeSimilar) {
       charset = charset.replace(/[il1Lo0O]/g, '');
+    }
+
+    if (excludedChars) {
+      const escapeRegExp = (string: string) => {
+        return string.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+      };
+      const regex = new RegExp(`[${escapeRegExp(excludedChars)}]`, 'g');
+      charset = charset.replace(regex, '');
     }
 
     if (charset === '') {
@@ -49,7 +58,7 @@ export function PasswordGenerator() {
 
   useEffect(() => {
     generatePassword();
-  }, [length, includeUppercase, includeLowercase, includeNumbers, includeSymbols, excludeSimilar]);
+  }, [length, includeUppercase, includeLowercase, includeNumbers, includeSymbols, excludeSimilar, excludedChars]);
 
   const copyToClipboard = () => {
     navigator.clipboard.writeText(password);
@@ -170,6 +179,18 @@ export function PasswordGenerator() {
                 </div>
               </button>
             ))}
+          </div>
+
+          <div className="space-y-4 pt-4 border-t border-slate-200 dark:border-slate-800">
+            <label htmlFor="excluded-chars" className="text-xs font-black uppercase tracking-widest text-slate-400 px-1">Caractères à exclure</label>
+            <input
+              id="excluded-chars"
+              type="text"
+              value={excludedChars}
+              onChange={(e) => setExcludedChars(e.target.value)}
+              className="w-full p-4 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-2xl font-mono focus:border-indigo-500 outline-none transition-all dark:text-white"
+              placeholder="ex: @#$%"
+            />
           </div>
         </div>
 

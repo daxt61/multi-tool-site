@@ -41,6 +41,38 @@ export function DateCalculator() {
     return { totalDays, years, months, days };
   };
 
+  const calculateWorkingDays = () => {
+    const d1 = new Date(date1);
+    const d2 = new Date(date2);
+
+    if (isNaN(d1.getTime()) || isNaN(d2.getTime())) {
+      return 0;
+    }
+
+    const start = d1 < d2 ? new Date(d1) : new Date(d2);
+    const end = d1 < d2 ? new Date(d2) : new Date(d1);
+    let workingDays = 0;
+
+    const current = new Date(start);
+    // Exclusive of the start day, inclusive of the end day (standard duration logic)
+    // or should it be inclusive of both?
+    // Let's go with inclusive of both if they are different, or 1 if same.
+    // Actually, usually difference is end - start.
+    // If start is Monday and end is Tuesday, it's 2 working days if inclusive.
+    // Let's match the "totalDays" logic which is Math.ceil(diffTime / ...)
+    // If d1=d2, totalDays=0.
+
+    while (current < end) {
+      current.setDate(current.getDate() + 1);
+      const day = current.getDay();
+      if (day !== 0 && day !== 6) { // Not Sunday (0) or Saturday (6)
+        workingDays++;
+      }
+    }
+
+    return workingDays;
+  };
+
   const addDaysToDate = (date: string, days: number) => {
     if (!date) return "";
     const d = new Date(date);
@@ -58,6 +90,7 @@ export function DateCalculator() {
   };
 
   const diff = calculateDifference();
+  const workingDays = calculateWorkingDays();
   const newDate = addDaysToDate(date1, parseInt(daysToAdd) || 0);
 
   return (
@@ -111,6 +144,12 @@ export function DateCalculator() {
              <div className="text-xs font-bold text-slate-400 uppercase tracking-widest mb-1">Semaines</div>
              <div className="text-2xl font-black text-indigo-600 dark:text-indigo-400 font-mono">
                {(diff.totalDays / 7).toFixed(1)} sem.
+             </div>
+           </div>
+           <div className="bg-white dark:bg-slate-800 p-6 rounded-2xl border border-slate-100 dark:border-slate-700 text-center md:col-span-3">
+             <div className="text-xs font-bold text-slate-400 uppercase tracking-widest mb-1">Jours ouvrés (Lundi-Vendredi)</div>
+             <div className="text-2xl font-black text-indigo-600 dark:text-indigo-400 font-mono">
+               {workingDays} jours
              </div>
            </div>
         </div>

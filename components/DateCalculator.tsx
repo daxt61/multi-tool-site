@@ -6,6 +6,8 @@ export function DateCalculator() {
   const [date1, setDate1] = useState(today);
   const [date2, setDate2] = useState(today);
   const [daysToAdd, setDaysToAdd] = useState('30');
+  const [monthsToAdd, setMonthsToAdd] = useState('0');
+  const [yearsToAdd, setYearsToAdd] = useState('0');
 
   const calculateDifference = () => {
     const d1 = new Date(date1);
@@ -41,10 +43,14 @@ export function DateCalculator() {
     return { totalDays, years, months, days };
   };
 
-  const addDaysToDate = (date: string, days: number) => {
+  const addTimeToDate = (date: string, years: number, months: number, days: number) => {
     if (!date) return "";
     const d = new Date(date);
     if (isNaN(d.getTime())) return "";
+
+    // ⚡ Bolt Optimization: Use built-in Date methods for accurate calendar math
+    d.setFullYear(d.getFullYear() + years);
+    d.setMonth(d.getMonth() + months);
     d.setDate(d.getDate() + days);
     return d.toISOString().split('T')[0];
   };
@@ -58,7 +64,12 @@ export function DateCalculator() {
   };
 
   const diff = calculateDifference();
-  const newDate = addDaysToDate(date1, parseInt(daysToAdd) || 0);
+  const newDate = addTimeToDate(
+    date1,
+    parseInt(yearsToAdd) || 0,
+    parseInt(monthsToAdd) || 0,
+    parseInt(daysToAdd) || 0
+  );
 
   return (
     <div className="max-w-4xl mx-auto space-y-8">
@@ -135,16 +146,38 @@ export function DateCalculator() {
             />
           </div>
           <div className="space-y-3">
-             <label htmlFor="days-offset" className="text-xs font-bold text-slate-400 px-1 uppercase tracking-widest cursor-pointer">Jours à ajouter/retirer</label>
-             <div className="relative">
-                <input
-                  id="days-offset"
-                  type="number"
-                  value={daysToAdd}
-                  onChange={(e) => setDaysToAdd(e.target.value)}
-                  className="w-full p-4 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-2xl text-xl font-black font-mono focus:border-indigo-500 outline-none transition-all dark:text-white"
-                  placeholder="30"
-                />
+             <label className="text-xs font-bold text-slate-400 px-1 uppercase tracking-widest cursor-pointer">Temps à ajouter/retirer</label>
+             <div className="grid grid-cols-3 gap-2">
+                <div className="space-y-1">
+                  <input
+                    type="number"
+                    value={yearsToAdd}
+                    onChange={(e) => setYearsToAdd(e.target.value)}
+                    className="w-full p-3 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-lg font-black font-mono focus:border-indigo-500 outline-none transition-all dark:text-white"
+                    placeholder="0"
+                  />
+                  <div className="text-[10px] font-bold text-slate-400 text-center uppercase">Années</div>
+                </div>
+                <div className="space-y-1">
+                  <input
+                    type="number"
+                    value={monthsToAdd}
+                    onChange={(e) => setMonthsToAdd(e.target.value)}
+                    className="w-full p-3 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-lg font-black font-mono focus:border-indigo-500 outline-none transition-all dark:text-white"
+                    placeholder="0"
+                  />
+                  <div className="text-[10px] font-bold text-slate-400 text-center uppercase">Mois</div>
+                </div>
+                <div className="space-y-1">
+                  <input
+                    type="number"
+                    value={daysToAdd}
+                    onChange={(e) => setDaysToAdd(e.target.value)}
+                    className="w-full p-3 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-lg font-black font-mono focus:border-indigo-500 outline-none transition-all dark:text-white"
+                    placeholder="0"
+                  />
+                  <div className="text-[10px] font-bold text-slate-400 text-center uppercase">Jours</div>
+                </div>
              </div>
           </div>
         </div>

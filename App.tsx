@@ -52,6 +52,7 @@ import {
   Search,
   Shuffle,
   ArrowLeft,
+  ArrowUp,
   Database,
   ArrowLeftRight,
   X,
@@ -759,6 +760,11 @@ function MainApp() {
         const matchesSearch = searchEntry?.name.includes(query) ||
                              searchEntry?.description.includes(query);
         if (!matchesSearch) return false;
+
+        // ⚡ Bolt Optimization: Respect category filter even during search
+        if (selectedCategory && selectedCategory !== "all") {
+          return tool.category === selectedCategory;
+        }
         return true;
       }
 
@@ -927,22 +933,28 @@ function MainApp() {
               <div className="space-y-12">
                 {/* Category Nav */}
                 <div className="sticky top-4 z-40 bg-white/80 dark:bg-slate-950/80 backdrop-blur-md py-4 border-b border-slate-200/50 dark:border-slate-800/50 -mx-4 px-4">
-                  <div className="flex gap-2 overflow-x-auto no-scrollbar">
-                    {categories.map((cat) => (
-                      <button
-                        key={cat.id}
-                        onClick={() => setSelectedCategory(cat.id === "all" ? null : cat.id)}
-                        aria-pressed={(selectedCategory === cat.id) || (cat.id === "all" && !selectedCategory)}
-                        className={`flex items-center gap-2 px-4 py-2 rounded-full text-sm font-bold transition-all whitespace-nowrap border ${
-                          (selectedCategory === cat.id) || (cat.id === "all" && !selectedCategory)
-                            ? "bg-slate-900 text-white border-slate-900 dark:bg-white dark:text-slate-950 dark:border-white shadow-md shadow-indigo-500/10"
-                            : "bg-slate-50 text-slate-500 border-slate-200 hover:border-slate-300 dark:bg-slate-900 dark:text-slate-400 dark:border-slate-800 dark:hover:border-slate-700"
-                        }`}
-                      >
-                        <cat.icon className="w-4 h-4" />
-                        {cat.name}
-                      </button>
-                    ))}
+                  <div className="relative group/nav">
+                    {/* ⚡ Bolt Optimization: Mobile-friendly scroll gradients */}
+                    <div className="absolute left-0 top-0 bottom-0 w-8 bg-gradient-to-r from-white dark:from-slate-950 to-transparent z-10 pointer-events-none sm:hidden"></div>
+                    <div className="absolute right-0 top-0 bottom-0 w-8 bg-gradient-to-l from-white dark:from-slate-950 to-transparent z-10 pointer-events-none sm:hidden"></div>
+
+                    <div className="flex gap-2 overflow-x-auto no-scrollbar py-1">
+                      {categories.map((cat) => (
+                        <button
+                          key={cat.id}
+                          onClick={() => setSelectedCategory(cat.id === "all" ? null : cat.id)}
+                          aria-pressed={(selectedCategory === cat.id) || (cat.id === "all" && !selectedCategory)}
+                          className={`flex items-center gap-2 px-4 py-2 rounded-full text-sm font-bold transition-all whitespace-nowrap border ${
+                            (selectedCategory === cat.id) || (cat.id === "all" && !selectedCategory)
+                              ? "bg-slate-900 text-white border-slate-900 dark:bg-white dark:text-slate-950 dark:border-white shadow-md shadow-indigo-500/10"
+                              : "bg-slate-50 text-slate-500 border-slate-200 hover:border-slate-300 dark:bg-slate-900 dark:text-slate-400 dark:border-slate-800 dark:hover:border-slate-700"
+                          }`}
+                        >
+                          <cat.icon className="w-4 h-4" />
+                          {cat.name}
+                        </button>
+                      ))}
+                    </div>
                   </div>
                 </div>
 
@@ -1007,8 +1019,22 @@ function MainApp() {
 
 function ToolView({ favorites, toggleFavorite }: { favorites: string[], toggleFavorite: (e: React.MouseEvent, id: string) => void }) {
   const { toolId } = useParams();
+  const [showScrollTop, setShowScrollTop] = useState(false);
+
   // ⚡ Bolt Optimization: Use toolsMap for O(1) lookup
   const currentTool = toolId ? toolsMap[toolId] : null;
+
+  useEffect(() => {
+    const handleScroll = () => {
+      setShowScrollTop(window.scrollY > 400);
+    };
+    window.addEventListener('scroll', handleScroll);
+    return () => window.removeEventListener('scroll', handleScroll);
+  }, []);
+
+  const scrollToTop = () => {
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  };
 
   if (!currentTool) {
     return (
@@ -1020,7 +1046,7 @@ function ToolView({ favorites, toggleFavorite }: { favorites: string[], toggleFa
   }
 
   return (
-    <div className="animate-in fade-in slide-in-from-bottom-4 duration-500">
+    <div className="animate-in fade-in slide-in-from-bottom-4 duration-500 relative">
       <Link
         to="/"
         className="mb-8 inline-flex items-center gap-2 text-sm font-semibold text-slate-500 hover:text-slate-900 dark:text-slate-400 dark:hover:text-white transition-colors"
@@ -1064,6 +1090,16 @@ function ToolView({ favorites, toggleFavorite }: { favorites: string[], toggleFa
           <AdPlaceholder size="banner" className="opacity-50" />
         </Suspense>
       </div>
+
+      {showScrollTop && (
+        <button
+          onClick={scrollToTop}
+          className="fixed bottom-8 right-8 p-4 bg-indigo-600 text-white rounded-full shadow-2xl shadow-indigo-600/20 z-50 hover:scale-110 active:scale-95 transition-all animate-in fade-in zoom-in duration-300"
+          aria-label="Retour en haut"
+        >
+          <ArrowUp className="w-6 h-6" />
+        </button>
+      )}
     </div>
   );
 }

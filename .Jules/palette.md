@@ -21,3 +21,7 @@
 ## 2025-02-03 - [Stable Generation & Bento Consistency]
 **Learning:** In text generation tools, random output must be stabilized using `useMemo` to prevent frustrating regenerations during unrelated state updates (like "Copied" feedback). Additionally, modernizing legacy components to the Bento design system (slate-50 backgrounds, rounded-3xl corners, indigo accents) significantly improves brand cohesion and trust.
 **Action:** Use `useMemo` for random text and prioritize visual alignment with the Bento system for older components.
+
+## 2025-05-24 - [Global Sharing & Responsive States]
+**Learning:** Adding a global "Share" button to tool views significantly increases the utility of a multi-tool dashboard. Providing immediate visual feedback by changing the icon (e.g., from `Share` to `Check`) and background color is a powerful micro-UX pattern that confirms success without needing intrusive notifications.
+**Action:** Implement share functionality in centralized views and use temporary icon swaps for non-intrusive feedback.

@@ -10,8 +10,13 @@ interface Product {
 const UNITS = [
   { id: 'g', label: 'Grammes (g)', factor: 1 },
   { id: 'kg', label: 'Kilogrammes (kg)', factor: 1000 },
+  { id: 'mg', label: 'Milligrammes (mg)', factor: 0.001 },
+  { id: 'oz', label: 'Onces (oz)', factor: 28.3495 },
+  { id: 'lb', label: 'Livres (lb)', factor: 453.592 },
   { id: 'ml', label: 'Millilitres (ml)', factor: 1 },
   { id: 'l', label: 'Litres (l)', factor: 1000 },
+  { id: 'floz', label: 'Fl. oz (US)', factor: 29.5735 },
+  { id: 'gal', label: 'Gallon (US)', factor: 3785.41 },
   { id: 'unit', label: 'Unités', factor: 1 },
 ];
 
@@ -99,7 +104,9 @@ export function UnitPriceCalculator() {
 
           {unitPriceA !== null && (
             <div className="mt-8 pt-8 border-t border-slate-200 dark:border-slate-700 text-center">
-              <div className="text-xs font-bold text-slate-400 uppercase tracking-widest mb-2">Prix pour 100{productA.unit === 'unit' ? ' unités' : (productA.unit.includes('l') ? 'ml' : 'g')}</div>
+              <div className="text-xs font-bold text-slate-400 uppercase tracking-widest mb-2">
+                Prix pour 100{productA.unit === 'unit' ? ' unités' : (['ml', 'l', 'floz', 'gal'].includes(productA.unit) ? 'ml' : 'g')}
+              </div>
               <div className="text-4xl font-black font-mono text-indigo-600 dark:text-indigo-400">
                 {unitPriceA.toFixed(3)}€
               </div>
@@ -159,7 +166,9 @@ export function UnitPriceCalculator() {
 
           {unitPriceB !== null && (
             <div className="mt-8 pt-8 border-t border-slate-200 dark:border-slate-700 text-center">
-              <div className="text-xs font-bold text-slate-400 uppercase tracking-widest mb-2">Prix pour 100{productB.unit === 'unit' ? ' unités' : (productB.unit.includes('l') ? 'ml' : 'g')}</div>
+              <div className="text-xs font-bold text-slate-400 uppercase tracking-widest mb-2">
+                Prix pour 100{productB.unit === 'unit' ? ' unités' : (['ml', 'l', 'floz', 'gal'].includes(productB.unit) ? 'ml' : 'g')}
+              </div>
               <div className="text-4xl font-black font-mono text-indigo-600 dark:text-indigo-400">
                 {unitPriceB.toFixed(3)}€
               </div>

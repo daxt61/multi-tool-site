@@ -1,5 +1,5 @@
 import { useState, useEffect, useMemo } from 'react';
-import { ArrowUpDown, Info, Copy, Check, Loader2, RefreshCw } from 'lucide-react';
+import { ArrowUpDown, Info, Copy, Check, Loader2, RefreshCw, CircleAlert } from 'lucide-react';
 
 // ⚡ Bolt Optimization: Moved static currencies array outside component
 // to prevent redundant allocations and GC pressure on every render.
@@ -58,6 +58,7 @@ export function CurrencyConverter() {
   const [loading, setLoading] = useState(false);
   const [copied, setCopied] = useState(false);
   const [lastUpdated, setLastUpdated] = useState<string | null>(null);
+  const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
     fetchRates();
@@ -65,15 +66,18 @@ export function CurrencyConverter() {
 
   const fetchRates = async () => {
     setLoading(true);
+    setError(null);
     try {
       const response = await fetch('https://api.frankfurter.app/latest?from=EUR');
+      if (!response.ok) throw new Error('Erreur réseau lors de la récupération des taux');
       const data = await response.json();
       if (data.rates) {
         setRates({ EUR: 1, ...data.rates });
         setLastUpdated(new Date().toLocaleTimeString());
       }
-    } catch (error) {
-      console.error('Failed to fetch rates:', error);
+    } catch (err) {
+      console.error('Failed to fetch rates:', err);
+      setError('Impossible de mettre à jour les taux de change. Utilisation des taux par défaut.');
     } finally {
       setLoading(false);
     }
@@ -186,6 +190,18 @@ export function CurrencyConverter() {
           </button>
         </div>
       </div>
+
+      {error && (
+        <div className="bg-rose-50 dark:bg-rose-900/10 border border-rose-100 dark:border-rose-900/20 p-6 rounded-[2rem] flex items-start gap-4 animate-in fade-in slide-in-from-top-4 duration-300">
+          <div className="p-2 bg-white dark:bg-slate-800 text-rose-600 rounded-xl shadow-sm">
+            <CircleAlert className="w-6 h-6" />
+          </div>
+          <div className="space-y-1">
+            <p className="text-sm text-rose-800 dark:text-rose-400 font-bold">Erreur de mise à jour</p>
+            <p className="text-sm text-rose-700 dark:text-rose-500 font-medium">{error}</p>
+          </div>
+        </div>
+      )}
 
       <div className="bg-indigo-50 dark:bg-indigo-900/10 border border-indigo-100 dark:border-indigo-900/20 p-6 rounded-[2rem] flex items-start gap-4">
         <div className="p-2 bg-white dark:bg-slate-800 text-indigo-600 rounded-xl shadow-sm">

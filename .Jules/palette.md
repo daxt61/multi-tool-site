@@ -14,6 +14,10 @@
 **Learning:** Avoid nesting buttons inside buttons or links as it is invalid HTML and breaks keyboard/screen reader navigation. Instead, use a `div` container with a "stretched link" (absolute button with `z-10`) and place other interactive elements (like favorites) as siblings with higher `z-index`. Additionally, use semantic icons like `ArrowLeft` instead of rotated icons for back navigation to maintain consistency and clarity.
 **Action:** Use the `z-index` stacking pattern for complex cards and prioritize semantic icons over CSS transforms.
 
+## 2025-02-14 - [Interactive Feedback & Mobile Layout]
+**Learning:** Providing immediate visual feedback (e.g., changing an icon to a checkmark) for transient actions like "Copy to clipboard" significantly improves perceived responsiveness. On mobile, hiding secondary button labels (using `hidden sm:inline`) allows adding more utility buttons without crowding the header or breaking the Bento grid alignment.
+**Action:** Always provide visual success feedback for copies/shares and use responsive label hiding for secondary actions in compact headers.
+
 ## 2025-05-23 - [Utility Tool Micro-UX & a11y]
 **Learning:** For utility-heavy tools like calculators, "Clear" and "Copy" buttons are high-impact micro-UX features that users expect. Additionally, always ensure that all inputs (including number and range types) are properly linked to labels with `id` and `htmlFor` to maintain baseline accessibility.
 **Action:** Prioritize adding reset and copy features to utility tools and audit components for missing input-label associations.

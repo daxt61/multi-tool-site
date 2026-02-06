@@ -145,14 +145,30 @@ export function JWTDecoder() {
               {[
                 { label: 'Émis le (iat)', value: decoded.payload.iat ? formatDate(decoded.payload.iat) : 'N/A' },
                 { label: 'Expire le (exp)', value: decoded.payload.exp ? formatDate(decoded.payload.exp) : 'N/A' },
+                { label: 'Valide après (nbf)', value: decoded.payload.nbf ? formatDate(decoded.payload.nbf) : 'N/A' },
                 { label: 'Sujet (sub)', value: decoded.payload.sub || 'N/A' },
                 { label: 'Émetteur (iss)', value: decoded.payload.iss || 'N/A' },
-              ].map((claim) => (
-                <div key={claim.label} className="p-4 bg-slate-50 dark:bg-slate-800/50 rounded-2xl border border-slate-100 dark:border-slate-800">
-                  <div className="text-[10px] font-black uppercase tracking-widest text-slate-400 mb-1">{claim.label}</div>
-                  <div className="font-bold text-sm truncate">{claim.value}</div>
-                </div>
-              ))}
+                { label: 'Audience (aud)', value: decoded.payload.aud || 'N/A' },
+              ].map((claim) => {
+                const isObject = typeof claim.value === 'object' && claim.value !== null;
+                const displayValue = isObject ? JSON.stringify(claim.value) : claim.value;
+
+                let statusColor = 'text-slate-900 dark:text-white';
+                const now = Math.floor(Date.now() / 1000);
+
+                if (claim.label.includes('(exp)') && decoded.payload.exp < now) {
+                  statusColor = 'text-rose-500';
+                } else if (claim.label.includes('(nbf)') && decoded.payload.nbf > now) {
+                  statusColor = 'text-amber-500';
+                }
+
+                return (
+                  <div key={claim.label} className="p-4 bg-slate-50 dark:bg-slate-800/50 rounded-2xl border border-slate-100 dark:border-slate-800">
+                    <div className="text-[10px] font-black uppercase tracking-widest text-slate-400 mb-1">{claim.label}</div>
+                    <div className={`font-bold text-sm truncate ${statusColor}`}>{displayValue}</div>
+                  </div>
+                );
+              })}
             </div>
           </div>
 

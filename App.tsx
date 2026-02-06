@@ -65,6 +65,8 @@ import {
   LayoutGrid,
   ArrowRight, Loader2,
   Sparkles,
+  Share2,
+  Check,
   ListChecks,
   ShieldCheck,
   Scissors,
@@ -1009,6 +1011,13 @@ function ToolView({ favorites, toggleFavorite }: { favorites: string[], toggleFa
   const { toolId } = useParams();
   // ⚡ Bolt Optimization: Use toolsMap for O(1) lookup
   const currentTool = toolId ? toolsMap[toolId] : null;
+  const [isShared, setIsShared] = useState(false);
+
+  const handleShare = useCallback(() => {
+    navigator.clipboard.writeText(window.location.href);
+    setIsShared(true);
+    setTimeout(() => setIsShared(false), 2000);
+  }, []);
 
   if (!currentTool) {
     return (
@@ -1038,18 +1047,31 @@ function ToolView({ favorites, toggleFavorite }: { favorites: string[], toggleFa
             <h1 className="text-4xl md:text-5xl font-black tracking-tight">{currentTool.name}</h1>
             <p className="text-lg text-slate-500 dark:text-slate-400 max-w-2xl">{currentTool.description}</p>
           </div>
-          <button
-            onClick={(e) => toggleFavorite(e, currentTool.id)}
-            aria-pressed={favorites.includes(currentTool.id)}
-            className={`flex items-center gap-2 px-6 py-3 rounded-2xl font-bold transition-all border ${
-              favorites.includes(currentTool.id)
-                ? "bg-amber-50 text-amber-600 border-amber-200"
-                : "bg-slate-50 text-slate-500 border-slate-200 dark:bg-slate-900 dark:border-slate-800"
-            }`}
-          >
-            <Star className={`w-5 h-5 ${favorites.includes(currentTool.id) ? 'fill-current' : ''}`} />
-            {favorites.includes(currentTool.id) ? "Favori" : "Mettre en favori"}
-          </button>
+          <div className="flex items-center gap-3">
+            <button
+              onClick={handleShare}
+              className={`p-3 rounded-2xl transition-all border flex items-center justify-center ${
+                isShared
+                  ? "bg-emerald-50 text-emerald-600 border-emerald-200 dark:bg-emerald-900/20 dark:border-emerald-800/50"
+                  : "bg-slate-50 text-slate-500 border-slate-200 dark:bg-slate-900 dark:border-slate-800 hover:text-indigo-500 hover:border-indigo-200"
+              }`}
+              aria-label="Partager cet outil"
+            >
+              {isShared ? <Check className="w-5 h-5" /> : <Share2 className="w-5 h-5" />}
+            </button>
+            <button
+              onClick={(e) => toggleFavorite(e, currentTool.id)}
+              aria-pressed={favorites.includes(currentTool.id)}
+              className={`flex items-center gap-2 px-6 py-3 rounded-2xl font-bold transition-all border ${
+                favorites.includes(currentTool.id)
+                  ? "bg-amber-50 text-amber-600 border-amber-200"
+                  : "bg-slate-50 text-slate-500 border-slate-200 dark:bg-slate-900 dark:border-slate-800"
+              }`}
+            >
+              <Star className={`w-5 h-5 ${favorites.includes(currentTool.id) ? 'fill-current' : ''}`} />
+              <span className="hidden sm:inline">{favorites.includes(currentTool.id) ? "Favori" : "Mettre en favori"}</span>
+            </button>
+          </div>
         </div>
       </div>
 

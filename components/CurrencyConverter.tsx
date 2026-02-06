@@ -88,10 +88,24 @@ export function CurrencyConverter() {
   }, [amount, rates, fromCurrency, toCurrency]);
 
   const handleCopy = () => {
-    navigator.clipboard.writeText(result.toFixed(2));
+    navigator.clipboard?.writeText(result.toFixed(2));
     setCopied(true);
     setTimeout(() => setCopied(false), 2000);
   };
+
+  const popularConversions = useMemo(() => {
+    const amounts = [1, 5, 10, 25, 50, 100, 250, 500, 1000];
+    return {
+      fromTo: amounts.map(a => ({
+        amount: a,
+        result: (a / (rates[fromCurrency] || 1)) * (rates[toCurrency] || 1)
+      })),
+      toFrom: amounts.map(a => ({
+        amount: a,
+        result: (a / (rates[toCurrency] || 1)) * (rates[fromCurrency] || 1)
+      }))
+    };
+  }, [rates, fromCurrency, toCurrency]);
 
   return (
     <div className="max-w-4xl mx-auto space-y-12">
@@ -184,6 +198,37 @@ export function CurrencyConverter() {
             {copied ? <Check className="w-4 h-4" /> : <Copy className="w-4 h-4" />}
             {copied ? 'Copié !' : 'Copier le montant'}
           </button>
+        </div>
+      </div>
+
+      {/* Popular Conversions */}
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-8 pt-8 border-t border-slate-100 dark:border-slate-800">
+        <div className="space-y-6">
+          <h3 className="text-sm font-black uppercase tracking-widest text-slate-400 px-2">
+            {fromCurrency} en {toCurrency}
+          </h3>
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+            {popularConversions.fromTo.map(({ amount: a, result: r }) => (
+              <div key={a} className="p-4 bg-slate-50 dark:bg-slate-900/50 rounded-2xl border border-slate-100 dark:border-slate-800 flex justify-between items-center group hover:border-indigo-500/30 transition-all">
+                <span className="font-bold text-slate-400 group-hover:text-slate-600 dark:group-hover:text-slate-300 transition-colors">{a} {fromCurrency}</span>
+                <span className="font-black dark:text-white font-mono">{r.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })} {toCurrency}</span>
+              </div>
+            ))}
+          </div>
+        </div>
+
+        <div className="space-y-6">
+          <h3 className="text-sm font-black uppercase tracking-widest text-slate-400 px-2">
+            {toCurrency} en {fromCurrency}
+          </h3>
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+            {popularConversions.toFrom.map(({ amount: a, result: r }) => (
+              <div key={a} className="p-4 bg-slate-50 dark:bg-slate-900/50 rounded-2xl border border-slate-100 dark:border-slate-800 flex justify-between items-center group hover:border-indigo-500/30 transition-all">
+                <span className="font-bold text-slate-400 group-hover:text-slate-600 dark:group-hover:text-slate-300 transition-colors">{a} {toCurrency}</span>
+                <span className="font-black dark:text-white font-mono">{r.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })} {fromCurrency}</span>
+              </div>
+            ))}
+          </div>
         </div>
       </div>
 

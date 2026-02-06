@@ -3,6 +3,7 @@ import { Copy, RefreshCw, Check, Shield, ShieldAlert, ShieldCheck } from 'lucide
 
 export function PasswordGenerator() {
   const [password, setPassword] = useState('');
+  const [isManual, setIsManual] = useState(false);
   const [length, setLength] = useState(16);
   const [includeUppercase, setIncludeUppercase] = useState(true);
   const [includeLowercase, setIncludeLowercase] = useState(true);
@@ -44,32 +45,45 @@ export function PasswordGenerator() {
       newPassword += charset.charAt(getSecureRandomIndex(charset.length));
     }
     setPassword(newPassword);
+    setIsManual(false);
     setCopied(false);
   };
 
   useEffect(() => {
-    generatePassword();
+    if (!isManual) {
+      generatePassword();
+    }
   }, [length, includeUppercase, includeLowercase, includeNumbers, includeSymbols, excludeSimilar]);
 
   const copyToClipboard = () => {
+    if (!password) return;
     navigator.clipboard.writeText(password);
     setCopied(true);
     setTimeout(() => setCopied(false), 2000);
   };
 
   const getStrength = () => {
-    if (!password) return { label: '', color: 'bg-slate-200', icon: <ShieldAlert /> };
+    if (!password) return { label: '', color: 'bg-slate-200', icon: <ShieldAlert className="w-4 h-4" />, score: 0 };
     let score = 0;
+
+    // Critères de longueur
+    if (password.length >= 8) score++;
     if (password.length >= 12) score++;
-    if (password.length >= 20) score++;
+    if (password.length >= 16) score++;
+
+    // Critères de diversité
     if (/[a-z]/.test(password)) score++;
     if (/[A-Z]/.test(password)) score++;
     if (/[0-9]/.test(password)) score++;
     if (/[^a-zA-Z0-9]/.test(password)) score++;
 
-    if (score <= 3) return { label: 'Faible', color: 'bg-rose-500', icon: <ShieldAlert className="w-4 h-4" /> };
-    if (score <= 5) return { label: 'Moyen', color: 'bg-amber-500', icon: <Shield className="w-4 h-4" /> };
-    return { label: 'Fort', color: 'bg-emerald-500', icon: <ShieldCheck className="w-4 h-4" /> };
+    // Bonus pour très long
+    if (password.length >= 24) score++;
+
+    if (score <= 3) return { label: 'Faible', color: 'bg-rose-500', icon: <ShieldAlert className="w-4 h-4" />, score };
+    if (score <= 5) return { label: 'Moyen', color: 'bg-amber-500', icon: <Shield className="w-4 h-4" />, score };
+    if (score <= 7) return { label: 'Fort', color: 'bg-emerald-500', icon: <ShieldCheck className="w-4 h-4" />, score };
+    return { label: 'Très Fort', color: 'bg-indigo-500', icon: <ShieldCheck className="w-4 h-4" />, score };
   };
 
   const strength = getStrength();
@@ -79,12 +93,28 @@ export function PasswordGenerator() {
       {/* Display Area */}
       <div className="bg-slate-900 dark:bg-black p-8 md:p-12 rounded-[2.5rem] shadow-xl shadow-indigo-500/5 relative overflow-hidden group">
         <div className="flex flex-col md:flex-row items-center gap-8 relative z-10">
-          <input
-            type="text"
-            value={password}
-            readOnly
-            className="flex-1 bg-transparent text-3xl md:text-5xl font-mono text-white outline-none tracking-tight w-full text-center md:text-left selection:bg-indigo-500/30"
-          />
+          <div className="flex-1 w-full relative group/input">
+            <input
+              type="text"
+              value={password}
+              onChange={(e) => {
+                setPassword(e.target.value);
+                setIsManual(true);
+              }}
+              placeholder="Tapez un mot de passe à tester..."
+              className="w-full bg-transparent text-3xl md:text-5xl font-mono text-white outline-none tracking-tight text-center md:text-left selection:bg-indigo-500/30 placeholder:text-white/10"
+            />
+            {!isManual && (
+              <div className="absolute -bottom-6 left-0 text-[10px] font-black uppercase tracking-widest text-indigo-400 opacity-0 group-hover/input:opacity-100 transition-opacity">
+                Mode Génération Automatique
+              </div>
+            )}
+            {isManual && (
+              <div className="absolute -bottom-6 left-0 text-[10px] font-black uppercase tracking-widest text-amber-400 opacity-100 transition-opacity">
+                Mode Test Manuel
+              </div>
+            )}
+          </div>
           <div className="flex gap-3">
             <button
               onClick={generatePassword}
@@ -115,7 +145,12 @@ export function PasswordGenerator() {
               <div className="h-1.5 w-32 bg-white/10 rounded-full overflow-hidden">
                 <div
                   className={`h-full transition-all duration-700 ${strength.color}`}
-                  style={{ width: strength.label === 'Faible' ? '33%' : strength.label === 'Moyen' ? '66%' : '100%' }}
+                  style={{
+                    width: !password ? '0%' :
+                           strength.label === 'Faible' ? '25%' :
+                           strength.label === 'Moyen' ? '50%' :
+                           strength.label === 'Fort' ? '75%' : '100%'
+                  }}
                 />
               </div>
             </div>

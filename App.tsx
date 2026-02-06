@@ -69,6 +69,7 @@ import {
   ShieldCheck,
   Scissors,
   Binary,
+  GraduationCap,
 } from "lucide-react";
 const AdPlaceholder = lazy(() => import("./components/AdPlaceholder").then(m => ({ default: m.AdPlaceholder })));
 
@@ -135,6 +136,8 @@ const Base64ToImage = lazy(() => import("./components/Base64ToImage").then(m => 
 const UnitPriceCalculator = lazy(() => import("./components/UnitPriceCalculator").then(m => ({ default: m.UnitPriceCalculator })));
 const AgeCalculator = lazy(() => import("./components/AgeCalculator").then(m => ({ default: m.AgeCalculator })));
 const ColorPaletteGenerator = lazy(() => import("./components/ColorPaletteGenerator").then(m => ({ default: m.ColorPaletteGenerator })));
+const GPACalculator = lazy(() => import("./components/GPACalculator").then(m => ({ default: m.GPACalculator })));
+const SlugGenerator = lazy(() => import("./components/SlugGenerator").then(m => ({ default: m.SlugGenerator })));
 
 // ⚡ Bolt Optimization: Pre-calculating tool map and search index for O(1) lookups and faster filtering
 const toolsMap: Record<string, Tool> = {};
@@ -305,6 +308,14 @@ const tools: Tool[] = [
     icon: Calendar,
     description: "Calculer votre âge exact et prochain anniversaire",
     Component: AgeCalculator,
+    category: "calculators",
+  },
+  {
+    id: "gpa-calculator",
+    name: "GPA",
+    icon: GraduationCap,
+    description: "Calculer votre moyenne GPA (4.0 ou 5.0)",
+    Component: GPACalculator,
     category: "calculators",
   },
   // Converters
@@ -564,6 +575,14 @@ const tools: Tool[] = [
     icon: Binary,
     description: "Convertisseur bidirectionnel texte et binaire",
     Component: BinaryTextConverter,
+    category: "dev",
+  },
+  {
+    id: "slug-generator",
+    name: "Slug Generator",
+    icon: LinkIcon,
+    description: "Convertir un titre en URL-friendly slug",
+    Component: SlugGenerator,
     category: "dev",
   },
   // Other Tools

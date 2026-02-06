@@ -25,3 +25,7 @@
 ## 2026-05-25 - [Static Data Externalization and Memoized Conversions]
 **Learning:** In tools like CurrencyConverter that rely on large static arrays (e.g., 40+ currency objects), defining these inside the component causes redundant allocations and GC pressure on every keystroke. Additionally, simple but frequent arithmetic operations and `parseFloat` calls should be stabilized with `useMemo` to prevent execution during unrelated state updates (like UI feedback toggles).
 **Action:** Externalize large static arrays to the module level and memoize derived conversion results.
+
+## 2026-05-26 - [Decoupling Heavy Regex Parsing from Input UI]
+**Learning:** For components like MarkdownPreview that perform multiple regex-based transformations, coupling the render function directly to the input state causes significant UI lag on large documents. useDeferredValue is highly effective here to keep the input smooth while React handles the expensive preview update at a lower priority. Hoisting parsing logic to the module level and memoizing the result further reduces redundant work during mode switches or parent re-renders.
+**Action:** Always use useDeferredValue and useMemo for real-time preview tools that perform complex string processing or regex parsing.

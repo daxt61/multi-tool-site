@@ -27,41 +27,46 @@ export function NumberConverter() {
 
   const updateFromDecimal = (value: string) => {
     setDecimal(value);
-    const num = parseInt(value, 10);
-    if (!isNaN(num)) {
+    try {
+      const num = BigInt(value);
       setBinary(num.toString(2));
       setOctal(num.toString(8));
       setHexadecimal(num.toString(16).toUpperCase());
+    } catch {
+      // Fallback for non-numeric input
     }
   };
 
   const updateFromBinary = (value: string) => {
     setBinary(value);
-    if (isValidNumber(value, 2)) {
-      const num = parseInt(value, 2);
+    try {
+      const num = BigInt('0b' + value);
       setDecimal(num.toString(10));
       setOctal(num.toString(8));
       setHexadecimal(num.toString(16).toUpperCase());
+    } catch {
     }
   };
 
   const updateFromOctal = (value: string) => {
     setOctal(value);
-    if (isValidNumber(value, 8)) {
-      const num = parseInt(value, 8);
+    try {
+      const num = BigInt('0o' + value);
       setDecimal(num.toString(10));
       setBinary(num.toString(2));
       setHexadecimal(num.toString(16).toUpperCase());
+    } catch {
     }
   };
 
   const updateFromHexadecimal = (value: string) => {
     setHexadecimal(value);
-    if (isValidNumber(value, 16)) {
-      const num = parseInt(value, 16);
+    try {
+      const num = BigInt('0x' + value);
       setDecimal(num.toString(10));
       setBinary(num.toString(2));
       setOctal(num.toString(8));
+    } catch {
     }
   };
 

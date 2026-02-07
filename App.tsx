@@ -1,4 +1,12 @@
-import React, { useState, useEffect, useMemo, useCallback, useDeferredValue, lazy, Suspense } from "react";
+import React, {
+  useState,
+  useEffect,
+  useMemo,
+  useCallback,
+  useDeferredValue,
+  lazy,
+  Suspense,
+} from "react";
 import { ThemeProvider, useTheme } from "next-themes";
 import { Analytics } from "@vercel/analytics/react";
 import { SpeedInsights } from "@vercel/speed-insights/react";
@@ -63,82 +71,299 @@ import {
   Table,
   Tag,
   LayoutGrid,
-  ArrowRight, Loader2,
+  ArrowRight,
+  Loader2,
   Sparkles,
   ListChecks,
   ShieldCheck,
   Scissors,
   Binary,
+  Share2,
+  Check,
 } from "lucide-react";
-const AdPlaceholder = lazy(() => import("./components/AdPlaceholder").then(m => ({ default: m.AdPlaceholder })));
-
+const AdPlaceholder = lazy(() =>
+  import("./components/AdPlaceholder").then((m) => ({
+    default: m.AdPlaceholder,
+  })),
+);
 
 // ⚡ Bolt Optimization: Code Splitting
 // Using React.lazy to split each tool into its own chunk.
 // This reduces the initial JavaScript bundle by ~40% (from 386kB to 228kB),
 // significantly improving the initial load time and Time to Interactive (TTI).
-const Calculator = lazy(() => import("./components/Calculator").then(m => ({ default: m.Calculator })));
-const UnitConverter = lazy(() => import("./components/UnitConverter").then(m => ({ default: m.UnitConverter })));
-const PasswordGenerator = lazy(() => import("./components/PasswordGenerator").then(m => ({ default: m.PasswordGenerator })));
-const WordCounter = lazy(() => import("./components/WordCounter").then(m => ({ default: m.WordCounter })));
-const ColorConverter = lazy(() => import("./components/ColorConverter").then(m => ({ default: m.ColorConverter })));
-const TimerTool = lazy(() => import("./components/TimerTool").then(m => ({ default: m.TimerTool })));
-const TextFormatter = lazy(() => import("./components/TextFormatter").then(m => ({ default: m.TextFormatter })));
-const NumberConverter = lazy(() => import("./components/NumberConverter").then(m => ({ default: m.NumberConverter })));
-const QRCodeGenerator = lazy(() => import("./components/QRCodeGenerator").then(m => ({ default: m.QRCodeGenerator })));
-const PercentageCalculator = lazy(() => import("./components/PercentageCalculator").then(m => ({ default: m.PercentageCalculator })));
-const LoremIpsumGenerator = lazy(() => import("./components/LoremIpsumGenerator").then(m => ({ default: m.LoremIpsumGenerator })));
-const CurrencyConverter = lazy(() => import("./components/CurrencyConverter").then(m => ({ default: m.CurrencyConverter })));
-const BMICalculator = lazy(() => import("./components/BMICalculator").then(m => ({ default: m.BMICalculator })));
-const UUIDGenerator = lazy(() => import("./components/UUIDGenerator").then(m => ({ default: m.UUIDGenerator })));
-const Base64Tool = lazy(() => import("./components/Base64Tool").then(m => ({ default: m.Base64Tool })));
-const DateCalculator = lazy(() => import("./components/DateCalculator").then(m => ({ default: m.DateCalculator })));
-const MarkdownPreview = lazy(() => import("./components/MarkdownPreview").then(m => ({ default: m.MarkdownPreview })));
-const MarkdownTableGenerator = lazy(() => import("./components/MarkdownTableGenerator").then(m => ({ default: m.MarkdownTableGenerator })));
-const JSONCSVConverter = lazy(() => import("./components/JSONCSVConverter").then(m => ({ default: m.JSONCSVConverter })));
-const URLEncoder = lazy(() => import("./components/URLEncoder").then(m => ({ default: m.URLEncoder })));
-const ImageCompressor = lazy(() => import("./components/ImageCompressor").then(m => ({ default: m.ImageCompressor })));
-const IPAddressTool = lazy(() => import("./components/IPAddressTool").then(m => ({ default: m.IPAddressTool })));
-const CaseConverter = lazy(() => import("./components/CaseConverter").then(m => ({ default: m.CaseConverter })));
-const DiffChecker = lazy(() => import("./components/DiffChecker").then(m => ({ default: m.DiffChecker })));
-const AspectRatioCalculator = lazy(() => import("./components/AspectRatioCalculator").then(m => ({ default: m.AspectRatioCalculator })));
-const MorseCodeConverter = lazy(() => import("./components/MorseCodeConverter").then(m => ({ default: m.MorseCodeConverter })));
-const FileToBase64 = lazy(() => import("./components/FileToBase64").then(m => ({ default: m.FileToBase64 })));
-const About = lazy(() => import("./components/About").then(m => ({ default: m.About })));
-const Contact = lazy(() => import("./components/Contact").then(m => ({ default: m.Contact })));
-const PrivacyPolicy = lazy(() => import("./components/PrivacyPolicy").then(m => ({ default: m.PrivacyPolicy })));
-const InvoiceGenerator = lazy(() => import("./components/InvoiceGenerator").then(m => ({ default: m.InvoiceGenerator })));
-const MarginCalculator = lazy(() => import("./components/MarginCalculator").then(m => ({ default: m.MarginCalculator })));
-const LoanCalculator = lazy(() => import("./components/LoanCalculator").then(m => ({ default: m.LoanCalculator })));
-const SavingsCalculator = lazy(() => import("./components/SavingsCalculator").then(m => ({ default: m.SavingsCalculator })));
-const BudgetPlanner = lazy(() => import("./components/BudgetPlanner").then(m => ({ default: m.BudgetPlanner })));
-const VATCalculator = lazy(() => import("./components/VATCalculator").then(m => ({ default: m.VATCalculator })));
-const TipCalculator = lazy(() => import("./components/TipCalculator").then(m => ({ default: m.TipCalculator })));
-const SalaryCalculator = lazy(() => import("./components/SalaryCalculator").then(m => ({ default: m.SalaryCalculator })));
-const ROICalculator = lazy(() => import("./components/ROICalculator").then(m => ({ default: m.ROICalculator })));
-const ExpenseTracker = lazy(() => import("./components/ExpenseTracker").then(m => ({ default: m.ExpenseTracker })));
-const BPMCounter = lazy(() => import("./components/BPMCounter").then(m => ({ default: m.BPMCounter })));
-const HashGenerator = lazy(() => import("./components/HashGenerator").then(m => ({ default: m.HashGenerator })));
-const UnixTimestampConverter = lazy(() => import("./components/UnixTimestampConverter").then(m => ({ default: m.UnixTimestampConverter })));
-const RandomGenerator = lazy(() => import("./components/RandomGenerator").then(m => ({ default: m.RandomGenerator })));
-const JSONFormatter = lazy(() => import("./components/JSONFormatter").then(m => ({ default: m.JSONFormatter })));
-const SQLFormatter = lazy(() => import("./components/SQLFormatter").then(m => ({ default: m.SQLFormatter })));
-const YAMLJSONConverter = lazy(() => import("./components/YAMLJSONConverter").then(m => ({ default: m.YAMLJSONConverter })));
-const CronGenerator = lazy(() => import("./components/CronGenerator").then(m => ({ default: m.CronGenerator })));
-const HTMLEntityConverter = lazy(() => import("./components/HTMLEntityConverter").then(m => ({ default: m.HTMLEntityConverter })));
-const JSONToTS = lazy(() => import("./components/JSONToTS").then(m => ({ default: m.JSONToTS })));
-const ListCleaner = lazy(() => import("./components/ListCleaner").then(m => ({ default: m.ListCleaner })));
-const JWTDecoder = lazy(() => import("./components/JWTDecoder").then(m => ({ default: m.JWTDecoder })));
-const CodeMinifier = lazy(() => import("./components/CodeMinifier").then(m => ({ default: m.CodeMinifier })));
-const BinaryTextConverter = lazy(() => import("./components/BinaryTextConverter").then(m => ({ default: m.BinaryTextConverter })));
-const Base64ToImage = lazy(() => import("./components/Base64ToImage").then(m => ({ default: m.Base64ToImage })));
-const UnitPriceCalculator = lazy(() => import("./components/UnitPriceCalculator").then(m => ({ default: m.UnitPriceCalculator })));
-const AgeCalculator = lazy(() => import("./components/AgeCalculator").then(m => ({ default: m.AgeCalculator })));
-const ColorPaletteGenerator = lazy(() => import("./components/ColorPaletteGenerator").then(m => ({ default: m.ColorPaletteGenerator })));
+const Calculator = lazy(() =>
+  import("./components/Calculator").then((m) => ({ default: m.Calculator })),
+);
+const UnitConverter = lazy(() =>
+  import("./components/UnitConverter").then((m) => ({
+    default: m.UnitConverter,
+  })),
+);
+const PasswordGenerator = lazy(() =>
+  import("./components/PasswordGenerator").then((m) => ({
+    default: m.PasswordGenerator,
+  })),
+);
+const WordCounter = lazy(() =>
+  import("./components/WordCounter").then((m) => ({ default: m.WordCounter })),
+);
+const ColorConverter = lazy(() =>
+  import("./components/ColorConverter").then((m) => ({
+    default: m.ColorConverter,
+  })),
+);
+const TimerTool = lazy(() =>
+  import("./components/TimerTool").then((m) => ({ default: m.TimerTool })),
+);
+const TextFormatter = lazy(() =>
+  import("./components/TextFormatter").then((m) => ({
+    default: m.TextFormatter,
+  })),
+);
+const NumberConverter = lazy(() =>
+  import("./components/NumberConverter").then((m) => ({
+    default: m.NumberConverter,
+  })),
+);
+const QRCodeGenerator = lazy(() =>
+  import("./components/QRCodeGenerator").then((m) => ({
+    default: m.QRCodeGenerator,
+  })),
+);
+const PercentageCalculator = lazy(() =>
+  import("./components/PercentageCalculator").then((m) => ({
+    default: m.PercentageCalculator,
+  })),
+);
+const LoremIpsumGenerator = lazy(() =>
+  import("./components/LoremIpsumGenerator").then((m) => ({
+    default: m.LoremIpsumGenerator,
+  })),
+);
+const CurrencyConverter = lazy(() =>
+  import("./components/CurrencyConverter").then((m) => ({
+    default: m.CurrencyConverter,
+  })),
+);
+const BMICalculator = lazy(() =>
+  import("./components/BMICalculator").then((m) => ({
+    default: m.BMICalculator,
+  })),
+);
+const UUIDGenerator = lazy(() =>
+  import("./components/UUIDGenerator").then((m) => ({
+    default: m.UUIDGenerator,
+  })),
+);
+const Base64Tool = lazy(() =>
+  import("./components/Base64Tool").then((m) => ({ default: m.Base64Tool })),
+);
+const DateCalculator = lazy(() =>
+  import("./components/DateCalculator").then((m) => ({
+    default: m.DateCalculator,
+  })),
+);
+const MarkdownPreview = lazy(() =>
+  import("./components/MarkdownPreview").then((m) => ({
+    default: m.MarkdownPreview,
+  })),
+);
+const MarkdownTableGenerator = lazy(() =>
+  import("./components/MarkdownTableGenerator").then((m) => ({
+    default: m.MarkdownTableGenerator,
+  })),
+);
+const JSONCSVConverter = lazy(() =>
+  import("./components/JSONCSVConverter").then((m) => ({
+    default: m.JSONCSVConverter,
+  })),
+);
+const URLEncoder = lazy(() =>
+  import("./components/URLEncoder").then((m) => ({ default: m.URLEncoder })),
+);
+const ImageCompressor = lazy(() =>
+  import("./components/ImageCompressor").then((m) => ({
+    default: m.ImageCompressor,
+  })),
+);
+const IPAddressTool = lazy(() =>
+  import("./components/IPAddressTool").then((m) => ({
+    default: m.IPAddressTool,
+  })),
+);
+const CaseConverter = lazy(() =>
+  import("./components/CaseConverter").then((m) => ({
+    default: m.CaseConverter,
+  })),
+);
+const DiffChecker = lazy(() =>
+  import("./components/DiffChecker").then((m) => ({ default: m.DiffChecker })),
+);
+const AspectRatioCalculator = lazy(() =>
+  import("./components/AspectRatioCalculator").then((m) => ({
+    default: m.AspectRatioCalculator,
+  })),
+);
+const MorseCodeConverter = lazy(() =>
+  import("./components/MorseCodeConverter").then((m) => ({
+    default: m.MorseCodeConverter,
+  })),
+);
+const FileToBase64 = lazy(() =>
+  import("./components/FileToBase64").then((m) => ({
+    default: m.FileToBase64,
+  })),
+);
+const About = lazy(() =>
+  import("./components/About").then((m) => ({ default: m.About })),
+);
+const Contact = lazy(() =>
+  import("./components/Contact").then((m) => ({ default: m.Contact })),
+);
+const PrivacyPolicy = lazy(() =>
+  import("./components/PrivacyPolicy").then((m) => ({
+    default: m.PrivacyPolicy,
+  })),
+);
+const InvoiceGenerator = lazy(() =>
+  import("./components/InvoiceGenerator").then((m) => ({
+    default: m.InvoiceGenerator,
+  })),
+);
+const MarginCalculator = lazy(() =>
+  import("./components/MarginCalculator").then((m) => ({
+    default: m.MarginCalculator,
+  })),
+);
+const LoanCalculator = lazy(() =>
+  import("./components/LoanCalculator").then((m) => ({
+    default: m.LoanCalculator,
+  })),
+);
+const SavingsCalculator = lazy(() =>
+  import("./components/SavingsCalculator").then((m) => ({
+    default: m.SavingsCalculator,
+  })),
+);
+const BudgetPlanner = lazy(() =>
+  import("./components/BudgetPlanner").then((m) => ({
+    default: m.BudgetPlanner,
+  })),
+);
+const VATCalculator = lazy(() =>
+  import("./components/VATCalculator").then((m) => ({
+    default: m.VATCalculator,
+  })),
+);
+const TipCalculator = lazy(() =>
+  import("./components/TipCalculator").then((m) => ({
+    default: m.TipCalculator,
+  })),
+);
+const SalaryCalculator = lazy(() =>
+  import("./components/SalaryCalculator").then((m) => ({
+    default: m.SalaryCalculator,
+  })),
+);
+const ROICalculator = lazy(() =>
+  import("./components/ROICalculator").then((m) => ({
+    default: m.ROICalculator,
+  })),
+);
+const ExpenseTracker = lazy(() =>
+  import("./components/ExpenseTracker").then((m) => ({
+    default: m.ExpenseTracker,
+  })),
+);
+const BPMCounter = lazy(() =>
+  import("./components/BPMCounter").then((m) => ({ default: m.BPMCounter })),
+);
+const HashGenerator = lazy(() =>
+  import("./components/HashGenerator").then((m) => ({
+    default: m.HashGenerator,
+  })),
+);
+const UnixTimestampConverter = lazy(() =>
+  import("./components/UnixTimestampConverter").then((m) => ({
+    default: m.UnixTimestampConverter,
+  })),
+);
+const RandomGenerator = lazy(() =>
+  import("./components/RandomGenerator").then((m) => ({
+    default: m.RandomGenerator,
+  })),
+);
+const JSONFormatter = lazy(() =>
+  import("./components/JSONFormatter").then((m) => ({
+    default: m.JSONFormatter,
+  })),
+);
+const SQLFormatter = lazy(() =>
+  import("./components/SQLFormatter").then((m) => ({
+    default: m.SQLFormatter,
+  })),
+);
+const YAMLJSONConverter = lazy(() =>
+  import("./components/YAMLJSONConverter").then((m) => ({
+    default: m.YAMLJSONConverter,
+  })),
+);
+const CronGenerator = lazy(() =>
+  import("./components/CronGenerator").then((m) => ({
+    default: m.CronGenerator,
+  })),
+);
+const HTMLEntityConverter = lazy(() =>
+  import("./components/HTMLEntityConverter").then((m) => ({
+    default: m.HTMLEntityConverter,
+  })),
+);
+const JSONToTS = lazy(() =>
+  import("./components/JSONToTS").then((m) => ({ default: m.JSONToTS })),
+);
+const ListCleaner = lazy(() =>
+  import("./components/ListCleaner").then((m) => ({ default: m.ListCleaner })),
+);
+const JWTDecoder = lazy(() =>
+  import("./components/JWTDecoder").then((m) => ({ default: m.JWTDecoder })),
+);
+const CodeMinifier = lazy(() =>
+  import("./components/CodeMinifier").then((m) => ({
+    default: m.CodeMinifier,
+  })),
+);
+const BinaryTextConverter = lazy(() =>
+  import("./components/BinaryTextConverter").then((m) => ({
+    default: m.BinaryTextConverter,
+  })),
+);
+const Base64ToImage = lazy(() =>
+  import("./components/Base64ToImage").then((m) => ({
+    default: m.Base64ToImage,
+  })),
+);
+const UnitPriceCalculator = lazy(() =>
+  import("./components/UnitPriceCalculator").then((m) => ({
+    default: m.UnitPriceCalculator,
+  })),
+);
+const AgeCalculator = lazy(() =>
+  import("./components/AgeCalculator").then((m) => ({
+    default: m.AgeCalculator,
+  })),
+);
+const ColorPaletteGenerator = lazy(() =>
+  import("./components/ColorPaletteGenerator").then((m) => ({
+    default: m.ColorPaletteGenerator,
+  })),
+);
 
 // ⚡ Bolt Optimization: Pre-calculating tool map and search index for O(1) lookups and faster filtering
 const toolsMap: Record<string, Tool> = {};
-const TOOL_SEARCH_INDEX = new Map<string, { name: string; description: string }>();
+const TOOL_SEARCH_INDEX = new Map<
+  string,
+  { name: string; description: string }
+>();
 
 interface Tool {
   id: string;
@@ -618,7 +843,7 @@ const tools: Tool[] = [
 ];
 
 // Initialize toolsMap and search index
-tools.forEach(tool => {
+tools.forEach((tool) => {
   toolsMap[tool.id] = tool;
   TOOL_SEARCH_INDEX.set(tool.id, {
     name: tool.name.toLowerCase(),
@@ -628,50 +853,66 @@ tools.forEach(tool => {
 
 // ⚡ Bolt Optimization: Memoized Tool Card component
 // Prevents unnecessary re-renders of all tool items when search or category changes.
-const ToolCard = React.memo(({ tool, isFavorite, onToggleFavorite, onClick }: {
-  tool: Tool;
-  isFavorite: boolean;
-  onToggleFavorite: (e: React.MouseEvent, id: string) => void;
-  onClick: (id: string) => void;
-}) => {
-  const titleId = `tool-title-${tool.id}`;
-  const descId = `tool-desc-${tool.id}`;
+const ToolCard = React.memo(
+  ({
+    tool,
+    isFavorite,
+    onToggleFavorite,
+    onClick,
+  }: {
+    tool: Tool;
+    isFavorite: boolean;
+    onToggleFavorite: (e: React.MouseEvent, id: string) => void;
+    onClick: (id: string) => void;
+  }) => {
+    const titleId = `tool-title-${tool.id}`;
+    const descId = `tool-desc-${tool.id}`;
 
-  return (
-    <div
-      className="group p-5 bg-white dark:bg-slate-900/40 rounded-2xl border border-slate-200 dark:border-slate-800 hover:border-indigo-500/50 dark:hover:border-indigo-500/50 hover:shadow-xl hover:shadow-indigo-500/5 transition-all text-left flex flex-col h-full relative"
-    >
-      <div className="flex justify-between items-start mb-4 relative z-20">
-        <div className="w-10 h-10 rounded-xl bg-slate-50 dark:bg-slate-800 flex items-center justify-center text-slate-400 group-hover:text-indigo-500 group-hover:bg-indigo-50 dark:group-hover:bg-indigo-900/20 transition-all">
-          <tool.icon className="w-5 h-5" />
+    return (
+      <div className="group p-5 bg-white dark:bg-slate-900/40 rounded-2xl border border-slate-200 dark:border-slate-800 hover:border-indigo-500/50 dark:hover:border-indigo-500/50 hover:shadow-xl hover:shadow-indigo-500/5 transition-all text-left flex flex-col h-full relative">
+        <div className="flex justify-between items-start mb-4 relative z-20">
+          <div className="w-10 h-10 rounded-xl bg-slate-50 dark:bg-slate-800 flex items-center justify-center text-slate-400 group-hover:text-indigo-500 group-hover:bg-indigo-50 dark:group-hover:bg-indigo-900/20 transition-all">
+            <tool.icon className="w-5 h-5" />
+          </div>
+          <button
+            onClick={(e) => onToggleFavorite(e, tool.id)}
+            className={`p-1.5 rounded-lg transition-colors ${isFavorite ? "text-amber-500" : "text-slate-300 hover:text-slate-400"}`}
+            aria-label={
+              isFavorite ? "Retirer des favoris" : "Ajouter aux favoris"
+            }
+          >
+            <Star className={`w-5 h-5 ${isFavorite ? "fill-current" : ""}`} />
+          </button>
         </div>
+
         <button
-          onClick={(e) => onToggleFavorite(e, tool.id)}
-          className={`p-1.5 rounded-lg transition-colors ${isFavorite ? 'text-amber-500' : 'text-slate-300 hover:text-slate-400'}`}
-          aria-label={isFavorite ? "Retirer des favoris" : "Ajouter aux favoris"}
+          onClick={() => onClick(tool.id)}
+          className="absolute inset-0 z-10 rounded-2xl focus-visible:ring-2 focus-visible:ring-indigo-500 focus-visible:outline-none transition-all"
+          aria-labelledby={titleId}
+          aria-describedby={descId}
+        />
+
+        <h4
+          id={titleId}
+          className="font-bold text-slate-900 dark:text-white mb-2 relative z-0"
         >
-          <Star className={`w-5 h-5 ${isFavorite ? 'fill-current' : ''}`} />
-        </button>
+          {tool.name}
+        </h4>
+        <p
+          id={descId}
+          className="text-sm text-slate-500 dark:text-slate-400 line-clamp-2 flex-grow leading-relaxed relative z-0"
+        >
+          {tool.description}
+        </p>
+
+        <div className="mt-4 flex items-center gap-2 text-xs font-bold text-indigo-500 opacity-0 group-hover:opacity-100 group-focus-within:opacity-100 transition-all -translate-x-2 group-hover:translate-x-0 group-focus-within:translate-x-0 relative z-0">
+          Ouvrir <ArrowRight className="w-3 h-3" />
+        </div>
       </div>
-
-      <button
-        onClick={() => onClick(tool.id)}
-        className="absolute inset-0 z-10 rounded-2xl focus-visible:ring-2 focus-visible:ring-indigo-500 focus-visible:outline-none transition-all"
-        aria-labelledby={titleId}
-        aria-describedby={descId}
-      />
-
-      <h4 id={titleId} className="font-bold text-slate-900 dark:text-white mb-2 relative z-0">{tool.name}</h4>
-      <p id={descId} className="text-sm text-slate-500 dark:text-slate-400 line-clamp-2 flex-grow leading-relaxed relative z-0">{tool.description}</p>
-
-      <div className="mt-4 flex items-center gap-2 text-xs font-bold text-indigo-500 opacity-0 group-hover:opacity-100 group-focus-within:opacity-100 transition-all -translate-x-2 group-hover:translate-x-0 group-focus-within:translate-x-0 relative z-0">
-        Ouvrir <ArrowRight className="w-3 h-3" />
-      </div>
-    </div>
-  );
-});
+    );
+  },
+);
 ToolCard.displayName = "ToolCard";
-
 
 function LoadingTool() {
   return (
@@ -680,7 +921,9 @@ function LoadingTool() {
         <div className="w-12 h-12 border-4 border-indigo-500/20 rounded-full"></div>
         <Loader2 className="w-12 h-12 text-indigo-500 animate-spin absolute top-0 left-0" />
       </div>
-      <p className="text-sm font-medium text-slate-500 dark:text-slate-400 animate-pulse">Chargement de l'outil...</p>
+      <p className="text-sm font-medium text-slate-500 dark:text-slate-400 animate-pulse">
+        Chargement de l'outil...
+      </p>
     </div>
   );
 }
@@ -699,7 +942,11 @@ function ThemeToggle() {
       className="p-2 rounded-lg bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 transition-colors text-slate-600 dark:text-slate-300 border border-slate-200 dark:border-slate-700"
       aria-label="Changer de thème"
     >
-      {theme === "dark" ? <Sun className="w-5 h-5" /> : <Moon className="w-5 h-5" />}
+      {theme === "dark" ? (
+        <Sun className="w-5 h-5" />
+      ) : (
+        <Moon className="w-5 h-5" />
+      )}
     </button>
   );
 }
@@ -718,7 +965,9 @@ function MainApp() {
       // Sentinel: Validate data structure and content to prevent state poisoning.
       // Filter to ensure only valid tool IDs are stored and limit to 100 favorites.
       return Array.isArray(parsed)
-        ? parsed.filter(id => Object.prototype.hasOwnProperty.call(toolsMap, id)).slice(0, 100)
+        ? parsed
+            .filter((id) => Object.prototype.hasOwnProperty.call(toolsMap, id))
+            .slice(0, 100)
         : [];
     } catch (e) {
       console.error("Failed to load favorites from localStorage", e);
@@ -732,7 +981,9 @@ function MainApp() {
       const parsed = saved ? JSON.parse(saved) : [];
       // Sentinel: Validate that the parsed data is an array and only contains valid tool IDs.
       return Array.isArray(parsed)
-        ? parsed.filter(id => Object.prototype.hasOwnProperty.call(toolsMap, id)).slice(0, 4)
+        ? parsed
+            .filter((id) => Object.prototype.hasOwnProperty.call(toolsMap, id))
+            .slice(0, 4)
         : [];
     } catch (e) {
       console.error("Failed to load recents from localStorage", e);
@@ -756,8 +1007,9 @@ function MainApp() {
 
       if (query) {
         const searchEntry = TOOL_SEARCH_INDEX.get(tool.id);
-        const matchesSearch = searchEntry?.name.includes(query) ||
-                             searchEntry?.description.includes(query);
+        const matchesSearch =
+          searchEntry?.name.includes(query) ||
+          searchEntry?.description.includes(query);
         if (!matchesSearch) return false;
         return true;
       }
@@ -768,7 +1020,7 @@ function MainApp() {
   }, [selectedCategory, deferredSearchQuery, favoriteSet]);
 
   const recentTools = useMemo(() => {
-    return recents.map(id => toolsMap[id]).filter(Boolean);
+    return recents.map((id) => toolsMap[id]).filter(Boolean);
   }, [recents]);
 
   const toggleFavorite = useCallback((e: React.MouseEvent, id: string) => {
@@ -776,33 +1028,40 @@ function MainApp() {
     // Sentinel: Validate tool ID before toggling favorite status.
     if (!Object.prototype.hasOwnProperty.call(toolsMap, id)) return;
 
-    setFavorites(prev => {
+    setFavorites((prev) => {
       const newFavs = prev.includes(id)
-        ? prev.filter(f => f !== id)
+        ? prev.filter((f) => f !== id)
         : [...prev, id].slice(0, 100); // Sentinel: Enforce max 100 favorites limit.
       localStorage.setItem("favorites", JSON.stringify(newFavs));
       return newFavs;
     });
   }, []);
 
-  const handleToolSelect = useCallback((id: string) => {
-    // Sentinel: Validate tool ID before adding to recent history.
-    if (!Object.prototype.hasOwnProperty.call(toolsMap, id)) return;
+  const handleToolSelect = useCallback(
+    (id: string) => {
+      // Sentinel: Validate tool ID before adding to recent history.
+      if (!Object.prototype.hasOwnProperty.call(toolsMap, id)) return;
 
-    setRecents(prev => {
-      const newRecents = [id, ...prev.filter(r => r !== id)].slice(0, 4);
-      localStorage.setItem("recents", JSON.stringify(newRecents));
-      return newRecents;
-    });
-    navigate(`/outil/${id}`);
-    window.scrollTo({ top: 0, behavior: 'smooth' });
-  }, [navigate]);
+      setRecents((prev) => {
+        const newRecents = [id, ...prev.filter((r) => r !== id)].slice(0, 4);
+        localStorage.setItem("recents", JSON.stringify(newRecents));
+        return newRecents;
+      });
+      navigate(`/outil/${id}`);
+      window.scrollTo({ top: 0, behavior: "smooth" });
+    },
+    [navigate],
+  );
 
   const isHome = location.pathname === "/";
 
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
-      if (e.key === "/" && document.activeElement?.tagName !== "INPUT" && document.activeElement?.tagName !== "TEXTAREA") {
+      if (
+        e.key === "/" &&
+        document.activeElement?.tagName !== "INPUT" &&
+        document.activeElement?.tagName !== "TEXTAREA"
+      ) {
         e.preventDefault();
         document.getElementById("tool-search")?.focus();
       }
@@ -815,11 +1074,12 @@ function MainApp() {
     const updateSEO = () => {
       const path = location.pathname;
       let title = "Boîte à Outils - Outils simples pour tâches complexes";
-      let description = "Une collection d'utilitaires gratuits, privés et open-source pour booster votre productivité au quotidien.";
+      let description =
+        "Une collection d'utilitaires gratuits, privés et open-source pour booster votre productivité au quotidien.";
 
       if (path.startsWith("/outil/")) {
         const id = path.split("/")[2];
-        const tool = tools.find(t => t.id === id);
+        const tool = tools.find((t) => t.id === id);
         if (tool) {
           title = `${tool.name} - Boîte à Outils`;
           description = tool.description;
@@ -835,8 +1095,8 @@ function MainApp() {
       document.title = title;
       let meta = document.querySelector('meta[name="description"]');
       if (!meta) {
-        meta = document.createElement('meta');
-        meta.setAttribute('name', 'description');
+        meta = document.createElement("meta");
+        meta.setAttribute("name", "description");
         document.head.appendChild(meta);
       }
       meta.setAttribute("content", description);
@@ -856,165 +1116,271 @@ function MainApp() {
       <div className="container mx-auto px-4 py-8 max-w-6xl relative">
         {/* Nav Header */}
         <header className="flex justify-between items-center mb-16">
-          <Link
-            to="/"
-            className="flex items-center gap-2 group"
-          >
+          <Link to="/" className="flex items-center gap-2 group">
             <div className="w-10 h-10 bg-slate-900 dark:bg-white rounded-lg flex items-center justify-center transition-transform group-hover:scale-105 active:scale-95">
               <Sparkles className="w-6 h-6 text-white dark:text-slate-900" />
             </div>
-            <span className="text-xl font-bold tracking-tight">Boîte à Outils</span>
+            <span className="text-xl font-bold tracking-tight">
+              Boîte à Outils
+            </span>
           </Link>
 
           <div className="flex items-center gap-4">
             <nav className="hidden md:flex items-center gap-6 mr-4">
-              <Link to="/a-propos" className="text-sm font-medium text-slate-500 hover:text-slate-900 dark:text-slate-400 dark:hover:text-white transition-colors">À propos</Link>
-              <Link to="/contact" className="text-sm font-medium text-slate-500 hover:text-slate-900 dark:text-slate-400 dark:hover:text-white transition-colors">Contact</Link>
+              <Link
+                to="/a-propos"
+                className="text-sm font-medium text-slate-500 hover:text-slate-900 dark:text-slate-400 dark:hover:text-white transition-colors"
+              >
+                À propos
+              </Link>
+              <Link
+                to="/contact"
+                className="text-sm font-medium text-slate-500 hover:text-slate-900 dark:text-slate-400 dark:hover:text-white transition-colors"
+              >
+                Contact
+              </Link>
             </nav>
             <ThemeToggle />
           </div>
         </header>
 
         <Routes>
-          <Route path="/" element={
-            <div className="space-y-20">
-              {/* Minimal Hero */}
-              <div className="max-w-2xl mx-auto text-center space-y-8">
-                <h1 className="text-4xl md:text-6xl font-extrabold tracking-tight leading-[1.1]">
-                  Des outils simples pour des <span className="text-slate-400 dark:text-slate-600">tâches complexes.</span>
-                </h1>
-                <p className="text-lg text-slate-500 dark:text-slate-400 leading-relaxed">
-                  Une collection d'utilitaires gratuits, privés et open-source pour booster votre productivité au quotidien.
-                </p>
+          <Route
+            path="/"
+            element={
+              <div className="space-y-20">
+                {/* Minimal Hero */}
+                <div className="max-w-2xl mx-auto text-center space-y-8">
+                  <h1 className="text-4xl md:text-6xl font-extrabold tracking-tight leading-[1.1]">
+                    Des outils simples pour des{" "}
+                    <span className="text-slate-400 dark:text-slate-600">
+                      tâches complexes.
+                    </span>
+                  </h1>
+                  <p className="text-lg text-slate-500 dark:text-slate-400 leading-relaxed">
+                    Une collection d'utilitaires gratuits, privés et open-source
+                    pour booster votre productivité au quotidien.
+                  </p>
 
-                <div className="relative group max-w-lg mx-auto">
-                  <label htmlFor="tool-search" className="sr-only">Rechercher</label>
-                  <div className="absolute inset-y-0 left-4 flex items-center pointer-events-none"><Search className="h-5 w-5 text-slate-400" /></div>
-                  <input id="tool-search" type="text" placeholder="Rechercher un outil..." value={searchQuery} onChange={(e) => setSearchQuery(e.target.value)} className={`block w-full pl-11 ${searchQuery ? 'pr-12' : 'pr-4'} py-4 bg-slate-50 dark:bg-slate-900/50 border border-slate-200 dark:border-slate-800 rounded-2xl focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 outline-none transition-all placeholder:text-slate-400`} />
-                  {!searchQuery && (
-                    <div className="absolute inset-y-0 right-4 flex items-center pointer-events-none">
-                      <kbd className="hidden sm:inline-flex items-center gap-1 px-2 py-0.5 border border-slate-200 dark:border-slate-700 rounded text-[10px] font-bold text-slate-400 bg-white dark:bg-slate-800">
-                        /
-                      </kbd>
+                  <div className="relative group max-w-lg mx-auto">
+                    <label htmlFor="tool-search" className="sr-only">
+                      Rechercher
+                    </label>
+                    <div className="absolute inset-y-0 left-4 flex items-center pointer-events-none">
+                      <Search className="h-5 w-5 text-slate-400" />
+                    </div>
+                    <input
+                      id="tool-search"
+                      type="text"
+                      placeholder="Rechercher un outil..."
+                      value={searchQuery}
+                      onChange={(e) => setSearchQuery(e.target.value)}
+                      className={`block w-full pl-11 ${searchQuery ? "pr-12" : "pr-4"} py-4 bg-slate-50 dark:bg-slate-900/50 border border-slate-200 dark:border-slate-800 rounded-2xl focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 outline-none transition-all placeholder:text-slate-400`}
+                    />
+                    {!searchQuery && (
+                      <div className="absolute inset-y-0 right-4 flex items-center pointer-events-none">
+                        <kbd className="hidden sm:inline-flex items-center gap-1 px-2 py-0.5 border border-slate-200 dark:border-slate-700 rounded text-[10px] font-bold text-slate-400 bg-white dark:bg-slate-800">
+                          /
+                        </kbd>
+                      </div>
+                    )}
+                    {searchQuery && (
+                      <button
+                        onClick={() => setSearchQuery("")}
+                        className="absolute inset-y-0 right-4 flex items-center text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 transition-colors"
+                        aria-label="Effacer"
+                      >
+                        <X className="h-5 w-5" />
+                      </button>
+                    )}
+                  </div>
+                </div>
+
+                {/* Recents */}
+                {!searchQuery && recentTools.length > 0 && (
+                  <section className="animate-in fade-in slide-in-from-bottom-4 duration-500">
+                    <h3 className="text-xs font-bold uppercase tracking-widest text-slate-400 dark:text-slate-500 mb-6 px-1">
+                      Récent
+                    </h3>
+                    <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                      {recentTools.map((tool) => (
+                        <button
+                          key={tool.id}
+                          onClick={() => handleToolSelect(tool.id)}
+                          className="flex items-center gap-3 p-4 bg-slate-50 dark:bg-slate-900/50 rounded-xl border border-slate-200 dark:border-slate-800 hover:border-slate-300 dark:hover:border-slate-700 transition-all group"
+                        >
+                          <div className="w-8 h-8 rounded-lg bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 flex items-center justify-center text-slate-400 group-hover:text-indigo-500 transition-colors">
+                            <tool.icon className="w-4 h-4" />
+                          </div>
+                          <span className="font-semibold text-sm truncate">
+                            {tool.name}
+                          </span>
+                        </button>
+                      ))}
+                    </div>
+                  </section>
+                )}
+
+                {/* Main Content */}
+                <div className="space-y-12">
+                  {/* Category Nav */}
+                  <div className="sticky top-4 z-40 bg-white/80 dark:bg-slate-950/80 backdrop-blur-md py-4 border-b border-slate-200/50 dark:border-slate-800/50 -mx-4 px-4">
+                    <div className="flex gap-2 overflow-x-auto no-scrollbar">
+                      {categories.map((cat) => (
+                        <button
+                          key={cat.id}
+                          onClick={() =>
+                            setSelectedCategory(
+                              cat.id === "all" ? null : cat.id,
+                            )
+                          }
+                          aria-pressed={
+                            selectedCategory === cat.id ||
+                            (cat.id === "all" && !selectedCategory)
+                          }
+                          className={`flex items-center gap-2 px-4 py-2 rounded-full text-sm font-bold transition-all whitespace-nowrap border ${
+                            selectedCategory === cat.id ||
+                            (cat.id === "all" && !selectedCategory)
+                              ? "bg-slate-900 text-white border-slate-900 dark:bg-white dark:text-slate-950 dark:border-white shadow-md shadow-indigo-500/10"
+                              : "bg-slate-50 text-slate-500 border-slate-200 hover:border-slate-300 dark:bg-slate-900 dark:text-slate-400 dark:border-slate-800 dark:hover:border-slate-700"
+                          }`}
+                        >
+                          <cat.icon className="w-4 h-4" />
+                          {cat.name}
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+
+                  {/* Grid */}
+                  {filteredTools.length > 0 ? (
+                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
+                      {filteredTools.map((tool) => (
+                        <ToolCard
+                          key={tool.id}
+                          tool={tool}
+                          isFavorite={favoriteSet.has(tool.id)}
+                          onToggleFavorite={toggleFavorite}
+                          onClick={handleToolSelect}
+                        />
+                      ))}
+                    </div>
+                  ) : (
+                    <div className="text-center py-24 border-2 border-dashed border-slate-200 dark:border-slate-800 rounded-[2.5rem]">
+                      <div className="w-16 h-16 bg-slate-50 dark:bg-slate-900 rounded-full flex items-center justify-center mx-auto mb-6 text-slate-400">
+                        <Search className="w-8 h-8" />
+                      </div>
+                      <h4 className="text-xl font-bold mb-2">
+                        Aucun outil trouvé
+                      </h4>
+                      <p className="text-slate-500 dark:text-slate-400 mb-8">
+                        Essayez un autre mot-clé ou effacez les filtres.
+                      </p>
+                      <button
+                        onClick={() => {
+                          setSearchQuery("");
+                          setSelectedCategory(null);
+                        }}
+                        className="px-6 py-2 bg-slate-900 dark:bg-white text-white dark:text-slate-900 rounded-xl font-bold transition-all"
+                      >
+                        Effacer tout
+                      </button>
                     </div>
                   )}
-                  {searchQuery && <button onClick={() => setSearchQuery("")} className="absolute inset-y-0 right-4 flex items-center text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 transition-colors" aria-label="Effacer"><X className="h-5 w-5" /></button>}
-                </div>
-              </div>
-
-              {/* Recents */}
-              {!searchQuery && recentTools.length > 0 && (
-                <section className="animate-in fade-in slide-in-from-bottom-4 duration-500">
-                  <h3 className="text-xs font-bold uppercase tracking-widest text-slate-400 dark:text-slate-500 mb-6 px-1">Récent</h3>
-                  <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-                    {recentTools.map(tool => (
-                      <button
-                        key={tool.id}
-                        onClick={() => handleToolSelect(tool.id)}
-                        className="flex items-center gap-3 p-4 bg-slate-50 dark:bg-slate-900/50 rounded-xl border border-slate-200 dark:border-slate-800 hover:border-slate-300 dark:hover:border-slate-700 transition-all group"
-                      >
-                        <div className="w-8 h-8 rounded-lg bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 flex items-center justify-center text-slate-400 group-hover:text-indigo-500 transition-colors">
-                          <tool.icon className="w-4 h-4" />
-                        </div>
-                        <span className="font-semibold text-sm truncate">{tool.name}</span>
-                      </button>
-                    ))}
-                  </div>
-                </section>
-              )}
-
-              {/* Main Content */}
-              <div className="space-y-12">
-                {/* Category Nav */}
-                <div className="sticky top-4 z-40 bg-white/80 dark:bg-slate-950/80 backdrop-blur-md py-4 border-b border-slate-200/50 dark:border-slate-800/50 -mx-4 px-4">
-                  <div className="flex gap-2 overflow-x-auto no-scrollbar">
-                    {categories.map((cat) => (
-                      <button
-                        key={cat.id}
-                        onClick={() => setSelectedCategory(cat.id === "all" ? null : cat.id)}
-                        aria-pressed={(selectedCategory === cat.id) || (cat.id === "all" && !selectedCategory)}
-                        className={`flex items-center gap-2 px-4 py-2 rounded-full text-sm font-bold transition-all whitespace-nowrap border ${
-                          (selectedCategory === cat.id) || (cat.id === "all" && !selectedCategory)
-                            ? "bg-slate-900 text-white border-slate-900 dark:bg-white dark:text-slate-950 dark:border-white shadow-md shadow-indigo-500/10"
-                            : "bg-slate-50 text-slate-500 border-slate-200 hover:border-slate-300 dark:bg-slate-900 dark:text-slate-400 dark:border-slate-800 dark:hover:border-slate-700"
-                        }`}
-                      >
-                        <cat.icon className="w-4 h-4" />
-                        {cat.name}
-                      </button>
-                    ))}
-                  </div>
                 </div>
 
-                {/* Grid */}
-                {filteredTools.length > 0 ? (
-                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
-                    {filteredTools.map((tool) => (
-                      <ToolCard
-                        key={tool.id}
-                        tool={tool}
-                        isFavorite={favoriteSet.has(tool.id)}
-                        onToggleFavorite={toggleFavorite}
-                        onClick={handleToolSelect}
-                      />
-                    ))}
-                  </div>
-                ) : (
-                  <div className="text-center py-24 border-2 border-dashed border-slate-200 dark:border-slate-800 rounded-[2.5rem]">
-                    <div className="w-16 h-16 bg-slate-50 dark:bg-slate-900 rounded-full flex items-center justify-center mx-auto mb-6 text-slate-400">
-                      <Search className="w-8 h-8" />
+                <Suspense fallback={null}>
+                  <AdPlaceholder
+                    size="large"
+                    className="opacity-50 grayscale hover:grayscale-0 transition-all"
+                  />
+                </Suspense>
+
+                <footer className="pt-20 pb-10 border-t border-slate-200 dark:border-slate-800">
+                  <div className="flex flex-col md:flex-row justify-between items-center gap-8">
+                    <div className="flex items-center gap-2 text-slate-400">
+                      <Sparkles className="w-4 h-4" />
+                      <span className="text-sm font-bold">
+                        Boîte à Outils © {new Date().getFullYear()}
+                      </span>
                     </div>
-                    <h4 className="text-xl font-bold mb-2">Aucun outil trouvé</h4>
-                    <p className="text-slate-500 dark:text-slate-400 mb-8">Essayez un autre mot-clé ou effacez les filtres.</p>
-                    <button
-                      onClick={() => {setSearchQuery(""); setSelectedCategory(null);}}
-                      className="px-6 py-2 bg-slate-900 dark:bg-white text-white dark:text-slate-900 rounded-xl font-bold transition-all"
-                    >
-                      Effacer tout
-                    </button>
+                    <div className="flex gap-8">
+                      <Link
+                        to="/a-propos"
+                        className="text-sm font-medium text-slate-400 hover:text-slate-900 dark:hover:text-white transition-colors"
+                      >
+                        À propos
+                      </Link>
+                      <Link
+                        to="/confidentialite"
+                        className="text-sm font-medium text-slate-400 hover:text-slate-900 dark:hover:text-white transition-colors"
+                      >
+                        Confidentialité
+                      </Link>
+                      <Link
+                        to="/contact"
+                        className="text-sm font-medium text-slate-400 hover:text-slate-900 dark:hover:text-white transition-colors"
+                      >
+                        Contact
+                      </Link>
+                    </div>
                   </div>
-                )}
+                </footer>
               </div>
-
-              <Suspense fallback={null}>
-                <AdPlaceholder size="large" className="opacity-50 grayscale hover:grayscale-0 transition-all" />
-              </Suspense>
-
-              <footer className="pt-20 pb-10 border-t border-slate-200 dark:border-slate-800">
-                <div className="flex flex-col md:flex-row justify-between items-center gap-8">
-                  <div className="flex items-center gap-2 text-slate-400">
-                    <Sparkles className="w-4 h-4" />
-                    <span className="text-sm font-bold">Boîte à Outils © {new Date().getFullYear()}</span>
-                  </div>
-                  <div className="flex gap-8">
-                    <Link to="/a-propos" className="text-sm font-medium text-slate-400 hover:text-slate-900 dark:hover:text-white transition-colors">À propos</Link>
-                    <Link to="/confidentialite" className="text-sm font-medium text-slate-400 hover:text-slate-900 dark:hover:text-white transition-colors">Confidentialité</Link>
-                    <Link to="/contact" className="text-sm font-medium text-slate-400 hover:text-slate-900 dark:hover:text-white transition-colors">Contact</Link>
-                  </div>
-                </div>
-              </footer>
-            </div>
-          } />
-          <Route path="/outil/:toolId" element={<ToolView favorites={favorites} toggleFavorite={toggleFavorite} />} />
-          <Route path="/a-propos" element={<InfoPage title="À propos" component={<About />} />} />
-          <Route path="/contact" element={<InfoPage title="Contact" component={<Contact />} />} />
-          <Route path="/confidentialite" element={<InfoPage title="Confidentialité" component={<PrivacyPolicy />} />} />
+            }
+          />
+          <Route
+            path="/outil/:toolId"
+            element={
+              <ToolView favorites={favorites} toggleFavorite={toggleFavorite} />
+            }
+          />
+          <Route
+            path="/a-propos"
+            element={<InfoPage title="À propos" component={<About />} />}
+          />
+          <Route
+            path="/contact"
+            element={<InfoPage title="Contact" component={<Contact />} />}
+          />
+          <Route
+            path="/confidentialite"
+            element={
+              <InfoPage title="Confidentialité" component={<PrivacyPolicy />} />
+            }
+          />
         </Routes>
       </div>
     </div>
   );
 }
 
-function ToolView({ favorites, toggleFavorite }: { favorites: string[], toggleFavorite: (e: React.MouseEvent, id: string) => void }) {
+function ToolView({
+  favorites,
+  toggleFavorite,
+}: {
+  favorites: string[];
+  toggleFavorite: (e: React.MouseEvent, id: string) => void;
+}) {
   const { toolId } = useParams();
+  const [shared, setShared] = useState(false);
   // ⚡ Bolt Optimization: Use toolsMap for O(1) lookup
   const currentTool = toolId ? toolsMap[toolId] : null;
+
+  const handleShare = useCallback(() => {
+    navigator.clipboard?.writeText(window.location.href).then(() => {
+      setShared(true);
+      setTimeout(() => setShared(false), 2000);
+    });
+  }, []);
 
   if (!currentTool) {
     return (
       <div className="text-center py-20">
         <h2 className="text-2xl font-bold mb-4">Outil non trouvé</h2>
-        <Link to="/" className="text-indigo-600 font-bold hover:underline">Retour au tableau de bord</Link>
+        <Link to="/" className="text-indigo-600 font-bold hover:underline">
+          Retour au tableau de bord
+        </Link>
       </div>
     );
   }
@@ -1035,21 +1401,47 @@ function ToolView({ favorites, toggleFavorite }: { favorites: string[], toggleFa
             <div className="inline-flex items-center gap-2 px-3 py-1 bg-indigo-50 dark:bg-indigo-900/20 text-indigo-600 dark:text-indigo-400 rounded-full text-xs font-bold uppercase tracking-widest">
               <currentTool.icon className="w-3 h-3" /> {currentTool.category}
             </div>
-            <h1 className="text-4xl md:text-5xl font-black tracking-tight">{currentTool.name}</h1>
-            <p className="text-lg text-slate-500 dark:text-slate-400 max-w-2xl">{currentTool.description}</p>
+            <h1 className="text-4xl md:text-5xl font-black tracking-tight">
+              {currentTool.name}
+            </h1>
+            <p className="text-lg text-slate-500 dark:text-slate-400 max-w-2xl">
+              {currentTool.description}
+            </p>
           </div>
-          <button
-            onClick={(e) => toggleFavorite(e, currentTool.id)}
-            aria-pressed={favorites.includes(currentTool.id)}
-            className={`flex items-center gap-2 px-6 py-3 rounded-2xl font-bold transition-all border ${
-              favorites.includes(currentTool.id)
-                ? "bg-amber-50 text-amber-600 border-amber-200"
-                : "bg-slate-50 text-slate-500 border-slate-200 dark:bg-slate-900 dark:border-slate-800"
-            }`}
-          >
-            <Star className={`w-5 h-5 ${favorites.includes(currentTool.id) ? 'fill-current' : ''}`} />
-            {favorites.includes(currentTool.id) ? "Favori" : "Mettre en favori"}
-          </button>
+          <div className="flex gap-2">
+            <button
+              onClick={handleShare}
+              className="flex items-center gap-2 px-6 py-3 rounded-2xl font-bold transition-all border bg-slate-50 text-slate-500 border-slate-200 dark:bg-slate-900 dark:border-slate-800 active:scale-95"
+              aria-label="Partager cet outil"
+            >
+              {shared ? (
+                <Check className="w-5 h-5 text-emerald-500" />
+              ) : (
+                <Share2 className="w-5 h-5" />
+              )}
+              <span className="hidden sm:inline">
+                {shared ? "Copié" : "Partager"}
+              </span>
+            </button>
+            <button
+              onClick={(e) => toggleFavorite(e, currentTool.id)}
+              aria-pressed={favorites.includes(currentTool.id)}
+              className={`flex items-center gap-2 px-6 py-3 rounded-2xl font-bold transition-all border active:scale-95 ${
+                favorites.includes(currentTool.id)
+                  ? "bg-amber-50 text-amber-600 border-amber-200"
+                  : "bg-slate-50 text-slate-500 border-slate-200 dark:bg-slate-900 dark:border-slate-800"
+              }`}
+            >
+              <Star
+                className={`w-5 h-5 ${favorites.includes(currentTool.id) ? "fill-current" : ""}`}
+              />
+              <span className="hidden sm:inline">
+                {favorites.includes(currentTool.id)
+                  ? "Favori"
+                  : "Mettre en favori"}
+              </span>
+            </button>
+          </div>
         </div>
       </div>
 
@@ -1068,7 +1460,13 @@ function ToolView({ favorites, toggleFavorite }: { favorites: string[], toggleFa
   );
 }
 
-function InfoPage({ title, component }: { title: string, component: React.ReactNode }) {
+function InfoPage({
+  title,
+  component,
+}: {
+  title: string;
+  component: React.ReactNode;
+}) {
   return (
     <div className="animate-in fade-in slide-in-from-bottom-4 duration-500">
       <Link
@@ -1080,9 +1478,7 @@ function InfoPage({ title, component }: { title: string, component: React.ReactN
       </Link>
       <h1 className="text-4xl font-black mb-12">{title}</h1>
       <div className="bg-white dark:bg-slate-900/40 rounded-[2.5rem] border border-slate-200 dark:border-slate-800 p-5 md:p-12 shadow-sm">
-        <Suspense fallback={<LoadingTool />}>
-          {component}
-        </Suspense>
+        <Suspense fallback={<LoadingTool />}>{component}</Suspense>
       </div>
     </div>
   );

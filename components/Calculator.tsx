@@ -74,8 +74,11 @@ export function Calculator() {
       case 'exp': result = Math.exp(current); break;
       case 'abs': result = Math.abs(current); break;
       case 'n!': {
+        // Sentinel: Prevent client-side DoS by limiting factorial input.
+        // 171! is already Infinity in JavaScript (Number.MAX_VALUE).
         if (current < 0) result = NaN;
         else if (current === 0) result = 1;
+        else if (current > 170) result = Infinity;
         else {
           let f = 1;
           for (let i = 1; i <= current; i++) f *= i;

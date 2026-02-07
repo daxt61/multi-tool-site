@@ -135,6 +135,9 @@ const Base64ToImage = lazy(() => import("./components/Base64ToImage").then(m => 
 const UnitPriceCalculator = lazy(() => import("./components/UnitPriceCalculator").then(m => ({ default: m.UnitPriceCalculator })));
 const AgeCalculator = lazy(() => import("./components/AgeCalculator").then(m => ({ default: m.AgeCalculator })));
 const ColorPaletteGenerator = lazy(() => import("./components/ColorPaletteGenerator").then(m => ({ default: m.ColorPaletteGenerator })));
+const RegExTester = lazy(() => import("./components/RegExTester").then(m => ({ default: m.RegExTester })));
+const SlugGenerator = lazy(() => import("./components/SlugGenerator").then(m => ({ default: m.SlugGenerator })));
+const CodeToImage = lazy(() => import("./components/CodeToImage").then(m => ({ default: m.CodeToImage })));
 
 // ⚡ Bolt Optimization: Pre-calculating tool map and search index for O(1) lookups and faster filtering
 const toolsMap: Record<string, Tool> = {};
@@ -413,6 +416,14 @@ const tools: Tool[] = [
     Component: ListCleaner,
     category: "text",
   },
+  {
+    id: "slug-generator",
+    name: "Slug Generator",
+    icon: LinkIcon,
+    description: "Générer des slugs URL-friendly",
+    Component: SlugGenerator,
+    category: "text",
+  },
   // Dev Tools
   {
     id: "password-generator",
@@ -420,6 +431,14 @@ const tools: Tool[] = [
     icon: Key,
     description: "Générateur de clés sécurisées",
     Component: PasswordGenerator,
+    category: "dev",
+  },
+  {
+    id: "regex-tester",
+    name: "Testeur RegEx",
+    icon: Search,
+    description: "Tester et valider vos expressions régulières",
+    Component: RegExTester,
     category: "dev",
   },
   {
@@ -564,6 +583,14 @@ const tools: Tool[] = [
     icon: Binary,
     description: "Convertisseur bidirectionnel texte et binaire",
     Component: BinaryTextConverter,
+    category: "dev",
+  },
+  {
+    id: "code-to-image",
+    name: "Code en Image",
+    icon: Image,
+    description: "Convertir vos extraits de code en belles images",
+    Component: CodeToImage,
     category: "dev",
   },
   // Other Tools

@@ -9,6 +9,7 @@ export function PasswordGenerator() {
   const [includeNumbers, setIncludeNumbers] = useState(true);
   const [includeSymbols, setIncludeSymbols] = useState(true);
   const [excludeSimilar, setExcludeSimilar] = useState(false);
+  const [excludeChars, setExcludeChars] = useState('');
   const [copied, setCopied] = useState(false);
 
   const generatePassword = () => {
@@ -20,6 +21,12 @@ export function PasswordGenerator() {
 
     if (excludeSimilar) {
       charset = charset.replace(/[il1Lo0O]/g, '');
+    }
+
+    if (excludeChars) {
+      const escapeRegExp = (string: string) => string.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+      const regex = new RegExp(`[${escapeRegExp(excludeChars)}]`, 'g');
+      charset = charset.replace(regex, '');
     }
 
     if (charset === '') {
@@ -49,7 +56,7 @@ export function PasswordGenerator() {
 
   useEffect(() => {
     generatePassword();
-  }, [length, includeUppercase, includeLowercase, includeNumbers, includeSymbols, excludeSimilar]);
+  }, [length, includeUppercase, includeLowercase, includeNumbers, includeSymbols, excludeSimilar, excludeChars]);
 
   const copyToClipboard = () => {
     navigator.clipboard.writeText(password);
@@ -170,6 +177,17 @@ export function PasswordGenerator() {
                 </div>
               </button>
             ))}
+          </div>
+
+          <div className="pt-6 border-t border-slate-200 dark:border-slate-800 space-y-4">
+            <label className="text-xs font-black uppercase tracking-widest text-slate-400 px-1">Caractères à exclure</label>
+            <input
+              type="text"
+              value={excludeChars}
+              onChange={(e) => setExcludeChars(e.target.value)}
+              placeholder="Ex: @#$%"
+              className="w-full p-4 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-2xl font-mono text-sm outline-none focus:ring-2 focus:ring-indigo-500/20 transition-all dark:text-white"
+            />
           </div>
         </div>
 

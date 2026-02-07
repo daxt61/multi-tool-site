@@ -1,8 +1,12 @@
 import { useState } from 'react';
-import { Copy, Check, Trash2, SortAsc, SortDesc, ListChecks, Type, FileDown, Scissors } from 'lucide-react';
+import { Copy, Check, Trash2, SortAsc, SortDesc, ListChecks, Type, FileDown, Scissors, Plus, Search, Shuffle, RotateCcw } from 'lucide-react';
 
 export function ListCleaner() {
   const [text, setText] = useState('');
+  const [prefix, setPrefix] = useState('');
+  const [suffix, setSuffix] = useState('');
+  const [searchQuery, setSearchQuery] = useState('');
+  const [replaceValue, setReplaceValue] = useState('');
   const [copied, setCopied] = useState(false);
 
   const handleCopy = () => {
@@ -51,6 +55,34 @@ export function ListCleaner() {
 
   const sortLength = () => {
     processList(lines => [...lines].sort((a, b) => a.length - b.length));
+  };
+
+  const addPrefixSuffix = () => {
+    processList(lines => lines.map(line => `${prefix}${line}${suffix}`));
+  };
+
+  const handleReplace = () => {
+    if (!searchQuery) return;
+    processList(lines => lines.map(line => line.split(searchQuery).join(replaceValue)));
+  };
+
+  const removePunctuation = () => {
+    processList(lines => lines.map(line => line.replace(/[.,/#!$%^&*;:{}=\-_`~()]/g, "")));
+  };
+
+  const reverseList = () => {
+    processList(lines => [...lines].reverse());
+  };
+
+  const shuffleList = () => {
+    processList(lines => {
+      const arr = [...lines];
+      for (let i = arr.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [arr[i], arr[j]] = [arr[j], arr[i]];
+      }
+      return arr;
+    });
   };
 
   return (
@@ -157,10 +189,10 @@ export function ListCleaner() {
         </div>
 
         {/* Transformation */}
-        <div className="p-8 bg-white dark:bg-slate-900/50 border border-slate-200 dark:border-slate-800 rounded-[2.5rem] space-y-6">
+        <div className="p-8 bg-white dark:bg-slate-900/40 border border-slate-200 dark:border-slate-800 rounded-[2.5rem] space-y-6">
           <div className="flex items-center gap-3 text-indigo-500">
             <Type className="w-5 h-5" />
-            <h3 className="font-black uppercase tracking-widest text-xs text-slate-400">Casse</h3>
+            <h3 className="font-black uppercase tracking-widest text-xs text-slate-400">Casse & Texte</h3>
           </div>
           <div className="space-y-2">
             <button
@@ -178,11 +210,106 @@ export function ListCleaner() {
               <Type className="w-4 h-4 text-slate-400 group-hover:text-indigo-500" />
             </button>
             <button
-              onClick={() => processList(lines => lines.map(l => l.charAt(0).toUpperCase() + l.slice(1).toLowerCase()))}
+              onClick={() => processList(lines => lines.map(l => l.charAt(0).toUpperCase() + l.slice(1)))}
               className="w-full flex items-center justify-between p-4 bg-slate-50 dark:bg-slate-800/50 hover:bg-indigo-50 dark:hover:bg-indigo-900/20 rounded-2xl transition-all group"
             >
-              <span className="font-bold text-sm">Capitaliser</span>
+              <span className="font-bold text-sm">Première lettre en majuscule</span>
               <Type className="w-4 h-4 text-slate-400 group-hover:text-indigo-500" />
+            </button>
+            <button
+              onClick={removePunctuation}
+              className="w-full flex items-center justify-between p-4 bg-slate-50 dark:bg-slate-800/50 hover:bg-indigo-50 dark:hover:bg-indigo-900/20 rounded-2xl transition-all group"
+            >
+              <span className="font-bold text-sm">Supprimer ponctuation</span>
+              <Scissors className="w-4 h-4 text-slate-400 group-hover:text-indigo-500" />
+            </button>
+          </div>
+        </div>
+
+        {/* Préfixe / Suffixe */}
+        <div className="p-8 bg-white dark:bg-slate-900/40 border border-slate-200 dark:border-slate-800 rounded-[2.5rem] space-y-6">
+          <div className="flex items-center gap-3 text-emerald-500">
+            <Plus className="w-5 h-5" />
+            <h3 className="font-black uppercase tracking-widest text-xs text-slate-400">Ajouter</h3>
+          </div>
+          <div className="space-y-4">
+            <div className="grid grid-cols-2 gap-2">
+              <input
+                type="text"
+                value={prefix}
+                onChange={(e) => setPrefix(e.target.value)}
+                placeholder="Préfixe"
+                className="p-3 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-xs outline-none focus:ring-2 focus:ring-emerald-500/20 transition-all"
+              />
+              <input
+                type="text"
+                value={suffix}
+                onChange={(e) => setSuffix(e.target.value)}
+                placeholder="Suffixe"
+                className="p-3 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-xs outline-none focus:ring-2 focus:ring-emerald-500/20 transition-all"
+              />
+            </div>
+            <button
+              onClick={addPrefixSuffix}
+              className="w-full p-4 bg-emerald-500 text-white rounded-2xl font-bold text-sm hover:bg-emerald-600 transition-all shadow-lg shadow-emerald-500/20"
+            >
+              Appliquer aux lignes
+            </button>
+          </div>
+        </div>
+
+        {/* Rechercher & Remplacer */}
+        <div className="p-8 bg-white dark:bg-slate-900/40 border border-slate-200 dark:border-slate-800 rounded-[2.5rem] space-y-6">
+          <div className="flex items-center gap-3 text-amber-500">
+            <Search className="w-5 h-5" />
+            <h3 className="font-black uppercase tracking-widest text-xs text-slate-400">Rechercher</h3>
+          </div>
+          <div className="space-y-4">
+            <div className="grid grid-cols-2 gap-2">
+              <input
+                type="text"
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                placeholder="Rechercher"
+                className="p-3 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-xs outline-none focus:ring-2 focus:ring-amber-500/20 transition-all"
+              />
+              <input
+                type="text"
+                value={replaceValue}
+                onChange={(e) => setReplaceValue(e.target.value)}
+                placeholder="Remplacer"
+                className="p-3 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-xs outline-none focus:ring-2 focus:ring-amber-500/20 transition-all"
+              />
+            </div>
+            <button
+              onClick={handleReplace}
+              className="w-full p-4 bg-amber-500 text-white rounded-2xl font-bold text-sm hover:bg-amber-600 transition-all shadow-lg shadow-amber-500/20"
+            >
+              Remplacer tout
+            </button>
+          </div>
+        </div>
+
+        {/* Ordre */}
+        <div className="p-8 bg-white dark:bg-slate-900/40 border border-slate-200 dark:border-slate-800 rounded-[2.5rem] space-y-6">
+          <div className="flex items-center gap-3 text-violet-500">
+            <Shuffle className="w-5 h-5" />
+            <h3 className="font-black uppercase tracking-widest text-xs text-slate-400">Ordre</h3>
+          </div>
+          <div className="space-y-2">
+            <button
+              onClick={reverseList}
+              className="w-full flex items-center justify-between p-4 bg-slate-50 dark:bg-slate-800/50 hover:bg-violet-50 dark:hover:bg-violet-900/20 rounded-2xl transition-all group"
+            >
+              <span className="font-bold text-sm">Inverser l'ordre</span>
+              <RotateCcw className="w-4 h-4 text-slate-400 group-hover:text-violet-500" />
+            </button>
+            <button
+              onClick={shuffleList}
+              className="w-full flex items-center justify-between p-4 bg-slate-50 dark:bg-slate-800/50 hover:bg-violet-50 dark:hover:bg-violet-900/20 rounded-2xl transition-all group"
+            >
+              <span className="font-bold text-sm">Mélanger (Aléatoire)</span>
+              <Shuffle className="w-4 h-4 text-slate-400 group-hover:text-violet-500" />
             </button>
           </div>
         </div>

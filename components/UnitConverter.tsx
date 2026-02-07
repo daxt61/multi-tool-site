@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { Copy, Check, Trash2, ArrowUpDown, Info, Ruler } from 'lucide-react';
 
-type ConversionCategory = 'length' | 'weight' | 'temperature' | 'area' | 'volume' | 'digital' | 'pressure' | 'energy' | 'speed' | 'time' | 'power' | 'frequency' | 'consumption' | 'angle';
+type ConversionCategory = 'length' | 'weight' | 'temperature' | 'area' | 'volume' | 'digital' | 'pressure' | 'energy' | 'speed' | 'time' | 'power' | 'frequency' | 'consumption' | 'angle' | 'force' | 'torque';
 
 interface ConversionUnit {
   name: string;
@@ -114,6 +114,16 @@ const CONVERSIONS: Record<ConversionCategory, Record<string, ConversionUnit>> = 
     'rad': { name: 'Radians', toBase: (v) => v * (180 / Math.PI), fromBase: (v) => v * (Math.PI / 180) },
     'grad': { name: 'Grades', toBase: (v) => v * (9 / 10), fromBase: (v) => v * (10 / 9) },
     'tr': { name: 'Tours', toBase: (v) => v * 360, fromBase: (v) => v / 360 }
+  },
+  force: {
+    'N': { name: 'Newton (N)', toBase: (v) => v, fromBase: (v) => v },
+    'kN': { name: 'Kilonewton (kN)', toBase: (v) => v * 1000, fromBase: (v) => v / 1000 },
+    'lbf': { name: 'Pound-force (lbf)', toBase: (v) => v * 4.44822, fromBase: (v) => v / 4.44822 }
+  },
+  torque: {
+    'Nm': { name: 'Newton-mètre (N·m)', toBase: (v) => v, fromBase: (v) => v },
+    'lbft': { name: 'Pound-foot (lb·ft)', toBase: (v) => v * 1.355818, fromBase: (v) => v / 1.355818 },
+    'kgm': { name: 'Kilogramme-mètre (kg·m)', toBase: (v) => v * 9.80665, fromBase: (v) => v / 9.80665 }
   }
 };
 
@@ -131,7 +141,9 @@ const CATEGORIES_MAP = [
   { id: 'power', name: 'Puissance' },
   { id: 'frequency', name: 'Fréquence' },
   { id: 'consumption', name: 'Consommation' },
-  { id: 'angle', name: 'Angle' }
+  { id: 'angle', name: 'Angle' },
+  { id: 'force', name: 'Force' },
+  { id: 'torque', name: 'Couple' }
 ];
 
 const formatter = new Intl.NumberFormat('fr-FR', {

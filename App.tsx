@@ -20,6 +20,7 @@ import {
   FileText,
   Hash,
   QrCode,
+  Camera,
   Percent,
   FileType,
   DollarSign,
@@ -135,6 +136,8 @@ const Base64ToImage = lazy(() => import("./components/Base64ToImage").then(m => 
 const UnitPriceCalculator = lazy(() => import("./components/UnitPriceCalculator").then(m => ({ default: m.UnitPriceCalculator })));
 const AgeCalculator = lazy(() => import("./components/AgeCalculator").then(m => ({ default: m.AgeCalculator })));
 const ColorPaletteGenerator = lazy(() => import("./components/ColorPaletteGenerator").then(m => ({ default: m.ColorPaletteGenerator })));
+const SlugGenerator = lazy(() => import("./components/SlugGenerator").then(m => ({ default: m.SlugGenerator })));
+const CodeToImage = lazy(() => import("./components/CodeToImage").then(m => ({ default: m.CodeToImage })));
 
 // ⚡ Bolt Optimization: Pre-calculating tool map and search index for O(1) lookups and faster filtering
 const toolsMap: Record<string, Tool> = {};
@@ -413,6 +416,14 @@ const tools: Tool[] = [
     Component: ListCleaner,
     category: "text",
   },
+  {
+    id: "slug-generator",
+    name: "Générateur de Slug",
+    icon: LinkIcon,
+    description: "Convertir du texte en URL friendly",
+    Component: SlugGenerator,
+    category: "text",
+  },
   // Dev Tools
   {
     id: "password-generator",
@@ -564,6 +575,14 @@ const tools: Tool[] = [
     icon: Binary,
     description: "Convertisseur bidirectionnel texte et binaire",
     Component: BinaryTextConverter,
+    category: "dev",
+  },
+  {
+    id: "code-to-image",
+    name: "Code en Image",
+    icon: Camera,
+    description: "Créer de superbes captures de votre code",
+    Component: CodeToImage,
     category: "dev",
   },
   // Other Tools

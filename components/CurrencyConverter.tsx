@@ -187,6 +187,27 @@ export function CurrencyConverter() {
         </div>
       </div>
 
+      {/* Popular Conversions */}
+      {!isNaN(parseFloat(amount)) && parseFloat(amount) > 0 && (
+        <div className="space-y-6">
+          <h3 className="text-xs font-black uppercase tracking-widest text-slate-400 px-1">Conversions populaires</h3>
+          <div className="grid grid-cols-2 sm:grid-cols-4 md:grid-cols-8 gap-3">
+            {[1, 5, 10, 20, 50, 100, 500, 1000].map((popAmount) => (
+              <button
+                key={popAmount}
+                onClick={() => setAmount(popAmount.toString())}
+                className="p-4 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl text-center hover:border-indigo-500 transition-all group"
+              >
+                <div className="text-[10px] font-bold text-slate-400 uppercase mb-1">{popAmount} {fromCurrency}</div>
+                <div className="font-mono font-black text-slate-900 dark:text-white group-hover:text-indigo-500 transition-colors">
+                  {((popAmount / rates[fromCurrency]) * rates[toCurrency]).toLocaleString(undefined, { maximumFractionDigits: 2 })}
+                </div>
+              </button>
+            ))}
+          </div>
+        </div>
+      )}
+
       <div className="bg-indigo-50 dark:bg-indigo-900/10 border border-indigo-100 dark:border-indigo-900/20 p-6 rounded-[2rem] flex items-start gap-4">
         <div className="p-2 bg-white dark:bg-slate-800 text-indigo-600 rounded-xl shadow-sm">
           <Info className="w-6 h-6" />

@@ -50,11 +50,11 @@ export function BMICalculator() {
   }, [weight, height, unit]);
 
   const getCategory = () => {
-    if (bmi === 0) return { label: 'En attente', color: 'bg-slate-200', text: 'text-slate-500' };
-    if (bmi < 18.5) return { label: 'Insuffisance pondérale', color: 'bg-blue-500', text: 'text-blue-500' };
-    if (bmi < 25) return { label: 'Poids normal', color: 'bg-emerald-500', text: 'text-emerald-500' };
-    if (bmi < 30) return { label: 'Surpoids', color: 'bg-amber-500', text: 'text-amber-500' };
-    return { label: 'Obésité', color: 'bg-rose-500', text: 'text-rose-500' };
+    if (bmi === 0) return { label: 'En attente', color: 'bg-slate-200', text: 'text-slate-500', position: 0 };
+    if (bmi < 18.5) return { label: 'Insuffisance pondérale', color: 'bg-blue-500', text: 'text-blue-500', position: (bmi / 40) * 100 };
+    if (bmi < 25) return { label: 'Poids normal', color: 'bg-emerald-500', text: 'text-emerald-500', position: (bmi / 40) * 100 };
+    if (bmi < 30) return { label: 'Surpoids', color: 'bg-amber-500', text: 'text-amber-500', position: (bmi / 40) * 100 };
+    return { label: 'Obésité', color: 'bg-rose-500', text: 'text-rose-500', position: Math.min((bmi / 40) * 100, 98) };
   };
 
   const category = getCategory();
@@ -155,6 +155,31 @@ export function BMICalculator() {
             </div>
             <div className={`px-6 py-2 rounded-full font-black text-sm uppercase tracking-widest ${category.color} text-white shadow-lg`}>
               {category.label}
+            </div>
+
+            {/* Visual Scale */}
+            <div className="w-full mt-8 space-y-2">
+              <div className="h-3 w-full bg-slate-800 rounded-full flex overflow-hidden relative">
+                <div className="h-full bg-blue-500" style={{ width: '46.25%' }}></div> {/* 18.5 / 40 */}
+                <div className="h-full bg-emerald-500" style={{ width: '16.25%' }}></div> {/* (25-18.5) / 40 */}
+                <div className="h-full bg-amber-500" style={{ width: '12.5%' }}></div> {/* (30-25) / 40 */}
+                <div className="h-full bg-rose-500 flex-grow"></div>
+                {bmi > 0 && (
+                  <div
+                    className="absolute top-0 h-full w-1 bg-white shadow-[0_0_10px_rgba(255,255,255,0.8)] transition-all duration-1000"
+                    style={{ left: `${category.position}%` }}
+                  >
+                    <div className="absolute -top-1 -left-1 w-3 h-3 bg-white rounded-full"></div>
+                  </div>
+                )}
+              </div>
+              <div className="flex justify-between text-[10px] font-bold text-slate-500 font-mono">
+                <span>0</span>
+                <span>18.5</span>
+                <span>25</span>
+                <span>30</span>
+                <span>40+</span>
+              </div>
             </div>
           </div>
 

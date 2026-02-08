@@ -16,6 +16,14 @@ export function MarkdownPreview() {
   };
 
   const renderMarkdown = (text: string) => {
+    // Sentinel: Limit input length to prevent DoS from extremely large markdown processing.
+    const MAX_LENGTH = 50000;
+    if (text.length > MAX_LENGTH) {
+      return `<div class="p-4 bg-rose-50 text-rose-600 rounded-lg font-bold border border-rose-200">
+        Erreur : Le texte est trop long pour être prévisualisé (maximum ${MAX_LENGTH} caractères).
+      </div>`;
+    }
+
     const placeholders: string[] = [];
 
     // Escape input to prevent XSS

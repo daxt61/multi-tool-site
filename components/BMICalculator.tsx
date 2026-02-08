@@ -156,6 +156,32 @@ export function BMICalculator() {
             <div className={`px-6 py-2 rounded-full font-black text-sm uppercase tracking-widest ${category.color} text-white shadow-lg`}>
               {category.label}
             </div>
+
+            {bmi > 0 && (
+              <div className="w-full mt-8 space-y-4">
+                <div className="relative h-3 bg-white/10 rounded-full overflow-hidden flex">
+                  <div className="h-full bg-blue-500" style={{ width: '46.25%' }}></div>
+                  <div className="h-full bg-emerald-500" style={{ width: '16.25%' }}></div>
+                  <div className="h-full bg-amber-500" style={{ width: '12.5%' }}></div>
+                  <div className="h-full bg-rose-500" style={{ width: '25%' }}></div>
+                </div>
+                <div className="relative w-full h-2">
+                   <div
+                    className="absolute top-0 transition-all duration-1000 ease-out"
+                    style={{ left: `${Math.min(Math.max(((bmi) / 40) * 100, 0), 100)}%`, transform: 'translateX(-50%)' }}
+                  >
+                    <div className="w-0 h-0 border-l-[6px] border-l-transparent border-r-[6px] border-r-transparent border-b-[8px] border-b-white"></div>
+                  </div>
+                </div>
+                <div className="flex justify-between text-[8px] font-black text-white/40 uppercase tracking-widest">
+                  <span>0</span>
+                  <span>18.5</span>
+                  <span>25</span>
+                  <span>30</span>
+                  <span>40+</span>
+                </div>
+              </div>
+            )}
           </div>
 
           <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 p-6 rounded-[2rem] flex items-start gap-4">

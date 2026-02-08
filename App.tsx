@@ -1008,7 +1008,8 @@ function MainApp() {
 function ToolView({ favorites, toggleFavorite }: { favorites: string[], toggleFavorite: (e: React.MouseEvent, id: string) => void }) {
   const { toolId } = useParams();
   // ⚡ Bolt Optimization: Use toolsMap for O(1) lookup
-  const currentTool = toolId ? toolsMap[toolId] : null;
+  // Sentinel: Validate that toolId is a valid key and not an inherited property to prevent DoS.
+  const currentTool = (toolId && Object.prototype.hasOwnProperty.call(toolsMap, toolId)) ? toolsMap[toolId] : null;
 
   if (!currentTool) {
     return (

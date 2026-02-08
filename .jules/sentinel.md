@@ -16,3 +16,13 @@
 **Vulnerability:** The PasswordGenerator was using `array[i] % charset.length` to select characters, which introduced a slight bias towards certain characters when the random space (2^32) was not a multiple of the charset size.
 **Learning:** Even when using cryptographically secure random values (CSPRNG), improper mathematical operations like modulo can degrade the entropy and introduce predictability.
 **Prevention:** Always use rejection sampling when mapping a large random range to a smaller one that does not divide it evenly. This ensures a perfectly uniform distribution across all possible outputs.
+
+## 2025-06-10 - [DoS via Inherited Property Access in Routing]
+**Vulnerability:** The application was using `toolsMap[toolId]` to look up tools. If a user provided a `toolId` corresponding to an inherited property (e.g., `toString`, `__proto__`), it could lead to crashes or unexpected behavior when the app tried to render that property as a component.
+**Learning:** Never trust user-provided keys when accessing objects. Even if the key is just a string in a URL, it can target internal object properties.
+**Prevention:** Always use `Object.prototype.hasOwnProperty.call(obj, key)` or ensure the object has a null prototype (`Object.create(null)`) before using user-controlled input as a key.
+
+## 2025-06-10 - [DoS via Large Input in Regex-based Parser]
+**Vulnerability:** The MarkdownPreview component processed input using several complex regexes without a length limit. Extremely large inputs could cause browser hangs or ReDoS attacks.
+**Learning:** Client-side processing of untrusted input with regular expressions is a potential DoS vector.
+**Prevention:** Implement reasonable maximum length limits for user input that will be processed by complex algorithms or regexes.

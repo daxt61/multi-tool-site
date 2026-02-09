@@ -59,6 +59,24 @@ export function BMICalculator() {
 
   const category = getCategory();
 
+  const getPointerPosition = () => {
+    if (bmi === 0) return 0;
+    if (bmi < 18.5) {
+      const p = (bmi - 10) / (18.5 - 10);
+      return Math.max(0, p * 25);
+    }
+    if (bmi < 25) {
+      const p = (bmi - 18.5) / (25 - 18.5);
+      return 25 + p * 25;
+    }
+    if (bmi < 30) {
+      const p = (bmi - 25) / (30 - 25);
+      return 50 + p * 25;
+    }
+    const p = (bmi - 30) / (50 - 30);
+    return Math.min(100, 75 + p * 25);
+  };
+
   const handleCopy = () => {
     const text = `Mon IMC est de ${bmi.toFixed(1)} (${category.label})`;
     navigator.clipboard.writeText(text);
@@ -155,6 +173,33 @@ export function BMICalculator() {
             </div>
             <div className={`px-6 py-2 rounded-full font-black text-sm uppercase tracking-widest ${category.color} text-white shadow-lg`}>
               {category.label}
+            </div>
+
+            {/* Visual Scale */}
+            <div className="w-full mt-12 px-4 space-y-4">
+              <div className="relative h-3 w-full bg-slate-100 dark:bg-slate-800 rounded-full overflow-hidden flex">
+                <div className="h-full bg-blue-500" style={{ width: '25%' }}></div>
+                <div className="h-full bg-emerald-500" style={{ width: '25%' }}></div>
+                <div className="h-full bg-amber-500" style={{ width: '25%' }}></div>
+                <div className="h-full bg-rose-500" style={{ width: '25%' }}></div>
+              </div>
+              <div className="relative w-full h-6">
+                <div
+                  className="absolute top-0 transition-all duration-1000 ease-out flex flex-col items-center -translate-x-1/2"
+                  style={{ left: `${getPointerPosition()}%` }}
+                >
+                  <div className="w-0 h-0 border-l-[6px] border-l-transparent border-r-[6px] border-r-transparent border-b-[8px] border-b-white dark:border-b-slate-300 mb-1"></div>
+                  <div className="text-[10px] font-black text-white dark:text-slate-300 bg-slate-800 dark:bg-slate-700 px-2 py-0.5 rounded shadow-sm">
+                    {bmi > 0 ? bmi.toFixed(1) : '0'}
+                  </div>
+                </div>
+              </div>
+              <div className="flex justify-between px-1">
+                <span className="text-[8px] font-bold text-slate-500 uppercase tracking-tighter">Insuffisance</span>
+                <span className="text-[8px] font-bold text-slate-500 uppercase tracking-tighter">Normal</span>
+                <span className="text-[8px] font-bold text-slate-500 uppercase tracking-tighter">Surpoids</span>
+                <span className="text-[8px] font-bold text-slate-500 uppercase tracking-tighter">Obésité</span>
+              </div>
             </div>
           </div>
 

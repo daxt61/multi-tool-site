@@ -74,6 +74,21 @@ export function JWTDecoder() {
     });
   };
 
+  const getExpirationStatus = (exp: number) => {
+    if (!exp) return null;
+    const now = Math.floor(Date.now() / 1000);
+    if (now > exp) return { label: 'Expiré', color: 'text-rose-500', bg: 'bg-rose-50 dark:bg-rose-500/10' };
+    if (exp - now < 3600) return { label: 'Expire bientôt', color: 'text-amber-500', bg: 'bg-amber-50 dark:bg-amber-500/10' };
+    return { label: 'Valide', color: 'text-emerald-500', bg: 'bg-emerald-50 dark:bg-emerald-500/10' };
+  };
+
+  const renderClaimValue = (value: any) => {
+    if (typeof value === 'object' && value !== null) {
+      return <pre className="text-[10px] font-mono bg-slate-100 dark:bg-slate-700 p-2 rounded mt-1 overflow-x-auto">{JSON.stringify(value, null, 2)}</pre>;
+    }
+    return <div className="font-bold text-sm truncate">{String(value)}</div>;
+  };
+
   return (
     <div className="max-w-5xl mx-auto space-y-8">
       {/* Input Area */}
@@ -144,13 +159,24 @@ export function JWTDecoder() {
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               {[
                 { label: 'Émis le (iat)', value: decoded.payload.iat ? formatDate(decoded.payload.iat) : 'N/A' },
-                { label: 'Expire le (exp)', value: decoded.payload.exp ? formatDate(decoded.payload.exp) : 'N/A' },
+                {
+                  label: 'Expire le (exp)',
+                  value: decoded.payload.exp ? formatDate(decoded.payload.exp) : 'N/A',
+                  status: getExpirationStatus(decoded.payload.exp)
+                },
                 { label: 'Sujet (sub)', value: decoded.payload.sub || 'N/A' },
                 { label: 'Émetteur (iss)', value: decoded.payload.iss || 'N/A' },
               ].map((claim) => (
                 <div key={claim.label} className="p-4 bg-slate-50 dark:bg-slate-800/50 rounded-2xl border border-slate-100 dark:border-slate-800">
-                  <div className="text-[10px] font-black uppercase tracking-widest text-slate-400 mb-1">{claim.label}</div>
-                  <div className="font-bold text-sm truncate">{claim.value}</div>
+                  <div className="flex justify-between items-start mb-1">
+                    <div className="text-[10px] font-black uppercase tracking-widest text-slate-400">{claim.label}</div>
+                    {claim.status && (
+                      <span className={`text-[8px] font-black uppercase px-2 py-0.5 rounded-full ${claim.status.bg} ${claim.status.color}`}>
+                        {claim.status.label}
+                      </span>
+                    )}
+                  </div>
+                  {renderClaimValue(claim.value)}
                 </div>
               ))}
             </div>

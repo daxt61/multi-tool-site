@@ -69,6 +69,9 @@ import {
   ShieldCheck,
   Scissors,
   Binary,
+  Camera,
+  Share2,
+  Check as CheckIcon,
 } from "lucide-react";
 const AdPlaceholder = lazy(() => import("./components/AdPlaceholder").then(m => ({ default: m.AdPlaceholder })));
 
@@ -135,6 +138,8 @@ const Base64ToImage = lazy(() => import("./components/Base64ToImage").then(m => 
 const UnitPriceCalculator = lazy(() => import("./components/UnitPriceCalculator").then(m => ({ default: m.UnitPriceCalculator })));
 const AgeCalculator = lazy(() => import("./components/AgeCalculator").then(m => ({ default: m.AgeCalculator })));
 const ColorPaletteGenerator = lazy(() => import("./components/ColorPaletteGenerator").then(m => ({ default: m.ColorPaletteGenerator })));
+const SlugGenerator = lazy(() => import("./components/SlugGenerator").then(m => ({ default: m.SlugGenerator })));
+const CodeToImage = lazy(() => import("./components/CodeToImage").then(m => ({ default: m.CodeToImage })));
 
 // ⚡ Bolt Optimization: Pre-calculating tool map and search index for O(1) lookups and faster filtering
 const toolsMap: Record<string, Tool> = {};
@@ -413,6 +418,14 @@ const tools: Tool[] = [
     Component: ListCleaner,
     category: "text",
   },
+  {
+    id: "slug-generator",
+    name: "Slug Generator",
+    icon: LinkIcon,
+    description: "Générer des slugs URL-friendly à partir de texte",
+    Component: SlugGenerator,
+    category: "text",
+  },
   // Dev Tools
   {
     id: "password-generator",
@@ -420,6 +433,14 @@ const tools: Tool[] = [
     icon: Key,
     description: "Générateur de clés sécurisées",
     Component: PasswordGenerator,
+    category: "dev",
+  },
+  {
+    id: "code-to-image",
+    name: "Code en Image",
+    icon: Camera,
+    description: "Transformer vos extraits de code en images élégantes",
+    Component: CodeToImage,
     category: "dev",
   },
   {
@@ -798,6 +819,12 @@ function MainApp() {
     window.scrollTo({ top: 0, behavior: 'smooth' });
   }, [navigate]);
 
+  const handleRandomTool = useCallback(() => {
+    const toolIds = Object.keys(toolsMap);
+    const randomId = toolIds[Math.floor(Math.random() * toolIds.length)];
+    handleToolSelect(randomId);
+  }, [handleToolSelect]);
+
   const isHome = location.pathname === "/";
 
   useEffect(() => {
@@ -887,18 +914,27 @@ function MainApp() {
                   Une collection d'utilitaires gratuits, privés et open-source pour booster votre productivité au quotidien.
                 </p>
 
-                <div className="relative group max-w-lg mx-auto">
-                  <label htmlFor="tool-search" className="sr-only">Rechercher</label>
-                  <div className="absolute inset-y-0 left-4 flex items-center pointer-events-none"><Search className="h-5 w-5 text-slate-400" /></div>
-                  <input id="tool-search" type="text" placeholder="Rechercher un outil..." value={searchQuery} onChange={(e) => setSearchQuery(e.target.value)} className={`block w-full pl-11 ${searchQuery ? 'pr-12' : 'pr-4'} py-4 bg-slate-50 dark:bg-slate-900/50 border border-slate-200 dark:border-slate-800 rounded-2xl focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 outline-none transition-all placeholder:text-slate-400`} />
-                  {!searchQuery && (
-                    <div className="absolute inset-y-0 right-4 flex items-center pointer-events-none">
-                      <kbd className="hidden sm:inline-flex items-center gap-1 px-2 py-0.5 border border-slate-200 dark:border-slate-700 rounded text-[10px] font-bold text-slate-400 bg-white dark:bg-slate-800">
-                        /
-                      </kbd>
-                    </div>
-                  )}
-                  {searchQuery && <button onClick={() => setSearchQuery("")} className="absolute inset-y-0 right-4 flex items-center text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 transition-colors" aria-label="Effacer"><X className="h-5 w-5" /></button>}
+                <div className="flex flex-col sm:flex-row items-center gap-4 max-w-2xl mx-auto">
+                  <div className="relative group flex-grow w-full">
+                    <label htmlFor="tool-search" className="sr-only">Rechercher</label>
+                    <div className="absolute inset-y-0 left-4 flex items-center pointer-events-none"><Search className="h-5 w-5 text-slate-400" /></div>
+                    <input id="tool-search" type="text" placeholder="Rechercher un outil..." value={searchQuery} onChange={(e) => setSearchQuery(e.target.value)} className={`block w-full pl-11 ${searchQuery ? 'pr-12' : 'pr-4'} py-4 bg-slate-50 dark:bg-slate-900/50 border border-slate-200 dark:border-slate-800 rounded-2xl focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 outline-none transition-all placeholder:text-slate-400`} />
+                    {!searchQuery && (
+                      <div className="absolute inset-y-0 right-4 flex items-center pointer-events-none">
+                        <kbd className="hidden sm:inline-flex items-center gap-1 px-2 py-0.5 border border-slate-200 dark:border-slate-700 rounded text-[10px] font-bold text-slate-400 bg-white dark:bg-slate-800">
+                          /
+                        </kbd>
+                      </div>
+                    )}
+                    {searchQuery && <button onClick={() => setSearchQuery("")} className="absolute inset-y-0 right-4 flex items-center text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 transition-colors" aria-label="Effacer"><X className="h-5 w-5" /></button>}
+                  </div>
+                  <button
+                    onClick={handleRandomTool}
+                    className="shrink-0 p-4 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl text-slate-500 hover:text-indigo-500 hover:border-indigo-500/50 transition-all group active:scale-95"
+                    title="Outil aléatoire"
+                  >
+                    <Shuffle className="w-6 h-6 group-hover:rotate-12 transition-transform" />
+                  </button>
                 </div>
               </div>
 
@@ -1007,8 +1043,21 @@ function MainApp() {
 
 function ToolView({ favorites, toggleFavorite }: { favorites: string[], toggleFavorite: (e: React.MouseEvent, id: string) => void }) {
   const { toolId } = useParams();
+  const [shared, setShared] = useState(false);
+
+  // ⚡ Bolt Optimization: Scroll to top on tool change
+  useEffect(() => {
+    window.scrollTo(0, 0);
+  }, [toolId]);
+
   // ⚡ Bolt Optimization: Use toolsMap for O(1) lookup
   const currentTool = toolId ? toolsMap[toolId] : null;
+
+  const handleShare = () => {
+    navigator.clipboard.writeText(window.location.href);
+    setShared(true);
+    setTimeout(() => setShared(false), 2000);
+  };
 
   if (!currentTool) {
     return (
@@ -1038,18 +1087,32 @@ function ToolView({ favorites, toggleFavorite }: { favorites: string[], toggleFa
             <h1 className="text-4xl md:text-5xl font-black tracking-tight">{currentTool.name}</h1>
             <p className="text-lg text-slate-500 dark:text-slate-400 max-w-2xl">{currentTool.description}</p>
           </div>
-          <button
-            onClick={(e) => toggleFavorite(e, currentTool.id)}
-            aria-pressed={favorites.includes(currentTool.id)}
-            className={`flex items-center gap-2 px-6 py-3 rounded-2xl font-bold transition-all border ${
-              favorites.includes(currentTool.id)
-                ? "bg-amber-50 text-amber-600 border-amber-200"
-                : "bg-slate-50 text-slate-500 border-slate-200 dark:bg-slate-900 dark:border-slate-800"
-            }`}
-          >
-            <Star className={`w-5 h-5 ${favorites.includes(currentTool.id) ? 'fill-current' : ''}`} />
-            {favorites.includes(currentTool.id) ? "Favori" : "Mettre en favori"}
-          </button>
+          <div className="flex gap-2">
+            <button
+              onClick={handleShare}
+              className={`flex items-center gap-2 px-6 py-3 rounded-2xl font-bold transition-all border ${
+                shared
+                  ? "bg-emerald-50 text-emerald-600 border-emerald-200"
+                  : "bg-slate-50 text-slate-500 border-slate-200 dark:bg-slate-900 dark:border-slate-800"
+              }`}
+              aria-label="Partager cet outil"
+            >
+              {shared ? <CheckIcon className="w-5 h-5" /> : <Share2 className="w-5 h-5" />}
+              <span className="hidden sm:inline">{shared ? "Lien copié" : "Partager"}</span>
+            </button>
+            <button
+              onClick={(e) => toggleFavorite(e, currentTool.id)}
+              aria-pressed={favorites.includes(currentTool.id)}
+              className={`flex items-center gap-2 px-6 py-3 rounded-2xl font-bold transition-all border ${
+                favorites.includes(currentTool.id)
+                  ? "bg-amber-50 text-amber-600 border-amber-200"
+                  : "bg-slate-50 text-slate-500 border-slate-200 dark:bg-slate-900 dark:border-slate-800"
+              }`}
+            >
+              <Star className={`w-5 h-5 ${favorites.includes(currentTool.id) ? 'fill-current' : ''}`} />
+              <span className="hidden sm:inline">{favorites.includes(currentTool.id) ? "Favori" : "Mettre en favori"}</span>
+            </button>
+          </div>
         </div>
       </div>
 

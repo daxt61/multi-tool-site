@@ -21,3 +21,7 @@
 ## 2025-02-03 - [Stable Generation & Bento Consistency]
 **Learning:** In text generation tools, random output must be stabilized using `useMemo` to prevent frustrating regenerations during unrelated state updates (like "Copied" feedback). Additionally, modernizing legacy components to the Bento design system (slate-50 backgrounds, rounded-3xl corners, indigo accents) significantly improves brand cohesion and trust.
 **Action:** Use `useMemo` for random text and prioritize visual alignment with the Bento system for older components.
+
+## 2026-06-15 - [Unified Tool Experience & Tactile Feedback]
+**Learning:** In a multi-tool SPA, global features like "Share" and "Favorite" should reside in a consistent header. Hiding text on mobile (`hidden sm:inline`) keeps the UI clean but necessitates explicit `aria-label` attributes to maintain accessibility. Adding `active:scale-95` provides a delightful tactile "press" effect that makes the web feel more like a native app.
+**Action:** Always provide accessible names for icon-only buttons on mobile and use unified header patterns for global actions.

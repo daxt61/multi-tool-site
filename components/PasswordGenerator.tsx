@@ -9,6 +9,8 @@ export function PasswordGenerator() {
   const [includeNumbers, setIncludeNumbers] = useState(true);
   const [includeSymbols, setIncludeSymbols] = useState(true);
   const [excludeSimilar, setExcludeSimilar] = useState(false);
+  const [excludeChars, setExcludeChars] = useState('');
+  const [isManual, setIsManual] = useState(false);
   const [copied, setCopied] = useState(false);
 
   const generatePassword = () => {
@@ -20,6 +22,15 @@ export function PasswordGenerator() {
 
     if (excludeSimilar) {
       charset = charset.replace(/[il1Lo0O]/g, '');
+    }
+
+    if (excludeChars) {
+      try {
+        const regex = new RegExp(`[${excludeChars.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}]`, 'g');
+        charset = charset.replace(regex, '');
+      } catch (e) {
+        // Ignore invalid regex
+      }
     }
 
     if (charset === '') {
@@ -58,18 +69,30 @@ export function PasswordGenerator() {
   };
 
   const getStrength = () => {
-    if (!password) return { label: '', color: 'bg-slate-200', icon: <ShieldAlert /> };
+    if (!password) return { label: 'Vide', color: 'bg-slate-200', icon: <ShieldAlert className="w-4 h-4" />, width: '0%', score: 0 };
+
     let score = 0;
+    if (password.length >= 8) score++;
     if (password.length >= 12) score++;
-    if (password.length >= 20) score++;
+    if (password.length >= 16) score++;
     if (/[a-z]/.test(password)) score++;
     if (/[A-Z]/.test(password)) score++;
     if (/[0-9]/.test(password)) score++;
     if (/[^a-zA-Z0-9]/.test(password)) score++;
 
-    if (score <= 3) return { label: 'Faible', color: 'bg-rose-500', icon: <ShieldAlert className="w-4 h-4" /> };
-    if (score <= 5) return { label: 'Moyen', color: 'bg-amber-500', icon: <Shield className="w-4 h-4" /> };
-    return { label: 'Fort', color: 'bg-emerald-500', icon: <ShieldCheck className="w-4 h-4" /> };
+    const levels = [
+      { label: 'Très Faible', color: 'bg-rose-600', width: '15%' },
+      { label: 'Faible', color: 'bg-rose-400', width: '30%' },
+      { label: 'Moyen', color: 'bg-amber-400', width: '45%' },
+      { label: 'Bon', color: 'bg-amber-500', width: '60%' },
+      { label: 'Fort', color: 'bg-emerald-500', width: '80%' },
+      { label: 'Très Fort', color: 'bg-emerald-600', width: '100%' }
+    ];
+
+    const index = Math.min(Math.floor((score / 7) * 5), 5);
+    const level = levels[index];
+
+    return { ...level, icon: score < 4 ? <ShieldAlert className="w-4 h-4" /> : <ShieldCheck className="w-4 h-4" />, score };
   };
 
   const strength = getStrength();
@@ -82,8 +105,12 @@ export function PasswordGenerator() {
           <input
             type="text"
             value={password}
-            readOnly
-            className="flex-1 bg-transparent text-3xl md:text-5xl font-mono text-white outline-none tracking-tight w-full text-center md:text-left selection:bg-indigo-500/30"
+            onChange={(e) => isManual && setPassword(e.target.value)}
+            readOnly={!isManual}
+            autoComplete="off"
+            spellCheck={false}
+            className={`flex-1 bg-transparent text-3xl md:text-5xl font-mono text-white outline-none tracking-tight w-full text-center md:text-left selection:bg-indigo-500/30 ${isManual ? 'border-b border-white/20 pb-2' : ''}`}
+            placeholder={isManual ? "Testez un mot de passe..." : ""}
           />
           <div className="flex gap-3">
             <button
@@ -106,24 +133,30 @@ export function PasswordGenerator() {
           </div>
         </div>
 
-        {password && (
-          <div className="mt-10 pt-10 border-t border-white/10 flex flex-col md:flex-row md:items-center justify-between gap-6">
-            <div className="flex items-center gap-4">
-              <div className={`flex items-center gap-2 px-4 py-1.5 rounded-full font-black text-xs uppercase tracking-widest text-white ${strength.color}`}>
-                {strength.icon} {strength.label}
-              </div>
-              <div className="h-1.5 w-32 bg-white/10 rounded-full overflow-hidden">
-                <div
-                  className={`h-full transition-all duration-700 ${strength.color}`}
-                  style={{ width: strength.label === 'Faible' ? '33%' : strength.label === 'Moyen' ? '66%' : '100%' }}
-                />
-              </div>
+        <div className="mt-10 pt-10 border-t border-white/10 flex flex-col md:flex-row md:items-center justify-between gap-6">
+          <div className="flex items-center gap-4">
+            <div className={`flex items-center gap-2 px-4 py-1.5 rounded-full font-black text-xs uppercase tracking-widest text-white ${strength.color}`}>
+              {strength.icon} {strength.label}
+            </div>
+            <div className="h-1.5 w-32 bg-white/10 rounded-full overflow-hidden">
+              <div
+                className={`h-full transition-all duration-700 ${strength.color}`}
+                style={{ width: strength.width }}
+              />
+            </div>
+          </div>
+          <div className="flex gap-6 items-center">
+            <div className="flex gap-2">
+              <div className={`w-2 h-2 rounded-full ${/[a-z]/.test(password) ? 'bg-emerald-500' : 'bg-white/10'}`} title="Minuscules"></div>
+              <div className={`w-2 h-2 rounded-full ${/[A-Z]/.test(password) ? 'bg-emerald-500' : 'bg-white/10'}`} title="Majuscules"></div>
+              <div className={`w-2 h-2 rounded-full ${/[0-9]/.test(password) ? 'bg-emerald-500' : 'bg-white/10'}`} title="Chiffres"></div>
+              <div className={`w-2 h-2 rounded-full ${/[^a-zA-Z0-9]/.test(password) ? 'bg-emerald-500' : 'bg-white/10'}`} title="Symboles"></div>
             </div>
             <div className="text-white/40 font-bold text-sm tracking-widest uppercase">
               {password.length} caractères
             </div>
           </div>
-        )}
+        </div>
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
@@ -151,6 +184,7 @@ export function PasswordGenerator() {
               { label: 'Chiffres', state: includeNumbers, setState: setIncludeNumbers },
               { label: 'Symboles', state: includeSymbols, setState: setIncludeSymbols },
               { label: 'Exclure similaires', state: excludeSimilar, setState: setExcludeSimilar },
+              { label: 'Mode manuel', state: isManual, setState: setIsManual },
             ].map((opt) => (
               <button
                 key={opt.label}
@@ -170,6 +204,18 @@ export function PasswordGenerator() {
                 </div>
               </button>
             ))}
+          </div>
+
+          <div className="space-y-4 pt-4 border-t border-slate-100 dark:border-slate-800">
+             <label htmlFor="exclude-chars" className="text-xs font-black uppercase tracking-widest text-slate-400 px-1">Exclure des caractères</label>
+             <input
+               id="exclude-chars"
+               type="text"
+               value={excludeChars}
+               onChange={(e) => setExcludeChars(e.target.value)}
+               placeholder="ex: @#$%"
+               className="w-full p-4 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-2xl font-bold focus:ring-2 focus:ring-indigo-500/20 outline-none transition-all dark:text-white"
+             />
           </div>
         </div>
 

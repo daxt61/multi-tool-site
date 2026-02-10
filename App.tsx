@@ -137,7 +137,8 @@ const AgeCalculator = lazy(() => import("./components/AgeCalculator").then(m => 
 const ColorPaletteGenerator = lazy(() => import("./components/ColorPaletteGenerator").then(m => ({ default: m.ColorPaletteGenerator })));
 
 // ⚡ Bolt Optimization: Pre-calculating tool map and search index for O(1) lookups and faster filtering
-const toolsMap: Record<string, Tool> = {};
+// Sentinel: Initialized with Object.create(null) to prevent Prototype Pollution.
+const toolsMap: Record<string, Tool> = Object.create(null);
 const TOOL_SEARCH_INDEX = new Map<string, { name: string; description: string }>();
 
 interface Tool {
@@ -780,7 +781,11 @@ function MainApp() {
       const newFavs = prev.includes(id)
         ? prev.filter(f => f !== id)
         : [...prev, id].slice(0, 100); // Sentinel: Enforce max 100 favorites limit.
-      localStorage.setItem("favorites", JSON.stringify(newFavs));
+      try {
+        localStorage.setItem("favorites", JSON.stringify(newFavs));
+      } catch (e) {
+        console.error("Failed to save favorites to localStorage", e);
+      }
       return newFavs;
     });
   }, []);
@@ -791,7 +796,11 @@ function MainApp() {
 
     setRecents(prev => {
       const newRecents = [id, ...prev.filter(r => r !== id)].slice(0, 4);
-      localStorage.setItem("recents", JSON.stringify(newRecents));
+      try {
+        localStorage.setItem("recents", JSON.stringify(newRecents));
+      } catch (e) {
+        console.error("Failed to save recents to localStorage", e);
+      }
       return newRecents;
     });
     navigate(`/outil/${id}`);
@@ -1008,7 +1017,11 @@ function MainApp() {
 function ToolView({ favorites, toggleFavorite }: { favorites: string[], toggleFavorite: (e: React.MouseEvent, id: string) => void }) {
   const { toolId } = useParams();
   // ⚡ Bolt Optimization: Use toolsMap for O(1) lookup
-  const currentTool = toolId ? toolsMap[toolId] : null;
+  // Sentinel: Added strict validation of toolId using hasOwnProperty to prevent Prototype Pollution
+  // and ensure only valid, direct tool IDs are processed from the URL.
+  const currentTool = (toolId && Object.prototype.hasOwnProperty.call(toolsMap, toolId))
+    ? toolsMap[toolId]
+    : null;
 
   if (!currentTool) {
     return (

@@ -33,6 +33,7 @@ export function WordCounter() {
     return {
       characters: deferredText.length,
       words: wordCount,
+      paragraphs: trimmed === '' ? 0 : deferredText.split(/\n\s*\n/).filter(p => p.trim().length > 0).length,
       lines: deferredText === '' ? 0 : deferredText.split('\n').length,
       sentences: trimmed === '' ? 0 : deferredText.split(/[.!?]+(?:\s|$)/).filter(s => s.trim().length > 0).length,
       readingTime: Math.ceil(wordCount / 200),
@@ -51,6 +52,7 @@ export function WordCounter() {
     const report = `Rapport de texte :
 - Caractères : ${stats.characters}
 - Mots : ${stats.words}
+- Paragraphes : ${stats.paragraphs}
 - Lignes : ${stats.lines}
 - Phrases : ${stats.sentences}
 - Temps de lecture : ~${stats.readingTime} min
@@ -95,10 +97,11 @@ export function WordCounter() {
         />
       </div>
 
-      <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
+      <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-7 gap-4">
         {[
           { icon: <Hash className="w-4 h-4" />, label: 'Caractères', value: stats.characters },
           { icon: <Type className="w-4 h-4" />, label: 'Mots', value: stats.words },
+          { icon: <AlignLeft className="w-4 h-4" />, label: 'Paragraphes', value: stats.paragraphs },
           { icon: <FileText className="w-4 h-4" />, label: 'Lignes', value: stats.lines },
           { icon: <AlignLeft className="w-4 h-4" />, label: 'Phrases', value: stats.sentences },
           { icon: <Clock className="w-4 h-4" />, label: 'Lecture', value: `${stats.readingTime}m` },

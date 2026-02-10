@@ -9,6 +9,7 @@ export function PasswordGenerator() {
   const [includeNumbers, setIncludeNumbers] = useState(true);
   const [includeSymbols, setIncludeSymbols] = useState(true);
   const [excludeSimilar, setExcludeSimilar] = useState(false);
+  const [excludeChars, setExcludeChars] = useState('');
   const [copied, setCopied] = useState(false);
 
   const generatePassword = () => {
@@ -20,6 +21,15 @@ export function PasswordGenerator() {
 
     if (excludeSimilar) {
       charset = charset.replace(/[il1Lo0O]/g, '');
+    }
+
+    if (excludeChars) {
+      try {
+        const regex = new RegExp(`[${excludeChars.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}]`, 'g');
+        charset = charset.replace(regex, '');
+      } catch (e) {
+        console.error("Invalid exclusion characters", e);
+      }
     }
 
     if (charset === '') {
@@ -49,7 +59,7 @@ export function PasswordGenerator() {
 
   useEffect(() => {
     generatePassword();
-  }, [length, includeUppercase, includeLowercase, includeNumbers, includeSymbols, excludeSimilar]);
+  }, [length, includeUppercase, includeLowercase, includeNumbers, includeSymbols, excludeSimilar, excludeChars]);
 
   const copyToClipboard = () => {
     navigator.clipboard.writeText(password);
@@ -58,18 +68,22 @@ export function PasswordGenerator() {
   };
 
   const getStrength = () => {
-    if (!password) return { label: '', color: 'bg-slate-200', icon: <ShieldAlert /> };
+    if (!password) return { label: '', color: 'bg-slate-200', icon: <ShieldAlert />, width: '0%' };
     let score = 0;
+    if (password.length >= 8) score++;
     if (password.length >= 12) score++;
-    if (password.length >= 20) score++;
+    if (password.length >= 16) score++;
     if (/[a-z]/.test(password)) score++;
     if (/[A-Z]/.test(password)) score++;
     if (/[0-9]/.test(password)) score++;
     if (/[^a-zA-Z0-9]/.test(password)) score++;
 
-    if (score <= 3) return { label: 'Faible', color: 'bg-rose-500', icon: <ShieldAlert className="w-4 h-4" /> };
-    if (score <= 5) return { label: 'Moyen', color: 'bg-amber-500', icon: <Shield className="w-4 h-4" /> };
-    return { label: 'Fort', color: 'bg-emerald-500', icon: <ShieldCheck className="w-4 h-4" /> };
+    if (score <= 2) return { label: 'Très faible', color: 'bg-rose-600', icon: <ShieldAlert className="w-4 h-4" />, width: '15%' };
+    if (score <= 3) return { label: 'Faible', color: 'bg-rose-500', icon: <ShieldAlert className="w-4 h-4" />, width: '33%' };
+    if (score <= 4) return { label: 'Moyen', color: 'bg-amber-500', icon: <Shield className="w-4 h-4" />, width: '50%' };
+    if (score <= 5) return { label: 'Bon', color: 'bg-blue-500', icon: <ShieldCheck className="w-4 h-4" />, width: '66%' };
+    if (score <= 6) return { label: 'Fort', color: 'bg-emerald-500', icon: <ShieldCheck className="w-4 h-4" />, width: '85%' };
+    return { label: 'Très fort', color: 'bg-emerald-600', icon: <ShieldCheck className="w-4 h-4" />, width: '100%' };
   };
 
   const strength = getStrength();
@@ -115,7 +129,7 @@ export function PasswordGenerator() {
               <div className="h-1.5 w-32 bg-white/10 rounded-full overflow-hidden">
                 <div
                   className={`h-full transition-all duration-700 ${strength.color}`}
-                  style={{ width: strength.label === 'Faible' ? '33%' : strength.label === 'Moyen' ? '66%' : '100%' }}
+                  style={{ width: strength.width }}
                 />
               </div>
             </div>
@@ -129,6 +143,7 @@ export function PasswordGenerator() {
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
         {/* Settings */}
         <div className="bg-slate-50 dark:bg-slate-900/50 p-8 rounded-[2.5rem] border border-slate-200 dark:border-slate-800 space-y-8">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
           <div className="space-y-6">
             <div className="flex justify-between items-center px-1">
               <label className="text-xs font-black uppercase tracking-widest text-slate-400">Longueur</label>
@@ -144,7 +159,19 @@ export function PasswordGenerator() {
             />
           </div>
 
-          <div className="grid grid-cols-2 gap-3">
+          <div className="space-y-4">
+            <label className="text-xs font-black uppercase tracking-widest text-slate-400 px-1">Exclure des caractères</label>
+            <input
+              type="text"
+              value={excludeChars}
+              onChange={(e) => setExcludeChars(e.target.value)}
+              placeholder="ex: @#$%"
+              className="w-full px-4 py-3 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl outline-none focus:ring-2 focus:ring-indigo-500/20 transition-all font-mono"
+            />
+          </div>
+          </div>
+
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
             {[
               { label: 'Majuscules', state: includeUppercase, setState: setIncludeUppercase },
               { label: 'Minuscules', state: includeLowercase, setState: setIncludeLowercase },
@@ -173,14 +200,34 @@ export function PasswordGenerator() {
           </div>
         </div>
 
-        {/* Info */}
-        <div className="bg-indigo-600 rounded-[2.5rem] p-10 text-white shadow-xl shadow-indigo-600/10 relative overflow-hidden flex flex-col justify-center">
+        {/* Info / Hints */}
+        <div className="bg-indigo-600 rounded-[2.5rem] p-10 text-white shadow-xl shadow-indigo-600/10 relative overflow-hidden flex flex-col">
            <div className="absolute top-0 right-0 w-48 h-48 bg-white/10 rounded-full blur-3xl -mr-24 -mt-24"></div>
            <ShieldCheck className="w-12 h-12 mb-6 opacity-50" />
-           <h3 className="text-2xl font-black mb-4">Sécurité maximale</h3>
-           <p className="text-indigo-100 font-medium leading-relaxed">
-             Nous utilisons <code>window.crypto</code> pour générer des mots de passe avec une entropie élevée. Vos clés ne quittent jamais votre appareil et ne sont jamais enregistrées.
-           </p>
+           <h3 className="text-2xl font-black mb-6">Conseils de sécurité</h3>
+           <div className="space-y-4 relative z-10">
+              <div className="flex items-center gap-3 text-indigo-100 font-medium">
+                <div className={`w-2 h-2 rounded-full ${password.length >= 12 ? 'bg-emerald-400' : 'bg-indigo-400'}`}></div>
+                Au moins 12 caractères
+              </div>
+              <div className="flex items-center gap-3 text-indigo-100 font-medium">
+                <div className={`w-2 h-2 rounded-full ${/[A-Z]/.test(password) ? 'bg-emerald-400' : 'bg-indigo-400'}`}></div>
+                Mélangez majuscules et minuscules
+              </div>
+              <div className="flex items-center gap-3 text-indigo-100 font-medium">
+                <div className={`w-2 h-2 rounded-full ${/[0-9]/.test(password) ? 'bg-emerald-400' : 'bg-indigo-400'}`}></div>
+                Incluez des chiffres
+              </div>
+              <div className="flex items-center gap-3 text-indigo-100 font-medium">
+                <div className={`w-2 h-2 rounded-full ${/[^a-zA-Z0-9]/.test(password) ? 'bg-emerald-400' : 'bg-indigo-400'}`}></div>
+                Utilisez des caractères spéciaux
+              </div>
+           </div>
+           <div className="mt-8 pt-8 border-t border-white/10">
+             <p className="text-indigo-100 text-sm leading-relaxed opacity-80">
+               Nous utilisons <code>window.crypto</code> pour une entropie maximale. Vos mots de passe sont générés localement.
+             </p>
+           </div>
         </div>
       </div>
     </div>

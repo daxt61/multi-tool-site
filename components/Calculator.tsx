@@ -74,7 +74,7 @@ export function Calculator() {
       case 'exp': result = Math.exp(current); break;
       case 'abs': result = Math.abs(current); break;
       case 'n!': {
-        if (current < 0) result = NaN;
+        if (current < 0 || current > 170) result = NaN;
         else if (current === 0) result = 1;
         else {
           let f = 1;

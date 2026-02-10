@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { History as HistoryIcon, Trash2, Delete, Calculator as CalcIcon } from 'lucide-react';
+import { History as HistoryIcon, Trash2, Delete, Calculator as CalcIcon, Copy, Check } from 'lucide-react';
 
 export function Calculator() {
   const [display, setDisplay] = useState('0');
@@ -8,6 +8,7 @@ export function Calculator() {
   const [newNumber, setNewNumber] = useState(true);
   const [isScientific, setIsScientific] = useState(false);
   const [isRadians, setIsRadians] = useState(false);
+  const [copied, setCopied] = useState(false);
   const [history, setHistory] = useState<{ expression: string; result: string }[]>(() => {
     const saved = localStorage.getItem('calc_history');
     return saved ? JSON.parse(saved) : [];
@@ -52,6 +53,7 @@ export function Calculator() {
       case '-': return a - b;
       case '×': return a * b;
       case '÷': return b !== 0 ? a / b : NaN;
+      case '%': return a % b;
       case 'x^y': return Math.pow(a, b);
       default: return b;
     }
@@ -74,7 +76,8 @@ export function Calculator() {
       case 'exp': result = Math.exp(current); break;
       case 'abs': result = Math.abs(current); break;
       case 'n!': {
-        if (current < 0) result = NaN;
+        // Sentinel: Hardened against client-side DoS by limiting factorial input
+        if (current < 0 || current > 170) result = NaN;
         else if (current === 0) result = 1;
         else {
           let f = 1;
@@ -132,6 +135,12 @@ export function Calculator() {
     }
   };
 
+  const handleCopy = () => {
+    navigator.clipboard.writeText(display);
+    setCopied(true);
+    setTimeout(() => setCopied(false), 2000);
+  };
+
   const clearHistory = () => {
     setHistory([]);
     localStorage.removeItem('calc_history');
@@ -162,20 +171,21 @@ export function Calculator() {
   }, [display, previousValue, operation, newNumber]);
 
   const standardButtons = [
-    ['C', '←', '÷', '×'],
-    ['7', '8', '9', '-'],
-    ['4', '5', '6', '+'],
-    ['1', '2', '3', '.'],
-    ['0', '=']
+    ['C', '←', '%', '÷'],
+    ['7', '8', '9', '×'],
+    ['4', '5', '6', '-'],
+    ['1', '2', '3', '+'],
+    ['0', '.', '=']
   ];
 
   const scientificButtons = [
     ['sin', 'cos', 'tan', 'abs', 'n!'],
     ['log', 'ln', '√', 'exp', 'π'],
-    ['C', '←', '÷', '×', 'e'],
-    ['7', '8', '9', '-', 'x²'],
-    ['4', '5', '6', '+', 'x^y'],
+    ['C', '←', '%', '÷', 'e'],
+    ['7', '8', '9', '×', 'x²'],
+    ['4', '5', '6', '-', 'x^y'],
     ['1', '2', '3', '0', '.'],
+    ['+'],
     ['=']
   ];
 
@@ -218,7 +228,16 @@ export function Calculator() {
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
         <div className="lg:col-span-8 space-y-6">
           {/* Display */}
-          <div className="bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-3xl p-8 text-right overflow-hidden group transition-all focus-within:ring-2 focus-within:ring-indigo-500/20">
+          <div className="bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-3xl p-8 text-right overflow-hidden group transition-all focus-within:ring-2 focus-within:ring-indigo-500/20 relative">
+            <button
+              onClick={handleCopy}
+              className={`absolute top-4 left-4 p-2 rounded-lg transition-all ${
+                copied ? 'bg-emerald-500 text-white' : 'bg-white dark:bg-slate-800 text-slate-400 hover:text-slate-600 opacity-0 group-hover:opacity-100'
+              }`}
+              title="Copier le résultat"
+            >
+              {copied ? <Check className="w-4 h-4" /> : <Copy className="w-4 h-4" />}
+            </button>
             <div className="text-sm font-bold text-slate-400 dark:text-slate-500 mb-2 h-6 flex justify-end items-center gap-2">
               {previousValue !== null && operation && (
                 <>
@@ -249,22 +268,24 @@ export function Calculator() {
                       if (btn === 'C') handleClear();
                       else if (btn === '←') handleBackspace();
                       else if (btn === '=') handleEquals();
-                      else if (['+', '-', '×', '÷', 'x^y'].includes(btn)) handleOperation(btn);
+                      else if (['+', '-', '×', '÷', '%', 'x^y'].includes(btn)) handleOperation(btn);
                       else if (['sin', 'cos', 'tan', 'log', 'ln', '√', 'x²', 'π', 'e', 'exp', 'abs', 'n!'].includes(btn)) handleScientificAction(btn);
                       else if (btn === '.') handleDecimal();
                       else handleNumber(btn);
                     }}
-                    className={`h-16 md:h-20 rounded-2xl text-xl font-bold transition-all active:scale-95 flex items-center justify-center ${
+                    className={`h-16 md:h-20 rounded-2xl font-bold transition-all active:scale-95 flex items-center justify-center ${
                       btn === 'C'
                         ? 'bg-rose-50 text-rose-600 dark:bg-rose-500/10 dark:text-rose-400 hover:bg-rose-100'
                         : btn === '←'
                         ? 'bg-slate-100 text-slate-600 dark:bg-slate-800 dark:text-slate-400 hover:bg-slate-200'
                         : btn === '='
                         ? 'bg-indigo-600 text-white shadow-lg shadow-indigo-600/20 hover:bg-indigo-700'
-                        : ['+', '-', '×', '÷', 'x^y'].includes(btn)
+                        : ['+', '-', '×', '÷', '%', 'x^y'].includes(btn)
                         ? 'bg-indigo-50 text-indigo-600 dark:bg-indigo-500/10 dark:text-indigo-400 hover:bg-indigo-100'
                         : 'bg-white dark:bg-slate-800 text-slate-900 dark:text-white border border-slate-100 dark:border-slate-700 hover:border-slate-300 dark:hover:border-slate-600 shadow-sm'
-                    } ${row.length === 1 ? 'col-span-full' : ''}`}
+                    } ${row.length === 1 ? 'col-span-full' : ''} ${
+                      isScientific ? 'text-xs md:text-sm lg:text-base' : 'text-xl'
+                    }`}
                   >
                     {btn === '←' ? <Delete className="w-6 h-6" /> : btn}
                   </button>

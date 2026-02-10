@@ -170,6 +170,40 @@ export function BMICalculator() {
       </div>
 
       <div className="bg-slate-50 dark:bg-slate-900/50 p-8 rounded-[2.5rem] border border-slate-200 dark:border-slate-800">
+        <div className="mb-12">
+          <h3 className="text-sm font-black uppercase tracking-widest text-slate-400 mb-8 px-2 flex items-center gap-2">
+            <Activity className="w-4 h-4" /> Échelle IMC
+          </h3>
+          <div className="px-4">
+            <div className="relative h-4 bg-slate-200 dark:bg-slate-800 rounded-full overflow-hidden flex">
+              <div className="h-full bg-blue-500" style={{ width: '14%' }}></div> {/* 15-18.5 */}
+              <div className="h-full bg-emerald-500" style={{ width: '26%' }}></div> {/* 18.5-25 */}
+              <div className="h-full bg-amber-500" style={{ width: '20%' }}></div> {/* 25-30 */}
+              <div className="h-full bg-rose-500" style={{ width: '40%' }}></div> {/* 30-40 */}
+            </div>
+            <div className="relative h-8 mt-2">
+              {bmi > 0 && (
+                <div
+                  className="absolute top-0 transition-all duration-1000 ease-out flex flex-col items-center -translate-x-1/2"
+                  style={{
+                    left: `${Math.min(Math.max(((bmi - 15) / (40 - 15)) * 100, 0), 100)}%`
+                  }}
+                >
+                  <div className="w-0 h-0 border-l-[6px] border-l-transparent border-r-[6px] border-r-transparent border-b-[8px] border-b-slate-900 dark:border-b-white"></div>
+                  <div className="text-[10px] font-black mt-1 dark:text-white">{bmi.toFixed(1)}</div>
+                </div>
+              )}
+            </div>
+            <div className="flex justify-between mt-1 px-1">
+               <span className="text-[10px] font-bold text-slate-400">15</span>
+               <span className="text-[10px] font-bold text-slate-400">18.5</span>
+               <span className="text-[10px] font-bold text-slate-400">25</span>
+               <span className="text-[10px] font-bold text-slate-400">30</span>
+               <span className="text-[10px] font-bold text-slate-400">40</span>
+            </div>
+          </div>
+        </div>
+
         <h3 className="text-sm font-black uppercase tracking-widest text-slate-400 mb-8 px-2 flex items-center gap-2">
           <Activity className="w-4 h-4" /> Classifications OMS
         </h3>

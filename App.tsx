@@ -50,6 +50,8 @@ import {
   CreditCard,
   Briefcase,
   Search,
+  Camera,
+  Check,
   Shuffle,
   ArrowLeft,
   Database,
@@ -59,6 +61,8 @@ import {
   Moon,
   Music,
   Star,
+  Share2,
+  ChevronUp,
   Clock,
   Table,
   Tag,
@@ -135,6 +139,9 @@ const Base64ToImage = lazy(() => import("./components/Base64ToImage").then(m => 
 const UnitPriceCalculator = lazy(() => import("./components/UnitPriceCalculator").then(m => ({ default: m.UnitPriceCalculator })));
 const AgeCalculator = lazy(() => import("./components/AgeCalculator").then(m => ({ default: m.AgeCalculator })));
 const ColorPaletteGenerator = lazy(() => import("./components/ColorPaletteGenerator").then(m => ({ default: m.ColorPaletteGenerator })));
+const SlugGenerator = lazy(() => import("./components/SlugGenerator").then(m => ({ default: m.SlugGenerator })));
+const RegExTester = lazy(() => import("./components/RegExTester").then(m => ({ default: m.RegExTester })));
+const CodeToImage = lazy(() => import("./components/CodeToImage").then(m => ({ default: m.CodeToImage })));
 
 // ⚡ Bolt Optimization: Pre-calculating tool map and search index for O(1) lookups and faster filtering
 const toolsMap: Record<string, Tool> = {};
@@ -413,6 +420,14 @@ const tools: Tool[] = [
     Component: ListCleaner,
     category: "text",
   },
+  {
+    id: "slug-generator",
+    name: "Slug Generator",
+    icon: LinkIcon,
+    description: "Générer des slugs URL-friendly à partir de texte",
+    Component: SlugGenerator,
+    category: "text",
+  },
   // Dev Tools
   {
     id: "password-generator",
@@ -564,6 +579,22 @@ const tools: Tool[] = [
     icon: Binary,
     description: "Convertisseur bidirectionnel texte et binaire",
     Component: BinaryTextConverter,
+    category: "dev",
+  },
+  {
+    id: "regex-tester",
+    name: "Testeur RegEx",
+    icon: Search,
+    description: "Tester et valider vos expressions régulières",
+    Component: RegExTester,
+    category: "dev",
+  },
+  {
+    id: "code-to-image",
+    name: "Code en Image",
+    icon: Camera,
+    description: "Créer des images élégantes de vos extraits de code",
+    Component: CodeToImage,
     category: "dev",
   },
   // Other Tools
@@ -747,7 +778,12 @@ function MainApp() {
   const favoriteSet = useMemo(() => new Set(favorites), [favorites]);
 
   const filteredTools = useMemo(() => {
-    const query = deferredSearchQuery.trim().toLowerCase();
+    // ⚡ Bolt Optimization: Accent-insensitive search via NFD normalization
+    const query = deferredSearchQuery
+      .trim()
+      .toLowerCase()
+      .normalize("NFD")
+      .replace(/[\u0300-\u036f]/g, "");
 
     return tools.filter((tool) => {
       if (selectedCategory === "favorites") {
@@ -800,11 +836,22 @@ function MainApp() {
 
   const isHome = location.pathname === "/";
 
+  const handleRandomTool = useCallback(() => {
+    const randomTool = tools[Math.floor(Math.random() * tools.length)];
+    handleToolSelect(randomTool.id);
+  }, [handleToolSelect]);
+
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
       if (e.key === "/" && document.activeElement?.tagName !== "INPUT" && document.activeElement?.tagName !== "TEXTAREA") {
         e.preventDefault();
         document.getElementById("tool-search")?.focus();
+      }
+      if (e.key === "Escape") {
+        setSearchQuery("");
+        if (document.activeElement instanceof HTMLElement) {
+          document.activeElement.blur();
+        }
       }
     };
     window.addEventListener("keydown", handleKeyDown);
@@ -898,7 +945,24 @@ function MainApp() {
                       </kbd>
                     </div>
                   )}
-                  {searchQuery && <button onClick={() => setSearchQuery("")} className="absolute inset-y-0 right-4 flex items-center text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 transition-colors" aria-label="Effacer"><X className="h-5 w-5" /></button>}
+                  {searchQuery && (
+                    <div className="absolute inset-y-0 right-4 flex items-center gap-3">
+                      <kbd className="hidden sm:inline-flex items-center gap-1 px-2 py-0.5 border border-slate-200 dark:border-slate-700 rounded text-[10px] font-bold text-slate-400 bg-white dark:bg-slate-800">
+                        Esc
+                      </kbd>
+                      <button onClick={() => setSearchQuery("")} className="text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 transition-colors" aria-label="Effacer"><X className="h-5 w-5" /></button>
+                    </div>
+                  )}
+                </div>
+
+                <div className="flex justify-center">
+                  <button
+                    onClick={handleRandomTool}
+                    className="flex items-center gap-2 px-6 py-3 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl text-sm font-bold text-slate-600 dark:text-slate-300 hover:border-indigo-500/50 hover:text-indigo-500 transition-all active:scale-95 shadow-sm"
+                  >
+                    <Shuffle className="w-4 h-4" />
+                    Outil au hasard
+                  </button>
                 </div>
               </div>
 
@@ -927,7 +991,11 @@ function MainApp() {
               <div className="space-y-12">
                 {/* Category Nav */}
                 <div className="sticky top-4 z-40 bg-white/80 dark:bg-slate-950/80 backdrop-blur-md py-4 border-b border-slate-200/50 dark:border-slate-800/50 -mx-4 px-4">
-                  <div className="flex gap-2 overflow-x-auto no-scrollbar">
+                  {/* ⚡ Bolt Optimization: Gradient Fades for horizontal scroll signaling */}
+                  <div className="absolute left-0 top-0 bottom-0 w-8 bg-gradient-to-r from-white dark:from-slate-950 to-transparent pointer-events-none z-10 hidden sm:block"></div>
+                  <div className="absolute right-0 top-0 bottom-0 w-8 bg-gradient-to-l from-white dark:from-slate-950 to-transparent pointer-events-none z-10 hidden sm:block"></div>
+
+                  <div className="flex gap-2 overflow-x-auto no-scrollbar relative">
                     {categories.map((cat) => (
                       <button
                         key={cat.id}
@@ -1007,8 +1075,29 @@ function MainApp() {
 
 function ToolView({ favorites, toggleFavorite }: { favorites: string[], toggleFavorite: (e: React.MouseEvent, id: string) => void }) {
   const { toolId } = useParams();
+  const [showScrollTop, setShowScrollTop] = useState(false);
+  const [shareCopied, setShareCopied] = useState(false);
+
   // ⚡ Bolt Optimization: Use toolsMap for O(1) lookup
   const currentTool = toolId ? toolsMap[toolId] : null;
+
+  useEffect(() => {
+    const handleScroll = () => {
+      setShowScrollTop(window.scrollY > 400);
+    };
+    window.addEventListener('scroll', handleScroll);
+    return () => window.removeEventListener('scroll', handleScroll);
+  }, []);
+
+  const handleShare = () => {
+    navigator.clipboard.writeText(window.location.href);
+    setShareCopied(true);
+    setTimeout(() => setShareCopied(false), 2000);
+  };
+
+  const scrollToTop = () => {
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  };
 
   if (!currentTool) {
     return (
@@ -1041,14 +1130,27 @@ function ToolView({ favorites, toggleFavorite }: { favorites: string[], toggleFa
           <button
             onClick={(e) => toggleFavorite(e, currentTool.id)}
             aria-pressed={favorites.includes(currentTool.id)}
-            className={`flex items-center gap-2 px-6 py-3 rounded-2xl font-bold transition-all border ${
+            className={`flex items-center gap-2 px-4 sm:px-6 py-3 rounded-2xl font-bold transition-all border active:scale-95 ${
               favorites.includes(currentTool.id)
                 ? "bg-amber-50 text-amber-600 border-amber-200"
-                : "bg-slate-50 text-slate-500 border-slate-200 dark:bg-slate-900 dark:border-slate-800"
+                : "bg-slate-50 text-slate-500 border-slate-200 dark:bg-slate-900 dark:border-slate-800 hover:border-slate-300 dark:hover:border-slate-700"
             }`}
+            aria-label={favorites.includes(currentTool.id) ? "Retirer des favoris" : "Ajouter aux favoris"}
           >
             <Star className={`w-5 h-5 ${favorites.includes(currentTool.id) ? 'fill-current' : ''}`} />
-            {favorites.includes(currentTool.id) ? "Favori" : "Mettre en favori"}
+            <span className="hidden sm:inline">{favorites.includes(currentTool.id) ? "Favori" : "Mettre en favori"}</span>
+          </button>
+          <button
+            onClick={handleShare}
+            className={`flex items-center gap-2 px-4 sm:px-6 py-3 rounded-2xl font-bold transition-all border active:scale-95 ${
+              shareCopied
+                ? "bg-emerald-50 text-emerald-600 border-emerald-200"
+                : "bg-slate-50 text-slate-500 border-slate-200 dark:bg-slate-900 dark:border-slate-800 hover:border-slate-300 dark:hover:border-slate-700"
+            }`}
+            aria-label="Partager cet outil"
+          >
+            {shareCopied ? <Check className="w-5 h-5" /> : <Share2 className="w-5 h-5" />}
+            <span className="hidden sm:inline">{shareCopied ? "Copié !" : "Partager"}</span>
           </button>
         </div>
       </div>
@@ -1064,6 +1166,17 @@ function ToolView({ favorites, toggleFavorite }: { favorites: string[], toggleFa
           <AdPlaceholder size="banner" className="opacity-50" />
         </Suspense>
       </div>
+
+      {/* Floating Scroll to Top */}
+      <button
+        onClick={scrollToTop}
+        className={`fixed bottom-8 right-8 p-4 bg-indigo-600 text-white rounded-2xl shadow-xl shadow-indigo-600/20 transition-all z-50 hover:bg-indigo-700 active:scale-95 ${
+          showScrollTop ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-12 pointer-events-none'
+        }`}
+        aria-label="Retour en haut"
+      >
+        <ChevronUp className="w-6 h-6" />
+      </button>
     </div>
   );
 }

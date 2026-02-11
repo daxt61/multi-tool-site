@@ -1,5 +1,5 @@
 import { useState, useMemo, useDeferredValue } from 'react';
-import { Copy, Check, Trash2, Hash, Type, FileText, AlignLeft, Clock, MessageSquare, BarChart3, Info } from 'lucide-react';
+import { Copy, Check, Trash2, Hash, Type, FileText, AlignLeft, Clock, MessageSquare, BarChart3, Info, Layout } from 'lucide-react';
 
 export function WordCounter() {
   const [text, setText] = useState('');
@@ -7,16 +7,16 @@ export function WordCounter() {
   const [copiedStats, setCopiedStats] = useState(false);
 
   // ⚡ Bolt Optimization: useDeferredValue for text analysis
-  // This allows the input to remain responsive even with large texts by offloading the
-  // expensive regex-based calculations to a lower-priority transition.
   const deferredText = useDeferredValue(text);
 
   // ⚡ Bolt Optimization: useMemo to avoid redundant calculations
-  // We consolidate string operations (trimming, splitting) to minimize CPU usage.
   const stats = useMemo(() => {
     const trimmed = deferredText.trim();
     const words = trimmed === '' ? [] : trimmed.split(/\s+/);
     const wordCount = words.length;
+
+    // Paragraph count: sequences of text separated by at least two newlines
+    const paragraphs = trimmed === '' ? 0 : deferredText.split(/\n\s*\n/).filter(p => p.trim().length > 0).length;
 
     const wordFreq: Record<string, number> = {};
     words.forEach(w => {
@@ -34,6 +34,7 @@ export function WordCounter() {
       characters: deferredText.length,
       words: wordCount,
       lines: deferredText === '' ? 0 : deferredText.split('\n').length,
+      paragraphs,
       sentences: trimmed === '' ? 0 : deferredText.split(/[.!?]+(?:\s|$)/).filter(s => s.trim().length > 0).length,
       readingTime: Math.ceil(wordCount / 200),
       speakingTime: Math.ceil(wordCount / 130),
@@ -52,6 +53,7 @@ export function WordCounter() {
 - Caractères : ${stats.characters}
 - Mots : ${stats.words}
 - Lignes : ${stats.lines}
+- Paragraphes : ${stats.paragraphs}
 - Phrases : ${stats.sentences}
 - Temps de lecture : ~${stats.readingTime} min
 - Temps de parole : ~${stats.speakingTime} min`;
@@ -95,19 +97,20 @@ export function WordCounter() {
         />
       </div>
 
-      <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
+      <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-7 gap-4">
         {[
-          { icon: <Hash className="w-4 h-4" />, label: 'Caractères', value: stats.characters },
+          { icon: <Hash className="w-4 h-4" />, label: 'Signes', value: stats.characters },
           { icon: <Type className="w-4 h-4" />, label: 'Mots', value: stats.words },
+          { icon: <Layout className="w-4 h-4" />, label: 'Paragr.', value: stats.paragraphs },
           { icon: <FileText className="w-4 h-4" />, label: 'Lignes', value: stats.lines },
           { icon: <AlignLeft className="w-4 h-4" />, label: 'Phrases', value: stats.sentences },
           { icon: <Clock className="w-4 h-4" />, label: 'Lecture', value: `${stats.readingTime}m` },
           { icon: <MessageSquare className="w-4 h-4" />, label: 'Parole', value: `${stats.speakingTime}m` },
         ].map((stat) => (
-          <div key={stat.label} className="p-6 bg-white dark:bg-slate-900 border border-slate-100 dark:border-slate-800 rounded-2xl space-y-2">
+          <div key={stat.label} className="p-4 bg-white dark:bg-slate-900 border border-slate-100 dark:border-slate-800 rounded-2xl space-y-1">
             <div className="text-indigo-500 dark:text-indigo-400">{stat.icon}</div>
-            <div className="text-2xl font-black font-mono tracking-tight dark:text-white">{stat.value}</div>
-            <div className="text-xs font-bold text-slate-400 uppercase tracking-wider">{stat.label}</div>
+            <div className="text-xl font-black font-mono tracking-tight dark:text-white">{stat.value}</div>
+            <div className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">{stat.label}</div>
           </div>
         ))}
       </div>

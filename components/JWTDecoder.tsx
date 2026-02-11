@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { Copy, Check, Trash2, ShieldCheck, Clock, Eye, EyeOff, AlertCircle } from 'lucide-react';
+import { Copy, Check, Trash2, ShieldCheck, Clock, Eye, EyeOff, AlertCircle, Calendar } from 'lucide-react';
 
 export function JWTDecoder() {
   const [jwt, setJwt] = useState('');
@@ -74,6 +74,20 @@ export function JWTDecoder() {
     });
   };
 
+  const getExpirationStatus = (exp: number) => {
+    if (!exp) return null;
+    const now = Math.floor(Date.now() / 1000);
+    const timeLeft = exp - now;
+
+    if (timeLeft < 0) {
+      return { label: 'Expiré', color: 'bg-rose-500', icon: <AlertCircle className="w-3 h-3" /> };
+    }
+    if (timeLeft < 3600) { // Less than 1 hour
+      return { label: 'Expire bientôt', color: 'bg-amber-500', icon: <Clock className="w-3 h-3" /> };
+    }
+    return { label: 'Valide', color: 'bg-emerald-500', icon: <ShieldCheck className="w-3 h-3" /> };
+  };
+
   return (
     <div className="max-w-5xl mx-auto space-y-8">
       {/* Input Area */}
@@ -104,7 +118,7 @@ export function JWTDecoder() {
       {decoded.header && (
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
           {/* Header */}
-          <div className="p-8 bg-white dark:bg-slate-900/50 border border-slate-200 dark:border-slate-800 rounded-[2.5rem] space-y-6">
+          <div className="p-8 bg-white dark:bg-slate-900/50 border border-slate-200 dark:border-slate-800 rounded-[2.5rem] space-y-6 shadow-sm">
             <div className="flex justify-between items-center">
               <div className="flex items-center gap-3 text-rose-500">
                 <ShieldCheck className="w-5 h-5" />
@@ -120,7 +134,7 @@ export function JWTDecoder() {
           </div>
 
           {/* Payload */}
-          <div className="p-8 bg-white dark:bg-slate-900/50 border border-slate-200 dark:border-slate-800 rounded-[2.5rem] space-y-6">
+          <div className="p-8 bg-white dark:bg-slate-900/50 border border-slate-200 dark:border-slate-800 rounded-[2.5rem] space-y-6 shadow-sm">
             <div className="flex justify-between items-center">
               <div className="flex items-center gap-3 text-indigo-500">
                 <Eye className="w-5 h-5" />
@@ -136,28 +150,37 @@ export function JWTDecoder() {
           </div>
 
           {/* Key Claims Info */}
-          <div className="p-8 bg-white dark:bg-slate-900/50 border border-slate-200 dark:border-slate-800 rounded-[2.5rem] space-y-6 lg:col-span-2">
+          <div className="p-8 bg-white dark:bg-slate-900/40 border border-slate-200 dark:border-slate-800 rounded-[2.5rem] space-y-6 lg:col-span-2 shadow-sm">
             <div className="flex items-center gap-3 text-amber-500">
-              <Clock className="w-5 h-5" />
-              <h3 className="font-black uppercase tracking-widest text-xs text-slate-400">Informations Clés</h3>
+              <Calendar className="w-5 h-5" />
+              <h3 className="font-black uppercase tracking-widest text-xs text-slate-400">Claims Importants</h3>
             </div>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
               {[
                 { label: 'Émis le (iat)', value: decoded.payload.iat ? formatDate(decoded.payload.iat) : 'N/A' },
-                { label: 'Expire le (exp)', value: decoded.payload.exp ? formatDate(decoded.payload.exp) : 'N/A' },
+                {
+                  label: 'Expire le (exp)',
+                  value: decoded.payload.exp ? formatDate(decoded.payload.exp) : 'N/A',
+                  status: decoded.payload.exp ? getExpirationStatus(decoded.payload.exp) : null
+                },
                 { label: 'Sujet (sub)', value: decoded.payload.sub || 'N/A' },
                 { label: 'Émetteur (iss)', value: decoded.payload.iss || 'N/A' },
               ].map((claim) => (
-                <div key={claim.label} className="p-4 bg-slate-50 dark:bg-slate-800/50 rounded-2xl border border-slate-100 dark:border-slate-800">
+                <div key={claim.label} className="p-4 bg-slate-50 dark:bg-slate-800/50 rounded-2xl border border-slate-100 dark:border-slate-800 relative">
                   <div className="text-[10px] font-black uppercase tracking-widest text-slate-400 mb-1">{claim.label}</div>
-                  <div className="font-bold text-sm truncate">{claim.value}</div>
+                  <div className="font-bold text-xs truncate dark:text-white">{claim.value}</div>
+                  {claim.status && (
+                    <div className={`absolute top-4 right-4 flex items-center gap-1 px-2 py-0.5 rounded-full text-[8px] font-black text-white uppercase tracking-tighter ${claim.status.color}`}>
+                      {claim.status.icon} {claim.status.label}
+                    </div>
+                  )}
                 </div>
               ))}
             </div>
           </div>
 
           {/* Signature */}
-          <div className="p-8 bg-white dark:bg-slate-900/50 border border-slate-200 dark:border-slate-800 rounded-[2.5rem] space-y-6 lg:col-span-2">
+          <div className="p-8 bg-white dark:bg-slate-900/50 border border-slate-200 dark:border-slate-800 rounded-[2.5rem] space-y-6 lg:col-span-2 shadow-sm">
              <div className="flex justify-between items-center">
                 <div className="flex items-center gap-3 text-emerald-500">
                   <ShieldCheck className="w-5 h-5" />
@@ -175,7 +198,7 @@ export function JWTDecoder() {
                {showSignature ? decoded.signature : '•'.repeat(Math.min(decoded.signature.length, 64)) + (decoded.signature.length > 64 ? '...' : '')}
              </div>
              <p className="text-[10px] text-slate-400 font-medium italic">
-               Note: La vérification de la signature nécessite la clé secrète et doit être effectuée côté serveur pour une sécurité réelle. Cet outil est destiné au débogage client-side uniquement.
+               Note: La vérification de la signature nécessite la clé secrète et doit être effectuée côté serveur.
              </p>
           </div>
         </div>

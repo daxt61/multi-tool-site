@@ -1,5 +1,5 @@
 import { useState, useEffect, useMemo } from 'react';
-import { ArrowUpDown, Info, Copy, Check, Loader2, RefreshCw } from 'lucide-react';
+import { ArrowUpDown, Info, Copy, Check, Loader2, RefreshCw, TrendingUp } from 'lucide-react';
 
 // ⚡ Bolt Optimization: Moved static currencies array outside component
 // to prevent redundant allocations and GC pressure on every render.
@@ -184,6 +184,40 @@ export function CurrencyConverter() {
             {copied ? <Check className="w-4 h-4" /> : <Copy className="w-4 h-4" />}
             {copied ? 'Copié !' : 'Copier le montant'}
           </button>
+        </div>
+      </div>
+
+      <div className="space-y-6">
+        <h3 className="text-sm font-black uppercase tracking-widest text-slate-400 px-2 flex items-center gap-2">
+          <TrendingUp className="w-4 h-4" /> Conversions populaires
+        </h3>
+        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
+          {[
+            { from: 'EUR', to: 'USD' },
+            { from: 'USD', to: 'EUR' },
+            { from: 'EUR', to: 'GBP' },
+            { from: 'GBP', to: 'EUR' },
+            { from: 'USD', to: 'JPY' },
+            { from: 'EUR', to: 'CHF' },
+          ].map((pair) => {
+            const rate = (1 / rates[pair.from]) * rates[pair.to];
+            return (
+              <button
+                key={`${pair.from}-${pair.to}`}
+                onClick={() => {
+                  setFromCurrency(pair.from);
+                  setToCurrency(pair.to);
+                  window.scrollTo({ top: 0, behavior: 'smooth' });
+                }}
+                className="p-4 bg-white dark:bg-slate-900 border border-slate-100 dark:border-slate-800 rounded-2xl text-left hover:border-indigo-500 transition-all group"
+              >
+                <div className="text-[10px] font-black text-slate-400 uppercase mb-1">{pair.from} ➔ {pair.to}</div>
+                <div className="font-mono font-black text-slate-900 dark:text-white group-hover:text-indigo-500 transition-colors">
+                  {rate.toFixed(4)}
+                </div>
+              </button>
+            );
+          })}
         </div>
       </div>
 

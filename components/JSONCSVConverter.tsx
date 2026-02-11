@@ -66,14 +66,19 @@ export function JSONCSVConverter() {
       const headers = parseCSVLine(lines[0]);
       const result = lines.slice(1).map(line => {
         const values = parseCSVLine(line);
-        return headers.reduce((obj, header, index) => {
+        // Sentinel: Use null-prototype object to prevent Prototype Pollution
+        const obj = Object.create(null);
+        headers.forEach((header, index) => {
+          // Sentinel: Block dangerous keys that could lead to Prototype Pollution
+          if (['__proto__', 'constructor', 'prototype'].includes(header)) return;
+
           let val: any = values[index];
           if (val === 'true') val = true;
           else if (val === 'false') val = false;
           else if (!isNaN(Number(val)) && val !== '') val = Number(val);
           obj[header] = val;
-          return obj;
-        }, {} as any);
+        });
+        return obj;
       });
       return JSON.stringify(result, null, 2);
     } catch (e) {

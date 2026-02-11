@@ -156,6 +156,34 @@ export function BMICalculator() {
             <div className={`px-6 py-2 rounded-full font-black text-sm uppercase tracking-widest ${category.color} text-white shadow-lg`}>
               {category.label}
             </div>
+
+            {/* Visual Scale */}
+            <div className="w-full pt-8 space-y-4">
+              <div className="relative h-2 w-full bg-slate-800 rounded-full flex overflow-hidden">
+                <div className="h-full bg-blue-500" style={{ width: '14%' }} title="Insuffisance"></div>
+                <div className="h-full bg-emerald-500" style={{ width: '26%' }} title="Normal"></div>
+                <div className="h-full bg-amber-500" style={{ width: '20%' }} title="Surpoids"></div>
+                <div className="h-full bg-rose-500" style={{ width: '40%' }} title="Obésité"></div>
+              </div>
+              <div className="relative w-full h-4">
+                 <div
+                  className="absolute top-0 transition-all duration-1000 ease-out"
+                  style={{
+                    left: `${Math.min(Math.max(((bmi - 15) / 25) * 100, 0), 100)}%`,
+                    transform: 'translateX(-50%)'
+                  }}
+                 >
+                   <div className="w-0 h-0 border-l-[6px] border-l-transparent border-r-[6px] border-r-transparent border-b-[8px] border-b-white"></div>
+                 </div>
+              </div>
+              <div className="flex justify-between text-[10px] font-black text-slate-500 uppercase tracking-tighter px-1">
+                <span>15</span>
+                <span>18.5</span>
+                <span>25</span>
+                <span>30</span>
+                <span>40+</span>
+              </div>
+            </div>
           </div>
 
           <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 p-6 rounded-[2rem] flex items-start gap-4">

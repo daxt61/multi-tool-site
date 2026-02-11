@@ -69,6 +69,7 @@ import {
   ShieldCheck,
   Scissors,
   Binary,
+  Check,
 } from "lucide-react";
 const AdPlaceholder = lazy(() => import("./components/AdPlaceholder").then(m => ({ default: m.AdPlaceholder })));
 
@@ -135,6 +136,9 @@ const Base64ToImage = lazy(() => import("./components/Base64ToImage").then(m => 
 const UnitPriceCalculator = lazy(() => import("./components/UnitPriceCalculator").then(m => ({ default: m.UnitPriceCalculator })));
 const AgeCalculator = lazy(() => import("./components/AgeCalculator").then(m => ({ default: m.AgeCalculator })));
 const ColorPaletteGenerator = lazy(() => import("./components/ColorPaletteGenerator").then(m => ({ default: m.ColorPaletteGenerator })));
+const SlugGenerator = lazy(() => import("./components/SlugGenerator").then(m => ({ default: m.SlugGenerator })));
+const RegExTester = lazy(() => import("./components/RegExTester").then(m => ({ default: m.RegExTester })));
+const CodeToImage = lazy(() => import("./components/CodeToImage").then(m => ({ default: m.CodeToImage })));
 
 // ⚡ Bolt Optimization: Pre-calculating tool map and search index for O(1) lookups and faster filtering
 const toolsMap: Record<string, Tool> = {};
@@ -413,6 +417,14 @@ const tools: Tool[] = [
     Component: ListCleaner,
     category: "text",
   },
+  {
+    id: "slug-generator",
+    name: "Slug Generator",
+    icon: LinkIcon,
+    description: "Générer des URLs propres et optimisées SEO",
+    Component: SlugGenerator,
+    category: "text",
+  },
   // Dev Tools
   {
     id: "password-generator",
@@ -564,6 +576,22 @@ const tools: Tool[] = [
     icon: Binary,
     description: "Convertisseur bidirectionnel texte et binaire",
     Component: BinaryTextConverter,
+    category: "dev",
+  },
+  {
+    id: "regex-tester",
+    name: "RegEx Tester",
+    icon: Search,
+    description: "Tester et valider vos expressions régulières",
+    Component: RegExTester,
+    category: "dev",
+  },
+  {
+    id: "code-to-image",
+    name: "Code en Image",
+    icon: Image,
+    description: "Créer de belles images de vos extraits de code",
+    Component: CodeToImage,
     category: "dev",
   },
   // Other Tools
@@ -1009,6 +1037,13 @@ function ToolView({ favorites, toggleFavorite }: { favorites: string[], toggleFa
   const { toolId } = useParams();
   // ⚡ Bolt Optimization: Use toolsMap for O(1) lookup
   const currentTool = toolId ? toolsMap[toolId] : null;
+  const [shareCopied, setShareCopied] = useState(false);
+
+  const handleShare = useCallback(() => {
+    navigator.clipboard?.writeText(window.location.href);
+    setShareCopied(true);
+    setTimeout(() => setShareCopied(false), 2000);
+  }, []);
 
   if (!currentTool) {
     return (
@@ -1018,6 +1053,8 @@ function ToolView({ favorites, toggleFavorite }: { favorites: string[], toggleFa
       </div>
     );
   }
+
+  const categoryName = categories.find(c => c.id === currentTool.category)?.name || currentTool.category;
 
   return (
     <div className="animate-in fade-in slide-in-from-bottom-4 duration-500">
@@ -1033,23 +1070,34 @@ function ToolView({ favorites, toggleFavorite }: { favorites: string[], toggleFa
         <div className="flex flex-col md:flex-row md:items-end justify-between gap-6">
           <div className="space-y-2">
             <div className="inline-flex items-center gap-2 px-3 py-1 bg-indigo-50 dark:bg-indigo-900/20 text-indigo-600 dark:text-indigo-400 rounded-full text-xs font-bold uppercase tracking-widest">
-              <currentTool.icon className="w-3 h-3" /> {currentTool.category}
+              <currentTool.icon className="w-3 h-3" /> {categoryName}
             </div>
             <h1 className="text-4xl md:text-5xl font-black tracking-tight">{currentTool.name}</h1>
             <p className="text-lg text-slate-500 dark:text-slate-400 max-w-2xl">{currentTool.description}</p>
           </div>
-          <button
-            onClick={(e) => toggleFavorite(e, currentTool.id)}
-            aria-pressed={favorites.includes(currentTool.id)}
-            className={`flex items-center gap-2 px-6 py-3 rounded-2xl font-bold transition-all border ${
-              favorites.includes(currentTool.id)
-                ? "bg-amber-50 text-amber-600 border-amber-200"
-                : "bg-slate-50 text-slate-500 border-slate-200 dark:bg-slate-900 dark:border-slate-800"
-            }`}
-          >
-            <Star className={`w-5 h-5 ${favorites.includes(currentTool.id) ? 'fill-current' : ''}`} />
-            {favorites.includes(currentTool.id) ? "Favori" : "Mettre en favori"}
-          </button>
+
+          <div className="flex flex-wrap items-center gap-3">
+            <button
+              onClick={handleShare}
+              aria-label="Partager cet outil"
+              className="flex items-center gap-2 px-6 py-3 rounded-2xl font-bold transition-all bg-slate-50 text-slate-500 border border-slate-200 dark:bg-slate-900 dark:border-slate-800 hover:bg-slate-100 dark:hover:bg-slate-800 active:scale-95"
+            >
+              {shareCopied ? <Check className="w-5 h-5 text-emerald-500" /> : <LinkIcon className="w-5 h-5" />}
+              <span className="hidden sm:inline">{shareCopied ? "Lien copié !" : "Partager"}</span>
+            </button>
+            <button
+              onClick={(e) => toggleFavorite(e, currentTool.id)}
+              aria-pressed={favorites.includes(currentTool.id)}
+              className={`flex items-center gap-2 px-6 py-3 rounded-2xl font-bold transition-all border active:scale-95 ${
+                favorites.includes(currentTool.id)
+                  ? "bg-amber-50 text-amber-600 border-amber-200"
+                  : "bg-slate-50 text-slate-500 border-slate-200 dark:bg-slate-900 dark:border-slate-800"
+              }`}
+            >
+              <Star className={`w-5 h-5 ${favorites.includes(currentTool.id) ? 'fill-current' : ''}`} />
+              <span className="hidden sm:inline">{favorites.includes(currentTool.id) ? "Favori" : "Mettre en favori"}</span>
+            </button>
+          </div>
         </div>
       </div>
 

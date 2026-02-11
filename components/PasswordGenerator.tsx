@@ -58,7 +58,7 @@ export function PasswordGenerator() {
   };
 
   const getStrength = () => {
-    if (!password) return { label: '', color: 'bg-slate-200', icon: <ShieldAlert /> };
+    if (!password) return { label: 'Attente', color: 'bg-white/10', icon: <Shield className="w-4 h-4" /> };
     let score = 0;
     if (password.length >= 12) score++;
     if (password.length >= 20) score++;
@@ -106,24 +106,22 @@ export function PasswordGenerator() {
           </div>
         </div>
 
-        {password && (
-          <div className="mt-10 pt-10 border-t border-white/10 flex flex-col md:flex-row md:items-center justify-between gap-6">
-            <div className="flex items-center gap-4">
-              <div className={`flex items-center gap-2 px-4 py-1.5 rounded-full font-black text-xs uppercase tracking-widest text-white ${strength.color}`}>
-                {strength.icon} {strength.label}
-              </div>
-              <div className="h-1.5 w-32 bg-white/10 rounded-full overflow-hidden">
-                <div
-                  className={`h-full transition-all duration-700 ${strength.color}`}
-                  style={{ width: strength.label === 'Faible' ? '33%' : strength.label === 'Moyen' ? '66%' : '100%' }}
-                />
-              </div>
+        <div className="mt-10 pt-10 border-t border-white/10 flex flex-col md:flex-row md:items-center justify-between gap-6">
+          <div className="flex items-center gap-4">
+            <div className={`flex items-center gap-2 px-4 py-1.5 rounded-full font-black text-xs uppercase tracking-widest text-white transition-colors ${strength.color}`}>
+              {strength.icon} {strength.label}
             </div>
-            <div className="text-white/40 font-bold text-sm tracking-widest uppercase">
-              {password.length} caractères
+            <div className="h-1.5 w-32 bg-white/10 rounded-full overflow-hidden">
+              <div
+                className={`h-full transition-all duration-700 ${strength.color}`}
+                style={{ width: !password ? '0%' : strength.label === 'Faible' ? '33%' : strength.label === 'Moyen' ? '66%' : '100%' }}
+              />
             </div>
           </div>
-        )}
+          <div className="text-white/40 font-bold text-sm tracking-widest uppercase">
+            {password.length} caractères
+          </div>
+        </div>
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">

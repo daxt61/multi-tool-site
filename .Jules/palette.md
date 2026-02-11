@@ -21,3 +21,7 @@
 ## 2025-02-03 - [Stable Generation & Bento Consistency]
 **Learning:** In text generation tools, random output must be stabilized using `useMemo` to prevent frustrating regenerations during unrelated state updates (like "Copied" feedback). Additionally, modernizing legacy components to the Bento design system (slate-50 backgrounds, rounded-3xl corners, indigo accents) significantly improves brand cohesion and trust.
 **Action:** Use `useMemo` for random text and prioritize visual alignment with the Bento system for older components.
+
+## 2025-02-11 - [Responsive Action Buttons & Feedback]
+**Learning:** Combining functional improvements (like a Share button) with visual feedback (transient checkmark icon) and responsive patterns (hiding text on mobile via 'hidden sm:inline') creates a high-impact micro-UX. Localizing category names by resolving IDs against a configuration object improves professional feel and accessibility.
+**Action:** Use transient states for copy feedback and always prioritize localized names over raw database/config IDs in the UI.

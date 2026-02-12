@@ -69,6 +69,7 @@ import {
   ShieldCheck,
   Scissors,
   Binary,
+  Terminal,
 } from "lucide-react";
 const AdPlaceholder = lazy(() => import("./components/AdPlaceholder").then(m => ({ default: m.AdPlaceholder })));
 
@@ -135,9 +136,13 @@ const Base64ToImage = lazy(() => import("./components/Base64ToImage").then(m => 
 const UnitPriceCalculator = lazy(() => import("./components/UnitPriceCalculator").then(m => ({ default: m.UnitPriceCalculator })));
 const AgeCalculator = lazy(() => import("./components/AgeCalculator").then(m => ({ default: m.AgeCalculator })));
 const ColorPaletteGenerator = lazy(() => import("./components/ColorPaletteGenerator").then(m => ({ default: m.ColorPaletteGenerator })));
+const RegExTester = lazy(() => import("./components/RegExTester").then(m => ({ default: m.RegExTester })));
+const SlugGenerator = lazy(() => import("./components/SlugGenerator").then(m => ({ default: m.SlugGenerator })));
+const CodeToImage = lazy(() => import("./components/CodeToImage").then(m => ({ default: m.CodeToImage })));
 
 // ⚡ Bolt Optimization: Pre-calculating tool map and search index for O(1) lookups and faster filtering
-const toolsMap: Record<string, Tool> = {};
+// Sentinel: Using null-prototype object to prevent Prototype Pollution
+const toolsMap: Record<string, Tool> = Object.create(null);
 const TOOL_SEARCH_INDEX = new Map<string, { name: string; description: string }>();
 
 interface Tool {
@@ -413,6 +418,14 @@ const tools: Tool[] = [
     Component: ListCleaner,
     category: "text",
   },
+  {
+    id: "slug-generator",
+    name: "Générateur de Slug",
+    icon: LinkIcon,
+    description: "Créer des URLs optimisées pour le SEO",
+    Component: SlugGenerator,
+    category: "text",
+  },
   // Dev Tools
   {
     id: "password-generator",
@@ -564,6 +577,22 @@ const tools: Tool[] = [
     icon: Binary,
     description: "Convertisseur bidirectionnel texte et binaire",
     Component: BinaryTextConverter,
+    category: "dev",
+  },
+  {
+    id: "regex-tester",
+    name: "RegEx Tester",
+    icon: Terminal,
+    description: "Tester et déboguer vos expressions régulières",
+    Component: RegExTester,
+    category: "dev",
+  },
+  {
+    id: "code-to-image",
+    name: "Code en Image",
+    icon: Image,
+    description: "Générer de superbes captures de votre code",
+    Component: CodeToImage,
     category: "dev",
   },
   // Other Tools

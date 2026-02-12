@@ -21,3 +21,7 @@
 ## 2025-02-03 - [Stable Generation & Bento Consistency]
 **Learning:** In text generation tools, random output must be stabilized using `useMemo` to prevent frustrating regenerations during unrelated state updates (like "Copied" feedback). Additionally, modernizing legacy components to the Bento design system (slate-50 backgrounds, rounded-3xl corners, indigo accents) significantly improves brand cohesion and trust.
 **Action:** Use `useMemo` for random text and prioritize visual alignment with the Bento system for older components.
+
+## 2025-05-24 - [Tool Header Polish & Share Micro-UX]
+**Learning:** Resolving category IDs to localized names (e.g., 'Calculatrices' instead of 'calculators') in the tool header significantly improves the perceived quality and localization of the app. Adding a 'Share' button with immediate visual feedback (icon/text change) is a high-delight feature for utility tools. For mobile responsiveness, hiding secondary action text (using `hidden sm:inline`) while keeping icons visible ensures a compact and usable header on small screens.
+**Action:** Always localize system IDs for display and use the 'icon-only-on-mobile' pattern for secondary actions to maintain clean mobile layouts.

@@ -21,3 +21,7 @@
 ## 2025-02-03 - [Stable Generation & Bento Consistency]
 **Learning:** In text generation tools, random output must be stabilized using `useMemo` to prevent frustrating regenerations during unrelated state updates (like "Copied" feedback). Additionally, modernizing legacy components to the Bento design system (slate-50 backgrounds, rounded-3xl corners, indigo accents) significantly improves brand cohesion and trust.
 **Action:** Use `useMemo` for random text and prioritize visual alignment with the Bento system for older components.
+
+## 2025-05-24 - [Tactile Feedback & Localized Metadata]
+**Learning:** Adding the `active:scale-95` Tailwind class to interactive elements like cards, category filters, and favorite toggles provides high-quality tactile feedback that makes the interface feel more responsive. Additionally, always resolve raw category IDs to their localized names and icons in detail views to maintain localization consistency and improve context.
+**Action:** Use `active:scale-95` for primary interactive buttons and always cross-reference category IDs against a central registry for UI display.

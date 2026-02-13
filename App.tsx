@@ -69,6 +69,8 @@ import {
   ShieldCheck,
   Scissors,
   Binary,
+  Smile,
+  Braces,
 } from "lucide-react";
 const AdPlaceholder = lazy(() => import("./components/AdPlaceholder").then(m => ({ default: m.AdPlaceholder })));
 
@@ -135,6 +137,8 @@ const Base64ToImage = lazy(() => import("./components/Base64ToImage").then(m => 
 const UnitPriceCalculator = lazy(() => import("./components/UnitPriceCalculator").then(m => ({ default: m.UnitPriceCalculator })));
 const AgeCalculator = lazy(() => import("./components/AgeCalculator").then(m => ({ default: m.AgeCalculator })));
 const ColorPaletteGenerator = lazy(() => import("./components/ColorPaletteGenerator").then(m => ({ default: m.ColorPaletteGenerator })));
+const StringEscaper = lazy(() => import("./components/StringEscaper").then(m => ({ default: m.StringEscaper })));
+const EmojiPicker = lazy(() => import("./components/EmojiPicker").then(m => ({ default: m.EmojiPicker })));
 
 // ⚡ Bolt Optimization: Pre-calculating tool map and search index for O(1) lookups and faster filtering
 const toolsMap: Record<string, Tool> = {};
@@ -413,6 +417,14 @@ const tools: Tool[] = [
     Component: ListCleaner,
     category: "text",
   },
+  {
+    id: "emoji-picker",
+    name: "Sélecteur d'Emojis",
+    icon: Smile,
+    description: "Sélectionner et copier des emojis facilement",
+    Component: EmojiPicker,
+    category: "text",
+  },
   // Dev Tools
   {
     id: "password-generator",
@@ -564,6 +576,14 @@ const tools: Tool[] = [
     icon: Binary,
     description: "Convertisseur bidirectionnel texte et binaire",
     Component: BinaryTextConverter,
+    category: "dev",
+  },
+  {
+    id: "string-escaper",
+    name: "Échappement de chaînes",
+    icon: Braces,
+    description: "Échapper ou déchapper des chaînes (JSON, HTML, etc.)",
+    Component: StringEscaper,
     category: "dev",
   },
   // Other Tools

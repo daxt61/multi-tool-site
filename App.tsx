@@ -69,6 +69,8 @@ import {
   ShieldCheck,
   Scissors,
   Binary,
+  Smile,
+  Camera,
 } from "lucide-react";
 const AdPlaceholder = lazy(() => import("./components/AdPlaceholder").then(m => ({ default: m.AdPlaceholder })));
 
@@ -135,6 +137,11 @@ const Base64ToImage = lazy(() => import("./components/Base64ToImage").then(m => 
 const UnitPriceCalculator = lazy(() => import("./components/UnitPriceCalculator").then(m => ({ default: m.UnitPriceCalculator })));
 const AgeCalculator = lazy(() => import("./components/AgeCalculator").then(m => ({ default: m.AgeCalculator })));
 const ColorPaletteGenerator = lazy(() => import("./components/ColorPaletteGenerator").then(m => ({ default: m.ColorPaletteGenerator })));
+const RegExTester = lazy(() => import("./components/RegExTester").then(m => ({ default: m.RegExTester })));
+const SlugGenerator = lazy(() => import("./components/SlugGenerator").then(m => ({ default: m.SlugGenerator })));
+const StringEscaper = lazy(() => import("./components/StringEscaper").then(m => ({ default: m.StringEscaper })));
+const EmojiPicker = lazy(() => import("./components/EmojiPicker").then(m => ({ default: m.EmojiPicker })));
+const CodeToImage = lazy(() => import("./components/CodeToImage").then(m => ({ default: m.CodeToImage })));
 
 // ⚡ Bolt Optimization: Pre-calculating tool map and search index for O(1) lookups and faster filtering
 const toolsMap: Record<string, Tool> = {};
@@ -406,6 +413,30 @@ const tools: Tool[] = [
     category: "text",
   },
   {
+    id: "slug-generator",
+    name: "Générateur de Slug",
+    icon: LinkIcon,
+    description: "Convertir un titre en URL-friendly slug",
+    Component: SlugGenerator,
+    category: "text",
+  },
+  {
+    id: "string-escaper",
+    name: "Échappement de chaînes",
+    icon: Code,
+    description: "Échapper ou déséchapper JSON, HTML, XML, JS",
+    Component: StringEscaper,
+    category: "text",
+  },
+  {
+    id: "emoji-picker",
+    name: "Sélecteur d'Emojis",
+    icon: Smile,
+    description: "Rechercher et copier des emojis facilement",
+    Component: EmojiPicker,
+    category: "text",
+  },
+  {
     id: "list-cleaner",
     name: "Nettoyeur de liste",
     icon: ListChecks,
@@ -564,6 +595,22 @@ const tools: Tool[] = [
     icon: Binary,
     description: "Convertisseur bidirectionnel texte et binaire",
     Component: BinaryTextConverter,
+    category: "dev",
+  },
+  {
+    id: "regex-tester",
+    name: "RegEx Tester",
+    icon: Search,
+    description: "Tester vos expressions régulières en temps réel",
+    Component: RegExTester,
+    category: "dev",
+  },
+  {
+    id: "code-to-image",
+    name: "Code en Image",
+    icon: Camera,
+    description: "Générer de belles images de vos snippets de code",
+    Component: CodeToImage,
     category: "dev",
   },
   // Other Tools

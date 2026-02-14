@@ -9,6 +9,7 @@ export function PasswordGenerator() {
   const [includeNumbers, setIncludeNumbers] = useState(true);
   const [includeSymbols, setIncludeSymbols] = useState(true);
   const [excludeSimilar, setExcludeSimilar] = useState(false);
+  const [excludeChars, setExcludeChars] = useState('');
   const [copied, setCopied] = useState(false);
 
   const generatePassword = () => {
@@ -20,6 +21,14 @@ export function PasswordGenerator() {
 
     if (excludeSimilar) {
       charset = charset.replace(/[il1Lo0O]/g, '');
+    }
+
+    if (excludeChars) {
+      const escapeRegExp = (string: string) => {
+        return string.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+      };
+      const regex = new RegExp(`[${escapeRegExp(excludeChars)}]`, 'g');
+      charset = charset.replace(regex, '');
     }
 
     if (charset === '') {
@@ -49,7 +58,7 @@ export function PasswordGenerator() {
 
   useEffect(() => {
     generatePassword();
-  }, [length, includeUppercase, includeLowercase, includeNumbers, includeSymbols, excludeSimilar]);
+  }, [length, includeUppercase, includeLowercase, includeNumbers, includeSymbols, excludeSimilar, excludeChars]);
 
   const copyToClipboard = () => {
     navigator.clipboard.writeText(password);
@@ -58,18 +67,22 @@ export function PasswordGenerator() {
   };
 
   const getStrength = () => {
-    if (!password) return { label: '', color: 'bg-slate-200', icon: <ShieldAlert /> };
+    if (!password) return { label: '', color: 'bg-slate-200', icon: <ShieldAlert />, percent: '0%' };
     let score = 0;
+    if (password.length >= 8) score++;
     if (password.length >= 12) score++;
-    if (password.length >= 20) score++;
+    if (password.length >= 16) score++;
     if (/[a-z]/.test(password)) score++;
     if (/[A-Z]/.test(password)) score++;
     if (/[0-9]/.test(password)) score++;
     if (/[^a-zA-Z0-9]/.test(password)) score++;
 
-    if (score <= 3) return { label: 'Faible', color: 'bg-rose-500', icon: <ShieldAlert className="w-4 h-4" /> };
-    if (score <= 5) return { label: 'Moyen', color: 'bg-amber-500', icon: <Shield className="w-4 h-4" /> };
-    return { label: 'Fort', color: 'bg-emerald-500', icon: <ShieldCheck className="w-4 h-4" /> };
+    if (score <= 2) return { label: 'Très Faible', color: 'bg-rose-600', icon: <ShieldAlert className="w-4 h-4" />, percent: '15%' };
+    if (score <= 3) return { label: 'Faible', color: 'bg-rose-500', icon: <ShieldAlert className="w-4 h-4" />, percent: '33%' };
+    if (score <= 4) return { label: 'Moyen', color: 'bg-amber-500', icon: <Shield className="w-4 h-4" />, percent: '50%' };
+    if (score <= 5) return { label: 'Bon', color: 'bg-blue-500', icon: <ShieldCheck className="w-4 h-4" />, percent: '66%' };
+    if (score <= 6) return { label: 'Fort', color: 'bg-emerald-500', icon: <ShieldCheck className="w-4 h-4" />, percent: '85%' };
+    return { label: 'Très Fort', color: 'bg-emerald-600', icon: <ShieldCheck className="w-4 h-4" />, percent: '100%' };
   };
 
   const strength = getStrength();
@@ -115,7 +128,7 @@ export function PasswordGenerator() {
               <div className="h-1.5 w-32 bg-white/10 rounded-full overflow-hidden">
                 <div
                   className={`h-full transition-all duration-700 ${strength.color}`}
-                  style={{ width: strength.label === 'Faible' ? '33%' : strength.label === 'Moyen' ? '66%' : '100%' }}
+                  style={{ width: strength.percent }}
                 />
               </div>
             </div>
@@ -141,6 +154,35 @@ export function PasswordGenerator() {
               value={length}
               onChange={(e) => setLength(Number(e.target.value))}
               className="w-full h-2 bg-slate-200 dark:bg-slate-800 rounded-lg appearance-none cursor-pointer accent-indigo-600"
+            />
+
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 mt-2">
+              {[
+                { label: 'Min. 12 chars', valid: length >= 12 },
+                { label: 'Majuscules', valid: includeUppercase },
+                { label: 'Minuscules', valid: includeLowercase },
+                { label: 'Chiffres', valid: includeNumbers },
+                { label: 'Symboles', valid: includeSymbols },
+              ].map((hint) => (
+                <div key={hint.label} className="flex items-center gap-2">
+                  <div className={`w-3 h-3 rounded-full flex items-center justify-center ${hint.valid ? 'bg-emerald-500' : 'bg-slate-200 dark:bg-slate-800'}`}>
+                    {hint.valid && <Check className="w-2 h-2 text-white stroke-[4]" />}
+                  </div>
+                  <span className={`text-[10px] font-bold uppercase tracking-wider ${hint.valid ? 'text-slate-700 dark:text-slate-300' : 'text-slate-400'}`}>{hint.label}</span>
+                </div>
+              ))}
+            </div>
+          </div>
+
+          <div className="space-y-4 pt-4 border-t border-slate-200 dark:border-slate-800">
+            <label htmlFor="exclude-chars" className="text-xs font-black uppercase tracking-widest text-slate-400 block px-1">Exclure des caractères</label>
+            <input
+              id="exclude-chars"
+              type="text"
+              value={excludeChars}
+              onChange={(e) => setExcludeChars(e.target.value)}
+              placeholder="Ex: abc!@#"
+              className="w-full p-4 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-2xl outline-none focus:ring-2 focus:ring-indigo-500/20 transition-all font-mono text-sm"
             />
           </div>
 

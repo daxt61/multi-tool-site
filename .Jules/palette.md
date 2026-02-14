@@ -21,3 +21,7 @@
 ## 2025-02-03 - [Stable Generation & Bento Consistency]
 **Learning:** In text generation tools, random output must be stabilized using `useMemo` to prevent frustrating regenerations during unrelated state updates (like "Copied" feedback). Additionally, modernizing legacy components to the Bento design system (slate-50 backgrounds, rounded-3xl corners, indigo accents) significantly improves brand cohesion and trust.
 **Action:** Use `useMemo` for random text and prioritize visual alignment with the Bento system for older components.
+
+## 2026-02-14 - [Tactile Feedback & Dynamic Category Branding]
+**Learning:** Enhancing the perceived responsiveness of an interface can be achieved through small tactile animations like `active:scale-95` on all primary interaction points (favorites, filters). Additionally, in multi-tool architectures, ensuring that the tool's category branding (icon and name) is dynamically resolved and prominently displayed in the header reinforces the site's information hierarchy and improves user orientation.
+**Action:** Consistently apply `active:scale-95` to interactive elements and ensure dynamic category resolution in tool headers.

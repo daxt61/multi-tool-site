@@ -135,6 +135,7 @@ const Base64ToImage = lazy(() => import("./components/Base64ToImage").then(m => 
 const UnitPriceCalculator = lazy(() => import("./components/UnitPriceCalculator").then(m => ({ default: m.UnitPriceCalculator })));
 const AgeCalculator = lazy(() => import("./components/AgeCalculator").then(m => ({ default: m.AgeCalculator })));
 const ColorPaletteGenerator = lazy(() => import("./components/ColorPaletteGenerator").then(m => ({ default: m.ColorPaletteGenerator })));
+const SlugGenerator = lazy(() => import("./components/SlugGenerator").then(m => ({ default: m.SlugGenerator })));
 
 // ⚡ Bolt Optimization: Pre-calculating tool map and search index for O(1) lookups and faster filtering
 const toolsMap: Record<string, Tool> = {};
@@ -413,6 +414,14 @@ const tools: Tool[] = [
     Component: ListCleaner,
     category: "text",
   },
+  {
+    id: "slug-generator",
+    name: "Générateur de Slug",
+    icon: LinkIcon,
+    description: "Créer des URLs optimisées pour le SEO",
+    Component: SlugGenerator,
+    category: "text",
+  },
   // Dev Tools
   {
     id: "password-generator",
@@ -647,7 +656,7 @@ const ToolCard = React.memo(({ tool, isFavorite, onToggleFavorite, onClick }: {
         </div>
         <button
           onClick={(e) => onToggleFavorite(e, tool.id)}
-          className={`p-1.5 rounded-lg transition-colors ${isFavorite ? 'text-amber-500' : 'text-slate-300 hover:text-slate-400'}`}
+          className={`p-1.5 rounded-lg transition-colors active:scale-95 ${isFavorite ? 'text-amber-500' : 'text-slate-300 hover:text-slate-400'}`}
           aria-label={isFavorite ? "Retirer des favoris" : "Ajouter aux favoris"}
         >
           <Star className={`w-5 h-5 ${isFavorite ? 'fill-current' : ''}`} />
@@ -933,7 +942,7 @@ function MainApp() {
                         key={cat.id}
                         onClick={() => setSelectedCategory(cat.id === "all" ? null : cat.id)}
                         aria-pressed={(selectedCategory === cat.id) || (cat.id === "all" && !selectedCategory)}
-                        className={`flex items-center gap-2 px-4 py-2 rounded-full text-sm font-bold transition-all whitespace-nowrap border ${
+                        className={`flex items-center gap-2 px-4 py-2 rounded-full text-sm font-bold transition-all active:scale-95 whitespace-nowrap border ${
                           (selectedCategory === cat.id) || (cat.id === "all" && !selectedCategory)
                             ? "bg-slate-900 text-white border-slate-900 dark:bg-white dark:text-slate-950 dark:border-white shadow-md shadow-indigo-500/10"
                             : "bg-slate-50 text-slate-500 border-slate-200 hover:border-slate-300 dark:bg-slate-900 dark:text-slate-400 dark:border-slate-800 dark:hover:border-slate-700"
@@ -1010,6 +1019,11 @@ function ToolView({ favorites, toggleFavorite }: { favorites: string[], toggleFa
   // ⚡ Bolt Optimization: Use toolsMap for O(1) lookup
   const currentTool = toolId ? toolsMap[toolId] : null;
 
+  const categoryInfo = useMemo(() => {
+    if (!currentTool) return null;
+    return categories.find(c => c.id === currentTool.category);
+  }, [currentTool?.category]);
+
   if (!currentTool) {
     return (
       <div className="text-center py-20">
@@ -1033,7 +1047,7 @@ function ToolView({ favorites, toggleFavorite }: { favorites: string[], toggleFa
         <div className="flex flex-col md:flex-row md:items-end justify-between gap-6">
           <div className="space-y-2">
             <div className="inline-flex items-center gap-2 px-3 py-1 bg-indigo-50 dark:bg-indigo-900/20 text-indigo-600 dark:text-indigo-400 rounded-full text-xs font-bold uppercase tracking-widest">
-              <currentTool.icon className="w-3 h-3" /> {currentTool.category}
+              {categoryInfo?.icon ? <categoryInfo.icon className="w-3 h-3" /> : <currentTool.icon className="w-3 h-3" />} {categoryInfo?.name || currentTool.category}
             </div>
             <h1 className="text-4xl md:text-5xl font-black tracking-tight">{currentTool.name}</h1>
             <p className="text-lg text-slate-500 dark:text-slate-400 max-w-2xl">{currentTool.description}</p>
@@ -1041,14 +1055,14 @@ function ToolView({ favorites, toggleFavorite }: { favorites: string[], toggleFa
           <button
             onClick={(e) => toggleFavorite(e, currentTool.id)}
             aria-pressed={favorites.includes(currentTool.id)}
-            className={`flex items-center gap-2 px-6 py-3 rounded-2xl font-bold transition-all border ${
+            className={`flex items-center gap-2 px-6 py-3 rounded-2xl font-bold transition-all active:scale-95 border ${
               favorites.includes(currentTool.id)
                 ? "bg-amber-50 text-amber-600 border-amber-200"
                 : "bg-slate-50 text-slate-500 border-slate-200 dark:bg-slate-900 dark:border-slate-800"
             }`}
           >
             <Star className={`w-5 h-5 ${favorites.includes(currentTool.id) ? 'fill-current' : ''}`} />
-            {favorites.includes(currentTool.id) ? "Favori" : "Mettre en favori"}
+            <span className="hidden sm:inline">{favorites.includes(currentTool.id) ? "Favori" : "Mettre en favori"}</span>
           </button>
         </div>
       </div>

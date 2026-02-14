@@ -798,6 +798,11 @@ function MainApp() {
     window.scrollTo({ top: 0, behavior: 'smooth' });
   }, [navigate]);
 
+  const handleRandomTool = useCallback(() => {
+    const randomTool = tools[Math.floor(Math.random() * tools.length)];
+    handleToolSelect(randomTool.id);
+  }, [handleToolSelect]);
+
   const isHome = location.pathname === "/";
 
   useEffect(() => {
@@ -899,6 +904,16 @@ function MainApp() {
                     </div>
                   )}
                   {searchQuery && <button onClick={() => setSearchQuery("")} className="absolute inset-y-0 right-4 flex items-center text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 transition-colors" aria-label="Effacer"><X className="h-5 w-5" /></button>}
+                </div>
+
+                <div className="flex flex-wrap justify-center gap-4">
+                  <button
+                    onClick={handleRandomTool}
+                    className="flex items-center gap-2 px-6 py-3 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl font-bold text-slate-600 dark:text-slate-300 hover:border-indigo-500/50 hover:text-indigo-500 transition-all active:scale-95 shadow-sm"
+                  >
+                    <Shuffle className="w-5 h-5" />
+                    Outil aléatoire
+                  </button>
                 </div>
               </div>
 
@@ -1009,6 +1024,10 @@ function ToolView({ favorites, toggleFavorite }: { favorites: string[], toggleFa
   const { toolId } = useParams();
   // ⚡ Bolt Optimization: Use toolsMap for O(1) lookup
   const currentTool = toolId ? toolsMap[toolId] : null;
+  const category = useMemo(() =>
+    currentTool ? categories.find(c => c.id === currentTool.category) : null
+  , [currentTool]);
+  const CategoryIcon = category?.icon || currentTool?.icon;
 
   if (!currentTool) {
     return (
@@ -1033,7 +1052,7 @@ function ToolView({ favorites, toggleFavorite }: { favorites: string[], toggleFa
         <div className="flex flex-col md:flex-row md:items-end justify-between gap-6">
           <div className="space-y-2">
             <div className="inline-flex items-center gap-2 px-3 py-1 bg-indigo-50 dark:bg-indigo-900/20 text-indigo-600 dark:text-indigo-400 rounded-full text-xs font-bold uppercase tracking-widest">
-              <currentTool.icon className="w-3 h-3" /> {currentTool.category}
+              {CategoryIcon && <CategoryIcon className="w-3 h-3" />} {category?.name || currentTool.category}
             </div>
             <h1 className="text-4xl md:text-5xl font-black tracking-tight">{currentTool.name}</h1>
             <p className="text-lg text-slate-500 dark:text-slate-400 max-w-2xl">{currentTool.description}</p>
@@ -1041,14 +1060,17 @@ function ToolView({ favorites, toggleFavorite }: { favorites: string[], toggleFa
           <button
             onClick={(e) => toggleFavorite(e, currentTool.id)}
             aria-pressed={favorites.includes(currentTool.id)}
-            className={`flex items-center gap-2 px-6 py-3 rounded-2xl font-bold transition-all border ${
+            aria-label={favorites.includes(currentTool.id) ? "Retirer des favoris" : "Ajouter aux favoris"}
+            className={`flex items-center justify-center gap-2 px-6 py-3 rounded-2xl font-bold transition-all active:scale-95 border ${
               favorites.includes(currentTool.id)
                 ? "bg-amber-50 text-amber-600 border-amber-200"
                 : "bg-slate-50 text-slate-500 border-slate-200 dark:bg-slate-900 dark:border-slate-800"
             }`}
           >
             <Star className={`w-5 h-5 ${favorites.includes(currentTool.id) ? 'fill-current' : ''}`} />
-            {favorites.includes(currentTool.id) ? "Favori" : "Mettre en favori"}
+            <span className="hidden sm:inline">
+              {favorites.includes(currentTool.id) ? "Favori" : "Mettre en favori"}
+            </span>
           </button>
         </div>
       </div>

@@ -21,3 +21,7 @@
 ## 2025-02-03 - [Stable Generation & Bento Consistency]
 **Learning:** In text generation tools, random output must be stabilized using `useMemo` to prevent frustrating regenerations during unrelated state updates (like "Copied" feedback). Additionally, modernizing legacy components to the Bento design system (slate-50 backgrounds, rounded-3xl corners, indigo accents) significantly improves brand cohesion and trust.
 **Action:** Use `useMemo` for random text and prioritize visual alignment with the Bento system for older components.
+
+## 2026-02-14 - [Responsive Action Layouts & Category Localization]
+**Learning:** In a Bento-style UI, secondary action buttons (like 'Favorite') can become space-hogs on mobile. Hiding the text label (`hidden sm:inline`) and centering the icon (`justify-center`) maintains a clean aesthetic while keeping large touch targets. Additionally, resolving category IDs to localized names and icons in headers significantly improves the professional feel and navigation context of the application.
+**Action:** Always use responsive text labels for secondary buttons and resolve metadata (names/icons) from central registries for headers.

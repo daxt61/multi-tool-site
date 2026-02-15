@@ -28,7 +28,7 @@ export function HTMLEntityConverter() {
 
   const copyToClipboard = (val: string, type: 'text' | 'entities') => {
     if (!val) return;
-    navigator.clipboard.writeText(val);
+    navigator.clipboard?.writeText(val);
     setCopied(type);
     setTimeout(() => setCopied(null), 2000);
   };

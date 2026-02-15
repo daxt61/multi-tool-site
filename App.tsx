@@ -58,6 +58,7 @@ import {
   Sun,
   Moon,
   Music,
+  Smile,
   Star,
   Clock,
   Table,
@@ -135,6 +136,10 @@ const Base64ToImage = lazy(() => import("./components/Base64ToImage").then(m => 
 const UnitPriceCalculator = lazy(() => import("./components/UnitPriceCalculator").then(m => ({ default: m.UnitPriceCalculator })));
 const AgeCalculator = lazy(() => import("./components/AgeCalculator").then(m => ({ default: m.AgeCalculator })));
 const ColorPaletteGenerator = lazy(() => import("./components/ColorPaletteGenerator").then(m => ({ default: m.ColorPaletteGenerator })));
+const RegExTester = lazy(() => import("./components/RegExTester").then(m => ({ default: m.RegExTester })));
+const StringEscaper = lazy(() => import("./components/StringEscaper").then(m => ({ default: m.StringEscaper })));
+const SlugGenerator = lazy(() => import("./components/SlugGenerator").then(m => ({ default: m.SlugGenerator })));
+const EmojiPicker = lazy(() => import("./components/EmojiPicker").then(m => ({ default: m.EmojiPicker })));
 
 // ⚡ Bolt Optimization: Pre-calculating tool map and search index for O(1) lookups and faster filtering
 const toolsMap: Record<string, Tool> = {};
@@ -413,6 +418,14 @@ const tools: Tool[] = [
     Component: ListCleaner,
     category: "text",
   },
+  {
+    id: "emoji-picker",
+    name: "Sélecteur d'Emojis",
+    icon: Smile,
+    description: "Parcourir et copier des emojis facilement",
+    Component: EmojiPicker,
+    category: "text",
+  },
   // Dev Tools
   {
     id: "password-generator",
@@ -564,6 +577,30 @@ const tools: Tool[] = [
     icon: Binary,
     description: "Convertisseur bidirectionnel texte et binaire",
     Component: BinaryTextConverter,
+    category: "dev",
+  },
+  {
+    id: "regex-tester",
+    name: "RegEx Tester",
+    icon: Search,
+    description: "Tester vos expressions régulières en temps réel",
+    Component: RegExTester,
+    category: "dev",
+  },
+  {
+    id: "string-escaper",
+    name: "Échappement de chaînes",
+    icon: Code,
+    description: "Échapper ou déséchapper JSON, HTML, XML et JS",
+    Component: StringEscaper,
+    category: "dev",
+  },
+  {
+    id: "slug-generator",
+    name: "Générateur de Slug",
+    icon: Type,
+    description: "Convertir du texte en URL-friendly slugs",
+    Component: SlugGenerator,
     category: "dev",
   },
   // Other Tools

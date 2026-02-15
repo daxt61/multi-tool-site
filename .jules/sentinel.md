@@ -16,3 +16,8 @@
 **Vulnerability:** The PasswordGenerator was using `array[i] % charset.length` to select characters, which introduced a slight bias towards certain characters when the random space (2^32) was not a multiple of the charset size.
 **Learning:** Even when using cryptographically secure random values (CSPRNG), improper mathematical operations like modulo can degrade the entropy and introduce predictability.
 **Prevention:** Always use rejection sampling when mapping a large random range to a smaller one that does not divide it evenly. This ensures a perfectly uniform distribution across all possible outputs.
+
+## 2025-06-10 - [Prototype Pollution in Data Conversion and Registry Lookups]
+**Vulnerability:** The JSON & CSV Converter and the main tool registry in `App.tsx` were susceptible to Prototype Pollution. In the converter, user-provided CSV headers were used as keys to build objects without sanitization. In the registry, tool ID lookups were performed on a standard object, allowing for potential property injection or accidental access to inherited methods like `toString`.
+**Learning:** Any utility that converts user-provided keys into object properties must explicitly block special keys like `__proto__`, `constructor`, and `prototype`. Furthermore, using `Object.create(null)` for internal maps and data objects prevents inheritance-based pollution and makes lookups more predictable and secure.
+**Prevention:** Always use null-prototype objects for data structures that map user-controlled keys. Implement explicit filtering for dangerous keys when processing structured data like CSV or JSON.

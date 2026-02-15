@@ -137,7 +137,8 @@ const AgeCalculator = lazy(() => import("./components/AgeCalculator").then(m => 
 const ColorPaletteGenerator = lazy(() => import("./components/ColorPaletteGenerator").then(m => ({ default: m.ColorPaletteGenerator })));
 
 // ⚡ Bolt Optimization: Pre-calculating tool map and search index for O(1) lookups and faster filtering
-const toolsMap: Record<string, Tool> = {};
+// Sentinel: Initialize toolsMap with null prototype to prevent prototype pollution and accidental lookups of inherited properties.
+const toolsMap: Record<string, Tool> = Object.create(null);
 const TOOL_SEARCH_INDEX = new Map<string, { name: string; description: string }>();
 
 interface Tool {
@@ -1008,7 +1009,10 @@ function MainApp() {
 function ToolView({ favorites, toggleFavorite }: { favorites: string[], toggleFavorite: (e: React.MouseEvent, id: string) => void }) {
   const { toolId } = useParams();
   // ⚡ Bolt Optimization: Use toolsMap for O(1) lookup
-  const currentTool = toolId ? toolsMap[toolId] : null;
+  // Sentinel: Use hasOwnProperty.call for safe tool ID validation before access.
+  const currentTool = (toolId && Object.prototype.hasOwnProperty.call(toolsMap, toolId))
+    ? toolsMap[toolId]
+    : null;
 
   if (!currentTool) {
     return (

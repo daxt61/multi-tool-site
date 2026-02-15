@@ -805,6 +805,9 @@ function MainApp() {
       if (e.key === "/" && document.activeElement?.tagName !== "INPUT" && document.activeElement?.tagName !== "TEXTAREA") {
         e.preventDefault();
         document.getElementById("tool-search")?.focus();
+      } else if (e.key === "Escape") {
+        setSearchQuery("");
+        (document.activeElement as HTMLElement)?.blur();
       }
     };
     window.addEventListener("keydown", handleKeyDown);
@@ -1010,6 +1013,11 @@ function ToolView({ favorites, toggleFavorite }: { favorites: string[], toggleFa
   // ⚡ Bolt Optimization: Use toolsMap for O(1) lookup
   const currentTool = toolId ? toolsMap[toolId] : null;
 
+  const category = useMemo(() =>
+    currentTool ? categories.find(c => c.id === currentTool.category) : null,
+    [currentTool]
+  );
+
   if (!currentTool) {
     return (
       <div className="text-center py-20">
@@ -1018,6 +1026,8 @@ function ToolView({ favorites, toggleFavorite }: { favorites: string[], toggleFa
       </div>
     );
   }
+
+  const isFavorited = favorites.includes(currentTool.id);
 
   return (
     <div className="animate-in fade-in slide-in-from-bottom-4 duration-500">
@@ -1033,22 +1043,26 @@ function ToolView({ favorites, toggleFavorite }: { favorites: string[], toggleFa
         <div className="flex flex-col md:flex-row md:items-end justify-between gap-6">
           <div className="space-y-2">
             <div className="inline-flex items-center gap-2 px-3 py-1 bg-indigo-50 dark:bg-indigo-900/20 text-indigo-600 dark:text-indigo-400 rounded-full text-xs font-bold uppercase tracking-widest">
-              <currentTool.icon className="w-3 h-3" /> {currentTool.category}
+              {category ? <category.icon className="w-3 h-3" /> : <currentTool.icon className="w-3 h-3" />}
+              {category ? category.name : currentTool.category}
             </div>
             <h1 className="text-4xl md:text-5xl font-black tracking-tight">{currentTool.name}</h1>
             <p className="text-lg text-slate-500 dark:text-slate-400 max-w-2xl">{currentTool.description}</p>
           </div>
           <button
             onClick={(e) => toggleFavorite(e, currentTool.id)}
-            aria-pressed={favorites.includes(currentTool.id)}
-            className={`flex items-center gap-2 px-6 py-3 rounded-2xl font-bold transition-all border ${
-              favorites.includes(currentTool.id)
+            aria-pressed={isFavorited}
+            aria-label={isFavorited ? "Retirer des favoris" : "Ajouter aux favoris"}
+            className={`flex items-center justify-center gap-2 px-4 sm:px-6 py-3 rounded-2xl font-bold transition-all border ${
+              isFavorited
                 ? "bg-amber-50 text-amber-600 border-amber-200"
                 : "bg-slate-50 text-slate-500 border-slate-200 dark:bg-slate-900 dark:border-slate-800"
             }`}
           >
-            <Star className={`w-5 h-5 ${favorites.includes(currentTool.id) ? 'fill-current' : ''}`} />
-            {favorites.includes(currentTool.id) ? "Favori" : "Mettre en favori"}
+            <Star className={`w-5 h-5 ${isFavorited ? 'fill-current' : ''}`} />
+            <span className="hidden sm:inline">
+              {isFavorited ? "Favori" : "Mettre en favori"}
+            </span>
           </button>
         </div>
       </div>

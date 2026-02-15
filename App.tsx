@@ -69,6 +69,7 @@ import {
   ShieldCheck,
   Scissors,
   Binary,
+  Smile,
 } from "lucide-react";
 const AdPlaceholder = lazy(() => import("./components/AdPlaceholder").then(m => ({ default: m.AdPlaceholder })));
 
@@ -135,6 +136,9 @@ const Base64ToImage = lazy(() => import("./components/Base64ToImage").then(m => 
 const UnitPriceCalculator = lazy(() => import("./components/UnitPriceCalculator").then(m => ({ default: m.UnitPriceCalculator })));
 const AgeCalculator = lazy(() => import("./components/AgeCalculator").then(m => ({ default: m.AgeCalculator })));
 const ColorPaletteGenerator = lazy(() => import("./components/ColorPaletteGenerator").then(m => ({ default: m.ColorPaletteGenerator })));
+const RegExTester = lazy(() => import("./components/RegExTester").then(m => ({ default: m.RegExTester })));
+const SlugGenerator = lazy(() => import("./components/SlugGenerator").then(m => ({ default: m.SlugGenerator })));
+const EmojiPicker = lazy(() => import("./components/EmojiPicker").then(m => ({ default: m.EmojiPicker })));
 
 // ⚡ Bolt Optimization: Pre-calculating tool map and search index for O(1) lookups and faster filtering
 const toolsMap: Record<string, Tool> = {};
@@ -358,6 +362,22 @@ const tools: Tool[] = [
     category: "text",
   },
   {
+    id: "slug-generator",
+    name: "Générateur de Slug",
+    icon: LinkIcon,
+    description: "Créer des URLs propres et optimisées SEO",
+    Component: SlugGenerator,
+    category: "text",
+  },
+  {
+    id: "emoji-picker",
+    name: "Sélecteur d'Emojis",
+    icon: Smile,
+    description: "Copier facilement des emojis pour vos contenus",
+    Component: EmojiPicker,
+    category: "text",
+  },
+  {
     id: "text-formatter",
     name: "Format",
     icon: FileText,
@@ -452,6 +472,14 @@ const tools: Tool[] = [
     icon: Code,
     description: "Encodeur et décodeur Base64",
     Component: Base64Tool,
+    category: "dev",
+  },
+  {
+    id: "regex-tester",
+    name: "Testeur RegEx",
+    icon: Search,
+    description: "Tester et valider vos expressions régulières",
+    Component: RegExTester,
     category: "dev",
   },
   {

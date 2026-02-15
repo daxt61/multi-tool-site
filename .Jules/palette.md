@@ -21,3 +21,7 @@
 ## 2025-02-03 - [Stable Generation & Bento Consistency]
 **Learning:** In text generation tools, random output must be stabilized using `useMemo` to prevent frustrating regenerations during unrelated state updates (like "Copied" feedback). Additionally, modernizing legacy components to the Bento design system (slate-50 backgrounds, rounded-3xl corners, indigo accents) significantly improves brand cohesion and trust.
 **Action:** Use `useMemo` for random text and prioritize visual alignment with the Bento system for older components.
+
+## 2024-05-24 - [RegEx Match Highlighting & Safety]
+**Learning:** Real-time regex highlighting with a layered UI requires careful manual escaping of HTML characters in the user'\''s text to prevent XSS while allowing the <mark> tags. Additionally, adding a match limit (e.g., 1000) and handling empty regex matches (which cause infinite loops in standard JS exec) are critical for application stability and preventing browser hangs.
+**Action:** Always escape raw input when using dangerouslySetInnerHTML for custom highlighting and implement safety breaks for infinite match loops.

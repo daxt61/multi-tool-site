@@ -21,3 +21,7 @@
 ## 2025-02-03 - [Stable Generation & Bento Consistency]
 **Learning:** In text generation tools, random output must be stabilized using `useMemo` to prevent frustrating regenerations during unrelated state updates (like "Copied" feedback). Additionally, modernizing legacy components to the Bento design system (slate-50 backgrounds, rounded-3xl corners, indigo accents) significantly improves brand cohesion and trust.
 **Action:** Use `useMemo` for random text and prioritize visual alignment with the Bento system for older components.
+
+## 2025-06-15 - [Category Localization & UI Consistency]
+**Learning:** Displaying raw internal IDs (like 'dev' or 'calculators') in the UI instead of localized labels is a common oversight that breaks immersion and professionalism. Using `useMemo` to resolve these IDs against a centralized configuration ensures that the UI remains consistent with the rest of the application's language and branding.
+**Action:** Always map internal IDs to localized display names in the final UI components.

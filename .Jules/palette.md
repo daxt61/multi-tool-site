@@ -21,3 +21,7 @@
 ## 2025-02-03 - [Stable Generation & Bento Consistency]
 **Learning:** In text generation tools, random output must be stabilized using `useMemo` to prevent frustrating regenerations during unrelated state updates (like "Copied" feedback). Additionally, modernizing legacy components to the Bento design system (slate-50 backgrounds, rounded-3xl corners, indigo accents) significantly improves brand cohesion and trust.
 **Action:** Use `useMemo` for random text and prioritize visual alignment with the Bento system for older components.
+
+## 2026-02-16 - [Tactile Feedback & Navigation Affordance]
+**Learning:** Adding `active:scale-95` to primary action buttons (like favorites and filters) provides immediate tactile feedback that makes the interface feel more responsive. Furthermore, animating navigation links (e.g., sliding a back arrow on hover) provides a delightful micro-interaction that reinforces the user's mental model of the app structure.
+**Action:** Standardize `active:scale-95` for interactive buttons and use directional animations for navigation links.

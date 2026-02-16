@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { Copy, RefreshCw, Check, Shield, ShieldAlert, ShieldCheck } from 'lucide-react';
 
 export function PasswordGenerator() {
+  const [mode, setMode] = useState<'generate' | 'check'>('generate');
   const [password, setPassword] = useState('');
   const [length, setLength] = useState(16);
   const [includeUppercase, setIncludeUppercase] = useState(true);
@@ -48,8 +49,10 @@ export function PasswordGenerator() {
   };
 
   useEffect(() => {
-    generatePassword();
-  }, [length, includeUppercase, includeLowercase, includeNumbers, includeSymbols, excludeSimilar]);
+    if (mode === 'generate') {
+      generatePassword();
+    }
+  }, [mode, length, includeUppercase, includeLowercase, includeNumbers, includeSymbols, excludeSimilar]);
 
   const copyToClipboard = () => {
     navigator.clipboard.writeText(password);
@@ -76,24 +79,58 @@ export function PasswordGenerator() {
 
   return (
     <div className="max-w-4xl mx-auto space-y-8">
+      {/* Mode Toggle */}
+      <div className="flex justify-center mb-8">
+        <div className="bg-slate-100 dark:bg-slate-800 p-1 rounded-2xl flex gap-1">
+          <button
+            onClick={() => setMode('generate')}
+            className={`px-6 py-2 rounded-xl font-bold text-sm transition-all ${
+              mode === 'generate'
+                ? 'bg-white dark:bg-slate-700 shadow-sm text-indigo-600 dark:text-indigo-400'
+                : 'text-slate-500 hover:text-slate-700 dark:text-slate-400 dark:hover:text-slate-200'
+            }`}
+          >
+            Générer
+          </button>
+          <button
+            onClick={() => {
+              setMode('check');
+              setPassword('');
+            }}
+            className={`px-6 py-2 rounded-xl font-bold text-sm transition-all ${
+              mode === 'check'
+                ? 'bg-white dark:bg-slate-700 shadow-sm text-indigo-600 dark:text-indigo-400'
+                : 'text-slate-500 hover:text-slate-700 dark:text-slate-400 dark:hover:text-slate-200'
+            }`}
+          >
+            Vérifier
+          </button>
+        </div>
+      </div>
+
       {/* Display Area */}
       <div className="bg-slate-900 dark:bg-black p-8 md:p-12 rounded-[2.5rem] shadow-xl shadow-indigo-500/5 relative overflow-hidden group">
         <div className="flex flex-col md:flex-row items-center gap-8 relative z-10">
           <input
             type="text"
             value={password}
-            readOnly
-            className="flex-1 bg-transparent text-3xl md:text-5xl font-mono text-white outline-none tracking-tight w-full text-center md:text-left selection:bg-indigo-500/30"
+            onChange={(e) => mode === 'check' && setPassword(e.target.value)}
+            readOnly={mode === 'generate'}
+            placeholder={mode === 'check' ? 'Entrez un mot de passe...' : ''}
+            className="flex-1 bg-transparent text-3xl md:text-5xl font-mono text-white outline-none tracking-tight w-full text-center md:text-left selection:bg-indigo-500/30 placeholder:text-white/20"
+            autoComplete="off"
           />
           <div className="flex gap-3">
-            <button
-              onClick={generatePassword}
-              className="p-4 bg-white/10 hover:bg-white/20 text-white rounded-2xl transition-all active:scale-95"
-              title="Régénérer"
-              aria-label="Régénérer le mot de passe"
-            >
-              <RefreshCw className="w-6 h-6" />
-            </button>
+            {mode === 'generate' && (
+              <button
+                onClick={generatePassword}
+                className="p-4 bg-white/10 hover:bg-white/20 text-white rounded-2xl transition-all active:scale-95"
+                title="Régénérer"
+                aria-label="Régénérer le mot de passe"
+              >
+                <RefreshCw className="w-6 h-6" />
+              </button>
+            )}
             <button
               onClick={copyToClipboard}
               className={`px-8 py-4 rounded-2xl transition-all active:scale-95 flex items-center gap-2 font-black text-lg ${

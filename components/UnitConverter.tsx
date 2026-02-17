@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { Copy, Check, Trash2, ArrowUpDown, Info, Ruler } from 'lucide-react';
 
-type ConversionCategory = 'length' | 'weight' | 'temperature' | 'area' | 'volume' | 'digital' | 'pressure' | 'energy' | 'speed' | 'time' | 'power' | 'frequency' | 'consumption' | 'angle';
+type ConversionCategory = 'length' | 'weight' | 'temperature' | 'area' | 'volume' | 'digital' | 'pressure' | 'energy' | 'speed' | 'time' | 'power' | 'frequency' | 'consumption' | 'angle' | 'torque';
 
 interface ConversionUnit {
   name: string;
@@ -58,7 +58,8 @@ const CONVERSIONS: Record<ConversionCategory, Record<string, ConversionUnit>> = 
     'KB': { name: 'Kilooctets (KB)', toBase: (v) => v * 1024, fromBase: (v) => v / 1024 },
     'MB': { name: 'Megaoctets (MB)', toBase: (v) => v * Math.pow(1024, 2), fromBase: (v) => v / Math.pow(1024, 2) },
     'GB': { name: 'Gigaoctets (GB)', toBase: (v) => v * Math.pow(1024, 3), fromBase: (v) => v / Math.pow(1024, 3) },
-    'TB': { name: 'Teraoctets (TB)', toBase: (v) => v * Math.pow(1024, 4), fromBase: (v) => v / Math.pow(1024, 4) }
+    'TB': { name: 'Teraoctets (TB)', toBase: (v) => v * Math.pow(1024, 4), fromBase: (v) => v / Math.pow(1024, 4) },
+    'PB': { name: 'Petaoctets (PB)', toBase: (v) => v * Math.pow(1024, 5), fromBase: (v) => v / Math.pow(1024, 5) }
   },
   speed: {
     'm/s': { name: 'Mètres par seconde (m/s)', toBase: (v) => v, fromBase: (v) => v },
@@ -105,15 +106,19 @@ const CONVERSIONS: Record<ConversionCategory, Record<string, ConversionUnit>> = 
   },
   consumption: {
     'l/100km': { name: 'L/100km', toBase: (v) => v, fromBase: (v) => v },
-    'mpg_us': { name: 'MPG (US)', toBase: (v) => 235.215 / v, fromBase: (v) => 235.215 / v },
-    'mpg_uk': { name: 'MPG (UK)', toBase: (v) => 282.481 / v, fromBase: (v) => 282.481 / v },
-    'km/l': { name: 'km/L', toBase: (v) => 100 / v, fromBase: (v) => 100 / v },
+    'mpg_us': { name: 'MPG (US)', toBase: (v) => v === 0 ? 0 : 235.215 / v, fromBase: (v) => v === 0 ? 0 : 235.215 / v },
+    'mpg_uk': { name: 'MPG (UK)', toBase: (v) => v === 0 ? 0 : 282.481 / v, fromBase: (v) => v === 0 ? 0 : 282.481 / v },
+    'km/l': { name: 'km/L', toBase: (v) => v === 0 ? 0 : 100 / v, fromBase: (v) => v === 0 ? 0 : 100 / v },
   },
   angle: {
     'deg': { name: 'Degrés', toBase: (v) => v, fromBase: (v) => v },
     'rad': { name: 'Radians', toBase: (v) => v * (180 / Math.PI), fromBase: (v) => v * (Math.PI / 180) },
     'grad': { name: 'Grades', toBase: (v) => v * (9 / 10), fromBase: (v) => v * (10 / 9) },
     'tr': { name: 'Tours', toBase: (v) => v * 360, fromBase: (v) => v / 360 }
+  },
+  torque: {
+    'Nm': { name: 'Newton-mètre (N·m)', toBase: (v) => v, fromBase: (v) => v },
+    'lbft': { name: 'Pound-foot (lb·ft)', toBase: (v) => v * 1.3558179483, fromBase: (v) => v / 1.3558179483 }
   }
 };
 
@@ -131,7 +136,8 @@ const CATEGORIES_MAP = [
   { id: 'power', name: 'Puissance' },
   { id: 'frequency', name: 'Fréquence' },
   { id: 'consumption', name: 'Consommation' },
-  { id: 'angle', name: 'Angle' }
+  { id: 'angle', name: 'Angle' },
+  { id: 'torque', name: 'Couple (Torque)' }
 ];
 
 const formatter = new Intl.NumberFormat('fr-FR', {

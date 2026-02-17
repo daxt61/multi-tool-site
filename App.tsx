@@ -135,9 +135,15 @@ const Base64ToImage = lazy(() => import("./components/Base64ToImage").then(m => 
 const UnitPriceCalculator = lazy(() => import("./components/UnitPriceCalculator").then(m => ({ default: m.UnitPriceCalculator })));
 const AgeCalculator = lazy(() => import("./components/AgeCalculator").then(m => ({ default: m.AgeCalculator })));
 const ColorPaletteGenerator = lazy(() => import("./components/ColorPaletteGenerator").then(m => ({ default: m.ColorPaletteGenerator })));
+const RegExTester = lazy(() => import("./components/RegExTester").then(m => ({ default: m.RegExTester })));
+const SlugGenerator = lazy(() => import("./components/SlugGenerator").then(m => ({ default: m.SlugGenerator })));
+const EmojiPicker = lazy(() => import("./components/EmojiPicker").then(m => ({ default: m.EmojiPicker })));
+const StringEscaper = lazy(() => import("./components/StringEscaper").then(m => ({ default: m.StringEscaper })));
+const UserAgentAnalyzer = lazy(() => import("./components/UserAgentAnalyzer").then(m => ({ default: m.UserAgentAnalyzer })));
 
 // ⚡ Bolt Optimization: Pre-calculating tool map and search index for O(1) lookups and faster filtering
-const toolsMap: Record<string, Tool> = {};
+// Sentinel: Use null prototype to prevent prototype pollution when using toolId as a key.
+const toolsMap: Record<string, Tool> = Object.create(null);
 const TOOL_SEARCH_INDEX = new Map<string, { name: string; description: string }>();
 
 interface Tool {
@@ -406,6 +412,22 @@ const tools: Tool[] = [
     category: "text",
   },
   {
+    id: "slug-generator",
+    name: "Slug",
+    icon: LinkIcon,
+    description: "Générateur d'URLs SEO-friendly",
+    Component: SlugGenerator,
+    category: "text",
+  },
+  {
+    id: "emoji-picker",
+    name: "Emojis",
+    icon: Sparkles,
+    description: "Sélecteur d'emojis et copier-coller",
+    Component: EmojiPicker,
+    category: "text",
+  },
+  {
     id: "list-cleaner",
     name: "Nettoyeur de liste",
     icon: ListChecks,
@@ -428,6 +450,22 @@ const tools: Tool[] = [
     icon: ShieldCheck,
     description: "Décoder et analyser vos jetons JWT",
     Component: JWTDecoder,
+    category: "dev",
+  },
+  {
+    id: "regex-tester",
+    name: "RegEx",
+    icon: Search,
+    description: "Testeur d'expressions régulières",
+    Component: RegExTester,
+    category: "dev",
+  },
+  {
+    id: "string-escaper",
+    name: "Échappement",
+    icon: FileCode,
+    description: "Échapper JSON, HTML, XML, JS",
+    Component: StringEscaper,
     category: "dev",
   },
   {
@@ -589,6 +627,14 @@ const tools: Tool[] = [
     icon: Globe,
     description: "Mon adresse IP et infos réseau",
     Component: IPAddressTool,
+    category: "other",
+  },
+  {
+    id: "user-agent",
+    name: "User Agent",
+    icon: Monitor,
+    description: "Analyseur de navigateur et système",
+    Component: UserAgentAnalyzer,
     category: "other",
   },
   {
@@ -1008,7 +1054,18 @@ function MainApp() {
 function ToolView({ favorites, toggleFavorite }: { favorites: string[], toggleFavorite: (e: React.MouseEvent, id: string) => void }) {
   const { toolId } = useParams();
   // ⚡ Bolt Optimization: Use toolsMap for O(1) lookup
-  const currentTool = toolId ? toolsMap[toolId] : null;
+  // Sentinel: Use hasOwnProperty to safely check for toolId and prevent Prototype Pollution.
+  const currentTool = useMemo(() => {
+    if (toolId && Object.prototype.hasOwnProperty.call(toolsMap, toolId)) {
+      return toolsMap[toolId];
+    }
+    return null;
+  }, [toolId]);
+
+  const category = useMemo(() => {
+    if (!currentTool) return null;
+    return categories.find(c => c.id === currentTool.category);
+  }, [currentTool]);
 
   if (!currentTool) {
     return (
@@ -1032,23 +1089,28 @@ function ToolView({ favorites, toggleFavorite }: { favorites: string[], toggleFa
       <div className="mb-12 space-y-4">
         <div className="flex flex-col md:flex-row md:items-end justify-between gap-6">
           <div className="space-y-2">
-            <div className="inline-flex items-center gap-2 px-3 py-1 bg-indigo-50 dark:bg-indigo-900/20 text-indigo-600 dark:text-indigo-400 rounded-full text-xs font-bold uppercase tracking-widest">
-              <currentTool.icon className="w-3 h-3" /> {currentTool.category}
-            </div>
+            {category && (
+              <div className="inline-flex items-center gap-2 px-3 py-1 bg-indigo-50 dark:bg-indigo-900/20 text-indigo-600 dark:text-indigo-400 rounded-full text-xs font-bold uppercase tracking-widest">
+                <category.icon className="w-3 h-3" /> {category.name}
+              </div>
+            )}
             <h1 className="text-4xl md:text-5xl font-black tracking-tight">{currentTool.name}</h1>
             <p className="text-lg text-slate-500 dark:text-slate-400 max-w-2xl">{currentTool.description}</p>
           </div>
           <button
             onClick={(e) => toggleFavorite(e, currentTool.id)}
             aria-pressed={favorites.includes(currentTool.id)}
-            className={`flex items-center gap-2 px-6 py-3 rounded-2xl font-bold transition-all border ${
+            aria-label={favorites.includes(currentTool.id) ? "Retirer des favoris" : "Ajouter aux favoris"}
+            className={`flex items-center justify-center gap-2 px-6 py-3 rounded-2xl font-bold transition-all border group ${
               favorites.includes(currentTool.id)
                 ? "bg-amber-50 text-amber-600 border-amber-200"
                 : "bg-slate-50 text-slate-500 border-slate-200 dark:bg-slate-900 dark:border-slate-800"
             }`}
           >
             <Star className={`w-5 h-5 ${favorites.includes(currentTool.id) ? 'fill-current' : ''}`} />
-            {favorites.includes(currentTool.id) ? "Favori" : "Mettre en favori"}
+            <span className="hidden sm:inline">
+              {favorites.includes(currentTool.id) ? "Favori" : "Mettre en favori"}
+            </span>
           </button>
         </div>
       </div>

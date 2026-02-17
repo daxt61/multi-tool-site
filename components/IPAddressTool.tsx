@@ -1,5 +1,5 @@
-import { useState, useEffect } from 'react';
-import { Globe, MapPin, Wifi, Info } from 'lucide-react';
+import { useState, useEffect, useCallback } from 'react';
+import { Globe, MapPin, Wifi, Info, Copy, Check } from 'lucide-react';
 import { AdPlaceholder } from './AdPlaceholder';
 
 export function IPAddressTool() {
@@ -14,6 +14,14 @@ export function IPAddressTool() {
 
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [copied, setCopied] = useState(false);
+
+  const handleCopy = useCallback(() => {
+    if (!ipInfo.ip || loading || error) return;
+    navigator.clipboard?.writeText(ipInfo.ip);
+    setCopied(true);
+    setTimeout(() => setCopied(false), 2000);
+  }, [ipInfo.ip, loading, error]);
 
   useEffect(() => {
     fetch('https://ipapi.co/json/')
@@ -52,7 +60,17 @@ export function IPAddressTool() {
         ) : error ? (
           <div className="text-lg font-bold mb-4">{error}</div>
         ) : (
-          <div className="text-4xl md:text-6xl font-black mb-4 break-all font-mono tracking-tighter">{ipInfo.ip}</div>
+          <div className="flex flex-col md:flex-row items-center justify-center gap-4 mb-4">
+            <div className="text-4xl md:text-6xl font-black break-all font-mono tracking-tighter">{ipInfo.ip}</div>
+            <button
+              onClick={handleCopy}
+              className={`p-3 rounded-2xl transition-all active:scale-95 ${copied ? 'bg-emerald-500 text-white' : 'bg-white/10 hover:bg-white/20 text-white'}`}
+              aria-label="Copier l'adresse IP"
+              title="Copier l'adresse IP"
+            >
+              {copied ? <Check className="w-5 h-5" /> : <Copy className="w-5 h-5" />}
+            </button>
+          </div>
         )}
         <div className="text-xs font-bold opacity-60">
           {loading ? 'Chargement des données...' : error ? 'Erreur de détection' : 'Données détectées automatiquement'}

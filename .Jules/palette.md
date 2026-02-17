@@ -21,3 +21,7 @@
 ## 2025-02-03 - [Stable Generation & Bento Consistency]
 **Learning:** In text generation tools, random output must be stabilized using `useMemo` to prevent frustrating regenerations during unrelated state updates (like "Copied" feedback). Additionally, modernizing legacy components to the Bento design system (slate-50 backgrounds, rounded-3xl corners, indigo accents) significantly improves brand cohesion and trust.
 **Action:** Use `useMemo` for random text and prioritize visual alignment with the Bento system for older components.
+
+## 2026-02-17 - [Instant Clipboard Feedback in Utility Tools]
+**Learning:** For utility tools displaying critical information like IP addresses, providing an instant "Copy" button with visual feedback (icon change and color shift) significantly reduces friction. Using `active:scale-95` and proper ARIA labels ensures the interaction feels both tactile and accessible.
+**Action:** Prioritize adding one-click copy features to display-only utility results next time.

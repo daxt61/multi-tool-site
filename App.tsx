@@ -69,6 +69,8 @@ import {
   ShieldCheck,
   Scissors,
   Binary,
+  Smile,
+  Scan,
 } from "lucide-react";
 const AdPlaceholder = lazy(() => import("./components/AdPlaceholder").then(m => ({ default: m.AdPlaceholder })));
 
@@ -135,6 +137,11 @@ const Base64ToImage = lazy(() => import("./components/Base64ToImage").then(m => 
 const UnitPriceCalculator = lazy(() => import("./components/UnitPriceCalculator").then(m => ({ default: m.UnitPriceCalculator })));
 const AgeCalculator = lazy(() => import("./components/AgeCalculator").then(m => ({ default: m.AgeCalculator })));
 const ColorPaletteGenerator = lazy(() => import("./components/ColorPaletteGenerator").then(m => ({ default: m.ColorPaletteGenerator })));
+const UserAgentAnalyzer = lazy(() => import("./components/UserAgentAnalyzer").then(m => ({ default: m.UserAgentAnalyzer })));
+const LuhnValidator = lazy(() => import("./components/LuhnValidator").then(m => ({ default: m.LuhnValidator })));
+const StringEscaper = lazy(() => import("./components/StringEscaper").then(m => ({ default: m.StringEscaper })));
+const EmojiPicker = lazy(() => import("./components/EmojiPicker").then(m => ({ default: m.EmojiPicker })));
+const CodeToImage = lazy(() => import("./components/CodeToImage").then(m => ({ default: m.CodeToImage })));
 
 // ⚡ Bolt Optimization: Pre-calculating tool map and search index for O(1) lookups and faster filtering
 const toolsMap: Record<string, Tool> = {};
@@ -413,6 +420,22 @@ const tools: Tool[] = [
     Component: ListCleaner,
     category: "text",
   },
+  {
+    id: "string-escaper",
+    name: "Échappement de chaînes",
+    icon: Scissors,
+    description: "Échapper et déséchapper des chaînes pour JSON, HTML, XML et JS",
+    Component: StringEscaper,
+    category: "text",
+  },
+  {
+    id: "emoji-picker",
+    name: "Sélecteur d'Emojis",
+    icon: Smile,
+    description: "Rechercher et copier des emojis rapidement",
+    Component: EmojiPicker,
+    category: "text",
+  },
   // Dev Tools
   {
     id: "password-generator",
@@ -566,6 +589,22 @@ const tools: Tool[] = [
     Component: BinaryTextConverter,
     category: "dev",
   },
+  {
+    id: "luhn-validator",
+    name: "Validateur Luhn",
+    icon: ShieldCheck,
+    description: "Vérifier la validité des numéros de carte (Luhn algorithm)",
+    Component: LuhnValidator,
+    category: "dev",
+  },
+  {
+    id: "code-to-image",
+    name: "Code en Image",
+    icon: Image,
+    description: "Convertir vos extraits de code en images prêtes à partager",
+    Component: CodeToImage,
+    category: "dev",
+  },
   // Other Tools
   {
     id: "timer",
@@ -613,6 +652,14 @@ const tools: Tool[] = [
     icon: Shuffle,
     description: "Nombres, chaînes et listes aléatoires",
     Component: RandomGenerator,
+    category: "other",
+  },
+  {
+    id: "user-agent",
+    name: "Analyseur User Agent",
+    icon: Scan,
+    description: "Analyser votre navigateur, OS et résolution d'écran",
+    Component: UserAgentAnalyzer,
     category: "other",
   },
 ];

@@ -74,6 +74,15 @@ export function JWTDecoder() {
     });
   };
 
+  const getExpirationStatus = (exp: number) => {
+    if (!exp) return null;
+    const now = Math.floor(Date.now() / 1000);
+    const timeLeft = exp - now;
+    if (timeLeft < 0) return { label: 'Expiré', color: 'text-rose-500 bg-rose-50 dark:bg-rose-500/10', icon: AlertCircle };
+    if (timeLeft < 3600) return { label: 'Expire bientôt', color: 'text-amber-500 bg-amber-50 dark:bg-amber-500/10', icon: Clock };
+    return { label: 'Valide', color: 'text-emerald-500 bg-emerald-50 dark:bg-emerald-500/10', icon: ShieldCheck };
+  };
+
   return (
     <div className="max-w-5xl mx-auto space-y-8">
       {/* Input Area */}
@@ -137,20 +146,37 @@ export function JWTDecoder() {
 
           {/* Key Claims Info */}
           <div className="p-8 bg-white dark:bg-slate-900/50 border border-slate-200 dark:border-slate-800 rounded-[2.5rem] space-y-6 lg:col-span-2">
-            <div className="flex items-center gap-3 text-amber-500">
-              <Clock className="w-5 h-5" />
-              <h3 className="font-black uppercase tracking-widest text-xs text-slate-400">Informations Clés</h3>
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-3 text-amber-500">
+                <Clock className="w-5 h-5" />
+                <h3 className="font-black uppercase tracking-widest text-xs text-slate-400">Informations Clés</h3>
+              </div>
+              {decoded.payload.exp && (() => {
+                const status = getExpirationStatus(decoded.payload.exp);
+                if (!status) return null;
+                return (
+                  <div className={`flex items-center gap-2 px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-widest ${status.color}`}>
+                    <status.icon className="w-3 h-3" />
+                    {status.label}
+                  </div>
+                );
+              })()}
             </div>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               {[
-                { label: 'Émis le (iat)', value: decoded.payload.iat ? formatDate(decoded.payload.iat) : 'N/A' },
-                { label: 'Expire le (exp)', value: decoded.payload.exp ? formatDate(decoded.payload.exp) : 'N/A' },
-                { label: 'Sujet (sub)', value: decoded.payload.sub || 'N/A' },
-                { label: 'Émetteur (iss)', value: decoded.payload.iss || 'N/A' },
+                { label: 'Émis le (iat)', value: decoded.payload.iat ? formatDate(decoded.payload.iat) : 'N/A', raw: decoded.payload.iat },
+                { label: 'Expire le (exp)', value: decoded.payload.exp ? formatDate(decoded.payload.exp) : 'N/A', raw: decoded.payload.exp },
+                { label: 'Sujet (sub)', value: decoded.payload.sub || 'N/A', raw: decoded.payload.sub },
+                { label: 'Émetteur (iss)', value: decoded.payload.iss || 'N/A', raw: decoded.payload.iss },
               ].map((claim) => (
-                <div key={claim.label} className="p-4 bg-slate-50 dark:bg-slate-800/50 rounded-2xl border border-slate-100 dark:border-slate-800">
+                <div key={claim.label} className="p-4 bg-slate-50 dark:bg-slate-800/50 rounded-2xl border border-slate-100 dark:border-slate-800 transition-colors group">
                   <div className="text-[10px] font-black uppercase tracking-widest text-slate-400 mb-1">{claim.label}</div>
-                  <div className="font-bold text-sm truncate">{claim.value}</div>
+                  <div className="font-bold text-sm truncate flex justify-between items-center">
+                    <span>{claim.value}</span>
+                    {typeof claim.raw === 'object' && claim.raw !== null && (
+                      <span className="text-[10px] font-mono text-slate-400 opacity-0 group-hover:opacity-100 transition-opacity">Complex Object</span>
+                    )}
+                  </div>
                 </div>
               ))}
             </div>

@@ -74,7 +74,8 @@ export function Calculator() {
       case 'exp': result = Math.exp(current); break;
       case 'abs': result = Math.abs(current); break;
       case 'n!': {
-        if (current < 0) result = NaN;
+        // Sentinel: Limit n! to 170 to prevent infinite loops/DoS and values exceeding Number.MAX_VALUE
+        if (current < 0 || current > 170) result = NaN;
         else if (current === 0) result = 1;
         else {
           let f = 1;

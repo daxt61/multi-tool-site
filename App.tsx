@@ -129,6 +129,8 @@ const HTMLEntityConverter = lazy(() => import("./components/HTMLEntityConverter"
 const JSONToTS = lazy(() => import("./components/JSONToTS").then(m => ({ default: m.JSONToTS })));
 const ListCleaner = lazy(() => import("./components/ListCleaner").then(m => ({ default: m.ListCleaner })));
 const JWTDecoder = lazy(() => import("./components/JWTDecoder").then(m => ({ default: m.JWTDecoder })));
+const SlugGenerator = lazy(() => import("./components/SlugGenerator").then(m => ({ default: m.SlugGenerator })));
+const UserAgentAnalyzer = lazy(() => import("./components/UserAgentAnalyzer").then(m => ({ default: m.UserAgentAnalyzer })));
 const CodeMinifier = lazy(() => import("./components/CodeMinifier").then(m => ({ default: m.CodeMinifier })));
 const BinaryTextConverter = lazy(() => import("./components/BinaryTextConverter").then(m => ({ default: m.BinaryTextConverter })));
 const Base64ToImage = lazy(() => import("./components/Base64ToImage").then(m => ({ default: m.Base64ToImage })));
@@ -137,7 +139,8 @@ const AgeCalculator = lazy(() => import("./components/AgeCalculator").then(m => 
 const ColorPaletteGenerator = lazy(() => import("./components/ColorPaletteGenerator").then(m => ({ default: m.ColorPaletteGenerator })));
 
 // ⚡ Bolt Optimization: Pre-calculating tool map and search index for O(1) lookups and faster filtering
-const toolsMap: Record<string, Tool> = {};
+// Sentinel: Initializing toolsMap as a null-prototype object to mitigate Prototype Pollution risks.
+const toolsMap: Record<string, Tool> = Object.create(null);
 const TOOL_SEARCH_INDEX = new Map<string, { name: string; description: string }>();
 
 interface Tool {
@@ -413,6 +416,14 @@ const tools: Tool[] = [
     Component: ListCleaner,
     category: "text",
   },
+  {
+    id: "slug-generator",
+    name: "Générateur de slug",
+    icon: LinkIcon,
+    description: "Convertir des titres en URLs propres et SEO-friendly",
+    Component: SlugGenerator,
+    category: "text",
+  },
   // Dev Tools
   {
     id: "password-generator",
@@ -589,6 +600,14 @@ const tools: Tool[] = [
     icon: Globe,
     description: "Mon adresse IP et infos réseau",
     Component: IPAddressTool,
+    category: "other",
+  },
+  {
+    id: "user-agent",
+    name: "User Agent",
+    icon: Monitor,
+    description: "Analyse complète de votre navigateur et appareil",
+    Component: UserAgentAnalyzer,
     category: "other",
   },
   {
@@ -1008,7 +1027,19 @@ function MainApp() {
 function ToolView({ favorites, toggleFavorite }: { favorites: string[], toggleFavorite: (e: React.MouseEvent, id: string) => void }) {
   const { toolId } = useParams();
   // ⚡ Bolt Optimization: Use toolsMap for O(1) lookup
-  const currentTool = toolId ? toolsMap[toolId] : null;
+  // Sentinel: Use Object.prototype.hasOwnProperty.call for secure property verification
+  const currentTool = useMemo(() => {
+    if (toolId && Object.prototype.hasOwnProperty.call(toolsMap, toolId)) {
+      return toolsMap[toolId];
+    }
+    return null;
+  }, [toolId]);
+
+  // Resolve category info for visual hierarchy and localization
+  const categoryInfo = useMemo(() => {
+    if (!currentTool) return null;
+    return categories.find(c => c.id === currentTool.category) || categories[categories.length - 1];
+  }, [currentTool]);
 
   if (!currentTool) {
     return (
@@ -1033,7 +1064,7 @@ function ToolView({ favorites, toggleFavorite }: { favorites: string[], toggleFa
         <div className="flex flex-col md:flex-row md:items-end justify-between gap-6">
           <div className="space-y-2">
             <div className="inline-flex items-center gap-2 px-3 py-1 bg-indigo-50 dark:bg-indigo-900/20 text-indigo-600 dark:text-indigo-400 rounded-full text-xs font-bold uppercase tracking-widest">
-              <currentTool.icon className="w-3 h-3" /> {currentTool.category}
+              {categoryInfo && <categoryInfo.icon className="w-3 h-3" />} {categoryInfo?.name || currentTool.category}
             </div>
             <h1 className="text-4xl md:text-5xl font-black tracking-tight">{currentTool.name}</h1>
             <p className="text-lg text-slate-500 dark:text-slate-400 max-w-2xl">{currentTool.description}</p>
@@ -1041,14 +1072,15 @@ function ToolView({ favorites, toggleFavorite }: { favorites: string[], toggleFa
           <button
             onClick={(e) => toggleFavorite(e, currentTool.id)}
             aria-pressed={favorites.includes(currentTool.id)}
-            className={`flex items-center gap-2 px-6 py-3 rounded-2xl font-bold transition-all border ${
+            aria-label={favorites.includes(currentTool.id) ? "Retirer des favoris" : "Ajouter aux favoris"}
+            className={`flex items-center justify-center gap-2 px-4 sm:px-6 py-3 rounded-2xl font-bold transition-all border ${
               favorites.includes(currentTool.id)
                 ? "bg-amber-50 text-amber-600 border-amber-200"
                 : "bg-slate-50 text-slate-500 border-slate-200 dark:bg-slate-900 dark:border-slate-800"
             }`}
           >
             <Star className={`w-5 h-5 ${favorites.includes(currentTool.id) ? 'fill-current' : ''}`} />
-            {favorites.includes(currentTool.id) ? "Favori" : "Mettre en favori"}
+            <span className="hidden sm:inline">{favorites.includes(currentTool.id) ? "Favori" : "Mettre en favori"}</span>
           </button>
         </div>
       </div>

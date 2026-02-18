@@ -1,10 +1,15 @@
-import { useState } from 'react';
+import { useState, useDeferredValue, useMemo } from 'react';
 import { Eye, Code } from 'lucide-react';
 import { AdPlaceholder } from './AdPlaceholder';
+
+const MAX_CHARS = 50000;
 
 export function MarkdownPreview() {
   const [markdown, setMarkdown] = useState('# Titre\n\nVotre texte **Markdown** ici...');
   const [mode, setMode] = useState<'split' | 'edit' | 'preview'>('split');
+
+  // ⚡ Bolt Optimization: useDeferredValue to keep the UI responsive during typing
+  const deferredMarkdown = useDeferredValue(markdown);
 
   const escapeHTML = (str: string) => {
     return str
@@ -119,16 +124,30 @@ export function MarkdownPreview() {
 
       <div className={`grid gap-4 ${mode === 'split' ? 'grid-cols-2' : 'grid-cols-1'}`}>
         {(mode === 'edit' || mode === 'split') && (
-          <div>
-            <label className="block text-sm font-semibold text-gray-700 mb-2">
-              Markdown
-            </label>
+          <div className="space-y-2">
+            <div className="flex justify-between items-center">
+              <label className="block text-sm font-semibold text-gray-700">
+                Markdown
+              </label>
+              <span className={`text-xs font-bold ${markdown.length > MAX_CHARS ? 'text-rose-500' : 'text-slate-400'}`}>
+                {markdown.length.toLocaleString()} / {MAX_CHARS.toLocaleString()}
+              </span>
+            </div>
             <textarea
               value={markdown}
-              onChange={(e) => setMarkdown(e.target.value)}
-              className="w-full h-96 p-4 border border-gray-300 rounded-lg resize-none font-mono text-sm"
+              onChange={(e) => setMarkdown(e.target.value.slice(0, MAX_CHARS + 1000))}
+              className={`w-full h-96 p-4 border rounded-lg resize-none font-mono text-sm outline-none focus:ring-2 transition-all ${
+                markdown.length > MAX_CHARS
+                ? 'border-rose-300 focus:ring-rose-500/20'
+                : 'border-gray-300 focus:ring-indigo-500/20'
+              }`}
               placeholder="# Titre..."
             />
+            {markdown.length > MAX_CHARS && (
+              <p className="text-xs text-rose-500 font-bold animate-pulse">
+                Limite de caractères dépassée. Le rendu est désactivé pour des raisons de performance.
+              </p>
+            )}
           </div>
         )}
         
@@ -138,8 +157,12 @@ export function MarkdownPreview() {
               Aperçu
             </label>
             <div
-              className="w-full h-96 p-4 border border-gray-300 rounded-lg overflow-y-auto bg-white prose"
-              dangerouslySetInnerHTML={{ __html: renderMarkdown(markdown) }}
+              className="w-full h-96 p-4 border border-gray-300 rounded-lg overflow-y-auto bg-white prose max-w-none"
+              dangerouslySetInnerHTML={{
+                __html: markdown.length <= MAX_CHARS
+                  ? renderMarkdown(deferredMarkdown)
+                  : '<div class="text-rose-500 p-4 font-bold italic">Contenu trop volumineux pour l\'aperçu direct.</div>'
+              }}
             />
           </div>
         )}

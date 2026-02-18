@@ -16,3 +16,7 @@
 **Vulnerability:** The PasswordGenerator was using `array[i] % charset.length` to select characters, which introduced a slight bias towards certain characters when the random space (2^32) was not a multiple of the charset size.
 **Learning:** Even when using cryptographically secure random values (CSPRNG), improper mathematical operations like modulo can degrade the entropy and introduce predictability.
 **Prevention:** Always use rejection sampling when mapping a large random range to a smaller one that does not divide it evenly. This ensures a perfectly uniform distribution across all possible outputs.
+## 2026-05-25 - [Prototype Pollution via Tool Map Lookups]
+**Vulnerability:** The application was using a plain object for `toolsMap`, which is susceptible to prototype pollution if a user-controlled `toolId` (e.g., from a URL parameter) is used for direct property access.
+**Learning:** Using `Object.create(null)` for maps that use external keys ensures that built-in object properties like `__proto__` or `toString` cannot be accessed or overridden.
+**Prevention:** Always initialize lookup maps with a null prototype and use `Object.prototype.hasOwnProperty.call` to validate keys before access, especially when keys originate from URL parameters or user input.

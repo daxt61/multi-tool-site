@@ -135,9 +135,12 @@ const Base64ToImage = lazy(() => import("./components/Base64ToImage").then(m => 
 const UnitPriceCalculator = lazy(() => import("./components/UnitPriceCalculator").then(m => ({ default: m.UnitPriceCalculator })));
 const AgeCalculator = lazy(() => import("./components/AgeCalculator").then(m => ({ default: m.AgeCalculator })));
 const ColorPaletteGenerator = lazy(() => import("./components/ColorPaletteGenerator").then(m => ({ default: m.ColorPaletteGenerator })));
+const SlugGenerator = lazy(() => import("./components/SlugGenerator").then(m => ({ default: m.SlugGenerator })));
+const UserAgentAnalyzer = lazy(() => import("./components/UserAgentAnalyzer").then(m => ({ default: m.UserAgentAnalyzer })));
 
 // ⚡ Bolt Optimization: Pre-calculating tool map and search index for O(1) lookups and faster filtering
-const toolsMap: Record<string, Tool> = {};
+// Sentinel: Initialize toolsMap with a null prototype to mitigate prototype pollution.
+const toolsMap: Record<string, Tool> = Object.create(null);
 const TOOL_SEARCH_INDEX = new Map<string, { name: string; description: string }>();
 
 interface Tool {
@@ -406,6 +409,14 @@ const tools: Tool[] = [
     category: "text",
   },
   {
+    id: "slug-generator",
+    name: "Slug Generator",
+    icon: LinkIcon,
+    description: "Générer des slugs SEO-friendly à partir de texte",
+    Component: SlugGenerator,
+    category: "text",
+  },
+  {
     id: "list-cleaner",
     name: "Nettoyeur de liste",
     icon: ListChecks,
@@ -556,6 +567,14 @@ const tools: Tool[] = [
     icon: Scissors,
     description: "Minifier JS, CSS et HTML pour le web",
     Component: CodeMinifier,
+    category: "dev",
+  },
+  {
+    id: "user-agent",
+    name: "User Agent",
+    icon: Monitor,
+    description: "Analyser votre navigateur et système",
+    Component: UserAgentAnalyzer,
     category: "dev",
   },
   {
@@ -1008,7 +1027,10 @@ function MainApp() {
 function ToolView({ favorites, toggleFavorite }: { favorites: string[], toggleFavorite: (e: React.MouseEvent, id: string) => void }) {
   const { toolId } = useParams();
   // ⚡ Bolt Optimization: Use toolsMap for O(1) lookup
-  const currentTool = toolId ? toolsMap[toolId] : null;
+  // Sentinel: Validate toolId against toolsMap using hasOwnProperty to prevent prototype pollution.
+  const currentTool = (toolId && Object.prototype.hasOwnProperty.call(toolsMap, toolId))
+    ? toolsMap[toolId]
+    : null;
 
   if (!currentTool) {
     return (

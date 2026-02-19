@@ -21,3 +21,7 @@
 ## 2025-02-03 - [Stable Generation & Bento Consistency]
 **Learning:** In text generation tools, random output must be stabilized using `useMemo` to prevent frustrating regenerations during unrelated state updates (like "Copied" feedback). Additionally, modernizing legacy components to the Bento design system (slate-50 backgrounds, rounded-3xl corners, indigo accents) significantly improves brand cohesion and trust.
 **Action:** Use `useMemo` for random text and prioritize visual alignment with the Bento system for older components.
+
+## 2025-05-24 - [Bento Modernization & Accessible Form Linking]
+**Learning:** Transitioning "legacy" components to the Bento design system (slate-50 backgrounds, rounded-[2.5rem] containers, indigo-600 primary accents) significantly improves brand cohesion and perceived quality. For forms, using the `useId` hook is a robust way to ensure accessibility by linking labels and inputs without worrying about ID collisions.
+**Action:** Prioritize modernizing gray/blue legacy components to the slate/indigo Bento system and always use `useId` for form associations.

@@ -67,13 +67,19 @@ export function JSONCSVConverter() {
       const result = lines.slice(1).map(line => {
         const values = parseCSVLine(line);
         return headers.reduce((obj, header, index) => {
+          // Sentinel: Rename dangerous keys to prevent Prototype Pollution
+          const safeHeader = ['__proto__', 'constructor', 'prototype'].includes(header.toLowerCase())
+            ? `_${header}`
+            : header;
+
           let val: any = values[index];
           if (val === 'true') val = true;
           else if (val === 'false') val = false;
           else if (!isNaN(Number(val)) && val !== '') val = Number(val);
-          obj[header] = val;
+
+          obj[safeHeader] = val;
           return obj;
-        }, {} as any);
+        }, Object.create(null)); // Sentinel: Use null-prototype object
       });
       return JSON.stringify(result, null, 2);
     } catch (e) {

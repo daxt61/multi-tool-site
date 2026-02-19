@@ -105,9 +105,10 @@ const CONVERSIONS: Record<ConversionCategory, Record<string, ConversionUnit>> = 
   },
   consumption: {
     'l/100km': { name: 'L/100km', toBase: (v) => v, fromBase: (v) => v },
-    'mpg_us': { name: 'MPG (US)', toBase: (v) => 235.215 / v, fromBase: (v) => 235.215 / v },
-    'mpg_uk': { name: 'MPG (UK)', toBase: (v) => 282.481 / v, fromBase: (v) => 282.481 / v },
-    'km/l': { name: 'km/L', toBase: (v) => 100 / v, fromBase: (v) => 100 / v },
+    // Sentinel: Harden against division by zero by returning 0 when input is 0.
+    'mpg_us': { name: 'MPG (US)', toBase: (v) => v === 0 ? 0 : 235.215 / v, fromBase: (v) => v === 0 ? 0 : 235.215 / v },
+    'mpg_uk': { name: 'MPG (UK)', toBase: (v) => v === 0 ? 0 : 282.481 / v, fromBase: (v) => v === 0 ? 0 : 282.481 / v },
+    'km/l': { name: 'km/L', toBase: (v) => v === 0 ? 0 : 100 / v, fromBase: (v) => v === 0 ? 0 : 100 / v },
   },
   angle: {
     'deg': { name: 'Degrés', toBase: (v) => v, fromBase: (v) => v },

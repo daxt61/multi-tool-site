@@ -16,3 +16,8 @@
 **Vulnerability:** The PasswordGenerator was using `array[i] % charset.length` to select characters, which introduced a slight bias towards certain characters when the random space (2^32) was not a multiple of the charset size.
 **Learning:** Even when using cryptographically secure random values (CSPRNG), improper mathematical operations like modulo can degrade the entropy and introduce predictability.
 **Prevention:** Always use rejection sampling when mapping a large random range to a smaller one that does not divide it evenly. This ensures a perfectly uniform distribution across all possible outputs.
+
+## 2025-06-10 - [Prototype Pollution via Dynamic Key Assignment]
+**Vulnerability:** Tools that convert structured data (like CSV) into objects were using user-provided strings as keys on plain objects, allowing attackers to pollute `Object.prototype` via `__proto__`.
+**Learning:** Even simple client-side tools can be vulnerable to Prototype Pollution if they dynamically assign properties to objects based on user input. Using `Object.create(null)` is an effective mitigation as it removes the prototype chain entirely for that object.
+**Prevention:** Always use null-prototype objects for maps or objects where keys are derived from untrusted input. Additionally, explicitly sanitize or rename dangerous keys like `__proto__`, `constructor`, and `prototype`.

@@ -1,9 +1,13 @@
 import { useState } from 'react';
-import { Copy, Check, Trash2, SortAsc, SortDesc, ListChecks, Type, FileDown, Scissors } from 'lucide-react';
+import { Copy, Check, Trash2, SortAsc, SortDesc, ListChecks, Type, FileDown, Scissors, ArrowDownUp, Search, Eraser, Plus } from 'lucide-react';
 
 export function ListCleaner() {
   const [text, setText] = useState('');
   const [copied, setCopied] = useState(false);
+  const [search, setSearch] = useState('');
+  const [replace, setReplace] = useState('');
+  const [prefix, setPrefix] = useState('');
+  const [suffix, setSuffix] = useState('');
 
   const handleCopy = () => {
     navigator.clipboard.writeText(text);
@@ -53,6 +57,40 @@ export function ListCleaner() {
     processList(lines => [...lines].sort((a, b) => a.length - b.length));
   };
 
+  const reverseList = () => {
+    processList(lines => [...lines].reverse());
+  };
+
+  const shuffleList = () => {
+    processList(lines => {
+      const arr = [...lines];
+      if (arr.length <= 1) return arr;
+
+      const randomValues = new Uint32Array(arr.length);
+      window.crypto.getRandomValues(randomValues);
+
+      for (let i = arr.length - 1; i > 0; i--) {
+        const j = randomValues[i] % (i + 1);
+        [arr[i], arr[j]] = [arr[j], arr[i]];
+      }
+      return arr;
+    });
+  };
+
+  const removePunctuation = () => {
+    processList(lines => lines.map(l => l.replace(/[.,\/#!$%\^&\*;:{}=\-_`~()]/g, "")));
+  };
+
+  const handleReplace = () => {
+    if (!search) return;
+    processList(lines => lines.map(l => l.split(search).join(replace)));
+  };
+
+  const addPrefixSuffix = () => {
+    if (!prefix && !suffix) return;
+    processList(lines => lines.map(l => `${prefix}${l}${suffix}`));
+  };
+
   return (
     <div className="max-w-5xl mx-auto space-y-8">
       <div className="space-y-4">
@@ -93,9 +131,9 @@ export function ListCleaner() {
         </div>
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
         {/* Nettoyage */}
-        <div className="p-8 bg-white dark:bg-slate-900/50 border border-slate-200 dark:border-slate-800 rounded-[2.5rem] space-y-6">
+        <div className="p-8 bg-white dark:bg-slate-900/50 border border-slate-200 dark:border-slate-800 rounded-[2.5rem] space-y-6 shadow-sm">
           <div className="flex items-center gap-3 text-indigo-500">
             <Scissors className="w-5 h-5" />
             <h3 className="font-black uppercase tracking-widest text-xs text-slate-400">Nettoyage</h3>
@@ -122,30 +160,37 @@ export function ListCleaner() {
               <span className="font-bold text-sm">Tronquer les espaces</span>
               <Scissors className="w-4 h-4 text-slate-400 group-hover:text-indigo-500" />
             </button>
+            <button
+              onClick={removePunctuation}
+              className="w-full flex items-center justify-between p-4 bg-slate-50 dark:bg-slate-800/50 hover:bg-indigo-50 dark:hover:bg-indigo-900/20 rounded-2xl transition-all group"
+            >
+              <span className="font-bold text-sm">Supprimer ponctuation</span>
+              <Eraser className="w-4 h-4 text-slate-400 group-hover:text-indigo-500" />
+            </button>
           </div>
         </div>
 
-        {/* Tri */}
-        <div className="p-8 bg-white dark:bg-slate-900/50 border border-slate-200 dark:border-slate-800 rounded-[2.5rem] space-y-6">
+        {/* Tri & Ordre */}
+        <div className="p-8 bg-white dark:bg-slate-900/50 border border-slate-200 dark:border-slate-800 rounded-[2.5rem] space-y-6 shadow-sm">
           <div className="flex items-center gap-3 text-indigo-500">
-            <SortAsc className="w-5 h-5" />
-            <h3 className="font-black uppercase tracking-widest text-xs text-slate-400">Tri</h3>
+            <ArrowDownUp className="w-5 h-5" />
+            <h3 className="font-black uppercase tracking-widest text-xs text-slate-400">Ordre & Tri</h3>
           </div>
           <div className="space-y-2">
-            <button
-              onClick={sortAZ}
-              className="w-full flex items-center justify-between p-4 bg-slate-50 dark:bg-slate-800/50 hover:bg-indigo-50 dark:hover:bg-indigo-900/20 rounded-2xl transition-all group"
-            >
-              <span className="font-bold text-sm">Alphabétique (A-Z)</span>
-              <SortAsc className="w-4 h-4 text-slate-400 group-hover:text-indigo-500" />
-            </button>
-            <button
-              onClick={sortZA}
-              className="w-full flex items-center justify-between p-4 bg-slate-50 dark:bg-slate-800/50 hover:bg-indigo-50 dark:hover:bg-indigo-900/20 rounded-2xl transition-all group"
-            >
-              <span className="font-bold text-sm">Alphabétique (Z-A)</span>
-              <SortDesc className="w-4 h-4 text-slate-400 group-hover:text-indigo-500" />
-            </button>
+            <div className="grid grid-cols-2 gap-2">
+              <button
+                onClick={sortAZ}
+                className="flex items-center justify-center gap-2 p-3 bg-slate-50 dark:bg-slate-800/50 hover:bg-indigo-50 dark:hover:bg-indigo-900/20 rounded-xl transition-all font-bold text-xs"
+              >
+                A-Z <SortAsc className="w-3 h-3" />
+              </button>
+              <button
+                onClick={sortZA}
+                className="flex items-center justify-center gap-2 p-3 bg-slate-50 dark:bg-slate-800/50 hover:bg-indigo-50 dark:hover:bg-indigo-900/20 rounded-xl transition-all font-bold text-xs"
+              >
+                Z-A <SortDesc className="w-3 h-3" />
+              </button>
+            </div>
             <button
               onClick={sortLength}
               className="w-full flex items-center justify-between p-4 bg-slate-50 dark:bg-slate-800/50 hover:bg-indigo-50 dark:hover:bg-indigo-900/20 rounded-2xl transition-all group"
@@ -153,37 +198,102 @@ export function ListCleaner() {
               <span className="font-bold text-sm">Par longueur</span>
               <SortAsc className="w-4 h-4 text-slate-400 group-hover:text-indigo-500" />
             </button>
+            <button
+              onClick={reverseList}
+              className="w-full flex items-center justify-between p-4 bg-slate-50 dark:bg-slate-800/50 hover:bg-indigo-50 dark:hover:bg-indigo-900/20 rounded-2xl transition-all group"
+            >
+              <span className="font-bold text-sm">Inverser la liste</span>
+              <ArrowDownUp className="w-4 h-4 text-slate-400 group-hover:text-indigo-500" />
+            </button>
+            <button
+              onClick={shuffleList}
+              className="w-full flex items-center justify-between p-4 bg-slate-50 dark:bg-slate-800/50 hover:bg-indigo-50 dark:hover:bg-indigo-900/20 rounded-2xl transition-all group"
+            >
+              <span className="font-bold text-sm">Mélanger (Aléatoire)</span>
+              <ArrowDownUp className="w-4 h-4 text-slate-400 group-hover:text-indigo-500" />
+            </button>
           </div>
         </div>
 
         {/* Transformation */}
-        <div className="p-8 bg-white dark:bg-slate-900/50 border border-slate-200 dark:border-slate-800 rounded-[2.5rem] space-y-6">
+        <div className="p-8 bg-white dark:bg-slate-900/50 border border-slate-200 dark:border-slate-800 rounded-[2.5rem] space-y-6 shadow-sm">
           <div className="flex items-center gap-3 text-indigo-500">
             <Type className="w-5 h-5" />
-            <h3 className="font-black uppercase tracking-widest text-xs text-slate-400">Casse</h3>
+            <h3 className="font-black uppercase tracking-widest text-xs text-slate-400">Transformation</h3>
           </div>
-          <div className="space-y-2">
-            <button
-              onClick={() => processList(lines => lines.map(l => l.toUpperCase()))}
-              className="w-full flex items-center justify-between p-4 bg-slate-50 dark:bg-slate-800/50 hover:bg-indigo-50 dark:hover:bg-indigo-900/20 rounded-2xl transition-all group"
-            >
-              <span className="font-bold text-sm">MAJUSCULES</span>
-              <Type className="w-4 h-4 text-slate-400 group-hover:text-indigo-500" />
-            </button>
-            <button
-              onClick={() => processList(lines => lines.map(l => l.toLowerCase()))}
-              className="w-full flex items-center justify-between p-4 bg-slate-50 dark:bg-slate-800/50 hover:bg-indigo-50 dark:hover:bg-indigo-900/20 rounded-2xl transition-all group"
-            >
-              <span className="font-bold text-sm">minuscules</span>
-              <Type className="w-4 h-4 text-slate-400 group-hover:text-indigo-500" />
-            </button>
-            <button
-              onClick={() => processList(lines => lines.map(l => l.charAt(0).toUpperCase() + l.slice(1).toLowerCase()))}
-              className="w-full flex items-center justify-between p-4 bg-slate-50 dark:bg-slate-800/50 hover:bg-indigo-50 dark:hover:bg-indigo-900/20 rounded-2xl transition-all group"
-            >
-              <span className="font-bold text-sm">Capitaliser</span>
-              <Type className="w-4 h-4 text-slate-400 group-hover:text-indigo-500" />
-            </button>
+          <div className="space-y-4">
+            <div className="grid grid-cols-3 gap-2">
+              <button
+                onClick={() => processList(lines => lines.map(l => l.toUpperCase()))}
+                className="p-2 bg-slate-50 dark:bg-slate-800/50 hover:bg-indigo-50 dark:hover:bg-indigo-900/20 rounded-xl transition-all font-black text-[10px]"
+                title="MAJUSCULES"
+              >
+                ABC
+              </button>
+              <button
+                onClick={() => processList(lines => lines.map(l => l.toLowerCase()))}
+                className="p-2 bg-slate-50 dark:bg-slate-800/50 hover:bg-indigo-50 dark:hover:bg-indigo-900/20 rounded-xl transition-all font-black text-[10px]"
+                title="minuscules"
+              >
+                abc
+              </button>
+              <button
+                onClick={() => processList(lines => lines.map(l => l.charAt(0).toUpperCase() + l.slice(1).toLowerCase()))}
+                className="p-2 bg-slate-50 dark:bg-slate-800/50 hover:bg-indigo-50 dark:hover:bg-indigo-900/20 rounded-xl transition-all font-black text-[10px]"
+                title="Première lettre en majuscule"
+              >
+                Abc
+              </button>
+            </div>
+
+            <div className="space-y-2">
+              <div className="flex gap-2">
+                <input
+                  type="text"
+                  placeholder="Chercher..."
+                  value={search}
+                  onChange={(e) => setSearch(e.target.value)}
+                  className="flex-1 px-3 py-2 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-xs outline-none focus:ring-1 focus:ring-indigo-500"
+                />
+                <input
+                  type="text"
+                  placeholder="Remplacer..."
+                  value={replace}
+                  onChange={(e) => setReplace(e.target.value)}
+                  className="flex-1 px-3 py-2 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-xs outline-none focus:ring-1 focus:ring-indigo-500"
+                />
+                <button
+                  onClick={handleReplace}
+                  className="p-2 bg-indigo-600 text-white rounded-xl hover:bg-indigo-700 transition-all active:scale-95"
+                  title="Remplacer tout"
+                >
+                  <Search className="w-4 h-4" />
+                </button>
+              </div>
+              <div className="flex gap-2">
+                <input
+                  type="text"
+                  placeholder="Préfixe"
+                  value={prefix}
+                  onChange={(e) => setPrefix(e.target.value)}
+                  className="flex-1 px-3 py-2 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-xs outline-none focus:ring-1 focus:ring-indigo-500"
+                />
+                <input
+                  type="text"
+                  placeholder="Suffixe"
+                  value={suffix}
+                  onChange={(e) => setSuffix(e.target.value)}
+                  className="flex-1 px-3 py-2 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-xs outline-none focus:ring-1 focus:ring-indigo-500"
+                />
+                <button
+                  onClick={addPrefixSuffix}
+                  className="p-2 bg-indigo-600 text-white rounded-xl hover:bg-indigo-700 transition-all active:scale-95"
+                  title="Ajouter préfixe/suffixe"
+                >
+                  <Plus className="w-4 h-4" />
+                </button>
+              </div>
+            </div>
           </div>
         </div>
       </div>

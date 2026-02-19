@@ -21,3 +21,11 @@
 ## 2025-02-03 - [Stable Generation & Bento Consistency]
 **Learning:** In text generation tools, random output must be stabilized using `useMemo` to prevent frustrating regenerations during unrelated state updates (like "Copied" feedback). Additionally, modernizing legacy components to the Bento design system (slate-50 backgrounds, rounded-3xl corners, indigo accents) significantly improves brand cohesion and trust.
 **Action:** Use `useMemo` for random text and prioritize visual alignment with the Bento system for older components.
+
+## 2026-06-10 - [Accent-Insensitive Search & Robust UX]
+**Learning:** For a global search feature, especially in a localized application, diacritic normalization (NFD) is essential for a frictionless UX. Additionally, pairing a search focus shortcut (/) with a clear shortcut (Esc) and a visual <kbd> hint creates a "pro" and accessible experience.
+**Action:** Implement NFD normalization for all search features and provide clear keyboard navigation hints.
+
+## 2026-06-11 - [Enhanced Utility Micro-UX]
+**Learning:** Utility tools like list cleaners or IP tools benefit greatly from "Copy" features and "Tactile" feedback (active:scale-95). Adding temporary visual states (like turning the background emerald on copy) provides immediate, non-intrusive confirmation that improves the tool's perceived quality.
+**Action:** Always include copy-to-clipboard buttons and tactile feedback for primary actions in utility tools.

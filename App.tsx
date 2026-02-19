@@ -128,6 +128,9 @@ const CronGenerator = lazy(() => import("./components/CronGenerator").then(m => 
 const HTMLEntityConverter = lazy(() => import("./components/HTMLEntityConverter").then(m => ({ default: m.HTMLEntityConverter })));
 const JSONToTS = lazy(() => import("./components/JSONToTS").then(m => ({ default: m.JSONToTS })));
 const ListCleaner = lazy(() => import("./components/ListCleaner").then(m => ({ default: m.ListCleaner })));
+const SlugGenerator = lazy(() => import("./components/SlugGenerator").then(m => ({ default: m.SlugGenerator })));
+const UserAgentAnalyzer = lazy(() => import("./components/UserAgentAnalyzer").then(m => ({ default: m.UserAgentAnalyzer })));
+const RegExTester = lazy(() => import("./components/RegExTester").then(m => ({ default: m.RegExTester })));
 const JWTDecoder = lazy(() => import("./components/JWTDecoder").then(m => ({ default: m.JWTDecoder })));
 const CodeMinifier = lazy(() => import("./components/CodeMinifier").then(m => ({ default: m.CodeMinifier })));
 const BinaryTextConverter = lazy(() => import("./components/BinaryTextConverter").then(m => ({ default: m.BinaryTextConverter })));
@@ -139,6 +142,13 @@ const ColorPaletteGenerator = lazy(() => import("./components/ColorPaletteGenera
 // ⚡ Bolt Optimization: Pre-calculating tool map and search index for O(1) lookups and faster filtering
 const toolsMap: Record<string, Tool> = {};
 const TOOL_SEARCH_INDEX = new Map<string, { name: string; description: string }>();
+
+/**
+ * ⚡ Bolt Optimization: Normalize text by removing accents/diacritics
+ * This ensures "ecriture" matches "écriture", significantly improving search UX.
+ */
+const normalizeText = (text: string) =>
+  text.normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase();
 
 interface Tool {
   id: string;
@@ -413,6 +423,14 @@ const tools: Tool[] = [
     Component: ListCleaner,
     category: "text",
   },
+  {
+    id: "slug-generator",
+    name: "Générateur de Slug",
+    icon: LinkIcon,
+    description: "Transformer un titre en URL optimisée (SEO)",
+    Component: SlugGenerator,
+    category: "text",
+  },
   // Dev Tools
   {
     id: "password-generator",
@@ -420,6 +438,14 @@ const tools: Tool[] = [
     icon: Key,
     description: "Générateur de clés sécurisées",
     Component: PasswordGenerator,
+    category: "dev",
+  },
+  {
+    id: "regex-tester",
+    name: "Testeur RegEx",
+    icon: Search,
+    description: "Tester et valider vos expressions régulières",
+    Component: RegExTester,
     category: "dev",
   },
   {
@@ -600,6 +626,14 @@ const tools: Tool[] = [
     category: "other",
   },
   {
+    id: "user-agent",
+    name: "User Agent",
+    icon: Monitor,
+    description: "Analyser votre navigateur et système",
+    Component: UserAgentAnalyzer,
+    category: "other",
+  },
+  {
     id: "bpm-counter",
     name: "BPM",
     icon: Music,
@@ -621,8 +655,8 @@ const tools: Tool[] = [
 tools.forEach(tool => {
   toolsMap[tool.id] = tool;
   TOOL_SEARCH_INDEX.set(tool.id, {
-    name: tool.name.toLowerCase(),
-    description: tool.description.toLowerCase(),
+    name: normalizeText(tool.name),
+    description: normalizeText(tool.description),
   });
 });
 
@@ -747,7 +781,7 @@ function MainApp() {
   const favoriteSet = useMemo(() => new Set(favorites), [favorites]);
 
   const filteredTools = useMemo(() => {
-    const query = deferredSearchQuery.trim().toLowerCase();
+    const query = normalizeText(deferredSearchQuery.trim());
 
     return tools.filter((tool) => {
       if (selectedCategory === "favorites") {
@@ -805,6 +839,14 @@ function MainApp() {
       if (e.key === "/" && document.activeElement?.tagName !== "INPUT" && document.activeElement?.tagName !== "TEXTAREA") {
         e.preventDefault();
         document.getElementById("tool-search")?.focus();
+      } else if (e.key === "Escape") {
+        setSearchQuery(prev => {
+          if (prev) return "";
+          if (document.activeElement instanceof HTMLElement) {
+            document.activeElement.blur();
+          }
+          return prev;
+        });
       }
     };
     window.addEventListener("keydown", handleKeyDown);
@@ -898,7 +940,16 @@ function MainApp() {
                       </kbd>
                     </div>
                   )}
-                  {searchQuery && <button onClick={() => setSearchQuery("")} className="absolute inset-y-0 right-4 flex items-center text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 transition-colors" aria-label="Effacer"><X className="h-5 w-5" /></button>}
+                  {searchQuery && (
+                    <>
+                      <div className="absolute inset-y-0 right-12 flex items-center pointer-events-none">
+                        <kbd className="hidden sm:inline-flex items-center gap-1 px-2 py-0.5 border border-slate-200 dark:border-slate-700 rounded text-[10px] font-bold text-slate-400 bg-white dark:bg-slate-800">
+                          Esc
+                        </kbd>
+                      </div>
+                      <button onClick={() => setSearchQuery("")} className="absolute inset-y-0 right-4 flex items-center text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 transition-colors" aria-label="Effacer"><X className="h-5 w-5" /></button>
+                    </>
+                  )}
                 </div>
               </div>
 
@@ -1010,6 +1061,12 @@ function ToolView({ favorites, toggleFavorite }: { favorites: string[], toggleFa
   // ⚡ Bolt Optimization: Use toolsMap for O(1) lookup
   const currentTool = toolId ? toolsMap[toolId] : null;
 
+  // ⚡ Bolt Optimization: Memoized category resolution for better performance and localization
+  const toolCategory = useMemo(() => {
+    if (!currentTool) return null;
+    return categories.find(c => c.id === currentTool.category);
+  }, [currentTool]);
+
   if (!currentTool) {
     return (
       <div className="text-center py-20">
@@ -1033,7 +1090,7 @@ function ToolView({ favorites, toggleFavorite }: { favorites: string[], toggleFa
         <div className="flex flex-col md:flex-row md:items-end justify-between gap-6">
           <div className="space-y-2">
             <div className="inline-flex items-center gap-2 px-3 py-1 bg-indigo-50 dark:bg-indigo-900/20 text-indigo-600 dark:text-indigo-400 rounded-full text-xs font-bold uppercase tracking-widest">
-              <currentTool.icon className="w-3 h-3" /> {currentTool.category}
+              {toolCategory?.icon && <toolCategory.icon className="w-3 h-3" />} {toolCategory?.name || currentTool.category}
             </div>
             <h1 className="text-4xl md:text-5xl font-black tracking-tight">{currentTool.name}</h1>
             <p className="text-lg text-slate-500 dark:text-slate-400 max-w-2xl">{currentTool.description}</p>

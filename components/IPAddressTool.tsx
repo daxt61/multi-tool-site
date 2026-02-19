@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { Globe, MapPin, Wifi, Info } from 'lucide-react';
+import { Globe, MapPin, Wifi, Info, Copy, Check } from 'lucide-react';
 import { AdPlaceholder } from './AdPlaceholder';
 
 export function IPAddressTool() {
@@ -14,6 +14,15 @@ export function IPAddressTool() {
 
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [copied, setCopied] = useState(false);
+
+  const handleCopy = () => {
+    if (ipInfo.ip && ipInfo.ip !== '123.456.789.012') {
+      navigator.clipboard.writeText(ipInfo.ip);
+      setCopied(true);
+      setTimeout(() => setCopied(false), 2000);
+    }
+  };
 
   useEffect(() => {
     fetch('https://ipapi.co/json/')
@@ -44,7 +53,8 @@ export function IPAddressTool() {
     <div className="max-w-3xl mx-auto">
       <AdPlaceholder size="banner" className="mb-6" />
 
-      <div className={`bg-gradient-to-br ${error ? 'from-rose-500 to-rose-600' : 'from-indigo-600 to-blue-500'} text-white p-8 md:p-12 rounded-[2.5rem] mb-8 text-center transition-colors duration-500 shadow-xl shadow-indigo-500/10`}>
+      <div className={`bg-gradient-to-br ${error ? 'from-rose-500 to-rose-600' : (copied ? 'from-emerald-500 to-emerald-600 shadow-emerald-500/20' : 'from-indigo-600 to-blue-500')} text-white p-8 md:p-12 rounded-[2.5rem] mb-8 text-center transition-all duration-500 shadow-xl shadow-indigo-500/10 relative overflow-hidden`}>
+        <div className="absolute top-0 right-0 w-64 h-64 bg-white/10 rounded-full blur-3xl -mr-32 -mt-32 pointer-events-none"></div>
         <Globe className="w-16 h-16 mx-auto mb-6 opacity-80" />
         <div className="text-xs font-black uppercase tracking-widest opacity-70 mb-3">Votre adresse IP publique</div>
         {loading ? (
@@ -52,7 +62,17 @@ export function IPAddressTool() {
         ) : error ? (
           <div className="text-lg font-bold mb-4">{error}</div>
         ) : (
-          <div className="text-4xl md:text-6xl font-black mb-4 break-all font-mono tracking-tighter">{ipInfo.ip}</div>
+          <div className="flex flex-col items-center gap-4">
+            <div className="text-4xl md:text-6xl font-black break-all font-mono tracking-tighter">{ipInfo.ip}</div>
+            <button
+              onClick={handleCopy}
+              className="flex items-center gap-2 px-6 py-2.5 bg-white/10 hover:bg-white/20 rounded-2xl transition-all active:scale-95 font-bold text-sm backdrop-blur-md border border-white/10"
+              aria-label="Copier l'adresse IP"
+            >
+              {copied ? <Check className="w-4 h-4 text-emerald-300" /> : <Copy className="w-4 h-4" />}
+              {copied ? 'Copié !' : 'Copier l\'adresse'}
+            </button>
+          </div>
         )}
         <div className="text-xs font-bold opacity-60">
           {loading ? 'Chargement des données...' : error ? 'Erreur de détection' : 'Données détectées automatiquement'}

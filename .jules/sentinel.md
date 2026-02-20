@@ -16,3 +16,8 @@
 **Vulnerability:** The PasswordGenerator was using `array[i] % charset.length` to select characters, which introduced a slight bias towards certain characters when the random space (2^32) was not a multiple of the charset size.
 **Learning:** Even when using cryptographically secure random values (CSPRNG), improper mathematical operations like modulo can degrade the entropy and introduce predictability.
 **Prevention:** Always use rejection sampling when mapping a large random range to a smaller one that does not divide it evenly. This ensures a perfectly uniform distribution across all possible outputs.
+
+## 2025-02-04 - [XSS in RegEx Highlighter]
+**Vulnerability:** The RegExTester used `dangerouslySetInnerHTML` to render a background div with highlighted matches, creating a potential XSS vector if matches contained malformed HTML.
+**Learning:** Highlighting logic that injects `<mark>` tags around user-provided text must be preceded by a strict escaping pass of the entire text string to ensure that any characters like `<` or `>` are rendered literally and cannot be interpreted as part of the highlighter's generated DOM.
+**Prevention:** Implement a robust `escapeHtml` utility and apply it to both the text being matched and the text between matches before concatenating with control tags.

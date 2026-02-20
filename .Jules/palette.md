@@ -21,3 +21,7 @@
 ## 2025-02-03 - [Stable Generation & Bento Consistency]
 **Learning:** In text generation tools, random output must be stabilized using `useMemo` to prevent frustrating regenerations during unrelated state updates (like "Copied" feedback). Additionally, modernizing legacy components to the Bento design system (slate-50 backgrounds, rounded-3xl corners, indigo accents) significantly improves brand cohesion and trust.
 **Action:** Use `useMemo` for random text and prioritize visual alignment with the Bento system for older components.
+
+## 2025-02-04 - [Synchronized UI & SEO Logic]
+**Learning:** When implementing synchronized highlighting backdrops for textareas (e.g., in RegEx testers), absolute positioning with identical padding, border-widths, and font styles is essential to prevent text-alignment ghosting. Additionally, for SEO tools like Slug Generators, diacritic normalization (NFD) and comprehensive stop-word filtering (including French-specific contractions like l', d') provide much higher quality results for the end-user.
+**Action:** Always match border/padding exactly for backdrops and use NFD normalization for slugification.

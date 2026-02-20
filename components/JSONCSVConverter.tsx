@@ -63,9 +63,19 @@ export function JSONCSVConverter() {
       if (!csv.trim()) return '';
       const lines = csv.trim().split('\n');
       if (lines.length < 2) return '';
-      const headers = parseCSVLine(lines[0]);
+      // Sentinel: Sanitize headers to prevent Prototype Pollution.
+      // Dangerous keys are case-insensitively renamed with an underscore prefix.
+      const headers = parseCSVLine(lines[0]).map(h => {
+        const lower = h.toLowerCase().trim();
+        if (lower === '__proto__' || lower === 'constructor' || lower === 'prototype') {
+          return `_${h}`;
+        }
+        return h;
+      });
+
       const result = lines.slice(1).map(line => {
         const values = parseCSVLine(line);
+        // Sentinel: Use a null-prototype object to eliminate Prototype Pollution risk.
         return headers.reduce((obj, header, index) => {
           let val: any = values[index];
           if (val === 'true') val = true;
@@ -73,7 +83,7 @@ export function JSONCSVConverter() {
           else if (!isNaN(Number(val)) && val !== '') val = Number(val);
           obj[header] = val;
           return obj;
-        }, {} as any);
+        }, Object.create(null));
       });
       return JSON.stringify(result, null, 2);
     } catch (e) {

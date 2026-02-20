@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Percent, ArrowRight, Info, TrendingUp } from 'lucide-react';
+import { Percent, ArrowRight, Info, TrendingUp, Copy, Check, Trash2 } from 'lucide-react';
 
 export function PercentageCalculator() {
   const [value1, setValue1] = useState('100');
@@ -8,6 +8,7 @@ export function PercentageCalculator() {
   const [value4, setValue4] = useState('100');
   const [initialVal, setInitialVal] = useState('100');
   const [finalVal, setFinalVal] = useState('150');
+  const [copied, setCopied] = useState<string | null>(null);
 
   const percentageOf = (Number(value2) / 100) * Number(value1);
   const whatPercent = Number(value4) !== 0 ? (Number(value3) / Number(value4)) * 100 : 0;
@@ -16,11 +17,33 @@ export function PercentageCalculator() {
   const v2 = Number(finalVal);
   const percentChange = v1 !== 0 ? ((v2 - v1) / v1) * 100 : 0;
 
+  const handleCopy = (val: number, id: string) => {
+    navigator.clipboard.writeText(val.toFixed(2));
+    setCopied(id);
+    setTimeout(() => setCopied(null), 2000);
+  };
+
+  const handleClear = () => {
+    setValue1('');
+    setValue2('');
+    setValue3('');
+    setValue4('');
+    setInitialVal('');
+    setFinalVal('');
+  };
+
   return (
     <div className="max-w-4xl mx-auto space-y-8">
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
         {/* Section 1: X% de Y */}
-        <div className="bg-slate-50 dark:bg-slate-900/50 p-8 rounded-[2.5rem] border border-slate-200 dark:border-slate-800 flex flex-col justify-between space-y-6">
+        <div className="bg-slate-50 dark:bg-slate-900/50 p-8 rounded-[2.5rem] border border-slate-200 dark:border-slate-800 flex flex-col justify-between space-y-6 relative group">
+          <button
+            onClick={handleClear}
+            className="absolute top-6 right-6 p-2 text-slate-400 hover:text-rose-500 transition-colors opacity-0 group-hover:opacity-100"
+            aria-label="Tout effacer"
+          >
+            <Trash2 className="w-4 h-4" />
+          </button>
           <div className="space-y-4">
             <div className="flex items-center gap-2 text-indigo-500">
               <Percent className="w-4 h-4" />
@@ -46,7 +69,14 @@ export function PercentageCalculator() {
               />
             </div>
           </div>
-          <div className="bg-white dark:bg-slate-800 p-6 rounded-2xl border border-slate-100 dark:border-slate-700 text-center">
+          <div className="bg-white dark:bg-slate-800 p-6 rounded-2xl border border-slate-100 dark:border-slate-700 text-center relative group/res">
+            <button
+              onClick={() => handleCopy(percentageOf, 's1')}
+              className={`absolute top-4 right-4 p-2 rounded-lg transition-all ${copied === 's1' ? 'text-emerald-500' : 'text-slate-300 hover:text-indigo-500 opacity-0 group-hover/res:opacity-100'}`}
+              aria-label="Copier le résultat"
+            >
+              {copied === 's1' ? <Check className="w-4 h-4" /> : <Copy className="w-4 h-4" />}
+            </button>
             <div className="text-xs font-bold text-slate-400 uppercase tracking-widest mb-2">Résultat</div>
             <div className="text-4xl font-black text-indigo-600 dark:text-indigo-400 font-mono">
                {isNaN(percentageOf) ? '0' : percentageOf.toLocaleString(undefined, { maximumFractionDigits: 2 })}
@@ -55,7 +85,14 @@ export function PercentageCalculator() {
         </div>
 
         {/* Section 2: X représente quel % de Y */}
-        <div className="bg-slate-50 dark:bg-slate-900/50 p-8 rounded-[2.5rem] border border-slate-200 dark:border-slate-800 flex flex-col justify-between space-y-6">
+        <div className="bg-slate-50 dark:bg-slate-900/50 p-8 rounded-[2.5rem] border border-slate-200 dark:border-slate-800 flex flex-col justify-between space-y-6 relative group">
+          <button
+            onClick={handleClear}
+            className="absolute top-6 right-6 p-2 text-slate-400 hover:text-rose-500 transition-colors opacity-0 group-hover:opacity-100"
+            aria-label="Tout effacer"
+          >
+            <Trash2 className="w-4 h-4" />
+          </button>
           <div className="space-y-4">
              <div className="flex items-center gap-2 text-indigo-500">
               <ArrowRight className="w-4 h-4" />
@@ -81,7 +118,14 @@ export function PercentageCalculator() {
               />
             </div>
           </div>
-          <div className="bg-white dark:bg-slate-800 p-6 rounded-2xl border border-slate-100 dark:border-slate-700 text-center">
+          <div className="bg-white dark:bg-slate-800 p-6 rounded-2xl border border-slate-100 dark:border-slate-700 text-center relative group/res">
+             <button
+              onClick={() => handleCopy(whatPercent, 's2')}
+              className={`absolute top-4 right-4 p-2 rounded-lg transition-all ${copied === 's2' ? 'text-emerald-500' : 'text-slate-300 hover:text-indigo-500 opacity-0 group-hover/res:opacity-100'}`}
+              aria-label="Copier le résultat"
+            >
+              {copied === 's2' ? <Check className="w-4 h-4" /> : <Copy className="w-4 h-4" />}
+            </button>
             <div className="text-xs font-bold text-slate-400 uppercase tracking-widest mb-2">Résultat</div>
             <div className="text-4xl font-black text-indigo-600 dark:text-indigo-400 font-mono">
                {isNaN(whatPercent) ? '0' : whatPercent.toLocaleString(undefined, { maximumFractionDigits: 2 })}%
@@ -91,7 +135,14 @@ export function PercentageCalculator() {
       </div>
 
       {/* Section 3: Variation en % */}
-      <div className="bg-slate-50 dark:bg-slate-900/50 p-8 rounded-[2.5rem] border border-slate-200 dark:border-slate-800 space-y-8">
+      <div className="bg-slate-50 dark:bg-slate-900/50 p-8 rounded-[2.5rem] border border-slate-200 dark:border-slate-800 space-y-8 relative group">
+        <button
+          onClick={handleClear}
+          className="absolute top-6 right-6 p-2 text-slate-400 hover:text-rose-500 transition-colors opacity-0 group-hover:opacity-100"
+          aria-label="Tout effacer"
+        >
+          <Trash2 className="w-4 h-4" />
+        </button>
         <div className="flex items-center gap-2 text-indigo-500">
           <TrendingUp className="w-4 h-4" />
           <label className="text-xs font-black uppercase tracking-widest text-slate-400">Variation en % (Augmentation/Diminution)</label>
@@ -119,7 +170,14 @@ export function PercentageCalculator() {
           </div>
         </div>
 
-        <div className="bg-white dark:bg-slate-800 p-8 rounded-3xl border border-slate-100 dark:border-slate-700 text-center">
+        <div className="bg-white dark:bg-slate-800 p-8 rounded-3xl border border-slate-100 dark:border-slate-700 text-center relative group/res">
+            <button
+              onClick={() => handleCopy(percentChange, 's3')}
+              className={`absolute top-4 right-4 p-2 rounded-lg transition-all ${copied === 's3' ? 'text-emerald-500' : 'text-slate-300 hover:text-indigo-500 opacity-0 group-hover/res:opacity-100'}`}
+              aria-label="Copier le résultat"
+            >
+              {copied === 's3' ? <Check className="w-4 h-4" /> : <Copy className="w-4 h-4" />}
+            </button>
             <div className="text-xs font-bold text-slate-400 uppercase tracking-widest mb-2">Variation</div>
             <div className={`text-5xl font-black font-mono ${percentChange >= 0 ? 'text-emerald-500' : 'text-rose-500'}`}>
                {percentChange > 0 ? '+' : ''}{isNaN(percentChange) ? '0' : percentChange.toLocaleString(undefined, { maximumFractionDigits: 2 })}%

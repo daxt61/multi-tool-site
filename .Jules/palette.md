@@ -21,3 +21,7 @@
 ## 2025-02-03 - [Stable Generation & Bento Consistency]
 **Learning:** In text generation tools, random output must be stabilized using `useMemo` to prevent frustrating regenerations during unrelated state updates (like "Copied" feedback). Additionally, modernizing legacy components to the Bento design system (slate-50 backgrounds, rounded-3xl corners, indigo accents) significantly improves brand cohesion and trust.
 **Action:** Use `useMemo` for random text and prioritize visual alignment with the Bento system for older components.
+
+## 2026-02-20 - [Visual Alignment in Highlighted Textareas]
+**Learning:** When creating a synchronized highlighting backdrop for a textarea, using `break-all` on the backdrop but not on the textarea can cause long words to wrap differently, breaking the visual alignment of the highlights.
+**Action:** Always ensure that layout-critical CSS properties (font, padding, leading, word-break, white-space) are identical between the textarea and its highlighting backdrop.

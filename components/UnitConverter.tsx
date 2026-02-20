@@ -105,9 +105,9 @@ const CONVERSIONS: Record<ConversionCategory, Record<string, ConversionUnit>> = 
   },
   consumption: {
     'l/100km': { name: 'L/100km', toBase: (v) => v, fromBase: (v) => v },
-    'mpg_us': { name: 'MPG (US)', toBase: (v) => 235.215 / v, fromBase: (v) => 235.215 / v },
-    'mpg_uk': { name: 'MPG (UK)', toBase: (v) => 282.481 / v, fromBase: (v) => 282.481 / v },
-    'km/l': { name: 'km/L', toBase: (v) => 100 / v, fromBase: (v) => 100 / v },
+    'mpg_us': { name: 'MPG (US)', toBase: (v) => v === 0 ? 0 : 235.215 / v, fromBase: (v) => v === 0 ? 0 : 235.215 / v },
+    'mpg_uk': { name: 'MPG (UK)', toBase: (v) => v === 0 ? 0 : 282.481 / v, fromBase: (v) => v === 0 ? 0 : 282.481 / v },
+    'km/l': { name: 'km/L', toBase: (v) => v === 0 ? 0 : 100 / v, fromBase: (v) => v === 0 ? 0 : 100 / v },
   },
   angle: {
     'deg': { name: 'Degrés', toBase: (v) => v, fromBase: (v) => v },
@@ -214,6 +214,7 @@ export function UnitConverter() {
             <button
               onClick={handleClear}
               className="text-xs font-bold text-rose-500 hover:text-rose-600 flex items-center gap-1 transition-colors"
+              aria-label="Effacer la saisie"
             >
               <Trash2 className="w-3 h-3" /> Effacer
             </button>
@@ -265,6 +266,7 @@ export function UnitConverter() {
             <button
               onClick={handleCopy}
               className={`text-xs font-bold flex items-center gap-1 transition-colors ${copied ? 'text-emerald-500' : 'text-indigo-500 hover:text-indigo-600'}`}
+              aria-label={copied ? "Copié dans le presse-papier" : "Copier le résultat"}
             >
               {copied ? <Check className="w-3 h-3" /> : <Copy className="w-3 h-3" />}
               {copied ? 'Copié' : 'Copier'}

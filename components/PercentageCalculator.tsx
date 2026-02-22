@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Percent, ArrowRight, Info, TrendingUp } from 'lucide-react';
+import { Percent, ArrowRight, Info, TrendingUp, Copy, Check, RotateCcw } from 'lucide-react';
 
 export function PercentageCalculator() {
   const [value1, setValue1] = useState('100');
@@ -8,6 +8,13 @@ export function PercentageCalculator() {
   const [value4, setValue4] = useState('100');
   const [initialVal, setInitialVal] = useState('100');
   const [finalVal, setFinalVal] = useState('150');
+  const [copied, setCopied] = useState<string | null>(null);
+
+  const copyToClipboard = (val: number | string, id: string) => {
+    navigator.clipboard.writeText(val.toString());
+    setCopied(id);
+    setTimeout(() => setCopied(null), 2000);
+  };
 
   const percentageOf = (Number(value2) / 100) * Number(value1);
   const whatPercent = Number(value4) !== 0 ? (Number(value3) / Number(value4)) * 100 : 0;
@@ -20,11 +27,29 @@ export function PercentageCalculator() {
     <div className="max-w-4xl mx-auto space-y-8">
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
         {/* Section 1: X% de Y */}
-        <div className="bg-slate-50 dark:bg-slate-900/50 p-8 rounded-[2.5rem] border border-slate-200 dark:border-slate-800 flex flex-col justify-between space-y-6">
+        <div className="bg-slate-50 dark:bg-slate-900/50 p-8 rounded-[2.5rem] border border-slate-200 dark:border-slate-800 flex flex-col justify-between space-y-6 relative group">
           <div className="space-y-4">
-            <div className="flex items-center gap-2 text-indigo-500">
-              <Percent className="w-4 h-4" />
-              <label className="text-xs font-black uppercase tracking-widest text-slate-400">Combien font X% de Y ?</label>
+            <div className="flex justify-between items-center">
+              <div className="flex items-center gap-2 text-indigo-500">
+                <Percent className="w-4 h-4" />
+                <label className="text-xs font-black uppercase tracking-widest text-slate-400">Combien font X% de Y ?</label>
+              </div>
+              <div className="flex gap-1 opacity-0 group-hover:opacity-100 focus-within:opacity-100 transition-opacity">
+                <button
+                  onClick={() => {setValue1(''); setValue2('');}}
+                  className="p-1.5 text-slate-400 hover:text-rose-500 transition-colors"
+                  aria-label="Effacer la section"
+                >
+                  <RotateCcw className="w-3.5 h-3.5" />
+                </button>
+                <button
+                  onClick={() => copyToClipboard(percentageOf, 's1')}
+                  className={`p-1.5 rounded-md transition-colors ${copied === 's1' ? 'text-emerald-500' : 'text-slate-400 hover:text-indigo-500'}`}
+                  aria-label="Copier le résultat"
+                >
+                  {copied === 's1' ? <Check className="w-3.5 h-3.5" /> : <Copy className="w-3.5 h-3.5" />}
+                </button>
+              </div>
             </div>
             <div className="flex items-center gap-3">
               <input
@@ -55,11 +80,29 @@ export function PercentageCalculator() {
         </div>
 
         {/* Section 2: X représente quel % de Y */}
-        <div className="bg-slate-50 dark:bg-slate-900/50 p-8 rounded-[2.5rem] border border-slate-200 dark:border-slate-800 flex flex-col justify-between space-y-6">
+        <div className="bg-slate-50 dark:bg-slate-900/50 p-8 rounded-[2.5rem] border border-slate-200 dark:border-slate-800 flex flex-col justify-between space-y-6 relative group">
           <div className="space-y-4">
-             <div className="flex items-center gap-2 text-indigo-500">
-              <ArrowRight className="w-4 h-4" />
-              <label className="text-xs font-black uppercase tracking-widest text-slate-400">X représente quel % de Y ?</label>
+            <div className="flex justify-between items-center">
+              <div className="flex items-center gap-2 text-indigo-500">
+                <ArrowRight className="w-4 h-4" />
+                <label className="text-xs font-black uppercase tracking-widest text-slate-400">X représente quel % de Y ?</label>
+              </div>
+              <div className="flex gap-1 opacity-0 group-hover:opacity-100 focus-within:opacity-100 transition-opacity">
+                <button
+                  onClick={() => {setValue3(''); setValue4('');}}
+                  className="p-1.5 text-slate-400 hover:text-rose-500 transition-colors"
+                  aria-label="Effacer la section"
+                >
+                  <RotateCcw className="w-3.5 h-3.5" />
+                </button>
+                <button
+                  onClick={() => copyToClipboard(whatPercent, 's2')}
+                  className={`p-1.5 rounded-md transition-colors ${copied === 's2' ? 'text-emerald-500' : 'text-slate-400 hover:text-indigo-500'}`}
+                  aria-label="Copier le résultat"
+                >
+                  {copied === 's2' ? <Check className="w-3.5 h-3.5" /> : <Copy className="w-3.5 h-3.5" />}
+                </button>
+              </div>
             </div>
             <div className="flex items-center gap-3">
               <input
@@ -91,10 +134,28 @@ export function PercentageCalculator() {
       </div>
 
       {/* Section 3: Variation en % */}
-      <div className="bg-slate-50 dark:bg-slate-900/50 p-8 rounded-[2.5rem] border border-slate-200 dark:border-slate-800 space-y-8">
-        <div className="flex items-center gap-2 text-indigo-500">
-          <TrendingUp className="w-4 h-4" />
-          <label className="text-xs font-black uppercase tracking-widest text-slate-400">Variation en % (Augmentation/Diminution)</label>
+      <div className="bg-slate-50 dark:bg-slate-900/50 p-8 rounded-[2.5rem] border border-slate-200 dark:border-slate-800 space-y-8 relative group">
+        <div className="flex justify-between items-center">
+          <div className="flex items-center gap-2 text-indigo-500">
+            <TrendingUp className="w-4 h-4" />
+            <label className="text-xs font-black uppercase tracking-widest text-slate-400">Variation en % (Augmentation/Diminution)</label>
+          </div>
+          <div className="flex gap-1 opacity-0 group-hover:opacity-100 focus-within:opacity-100 transition-opacity">
+            <button
+              onClick={() => {setInitialVal(''); setFinalVal('');}}
+              className="p-1.5 text-slate-400 hover:text-rose-500 transition-colors"
+              aria-label="Effacer la section"
+            >
+              <RotateCcw className="w-3.5 h-3.5" />
+            </button>
+            <button
+              onClick={() => copyToClipboard(percentChange, 's3')}
+              className={`p-1.5 rounded-md transition-colors ${copied === 's3' ? 'text-emerald-500' : 'text-slate-400 hover:text-indigo-500'}`}
+              aria-label="Copier le résultat"
+            >
+              {copied === 's3' ? <Check className="w-3.5 h-3.5" /> : <Copy className="w-3.5 h-3.5" />}
+            </button>
+          </div>
         </div>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           <div className="space-y-3">
@@ -128,10 +189,21 @@ export function PercentageCalculator() {
       </div>
 
       {/* Section 4: Résultat après % de changement */}
-      <div className="bg-slate-50 dark:bg-slate-900/50 p-8 rounded-[2.5rem] border border-slate-200 dark:border-slate-800 space-y-8">
-        <div className="flex items-center gap-2 text-indigo-500">
-          <Info className="w-4 h-4" />
-          <label className="text-xs font-black uppercase tracking-widest text-slate-400">Calculer une valeur après changement</label>
+      <div className="bg-slate-50 dark:bg-slate-900/50 p-8 rounded-[2.5rem] border border-slate-200 dark:border-slate-800 space-y-8 relative group">
+        <div className="flex justify-between items-center">
+          <div className="flex items-center gap-2 text-indigo-500">
+            <Info className="w-4 h-4" />
+            <label className="text-xs font-black uppercase tracking-widest text-slate-400">Calculer une valeur après changement</label>
+          </div>
+          <div className="flex gap-1 opacity-0 group-hover:opacity-100 focus-within:opacity-100 transition-opacity">
+            <button
+              onClick={() => {setValue1(''); setValue2('');}}
+              className="p-1.5 text-slate-400 hover:text-rose-500 transition-colors"
+              aria-label="Effacer la section"
+            >
+              <RotateCcw className="w-3.5 h-3.5" />
+            </button>
+          </div>
         </div>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           <div className="space-y-3">

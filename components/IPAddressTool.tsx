@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { Globe, MapPin, Wifi, Info } from 'lucide-react';
+import { Globe, MapPin, Wifi, Info, Copy, Check } from 'lucide-react';
 import { AdPlaceholder } from './AdPlaceholder';
 
 export function IPAddressTool() {
@@ -14,6 +14,14 @@ export function IPAddressTool() {
 
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [copied, setCopied] = useState(false);
+
+  const copyToClipboard = () => {
+    if (!ipInfo.ip) return;
+    navigator.clipboard.writeText(ipInfo.ip);
+    setCopied(true);
+    setTimeout(() => setCopied(false), 2000);
+  };
 
   useEffect(() => {
     fetch('https://ipapi.co/json/')
@@ -44,7 +52,16 @@ export function IPAddressTool() {
     <div className="max-w-3xl mx-auto">
       <AdPlaceholder size="banner" className="mb-6" />
 
-      <div className={`bg-gradient-to-br ${error ? 'from-rose-500 to-rose-600' : 'from-indigo-600 to-blue-500'} text-white p-8 md:p-12 rounded-[2.5rem] mb-8 text-center transition-colors duration-500 shadow-xl shadow-indigo-500/10`}>
+      <div className={`bg-gradient-to-br ${error ? 'from-rose-500 to-rose-600' : copied ? 'from-emerald-500 to-emerald-600' : 'from-indigo-600 to-blue-500'} text-white p-8 md:p-12 rounded-[2.5rem] mb-8 text-center transition-all duration-500 shadow-xl shadow-indigo-500/10 relative group`}>
+        {!error && !loading && (
+          <button
+            onClick={copyToClipboard}
+            className="absolute top-6 right-6 p-4 bg-white/10 hover:bg-white/20 rounded-2xl transition-all active:scale-95 flex items-center gap-2"
+            aria-label="Copier l'adresse IP"
+          >
+            {copied ? <Check className="w-5 h-5" /> : <Copy className="w-5 h-5" />}
+          </button>
+        )}
         <Globe className="w-16 h-16 mx-auto mb-6 opacity-80" />
         <div className="text-xs font-black uppercase tracking-widest opacity-70 mb-3">Votre adresse IP publique</div>
         {loading ? (
@@ -52,10 +69,15 @@ export function IPAddressTool() {
         ) : error ? (
           <div className="text-lg font-bold mb-4">{error}</div>
         ) : (
-          <div className="text-4xl md:text-6xl font-black mb-4 break-all font-mono tracking-tighter">{ipInfo.ip}</div>
+          <button
+            onClick={copyToClipboard}
+            className="text-4xl md:text-6xl font-black mb-4 break-all font-mono tracking-tighter hover:opacity-80 transition-opacity active:scale-[0.98] outline-none"
+          >
+            {ipInfo.ip}
+          </button>
         )}
         <div className="text-xs font-bold opacity-60">
-          {loading ? 'Chargement des données...' : error ? 'Erreur de détection' : 'Données détectées automatiquement'}
+          {loading ? 'Chargement des données...' : error ? 'Erreur de détection' : 'Données détectées automatiquement • Cliquez pour copier'}
         </div>
       </div>
 

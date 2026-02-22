@@ -1,10 +1,13 @@
-import { useState } from 'react';
-import { Eye, Code } from 'lucide-react';
+import { useState, useMemo, useDeferredValue } from 'react';
+import { Eye, Code, FileText, AlertCircle } from 'lucide-react';
 import { AdPlaceholder } from './AdPlaceholder';
 
 export function MarkdownPreview() {
   const [markdown, setMarkdown] = useState('# Titre\n\nVotre texte **Markdown** ici...');
   const [mode, setMode] = useState<'split' | 'edit' | 'preview'>('split');
+
+  // ⚡ Bolt Optimization: useDeferredValue to keep the UI responsive while rendering large Markdown
+  const deferredMarkdown = useDeferredValue(markdown);
 
   const escapeHTML = (str: string) => {
     return str
@@ -16,6 +19,7 @@ export function MarkdownPreview() {
   };
 
   const renderMarkdown = (text: string) => {
+    if (!text) return '';
     const placeholders: string[] = [];
 
     // Escape input to prevent XSS
@@ -84,62 +88,66 @@ export function MarkdownPreview() {
     return html;
   };
 
-  return (
-    <div className="max-w-6xl mx-auto">
-      <AdPlaceholder size="banner" className="mb-6" />
+  // ⚡ Bolt Optimization: useMemo for expensive Markdown rendering
+  const renderedContent = useMemo(() => {
+    // Sentinel: Enforce character limit to prevent ReDoS and browser hangs (DoS)
+    if (deferredMarkdown.length > 50000) {
+      return `<div class="p-8 border-2 border-dashed border-rose-200 dark:border-rose-900/30 rounded-3xl text-center text-rose-500 font-bold">
+        Limite de 50 000 caractères dépassée pour l'aperçu.
+      </div>`;
+    }
+    return renderMarkdown(deferredMarkdown);
+  }, [deferredMarkdown]);
 
-      <div className="flex gap-2 mb-4">
-        <button
-          onClick={() => setMode('edit')}
-          className={`px-4 py-2 rounded-lg font-semibold transition-all ${
-            mode === 'edit' ? 'bg-blue-500 text-white' : 'bg-gray-200'
-          }`}
-        >
-          <Code className="w-4 h-4 inline mr-2" />
-          Édition
-        </button>
-        <button
-          onClick={() => setMode('split')}
-          className={`px-4 py-2 rounded-lg font-semibold transition-all ${
-            mode === 'split' ? 'bg-blue-500 text-white' : 'bg-gray-200'
-          }`}
-        >
-          Divisé
-        </button>
-        <button
-          onClick={() => setMode('preview')}
-          className={`px-4 py-2 rounded-lg font-semibold transition-all ${
-            mode === 'preview' ? 'bg-blue-500 text-white' : 'bg-gray-200'
-          }`}
-        >
-          <Eye className="w-4 h-4 inline mr-2" />
-          Aperçu
-        </button>
+  return (
+    <div className="max-w-6xl mx-auto space-y-8">
+      <AdPlaceholder size="banner" className="opacity-50" />
+
+      <div className="bg-slate-50 dark:bg-slate-900/50 p-6 rounded-[2rem] border border-slate-200 dark:border-slate-800 flex flex-wrap gap-2">
+        {[
+          { id: 'edit', label: 'Édition', icon: Code },
+          { id: 'split', label: 'Divisé', icon: FileText },
+          { id: 'preview', label: 'Aperçu', icon: Eye },
+        ].map(m => (
+          <button
+            key={m.id}
+            onClick={() => setMode(m.id as any)}
+            className={`px-6 py-2.5 rounded-xl font-bold transition-all flex items-center gap-2 ${
+              mode === m.id
+                ? 'bg-indigo-600 text-white shadow-lg shadow-indigo-600/20'
+                : 'bg-white dark:bg-slate-800 text-slate-500 hover:bg-slate-100 dark:hover:bg-slate-700 border border-slate-200 dark:border-slate-700'
+            }`}
+          >
+            <m.icon className="w-4 h-4" />
+            {m.label}
+          </button>
+        ))}
+
+        <div className="ml-auto flex items-center gap-4 px-4 text-xs font-bold text-slate-400">
+           {markdown.length} / 50 000
+           {markdown.length > 50000 && <AlertCircle className="w-4 h-4 text-rose-500" />}
+        </div>
       </div>
 
-      <div className={`grid gap-4 ${mode === 'split' ? 'grid-cols-2' : 'grid-cols-1'}`}>
+      <div className={`grid gap-8 ${mode === 'split' ? 'lg:grid-cols-2' : 'grid-cols-1'}`}>
         {(mode === 'edit' || mode === 'split') && (
-          <div>
-            <label className="block text-sm font-semibold text-gray-700 mb-2">
-              Markdown
-            </label>
+          <div className="space-y-4">
+            <label className="text-xs font-black uppercase tracking-widest text-slate-400 px-1">Source Markdown</label>
             <textarea
               value={markdown}
               onChange={(e) => setMarkdown(e.target.value)}
-              className="w-full h-96 p-4 border border-gray-300 rounded-lg resize-none font-mono text-sm"
+              className="w-full h-[600px] p-8 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-[2.5rem] outline-none focus:ring-2 focus:ring-indigo-500/20 transition-all font-mono text-sm leading-relaxed dark:text-slate-300 resize-none"
               placeholder="# Titre..."
             />
           </div>
         )}
         
         {(mode === 'preview' || mode === 'split') && (
-          <div>
-            <label className="block text-sm font-semibold text-gray-700 mb-2">
-              Aperçu
-            </label>
+          <div className="space-y-4">
+            <label className="text-xs font-black uppercase tracking-widest text-slate-400 px-1">Rendu Final</label>
             <div
-              className="w-full h-96 p-4 border border-gray-300 rounded-lg overflow-y-auto bg-white prose"
-              dangerouslySetInnerHTML={{ __html: renderMarkdown(markdown) }}
+              className="w-full h-[600px] p-8 bg-white dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-[2.5rem] overflow-y-auto prose dark:prose-invert prose-slate max-w-none"
+              dangerouslySetInnerHTML={{ __html: renderedContent }}
             />
           </div>
         )}

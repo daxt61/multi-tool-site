@@ -92,7 +92,18 @@ export function ColorPaletteGenerator() {
   };
 
   const generateRandom = () => {
-    const randomHex = '#' + Math.floor(Math.random() * 16777215).toString(16).padStart(6, '0');
+    // Sentinel: Use CSPRNG with rejection sampling to prevent predictable outputs and modulo bias.
+    const array = new Uint32Array(1);
+    const maxUint32 = 0xffffffff;
+    const range = 16777216; // 0x1000000 (16^6)
+    const limit = maxUint32 - (maxUint32 % range);
+    let randomVal;
+    do {
+      window.crypto.getRandomValues(array);
+      randomVal = array[0];
+    } while (randomVal >= limit);
+
+    const randomHex = '#' + (randomVal % range).toString(16).padStart(6, '0');
     setBaseColor(randomHex);
   };
 

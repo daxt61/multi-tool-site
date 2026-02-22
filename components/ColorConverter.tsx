@@ -125,12 +125,13 @@ export function ColorConverter() {
           className="w-full h-64 rounded-[2.5rem] shadow-2xl shadow-indigo-500/10 transition-all duration-500 group-hover:scale-[1.01]"
           style={{ backgroundColor: hex }}
         />
-        <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
+        <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 group-focus-within:opacity-100 transition-opacity">
           <input
             type="color"
             value={hex}
             onChange={(e) => updateFromHex(e.target.value)}
-            className="w-20 h-20 rounded-full border-4 border-white dark:border-slate-800 cursor-pointer shadow-xl overflow-hidden"
+            className="w-20 h-20 rounded-full border-4 border-white dark:border-slate-800 cursor-pointer shadow-xl overflow-hidden focus:ring-4 focus:ring-indigo-500/50 outline-none transition-all"
+            aria-label="Choisir une couleur"
           />
         </div>
       </div>

@@ -131,6 +131,8 @@ const ListCleaner = lazy(() => import("./components/ListCleaner").then(m => ({ d
 const JWTDecoder = lazy(() => import("./components/JWTDecoder").then(m => ({ default: m.JWTDecoder })));
 const CodeMinifier = lazy(() => import("./components/CodeMinifier").then(m => ({ default: m.CodeMinifier })));
 const BinaryTextConverter = lazy(() => import("./components/BinaryTextConverter").then(m => ({ default: m.BinaryTextConverter })));
+const RegExTester = lazy(() => import("./components/RegExTester").then(m => ({ default: m.RegExTester })));
+const UserAgentAnalyzer = lazy(() => import("./components/UserAgentAnalyzer").then(m => ({ default: m.UserAgentAnalyzer })));
 const Base64ToImage = lazy(() => import("./components/Base64ToImage").then(m => ({ default: m.Base64ToImage })));
 const UnitPriceCalculator = lazy(() => import("./components/UnitPriceCalculator").then(m => ({ default: m.UnitPriceCalculator })));
 const AgeCalculator = lazy(() => import("./components/AgeCalculator").then(m => ({ default: m.AgeCalculator })));
@@ -556,6 +558,22 @@ const tools: Tool[] = [
     icon: Scissors,
     description: "Minifier JS, CSS et HTML pour le web",
     Component: CodeMinifier,
+    category: "dev",
+  },
+  {
+    id: "regex-tester",
+    name: "Testeur de RegEx",
+    icon: Search,
+    description: "Tester et déboguer vos expressions régulières",
+    Component: RegExTester,
+    category: "dev",
+  },
+  {
+    id: "user-agent",
+    name: "User Agent",
+    icon: Monitor,
+    description: "Analyser les informations de votre navigateur et système",
+    Component: UserAgentAnalyzer,
     category: "dev",
   },
   {

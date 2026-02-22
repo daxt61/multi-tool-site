@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { Copy, Check, Trash2, ArrowUpDown, Info, Ruler } from 'lucide-react';
 
-type ConversionCategory = 'length' | 'weight' | 'temperature' | 'area' | 'volume' | 'digital' | 'pressure' | 'energy' | 'speed' | 'time' | 'power' | 'frequency' | 'consumption' | 'angle';
+type ConversionCategory = 'length' | 'weight' | 'temperature' | 'area' | 'volume' | 'digital' | 'pressure' | 'energy' | 'speed' | 'time' | 'power' | 'frequency' | 'consumption' | 'angle' | 'torque';
 
 interface ConversionUnit {
   name: string;
@@ -58,7 +58,13 @@ const CONVERSIONS: Record<ConversionCategory, Record<string, ConversionUnit>> = 
     'KB': { name: 'Kilooctets (KB)', toBase: (v) => v * 1024, fromBase: (v) => v / 1024 },
     'MB': { name: 'Megaoctets (MB)', toBase: (v) => v * Math.pow(1024, 2), fromBase: (v) => v / Math.pow(1024, 2) },
     'GB': { name: 'Gigaoctets (GB)', toBase: (v) => v * Math.pow(1024, 3), fromBase: (v) => v / Math.pow(1024, 3) },
-    'TB': { name: 'Teraoctets (TB)', toBase: (v) => v * Math.pow(1024, 4), fromBase: (v) => v / Math.pow(1024, 4) }
+    'TB': { name: 'Teraoctets (TB)', toBase: (v) => v * Math.pow(1024, 4), fromBase: (v) => v / Math.pow(1024, 4) },
+    'PB': { name: 'Pétaoctets (PB)', toBase: (v) => v * Math.pow(1024, 5), fromBase: (v) => v / Math.pow(1024, 5) }
+  },
+  torque: {
+    'Nm': { name: 'Newton-mètre (Nm)', toBase: (v) => v, fromBase: (v) => v },
+    'lb-ft': { name: 'Livre-force pied (lb-ft)', toBase: (v) => v * 1.35582, fromBase: (v) => v / 1.35582 },
+    'kgm': { name: 'Kilogramme-mètre (kgm)', toBase: (v) => v * 9.80665, fromBase: (v) => v / 9.80665 }
   },
   speed: {
     'm/s': { name: 'Mètres par seconde (m/s)', toBase: (v) => v, fromBase: (v) => v },
@@ -131,6 +137,7 @@ const CATEGORIES_MAP = [
   { id: 'power', name: 'Puissance' },
   { id: 'frequency', name: 'Fréquence' },
   { id: 'consumption', name: 'Consommation' },
+  { id: 'torque', name: 'Couple' },
   { id: 'angle', name: 'Angle' }
 ];
 

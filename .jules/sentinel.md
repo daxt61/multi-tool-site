@@ -12,6 +12,11 @@
 **Vulnerability:** The linear regex-based markdown parser allowed for XSS by matching markdown symbols inside a URL and replacing them with HTML tags (like `<strong>`). These tags contained double quotes that broke out of the `href` attribute in the final `<a>` tag.
 **Learning:** In multi-pass string replacement parsers, rules that add HTML attributes must be extremely restrictive about the characters they capture. Any rule that generates HTML tags can potentially "poison" the input for subsequent rules if they are not aware of existing tags.
 **Prevention:** Ensure that rules capturing content for HTML attributes (like URLs) explicitly exclude tag-defining characters (`<` and `>`). Process such rules after any other rules that might inject tags into that context.
+
+## 2025-06-15 - [MatchAll Exception and Logic Stability]
+**Vulnerability:** In tools allowing user-provided regex flags, using `String.prototype.matchAll()` without ensuring the 'g' flag is present causes a runtime `TypeError`, which could lead to a Denial of Service for the specific tool.
+**Learning:** Runtime exceptions in common utility tools can degrade reliability. When accepting user input for regex flags, the implementation must explicitly handle the absence of the global flag or normalize the flags before execution.
+**Prevention:** Implement a check for the 'g' flag before using `matchAll()`, and fallback to `match()` for single matches to ensure the application remains stable regardless of user input.
 ## 2025-05-28 - [Modulo Bias in Password Generation]
 **Vulnerability:** The PasswordGenerator was using `array[i] % charset.length` to select characters, which introduced a slight bias towards certain characters when the random space (2^32) was not a multiple of the charset size.
 **Learning:** Even when using cryptographically secure random values (CSPRNG), improper mathematical operations like modulo can degrade the entropy and introduce predictability.

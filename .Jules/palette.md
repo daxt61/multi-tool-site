@@ -21,3 +21,7 @@
 ## 2025-02-03 - [Stable Generation & Bento Consistency]
 **Learning:** In text generation tools, random output must be stabilized using `useMemo` to prevent frustrating regenerations during unrelated state updates (like "Copied" feedback). Additionally, modernizing legacy components to the Bento design system (slate-50 backgrounds, rounded-3xl corners, indigo accents) significantly improves brand cohesion and trust.
 **Action:** Use `useMemo` for random text and prioritize visual alignment with the Bento system for older components.
+
+## 2025-05-24 - [Global A11y & Tool Hierarchy]
+**Learning:** Global accessibility wins like a "Skip to content" link and semantic `<main>` tags are low-effort, high-impact improvements. In tool-based apps, resolving internal IDs to localized category names in headers significantly improves the professional feel and clarity.
+**Action:** Always include skip-links in new layouts and ensure category metadata is correctly resolved for display.

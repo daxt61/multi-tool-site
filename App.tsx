@@ -135,6 +135,8 @@ const Base64ToImage = lazy(() => import("./components/Base64ToImage").then(m => 
 const UnitPriceCalculator = lazy(() => import("./components/UnitPriceCalculator").then(m => ({ default: m.UnitPriceCalculator })));
 const AgeCalculator = lazy(() => import("./components/AgeCalculator").then(m => ({ default: m.AgeCalculator })));
 const ColorPaletteGenerator = lazy(() => import("./components/ColorPaletteGenerator").then(m => ({ default: m.ColorPaletteGenerator })));
+const UserAgentAnalyzer = lazy(() => import("./components/UserAgentAnalyzer").then(m => ({ default: m.UserAgentAnalyzer })));
+const RegExTester = lazy(() => import("./components/RegExTester").then(m => ({ default: m.RegExTester })));
 
 // ⚡ Bolt Optimization: Pre-calculating tool map and search index for O(1) lookups and faster filtering
 const toolsMap: Record<string, Tool> = {};
@@ -566,6 +568,14 @@ const tools: Tool[] = [
     Component: BinaryTextConverter,
     category: "dev",
   },
+  {
+    id: "regex-tester",
+    name: "Testeur de RegEx",
+    icon: Search,
+    description: "Tester et valider vos expressions régulières",
+    Component: RegExTester,
+    category: "dev",
+  },
   // Other Tools
   {
     id: "timer",
@@ -613,6 +623,14 @@ const tools: Tool[] = [
     icon: Shuffle,
     description: "Nombres, chaînes et listes aléatoires",
     Component: RandomGenerator,
+    category: "other",
+  },
+  {
+    id: "user-agent",
+    name: "User Agent",
+    icon: Monitor,
+    description: "Analyser votre navigateur et environnement",
+    Component: UserAgentAnalyzer,
     category: "other",
   },
 ];
@@ -1010,7 +1028,12 @@ function ToolView({ favorites, toggleFavorite }: { favorites: string[], toggleFa
   // ⚡ Bolt Optimization: Use toolsMap for O(1) lookup
   const currentTool = toolId ? toolsMap[toolId] : null;
 
-  if (!currentTool) {
+  const category = useMemo(() => {
+    if (!currentTool) return null;
+    return categories.find(c => c.id === currentTool.category) || categories[categories.length - 1];
+  }, [currentTool]);
+
+  if (!currentTool || !category) {
     return (
       <div className="text-center py-20">
         <h2 className="text-2xl font-bold mb-4">Outil non trouvé</h2>
@@ -1023,9 +1046,9 @@ function ToolView({ favorites, toggleFavorite }: { favorites: string[], toggleFa
     <div className="animate-in fade-in slide-in-from-bottom-4 duration-500">
       <Link
         to="/"
-        className="mb-8 inline-flex items-center gap-2 text-sm font-semibold text-slate-500 hover:text-slate-900 dark:text-slate-400 dark:hover:text-white transition-colors"
+        className="mb-8 inline-flex items-center gap-2 text-sm font-semibold text-slate-500 hover:text-slate-900 dark:text-slate-400 dark:hover:text-white transition-colors group"
       >
-        <ArrowLeft className="w-4 h-4" />
+        <ArrowLeft className="w-4 h-4 transition-transform group-hover:-translate-x-1" />
         Retour au tableau de bord
       </Link>
 
@@ -1033,7 +1056,7 @@ function ToolView({ favorites, toggleFavorite }: { favorites: string[], toggleFa
         <div className="flex flex-col md:flex-row md:items-end justify-between gap-6">
           <div className="space-y-2">
             <div className="inline-flex items-center gap-2 px-3 py-1 bg-indigo-50 dark:bg-indigo-900/20 text-indigo-600 dark:text-indigo-400 rounded-full text-xs font-bold uppercase tracking-widest">
-              <currentTool.icon className="w-3 h-3" /> {currentTool.category}
+              <category.icon className="w-3 h-3" /> {category.name}
             </div>
             <h1 className="text-4xl md:text-5xl font-black tracking-tight">{currentTool.name}</h1>
             <p className="text-lg text-slate-500 dark:text-slate-400 max-w-2xl">{currentTool.description}</p>
@@ -1041,14 +1064,17 @@ function ToolView({ favorites, toggleFavorite }: { favorites: string[], toggleFa
           <button
             onClick={(e) => toggleFavorite(e, currentTool.id)}
             aria-pressed={favorites.includes(currentTool.id)}
-            className={`flex items-center gap-2 px-6 py-3 rounded-2xl font-bold transition-all border ${
+            aria-label={favorites.includes(currentTool.id) ? "Retirer des favoris" : "Ajouter aux favoris"}
+            className={`flex items-center justify-center gap-2 px-4 md:px-6 py-3 rounded-2xl font-bold transition-all border ${
               favorites.includes(currentTool.id)
                 ? "bg-amber-50 text-amber-600 border-amber-200"
                 : "bg-slate-50 text-slate-500 border-slate-200 dark:bg-slate-900 dark:border-slate-800"
-            }`}
+            } active:scale-95`}
           >
             <Star className={`w-5 h-5 ${favorites.includes(currentTool.id) ? 'fill-current' : ''}`} />
-            {favorites.includes(currentTool.id) ? "Favori" : "Mettre en favori"}
+            <span className="hidden sm:inline">
+              {favorites.includes(currentTool.id) ? "Favori" : "Mettre en favori"}
+            </span>
           </button>
         </div>
       </div>
@@ -1073,9 +1099,9 @@ function InfoPage({ title, component }: { title: string, component: React.ReactN
     <div className="animate-in fade-in slide-in-from-bottom-4 duration-500">
       <Link
         to="/"
-        className="mb-8 inline-flex items-center gap-2 text-sm font-semibold text-slate-500 hover:text-slate-900 dark:text-slate-400 dark:hover:text-white transition-colors"
+        className="mb-8 inline-flex items-center gap-2 text-sm font-semibold text-slate-500 hover:text-slate-900 dark:text-slate-400 dark:hover:text-white transition-colors group"
       >
-        <ArrowLeft className="w-4 h-4" />
+        <ArrowLeft className="w-4 h-4 transition-transform group-hover:-translate-x-1" />
         Retour au tableau de bord
       </Link>
       <h1 className="text-4xl font-black mb-12">{title}</h1>

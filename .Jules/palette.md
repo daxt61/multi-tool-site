@@ -21,3 +21,7 @@
 ## 2025-02-03 - [Stable Generation & Bento Consistency]
 **Learning:** In text generation tools, random output must be stabilized using `useMemo` to prevent frustrating regenerations during unrelated state updates (like "Copied" feedback). Additionally, modernizing legacy components to the Bento design system (slate-50 backgrounds, rounded-3xl corners, indigo accents) significantly improves brand cohesion and trust.
 **Action:** Use `useMemo` for random text and prioritize visual alignment with the Bento system for older components.
+
+## 2026-02-23 - [ToolView Meta & Feedback]
+**Learning:** Resolving raw category IDs to localized names and using category-specific icons in the tool view enhances information hierarchy and professional feel. Small tactile feedback like `active:scale-95` and micro-animations on back links (`group-hover:-translate-x-1`) significantly improve the perceived quality of the interface.
+**Action:** Always resolve metadata IDs to display names and add tactile feedback to primary action buttons.

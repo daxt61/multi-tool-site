@@ -63,17 +63,28 @@ export function JSONCSVConverter() {
       if (!csv.trim()) return '';
       const lines = csv.trim().split('\n');
       if (lines.length < 2) return '';
-      const headers = parseCSVLine(lines[0]);
-      const result = lines.slice(1).map(line => {
+      // Sentinel: Sanitize headers to prevent Prototype Pollution by case-insensitively
+      // renaming dangerous keys (__proto__, constructor, prototype).
+      const rawHeaders = parseCSVLine(lines[0]);
+      const headers = rawHeaders.map((h) => {
+        const trimmed = h.trim();
+        return ["__proto__", "constructor", "prototype"].includes(
+          trimmed.toLowerCase()
+        )
+          ? `_${trimmed}`
+          : trimmed;
+      });
+
+      const result = lines.slice(1).map((line) => {
         const values = parseCSVLine(line);
         return headers.reduce((obj, header, index) => {
           let val: any = values[index];
-          if (val === 'true') val = true;
-          else if (val === 'false') val = false;
-          else if (!isNaN(Number(val)) && val !== '') val = Number(val);
+          if (val === "true") val = true;
+          else if (val === "false") val = false;
+          else if (!isNaN(Number(val)) && val !== "") val = Number(val);
           obj[header] = val;
           return obj;
-        }, {} as any);
+        }, Object.create(null)); // Sentinel: Use null-prototype object for additional safety.
       });
       return JSON.stringify(result, null, 2);
     } catch (e) {

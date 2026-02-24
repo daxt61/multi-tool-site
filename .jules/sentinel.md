@@ -16,3 +16,8 @@
 **Vulnerability:** The PasswordGenerator was using `array[i] % charset.length` to select characters, which introduced a slight bias towards certain characters when the random space (2^32) was not a multiple of the charset size.
 **Learning:** Even when using cryptographically secure random values (CSPRNG), improper mathematical operations like modulo can degrade the entropy and introduce predictability.
 **Prevention:** Always use rejection sampling when mapping a large random range to a smaller one that does not divide it evenly. This ensures a perfectly uniform distribution across all possible outputs.
+
+## 2025-06-10 - [XSS in Real-time Text Highlighting]
+**Vulnerability:** Implementing synchronized text highlighting using a backdrop with `dangerouslySetInnerHTML` can expose the application to XSS if user input is not properly escaped before being wrapped in highlight tags.
+**Learning:** When rendering user-provided text as HTML for visual effects, a robust `escapeHtml` helper must be used to neutralize all special characters. Highlighting should be applied by wrapping the escaped text in controlled tags (like `<mark>`).
+**Prevention:** Always escape user input before processing it for `dangerouslySetInnerHTML`. Use a whitelist of allowed HTML entities or a dedicated sanitization library for complex cases.

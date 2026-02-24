@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Copy, Check } from 'lucide-react';
+import { Copy, Check, Type, Info } from 'lucide-react';
 import { AdPlaceholder } from './AdPlaceholder';
 
 export function CaseConverter() {
@@ -34,45 +34,67 @@ export function CaseConverter() {
   };
 
   return (
-    <div className="max-w-4xl mx-auto">
-      <AdPlaceholder size="banner" className="mb-6" />
+    <div className="max-w-6xl mx-auto space-y-8">
+      <AdPlaceholder size="banner" className="opacity-50" />
 
-      <textarea
-        value={text}
-        onChange={(e) => setText(e.target.value)}
-        placeholder="Entrez votre texte ici..."
-        className="w-full h-32 p-4 border border-gray-300 rounded-lg resize-none focus:outline-none focus:ring-2 focus:ring-blue-500 mb-6"
-      />
+      <div className="relative group">
+        <textarea
+          value={text}
+          onChange={(e) => setText(e.target.value)}
+          placeholder="Entrez votre texte ici..."
+          className="w-full h-48 p-8 bg-slate-50 dark:bg-slate-900/50 border border-slate-200 dark:border-slate-800 rounded-[2.5rem] resize-none focus:outline-none focus:ring-4 focus:ring-indigo-500/10 focus:border-indigo-500 transition-all text-lg leading-relaxed dark:text-white"
+        />
+        <div className="absolute bottom-6 right-6 flex items-center gap-3">
+           <div className="px-4 py-2 bg-white dark:bg-slate-800 rounded-xl border border-slate-200 dark:border-slate-700 text-xs font-bold text-slate-400 shadow-sm">
+             {text.length} caractères
+           </div>
+        </div>
+      </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
         {Object.entries(conversions).map(([name, converter]) => {
           const converted = text ? converter(text) : '';
           return (
-            <div key={name} className="bg-white border border-gray-300 rounded-lg p-4">
-              <div className="flex items-center justify-between mb-2">
-                <span className="font-semibold text-sm text-gray-700">{name}</span>
+            <div
+              key={name}
+              className="group bg-white dark:bg-slate-900/40 border border-slate-200 dark:border-slate-800 rounded-3xl p-5 hover:border-indigo-500/50 transition-all hover:shadow-lg hover:shadow-indigo-500/5 flex flex-col h-full"
+            >
+              <div className="flex items-center justify-between mb-4">
+                <span className="text-[10px] font-black uppercase tracking-widest text-slate-400">{name}</span>
                 <button
                   onClick={() => copyToClipboard(converted, name)}
                   disabled={!text}
-                  className="p-1 hover:bg-gray-100 rounded transition-colors disabled:opacity-50"
-                  title="Copier"
+                  className={`p-2 rounded-xl transition-all active:scale-95 disabled:opacity-30 ${copied === name ? 'bg-emerald-50 text-emerald-500 dark:bg-emerald-900/20' : 'bg-slate-50 text-slate-400 hover:text-indigo-500 dark:bg-slate-800'}`}
+                  aria-label={`Copier en ${name}`}
                 >
                   {copied === name ? (
-                    <Check className="w-4 h-4 text-green-500" />
+                    <Check className="w-4 h-4" />
                   ) : (
-                    <Copy className="w-4 h-4 text-gray-500" />
+                    <Copy className="w-4 h-4" />
                   )}
                 </button>
               </div>
-              <div className="bg-gray-50 p-3 rounded font-mono text-sm min-h-[3rem] break-all">
-                {converted || <span className="text-gray-400">Résultat...</span>}
+              <div className="flex-grow font-mono text-sm dark:text-slate-200 break-all line-clamp-4 overflow-hidden">
+                {converted || <span className="text-slate-300 dark:text-slate-700 italic">En attente...</span>}
               </div>
             </div>
           );
         })}
       </div>
 
-      <AdPlaceholder size="medium" className="mt-6" />
+      <div className="bg-indigo-50 dark:bg-indigo-900/10 border border-indigo-100 dark:border-indigo-900/20 rounded-[2.5rem] p-8 md:p-12 flex flex-col md:flex-row gap-8 items-center">
+        <div className="w-16 h-16 bg-white dark:bg-slate-800 rounded-2xl flex items-center justify-center text-indigo-500 shadow-sm shrink-0">
+          <Type className="w-8 h-8" />
+        </div>
+        <div className="space-y-2 text-center md:text-left">
+          <h3 className="text-xl font-bold dark:text-white">Conversion intelligente</h3>
+          <p className="text-slate-500 dark:text-slate-400 leading-relaxed">
+            Notre outil de conversion de casse gère intelligemment les délimiteurs tels que les espaces, les tirets et les underscores pour vous offrir le résultat le plus précis possible. Idéal pour le développement et la mise en forme de documents.
+          </p>
+        </div>
+      </div>
+
+      <AdPlaceholder size="medium" className="opacity-50" />
     </div>
   );
 }

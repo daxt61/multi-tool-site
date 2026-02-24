@@ -1,10 +1,11 @@
-import { useState } from 'react';
-import { Copy, Check, RefreshCw } from 'lucide-react';
+import { useState, useId } from 'react';
+import { Copy, Check, RefreshCw, Fingerprint, ShieldCheck } from 'lucide-react';
 
 export function UUIDGenerator() {
   const [uuids, setUuids] = useState<string[]>([]);
   const [count, setCount] = useState(1);
   const [copiedIndex, setCopiedIndex] = useState<number | null>(null);
+  const inputId = useId();
 
   const generateUUID = () => {
     // Use the native and secure crypto.randomUUID if available
@@ -47,37 +48,36 @@ export function UUIDGenerator() {
   };
 
   return (
-    <div className="max-w-3xl mx-auto">
-      <div className="bg-gray-50 p-6 rounded-lg mb-6">
-        <div className="flex items-center gap-4 mb-4">
-          <div className="flex-1">
-            <label className="block text-sm font-semibold text-gray-700 mb-2">
+    <div className="max-w-4xl mx-auto space-y-8">
+      <div className="bg-slate-50 dark:bg-slate-900/50 p-8 rounded-[2rem] border border-slate-200 dark:border-slate-800">
+        <div className="flex flex-col md:flex-row items-end gap-6 mb-8">
+          <div className="flex-1 space-y-3">
+            <label htmlFor={inputId} className="text-xs font-black uppercase tracking-widest text-slate-400 ml-1">
               Nombre d'UUIDs à générer
             </label>
             <input
+              id={inputId}
               type="number"
               min="1"
               max="100"
               value={count}
               onChange={(e) => setCount(Number(e.target.value))}
-              className="w-full p-3 border border-gray-300 rounded-lg"
+              className="w-full p-4 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-2xl focus:ring-4 focus:ring-indigo-500/10 focus:border-indigo-500 outline-none transition-all font-bold dark:text-white"
             />
           </div>
-          <div className="pt-7">
-            <button
-              onClick={generateUUIDs}
-              className="px-6 py-3 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition-colors flex items-center gap-2"
-            >
-              <RefreshCw className="w-5 h-5" />
-              Générer
-            </button>
-          </div>
+          <button
+            onClick={generateUUIDs}
+            className="w-full md:w-auto px-8 py-4 bg-indigo-600 hover:bg-indigo-700 text-white rounded-2xl font-bold transition-all active:scale-95 flex items-center justify-center gap-2 shadow-lg shadow-indigo-600/20"
+          >
+            <RefreshCw className="w-5 h-5" />
+            Générer
+          </button>
         </div>
 
         {uuids.length > 1 && (
           <button
             onClick={copyAll}
-            className="w-full py-3 bg-green-500 text-white rounded-lg hover:bg-green-600 transition-colors flex items-center justify-center gap-2"
+            className={`w-full py-4 rounded-2xl font-bold transition-all active:scale-95 flex items-center justify-center gap-2 ${copiedIndex === -1 ? 'bg-emerald-500 text-white' : 'bg-slate-900 dark:bg-white text-white dark:text-slate-900'}`}
           >
             {copiedIndex === -1 ? <Check className="w-5 h-5" /> : <Copy className="w-5 h-5" />}
             {copiedIndex === -1 ? 'Tous copiés !' : 'Copier tous les UUIDs'}
@@ -86,39 +86,47 @@ export function UUIDGenerator() {
       </div>
 
       {uuids.length > 0 ? (
-        <div className="space-y-3">
+        <div className="grid gap-4">
           {uuids.map((uuid, index) => (
             <div
               key={index}
-              className="bg-white border border-gray-300 p-4 rounded-lg flex items-center justify-between hover:bg-gray-50 transition-colors"
+              className="group bg-white dark:bg-slate-900/40 border border-slate-200 dark:border-slate-800 p-5 rounded-2xl flex items-center justify-between hover:border-indigo-500/50 transition-all"
             >
-              <code className="font-mono text-gray-800">{uuid}</code>
+              <code className="font-mono text-slate-700 dark:text-slate-300 font-bold break-all">{uuid}</code>
               <button
                 onClick={() => copyToClipboard(uuid, index)}
-                className="p-2 hover:bg-gray-200 rounded-lg transition-colors"
-                title="Copier"
+                className={`p-3 rounded-xl transition-all active:scale-95 ${copiedIndex === index ? 'bg-emerald-50 text-emerald-500 dark:bg-emerald-900/20' : 'bg-slate-50 dark:bg-slate-800 text-slate-400 hover:text-indigo-500'}`}
+                aria-label="Copier"
               >
                 {copiedIndex === index ? (
-                  <Check className="w-5 h-5 text-green-500" />
+                  <Check className="w-5 h-5" />
                 ) : (
-                  <Copy className="w-5 h-5 text-gray-500" />
+                  <Copy className="w-5 h-5" />
                 )}
               </button>
             </div>
           ))}
         </div>
       ) : (
-        <div className="bg-gray-100 p-12 rounded-lg text-center text-gray-500">
-          Cliquez sur "Générer" pour créer des UUIDs
+        <div className="py-20 text-center border-2 border-dashed border-slate-200 dark:border-slate-800 rounded-[2.5rem]">
+          <div className="w-16 h-16 bg-slate-50 dark:bg-slate-900 rounded-full flex items-center justify-center mx-auto mb-6 text-slate-300">
+            <Fingerprint className="w-8 h-8" />
+          </div>
+          <h4 className="text-xl font-bold mb-2">Prêt à générer</h4>
+          <p className="text-slate-500 dark:text-slate-400">Cliquez sur "Générer" pour créer des identifiants uniques sécurisés.</p>
         </div>
       )}
 
-      <div className="mt-6 bg-blue-50 border border-blue-200 rounded-lg p-4 text-sm text-blue-800">
-        <p className="font-semibold mb-2">Qu'est-ce qu'un UUID ?</p>
-        <p>
-          Un UUID (Universally Unique Identifier) est un identifiant unique de 128 bits utilisé
-          pour identifier des informations de manière unique dans les systèmes informatiques.
-        </p>
+      <div className="bg-indigo-50 dark:bg-indigo-900/10 border border-indigo-100 dark:border-indigo-900/20 rounded-3xl p-8 flex gap-6 items-start">
+        <div className="p-3 bg-white dark:bg-slate-800 rounded-2xl text-indigo-500 shadow-sm shrink-0">
+          <ShieldCheck className="w-6 h-6" />
+        </div>
+        <div className="space-y-2">
+          <p className="font-bold dark:text-white">Génération sécurisée</p>
+          <p className="text-sm text-slate-500 dark:text-slate-400 leading-relaxed">
+            Les UUID (Universally Unique Identifier) sont générés localement dans votre navigateur en utilisant l'API Web Crypto. Cela garantit une unicité maximale et une sécurité cryptographique sans qu'aucune donnée ne soit envoyée à un serveur.
+          </p>
+        </div>
       </div>
     </div>
   );

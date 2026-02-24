@@ -21,3 +21,7 @@
 ## 2025-02-03 - [Stable Generation & Bento Consistency]
 **Learning:** In text generation tools, random output must be stabilized using `useMemo` to prevent frustrating regenerations during unrelated state updates (like "Copied" feedback). Additionally, modernizing legacy components to the Bento design system (slate-50 backgrounds, rounded-3xl corners, indigo accents) significantly improves brand cohesion and trust.
 **Action:** Use `useMemo` for random text and prioritize visual alignment with the Bento system for older components.
+
+## 2025-06-10 - [Taxonomic Consistency & Category Affordance]
+**Learning:** In a multi-tool dashboard, displaying tool-specific icons in the header can be confusing for navigation. Using category-specific icons and localized names in the metadata badge provides better taxonomic consistency and helps users understand the tool's placement in the hierarchy.
+**Action:** Always resolve and display category metadata in tool detail views to maintain clear site structure.

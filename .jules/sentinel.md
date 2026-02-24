@@ -16,3 +16,8 @@
 **Vulnerability:** The PasswordGenerator was using `array[i] % charset.length` to select characters, which introduced a slight bias towards certain characters when the random space (2^32) was not a multiple of the charset size.
 **Learning:** Even when using cryptographically secure random values (CSPRNG), improper mathematical operations like modulo can degrade the entropy and introduce predictability.
 **Prevention:** Always use rejection sampling when mapping a large random range to a smaller one that does not divide it evenly. This ensures a perfectly uniform distribution across all possible outputs.
+
+## 2025-06-15 - [Prototype Pollution in JSON & CSV Converter]
+**Vulnerability:** The CSV-to-JSON conversion logic was allowing arbitrary keys from CSV headers to be set on standard JavaScript objects, which could lead to prototype pollution or overriding built-in methods like `toString`.
+**Learning:** When creating objects from user-controlled keys (like CSV headers), always use `Object.create(null)` to prevent inheritance from `Object.prototype`, and explicitly sanitize or rename sensitive keys like `__proto__`, `constructor`, and `prototype`.
+**Prevention:** Use a whitelist or a robust sanitization function for all user-provided object keys. Avoid using the default `{}` constructor when keys are not strictly controlled.

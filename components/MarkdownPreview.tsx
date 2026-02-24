@@ -1,10 +1,13 @@
-import { useState } from 'react';
+import { useState, useMemo, useDeferredValue } from 'react';
 import { Eye, Code } from 'lucide-react';
 import { AdPlaceholder } from './AdPlaceholder';
 
 export function MarkdownPreview() {
   const [markdown, setMarkdown] = useState('# Titre\n\nVotre texte **Markdown** ici...');
+  const MAX_CHARS = 50000;
   const [mode, setMode] = useState<'split' | 'edit' | 'preview'>('split');
+
+  const deferredMarkdown = useDeferredValue(markdown);
 
   const escapeHTML = (str: string) => {
     return str
@@ -15,7 +18,8 @@ export function MarkdownPreview() {
       .replace(/'/g, '&#39;');
   };
 
-  const renderMarkdown = (text: string) => {
+  const renderedHTML = useMemo(() => {
+    const text = deferredMarkdown;
     const placeholders: string[] = [];
 
     // Escape input to prevent XSS
@@ -82,64 +86,69 @@ export function MarkdownPreview() {
     });
 
     return html;
-  };
+  }, [deferredMarkdown]);
 
   return (
     <div className="max-w-6xl mx-auto">
       <AdPlaceholder size="banner" className="mb-6" />
 
-      <div className="flex gap-2 mb-4">
+      <div className="flex bg-slate-100 dark:bg-slate-800 p-1 rounded-xl w-fit mb-8">
         <button
           onClick={() => setMode('edit')}
-          className={`px-4 py-2 rounded-lg font-semibold transition-all ${
-            mode === 'edit' ? 'bg-blue-500 text-white' : 'bg-gray-200'
+          className={`px-4 py-2 rounded-lg text-sm font-bold transition-all flex items-center gap-2 ${
+            mode === 'edit' ? 'bg-white dark:bg-slate-700 text-indigo-600 dark:text-indigo-400 shadow-sm' : 'text-slate-500 hover:text-slate-900'
           }`}
         >
-          <Code className="w-4 h-4 inline mr-2" />
+          <Code className="w-4 h-4" />
           Édition
         </button>
         <button
           onClick={() => setMode('split')}
-          className={`px-4 py-2 rounded-lg font-semibold transition-all ${
-            mode === 'split' ? 'bg-blue-500 text-white' : 'bg-gray-200'
+          className={`px-4 py-2 rounded-lg text-sm font-bold transition-all flex items-center gap-2 ${
+            mode === 'split' ? 'bg-white dark:bg-slate-700 text-indigo-600 dark:text-indigo-400 shadow-sm' : 'text-slate-500 hover:text-slate-900'
           }`}
         >
           Divisé
         </button>
         <button
           onClick={() => setMode('preview')}
-          className={`px-4 py-2 rounded-lg font-semibold transition-all ${
-            mode === 'preview' ? 'bg-blue-500 text-white' : 'bg-gray-200'
+          className={`px-4 py-2 rounded-lg text-sm font-bold transition-all flex items-center gap-2 ${
+            mode === 'preview' ? 'bg-white dark:bg-slate-700 text-indigo-600 dark:text-indigo-400 shadow-sm' : 'text-slate-500 hover:text-slate-900'
           }`}
         >
-          <Eye className="w-4 h-4 inline mr-2" />
+          <Eye className="w-4 h-4" />
           Aperçu
         </button>
       </div>
 
       <div className={`grid gap-4 ${mode === 'split' ? 'grid-cols-2' : 'grid-cols-1'}`}>
         {(mode === 'edit' || mode === 'split') && (
-          <div>
-            <label className="block text-sm font-semibold text-gray-700 mb-2">
+          <div className="space-y-4">
+            <label className="text-xs font-black uppercase tracking-widest text-slate-400 px-1">
               Markdown
             </label>
-            <textarea
-              value={markdown}
-              onChange={(e) => setMarkdown(e.target.value)}
-              className="w-full h-96 p-4 border border-gray-300 rounded-lg resize-none font-mono text-sm"
-              placeholder="# Titre..."
-            />
+            <div className="relative">
+              <textarea
+                value={markdown}
+                onChange={(e) => setMarkdown(e.target.value.slice(0, MAX_CHARS))}
+                className="w-full h-96 p-8 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-[2rem] outline-none focus:ring-2 focus:ring-indigo-500/20 transition-all resize-none font-mono text-sm dark:text-slate-300"
+                placeholder="# Titre..."
+              />
+              <div className={`absolute bottom-6 right-8 text-[10px] font-black uppercase tracking-widest ${markdown.length >= MAX_CHARS ? 'text-rose-500' : 'text-slate-400'}`}>
+                {markdown.length.toLocaleString()} / {MAX_CHARS.toLocaleString()}
+              </div>
+            </div>
           </div>
         )}
         
         {(mode === 'preview' || mode === 'split') && (
-          <div>
-            <label className="block text-sm font-semibold text-gray-700 mb-2">
+          <div className="space-y-4">
+            <label className="text-xs font-black uppercase tracking-widest text-slate-400 px-1">
               Aperçu
             </label>
             <div
-              className="w-full h-96 p-4 border border-gray-300 rounded-lg overflow-y-auto bg-white prose"
-              dangerouslySetInnerHTML={{ __html: renderMarkdown(markdown) }}
+              className="w-full h-96 p-8 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-[2rem] overflow-y-auto prose dark:prose-invert max-w-none"
+              dangerouslySetInnerHTML={{ __html: renderedHTML }}
             />
           </div>
         )}

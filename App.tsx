@@ -806,6 +806,13 @@ function MainApp() {
         e.preventDefault();
         document.getElementById("tool-search")?.focus();
       }
+      // 🎨 Palette: Escape key to clear search or blur
+      if (e.key === "Escape") {
+        setSearchQuery("");
+        if (document.activeElement instanceof HTMLElement) {
+          document.activeElement.blur();
+        }
+      }
     };
     window.addEventListener("keydown", handleKeyDown);
     return () => window.removeEventListener("keydown", handleKeyDown);
@@ -898,7 +905,16 @@ function MainApp() {
                       </kbd>
                     </div>
                   )}
-                  {searchQuery && <button onClick={() => setSearchQuery("")} className="absolute inset-y-0 right-4 flex items-center text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 transition-colors" aria-label="Effacer"><X className="h-5 w-5" /></button>}
+                  {searchQuery && (
+                    <div className="absolute inset-y-0 right-4 flex items-center gap-2">
+                      <kbd className="hidden sm:inline-flex items-center px-1.5 py-0.5 border border-slate-200 dark:border-slate-700 rounded text-[10px] font-bold text-slate-400 bg-white dark:bg-slate-800 animate-in fade-in zoom-in-95 duration-200">
+                        Esc
+                      </kbd>
+                      <button onClick={() => setSearchQuery("")} className="text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 transition-colors" aria-label="Effacer">
+                        <X className="h-5 w-5" />
+                      </button>
+                    </div>
+                  )}
                 </div>
               </div>
 
@@ -1010,6 +1026,12 @@ function ToolView({ favorites, toggleFavorite }: { favorites: string[], toggleFa
   // ⚡ Bolt Optimization: Use toolsMap for O(1) lookup
   const currentTool = toolId ? toolsMap[toolId] : null;
 
+  // 🎨 Palette: Localize category name and icon for better visual hierarchy
+  const category = useMemo(() =>
+    categories.find(c => c.id === currentTool?.category),
+    [currentTool]
+  );
+
   if (!currentTool) {
     return (
       <div className="text-center py-20">
@@ -1023,9 +1045,9 @@ function ToolView({ favorites, toggleFavorite }: { favorites: string[], toggleFa
     <div className="animate-in fade-in slide-in-from-bottom-4 duration-500">
       <Link
         to="/"
-        className="mb-8 inline-flex items-center gap-2 text-sm font-semibold text-slate-500 hover:text-slate-900 dark:text-slate-400 dark:hover:text-white transition-colors"
+        className="mb-8 inline-flex items-center gap-2 text-sm font-semibold text-slate-500 hover:text-slate-900 dark:text-slate-400 dark:hover:text-white transition-colors group"
       >
-        <ArrowLeft className="w-4 h-4" />
+        <ArrowLeft className="w-4 h-4 transition-transform group-hover:-translate-x-1" />
         Retour au tableau de bord
       </Link>
 
@@ -1033,7 +1055,8 @@ function ToolView({ favorites, toggleFavorite }: { favorites: string[], toggleFa
         <div className="flex flex-col md:flex-row md:items-end justify-between gap-6">
           <div className="space-y-2">
             <div className="inline-flex items-center gap-2 px-3 py-1 bg-indigo-50 dark:bg-indigo-900/20 text-indigo-600 dark:text-indigo-400 rounded-full text-xs font-bold uppercase tracking-widest">
-              <currentTool.icon className="w-3 h-3" /> {currentTool.category}
+              {category ? <category.icon className="w-3 h-3" /> : <currentTool.icon className="w-3 h-3" />}
+              {category?.name || currentTool.category}
             </div>
             <h1 className="text-4xl md:text-5xl font-black tracking-tight">{currentTool.name}</h1>
             <p className="text-lg text-slate-500 dark:text-slate-400 max-w-2xl">{currentTool.description}</p>
@@ -1073,9 +1096,9 @@ function InfoPage({ title, component }: { title: string, component: React.ReactN
     <div className="animate-in fade-in slide-in-from-bottom-4 duration-500">
       <Link
         to="/"
-        className="mb-8 inline-flex items-center gap-2 text-sm font-semibold text-slate-500 hover:text-slate-900 dark:text-slate-400 dark:hover:text-white transition-colors"
+        className="mb-8 inline-flex items-center gap-2 text-sm font-semibold text-slate-500 hover:text-slate-900 dark:text-slate-400 dark:hover:text-white transition-colors group"
       >
-        <ArrowLeft className="w-4 h-4" />
+        <ArrowLeft className="w-4 h-4 transition-transform group-hover:-translate-x-1" />
         Retour au tableau de bord
       </Link>
       <h1 className="text-4xl font-black mb-12">{title}</h1>

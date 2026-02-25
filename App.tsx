@@ -847,6 +847,13 @@ function MainApp() {
 
   return (
     <div className="min-h-screen bg-white dark:bg-slate-950 text-slate-900 dark:text-slate-100 selection:bg-indigo-100 dark:selection:bg-indigo-900/50">
+      <a
+        href="#main-content"
+        className="sr-only focus:not-sr-only focus:fixed focus:top-4 focus:left-4 focus:z-[100] focus:px-4 focus:py-2 focus:bg-indigo-600 focus:text-white focus:rounded-lg focus:font-bold focus:shadow-xl focus:outline-none transition-all"
+      >
+        Aller au contenu principal
+      </a>
+
       {/* Background Decor */}
       <div className="fixed inset-0 overflow-hidden pointer-events-none opacity-20 dark:opacity-40">
         <div className="absolute -top-24 -left-24 w-96 h-96 bg-indigo-500/10 rounded-full blur-[120px]"></div>
@@ -875,9 +882,10 @@ function MainApp() {
           </div>
         </header>
 
-        <Routes>
-          <Route path="/" element={
-            <div className="space-y-20">
+        <main id="main-content">
+          <Routes>
+            <Route path="/" element={
+              <div className="space-y-20">
               {/* Minimal Hero */}
               <div className="max-w-2xl mx-auto text-center space-y-8">
                 <h1 className="text-4xl md:text-6xl font-extrabold tracking-tight leading-[1.1]">
@@ -1000,6 +1008,7 @@ function MainApp() {
           <Route path="/contact" element={<InfoPage title="Contact" component={<Contact />} />} />
           <Route path="/confidentialite" element={<InfoPage title="Confidentialité" component={<PrivacyPolicy />} />} />
         </Routes>
+        </main>
       </div>
     </div>
   );

@@ -21,3 +21,7 @@
 ## 2025-02-03 - [Stable Generation & Bento Consistency]
 **Learning:** In text generation tools, random output must be stabilized using `useMemo` to prevent frustrating regenerations during unrelated state updates (like "Copied" feedback). Additionally, modernizing legacy components to the Bento design system (slate-50 backgrounds, rounded-3xl corners, indigo accents) significantly improves brand cohesion and trust.
 **Action:** Use `useMemo` for random text and prioritize visual alignment with the Bento system for older components.
+
+## 2025-05-24 - [Skip Link & Semantic Content]
+**Learning:** A "Skip to content" link is a critical accessibility feature for keyboard users, allowing them to bypass repetitive navigation. Coupling this with a semantic `<main>` tag not only improves SEO but also provides a clear landmark for screen readers, making the application much more navigable.
+**Action:** Always include a skip link and a semantic `<main>` tag in new layout structures.

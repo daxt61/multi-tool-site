@@ -21,3 +21,7 @@
 ## 2025-02-03 - [Stable Generation & Bento Consistency]
 **Learning:** In text generation tools, random output must be stabilized using `useMemo` to prevent frustrating regenerations during unrelated state updates (like "Copied" feedback). Additionally, modernizing legacy components to the Bento design system (slate-50 backgrounds, rounded-3xl corners, indigo accents) significantly improves brand cohesion and trust.
 **Action:** Use `useMemo` for random text and prioritize visual alignment with the Bento system for older components.
+
+## 2025-02-15 - [Synchronized Text Highlighting & Accessibility]
+**Learning:** When implementing synchronized text highlighting via a layered backdrop (e.g., in RegExTester), wrap all segments (matching and non-matching) in tags with 'text-transparent' to ensure character spacing perfectly matches the foreground textarea without overlapping visible text. Additionally, always ensure that all inputs are properly linked to labels with `id` and `htmlFor` to maintain baseline accessibility.
+**Action:** Use the 'text-transparent' layered technique for textareas and audit components for missing input-label associations.

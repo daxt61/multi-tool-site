@@ -71,9 +71,17 @@ export function JSONCSVConverter() {
           if (val === 'true') val = true;
           else if (val === 'false') val = false;
           else if (!isNaN(Number(val)) && val !== '') val = Number(val);
-          obj[header] = val;
+
+          // Sentinel: Harden against Prototype Pollution by case-insensitively
+          // renaming dangerous keys and using a null-prototype object.
+          const lowerHeader = header.toLowerCase();
+          const safeHeader = (lowerHeader === '__proto__' || lowerHeader === 'constructor' || lowerHeader === 'prototype')
+            ? `_${header}`
+            : header;
+
+          obj[safeHeader] = val;
           return obj;
-        }, {} as any);
+        }, Object.create(null));
       });
       return JSON.stringify(result, null, 2);
     } catch (e) {

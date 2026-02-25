@@ -16,3 +16,8 @@
 **Vulnerability:** The PasswordGenerator was using `array[i] % charset.length` to select characters, which introduced a slight bias towards certain characters when the random space (2^32) was not a multiple of the charset size.
 **Learning:** Even when using cryptographically secure random values (CSPRNG), improper mathematical operations like modulo can degrade the entropy and introduce predictability.
 **Prevention:** Always use rejection sampling when mapping a large random range to a smaller one that does not divide it evenly. This ensures a perfectly uniform distribution across all possible outputs.
+
+## 2025-05-30 - [Infinite Loop in Secure Random Rejection Sampling]
+**Vulnerability:** The rejection sampling logic in `getSecureRandom` was vulnerable to an infinite loop if the requested range exceeded the bit-width of the underlying entropy source (32-bit Uint32).
+**Learning:** Rejection sampling relies on a "limit" calculated as `maxUint - (maxUint % range)`. If `range > maxUint`, then `maxUint % range` is `maxUint`, making `limit = 0`. Since any unsigned value is `>= 0`, the loop `while (val >= limit)` becomes an infinite loop (Denial of Service).
+**Prevention:** Always validate that the requested range does not exceed the capacity of the random source, or cap the effective range at the source's maximum value before performing the modulo-based limit calculation.

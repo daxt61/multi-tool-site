@@ -22,7 +22,10 @@ export function RandomGenerator() {
     if (range <= 0) return 0;
     const array = new Uint32Array(1);
     const maxUint32 = 0xffffffff;
-    const limit = maxUint32 - (maxUint32 % range);
+
+    // Sentinel: Cap range to 32-bit to avoid infinite loop if range > 0xffffffff
+    const effectiveRange = Math.min(range, maxUint32);
+    const limit = maxUint32 - (maxUint32 % effectiveRange);
 
     let randomVal;
     do {
@@ -30,7 +33,7 @@ export function RandomGenerator() {
       randomVal = array[0];
     } while (randomVal >= limit);
 
-    return randomVal % range;
+    return randomVal % effectiveRange;
   };
 
   const generateNumber = () => {

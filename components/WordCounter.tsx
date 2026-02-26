@@ -65,7 +65,7 @@ export function WordCounter() {
     <div className="max-w-5xl mx-auto space-y-8">
       <div className="space-y-4">
         <div className="flex justify-between items-center px-1">
-          <label className="text-xs font-black uppercase tracking-widest text-slate-400">Votre Texte</label>
+          <label htmlFor="word-counter-textarea" className="text-xs font-black uppercase tracking-widest text-slate-400 cursor-pointer">Votre Texte</label>
           <div className="flex gap-2">
             <button
               onClick={handleCopyStats}
@@ -88,6 +88,7 @@ export function WordCounter() {
           </div>
         </div>
         <textarea
+          id="word-counter-textarea"
           value={text}
           onChange={(e) => setText(e.target.value)}
           placeholder="Commencez à taper..."

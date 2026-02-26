@@ -63,7 +63,14 @@ export function JSONCSVConverter() {
       if (!csv.trim()) return '';
       const lines = csv.trim().split('\n');
       if (lines.length < 2) return '';
-      const headers = parseCSVLine(lines[0]);
+      const headers = parseCSVLine(lines[0]).map(h => {
+        // Sentinel: Prevent Prototype Pollution by prefixing dangerous keys
+        const lower = h.toLowerCase().trim();
+        if (lower === '__proto__' || lower === 'constructor' || lower === 'prototype') {
+          return `_${h}`;
+        }
+        return h;
+      });
       const result = lines.slice(1).map(line => {
         const values = parseCSVLine(line);
         return headers.reduce((obj, header, index) => {
@@ -73,7 +80,7 @@ export function JSONCSVConverter() {
           else if (!isNaN(Number(val)) && val !== '') val = Number(val);
           obj[header] = val;
           return obj;
-        }, {} as any);
+        }, Object.create(null)); // Sentinel: Use Object.create(null) to avoid prototype issues
       });
       return JSON.stringify(result, null, 2);
     } catch (e) {

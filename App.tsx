@@ -847,6 +847,12 @@ function MainApp() {
 
   return (
     <div className="min-h-screen bg-white dark:bg-slate-950 text-slate-900 dark:text-slate-100 selection:bg-indigo-100 dark:selection:bg-indigo-900/50">
+      <a
+        href="#main-content"
+        className="sr-only focus:not-sr-only focus:absolute focus:z-50 focus:top-4 focus:left-4 focus:px-4 focus:py-2 focus:bg-indigo-600 focus:text-white focus:rounded-lg focus:font-bold"
+      >
+        Aller au contenu principal
+      </a>
       {/* Background Decor */}
       <div className="fixed inset-0 overflow-hidden pointer-events-none opacity-20 dark:opacity-40">
         <div className="absolute -top-24 -left-24 w-96 h-96 bg-indigo-500/10 rounded-full blur-[120px]"></div>
@@ -875,131 +881,133 @@ function MainApp() {
           </div>
         </header>
 
-        <Routes>
-          <Route path="/" element={
-            <div className="space-y-20">
-              {/* Minimal Hero */}
-              <div className="max-w-2xl mx-auto text-center space-y-8">
-                <h1 className="text-4xl md:text-6xl font-extrabold tracking-tight leading-[1.1]">
-                  Des outils simples pour des <span className="text-slate-400 dark:text-slate-600">tâches complexes.</span>
-                </h1>
-                <p className="text-lg text-slate-500 dark:text-slate-400 leading-relaxed">
-                  Une collection d'utilitaires gratuits, privés et open-source pour booster votre productivité au quotidien.
-                </p>
+        <main id="main-content">
+          <Routes>
+            <Route path="/" element={
+              <div className="space-y-20">
+                {/* Minimal Hero */}
+                <div className="max-w-2xl mx-auto text-center space-y-8">
+                  <h1 className="text-4xl md:text-6xl font-extrabold tracking-tight leading-[1.1]">
+                    Des outils simples pour des <span className="text-slate-400 dark:text-slate-600">tâches complexes.</span>
+                  </h1>
+                  <p className="text-lg text-slate-500 dark:text-slate-400 leading-relaxed">
+                    Une collection d'utilitaires gratuits, privés et open-source pour booster votre productivité au quotidien.
+                  </p>
 
-                <div className="relative group max-w-lg mx-auto">
-                  <label htmlFor="tool-search" className="sr-only">Rechercher</label>
-                  <div className="absolute inset-y-0 left-4 flex items-center pointer-events-none"><Search className="h-5 w-5 text-slate-400" /></div>
-                  <input id="tool-search" type="text" placeholder="Rechercher un outil..." value={searchQuery} onChange={(e) => setSearchQuery(e.target.value)} className={`block w-full pl-11 ${searchQuery ? 'pr-12' : 'pr-4'} py-4 bg-slate-50 dark:bg-slate-900/50 border border-slate-200 dark:border-slate-800 rounded-2xl focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 outline-none transition-all placeholder:text-slate-400`} />
-                  {!searchQuery && (
-                    <div className="absolute inset-y-0 right-4 flex items-center pointer-events-none">
-                      <kbd className="hidden sm:inline-flex items-center gap-1 px-2 py-0.5 border border-slate-200 dark:border-slate-700 rounded text-[10px] font-bold text-slate-400 bg-white dark:bg-slate-800">
-                        /
-                      </kbd>
+                  <div className="relative group max-w-lg mx-auto">
+                    <label htmlFor="tool-search" className="sr-only">Rechercher</label>
+                    <div className="absolute inset-y-0 left-4 flex items-center pointer-events-none"><Search className="h-5 w-5 text-slate-400" /></div>
+                    <input id="tool-search" type="text" placeholder="Rechercher un outil..." value={searchQuery} onChange={(e) => setSearchQuery(e.target.value)} className={`block w-full pl-11 ${searchQuery ? 'pr-12' : 'pr-4'} py-4 bg-slate-50 dark:bg-slate-900/50 border border-slate-200 dark:border-slate-800 rounded-2xl focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 outline-none transition-all placeholder:text-slate-400`} />
+                    {!searchQuery && (
+                      <div className="absolute inset-y-0 right-4 flex items-center pointer-events-none">
+                        <kbd className="hidden sm:inline-flex items-center gap-1 px-2 py-0.5 border border-slate-200 dark:border-slate-700 rounded text-[10px] font-bold text-slate-400 bg-white dark:bg-slate-800">
+                          /
+                        </kbd>
+                      </div>
+                    )}
+                    {searchQuery && <button onClick={() => setSearchQuery("")} className="absolute inset-y-0 right-4 flex items-center text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 transition-colors" aria-label="Effacer"><X className="h-5 w-5" /></button>}
+                  </div>
+                </div>
+
+                {/* Recents */}
+                {!searchQuery && recentTools.length > 0 && (
+                  <section className="animate-in fade-in slide-in-from-bottom-4 duration-500">
+                    <h3 className="text-xs font-bold uppercase tracking-widest text-slate-400 dark:text-slate-500 mb-6 px-1">Récent</h3>
+                    <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                      {recentTools.map(tool => (
+                        <button
+                          key={tool.id}
+                          onClick={() => handleToolSelect(tool.id)}
+                          className="flex items-center gap-3 p-4 bg-slate-50 dark:bg-slate-900/50 rounded-xl border border-slate-200 dark:border-slate-800 hover:border-slate-300 dark:hover:border-slate-700 transition-all group"
+                        >
+                          <div className="w-8 h-8 rounded-lg bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 flex items-center justify-center text-slate-400 group-hover:text-indigo-500 transition-colors">
+                            <tool.icon className="w-4 h-4" />
+                          </div>
+                          <span className="font-semibold text-sm truncate">{tool.name}</span>
+                        </button>
+                      ))}
+                    </div>
+                  </section>
+                )}
+
+                {/* Main Content */}
+                <div className="space-y-12">
+                  {/* Category Nav */}
+                  <div className="sticky top-4 z-40 bg-white/80 dark:bg-slate-950/80 backdrop-blur-md py-4 border-b border-slate-200/50 dark:border-slate-800/50 -mx-4 px-4">
+                    <div className="flex gap-2 overflow-x-auto no-scrollbar">
+                      {categories.map((cat) => (
+                        <button
+                          key={cat.id}
+                          onClick={() => setSelectedCategory(cat.id === "all" ? null : cat.id)}
+                          aria-pressed={(selectedCategory === cat.id) || (cat.id === "all" && !selectedCategory)}
+                          className={`flex items-center gap-2 px-4 py-2 rounded-full text-sm font-bold transition-all whitespace-nowrap border ${
+                            (selectedCategory === cat.id) || (cat.id === "all" && !selectedCategory)
+                              ? "bg-slate-900 text-white border-slate-900 dark:bg-white dark:text-slate-950 dark:border-white shadow-md shadow-indigo-500/10"
+                              : "bg-slate-50 text-slate-500 border-slate-200 hover:border-slate-300 dark:bg-slate-900 dark:text-slate-400 dark:border-slate-800 dark:hover:border-slate-700"
+                          }`}
+                        >
+                          <cat.icon className="w-4 h-4" />
+                          {cat.name}
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+
+                  {/* Grid */}
+                  {filteredTools.length > 0 ? (
+                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
+                      {filteredTools.map((tool) => (
+                        <ToolCard
+                          key={tool.id}
+                          tool={tool}
+                          isFavorite={favoriteSet.has(tool.id)}
+                          onToggleFavorite={toggleFavorite}
+                          onClick={handleToolSelect}
+                        />
+                      ))}
+                    </div>
+                  ) : (
+                    <div className="text-center py-24 border-2 border-dashed border-slate-200 dark:border-slate-800 rounded-[2.5rem]">
+                      <div className="w-16 h-16 bg-slate-50 dark:bg-slate-900 rounded-full flex items-center justify-center mx-auto mb-6 text-slate-400">
+                        <Search className="w-8 h-8" />
+                      </div>
+                      <h4 className="text-xl font-bold mb-2">Aucun outil trouvé</h4>
+                      <p className="text-slate-500 dark:text-slate-400 mb-8">Essayez un autre mot-clé ou effacez les filtres.</p>
+                      <button
+                        onClick={() => {setSearchQuery(""); setSelectedCategory(null);}}
+                        className="px-6 py-2 bg-slate-900 dark:bg-white text-white dark:text-slate-900 rounded-xl font-bold transition-all"
+                      >
+                        Effacer tout
+                      </button>
                     </div>
                   )}
-                  {searchQuery && <button onClick={() => setSearchQuery("")} className="absolute inset-y-0 right-4 flex items-center text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 transition-colors" aria-label="Effacer"><X className="h-5 w-5" /></button>}
-                </div>
-              </div>
-
-              {/* Recents */}
-              {!searchQuery && recentTools.length > 0 && (
-                <section className="animate-in fade-in slide-in-from-bottom-4 duration-500">
-                  <h3 className="text-xs font-bold uppercase tracking-widest text-slate-400 dark:text-slate-500 mb-6 px-1">Récent</h3>
-                  <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-                    {recentTools.map(tool => (
-                      <button
-                        key={tool.id}
-                        onClick={() => handleToolSelect(tool.id)}
-                        className="flex items-center gap-3 p-4 bg-slate-50 dark:bg-slate-900/50 rounded-xl border border-slate-200 dark:border-slate-800 hover:border-slate-300 dark:hover:border-slate-700 transition-all group"
-                      >
-                        <div className="w-8 h-8 rounded-lg bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 flex items-center justify-center text-slate-400 group-hover:text-indigo-500 transition-colors">
-                          <tool.icon className="w-4 h-4" />
-                        </div>
-                        <span className="font-semibold text-sm truncate">{tool.name}</span>
-                      </button>
-                    ))}
-                  </div>
-                </section>
-              )}
-
-              {/* Main Content */}
-              <div className="space-y-12">
-                {/* Category Nav */}
-                <div className="sticky top-4 z-40 bg-white/80 dark:bg-slate-950/80 backdrop-blur-md py-4 border-b border-slate-200/50 dark:border-slate-800/50 -mx-4 px-4">
-                  <div className="flex gap-2 overflow-x-auto no-scrollbar">
-                    {categories.map((cat) => (
-                      <button
-                        key={cat.id}
-                        onClick={() => setSelectedCategory(cat.id === "all" ? null : cat.id)}
-                        aria-pressed={(selectedCategory === cat.id) || (cat.id === "all" && !selectedCategory)}
-                        className={`flex items-center gap-2 px-4 py-2 rounded-full text-sm font-bold transition-all whitespace-nowrap border ${
-                          (selectedCategory === cat.id) || (cat.id === "all" && !selectedCategory)
-                            ? "bg-slate-900 text-white border-slate-900 dark:bg-white dark:text-slate-950 dark:border-white shadow-md shadow-indigo-500/10"
-                            : "bg-slate-50 text-slate-500 border-slate-200 hover:border-slate-300 dark:bg-slate-900 dark:text-slate-400 dark:border-slate-800 dark:hover:border-slate-700"
-                        }`}
-                      >
-                        <cat.icon className="w-4 h-4" />
-                        {cat.name}
-                      </button>
-                    ))}
-                  </div>
                 </div>
 
-                {/* Grid */}
-                {filteredTools.length > 0 ? (
-                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
-                    {filteredTools.map((tool) => (
-                      <ToolCard
-                        key={tool.id}
-                        tool={tool}
-                        isFavorite={favoriteSet.has(tool.id)}
-                        onToggleFavorite={toggleFavorite}
-                        onClick={handleToolSelect}
-                      />
-                    ))}
-                  </div>
-                ) : (
-                  <div className="text-center py-24 border-2 border-dashed border-slate-200 dark:border-slate-800 rounded-[2.5rem]">
-                    <div className="w-16 h-16 bg-slate-50 dark:bg-slate-900 rounded-full flex items-center justify-center mx-auto mb-6 text-slate-400">
-                      <Search className="w-8 h-8" />
+                <Suspense fallback={null}>
+                  <AdPlaceholder size="large" className="opacity-50 grayscale hover:grayscale-0 transition-all" />
+                </Suspense>
+
+                <footer className="pt-20 pb-10 border-t border-slate-200 dark:border-slate-800">
+                  <div className="flex flex-col md:flex-row justify-between items-center gap-8">
+                    <div className="flex items-center gap-2 text-slate-400">
+                      <Sparkles className="w-4 h-4" />
+                      <span className="text-sm font-bold">Boîte à Outils © {new Date().getFullYear()}</span>
                     </div>
-                    <h4 className="text-xl font-bold mb-2">Aucun outil trouvé</h4>
-                    <p className="text-slate-500 dark:text-slate-400 mb-8">Essayez un autre mot-clé ou effacez les filtres.</p>
-                    <button
-                      onClick={() => {setSearchQuery(""); setSelectedCategory(null);}}
-                      className="px-6 py-2 bg-slate-900 dark:bg-white text-white dark:text-slate-900 rounded-xl font-bold transition-all"
-                    >
-                      Effacer tout
-                    </button>
+                    <div className="flex gap-8">
+                      <Link to="/a-propos" className="text-sm font-medium text-slate-400 hover:text-slate-900 dark:hover:text-white transition-colors">À propos</Link>
+                      <Link to="/confidentialite" className="text-sm font-medium text-slate-400 hover:text-slate-900 dark:hover:text-white transition-colors">Confidentialité</Link>
+                      <Link to="/contact" className="text-sm font-medium text-slate-400 hover:text-slate-900 dark:hover:text-white transition-colors">Contact</Link>
+                    </div>
                   </div>
-                )}
+                </footer>
               </div>
-
-              <Suspense fallback={null}>
-                <AdPlaceholder size="large" className="opacity-50 grayscale hover:grayscale-0 transition-all" />
-              </Suspense>
-
-              <footer className="pt-20 pb-10 border-t border-slate-200 dark:border-slate-800">
-                <div className="flex flex-col md:flex-row justify-between items-center gap-8">
-                  <div className="flex items-center gap-2 text-slate-400">
-                    <Sparkles className="w-4 h-4" />
-                    <span className="text-sm font-bold">Boîte à Outils © {new Date().getFullYear()}</span>
-                  </div>
-                  <div className="flex gap-8">
-                    <Link to="/a-propos" className="text-sm font-medium text-slate-400 hover:text-slate-900 dark:hover:text-white transition-colors">À propos</Link>
-                    <Link to="/confidentialite" className="text-sm font-medium text-slate-400 hover:text-slate-900 dark:hover:text-white transition-colors">Confidentialité</Link>
-                    <Link to="/contact" className="text-sm font-medium text-slate-400 hover:text-slate-900 dark:hover:text-white transition-colors">Contact</Link>
-                  </div>
-                </div>
-              </footer>
-            </div>
-          } />
-          <Route path="/outil/:toolId" element={<ToolView favorites={favorites} toggleFavorite={toggleFavorite} />} />
-          <Route path="/a-propos" element={<InfoPage title="À propos" component={<About />} />} />
-          <Route path="/contact" element={<InfoPage title="Contact" component={<Contact />} />} />
-          <Route path="/confidentialite" element={<InfoPage title="Confidentialité" component={<PrivacyPolicy />} />} />
-        </Routes>
+            } />
+            <Route path="/outil/:toolId" element={<ToolView favorites={favorites} toggleFavorite={toggleFavorite} />} />
+            <Route path="/a-propos" element={<InfoPage title="À propos" component={<About />} />} />
+            <Route path="/contact" element={<InfoPage title="Contact" component={<Contact />} />} />
+            <Route path="/confidentialite" element={<InfoPage title="Confidentialité" component={<PrivacyPolicy />} />} />
+          </Routes>
+        </main>
       </div>
     </div>
   );
@@ -1009,6 +1017,10 @@ function ToolView({ favorites, toggleFavorite }: { favorites: string[], toggleFa
   const { toolId } = useParams();
   // ⚡ Bolt Optimization: Use toolsMap for O(1) lookup
   const currentTool = toolId ? toolsMap[toolId] : null;
+
+  const categoryInfo = useMemo(() => {
+    return categories.find(c => c.id === currentTool?.category) || categories[categories.length - 1];
+  }, [currentTool]);
 
   if (!currentTool) {
     return (
@@ -1023,9 +1035,9 @@ function ToolView({ favorites, toggleFavorite }: { favorites: string[], toggleFa
     <div className="animate-in fade-in slide-in-from-bottom-4 duration-500">
       <Link
         to="/"
-        className="mb-8 inline-flex items-center gap-2 text-sm font-semibold text-slate-500 hover:text-slate-900 dark:text-slate-400 dark:hover:text-white transition-colors"
+        className="mb-8 inline-flex items-center gap-2 text-sm font-semibold text-slate-500 hover:text-slate-900 dark:text-slate-400 dark:hover:text-white transition-colors group"
       >
-        <ArrowLeft className="w-4 h-4" />
+        <ArrowLeft className="w-4 h-4 transition-transform group-hover:-translate-x-1" />
         Retour au tableau de bord
       </Link>
 
@@ -1033,7 +1045,7 @@ function ToolView({ favorites, toggleFavorite }: { favorites: string[], toggleFa
         <div className="flex flex-col md:flex-row md:items-end justify-between gap-6">
           <div className="space-y-2">
             <div className="inline-flex items-center gap-2 px-3 py-1 bg-indigo-50 dark:bg-indigo-900/20 text-indigo-600 dark:text-indigo-400 rounded-full text-xs font-bold uppercase tracking-widest">
-              <currentTool.icon className="w-3 h-3" /> {currentTool.category}
+              <categoryInfo.icon className="w-3 h-3" /> {categoryInfo.name}
             </div>
             <h1 className="text-4xl md:text-5xl font-black tracking-tight">{currentTool.name}</h1>
             <p className="text-lg text-slate-500 dark:text-slate-400 max-w-2xl">{currentTool.description}</p>
@@ -1073,9 +1085,9 @@ function InfoPage({ title, component }: { title: string, component: React.ReactN
     <div className="animate-in fade-in slide-in-from-bottom-4 duration-500">
       <Link
         to="/"
-        className="mb-8 inline-flex items-center gap-2 text-sm font-semibold text-slate-500 hover:text-slate-900 dark:text-slate-400 dark:hover:text-white transition-colors"
+        className="mb-8 inline-flex items-center gap-2 text-sm font-semibold text-slate-500 hover:text-slate-900 dark:text-slate-400 dark:hover:text-white transition-colors group"
       >
-        <ArrowLeft className="w-4 h-4" />
+        <ArrowLeft className="w-4 h-4 transition-transform group-hover:-translate-x-1" />
         Retour au tableau de bord
       </Link>
       <h1 className="text-4xl font-black mb-12">{title}</h1>

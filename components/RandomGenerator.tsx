@@ -20,7 +20,15 @@ export function RandomGenerator() {
   // Secure random generator using crypto.getRandomValues with rejection sampling
   const getSecureRandom = (range: number): number => {
     if (range <= 0) return 0;
+
     const array = new Uint32Array(1);
+    // Sentinel: If range is 2^32 or larger, just return a random 32-bit value.
+    // This prevents the infinite loop where limit would be 0.
+    if (range >= 0x100000000) {
+      window.crypto.getRandomValues(array);
+      return array[0];
+    }
+
     const maxUint32 = 0xffffffff;
     const limit = maxUint32 - (maxUint32 % range);
 

@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Percent, ArrowRight, Info, TrendingUp } from 'lucide-react';
+import { Percent, ArrowRight, Info, TrendingUp, Trash2, Copy, Check } from 'lucide-react';
 
 export function PercentageCalculator() {
   const [value1, setValue1] = useState('100');
@@ -8,6 +8,7 @@ export function PercentageCalculator() {
   const [value4, setValue4] = useState('100');
   const [initialVal, setInitialVal] = useState('100');
   const [finalVal, setFinalVal] = useState('150');
+  const [copied, setCopied] = useState<string | null>(null);
 
   const percentageOf = (Number(value2) / 100) * Number(value1);
   const whatPercent = Number(value4) !== 0 ? (Number(value3) / Number(value4)) * 100 : 0;
@@ -16,15 +17,30 @@ export function PercentageCalculator() {
   const v2 = Number(finalVal);
   const percentChange = v1 !== 0 ? ((v2 - v1) / v1) * 100 : 0;
 
+  const handleCopy = (val: number, id: string) => {
+    navigator.clipboard.writeText(val.toString());
+    setCopied(id);
+    setTimeout(() => setCopied(null), 2000);
+  };
+
   return (
     <div className="max-w-4xl mx-auto space-y-8">
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
         {/* Section 1: X% de Y */}
         <div className="bg-slate-50 dark:bg-slate-900/50 p-8 rounded-[2.5rem] border border-slate-200 dark:border-slate-800 flex flex-col justify-between space-y-6">
           <div className="space-y-4">
-            <div className="flex items-center gap-2 text-indigo-500">
-              <Percent className="w-4 h-4" />
-              <label className="text-xs font-black uppercase tracking-widest text-slate-400">Combien font X% de Y ?</label>
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-2 text-indigo-500">
+                <Percent className="w-4 h-4" />
+                <label className="text-xs font-black uppercase tracking-widest text-slate-400">Combien font X% de Y ?</label>
+              </div>
+              <button
+                onClick={() => { setValue2(''); setValue1(''); }}
+                className="text-slate-400 hover:text-rose-500 transition-colors"
+                aria-label="Effacer les champs"
+              >
+                <Trash2 className="w-4 h-4" />
+              </button>
             </div>
             <div className="flex items-center gap-3">
               <input
@@ -46,20 +62,36 @@ export function PercentageCalculator() {
               />
             </div>
           </div>
-          <div className="bg-white dark:bg-slate-800 p-6 rounded-2xl border border-slate-100 dark:border-slate-700 text-center">
+          <div className="bg-white dark:bg-slate-800 p-6 rounded-2xl border border-slate-100 dark:border-slate-700 text-center relative group">
             <div className="text-xs font-bold text-slate-400 uppercase tracking-widest mb-2">Résultat</div>
             <div className="text-4xl font-black text-indigo-600 dark:text-indigo-400 font-mono">
                {isNaN(percentageOf) ? '0' : percentageOf.toLocaleString(undefined, { maximumFractionDigits: 2 })}
             </div>
+            <button
+              onClick={() => handleCopy(percentageOf, 'section1')}
+              className={`absolute top-4 right-4 p-2 rounded-xl transition-all opacity-0 group-hover:opacity-100 ${copied === 'section1' ? 'text-emerald-500 bg-emerald-50 dark:bg-emerald-900/20' : 'text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-700'}`}
+              aria-label="Copier le résultat"
+            >
+              {copied === 'section1' ? <Check className="w-4 h-4" /> : <Copy className="w-4 h-4" />}
+            </button>
           </div>
         </div>
 
         {/* Section 2: X représente quel % de Y */}
         <div className="bg-slate-50 dark:bg-slate-900/50 p-8 rounded-[2.5rem] border border-slate-200 dark:border-slate-800 flex flex-col justify-between space-y-6">
           <div className="space-y-4">
-             <div className="flex items-center gap-2 text-indigo-500">
-              <ArrowRight className="w-4 h-4" />
-              <label className="text-xs font-black uppercase tracking-widest text-slate-400">X représente quel % de Y ?</label>
+             <div className="flex items-center justify-between">
+              <div className="flex items-center gap-2 text-indigo-500">
+                <ArrowRight className="w-4 h-4" />
+                <label className="text-xs font-black uppercase tracking-widest text-slate-400">X représente quel % de Y ?</label>
+              </div>
+              <button
+                onClick={() => { setValue3(''); setValue4(''); }}
+                className="text-slate-400 hover:text-rose-500 transition-colors"
+                aria-label="Effacer les champs"
+              >
+                <Trash2 className="w-4 h-4" />
+              </button>
             </div>
             <div className="flex items-center gap-3">
               <input
@@ -81,20 +113,36 @@ export function PercentageCalculator() {
               />
             </div>
           </div>
-          <div className="bg-white dark:bg-slate-800 p-6 rounded-2xl border border-slate-100 dark:border-slate-700 text-center">
+          <div className="bg-white dark:bg-slate-800 p-6 rounded-2xl border border-slate-100 dark:border-slate-700 text-center relative group">
             <div className="text-xs font-bold text-slate-400 uppercase tracking-widest mb-2">Résultat</div>
             <div className="text-4xl font-black text-indigo-600 dark:text-indigo-400 font-mono">
                {isNaN(whatPercent) ? '0' : whatPercent.toLocaleString(undefined, { maximumFractionDigits: 2 })}%
             </div>
+            <button
+              onClick={() => handleCopy(whatPercent, 'section2')}
+              className={`absolute top-4 right-4 p-2 rounded-xl transition-all opacity-0 group-hover:opacity-100 ${copied === 'section2' ? 'text-emerald-500 bg-emerald-50 dark:bg-emerald-900/20' : 'text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-700'}`}
+              aria-label="Copier le résultat"
+            >
+              {copied === 'section2' ? <Check className="w-4 h-4" /> : <Copy className="w-4 h-4" />}
+            </button>
           </div>
         </div>
       </div>
 
       {/* Section 3: Variation en % */}
       <div className="bg-slate-50 dark:bg-slate-900/50 p-8 rounded-[2.5rem] border border-slate-200 dark:border-slate-800 space-y-8">
-        <div className="flex items-center gap-2 text-indigo-500">
-          <TrendingUp className="w-4 h-4" />
-          <label className="text-xs font-black uppercase tracking-widest text-slate-400">Variation en % (Augmentation/Diminution)</label>
+        <div className="flex items-center justify-between">
+          <div className="flex items-center gap-2 text-indigo-500">
+            <TrendingUp className="w-4 h-4" />
+            <label className="text-xs font-black uppercase tracking-widest text-slate-400">Variation en % (Augmentation/Diminution)</label>
+          </div>
+          <button
+            onClick={() => { setInitialVal(''); setFinalVal(''); }}
+            className="text-slate-400 hover:text-rose-500 transition-colors"
+            aria-label="Effacer les champs"
+          >
+            <Trash2 className="w-4 h-4" />
+          </button>
         </div>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           <div className="space-y-3">
@@ -119,19 +167,35 @@ export function PercentageCalculator() {
           </div>
         </div>
 
-        <div className="bg-white dark:bg-slate-800 p-8 rounded-3xl border border-slate-100 dark:border-slate-700 text-center">
+        <div className="bg-white dark:bg-slate-800 p-8 rounded-3xl border border-slate-100 dark:border-slate-700 text-center relative group">
             <div className="text-xs font-bold text-slate-400 uppercase tracking-widest mb-2">Variation</div>
             <div className={`text-5xl font-black font-mono ${percentChange >= 0 ? 'text-emerald-500' : 'text-rose-500'}`}>
                {percentChange > 0 ? '+' : ''}{isNaN(percentChange) ? '0' : percentChange.toLocaleString(undefined, { maximumFractionDigits: 2 })}%
             </div>
+            <button
+              onClick={() => handleCopy(percentChange, 'section3')}
+              className={`absolute top-4 right-4 p-2 rounded-xl transition-all opacity-0 group-hover:opacity-100 ${copied === 'section3' ? 'text-emerald-500 bg-emerald-50 dark:bg-emerald-900/20' : 'text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-700'}`}
+              aria-label="Copier le résultat"
+            >
+              {copied === 'section3' ? <Check className="w-4 h-4" /> : <Copy className="w-4 h-4" />}
+            </button>
         </div>
       </div>
 
       {/* Section 4: Résultat après % de changement */}
       <div className="bg-slate-50 dark:bg-slate-900/50 p-8 rounded-[2.5rem] border border-slate-200 dark:border-slate-800 space-y-8">
-        <div className="flex items-center gap-2 text-indigo-500">
-          <Info className="w-4 h-4" />
-          <label className="text-xs font-black uppercase tracking-widest text-slate-400">Calculer une valeur après changement</label>
+        <div className="flex items-center justify-between">
+          <div className="flex items-center gap-2 text-indigo-500">
+            <Info className="w-4 h-4" />
+            <label className="text-xs font-black uppercase tracking-widest text-slate-400">Calculer une valeur après changement</label>
+          </div>
+          <button
+            onClick={() => { setValue1(''); setValue2(''); }}
+            className="text-slate-400 hover:text-rose-500 transition-colors"
+            aria-label="Effacer les champs"
+          >
+            <Trash2 className="w-4 h-4" />
+          </button>
         </div>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           <div className="space-y-3">
@@ -155,17 +219,31 @@ export function PercentageCalculator() {
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-           <div className="bg-emerald-50 dark:bg-emerald-900/10 border border-emerald-100 dark:border-emerald-900/20 p-6 rounded-2xl text-center">
+           <div className="bg-emerald-50 dark:bg-emerald-900/10 border border-emerald-100 dark:border-emerald-900/20 p-6 rounded-2xl text-center relative group">
              <div className="text-xs font-bold text-emerald-600 dark:text-emerald-400 uppercase tracking-widest mb-1">Si Augmentation (+)</div>
              <div className="text-3xl font-black text-emerald-600 dark:text-emerald-400 font-mono">
                {(Number(value1) * (1 + Math.abs(Number(value2)) / 100)).toLocaleString(undefined, { maximumFractionDigits: 2 })}
              </div>
+             <button
+              onClick={() => handleCopy(Number(value1) * (1 + Math.abs(Number(value2)) / 100), 'section4-up')}
+              className={`absolute top-4 right-4 p-2 rounded-xl transition-all opacity-0 group-hover:opacity-100 ${copied === 'section4-up' ? 'text-emerald-500 bg-emerald-50 dark:bg-emerald-900/20' : 'text-emerald-400 hover:bg-emerald-100/50 dark:hover:bg-emerald-900/30'}`}
+              aria-label="Copier le résultat d'augmentation"
+            >
+              {copied === 'section4-up' ? <Check className="w-4 h-4" /> : <Copy className="w-4 h-4" />}
+            </button>
            </div>
-           <div className="bg-rose-50 dark:bg-rose-900/10 border border-rose-100 dark:border-rose-900/20 p-6 rounded-2xl text-center">
+           <div className="bg-rose-50 dark:bg-rose-900/10 border border-rose-100 dark:border-rose-900/20 p-6 rounded-2xl text-center relative group">
              <div className="text-xs font-bold text-rose-600 dark:text-rose-400 uppercase tracking-widest mb-1">Si Diminution (-)</div>
              <div className="text-3xl font-black text-rose-600 dark:text-rose-400 font-mono">
                {(Number(value1) * (1 - Math.abs(Number(value2)) / 100)).toLocaleString(undefined, { maximumFractionDigits: 2 })}
              </div>
+             <button
+              onClick={() => handleCopy(Number(value1) * (1 - Math.abs(Number(value2)) / 100), 'section4-down')}
+              className={`absolute top-4 right-4 p-2 rounded-xl transition-all opacity-0 group-hover:opacity-100 ${copied === 'section4-down' ? 'text-emerald-500 bg-emerald-50 dark:bg-emerald-900/20' : 'text-rose-400 hover:bg-rose-100/50 dark:hover:bg-rose-900/30'}`}
+              aria-label="Copier le résultat de diminution"
+            >
+              {copied === 'section4-down' ? <Check className="w-4 h-4" /> : <Copy className="w-4 h-4" />}
+            </button>
            </div>
         </div>
       </div>

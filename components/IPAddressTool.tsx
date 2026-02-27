@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { Globe, MapPin, Wifi, Info } from 'lucide-react';
+import { Globe, MapPin, Wifi, Info, Copy, Check } from 'lucide-react';
 import { AdPlaceholder } from './AdPlaceholder';
 
 export function IPAddressTool() {
@@ -14,6 +14,7 @@ export function IPAddressTool() {
 
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [copied, setCopied] = useState(false);
 
   useEffect(() => {
     fetch('https://ipapi.co/json/')
@@ -40,11 +41,18 @@ export function IPAddressTool() {
       .finally(() => setLoading(false));
   }, []);
 
+  const handleCopy = () => {
+    if (loading || error) return;
+    navigator.clipboard.writeText(ipInfo.ip);
+    setCopied(true);
+    setTimeout(() => setCopied(false), 2000);
+  };
+
   return (
     <div className="max-w-3xl mx-auto">
       <AdPlaceholder size="banner" className="mb-6" />
 
-      <div className={`bg-gradient-to-br ${error ? 'from-rose-500 to-rose-600' : 'from-indigo-600 to-blue-500'} text-white p-8 md:p-12 rounded-[2.5rem] mb-8 text-center transition-colors duration-500 shadow-xl shadow-indigo-500/10`}>
+      <div className={`bg-gradient-to-br ${error ? 'from-rose-500 to-rose-600' : 'from-indigo-600 to-blue-500'} text-white p-8 md:p-12 rounded-[2.5rem] mb-8 text-center transition-all duration-500 shadow-xl shadow-indigo-500/10 relative overflow-hidden group`}>
         <Globe className="w-16 h-16 mx-auto mb-6 opacity-80" />
         <div className="text-xs font-black uppercase tracking-widest opacity-70 mb-3">Votre adresse IP publique</div>
         {loading ? (
@@ -52,7 +60,16 @@ export function IPAddressTool() {
         ) : error ? (
           <div className="text-lg font-bold mb-4">{error}</div>
         ) : (
-          <div className="text-4xl md:text-6xl font-black mb-4 break-all font-mono tracking-tighter">{ipInfo.ip}</div>
+          <div className="relative inline-block group">
+            <div className="text-4xl md:text-6xl font-black mb-4 break-all font-mono tracking-tighter">{ipInfo.ip}</div>
+            <button
+              onClick={handleCopy}
+              className={`absolute -right-12 top-1/2 -translate-y-1/2 p-3 rounded-2xl transition-all active:scale-95 ${copied ? 'bg-emerald-500 text-white' : 'bg-white/10 hover:bg-white/20 text-white opacity-0 group-hover:opacity-100'}`}
+              aria-label="Copier l'adresse IP"
+            >
+              {copied ? <Check className="w-6 h-6" /> : <Copy className="w-6 h-6" />}
+            </button>
+          </div>
         )}
         <div className="text-xs font-bold opacity-60">
           {loading ? 'Chargement des données...' : error ? 'Erreur de détection' : 'Données détectées automatiquement'}

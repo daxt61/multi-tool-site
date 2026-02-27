@@ -22,6 +22,14 @@ export function RandomGenerator() {
     if (range <= 0) return 0;
     const array = new Uint32Array(1);
     const maxUint32 = 0xffffffff;
+
+    // Sentinel: Handle ranges >= 2^32 to prevent infinite loop in rejection sampling.
+    // If range is >= 2^32, we return a 32-bit random value directly.
+    if (range >= 0x100000000) {
+      window.crypto.getRandomValues(array);
+      return array[0];
+    }
+
     const limit = maxUint32 - (maxUint32 % range);
 
     let randomVal;

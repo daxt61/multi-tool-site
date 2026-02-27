@@ -135,6 +135,8 @@ const Base64ToImage = lazy(() => import("./components/Base64ToImage").then(m => 
 const UnitPriceCalculator = lazy(() => import("./components/UnitPriceCalculator").then(m => ({ default: m.UnitPriceCalculator })));
 const AgeCalculator = lazy(() => import("./components/AgeCalculator").then(m => ({ default: m.AgeCalculator })));
 const ColorPaletteGenerator = lazy(() => import("./components/ColorPaletteGenerator").then(m => ({ default: m.ColorPaletteGenerator })));
+const RegExTester = lazy(() => import("./components/RegExTester").then(m => ({ default: m.RegExTester })));
+const UserAgentAnalyzer = lazy(() => import("./components/UserAgentAnalyzer").then(m => ({ default: m.UserAgentAnalyzer })));
 
 // ⚡ Bolt Optimization: Pre-calculating tool map and search index for O(1) lookups and faster filtering
 const toolsMap: Record<string, Tool> = {};
@@ -615,6 +617,22 @@ const tools: Tool[] = [
     Component: RandomGenerator,
     category: "other",
   },
+  {
+    id: "regex-tester",
+    name: "Testeur de RegEx",
+    icon: Search,
+    description: "Tester et valider vos expressions régulières",
+    Component: RegExTester,
+    category: "dev",
+  },
+  {
+    id: "user-agent",
+    name: "User Agent",
+    icon: Monitor,
+    description: "Analyser les infos de votre navigateur et système",
+    Component: UserAgentAnalyzer,
+    category: "other",
+  },
 ];
 
 // Initialize toolsMap and search index
@@ -1019,13 +1037,15 @@ function ToolView({ favorites, toggleFavorite }: { favorites: string[], toggleFa
     );
   }
 
+  const category = useMemo(() => categories.find(c => c.id === currentTool.category), [currentTool.category]);
+
   return (
     <div className="animate-in fade-in slide-in-from-bottom-4 duration-500">
       <Link
         to="/"
-        className="mb-8 inline-flex items-center gap-2 text-sm font-semibold text-slate-500 hover:text-slate-900 dark:text-slate-400 dark:hover:text-white transition-colors"
+        className="mb-8 inline-flex items-center gap-2 text-sm font-semibold text-slate-500 hover:text-slate-900 dark:text-slate-400 dark:hover:text-white transition-colors group"
       >
-        <ArrowLeft className="w-4 h-4" />
+        <ArrowLeft className="w-4 h-4 group-hover:-translate-x-1 transition-transform" />
         Retour au tableau de bord
       </Link>
 
@@ -1033,7 +1053,7 @@ function ToolView({ favorites, toggleFavorite }: { favorites: string[], toggleFa
         <div className="flex flex-col md:flex-row md:items-end justify-between gap-6">
           <div className="space-y-2">
             <div className="inline-flex items-center gap-2 px-3 py-1 bg-indigo-50 dark:bg-indigo-900/20 text-indigo-600 dark:text-indigo-400 rounded-full text-xs font-bold uppercase tracking-widest">
-              <currentTool.icon className="w-3 h-3" /> {currentTool.category}
+              {category && <category.icon className="w-3 h-3" />} {category?.name || currentTool.category}
             </div>
             <h1 className="text-4xl md:text-5xl font-black tracking-tight">{currentTool.name}</h1>
             <p className="text-lg text-slate-500 dark:text-slate-400 max-w-2xl">{currentTool.description}</p>

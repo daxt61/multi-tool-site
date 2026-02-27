@@ -21,3 +21,7 @@
 ## 2025-02-03 - [Stable Generation & Bento Consistency]
 **Learning:** In text generation tools, random output must be stabilized using `useMemo` to prevent frustrating regenerations during unrelated state updates (like "Copied" feedback). Additionally, modernizing legacy components to the Bento design system (slate-50 backgrounds, rounded-3xl corners, indigo accents) significantly improves brand cohesion and trust.
 **Action:** Use `useMemo` for random text and prioritize visual alignment with the Bento system for older components.
+
+## 2025-05-24 - [Tool Shareability & Visual Feedback Patterns]
+**Learning:** Adding a "Copier le lien" button at the tool-view level significantly enhances the utility of a multi-tool dashboard by facilitating easy sharing. Using a consistent "Success" feedback pattern (emerald text/background and a checkmark icon) across all copy actions reinforces the user's mental model and provides clear confirmation of success.
+**Action:** Implement tool-level sharing utilities and maintain emerald-themed checkmark feedback for all copy-to-clipboard interactions.

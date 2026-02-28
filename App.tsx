@@ -69,6 +69,12 @@ import {
   ShieldCheck,
   Scissors,
   Binary,
+  Smile,
+  Replace,
+  GraduationCap,
+  Braces,
+  Volume2,
+  FileImage,
 } from "lucide-react";
 const AdPlaceholder = lazy(() => import("./components/AdPlaceholder").then(m => ({ default: m.AdPlaceholder })));
 
@@ -135,6 +141,19 @@ const Base64ToImage = lazy(() => import("./components/Base64ToImage").then(m => 
 const UnitPriceCalculator = lazy(() => import("./components/UnitPriceCalculator").then(m => ({ default: m.UnitPriceCalculator })));
 const AgeCalculator = lazy(() => import("./components/AgeCalculator").then(m => ({ default: m.AgeCalculator })));
 const ColorPaletteGenerator = lazy(() => import("./components/ColorPaletteGenerator").then(m => ({ default: m.ColorPaletteGenerator })));
+const RegExTester = lazy(() => import("./components/RegExTester").then(m => ({ default: m.RegExTester })));
+const UserAgentAnalyzer = lazy(() => import("./components/UserAgentAnalyzer").then(m => ({ default: m.UserAgentAnalyzer })));
+const SlugGenerator = lazy(() => import("./components/SlugGenerator").then(m => ({ default: m.SlugGenerator })));
+const EmojiPicker = lazy(() => import("./components/EmojiPicker").then(m => ({ default: m.EmojiPicker })));
+const CodeToImage = lazy(() => import("./components/CodeToImage").then(m => ({ default: m.CodeToImage })));
+const FindAndReplace = lazy(() => import("./components/FindAndReplace").then(m => ({ default: m.FindAndReplace })));
+const GPACalculator = lazy(() => import("./components/GPACalculator").then(m => ({ default: m.GPACalculator })));
+const LuhnValidator = lazy(() => import("./components/LuhnValidator").then(m => ({ default: m.LuhnValidator })));
+const StringEscaper = lazy(() => import("./components/StringEscaper").then(m => ({ default: m.StringEscaper })));
+const TextToSpeech = lazy(() => import("./components/TextToSpeech").then(m => ({ default: m.TextToSpeech })));
+const PomodoroTimer = lazy(() => import("./components/PomodoroTimer").then(m => ({ default: m.PomodoroTimer })));
+const TodoList = lazy(() => import("./components/TodoList").then(m => ({ default: m.TodoList })));
+const ImageToBase64 = lazy(() => import("./components/ImageToBase64").then(m => ({ default: m.ImageToBase64 })));
 
 // ⚡ Bolt Optimization: Pre-calculating tool map and search index for O(1) lookups and faster filtering
 const toolsMap: Record<string, Tool> = {};
@@ -350,6 +369,22 @@ const tools: Tool[] = [
     category: "text",
   },
   {
+    id: "find-replace",
+    name: "Trouver & Remplacer",
+    icon: Replace,
+    description: "Rechercher et remplacer du texte",
+    Component: FindAndReplace,
+    category: "text",
+  },
+  {
+    id: "slug-generator",
+    name: "Générateur de Slug",
+    icon: LinkIcon,
+    description: "Créer des URLs optimisées SEO",
+    Component: SlugGenerator,
+    category: "text",
+  },
+  {
     id: "case-converter",
     name: "Casse",
     icon: CaseSensitive,
@@ -413,6 +448,14 @@ const tools: Tool[] = [
     Component: ListCleaner,
     category: "text",
   },
+  {
+    id: "string-escaper",
+    name: "String Escaper",
+    icon: Braces,
+    description: "Échapper les caractères spéciaux",
+    Component: StringEscaper,
+    category: "text",
+  },
   // Dev Tools
   {
     id: "password-generator",
@@ -420,6 +463,14 @@ const tools: Tool[] = [
     icon: Key,
     description: "Générateur de clés sécurisées",
     Component: PasswordGenerator,
+    category: "dev",
+  },
+  {
+    id: "regex-tester",
+    name: "Testeur de RegEx",
+    icon: Search,
+    description: "Tester et valider vos expressions régulières",
+    Component: RegExTester,
     category: "dev",
   },
   {
@@ -543,6 +594,22 @@ const tools: Tool[] = [
     category: "dev",
   },
   {
+    id: "image-to-base64",
+    name: "Image en Base64",
+    icon: FileImage,
+    description: "Convertir une image en chaîne Base64",
+    Component: ImageToBase64,
+    category: "dev",
+  },
+  {
+    id: "code-to-image",
+    name: "Code en Image",
+    icon: Image,
+    description: "Générer de belles images de votre code",
+    Component: CodeToImage,
+    category: "dev",
+  },
+  {
     id: "base64-to-image",
     name: "Base64 en Image",
     icon: Image,
@@ -573,6 +640,46 @@ const tools: Tool[] = [
     icon: Timer,
     description: "Minuteur et Chronomètre",
     Component: TimerTool,
+    category: "other",
+  },
+  {
+    id: "pomodoro",
+    name: "Pomodoro",
+    icon: Clock,
+    description: "Gérer votre temps avec la méthode Pomodoro",
+    Component: PomodoroTimer,
+    category: "other",
+  },
+  {
+    id: "todo-list",
+    name: "Liste de tâches",
+    icon: ListChecks,
+    description: "Gérer vos tâches quotidiennes",
+    Component: TodoList,
+    category: "other",
+  },
+  {
+    id: "emoji-picker",
+    name: "Sélecteur d'Emojis",
+    icon: Smile,
+    description: "Trouver et copier facilement des emojis",
+    Component: EmojiPicker,
+    category: "other",
+  },
+  {
+    id: "user-agent",
+    name: "Analyseur User Agent",
+    icon: Monitor,
+    description: "Analyser les métadonnées de votre navigateur",
+    Component: UserAgentAnalyzer,
+    category: "other",
+  },
+  {
+    id: "text-to-speech",
+    name: "Synthèse Vocale",
+    icon: Volume2,
+    description: "Convertir du texte en parole",
+    Component: TextToSpeech,
     category: "other",
   },
   {
@@ -613,6 +720,22 @@ const tools: Tool[] = [
     icon: Shuffle,
     description: "Nombres, chaînes et listes aléatoires",
     Component: RandomGenerator,
+    category: "other",
+  },
+  {
+    id: "luhn-validator",
+    name: "Validateur Luhn",
+    icon: CreditCard,
+    description: "Vérifier la validité d'un numéro de carte",
+    Component: LuhnValidator,
+    category: "other",
+  },
+  {
+    id: "gpa-calculator",
+    name: "Calculateur GPA",
+    icon: GraduationCap,
+    description: "Calculer votre moyenne académique",
+    Component: GPACalculator,
     category: "other",
   },
 ];

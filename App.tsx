@@ -59,6 +59,7 @@ import {
   Moon,
   Music,
   Star,
+  Check,
   Clock,
   Table,
   Tag,
@@ -847,6 +848,13 @@ function MainApp() {
 
   return (
     <div className="min-h-screen bg-white dark:bg-slate-950 text-slate-900 dark:text-slate-100 selection:bg-indigo-100 dark:selection:bg-indigo-900/50">
+      <a
+        href="#main-content"
+        className="fixed top-4 left-4 z-[100] px-4 py-2 bg-indigo-600 text-white rounded-lg font-bold shadow-xl -translate-y-24 focus:translate-y-0 transition-transform duration-200"
+      >
+        Aller au contenu principal
+      </a>
+
       {/* Background Decor */}
       <div className="fixed inset-0 overflow-hidden pointer-events-none opacity-20 dark:opacity-40">
         <div className="absolute -top-24 -left-24 w-96 h-96 bg-indigo-500/10 rounded-full blur-[120px]"></div>
@@ -875,6 +883,7 @@ function MainApp() {
           </div>
         </header>
 
+        <main id="main-content">
         <Routes>
           <Route path="/" element={
             <div className="space-y-20">
@@ -1000,6 +1009,7 @@ function MainApp() {
           <Route path="/contact" element={<InfoPage title="Contact" component={<Contact />} />} />
           <Route path="/confidentialite" element={<InfoPage title="Confidentialité" component={<PrivacyPolicy />} />} />
         </Routes>
+        </main>
       </div>
     </div>
   );
@@ -1009,6 +1019,18 @@ function ToolView({ favorites, toggleFavorite }: { favorites: string[], toggleFa
   const { toolId } = useParams();
   // ⚡ Bolt Optimization: Use toolsMap for O(1) lookup
   const currentTool = toolId ? toolsMap[toolId] : null;
+  const [linkCopied, setLinkCopied] = useState(false);
+
+  const category = useMemo(() => {
+    if (!currentTool) return null;
+    return categories.find(c => c.id === currentTool.category);
+  }, [currentTool]);
+
+  const handleCopyLink = () => {
+    navigator.clipboard.writeText(window.location.href);
+    setLinkCopied(true);
+    setTimeout(() => setLinkCopied(false), 2000);
+  };
 
   if (!currentTool) {
     return (
@@ -1023,33 +1045,48 @@ function ToolView({ favorites, toggleFavorite }: { favorites: string[], toggleFa
     <div className="animate-in fade-in slide-in-from-bottom-4 duration-500">
       <Link
         to="/"
-        className="mb-8 inline-flex items-center gap-2 text-sm font-semibold text-slate-500 hover:text-slate-900 dark:text-slate-400 dark:hover:text-white transition-colors"
+        className="mb-8 inline-flex items-center gap-2 text-sm font-semibold text-slate-500 hover:text-slate-900 dark:text-slate-400 dark:hover:text-white transition-colors group"
       >
-        <ArrowLeft className="w-4 h-4" />
+        <ArrowLeft className="w-4 h-4 group-hover:-translate-x-1 transition-transform" />
         Retour au tableau de bord
       </Link>
 
       <div className="mb-12 space-y-4">
         <div className="flex flex-col md:flex-row md:items-end justify-between gap-6">
           <div className="space-y-2">
-            <div className="inline-flex items-center gap-2 px-3 py-1 bg-indigo-50 dark:bg-indigo-900/20 text-indigo-600 dark:text-indigo-400 rounded-full text-xs font-bold uppercase tracking-widest">
-              <currentTool.icon className="w-3 h-3" /> {currentTool.category}
-            </div>
+            {category && (
+              <div className="inline-flex items-center gap-2 px-3 py-1 bg-indigo-50 dark:bg-indigo-900/20 text-indigo-600 dark:text-indigo-400 rounded-full text-xs font-bold uppercase tracking-widest">
+                <category.icon className="w-3 h-3" /> {category.name}
+              </div>
+            )}
             <h1 className="text-4xl md:text-5xl font-black tracking-tight">{currentTool.name}</h1>
             <p className="text-lg text-slate-500 dark:text-slate-400 max-w-2xl">{currentTool.description}</p>
           </div>
-          <button
-            onClick={(e) => toggleFavorite(e, currentTool.id)}
-            aria-pressed={favorites.includes(currentTool.id)}
-            className={`flex items-center gap-2 px-6 py-3 rounded-2xl font-bold transition-all border ${
-              favorites.includes(currentTool.id)
-                ? "bg-amber-50 text-amber-600 border-amber-200"
-                : "bg-slate-50 text-slate-500 border-slate-200 dark:bg-slate-900 dark:border-slate-800"
-            }`}
-          >
-            <Star className={`w-5 h-5 ${favorites.includes(currentTool.id) ? 'fill-current' : ''}`} />
-            {favorites.includes(currentTool.id) ? "Favori" : "Mettre en favori"}
-          </button>
+          <div className="flex items-center gap-3">
+            <button
+              onClick={handleCopyLink}
+              className={`flex items-center gap-2 px-6 py-3 rounded-2xl font-bold transition-all border ${
+                linkCopied
+                  ? "bg-emerald-50 text-emerald-600 border-emerald-200"
+                  : "bg-slate-50 text-slate-500 border-slate-200 dark:bg-slate-900 dark:border-slate-800 hover:border-slate-300 dark:hover:border-slate-700"
+              }`}
+            >
+              {linkCopied ? <Check className="w-5 h-5" /> : <LinkIcon className="w-5 h-5" />}
+              {linkCopied ? "Copié" : "Copier le lien"}
+            </button>
+            <button
+              onClick={(e) => toggleFavorite(e, currentTool.id)}
+              aria-pressed={favorites.includes(currentTool.id)}
+              className={`flex items-center gap-2 px-6 py-3 rounded-2xl font-bold transition-all border ${
+                favorites.includes(currentTool.id)
+                  ? "bg-amber-50 text-amber-600 border-amber-200"
+                  : "bg-slate-50 text-slate-500 border-slate-200 dark:bg-slate-900 dark:border-slate-800 hover:border-slate-300 dark:hover:border-slate-700"
+              }`}
+            >
+              <Star className={`w-5 h-5 ${favorites.includes(currentTool.id) ? 'fill-current' : ''}`} />
+              {favorites.includes(currentTool.id) ? "Favori" : "Mettre en favori"}
+            </button>
+          </div>
         </div>
       </div>
 
@@ -1073,9 +1110,9 @@ function InfoPage({ title, component }: { title: string, component: React.ReactN
     <div className="animate-in fade-in slide-in-from-bottom-4 duration-500">
       <Link
         to="/"
-        className="mb-8 inline-flex items-center gap-2 text-sm font-semibold text-slate-500 hover:text-slate-900 dark:text-slate-400 dark:hover:text-white transition-colors"
+        className="mb-8 inline-flex items-center gap-2 text-sm font-semibold text-slate-500 hover:text-slate-900 dark:text-slate-400 dark:hover:text-white transition-colors group"
       >
-        <ArrowLeft className="w-4 h-4" />
+        <ArrowLeft className="w-4 h-4 group-hover:-translate-x-1 transition-transform" />
         Retour au tableau de bord
       </Link>
       <h1 className="text-4xl font-black mb-12">{title}</h1>

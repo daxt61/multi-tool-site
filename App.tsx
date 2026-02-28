@@ -135,6 +135,9 @@ const Base64ToImage = lazy(() => import("./components/Base64ToImage").then(m => 
 const UnitPriceCalculator = lazy(() => import("./components/UnitPriceCalculator").then(m => ({ default: m.UnitPriceCalculator })));
 const AgeCalculator = lazy(() => import("./components/AgeCalculator").then(m => ({ default: m.AgeCalculator })));
 const ColorPaletteGenerator = lazy(() => import("./components/ColorPaletteGenerator").then(m => ({ default: m.ColorPaletteGenerator })));
+const RegExTester = lazy(() => import("./components/RegExTester").then(m => ({ default: m.RegExTester })));
+const UserAgentAnalyzer = lazy(() => import("./components/UserAgentAnalyzer").then(m => ({ default: m.UserAgentAnalyzer })));
+const SlugGenerator = lazy(() => import("./components/SlugGenerator").then(m => ({ default: m.SlugGenerator })));
 
 // ⚡ Bolt Optimization: Pre-calculating tool map and search index for O(1) lookups and faster filtering
 const toolsMap: Record<string, Tool> = {};
@@ -350,6 +353,14 @@ const tools: Tool[] = [
     category: "text",
   },
   {
+    id: "slug-generator",
+    name: "Slug",
+    icon: LinkIcon,
+    description: "Générateur de slugs d'URL propres",
+    Component: SlugGenerator,
+    category: "text",
+  },
+  {
     id: "case-converter",
     name: "Casse",
     icon: CaseSensitive,
@@ -460,6 +471,14 @@ const tools: Tool[] = [
     icon: Shield,
     description: "SHA-256, SHA-512 Generator",
     Component: HashGenerator,
+    category: "dev",
+  },
+  {
+    id: "regex-tester",
+    name: "RegEx",
+    icon: Search,
+    description: "Testeur d'expressions régulières",
+    Component: RegExTester,
     category: "dev",
   },
   {
@@ -613,6 +632,14 @@ const tools: Tool[] = [
     icon: Shuffle,
     description: "Nombres, chaînes et listes aléatoires",
     Component: RandomGenerator,
+    category: "other",
+  },
+  {
+    id: "user-agent",
+    name: "User Agent",
+    icon: Monitor,
+    description: "Analyseur de navigateur et système",
+    Component: UserAgentAnalyzer,
     category: "other",
   },
 ];

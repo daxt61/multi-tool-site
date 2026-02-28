@@ -76,6 +76,7 @@ export function Calculator() {
       case 'n!': {
         if (current < 0) result = NaN;
         else if (current === 0) result = 1;
+        else if (current > 170) result = Infinity;
         else {
           let f = 1;
           for (let i = 1; i <= current; i++) f *= i;

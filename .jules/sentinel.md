@@ -16,3 +16,8 @@
 **Vulnerability:** The PasswordGenerator was using `array[i] % charset.length` to select characters, which introduced a slight bias towards certain characters when the random space (2^32) was not a multiple of the charset size.
 **Learning:** Even when using cryptographically secure random values (CSPRNG), improper mathematical operations like modulo can degrade the entropy and introduce predictability.
 **Prevention:** Always use rejection sampling when mapping a large random range to a smaller one that does not divide it evenly. This ensures a perfectly uniform distribution across all possible outputs.
+
+## 2025-06-10 - [DoS via Infinite Loops in Rejection Sampling and Math]
+**Vulnerability:** Rejection sampling logic for random generation entered infinite loops when the range was >= 2^32, and the factorial calculation lacked an upper bound, both of which could hang the browser UI.
+**Learning:** Even standard security patterns like rejection sampling have edge cases (integer overflow or range limits) that can lead to Denial of Service. Mathematical operations with user-controlled input can also lead to performance hangs if not capped.
+**Prevention:** Always include safety checks in loops that rely on dynamic ranges. Cap mathematical iterations (like factorials) to reasonable limits (e.g., n <= 170) and handle range boundaries explicitly in rejection sampling.

@@ -30,6 +30,14 @@ export function PasswordGenerator() {
     const getSecureRandomIndex = (range: number) => {
       const array = new Uint32Array(1);
       const maxUint32 = 0xffffffff;
+
+      // Sentinel: If range is >= 2^32, return a direct 32-bit random value
+      // to prevent limit from becoming 0 and causing an infinite loop.
+      if (range >= 0x100000000) {
+        window.crypto.getRandomValues(array);
+        return array[0];
+      }
+
       const limit = maxUint32 - (maxUint32 % range);
       let randomVal;
       do {

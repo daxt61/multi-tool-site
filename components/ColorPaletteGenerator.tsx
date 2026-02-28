@@ -92,7 +92,10 @@ export function ColorPaletteGenerator() {
   };
 
   const generateRandom = () => {
-    const randomHex = '#' + Math.floor(Math.random() * 16777215).toString(16).padStart(6, '0');
+    // Sentinel: Use cryptographically secure random values for color generation
+    const array = new Uint32Array(1);
+    window.crypto.getRandomValues(array);
+    const randomHex = '#' + (array[0] % 16777216).toString(16).padStart(6, '0');
     setBaseColor(randomHex);
   };
 

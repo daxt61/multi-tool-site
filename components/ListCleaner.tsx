@@ -1,9 +1,11 @@
 import { useState } from 'react';
-import { Copy, Check, Trash2, SortAsc, SortDesc, ListChecks, Type, FileDown, Scissors } from 'lucide-react';
+import { Copy, Check, Trash2, SortAsc, SortDesc, ListChecks, Type, FileDown, Scissors, Plus } from 'lucide-react';
 
 export function ListCleaner() {
   const [text, setText] = useState('');
   const [copied, setCopied] = useState(false);
+  const [prefix, setPrefix] = useState('');
+  const [suffix, setSuffix] = useState('');
 
   const handleCopy = () => {
     navigator.clipboard.writeText(text);
@@ -51,6 +53,10 @@ export function ListCleaner() {
 
   const sortLength = () => {
     processList(lines => [...lines].sort((a, b) => a.length - b.length));
+  };
+
+  const addPrefixSuffix = () => {
+    processList(lines => lines.map(line => prefix + line + suffix));
   };
 
   return (
@@ -183,6 +189,45 @@ export function ListCleaner() {
             >
               <span className="font-bold text-sm">Capitaliser</span>
               <Type className="w-4 h-4 text-slate-400 group-hover:text-indigo-500" />
+            </button>
+          </div>
+        </div>
+
+        {/* Ajouts */}
+        <div className="p-8 bg-white dark:bg-slate-900/50 border border-slate-200 dark:border-slate-800 rounded-[2.5rem] space-y-6">
+          <div className="flex items-center gap-3 text-indigo-500">
+            <Plus className="w-5 h-5" />
+            <h3 className="font-black uppercase tracking-widest text-xs text-slate-400">Ajouts</h3>
+          </div>
+          <div className="space-y-4">
+            <div className="space-y-2">
+              <label htmlFor="prefix" className="text-[10px] font-black uppercase tracking-widest text-slate-400 px-1">Préfixe</label>
+              <input
+                id="prefix"
+                type="text"
+                value={prefix}
+                onChange={(e) => setPrefix(e.target.value)}
+                className="w-full p-3 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-sm font-bold outline-none focus:border-indigo-500 transition-colors"
+                placeholder="Ex: - "
+              />
+            </div>
+            <div className="space-y-2">
+              <label htmlFor="suffix" className="text-[10px] font-black uppercase tracking-widest text-slate-400 px-1">Suffixe</label>
+              <input
+                id="suffix"
+                type="text"
+                value={suffix}
+                onChange={(e) => setSuffix(e.target.value)}
+                className="w-full p-3 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-sm font-bold outline-none focus:border-indigo-500 transition-colors"
+                placeholder="Ex: ;"
+              />
+            </div>
+            <button
+              onClick={addPrefixSuffix}
+              disabled={!prefix && !suffix}
+              className="w-full py-3 bg-indigo-600 text-white rounded-xl font-black text-xs uppercase tracking-widest hover:bg-indigo-700 transition-all disabled:opacity-50"
+            >
+              Appliquer
             </button>
           </div>
         </div>

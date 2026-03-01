@@ -39,7 +39,7 @@ export function PasswordGenerator() {
 
       const maxUint32 = 0xffffffff;
 
-      // Handle range >= 2^32 to avoid infinite loop (limit would be 0)
+      // Double check range >= 2^32 to avoid infinite loop (limit would be 0)
       if (range >= 0x100000000) {
         window.crypto.getRandomValues(array);
         return array[0];

@@ -30,11 +30,16 @@ export function WordCounter() {
       .sort((a, b) => b[1] - a[1])
       .slice(0, 10);
 
+    const paragraphs = deferredText === '' ? 0 : deferredText.split(/\n\s*\n/).filter(p => p.trim().length > 0).length;
+    const avgWordLength = wordCount === 0 ? 0 : parseFloat((words.reduce((acc, word) => acc + word.length, 0) / wordCount).toFixed(1));
+
     return {
       characters: deferredText.length,
       words: wordCount,
       lines: deferredText === '' ? 0 : deferredText.split('\n').length,
       sentences: trimmed === '' ? 0 : deferredText.split(/[.!?]+(?:\s|$)/).filter(s => s.trim().length > 0).length,
+      paragraphs,
+      avgWordLength,
       readingTime: Math.ceil(wordCount / 200),
       speakingTime: Math.ceil(wordCount / 130),
       topWords
@@ -53,6 +58,8 @@ export function WordCounter() {
 - Mots : ${stats.words}
 - Lignes : ${stats.lines}
 - Phrases : ${stats.sentences}
+- Paragraphes : ${stats.paragraphs}
+- Longueur moy. des mots : ${stats.avgWordLength}
 - Temps de lecture : ~${stats.readingTime} min
 - Temps de parole : ~${stats.speakingTime} min`;
 
@@ -95,12 +102,14 @@ export function WordCounter() {
         />
       </div>
 
-      <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
+      <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-8 gap-4">
         {[
           { icon: <Hash className="w-4 h-4" />, label: 'Caractères', value: stats.characters },
           { icon: <Type className="w-4 h-4" />, label: 'Mots', value: stats.words },
           { icon: <FileText className="w-4 h-4" />, label: 'Lignes', value: stats.lines },
           { icon: <AlignLeft className="w-4 h-4" />, label: 'Phrases', value: stats.sentences },
+          { icon: <AlignLeft className="w-4 h-4" />, label: 'Paragraphes', value: stats.paragraphs },
+          { icon: <Type className="w-4 h-4" />, label: 'Long. Mot', value: stats.avgWordLength },
           { icon: <Clock className="w-4 h-4" />, label: 'Lecture', value: `${stats.readingTime}m` },
           { icon: <MessageSquare className="w-4 h-4" />, label: 'Parole', value: `${stats.speakingTime}m` },
         ].map((stat) => (

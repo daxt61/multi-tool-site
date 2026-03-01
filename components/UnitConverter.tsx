@@ -138,7 +138,7 @@ const CATEGORIES_MAP = [
   { id: 'frequency', name: 'Fréquence' },
   { id: 'consumption', name: 'Consommation' },
   { id: 'angle', name: 'Angle' },
-  { id: 'torque', name: 'Torque' }
+  { id: 'torque', name: 'Couple' }
 ];
 
 const formatter = new Intl.NumberFormat('fr-FR', {

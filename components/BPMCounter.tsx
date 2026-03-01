@@ -4,6 +4,7 @@ import { Music, RotateCcw } from 'lucide-react';
 export function BPMCounter() {
   const [taps, setTaps] = useState<number[]>([]);
   const [bpm, setBpm] = useState<number | null>(null);
+  const [bpmHistory, setBpmHistory] = useState<number[]>([]);
   const [isAnimate, setIsAnimate] = useState(false);
 
   const handleTap = useCallback(() => {
@@ -24,6 +25,10 @@ export function BPMCounter() {
       const calculatedBpm = Math.round(60000 / averageInterval);
       setBpm(calculatedBpm);
 
+      if (newTaps.length >= 4) {
+        setBpmHistory(prev => [calculatedBpm, ...prev].slice(0, 5));
+      }
+
       return newTaps;
     });
   }, []);
@@ -31,6 +36,7 @@ export function BPMCounter() {
   const reset = () => {
     setTaps([]);
     setBpm(null);
+    setBpmHistory([]);
   };
 
   useEffect(() => {
@@ -47,13 +53,16 @@ export function BPMCounter() {
   return (
     <div className="max-w-md mx-auto text-center">
       <div
-        className={`mb-8 p-12 rounded-full border-4 transition-all duration-100 flex flex-col items-center justify-center aspect-square mx-auto max-w-[300px] cursor-pointer select-none ${
+        className={`mb-8 p-12 rounded-full border-4 transition-all duration-100 flex flex-col items-center justify-center aspect-square mx-auto max-w-[300px] cursor-pointer select-none relative group ${
           isAnimate
-            ? 'bg-indigo-600 border-indigo-400 scale-95 text-white'
-            : 'bg-white dark:bg-gray-800 border-indigo-100 dark:border-gray-700 text-gray-800 dark:text-white hover:border-indigo-200'
+            ? 'bg-indigo-600 border-indigo-400 scale-95 text-white shadow-2xl shadow-indigo-600/40'
+            : 'bg-white dark:bg-gray-800 border-indigo-100 dark:border-gray-700 text-gray-800 dark:text-white hover:border-indigo-200 shadow-xl shadow-indigo-500/5'
         }`}
         onClick={handleTap}
       >
+        {isAnimate && (
+          <div className="absolute inset-0 rounded-full border-4 border-indigo-400 animate-ping opacity-20"></div>
+        )}
         <Music className={`w-12 h-12 mb-4 ${isAnimate ? 'text-white' : 'text-indigo-600'}`} />
         <div className="text-6xl font-black font-mono">
           {bpm || '--'}
@@ -81,6 +90,19 @@ export function BPMCounter() {
         {taps.length > 0 && (
           <div className="text-sm text-gray-400">
             {taps.length} tap{taps.length > 1 ? 's' : ''} enregistré{taps.length > 1 ? 's' : ''}
+          </div>
+        )}
+
+        {bpmHistory.length > 0 && (
+          <div className="pt-8 space-y-3">
+            <h4 className="text-[10px] font-black uppercase tracking-widest text-slate-400">Historique des mesures</h4>
+            <div className="flex justify-center gap-2">
+              {bpmHistory.map((h, i) => (
+                <div key={i} className={`px-3 py-1.5 rounded-lg font-mono font-bold text-xs ${i === 0 ? 'bg-indigo-600 text-white' : 'bg-slate-100 dark:bg-slate-800 text-slate-500'}`}>
+                  {h}
+                </div>
+              ))}
+            </div>
           </div>
         )}
       </div>

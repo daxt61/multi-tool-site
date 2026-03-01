@@ -56,6 +56,7 @@ export function CurrencyConverter() {
     THB: 39.45, HUF: 395.12, CZK: 25.32, ILS: 4.02, CLP: 1025.45, PKR: 304.12, EGP: 53.45, TWD: 34.12, VND: 26850.12, COP: 4250.45, QAR: 3.97, KWD: 0.33, BHD: 0.41
   });
   const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
   const [copied, setCopied] = useState(false);
   const [lastUpdated, setLastUpdated] = useState<string | null>(null);
 
@@ -65,8 +66,10 @@ export function CurrencyConverter() {
 
   const fetchRates = async () => {
     setLoading(true);
+    setError(null);
     try {
       const response = await fetch('https://api.frankfurter.app/latest?from=EUR');
+      if (!response.ok) throw new Error('Erreur réseau');
       const data = await response.json();
       if (data.rates) {
         setRates({ EUR: 1, ...data.rates });
@@ -74,6 +77,7 @@ export function CurrencyConverter() {
       }
     } catch (error) {
       console.error('Failed to fetch rates:', error);
+      setError('Impossible de mettre à jour les taux. Utilisation des données locales.');
     } finally {
       setLoading(false);
     }
@@ -186,6 +190,13 @@ export function CurrencyConverter() {
           </button>
         </div>
       </div>
+
+      {error && (
+        <div className="bg-rose-50 dark:bg-rose-900/10 border border-rose-100 dark:border-rose-900/20 p-4 rounded-2xl flex items-center gap-3 text-rose-600 dark:text-rose-400 text-sm font-bold animate-in fade-in slide-in-from-top-2">
+          <Info className="w-5 h-5" />
+          {error}
+        </div>
+      )}
 
       <div className="bg-indigo-50 dark:bg-indigo-900/10 border border-indigo-100 dark:border-indigo-900/20 p-6 rounded-[2rem] flex items-start gap-4">
         <div className="p-2 bg-white dark:bg-slate-800 text-indigo-600 rounded-xl shadow-sm">

@@ -139,6 +139,8 @@ const ColorPaletteGenerator = lazy(() => import("./components/ColorPaletteGenera
 const RegExTester = lazy(() => import("./components/RegExTester").then(m => ({ default: m.RegExTester })));
 const UserAgentAnalyzer = lazy(() => import("./components/UserAgentAnalyzer").then(m => ({ default: m.UserAgentAnalyzer })));
 const SlugGenerator = lazy(() => import("./components/SlugGenerator").then(m => ({ default: m.SlugGenerator })));
+const LuhnValidator = lazy(() => import("./components/LuhnValidator").then(m => ({ default: m.LuhnValidator })));
+const StringEscaper = lazy(() => import("./components/StringEscaper").then(m => ({ default: m.StringEscaper })));
 
 // ⚡ Bolt Optimization: Pre-calculating tool map and search index for O(1) lookups and faster filtering
 const toolsMap: Record<string, Tool> = {};
@@ -480,6 +482,22 @@ const tools: Tool[] = [
     icon: Search,
     description: "Testeur d'expressions régulières",
     Component: RegExTester,
+    category: "dev",
+  },
+  {
+    id: "luhn-validator",
+    name: "Validateur Luhn",
+    icon: ShieldCheck,
+    description: "Vérifier la validité de cartes bancaires et IMEI",
+    Component: LuhnValidator,
+    category: "dev",
+  },
+  {
+    id: "string-escaper",
+    name: "Échappement HTML",
+    icon: Code,
+    description: "Échapper les caractères spéciaux HTML",
+    Component: StringEscaper,
     category: "dev",
   },
   {

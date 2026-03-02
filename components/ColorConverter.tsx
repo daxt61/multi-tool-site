@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useMemo } from 'react';
 import { Copy, Check, Palette, Hash, Sliders } from 'lucide-react';
 
 export function ColorConverter() {
@@ -117,6 +117,55 @@ export function ColorConverter() {
     setTimeout(() => setCopied(''), 2000);
   };
 
+  const cmyk = useMemo(() => {
+    let r = rgb.r / 255;
+    let g = rgb.g / 255;
+    let b = rgb.b / 255;
+    let k = 1 - Math.max(r, g, b);
+    if (k === 1) return { c: 0, m: 0, y: 0, k: 100 };
+    let c = Math.round(((1 - r - k) / (1 - k)) * 100);
+    let m = Math.round(((1 - g - k) / (1 - k)) * 100);
+    let y = Math.round(((1 - b - k) / (1 - k)) * 100);
+    return { c, m, y, k: Math.round(k * 100) };
+  }, [rgb]);
+
+  const oklch = useMemo(() => {
+    // Simplified RGB to OKLCH conversion (approximate)
+    // For a real production tool, a more precise matrix would be used
+    let r = rgb.r / 255;
+    let g = rgb.g / 255;
+    let b = rgb.b / 255;
+
+    // Linearize sRGB
+    const lin = (c: number) => c > 0.04045 ? Math.pow((c + 0.055) / 1.055, 2.4) : c / 12.92;
+    r = lin(r); g = lin(g); b = lin(b);
+
+    // LMS
+    let l = 0.4122214708 * r + 0.5363325363 * g + 0.0514459929 * b;
+    let m = 0.2119034982 * r + 0.6806995451 * g + 0.1073969566 * b;
+    let s = 0.0883024619 * r + 0.2817188376 * g + 0.6299787005 * b;
+
+    let l_ = Math.cbrt(l);
+    let m_ = Math.cbrt(m);
+    let s_ = Math.cbrt(s);
+
+    // Oklab
+    let L = 0.2104542553 * l_ + 0.7936177850 * m_ - 0.0040720403 * s_;
+    let a = 1.9779984951 * l_ - 2.4285922050 * m_ + 0.4505937099 * s_;
+    let b_ = 0.0259040371 * l_ + 0.7827717662 * m_ - 0.8086757660 * s_;
+
+    // Oklch
+    let C = Math.sqrt(a * a + b_ * b_);
+    let h = Math.atan2(b_, a) * (180 / Math.PI);
+    if (h < 0) h += 360;
+
+    return {
+      l: Math.round(L * 100),
+      c: Math.round(C * 1000) / 1000,
+      h: Math.round(h * 10) / 10
+    };
+  }, [rgb]);
+
   return (
     <div className="max-w-4xl mx-auto space-y-12">
       {/* Visual Preview Area */}
@@ -136,11 +185,13 @@ export function ColorConverter() {
       </div>
 
       {/* Main Formats Display */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
         {[
           { label: 'HEX', value: hex, id: 'hex' },
           { label: 'RGB', value: `rgb(${rgb.r}, ${rgb.g}, ${rgb.b})`, id: 'rgb' },
           { label: 'HSL', value: `hsl(${hsl.h}, ${hsl.s}%, ${hsl.l}%)`, id: 'hsl' },
+          { label: 'CMYK', value: `cmyk(${cmyk.c}%, ${cmyk.m}%, ${cmyk.y}%, ${cmyk.k}%)`, id: 'cmyk' },
+          { label: 'OKLCH', value: `oklch(${oklch.l}% ${oklch.c} ${oklch.h})`, id: 'oklch' },
         ].map((format) => (
           <div key={format.id} className="bg-slate-50 dark:bg-slate-900/50 p-6 rounded-3xl border border-slate-200 dark:border-slate-800 space-y-4">
             <div className="flex justify-between items-center">

@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { Globe, MapPin, Wifi, Info } from 'lucide-react';
+import { Globe, MapPin, Wifi, Info, Copy, Check } from 'lucide-react';
 import { AdPlaceholder } from './AdPlaceholder';
 
 export function IPAddressTool() {
@@ -14,6 +14,13 @@ export function IPAddressTool() {
 
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [copied, setCopied] = useState<string | null>(null);
+
+  const copyToClipboard = (text: string, id: string) => {
+    navigator.clipboard.writeText(text);
+    setCopied(id);
+    setTimeout(() => setCopied(null), 2000);
+  };
 
   useEffect(() => {
     fetch('https://ipapi.co/json/')
@@ -52,7 +59,20 @@ export function IPAddressTool() {
         ) : error ? (
           <div className="text-lg font-bold mb-4">{error}</div>
         ) : (
-          <div className="text-4xl md:text-6xl font-black mb-4 break-all font-mono tracking-tighter">{ipInfo.ip}</div>
+          <div className="relative group/ip inline-block">
+            <div className="text-4xl md:text-6xl font-black mb-4 break-all font-mono tracking-tighter cursor-pointer hover:opacity-80 transition-opacity" onClick={() => copyToClipboard(ipInfo.ip, 'ip')}>
+              {ipInfo.ip}
+            </div>
+            <button
+              onClick={() => copyToClipboard(ipInfo.ip, 'ip')}
+              className={`absolute -right-12 top-1/2 -translate-y-1/2 p-2 rounded-xl backdrop-blur-md transition-all ${
+                copied === 'ip' ? 'bg-emerald-500 text-white scale-110' : 'bg-white/10 text-white opacity-0 group-hover/ip:opacity-100'
+              }`}
+              aria-label="Copier l'adresse IP"
+            >
+              {copied === 'ip' ? <Check className="w-4 h-4" /> : <Copy className="w-4 h-4" />}
+            </button>
+          </div>
         )}
         <div className="text-xs font-bold opacity-60">
           {loading ? 'Chargement des données...' : error ? 'Erreur de détection' : 'Données détectées automatiquement'}
@@ -61,32 +81,59 @@ export function IPAddressTool() {
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
         <div className="bg-white dark:bg-slate-900/40 border border-slate-200 dark:border-slate-800 rounded-[2rem] p-8 shadow-sm transition-all hover:shadow-md">
-          <div className="flex items-center gap-3 mb-4">
-            <div className="p-2 bg-blue-50 dark:bg-blue-900/20 rounded-xl">
-              <MapPin className="w-5 h-5 text-blue-500" />
+          <div className="flex justify-between items-start mb-4">
+            <div className="flex items-center gap-3">
+              <div className="p-2 bg-blue-50 dark:bg-blue-900/20 rounded-xl">
+                <MapPin className="w-5 h-5 text-blue-500" />
+              </div>
+              <span className="text-xs font-black uppercase tracking-widest text-slate-400">Localisation</span>
             </div>
-            <span className="text-xs font-black uppercase tracking-widest text-slate-400">Localisation</span>
+            <button
+              onClick={() => copyToClipboard(`${ipInfo.city}, ${ipInfo.region}, ${ipInfo.country}`, 'loc')}
+              className={`p-2 rounded-lg transition-all ${copied === 'loc' ? 'bg-emerald-500 text-white' : 'text-slate-300 hover:text-indigo-500 hover:bg-slate-50 dark:hover:bg-slate-800'}`}
+              aria-label="Copier la localisation"
+            >
+              {copied === 'loc' ? <Check className="w-4 h-4" /> : <Copy className="w-4 h-4" />}
+            </button>
           </div>
           <p className="text-xl font-bold text-slate-900 dark:text-white">{ipInfo.city}, {ipInfo.region}</p>
           <p className="text-slate-500 dark:text-slate-400 font-medium">{ipInfo.country}</p>
         </div>
 
         <div className="bg-white dark:bg-slate-900/40 border border-slate-200 dark:border-slate-800 rounded-[2rem] p-8 shadow-sm transition-all hover:shadow-md">
-          <div className="flex items-center gap-3 mb-4">
-            <div className="p-2 bg-indigo-50 dark:bg-indigo-900/20 rounded-xl">
-              <Globe className="w-5 h-5 text-indigo-500" />
+          <div className="flex justify-between items-start mb-4">
+            <div className="flex items-center gap-3">
+              <div className="p-2 bg-indigo-50 dark:bg-indigo-900/20 rounded-xl">
+                <Globe className="w-5 h-5 text-indigo-500" />
+              </div>
+              <span className="text-xs font-black uppercase tracking-widest text-slate-400">Fuseau horaire</span>
             </div>
-            <span className="text-xs font-black uppercase tracking-widest text-slate-400">Fuseau horaire</span>
+            <button
+              onClick={() => copyToClipboard(ipInfo.timezone, 'tz')}
+              className={`p-2 rounded-lg transition-all ${copied === 'tz' ? 'bg-emerald-500 text-white' : 'text-slate-300 hover:text-indigo-500 hover:bg-slate-50 dark:hover:bg-slate-800'}`}
+              aria-label="Copier le fuseau horaire"
+            >
+              {copied === 'tz' ? <Check className="w-4 h-4" /> : <Copy className="w-4 h-4" />}
+            </button>
           </div>
           <p className="text-xl font-bold text-slate-900 dark:text-white font-mono">{ipInfo.timezone}</p>
         </div>
 
         <div className="bg-white dark:bg-slate-900/40 border border-slate-200 dark:border-slate-800 rounded-[2rem] p-8 shadow-sm transition-all hover:shadow-md md:col-span-2">
-          <div className="flex items-center gap-3 mb-4">
-            <div className="p-2 bg-emerald-50 dark:bg-emerald-900/20 rounded-xl">
-              <Wifi className="w-5 h-5 text-emerald-500" />
+          <div className="flex justify-between items-start mb-4">
+            <div className="flex items-center gap-3">
+              <div className="p-2 bg-emerald-50 dark:bg-emerald-900/20 rounded-xl">
+                <Wifi className="w-5 h-5 text-emerald-500" />
+              </div>
+              <span className="text-xs font-black uppercase tracking-widest text-slate-400">Fournisseur d'accès (ISP)</span>
             </div>
-            <span className="text-xs font-black uppercase tracking-widest text-slate-400">Fournisseur d'accès (ISP)</span>
+            <button
+              onClick={() => copyToClipboard(ipInfo.isp, 'isp')}
+              className={`p-2 rounded-lg transition-all ${copied === 'isp' ? 'bg-emerald-500 text-white' : 'text-slate-300 hover:text-indigo-500 hover:bg-slate-50 dark:hover:bg-slate-800'}`}
+              aria-label="Copier le fournisseur d'accès"
+            >
+              {copied === 'isp' ? <Check className="w-4 h-4" /> : <Copy className="w-4 h-4" />}
+            </button>
           </div>
           <p className="text-xl font-bold text-slate-900 dark:text-white">{ipInfo.isp}</p>
         </div>

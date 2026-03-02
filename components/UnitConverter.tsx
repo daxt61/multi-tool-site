@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { Copy, Check, Trash2, ArrowUpDown, Info, Ruler } from 'lucide-react';
 
-type ConversionCategory = 'length' | 'weight' | 'temperature' | 'area' | 'volume' | 'digital' | 'pressure' | 'energy' | 'speed' | 'time' | 'power' | 'frequency' | 'consumption' | 'angle' | 'torque';
+type ConversionCategory = 'length' | 'weight' | 'temperature' | 'area' | 'volume' | 'digital' | 'datarate' | 'pressure' | 'energy' | 'speed' | 'time' | 'power' | 'frequency' | 'consumption' | 'angle' | 'torque';
 
 interface ConversionUnit {
   name: string;
@@ -60,6 +60,12 @@ const CONVERSIONS: Record<ConversionCategory, Record<string, ConversionUnit>> = 
     'GB': { name: 'Gigaoctets (GB)', toBase: (v) => v * Math.pow(1024, 3), fromBase: (v) => v / Math.pow(1024, 3) },
     'TB': { name: 'Teraoctets (TB)', toBase: (v) => v * Math.pow(1024, 4), fromBase: (v) => v / Math.pow(1024, 4) },
     'PB': { name: 'Pétaoctets (PB)', toBase: (v) => v * Math.pow(1024, 5), fromBase: (v) => v / Math.pow(1024, 5) }
+  },
+  datarate: {
+    'bps': { name: 'bits par seconde (bps)', toBase: (v) => v, fromBase: (v) => v },
+    'kbps': { name: 'kilobits par seconde (kbps)', toBase: (v) => v * 1000, fromBase: (v) => v / 1000 },
+    'mbps': { name: 'mégabits par seconde (mbps)', toBase: (v) => v * 1000000, fromBase: (v) => v / 1000000 },
+    'gbps': { name: 'gigabits par seconde (gbps)', toBase: (v) => v * 1000000000, fromBase: (v) => v / 1000000000 },
   },
   torque: {
     'Nm': { name: 'Newton-mètre (Nm)', toBase: (v) => v, fromBase: (v) => v },
@@ -129,7 +135,8 @@ const CATEGORIES_MAP = [
   { id: 'temperature', name: 'Température' },
   { id: 'area', name: 'Surface' },
   { id: 'volume', name: 'Volume' },
-  { id: 'digital', name: 'Digital' },
+  { id: 'digital', name: 'Stockage Digital' },
+  { id: 'datarate', name: 'Débit binaire' },
   { id: 'speed', name: 'Vitesse' },
   { id: 'time', name: 'Temps' },
   { id: 'pressure', name: 'Pression' },
@@ -138,7 +145,7 @@ const CATEGORIES_MAP = [
   { id: 'frequency', name: 'Fréquence' },
   { id: 'consumption', name: 'Consommation' },
   { id: 'angle', name: 'Angle' },
-  { id: 'torque', name: 'Torque' }
+  { id: 'torque', name: 'Couple' }
 ];
 
 const formatter = new Intl.NumberFormat('fr-FR', {

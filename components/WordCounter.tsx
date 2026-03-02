@@ -37,6 +37,7 @@ export function WordCounter() {
       sentences: trimmed === '' ? 0 : deferredText.split(/[.!?]+(?:\s|$)/).filter(s => s.trim().length > 0).length,
       readingTime: Math.ceil(wordCount / 200),
       speakingTime: Math.ceil(wordCount / 130),
+      fileSize: new Blob([deferredText]).size,
       topWords
     };
   }, [deferredText]);
@@ -54,7 +55,8 @@ export function WordCounter() {
 - Lignes : ${stats.lines}
 - Phrases : ${stats.sentences}
 - Temps de lecture : ~${stats.readingTime} min
-- Temps de parole : ~${stats.speakingTime} min`;
+- Temps de parole : ~${stats.speakingTime} min
+- Taille estimée (.txt) : ${stats.fileSize} octets`;
 
     navigator.clipboard.writeText(report);
     setCopiedStats(true);
@@ -65,7 +67,7 @@ export function WordCounter() {
     <div className="max-w-5xl mx-auto space-y-8">
       <div className="space-y-4">
         <div className="flex justify-between items-center px-1">
-          <label className="text-xs font-black uppercase tracking-widest text-slate-400">Votre Texte</label>
+          <label htmlFor="word-counter-textarea" className="text-xs font-black uppercase tracking-widest text-slate-400">Votre Texte</label>
           <div className="flex gap-2">
             <button
               onClick={handleCopyStats}
@@ -88,6 +90,7 @@ export function WordCounter() {
           </div>
         </div>
         <textarea
+          id="word-counter-textarea"
           value={text}
           onChange={(e) => setText(e.target.value)}
           placeholder="Commencez à taper..."
@@ -103,6 +106,7 @@ export function WordCounter() {
           { icon: <AlignLeft className="w-4 h-4" />, label: 'Phrases', value: stats.sentences },
           { icon: <Clock className="w-4 h-4" />, label: 'Lecture', value: `${stats.readingTime}m` },
           { icon: <MessageSquare className="w-4 h-4" />, label: 'Parole', value: `${stats.speakingTime}m` },
+          { icon: <FileText className="w-4 h-4" />, label: 'Taille (.txt)', value: stats.fileSize > 1024 ? `${(stats.fileSize / 1024).toFixed(1)} KB` : `${stats.fileSize} B` },
         ].map((stat) => (
           <div key={stat.label} className="p-6 bg-white dark:bg-slate-900 border border-slate-100 dark:border-slate-800 rounded-2xl space-y-2">
             <div className="text-indigo-500 dark:text-indigo-400">{stat.icon}</div>

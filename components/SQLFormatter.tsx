@@ -1,5 +1,5 @@
-import { useState } from 'react';
-import { Database, Copy, Check, Trash2, AlertCircle, FileCode } from 'lucide-react';
+import { useState, useEffect } from 'react';
+import { Database, Copy, Check, Trash2, AlertCircle, FileCode, Zap, Settings2 } from 'lucide-react';
 import { format } from 'sql-formatter';
 
 export function SQLFormatter() {
@@ -8,6 +8,8 @@ export function SQLFormatter() {
   const [language, setLanguage] = useState('sql');
   const [error, setError] = useState('');
   const [copied, setCopied] = useState(false);
+  const [realTime, setRealTime] = useState(true);
+  const [indentStyle, setIndentStyle] = useState<'tabularLeft' | 'standard'>('tabularLeft');
 
   const languages = [
     { id: 'sql', name: 'Standard SQL' },
@@ -20,19 +22,31 @@ export function SQLFormatter() {
 
   const handleFormat = () => {
     try {
-      if (!input.trim()) return;
+      if (!input.trim()) {
+        setOutput('');
+        setError('');
+        return;
+      }
       const formatted = format(input, {
         language: language as any,
         tabWidth: 2,
         keywordCase: 'upper',
-        indentStyle: 'tabularLeft'
+        indentStyle: indentStyle
       });
       setOutput(formatted);
       setError('');
     } catch (e: any) {
-      setError('Erreur de formatage : ' + e.message);
+      if (!realTime) {
+        setError('Erreur de formatage : ' + e.message);
+      }
     }
   };
+
+  useEffect(() => {
+    if (realTime) {
+      handleFormat();
+    }
+  }, [input, language, realTime, indentStyle]);
 
   const handleCopy = () => {
     if (!output) return;
@@ -56,20 +70,49 @@ export function SQLFormatter() {
         </div>
       )}
 
-      <div className="flex flex-wrap gap-2 justify-center mb-4">
-        {languages.map((lang) => (
+      <div className="flex flex-col md:flex-row gap-6 items-center justify-between bg-slate-50 dark:bg-slate-900/50 p-6 rounded-[2rem] border border-slate-200 dark:border-slate-800">
+        <div className="flex flex-wrap gap-2 justify-center">
+          {languages.map((lang) => (
+            <button
+              key={lang.id}
+              onClick={() => setLanguage(lang.id)}
+              className={`px-4 py-2 rounded-xl text-sm font-bold transition-all border ${
+                language === lang.id
+                  ? 'bg-slate-900 text-white border-slate-900 dark:bg-white dark:text-slate-950 shadow-md'
+                  : 'bg-white dark:bg-slate-800 text-slate-500 border-slate-200 dark:border-slate-700 hover:border-slate-300'
+              }`}
+            >
+              {lang.name}
+            </button>
+          ))}
+        </div>
+
+        <div className="flex items-center gap-6">
+          <div className="flex items-center gap-3">
+             <Settings2 className="w-4 h-4 text-slate-400" />
+             <select
+               value={indentStyle}
+               onChange={(e) => setIndentStyle(e.target.value as any)}
+               className="bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg px-3 py-1.5 text-sm font-bold outline-none cursor-pointer"
+               aria-label="Style d'indentation"
+             >
+               <option value="tabularLeft">Tabulaire</option>
+               <option value="standard">Standard</option>
+             </select>
+          </div>
+
           <button
-            key={lang.id}
-            onClick={() => setLanguage(lang.id)}
-            className={`px-4 py-2 rounded-xl text-sm font-bold transition-all border ${
-              language === lang.id
-                ? 'bg-slate-900 text-white border-slate-900 dark:bg-white dark:text-slate-950 shadow-md'
-                : 'bg-white dark:bg-slate-800 text-slate-500 border-slate-200 dark:border-slate-700 hover:border-slate-300'
+            onClick={() => setRealTime(!realTime)}
+            className={`flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-bold transition-all border ${
+              realTime
+                ? 'bg-indigo-50 text-indigo-600 border-indigo-200 dark:bg-indigo-500/10 dark:border-indigo-500/20'
+                : 'bg-white dark:bg-slate-800 text-slate-500 border-slate-200 dark:border-slate-700'
             }`}
           >
-            {lang.name}
+            <Zap className={`w-4 h-4 ${realTime ? 'fill-current' : ''}`} />
+            Temps réel
           </button>
-        ))}
+        </div>
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
@@ -77,7 +120,7 @@ export function SQLFormatter() {
           <div className="flex justify-between items-center px-1">
             <div className="flex items-center gap-2">
               <Database className="w-4 h-4 text-indigo-500" />
-              <label className="text-xs font-black uppercase tracking-widest text-slate-400">Requête SQL</label>
+              <label htmlFor="sql-input" className="text-xs font-black uppercase tracking-widest text-slate-400">Requête SQL</label>
             </div>
             <button
               onClick={handleClear}
@@ -87,6 +130,7 @@ export function SQLFormatter() {
             </button>
           </div>
           <textarea
+            id="sql-input"
             value={input}
             onChange={(e) => setInput(e.target.value)}
             placeholder="SELECT * FROM users WHERE id = 1;"
@@ -98,7 +142,7 @@ export function SQLFormatter() {
           <div className="flex justify-between items-center px-1">
             <div className="flex items-center gap-2">
               <FileCode className="w-4 h-4 text-emerald-500" />
-              <label className="text-xs font-black uppercase tracking-widest text-slate-400">SQL Formaté</label>
+              <label htmlFor="sql-output" className="text-xs font-black uppercase tracking-widest text-slate-400">SQL Formaté</label>
             </div>
             <button
               onClick={handleCopy}
@@ -109,6 +153,7 @@ export function SQLFormatter() {
             </button>
           </div>
           <textarea
+            id="sql-output"
             value={output}
             readOnly
             placeholder="Le SQL formaté apparaîtra ici..."
@@ -117,14 +162,16 @@ export function SQLFormatter() {
         </div>
       </div>
 
-      <div className="flex justify-center">
-        <button
-          onClick={handleFormat}
-          className="px-12 py-4 bg-indigo-600 text-white rounded-2xl font-black text-lg shadow-lg shadow-indigo-600/20 hover:bg-indigo-700 transition-all active:scale-95 flex items-center gap-2"
-        >
-          <Database className="w-5 h-5" /> Formater le SQL
-        </button>
-      </div>
+      {!realTime && (
+        <div className="flex justify-center">
+          <button
+            onClick={handleFormat}
+            className="px-12 py-4 bg-indigo-600 text-white rounded-2xl font-black text-lg shadow-lg shadow-indigo-600/20 hover:bg-indigo-700 transition-all active:scale-95 flex items-center gap-2"
+          >
+            <Database className="w-5 h-5" /> Formater le SQL
+          </button>
+        </div>
+      )}
     </div>
   );
 }

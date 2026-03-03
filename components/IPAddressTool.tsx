@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { Globe, MapPin, Wifi, Info } from 'lucide-react';
+import { Globe, MapPin, Wifi, Info, Copy, Check } from 'lucide-react';
 import { AdPlaceholder } from './AdPlaceholder';
 
 export function IPAddressTool() {
@@ -14,6 +14,13 @@ export function IPAddressTool() {
 
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [copiedField, setCopiedField] = useState<string | null>(null);
+
+  const copyToClipboard = (text: string, field: string) => {
+    navigator.clipboard.writeText(text);
+    setCopiedField(field);
+    setTimeout(() => setCopiedField(null), 2000);
+  };
 
   useEffect(() => {
     fetch('https://ipapi.co/json/')
@@ -44,7 +51,17 @@ export function IPAddressTool() {
     <div className="max-w-3xl mx-auto">
       <AdPlaceholder size="banner" className="mb-6" />
 
-      <div className={`bg-gradient-to-br ${error ? 'from-rose-500 to-rose-600' : 'from-indigo-600 to-blue-500'} text-white p-8 md:p-12 rounded-[2.5rem] mb-8 text-center transition-colors duration-500 shadow-xl shadow-indigo-500/10`}>
+      <div className={`bg-gradient-to-br ${error ? 'from-rose-500 to-rose-600' : 'from-indigo-600 to-blue-500'} text-white p-8 md:p-12 rounded-[2.5rem] mb-8 text-center transition-colors duration-500 shadow-xl shadow-indigo-500/10 relative group`}>
+        {!loading && !error && (
+          <button
+            onClick={() => copyToClipboard(ipInfo.ip, 'ip')}
+            className="absolute right-4 top-4 md:right-8 md:top-8 p-3 bg-white/20 hover:bg-white/30 rounded-2xl transition-all"
+            title="Copier l'adresse IP"
+            aria-label="Copier l'adresse IP"
+          >
+            {copiedField === 'ip' ? <Check className="w-5 h-5" /> : <Copy className="w-5 h-5" />}
+          </button>
+        )}
         <Globe className="w-16 h-16 mx-auto mb-6 opacity-80" />
         <div className="text-xs font-black uppercase tracking-widest opacity-70 mb-3">Votre adresse IP publique</div>
         {loading ? (
@@ -60,7 +77,17 @@ export function IPAddressTool() {
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
-        <div className="bg-white dark:bg-slate-900/40 border border-slate-200 dark:border-slate-800 rounded-[2rem] p-8 shadow-sm transition-all hover:shadow-md">
+        <div className="bg-white dark:bg-slate-900/40 border border-slate-200 dark:border-slate-800 rounded-[2rem] p-8 shadow-sm transition-all hover:shadow-md relative group focus-within:ring-2 focus-within:ring-indigo-500/20">
+          {!loading && (
+            <button
+              onClick={() => copyToClipboard(`${ipInfo.city}, ${ipInfo.region}, ${ipInfo.country}`, 'location')}
+              className="absolute right-4 top-4 p-2 text-slate-300 hover:text-indigo-500 opacity-0 group-hover:opacity-100 group-focus-within:opacity-100 transition-all outline-none focus-visible:text-indigo-500"
+              title="Copier la localisation"
+              aria-label="Copier la localisation"
+            >
+              {copiedField === 'location' ? <Check className="w-4 h-4" /> : <Copy className="w-4 h-4" />}
+            </button>
+          )}
           <div className="flex items-center gap-3 mb-4">
             <div className="p-2 bg-blue-50 dark:bg-blue-900/20 rounded-xl">
               <MapPin className="w-5 h-5 text-blue-500" />
@@ -71,7 +98,17 @@ export function IPAddressTool() {
           <p className="text-slate-500 dark:text-slate-400 font-medium">{ipInfo.country}</p>
         </div>
 
-        <div className="bg-white dark:bg-slate-900/40 border border-slate-200 dark:border-slate-800 rounded-[2rem] p-8 shadow-sm transition-all hover:shadow-md">
+        <div className="bg-white dark:bg-slate-900/40 border border-slate-200 dark:border-slate-800 rounded-[2rem] p-8 shadow-sm transition-all hover:shadow-md relative group focus-within:ring-2 focus-within:ring-indigo-500/20">
+          {!loading && (
+            <button
+              onClick={() => copyToClipboard(ipInfo.timezone, 'timezone')}
+              className="absolute right-4 top-4 p-2 text-slate-300 hover:text-indigo-500 opacity-0 group-hover:opacity-100 group-focus-within:opacity-100 transition-all outline-none focus-visible:text-indigo-500"
+              title="Copier le fuseau horaire"
+              aria-label="Copier le fuseau horaire"
+            >
+              {copiedField === 'timezone' ? <Check className="w-4 h-4" /> : <Copy className="w-4 h-4" />}
+            </button>
+          )}
           <div className="flex items-center gap-3 mb-4">
             <div className="p-2 bg-indigo-50 dark:bg-indigo-900/20 rounded-xl">
               <Globe className="w-5 h-5 text-indigo-500" />
@@ -81,7 +118,17 @@ export function IPAddressTool() {
           <p className="text-xl font-bold text-slate-900 dark:text-white font-mono">{ipInfo.timezone}</p>
         </div>
 
-        <div className="bg-white dark:bg-slate-900/40 border border-slate-200 dark:border-slate-800 rounded-[2rem] p-8 shadow-sm transition-all hover:shadow-md md:col-span-2">
+        <div className="bg-white dark:bg-slate-900/40 border border-slate-200 dark:border-slate-800 rounded-[2rem] p-8 shadow-sm transition-all hover:shadow-md md:col-span-2 relative group focus-within:ring-2 focus-within:ring-indigo-500/20">
+          {!loading && (
+            <button
+              onClick={() => copyToClipboard(ipInfo.isp, 'isp')}
+              className="absolute right-6 top-6 p-2 text-slate-300 hover:text-indigo-500 opacity-0 group-hover:opacity-100 group-focus-within:opacity-100 transition-all outline-none focus-visible:text-indigo-500"
+              title="Copier le FAI"
+              aria-label="Copier le FAI"
+            >
+              {copiedField === 'isp' ? <Check className="w-4 h-4" /> : <Copy className="w-4 h-4" />}
+            </button>
+          )}
           <div className="flex items-center gap-3 mb-4">
             <div className="p-2 bg-emerald-50 dark:bg-emerald-900/20 rounded-xl">
               <Wifi className="w-5 h-5 text-emerald-500" />

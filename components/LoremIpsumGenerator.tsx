@@ -24,7 +24,8 @@ export function LoremIpsumGenerator() {
     for (let i = 0; i < length; i++) {
       words.push(loremWords[Math.floor(Math.random() * loremWords.length)]);
     }
-    return words.join(' ').charAt(0).toUpperCase() + words.join(' ').slice(1) + '.';
+    const sentence = words.join(' ');
+    return sentence.charAt(0).toUpperCase() + sentence.slice(1) + '.';
   };
 
   const generateParagraph = () => {
@@ -38,21 +39,25 @@ export function LoremIpsumGenerator() {
 
   const text = useMemo(() => {
     const generateText = () => {
+      // Sentinel: Clamp count to prevent Denial of Service (DoS)
+      // We use Math.min to enforce a hard limit on generation to prevent browser hangs.
+      const safeCount = Math.min(Math.max(0, count), 1000);
+
       if (type === 'words') {
         const words = [];
-        for (let i = 0; i < count; i++) {
+        for (let i = 0; i < safeCount; i++) {
           words.push(loremWords[Math.floor(Math.random() * loremWords.length)]);
         }
         return words.join(' ');
       } else if (type === 'sentences') {
         const sentences = [];
-        for (let i = 0; i < count; i++) {
+        for (let i = 0; i < safeCount; i++) {
           sentences.push(generateSentence());
         }
         return sentences.join(' ');
       } else {
         const paragraphs = [];
-        for (let i = 0; i < count; i++) {
+        for (let i = 0; i < safeCount; i++) {
           paragraphs.push(generateParagraph());
         }
         return paragraphs.join('\n\n');

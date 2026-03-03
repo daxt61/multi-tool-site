@@ -21,3 +21,8 @@
 **Vulnerability:** The JSONCSVConverter component was vulnerable to Prototype Pollution by allowing users to specify dangerous keys like `__proto__` in CSV headers, which were then used to build plain objects.
 **Learning:** When building objects from user-controlled keys, always use `Object.create(null)` to ensure the object has no prototype, and explicitly sanitize or rename dangerous keys (`__proto__`, `constructor`, `prototype`).
 **Prevention:** Sanitize all keys from external data sources before using them as object properties. Using `Object.create(null)` is a robust secondary defense.
+
+## 2026-02-27 - [DoS via Excessive Generation in Client-Side Tools]
+**Vulnerability:** Tools that generate data based on a user-defined count (like Lorem Ipsum) were vulnerable to local Denial of Service (DoS) where an excessively high count could freeze the browser tab.
+**Learning:** Input validation on the UI level (HTML `max` attribute) is easily bypassed. Security-critical limits must be enforced at the logic level where the generation loop occurs.
+**Prevention:** Always clamp iteration counts using `Math.min(count, SAFE_LIMIT)` before entering loops. For text generation, a limit of 1000-5000 is usually sufficient for utility purposes while preventing hangs.

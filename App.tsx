@@ -66,6 +66,7 @@ import {
   LayoutGrid,
   ArrowRight, Loader2,
   Sparkles,
+  MessageSquare,
   ListChecks,
   ShieldCheck,
   Scissors,
@@ -139,6 +140,8 @@ const ColorPaletteGenerator = lazy(() => import("./components/ColorPaletteGenera
 const RegExTester = lazy(() => import("./components/RegExTester").then(m => ({ default: m.RegExTester })));
 const UserAgentAnalyzer = lazy(() => import("./components/UserAgentAnalyzer").then(m => ({ default: m.UserAgentAnalyzer })));
 const SlugGenerator = lazy(() => import("./components/SlugGenerator").then(m => ({ default: m.SlugGenerator })));
+const Metronome = lazy(() => import("./components/Metronome").then(m => ({ default: m.Metronome })));
+const TextToSpeech = lazy(() => import("./components/TextToSpeech").then(m => ({ default: m.TextToSpeech })));
 
 // ⚡ Bolt Optimization: Pre-calculating tool map and search index for O(1) lookups and faster filtering
 const toolsMap: Record<string, Tool> = {};
@@ -643,6 +646,22 @@ const tools: Tool[] = [
     Component: UserAgentAnalyzer,
     category: "other",
   },
+    {
+      id: "metronome",
+      name: "Métronome",
+      icon: Music,
+      description: "Gardez le rythme pour vos sessions musicales",
+      Component: Metronome,
+      category: "other",
+    },
+    {
+      id: "text-to-speech",
+      name: "Synthèse Vocale",
+      icon: MessageSquare,
+      description: "Convertissez vos textes en paroles audibles",
+      Component: TextToSpeech,
+      category: "other",
+    },
 ];
 
 // Initialize toolsMap and search index

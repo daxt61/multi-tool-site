@@ -25,3 +25,7 @@
 ## 2025-05-24 - [Global Navigation & Tool Metadata Polish]
 **Learning:** For tool-based applications, the "Copy link" feature is a vital micro-UX that users expect for sharing specific configurations. Additionally, ensuring that metadata badges (like categories) use consistent icons and localized names from a central configuration, rather than tool-specific icons, improves the application's taxonomic clarity. Coupling this with global accessibility landmarks like "Skip to content" links and semantic `<main>` tags ensures a professional and inclusive user experience.
 **Action:** Prioritize "Copy link" utilities in tool views and audit metadata badges for taxonomic consistency. Always implement "Skip to content" for keyboard accessibility.
+
+## 2025-03-04 - [Real-time Converters & TTS Bento Modernization]
+**Learning:** Real-time conversion in encoding/decoding tools (like URLEncoder) eliminates redundant clicks and provides immediate feedback, significantly improving the user experience. Coupling this with explicit 'Copy' and 'Clear' (with localized ARIA labels) buttons ensures high usability and accessibility. Additionally, modernizing these tools to the Bento system (max-w-6xl, rounded-3xl) maintains visual consistency across the platform.
+**Action:** Implement real-time conversion patterns for all bi-directional tools and ensure a11y-compliant 'Clear' buttons are standard.

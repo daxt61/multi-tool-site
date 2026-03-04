@@ -21,3 +21,8 @@
 **Vulnerability:** The JSONCSVConverter component was vulnerable to Prototype Pollution by allowing users to specify dangerous keys like `__proto__` in CSV headers, which were then used to build plain objects.
 **Learning:** When building objects from user-controlled keys, always use `Object.create(null)` to ensure the object has no prototype, and explicitly sanitize or rename dangerous keys (`__proto__`, `constructor`, `prototype`).
 **Prevention:** Sanitize all keys from external data sources before using them as object properties. Using `Object.create(null)` is a robust secondary defense.
+
+## 2026-03-04 - [Local DoS via LocalStorage Poisoning]
+**Vulnerability:** Application state was being initialized from `localStorage` without validation or error handling, making the UI vulnerable to crashes (Local Denial of Service) if the data was malformed or maliciously modified.
+**Learning:** Even "client-side only" state persistence should be treated as untrusted input. A single malformed JSON string or an unexpected object structure can break the React render loop for a user.
+**Prevention:** Always wrap `localStorage.getItem` and `JSON.parse` in a try-catch block and perform schema validation (e.g., `Array.isArray`, type checks) before ingesting the data into the application state.

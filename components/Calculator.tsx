@@ -9,8 +9,22 @@ export function Calculator() {
   const [isScientific, setIsScientific] = useState(false);
   const [isRadians, setIsRadians] = useState(false);
   const [history, setHistory] = useState<{ expression: string; result: string }[]>(() => {
-    const saved = localStorage.getItem('calc_history');
-    return saved ? JSON.parse(saved) : [];
+    try {
+      // Sentinel: Securely parse localStorage data to prevent app crashes (local DoS)
+      const saved = localStorage.getItem('calc_history');
+      if (!saved) return [];
+      const parsed = JSON.parse(saved);
+      // Sentinel: Validate data structure to prevent state poisoning
+      return Array.isArray(parsed) && parsed.every(item =>
+        typeof item === 'object' &&
+        item !== null &&
+        typeof item.expression === 'string' &&
+        typeof item.result === 'string'
+      ) ? parsed.slice(0, 10) : [];
+    } catch (e) {
+      console.error("Failed to load calculator history", e);
+      return [];
+    }
   });
 
   const handleNumber = (num: string) => {
@@ -74,7 +88,9 @@ export function Calculator() {
       case 'exp': result = Math.exp(current); break;
       case 'abs': result = Math.abs(current); break;
       case 'n!': {
-        if (current < 0) result = NaN;
+        // Sentinel: Limit factorial to n <= 170 to prevent DoS (infinite/excessive loop)
+        // and to avoid Infinity results (171! > Number.MAX_VALUE)
+        if (current < 0 || current > 170) result = NaN;
         else if (current === 0) result = 1;
         else {
           let f = 1;

@@ -25,3 +25,7 @@
 ## 2025-05-24 - [Global Navigation & Tool Metadata Polish]
 **Learning:** For tool-based applications, the "Copy link" feature is a vital micro-UX that users expect for sharing specific configurations. Additionally, ensuring that metadata badges (like categories) use consistent icons and localized names from a central configuration, rather than tool-specific icons, improves the application's taxonomic clarity. Coupling this with global accessibility landmarks like "Skip to content" links and semantic `<main>` tags ensures a professional and inclusive user experience.
 **Action:** Prioritize "Copy link" utilities in tool views and audit metadata badges for taxonomic consistency. Always implement "Skip to content" for keyboard accessibility.
+
+## 2025-05-25 - [Reactive Utilities & Scope Compliance]
+**Learning:** For conversion tools, real-time reactivity is a superior UX to manual "Action" buttons as it reduces cognitive load and clicks. However, when modernizing, it is crucial to remain within "micro" scope by avoiding unrelated performance optimizations like `lazy` loading. Additionally, when using similar labels for different elements (e.g., a button and an input), prioritize robust ARIA attributes and specific test locators (like `get_by_role('textbox')`) to ensure clarity for both users and automation.
+**Action:** Use real-time reactivity for converters, but keep refactors focused and avoid performance over-engineering unless requested.

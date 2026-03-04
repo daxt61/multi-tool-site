@@ -34,12 +34,27 @@ const CATEGORY_COLORS: Record<string, string> = {
 export function ExpenseTracker() {
   const [expenses, setExpenses] = useState<Expense[]>(() => {
     try {
+      // Sentinel: Securely parse localStorage data to prevent app crashes (local DoS)
+      // if the data is malformed or tampered with.
       const saved = localStorage.getItem("expenses");
       const parsed = saved ? JSON.parse(saved) : [];
-      return Array.isArray(parsed) ? parsed : [];
+
+      // Sentinel: Validate data structure and content to prevent state poisoning.
+      if (Array.isArray(parsed)) {
+        return parsed.filter(e =>
+          typeof e === 'object' &&
+          e !== null &&
+          typeof e.id === 'string' &&
+          typeof e.description === 'string' &&
+          typeof e.amount === 'number' &&
+          typeof e.category === 'string' &&
+          typeof e.date === 'string'
+        ).slice(0, 1000); // Limit to 1000 expenses to prevent DoS.
+      }
     } catch (e) {
-      return [];
+      console.error("Failed to load expenses from localStorage", e);
     }
+    return [];
   });
   const [description, setDescription] = useState("");
   const [amount, setAmount] = useState("");

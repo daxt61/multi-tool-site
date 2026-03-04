@@ -25,3 +25,11 @@
 ## 2025-05-24 - [Global Navigation & Tool Metadata Polish]
 **Learning:** For tool-based applications, the "Copy link" feature is a vital micro-UX that users expect for sharing specific configurations. Additionally, ensuring that metadata badges (like categories) use consistent icons and localized names from a central configuration, rather than tool-specific icons, improves the application's taxonomic clarity. Coupling this with global accessibility landmarks like "Skip to content" links and semantic `<main>` tags ensures a professional and inclusive user experience.
 **Action:** Prioritize "Copy link" utilities in tool views and audit metadata badges for taxonomic consistency. Always implement "Skip to content" for keyboard accessibility.
+
+## 2026-03-01 - [Modernized Utility Tools & Accessibility]
+**Learning:** Modernizing legacy components to the Bento design system (slate-50 backgrounds, rounded-3xl corners, indigo accents) while ensuring accessibility-compliant labels linked via `id` and `htmlFor` significantly improves both brand cohesion and inclusive usability.
+**Action:** Adopt the Bento design system for all new and refactored tools, ensuring proper input-label associations.
+
+## 2026-03-01 - [Live Preview for CSS Generators]
+**Learning:** For CSS generation tools (e.g., Glassmorphism), a high-fidelity, interactive preview with background patterns and animations is crucial for a professional and intuitive user experience.
+**Action:** Include dynamic previews with visual context (like animated background shapes) for all CSS-related generators.

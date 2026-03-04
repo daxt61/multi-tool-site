@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Download } from 'lucide-react';
+import { Download, QrCode } from 'lucide-react';
 
 export function QRCodeGenerator() {
   const [text, setText] = useState('');
@@ -19,54 +19,64 @@ export function QRCodeGenerator() {
   };
 
   return (
-    <div className="max-w-2xl mx-auto">
-      <div className="mb-6">
-        <label className="block text-sm font-semibold text-gray-700 mb-2">
-          Texte ou URL à encoder
-        </label>
-        <textarea
-          value={text}
-          onChange={(e) => setText(e.target.value)}
-          placeholder="Entrez du texte, une URL, un numéro de téléphone..."
-          className="w-full p-4 border border-gray-300 rounded-lg resize-none h-32 focus:outline-none focus:ring-2 focus:ring-blue-500"
-        />
-      </div>
-
-      <div className="mb-6">
-        <label className="block text-sm font-semibold text-gray-700 mb-2">
-          Taille: {size}x{size} px
-        </label>
-        <input
-          type="range"
-          min="100"
-          max="500"
-          step="50"
-          value={size}
-          onChange={(e) => setSize(Number(e.target.value))}
-          className="w-full"
-        />
-      </div>
-
-      {qrCodeUrl && (
-        <div className="bg-gray-50 p-8 rounded-lg text-center">
-          <img
-            src={qrCodeUrl}
-            alt="QR Code"
-            className="mx-auto mb-4 border-4 border-white shadow-lg"
+    <div className="max-w-4xl mx-auto space-y-8">
+      <div className="bg-slate-50 dark:bg-slate-900/50 p-8 rounded-3xl border border-slate-200 dark:border-slate-800 space-y-6">
+        <div className="space-y-2">
+          <label htmlFor="qr-input" className="text-xs font-black uppercase tracking-widest text-slate-400 px-1">
+            Texte ou URL à encoder
+          </label>
+          <textarea
+            id="qr-input"
+            value={text}
+            onChange={(e) => setText(e.target.value)}
+            placeholder="Entrez du texte, une URL, un numéro de téléphone..."
+            className="w-full p-6 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-2xl resize-none h-40 focus:ring-2 focus:ring-indigo-500/20 outline-none transition-all dark:text-white leading-relaxed"
           />
+        </div>
+
+        <div className="space-y-4">
+          <div className="flex justify-between items-center px-1">
+            <label htmlFor="qr-size" className="text-xs font-black uppercase tracking-widest text-slate-400">
+              Taille: {size}x{size} px
+            </label>
+          </div>
+          <input
+            id="qr-size"
+            type="range"
+            min="100"
+            max="500"
+            step="50"
+            value={size}
+            onChange={(e) => setSize(Number(e.target.value))}
+            className="w-full h-2 bg-slate-200 dark:bg-slate-700 rounded-lg appearance-none cursor-pointer accent-indigo-600"
+          />
+        </div>
+      </div>
+
+      {qrCodeUrl ? (
+        <div className="bg-white dark:bg-slate-950/50 border border-slate-200 dark:border-slate-800 rounded-[2.5rem] p-12 text-center space-y-8 shadow-sm">
+          <div className="inline-block p-4 bg-white rounded-2xl shadow-xl border border-slate-100">
+            <img
+              src={qrCodeUrl}
+              alt="QR Code"
+              className="mx-auto"
+              style={{ width: size, height: size }}
+            />
+          </div>
           <button
             onClick={downloadQRCode}
-            className="px-6 py-3 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition-colors flex items-center gap-2 mx-auto"
+            className="px-8 py-4 bg-indigo-600 text-white rounded-2xl font-black uppercase tracking-widest text-sm hover:bg-indigo-700 transition-all shadow-lg shadow-indigo-600/20 active:scale-95 flex items-center gap-2 mx-auto"
           >
             <Download className="w-5 h-5" />
             Télécharger le QR Code
           </button>
         </div>
-      )}
-
-      {!text && (
-        <div className="bg-gray-100 p-12 rounded-lg text-center text-gray-500">
-          Entrez du texte pour générer un QR Code
+      ) : (
+        <div className="bg-white dark:bg-slate-950/50 border border-slate-200 dark:border-slate-800 rounded-[2.5rem] p-24 text-center space-y-4 shadow-sm">
+          <div className="w-16 h-16 bg-slate-50 dark:bg-slate-900 rounded-full flex items-center justify-center mx-auto text-slate-200 dark:text-slate-800">
+            <QrCode className="w-8 h-8" />
+          </div>
+          <p className="text-slate-400 font-medium">Entrez du texte pour générer un QR Code</p>
         </div>
       )}
     </div>

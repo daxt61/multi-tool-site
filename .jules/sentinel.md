@@ -21,3 +21,18 @@
 **Vulnerability:** The JSONCSVConverter component was vulnerable to Prototype Pollution by allowing users to specify dangerous keys like `__proto__` in CSV headers, which were then used to build plain objects.
 **Learning:** When building objects from user-controlled keys, always use `Object.create(null)` to ensure the object has no prototype, and explicitly sanitize or rename dangerous keys (`__proto__`, `constructor`, `prototype`).
 **Prevention:** Sanitize all keys from external data sources before using them as object properties. Using `Object.create(null)` is a robust secondary defense.
+
+## 2026-03-01 - [XSS via Attribute Breakout in HTML Entity Converter]
+**Vulnerability:** The HTMLEntityConverter's `encode` function only escaped a limited set of characters, missing single (`'`) and double (`"`) quotes which are critical for preventing attribute-breaking XSS when the encoded output is used in HTML attributes.
+**Learning:** Security-focused converters must escape all characters that can be used to break out of HTML contexts, especially quotes.
+**Prevention:** Include single and double quotes in the regex for HTML entity encoding.
+
+## 2026-03-01 - [Local DoS via Unvalidated LocalStorage State]
+**Vulnerability:** BudgetPlanner and ExpenseTracker were vulnerable to local Denial of Service (DoS) if `localStorage` contained malformed or excessively large JSON data, causing the app to crash or hang on load.
+**Learning:** Persistent state loaded from `localStorage` must be treated as untrusted input.
+**Prevention:** Use a secure parsing pattern: `try-catch` blocks combined with strict data structure validation (type checking, array checks) and logic-level limits on item counts.
+
+## 2026-03-01 - [Local DoS via Excessive Iteration]
+**Vulnerability:** Tools like LoremIpsumGenerator and UUIDGenerator were vulnerable to local Denial of Service (DoS) where a user could bypass UI-level constraints to trigger extremely large iteration counts, causing the browser to hang.
+**Learning:** UI-level constraints (`min`/`max` on inputs) are easily bypassed and must be reinforced by logic-level bounds checks in the application state.
+**Prevention:** Explicitly clamp or limit count parameters within the generation logic (e.g., `Math.min(count, 1000)`).

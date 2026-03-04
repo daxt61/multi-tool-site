@@ -38,21 +38,25 @@ export function LoremIpsumGenerator() {
 
   const text = useMemo(() => {
     const generateText = () => {
+      // Sentinel: Enforce a logic-level limit of 1000 to prevent Denial of Service (DoS)
+      // vulnerabilities from excessive generation.
+      const safeCount = Math.min(Math.max(1, count), 1000);
+
       if (type === 'words') {
         const words = [];
-        for (let i = 0; i < count; i++) {
+        for (let i = 0; i < safeCount; i++) {
           words.push(loremWords[Math.floor(Math.random() * loremWords.length)]);
         }
         return words.join(' ');
       } else if (type === 'sentences') {
         const sentences = [];
-        for (let i = 0; i < count; i++) {
+        for (let i = 0; i < safeCount; i++) {
           sentences.push(generateSentence());
         }
         return sentences.join(' ');
       } else {
         const paragraphs = [];
-        for (let i = 0; i < count; i++) {
+        for (let i = 0; i < safeCount; i++) {
           paragraphs.push(generateParagraph());
         }
         return paragraphs.join('\n\n');

@@ -21,3 +21,8 @@
 **Vulnerability:** The JSONCSVConverter component was vulnerable to Prototype Pollution by allowing users to specify dangerous keys like `__proto__` in CSV headers, which were then used to build plain objects.
 **Learning:** When building objects from user-controlled keys, always use `Object.create(null)` to ensure the object has no prototype, and explicitly sanitize or rename dangerous keys (`__proto__`, `constructor`, `prototype`).
 **Prevention:** Sanitize all keys from external data sources before using them as object properties. Using `Object.create(null)` is a robust secondary defense.
+
+## 2026-03-01 - [Local DoS, ReDoS, and Logic Flaws]
+**Vulnerability:** Several components (Calculator, LoremIpsumGenerator, CodeMinifier, RegExTester) were vulnerable to local Denial of Service (DoS) or had logic flaws.
+**Learning:** 1. Iterative operations (like factorial or text generation) need logic-level bounds checks to prevent browser hangs. 2. Regular expressions with user-controlled input must be handled with care, ideally with length limits and execution time monitoring. 3. Minification logic must handle string literal masking before comment removal to avoid incorrectly stripping code. 4. Always use secure `localStorage` parsing with try-catch and validation.
+**Prevention:** Enforce strict bounds in calculation loops, monitor regex execution time, and use a robust masking strategy for sensitive code elements during minification.

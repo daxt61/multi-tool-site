@@ -9,16 +9,31 @@ export function RegExTester() {
   const backdropRef = useRef<HTMLDivElement>(null);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
 
-  const { matches, error, matchCount } = useMemo(() => {
-    if (!regex) return { matches: [], error: null, matchCount: 0 };
+  const { matches, error, matchCount, isSlow } = useMemo(() => {
+    if (!regex) return { matches: [], error: null, matchCount: 0, isSlow: false };
+    const startTime = performance.now();
     try {
       // Ensure the 'g' flag is handled correctly for matchAll
       const safeFlags = flags.includes('g') ? flags : flags + 'g';
       const re = new RegExp(regex, safeFlags);
+
+      // Basic ReDoS protection: Limit test text length and check execution time
+      if (testText.length > 10000) {
+        throw new Error('Le texte de test est trop long (max 10 000 caractères).');
+      }
+
       const allMatches = Array.from(testText.matchAll(re));
-      return { matches: allMatches, error: null, matchCount: allMatches.length };
+      const endTime = performance.now();
+      const duration = endTime - startTime;
+
+      return {
+        matches: allMatches,
+        error: null,
+        matchCount: allMatches.length,
+        isSlow: duration > 100 // Flag if execution takes more than 100ms
+      };
     } catch (e: any) {
-      return { matches: [], error: e.message, matchCount: 0 };
+      return { matches: [], error: e.message, matchCount: 0, isSlow: false };
     }
   }, [regex, flags, testText]);
 
@@ -121,6 +136,11 @@ export function RegExTester() {
             {error && (
               <div className="flex items-center gap-2 text-rose-500 text-xs font-bold px-1 animate-in slide-in-from-top-1">
                 <AlertCircle className="w-3 h-3" /> {error}
+              </div>
+            )}
+            {isSlow && !error && (
+              <div className="flex items-center gap-2 text-amber-500 text-xs font-bold px-1 animate-in slide-in-from-top-1">
+                <AlertCircle className="w-3 h-3" /> Expression potentiellement lente (ReDoS)
               </div>
             )}
           </div>

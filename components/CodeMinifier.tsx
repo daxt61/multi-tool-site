@@ -13,11 +13,11 @@ export function CodeMinifier() {
       if (type === 'js') {
         const preserved: string[] = [];
         const masked = code
-          .replace(/\/\*[\s\S]*?\*\/|\/\/.*$/gm, '') // Remove comments
           .replace(/("(?:[^"\\]|\\.)*"|'(?:[^'\\]|\\.)*'|`[\s\S]*?`)/g, (match) => {
             preserved.push(match);
             return `__JS_STR_${preserved.length - 1}__`;
-          });
+          })
+          .replace(/\/\*[\s\S]*?\*\/|\/\/.*$/gm, ''); // Remove comments
 
         const minified = masked
           .replace(/\s+/g, ' ')
@@ -28,11 +28,11 @@ export function CodeMinifier() {
       } else if (type === 'css') {
         const preserved: string[] = [];
         const masked = code
-          .replace(/\/\*[\s\S]*?\*\//g, '') // Remove comments
           .replace(/("(?:[^"\\]|\\.)*"|'(?:[^'\\]|\\.)*')/g, (match) => {
             preserved.push(match);
             return `__CSS_STR_${preserved.length - 1}__`;
-          });
+          })
+          .replace(/\/\*[\s\S]*?\*\//g, ''); // Remove comments
 
         const minified = masked
           .replace(/\s+/g, ' ')

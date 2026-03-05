@@ -70,6 +70,8 @@ import {
   ShieldCheck,
   Scissors,
   Binary,
+  Layers,
+  Volume2,
 } from "lucide-react";
 const AdPlaceholder = lazy(() => import("./components/AdPlaceholder").then(m => ({ default: m.AdPlaceholder })));
 
@@ -139,6 +141,9 @@ const ColorPaletteGenerator = lazy(() => import("./components/ColorPaletteGenera
 const RegExTester = lazy(() => import("./components/RegExTester").then(m => ({ default: m.RegExTester })));
 const UserAgentAnalyzer = lazy(() => import("./components/UserAgentAnalyzer").then(m => ({ default: m.UserAgentAnalyzer })));
 const SlugGenerator = lazy(() => import("./components/SlugGenerator").then(m => ({ default: m.SlugGenerator })));
+const Metronome = lazy(() => import("./components/Metronome").then(m => ({ default: m.Metronome })));
+const GlassmorphismGenerator = lazy(() => import("./components/GlassmorphismGenerator").then(m => ({ default: m.GlassmorphismGenerator })));
+const TextToSpeech = lazy(() => import("./components/TextToSpeech").then(m => ({ default: m.TextToSpeech })));
 
 // ⚡ Bolt Optimization: Pre-calculating tool map and search index for O(1) lookups and faster filtering
 const toolsMap: Record<string, Tool> = {};
@@ -586,6 +591,14 @@ const tools: Tool[] = [
     Component: BinaryTextConverter,
     category: "dev",
   },
+  {
+    id: "glassmorphism",
+    name: "Glassmorphism",
+    icon: Layers,
+    description: "Générateur de CSS pour l'effet Glassmorphism",
+    Component: GlassmorphismGenerator,
+    category: "dev",
+  },
   // Other Tools
   {
     id: "timer",
@@ -641,6 +654,22 @@ const tools: Tool[] = [
     icon: Monitor,
     description: "Analyseur de navigateur et système",
     Component: UserAgentAnalyzer,
+    category: "other",
+  },
+  {
+    id: "metronome",
+    name: "Métronome",
+    icon: Music,
+    description: "Métronome précis avec signatures rythmiques",
+    Component: Metronome,
+    category: "other",
+  },
+  {
+    id: "text-to-speech",
+    name: "Synthèse vocale",
+    icon: Volume2,
+    description: "Convertir du texte en parole (TTS)",
+    Component: TextToSpeech,
     category: "other",
   },
 ];

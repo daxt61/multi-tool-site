@@ -1,10 +1,23 @@
 import { useState } from 'react';
-import { ArrowRight, ArrowLeft } from 'lucide-react';
+import { ArrowRight, ArrowLeft, Copy, Check, Trash2 } from 'lucide-react';
 import { AdPlaceholder } from './AdPlaceholder';
 
 export function URLEncoder() {
   const [decoded, setDecoded] = useState('');
   const [encoded, setEncoded] = useState('');
+  const [copied, setCopied] = useState<'decoded' | 'encoded' | null>(null);
+
+  const copyToClipboard = (val: string, type: 'decoded' | 'encoded') => {
+    if (!val) return;
+    navigator.clipboard.writeText(val);
+    setCopied(type);
+    setTimeout(() => setCopied(null), 2000);
+  };
+
+  const handleClear = () => {
+    setDecoded('');
+    setEncoded('');
+  };
 
   const encode = (text: string) => {
     try {
@@ -40,6 +53,24 @@ export function URLEncoder() {
         <div>
           <div className="flex items-center justify-between mb-3">
             <label className="font-semibold text-lg">URL/Texte décodé</label>
+            <div className="flex gap-2">
+              <button
+                onClick={() => copyToClipboard(decoded, 'decoded')}
+                className={`p-2 rounded-lg transition-colors ${copied === 'decoded' ? 'text-green-500 bg-green-50' : 'text-gray-500 hover:bg-gray-100'}`}
+                aria-label="Copier le texte décodé"
+                title="Copier"
+              >
+                {copied === 'decoded' ? <Check className="w-4 h-4" /> : <Copy className="w-4 h-4" />}
+              </button>
+              <button
+                onClick={handleClear}
+                className="p-2 text-rose-500 hover:bg-rose-50 rounded-lg transition-colors"
+                aria-label="Effacer tout"
+                title="Effacer"
+              >
+                <Trash2 className="w-4 h-4" />
+              </button>
+            </div>
           </div>
           <textarea
             value={decoded}
@@ -52,6 +83,14 @@ export function URLEncoder() {
         <div>
           <div className="flex items-center justify-between mb-3">
             <label className="font-semibold text-lg">URL/Texte encodé</label>
+            <button
+              onClick={() => copyToClipboard(encoded, 'encoded')}
+              className={`p-2 rounded-lg transition-colors ${copied === 'encoded' ? 'text-green-500 bg-green-50' : 'text-gray-500 hover:bg-gray-100'}`}
+              aria-label="Copier le texte encodé"
+              title="Copier"
+            >
+              {copied === 'encoded' ? <Check className="w-4 h-4" /> : <Copy className="w-4 h-4" />}
+            </button>
           </div>
           <textarea
             value={encoded}

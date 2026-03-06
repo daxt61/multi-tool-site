@@ -25,3 +25,11 @@
 ## 2025-05-24 - [Global Navigation & Tool Metadata Polish]
 **Learning:** For tool-based applications, the "Copy link" feature is a vital micro-UX that users expect for sharing specific configurations. Additionally, ensuring that metadata badges (like categories) use consistent icons and localized names from a central configuration, rather than tool-specific icons, improves the application's taxonomic clarity. Coupling this with global accessibility landmarks like "Skip to content" links and semantic `<main>` tags ensures a professional and inclusive user experience.
 **Action:** Prioritize "Copy link" utilities in tool views and audit metadata badges for taxonomic consistency. Always implement "Skip to content" for keyboard accessibility.
+
+## 2025-06-10 - [Real-time Formatting & SQL UX]
+**Learning:** For code-related tools like SQL formatters, real-time feedback with a slight debounce significantly improves the flow compared to manual "Format" button clicks. Additionally, providing customization options (like indentation styles) makes the tool adaptable to different team standards.
+**Action:** Implement debounced real-time updates for code formatters and provide common configuration options as high-impact micro-UX.
+
+## 2025-06-11 - [Bento Modernization & Markdown Duo Mode]
+**Learning:** Updating legacy "grey" UIs to the Bento design system (slate-50, rounded-3xl, indigo accents) drastically improves perceived quality. In editors, a "Duo" (split) mode is the gold standard for productivity, allowing users to see their changes instantly without switching tabs.
+**Action:** Modernize legacy components to Bento standards and prioritize split-view layouts for preview-heavy tools.

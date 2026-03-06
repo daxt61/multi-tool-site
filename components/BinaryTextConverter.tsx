@@ -59,7 +59,7 @@ export function BinaryTextConverter() {
           <div className="flex justify-between items-center px-1">
             <div className="flex items-center gap-2">
               <Type className="w-4 h-4 text-indigo-500" />
-              <label className="text-xs font-black uppercase tracking-widest text-slate-400">Texte Clair</label>
+              <label htmlFor="clear-text-input" className="text-xs font-black uppercase tracking-widest text-slate-400 cursor-pointer">Texte Clair</label>
             </div>
             <div className="flex gap-2">
               <button
@@ -77,12 +77,14 @@ export function BinaryTextConverter() {
                   setBinary('');
                 }}
                 className="text-xs font-bold px-3 py-1 rounded-full text-rose-500 bg-rose-50 dark:bg-rose-500/10 hover:bg-rose-100 transition-all flex items-center gap-1"
+                aria-label="Effacer le texte"
               >
                 <Trash2 className="w-3 h-3" />
               </button>
             </div>
           </div>
           <textarea
+            id="clear-text-input"
             value={text}
             onChange={(e) => handleTextChange(e.target.value)}
             placeholder="Entrez votre texte ici..."
@@ -95,7 +97,7 @@ export function BinaryTextConverter() {
           <div className="flex justify-between items-center px-1">
             <div className="flex items-center gap-2">
               <Binary className="w-4 h-4 text-indigo-500" />
-              <label className="text-xs font-black uppercase tracking-widest text-slate-400">Binaire</label>
+              <label htmlFor="binary-text-input" className="text-xs font-black uppercase tracking-widest text-slate-400 cursor-pointer">Binaire</label>
             </div>
             <div className="flex gap-2">
               <button
@@ -110,6 +112,7 @@ export function BinaryTextConverter() {
             </div>
           </div>
           <textarea
+            id="binary-text-input"
             value={binary}
             onChange={(e) => handleBinaryChange(e.target.value)}
             placeholder="Le résultat binaire apparaîtra ici..."

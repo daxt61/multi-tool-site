@@ -85,67 +85,69 @@ export function MarkdownPreview() {
   };
 
   return (
-    <div className="max-w-6xl mx-auto">
-      <AdPlaceholder size="banner" className="mb-6" />
-
-      <div className="flex gap-2 mb-4">
-        <button
-          onClick={() => setMode('edit')}
-          className={`px-4 py-2 rounded-lg font-semibold transition-all ${
-            mode === 'edit' ? 'bg-blue-500 text-white' : 'bg-gray-200'
-          }`}
-        >
-          <Code className="w-4 h-4 inline mr-2" />
-          Édition
-        </button>
-        <button
-          onClick={() => setMode('split')}
-          className={`px-4 py-2 rounded-lg font-semibold transition-all ${
-            mode === 'split' ? 'bg-blue-500 text-white' : 'bg-gray-200'
-          }`}
-        >
-          Divisé
-        </button>
-        <button
-          onClick={() => setMode('preview')}
-          className={`px-4 py-2 rounded-lg font-semibold transition-all ${
-            mode === 'preview' ? 'bg-blue-500 text-white' : 'bg-gray-200'
-          }`}
-        >
-          <Eye className="w-4 h-4 inline mr-2" />
-          Aperçu
-        </button>
+    <div className="max-w-6xl mx-auto space-y-8">
+      <div className="flex justify-center">
+        <div className="bg-slate-100 dark:bg-slate-800 p-1.5 rounded-2xl flex gap-1">
+          <button
+            onClick={() => setMode('edit')}
+            className={`px-6 py-2.5 rounded-xl text-sm font-black transition-all flex items-center gap-2 ${
+              mode === 'edit' ? 'bg-white dark:bg-slate-700 text-indigo-600 shadow-sm' : 'text-slate-500 hover:text-slate-700'
+            }`}
+          >
+            <Code className="w-4 h-4" />
+            Édition
+          </button>
+          <button
+            onClick={() => setMode('split')}
+            className={`px-6 py-2.5 rounded-xl text-sm font-black transition-all ${
+              mode === 'split' ? 'bg-white dark:bg-slate-700 text-indigo-600 shadow-sm' : 'text-slate-500 hover:text-slate-700'
+            }`}
+          >
+            Duo
+          </button>
+          <button
+            onClick={() => setMode('preview')}
+            className={`px-6 py-2.5 rounded-xl text-sm font-black transition-all flex items-center gap-2 ${
+              mode === 'preview' ? 'bg-white dark:bg-slate-700 text-indigo-600 shadow-sm' : 'text-slate-500 hover:text-slate-700'
+            }`}
+          >
+            <Eye className="w-4 h-4" />
+            Aperçu
+          </button>
+        </div>
       </div>
 
-      <div className={`grid gap-4 ${mode === 'split' ? 'grid-cols-2' : 'grid-cols-1'}`}>
+      <div className={`grid gap-8 ${mode === 'split' ? 'grid-cols-1 lg:grid-cols-2' : 'grid-cols-1'}`}>
         {(mode === 'edit' || mode === 'split') && (
-          <div>
-            <label className="block text-sm font-semibold text-gray-700 mb-2">
-              Markdown
-            </label>
+          <div className="space-y-4">
+            <div className="flex items-center gap-2 px-1">
+              <label htmlFor="markdown-input" className="text-xs font-black uppercase tracking-widest text-slate-400 cursor-pointer">Source Markdown</label>
+            </div>
             <textarea
+              id="markdown-input"
               value={markdown}
               onChange={(e) => setMarkdown(e.target.value)}
-              className="w-full h-96 p-4 border border-gray-300 rounded-lg resize-none font-mono text-sm"
+              className="w-full h-[500px] p-8 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-[2rem] outline-none focus:ring-2 focus:ring-indigo-500/20 transition-all font-mono text-sm leading-relaxed dark:text-slate-300 resize-none"
               placeholder="# Titre..."
             />
           </div>
         )}
         
         {(mode === 'preview' || mode === 'split') && (
-          <div>
-            <label className="block text-sm font-semibold text-gray-700 mb-2">
-              Aperçu
-            </label>
+          <div className="space-y-4">
+            <div className="flex items-center gap-2 px-1">
+              <label htmlFor="markdown-output" className="text-xs font-black uppercase tracking-widest text-slate-400">Prévisualisation</label>
+            </div>
             <div
-              className="w-full h-96 p-4 border border-gray-300 rounded-lg overflow-y-auto bg-white prose"
+              id="markdown-output"
+              className="w-full h-[500px] p-8 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-[2rem] overflow-y-auto prose dark:prose-invert max-w-none shadow-sm"
               dangerouslySetInnerHTML={{ __html: renderMarkdown(markdown) }}
             />
           </div>
         )}
       </div>
 
-      <AdPlaceholder size="medium" className="mt-6" />
+      <AdPlaceholder size="large" className="opacity-50 grayscale hover:grayscale-0 transition-all" />
     </div>
   );
 }

@@ -7,7 +7,8 @@ export function HTMLEntityConverter() {
   const [copied, setCopied] = useState<'text' | 'entities' | null>(null);
 
   const encode = (str: string) => {
-    return str.replace(/[\u00A0-\u9999<>&]/g, (i) => `&#${i.charCodeAt(0)};`);
+    // Sentinel: Escape single (') and double (") quotes to prevent attribute-breaking XSS
+    return str.replace(/[\u00A0-\u9999<>&"']/g, (i) => `&#${i.charCodeAt(0)};`);
   };
 
   const decode = (str: string) => {

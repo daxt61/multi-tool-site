@@ -9,8 +9,17 @@ export function Calculator() {
   const [isScientific, setIsScientific] = useState(false);
   const [isRadians, setIsRadians] = useState(false);
   const [history, setHistory] = useState<{ expression: string; result: string }[]>(() => {
-    const saved = localStorage.getItem('calc_history');
-    return saved ? JSON.parse(saved) : [];
+    try {
+      const saved = localStorage.getItem('calc_history');
+      if (!saved) return [];
+      const parsed = JSON.parse(saved);
+      return Array.isArray(parsed) ? parsed.filter(item =>
+        item && typeof item === 'object' && 'expression' in item && 'result' in item
+      ).slice(0, 10) : [];
+    } catch (e) {
+      console.error('Failed to load calc_history', e);
+      return [];
+    }
   });
 
   const handleNumber = (num: string) => {

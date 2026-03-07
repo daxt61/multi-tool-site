@@ -21,3 +21,8 @@
 **Vulnerability:** The JSONCSVConverter component was vulnerable to Prototype Pollution by allowing users to specify dangerous keys like `__proto__` in CSV headers, which were then used to build plain objects.
 **Learning:** When building objects from user-controlled keys, always use `Object.create(null)` to ensure the object has no prototype, and explicitly sanitize or rename dangerous keys (`__proto__`, `constructor`, `prototype`).
 **Prevention:** Sanitize all keys from external data sources before using them as object properties. Using `Object.create(null)` is a robust secondary defense.
+
+## 2026-06-15 - [Robust Storage Parsing and DoS Prevention]
+**Vulnerability:** Components like BudgetPlanner and Calculator were parsing localStorage data without try-catch blocks or type validation, making the application vulnerable to crashes if storage was malformed or tampered with.
+**Learning:** Never trust data from localStorage. Malformed JSON or unexpected data structures can cause immediate application failure during component initialization.
+**Prevention:** Always wrap `JSON.parse(localStorage.getItem(...))` in try-catch blocks and validate the resulting object structure before setting it to state. Use safe default values if parsing fails.

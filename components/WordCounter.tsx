@@ -1,5 +1,5 @@
 import { useState, useMemo, useDeferredValue } from 'react';
-import { Copy, Check, Trash2, Hash, Type, FileText, AlignLeft, Clock, MessageSquare, BarChart3, Info } from 'lucide-react';
+import { Copy, Check, Trash2, Hash, Type, FileText, AlignLeft, Clock, MessageSquare, BarChart3, Info, Database } from 'lucide-react';
 
 export function WordCounter() {
   const [text, setText] = useState('');
@@ -30,6 +30,13 @@ export function WordCounter() {
       .sort((a, b) => b[1] - a[1])
       .slice(0, 10);
 
+    const bytes = new Blob([deferredText]).size;
+    const formatSize = (b: number) => {
+      if (b < 1024) return `${b} B`;
+      if (b < 1024 * 1024) return `${(b / 1024).toFixed(2)} KB`;
+      return `${(b / (1024 * 1024)).toFixed(2)} MB`;
+    };
+
     return {
       characters: deferredText.length,
       words: wordCount,
@@ -37,6 +44,7 @@ export function WordCounter() {
       sentences: trimmed === '' ? 0 : deferredText.split(/[.!?]+(?:\s|$)/).filter(s => s.trim().length > 0).length,
       readingTime: Math.ceil(wordCount / 200),
       speakingTime: Math.ceil(wordCount / 130),
+      fileSize: formatSize(bytes),
       topWords
     };
   }, [deferredText]);
@@ -54,7 +62,8 @@ export function WordCounter() {
 - Lignes : ${stats.lines}
 - Phrases : ${stats.sentences}
 - Temps de lecture : ~${stats.readingTime} min
-- Temps de parole : ~${stats.speakingTime} min`;
+- Temps de parole : ~${stats.speakingTime} min
+- Poids du fichier : ${stats.fileSize}`;
 
     navigator.clipboard.writeText(report);
     setCopiedStats(true);
@@ -65,7 +74,7 @@ export function WordCounter() {
     <div className="max-w-5xl mx-auto space-y-8">
       <div className="space-y-4">
         <div className="flex justify-between items-center px-1">
-          <label className="text-xs font-black uppercase tracking-widest text-slate-400">Votre Texte</label>
+          <label htmlFor="word-input" className="text-xs font-black uppercase tracking-widest text-slate-400">Votre Texte</label>
           <div className="flex gap-2">
             <button
               onClick={handleCopyStats}
@@ -88,6 +97,7 @@ export function WordCounter() {
           </div>
         </div>
         <textarea
+          id="word-input"
           value={text}
           onChange={(e) => setText(e.target.value)}
           placeholder="Commencez à taper..."
@@ -95,7 +105,7 @@ export function WordCounter() {
         />
       </div>
 
-      <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
+      <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-7 gap-4">
         {[
           { icon: <Hash className="w-4 h-4" />, label: 'Caractères', value: stats.characters },
           { icon: <Type className="w-4 h-4" />, label: 'Mots', value: stats.words },
@@ -103,6 +113,7 @@ export function WordCounter() {
           { icon: <AlignLeft className="w-4 h-4" />, label: 'Phrases', value: stats.sentences },
           { icon: <Clock className="w-4 h-4" />, label: 'Lecture', value: `${stats.readingTime}m` },
           { icon: <MessageSquare className="w-4 h-4" />, label: 'Parole', value: `${stats.speakingTime}m` },
+          { icon: <Database className="w-4 h-4" />, label: 'Poids', value: stats.fileSize },
         ].map((stat) => (
           <div key={stat.label} className="p-6 bg-white dark:bg-slate-900 border border-slate-100 dark:border-slate-800 rounded-2xl space-y-2">
             <div className="text-indigo-500 dark:text-indigo-400">{stat.icon}</div>

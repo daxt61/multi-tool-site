@@ -21,3 +21,8 @@
 **Vulnerability:** The JSONCSVConverter component was vulnerable to Prototype Pollution by allowing users to specify dangerous keys like `__proto__` in CSV headers, which were then used to build plain objects.
 **Learning:** When building objects from user-controlled keys, always use `Object.create(null)` to ensure the object has no prototype, and explicitly sanitize or rename dangerous keys (`__proto__`, `constructor`, `prototype`).
 **Prevention:** Sanitize all keys from external data sources before using them as object properties. Using `Object.create(null)` is a robust secondary defense.
+
+## 2025-06-25 - [XSS via Attribute Breakout in HTML Entity Converter]
+**Vulnerability:** The HTMLEntityConverter component's encode function was missing single (') and double (") quotes in its escaping regex, potentially allowing for attribute breakout XSS if the encoded output was used within an HTML attribute.
+**Learning:** General-purpose HTML entity encoders must be comprehensive. Excluding quotes can lead to vulnerabilities in contexts where the output is placed inside an attribute value (e.g., `<input value="...">`).
+**Prevention:** Hardened the encoding regex to `/[\u00A0-\u9999<>&"']/g` to ensure all high-risk characters are converted to their numeric entity equivalents.

@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Signal, Volume2, Copy, Check } from 'lucide-react';
+import { Signal, Copy, Check, Trash2, Type, ArrowRightLeft } from 'lucide-react';
 
 const MORSE_CODE: Record<string, string> = {
   'A': '.-', 'B': '-...', 'C': '-.-.', 'D': '-..', 'E': '.', 'F': '..-.',
@@ -19,7 +19,7 @@ const REVERSE_MORSE: Record<string, string> = Object.entries(MORSE_CODE).reduce(
 export function MorseCodeConverter() {
   const [text, setText] = useState('');
   const [morse, setMorse] = useState('');
-  const [copied, setCopied] = useState(false);
+  const [copied, setCopied] = useState<'text' | 'morse' | null>(null);
 
   const encode = (input: string) => {
     const encoded = input.toUpperCase().split('').map(char => MORSE_CODE[char] || char).join(' ');
@@ -33,68 +33,106 @@ export function MorseCodeConverter() {
     setMorse(input);
   };
 
-  const handleCopy = () => {
-    navigator.clipboard.writeText(morse);
-    setCopied(true);
-    setTimeout(() => setCopied(false), 2000);
+  const handleCopy = (val: string, type: 'text' | 'morse') => {
+    if (!val) return;
+    navigator.clipboard.writeText(val);
+    setCopied(type);
+    setTimeout(() => setCopied(null), 2000);
+  };
+
+  const clear = () => {
+    setText('');
+    setMorse('');
   };
 
   return (
-    <div className="max-w-4xl mx-auto">
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-8 mb-8">
+    <div className="max-w-6xl mx-auto space-y-12">
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 relative">
+        <div className="hidden lg:flex absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 z-10">
+          <div className="bg-white dark:bg-slate-800 p-3 rounded-full shadow-xl border border-slate-200 dark:border-slate-700 text-indigo-600">
+            <ArrowRightLeft className="w-6 h-6" />
+          </div>
+        </div>
+
         {/* Text Input */}
-        <div>
-          <label className="block text-sm font-semibold text-gray-700 mb-2">
-            Texte Normal
-          </label>
+        <div className="space-y-4">
+          <div className="flex justify-between items-center px-1">
+            <div className="flex items-center gap-2">
+              <Type className="w-4 h-4 text-indigo-500" />
+              <label htmlFor="normal-text" className="text-xs font-black uppercase tracking-widest text-slate-400">
+                Texte Normal
+              </label>
+            </div>
+            <div className="flex gap-2">
+              <button
+                onClick={() => handleCopy(text, 'text')}
+                className={`text-xs font-bold px-3 py-1 rounded-full transition-all flex items-center gap-1 ${
+                  copied === 'text' ? 'bg-emerald-500 text-white' : 'text-slate-500 bg-slate-100 dark:bg-slate-800'
+                }`}
+                aria-label="Copier le texte"
+              >
+                {copied === 'text' ? <Check className="w-3 h-3" /> : <Copy className="w-3 h-3" />} {copied === 'text' ? 'Copié' : 'Copier'}
+              </button>
+              <button
+                onClick={clear}
+                className="text-xs font-bold px-3 py-1 rounded-full text-rose-500 bg-rose-50 dark:bg-rose-500/10 hover:bg-rose-100 transition-all flex items-center gap-1"
+                aria-label="Effacer tout"
+              >
+                <Trash2 className="w-3 h-3" />
+              </button>
+            </div>
+          </div>
           <textarea
+            id="normal-text"
             value={text}
             onChange={(e) => encode(e.target.value)}
             placeholder="Entrez votre texte ici..."
-            className="w-full h-48 p-4 border border-gray-300 rounded-lg resize-none focus:outline-none focus:ring-2 focus:ring-blue-500"
+            className="w-full h-64 p-6 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-3xl outline-none focus:ring-2 focus:ring-indigo-500/20 transition-all text-lg leading-relaxed dark:text-slate-300 resize-none"
           />
         </div>
 
         {/* Morse Input */}
-        <div>
-          <label className="block text-sm font-semibold text-gray-700 mb-2">
-            Code Morse (. et -)
-          </label>
+        <div className="space-y-4">
+          <div className="flex justify-between items-center px-1">
+            <div className="flex items-center gap-2">
+              <Signal className="w-4 h-4 text-indigo-500" />
+              <label htmlFor="morse-code" className="text-xs font-black uppercase tracking-widest text-slate-400">
+                Code Morse (. et -)
+              </label>
+            </div>
+            <div className="flex gap-2">
+              <button
+                onClick={() => handleCopy(morse, 'morse')}
+                className={`text-xs font-bold px-3 py-1 rounded-full transition-all flex items-center gap-1 ${
+                  copied === 'morse' ? 'bg-emerald-500 text-white' : 'text-slate-500 bg-slate-100 dark:bg-slate-800'
+                }`}
+                aria-label="Copier le code morse"
+              >
+                {copied === 'morse' ? <Check className="w-3 h-3" /> : <Copy className="w-3 h-3" />} {copied === 'morse' ? 'Copié' : 'Copier'}
+              </button>
+            </div>
+          </div>
           <textarea
+            id="morse-code"
             value={morse}
             onChange={(e) => decode(e.target.value)}
             placeholder="Ex: .... . .-.. .-.. ---"
-            className="w-full h-48 p-4 border border-gray-300 rounded-lg resize-none font-mono focus:outline-none focus:ring-2 focus:ring-blue-500"
+            className="w-full h-64 p-6 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-3xl outline-none focus:ring-2 focus:ring-indigo-500/20 transition-all font-mono text-lg leading-relaxed dark:text-slate-300 resize-none"
           />
         </div>
       </div>
 
-      <div className="flex gap-4 justify-center">
-        <button
-          onClick={handleCopy}
-          className="px-6 py-3 bg-blue-500 text-white rounded-lg font-semibold hover:bg-blue-600 transition-colors flex items-center gap-2"
-        >
-          {copied ? <Check className="w-5 h-5" /> : <Copy className="w-5 h-5" />}
-          Copier le Code Morse
-        </button>
-        <button
-          onClick={() => { setText(''); setMorse(''); }}
-          className="px-6 py-3 bg-gray-200 hover:bg-gray-300 rounded-lg font-semibold transition-colors"
-        >
-          Effacer
-        </button>
-      </div>
-
-      <div className="mt-12 bg-gray-50 p-6 rounded-xl border border-gray-200">
-        <h3 className="font-semibold text-gray-800 mb-4 flex items-center gap-2">
-          <Signal className="w-5 h-5 text-orange-500" />
+      {/* Reference Card */}
+      <div className="bg-white dark:bg-slate-900/40 p-8 rounded-[2.5rem] border border-slate-200 dark:border-slate-800 space-y-6">
+        <h3 className="text-xs font-black uppercase tracking-widest text-slate-400 flex items-center gap-2 px-1">
+          <Signal className="w-4 h-4 text-indigo-500" />
           Référence Morse Rapide
         </h3>
-        <div className="grid grid-cols-4 sm:grid-cols-6 md:grid-cols-8 gap-4 text-xs font-mono">
+        <div className="grid grid-cols-4 sm:grid-cols-6 md:grid-cols-8 gap-4">
           {Object.entries(MORSE_CODE).filter(([k]) => k !== ' ').map(([char, code]) => (
-            <div key={char} className="flex flex-col items-center p-2 bg-white rounded shadow-sm">
-              <span className="font-bold text-gray-400">{char}</span>
-              <span className="text-gray-900">{code}</span>
+            <div key={char} className="flex flex-col items-center p-3 bg-slate-50 dark:bg-slate-800 rounded-2xl border border-slate-100 dark:border-slate-700 shadow-sm transition-all hover:border-indigo-500/30">
+              <span className="text-xs font-bold text-slate-400 mb-1">{char}</span>
+              <span className="font-mono font-black text-slate-900 dark:text-white">{code}</span>
             </div>
           ))}
         </div>

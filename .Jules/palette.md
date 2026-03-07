@@ -25,3 +25,7 @@
 ## 2025-05-24 - [Global Navigation & Tool Metadata Polish]
 **Learning:** For tool-based applications, the "Copy link" feature is a vital micro-UX that users expect for sharing specific configurations. Additionally, ensuring that metadata badges (like categories) use consistent icons and localized names from a central configuration, rather than tool-specific icons, improves the application's taxonomic clarity. Coupling this with global accessibility landmarks like "Skip to content" links and semantic `<main>` tags ensures a professional and inclusive user experience.
 **Action:** Prioritize "Copy link" utilities in tool views and audit metadata badges for taxonomic consistency. Always implement "Skip to content" for keyboard accessibility.
+
+## 2024-03-07 - [Audio/Speech Utilities & Tool Modernization]
+**Learning:** Tools utilizing browser APIs like Web Audio (Metronome) or Web Speech (TTS) must include explicit cleanup logic (e.g., closing AudioContext) to prevent resource leaks. Modernizing legacy tools with the Bento design system (bg-slate-50, rounded-3xl) and consistent utility actions (Copy/Clear) significantly improves the professional feel and usability.
+**Action:** Always implement cleanup for media-heavy APIs and apply Bento styling for UI consistency across all tools.

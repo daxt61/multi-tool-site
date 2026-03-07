@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Code, Copy, Check, Trash2, ArrowRightLeft } from 'lucide-react';
+import { Copy, Check, Trash2, ArrowRightLeft } from 'lucide-react';
 
 export function HTMLEntityConverter() {
   const [text, setText] = useState('');
@@ -7,7 +7,8 @@ export function HTMLEntityConverter() {
   const [copied, setCopied] = useState<'text' | 'entities' | null>(null);
 
   const encode = (str: string) => {
-    return str.replace(/[\u00A0-\u9999<>&]/g, (i) => `&#${i.charCodeAt(0)};`);
+    // Sentinel: Escape single (') and double (") quotes to prevent attribute-breaking XSS.
+    return str.replace(/[\u00A0-\u9999<>&"']/g, (i) => `&#${i.charCodeAt(0)};`);
   };
 
   const decode = (str: string) => {
@@ -46,7 +47,7 @@ export function HTMLEntityConverter() {
         <div className="space-y-4">
           <div className="flex justify-between items-center px-1">
             <div className="flex items-center gap-2">
-              <label className="text-xs font-black uppercase tracking-widest text-slate-400">Texte</label>
+              <label htmlFor="text-input" className="text-xs font-black uppercase tracking-widest text-slate-400">Texte</label>
             </div>
             <div className="flex gap-2">
               <button
@@ -58,12 +59,14 @@ export function HTMLEntityConverter() {
               <button
                 onClick={() => {setText(''); setEntities('');}}
                 className="text-xs font-bold px-3 py-1 rounded-full text-rose-500 bg-rose-50 dark:bg-rose-500/10 hover:bg-rose-100 transition-all flex items-center gap-1"
+                aria-label="Effacer tout"
               >
                 <Trash2 className="w-3 h-3" />
               </button>
             </div>
           </div>
           <textarea
+            id="text-input"
             value={text}
             onChange={(e) => handleTextChange(e.target.value)}
             placeholder="Entrez votre texte ici (ex: Hello & World)"
@@ -75,7 +78,7 @@ export function HTMLEntityConverter() {
         <div className="space-y-4">
           <div className="flex justify-between items-center px-1">
             <div className="flex items-center gap-2">
-              <label className="text-xs font-black uppercase tracking-widest text-slate-400">Entités HTML</label>
+              <label htmlFor="entities-input" className="text-xs font-black uppercase tracking-widest text-slate-400">Entités HTML</label>
             </div>
             <div className="flex gap-2">
               <button
@@ -87,6 +90,7 @@ export function HTMLEntityConverter() {
             </div>
           </div>
           <textarea
+            id="entities-input"
             value={entities}
             onChange={(e) => handleEntitiesChange(e.target.value)}
             placeholder="Les entités apparaîtront ici (ex: &#72;&#101;...)"

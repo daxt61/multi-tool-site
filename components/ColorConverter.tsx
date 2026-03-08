@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useMemo } from 'react';
 import { Copy, Check, Palette, Hash, Sliders } from 'lucide-react';
 
 export function ColorConverter() {
@@ -78,6 +78,25 @@ export function ColorConverter() {
     };
   };
 
+  // Derived CMYK
+  const cmyk = useMemo(() => {
+    let r = rgb.r / 255;
+    let g = rgb.g / 255;
+    let b = rgb.b / 255;
+
+    let k = 1 - Math.max(r, g, b);
+    let c = (1 - r - k) / (1 - k) || 0;
+    let m = (1 - g - k) / (1 - k) || 0;
+    let y = (1 - b - k) / (1 - k) || 0;
+
+    return {
+      c: Math.round(c * 100),
+      m: Math.round(m * 100),
+      y: Math.round(y * 100),
+      k: Math.round(k * 100)
+    };
+  }, [rgb]);
+
   const updateFromHex = (newHex: string) => {
     if (!newHex.startsWith('#')) newHex = '#' + newHex;
     if (!/^#[0-9A-Fa-f]{0,6}$/.test(newHex)) return;
@@ -118,41 +137,45 @@ export function ColorConverter() {
   };
 
   return (
-    <div className="max-w-4xl mx-auto space-y-12">
+    <div className="max-w-6xl mx-auto space-y-12">
       {/* Visual Preview Area */}
-      <div className="relative group">
+      <div className="relative group flex justify-center">
         <div
-          className="w-full h-64 rounded-[2.5rem] shadow-2xl shadow-indigo-500/10 transition-all duration-500 group-hover:scale-[1.01]"
+          className="w-full max-w-2xl h-64 rounded-[3rem] shadow-2xl shadow-indigo-500/10 transition-all duration-500 group-hover:scale-[1.01] flex items-center justify-center relative overflow-hidden"
           style={{ backgroundColor: hex }}
-        />
-        <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
-          <input
+        >
+           <div className="absolute inset-0 opacity-20 pointer-events-none" style={{ backgroundImage: 'radial-gradient(circle at 2px 2px, white 1px, transparent 0)', backgroundSize: '24px 24px' }}></div>
+           <input
             type="color"
             value={hex}
             onChange={(e) => updateFromHex(e.target.value)}
-            className="w-20 h-20 rounded-full border-4 border-white dark:border-slate-800 cursor-pointer shadow-xl overflow-hidden"
+            className="w-24 h-24 rounded-full border-4 border-white dark:border-slate-800 cursor-pointer shadow-2xl overflow-hidden opacity-0 group-hover:opacity-100 transition-opacity z-10"
           />
+          <div className="absolute bottom-6 left-6 bg-white/20 backdrop-blur-md px-4 py-2 rounded-full text-white font-black text-xs uppercase tracking-widest shadow-sm">
+            {hex}
+          </div>
         </div>
       </div>
 
       {/* Main Formats Display */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+      <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
         {[
           { label: 'HEX', value: hex, id: 'hex' },
           { label: 'RGB', value: `rgb(${rgb.r}, ${rgb.g}, ${rgb.b})`, id: 'rgb' },
           { label: 'HSL', value: `hsl(${hsl.h}, ${hsl.s}%, ${hsl.l}%)`, id: 'hsl' },
+          { label: 'CMYK', value: `cmyk(${cmyk.c}%, ${cmyk.m}%, ${cmyk.y}%, ${cmyk.k}%)`, id: 'cmyk' },
         ].map((format) => (
-          <div key={format.id} className="bg-slate-50 dark:bg-slate-900/50 p-6 rounded-3xl border border-slate-200 dark:border-slate-800 space-y-4">
+          <div key={format.id} className="bg-slate-50 dark:bg-slate-900/50 p-6 rounded-3xl border border-slate-200 dark:border-slate-800 space-y-3 group/card relative">
             <div className="flex justify-between items-center">
-              <span className="text-xs font-black uppercase tracking-widest text-slate-400">{format.label}</span>
+              <span className="text-[10px] font-black uppercase tracking-widest text-slate-400">{format.label}</span>
               <button
                 onClick={() => copyToClipboard(format.value, format.id)}
-                className={`p-2 rounded-xl transition-all ${copied === format.id ? 'bg-emerald-500 text-white' : 'text-slate-400 hover:text-indigo-500 bg-white dark:bg-slate-800 shadow-sm'}`}
+                className={`p-2 rounded-xl transition-all ${copied === format.id ? 'bg-emerald-500 text-white' : 'text-slate-400 hover:text-indigo-500 bg-white dark:bg-slate-800 shadow-sm opacity-0 group-hover/card:opacity-100'}`}
               >
                 {copied === format.id ? <Check className="w-4 h-4" /> : <Copy className="w-4 h-4" />}
               </button>
             </div>
-            <div className="text-xl font-black font-mono truncate dark:text-white">
+            <div className="text-sm font-black font-mono truncate dark:text-white">
               {format.value}
             </div>
           </div>
@@ -162,25 +185,25 @@ export function ColorConverter() {
       {/* Sliders Area */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
         {/* RGB Sliders */}
-        <div className="bg-white dark:bg-slate-900/40 border border-slate-200 dark:border-slate-800 p-8 rounded-[2.5rem] space-y-8">
+        <div className="bg-white dark:bg-slate-900/40 border border-slate-200 dark:border-slate-800 p-8 rounded-[2.5rem] space-y-8 shadow-sm">
           <h4 className="text-xs font-black uppercase tracking-widest text-slate-400 flex items-center gap-2 px-1">
             <Sliders className="w-4 h-4" /> Composantes RGB
           </h4>
           <div className="space-y-6">
             {[
-              { label: 'Rouge', key: 'r', color: 'bg-rose-500' },
-              { label: 'Vert', key: 'g', color: 'bg-emerald-500' },
-              { label: 'Bleu', key: 'b', color: 'bg-blue-500' },
+              { label: 'Rouge', key: 'r', max: 255 },
+              { label: 'Vert', key: 'g', max: 255 },
+              { label: 'Bleu', key: 'b', max: 255 },
             ].map((chan) => (
               <div key={chan.key} className="space-y-2">
                 <div className="flex justify-between items-center px-1">
-                  <label className="text-xs font-bold text-slate-500">{chan.label}</label>
-                  <span className="text-sm font-black font-mono dark:text-slate-300">{rgb[chan.key as keyof typeof rgb]}</span>
+                  <label className="text-[10px] font-bold text-slate-500 uppercase tracking-widest">{chan.label}</label>
+                  <span className="text-xs font-black font-mono dark:text-slate-300">{rgb[chan.key as keyof typeof rgb]}</span>
                 </div>
                 <input
                   type="range"
                   min="0"
-                  max="255"
+                  max={chan.max}
                   value={rgb[chan.key as keyof typeof rgb]}
                   onChange={(e) => updateFromRgb({ ...rgb, [chan.key]: Number(e.target.value) })}
                   className="w-full h-1.5 rounded-lg appearance-none cursor-pointer bg-slate-100 dark:bg-slate-800 accent-indigo-600"
@@ -191,15 +214,15 @@ export function ColorConverter() {
         </div>
 
         {/* HSL Sliders */}
-        <div className="bg-white dark:bg-slate-900/40 border border-slate-200 dark:border-slate-800 p-8 rounded-[2.5rem] space-y-8">
+        <div className="bg-white dark:bg-slate-900/40 border border-slate-200 dark:border-slate-800 p-8 rounded-[2.5rem] space-y-8 shadow-sm">
           <h4 className="text-xs font-black uppercase tracking-widest text-slate-400 flex items-center gap-2 px-1">
             <Palette className="w-4 h-4" /> Composantes HSL
           </h4>
           <div className="space-y-6">
             <div className="space-y-2">
               <div className="flex justify-between items-center px-1">
-                <label className="text-xs font-bold text-slate-500">Teinte</label>
-                <span className="text-sm font-black font-mono dark:text-slate-300">{hsl.h}°</span>
+                <label className="text-[10px] font-bold text-slate-500 uppercase tracking-widest">Teinte</label>
+                <span className="text-xs font-black font-mono dark:text-slate-300">{hsl.h}°</span>
               </div>
               <input
                 type="range"
@@ -212,8 +235,8 @@ export function ColorConverter() {
             </div>
             <div className="space-y-2">
               <div className="flex justify-between items-center px-1">
-                <label className="text-xs font-bold text-slate-500">Saturation</label>
-                <span className="text-sm font-black font-mono dark:text-slate-300">{hsl.s}%</span>
+                <label className="text-[10px] font-bold text-slate-500 uppercase tracking-widest">Saturation</label>
+                <span className="text-xs font-black font-mono dark:text-slate-300">{hsl.s}%</span>
               </div>
               <input
                 type="range"
@@ -226,8 +249,8 @@ export function ColorConverter() {
             </div>
             <div className="space-y-2">
               <div className="flex justify-between items-center px-1">
-                <label className="text-xs font-bold text-slate-500">Luminosité</label>
-                <span className="text-sm font-black font-mono dark:text-slate-300">{hsl.l}%</span>
+                <label className="text-[10px] font-bold text-slate-500 uppercase tracking-widest">Luminosité</label>
+                <span className="text-xs font-black font-mono dark:text-slate-300">{hsl.l}%</span>
               </div>
               <input
                 type="range"

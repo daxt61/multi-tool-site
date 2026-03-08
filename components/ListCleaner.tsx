@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Copy, Check, Trash2, SortAsc, SortDesc, ListChecks, Type, FileDown, Scissors } from 'lucide-react';
+import { Copy, Check, Trash2, SortAsc, SortDesc, ListChecks, Type, FileDown, Scissors, Plus } from 'lucide-react';
 
 export function ListCleaner() {
   const [text, setText] = useState('');
@@ -51,6 +51,10 @@ export function ListCleaner() {
 
   const sortLength = () => {
     processList(lines => [...lines].sort((a, b) => a.length - b.length));
+  };
+
+  const addAffixes = (prefix: string, suffix: string) => {
+    processList(lines => lines.map(line => prefix + line + suffix));
   };
 
   return (
@@ -184,6 +188,47 @@ export function ListCleaner() {
               <span className="font-bold text-sm">Capitaliser</span>
               <Type className="w-4 h-4 text-slate-400 group-hover:text-indigo-500" />
             </button>
+          </div>
+        </div>
+
+        {/* Ajouts */}
+        <div className="p-8 bg-white dark:bg-slate-900/50 border border-slate-200 dark:border-slate-800 rounded-[2.5rem] space-y-6">
+          <div className="flex items-center gap-3 text-indigo-500">
+            <Plus className="w-5 h-5" />
+            <h3 className="font-black uppercase tracking-widest text-xs text-slate-400">Ajouts</h3>
+          </div>
+          <div className="space-y-4">
+            <div className="space-y-2">
+              <label htmlFor="prefix-input" className="text-[10px] font-black uppercase tracking-widest text-slate-400 px-1">Préfixe</label>
+              <input
+                id="prefix-input"
+                type="text"
+                placeholder="Ex: - "
+                className="w-full p-3 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl outline-none focus:ring-2 focus:ring-indigo-500/20 font-mono text-sm"
+                onKeyDown={(e) => {
+                  if (e.key === 'Enter') {
+                    addAffixes((e.target as HTMLInputElement).value, '');
+                    (e.target as HTMLInputElement).value = '';
+                  }
+                }}
+              />
+            </div>
+            <div className="space-y-2">
+              <label htmlFor="suffix-input" className="text-[10px] font-black uppercase tracking-widest text-slate-400 px-1">Suffixe</label>
+              <input
+                id="suffix-input"
+                type="text"
+                placeholder="Ex: ;"
+                className="w-full p-3 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl outline-none focus:ring-2 focus:ring-indigo-500/20 font-mono text-sm"
+                onKeyDown={(e) => {
+                  if (e.key === 'Enter') {
+                    addAffixes('', (e.target as HTMLInputElement).value);
+                    (e.target as HTMLInputElement).value = '';
+                  }
+                }}
+              />
+            </div>
+            <p className="text-[10px] text-slate-400 italic px-1">Appuyez sur Entrée pour appliquer</p>
           </div>
         </div>
       </div>

@@ -25,3 +25,7 @@
 ## 2025-05-24 - [Global Navigation & Tool Metadata Polish]
 **Learning:** For tool-based applications, the "Copy link" feature is a vital micro-UX that users expect for sharing specific configurations. Additionally, ensuring that metadata badges (like categories) use consistent icons and localized names from a central configuration, rather than tool-specific icons, improves the application's taxonomic clarity. Coupling this with global accessibility landmarks like "Skip to content" links and semantic `<main>` tags ensures a professional and inclusive user experience.
 **Action:** Prioritize "Copy link" utilities in tool views and audit metadata badges for taxonomic consistency. Always implement "Skip to content" for keyboard accessibility.
+
+## 2025-05-25 - [URL Encoder Refactor & Utility UX]
+**Learning:** Standardizing utility tools with "Copy" and "Clear" buttons significantly improves productivity and meets user expectations for text-based tools. Additionally, linking labels to textareas with `id` and `htmlFor` is a baseline accessibility requirement that is often overlooked but critical for screen reader navigation. Providing immediate visual feedback (e.g., "Copié") for clipboard actions reduces uncertainty and improves the overall "feel" of the application.
+**Action:** Always include Copy/Clear utilities and audit for missing input-label associations in future tool refactors.

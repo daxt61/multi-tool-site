@@ -136,7 +136,7 @@ export function JSONCSVConverter() {
           <div className="flex justify-between items-center px-1">
             <div className="flex items-center gap-2">
               <FileCode className="w-4 h-4 text-indigo-500" />
-              <label className="text-xs font-black uppercase tracking-widest text-slate-400">JSON</label>
+              <label htmlFor="json-input" className="text-xs font-black uppercase tracking-widest text-slate-400">JSON</label>
             </div>
             <div className="flex gap-2">
               <button
@@ -161,6 +161,7 @@ export function JSONCSVConverter() {
             </div>
           </div>
           <textarea
+            id="json-input"
             value={jsonInput}
             onChange={(e) => handleJsonChange(e.target.value)}
             placeholder='[{"id": 1, "name": "Test"}]'
@@ -173,7 +174,7 @@ export function JSONCSVConverter() {
           <div className="flex justify-between items-center px-1">
             <div className="flex items-center gap-2">
               <FileSpreadsheet className="w-4 h-4 text-indigo-500" />
-              <label className="text-xs font-black uppercase tracking-widest text-slate-400">CSV</label>
+              <label htmlFor="csv-input" className="text-xs font-black uppercase tracking-widest text-slate-400">CSV</label>
             </div>
             <div className="flex gap-2">
               <button
@@ -192,6 +193,7 @@ export function JSONCSVConverter() {
             </div>
           </div>
           <textarea
+            id="csv-input"
             value={csvInput}
             onChange={(e) => handleCsvChange(e.target.value)}
             placeholder='id,name\n1,Test'

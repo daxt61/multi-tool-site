@@ -1,5 +1,5 @@
-import React, { useState, useMemo, useEffect, useRef } from 'react';
-import { Search, Info, AlertCircle, Copy, Check, Flag } from 'lucide-react';
+import React, { useState, useMemo, useEffect, useRef, useCallback } from 'react';
+import { Search, Info, AlertCircle, Copy, Check, Flag, Trash2 } from 'lucide-react';
 
 export function RegExTester() {
   const [regex, setRegex] = useState('([a-zA-Z0-9._%+-]+)@([a-zA-Z0-9.-]+)\\.([a-zA-Z]{2,})');
@@ -34,6 +34,10 @@ export function RegExTester() {
     setCopied(true);
     setTimeout(() => setCopied(false), 2000);
   };
+
+  const handleClear = useCallback(() => {
+    setTestText('');
+  }, []);
 
   const renderHighlightedText = () => {
     if (error || !regex || matches.length === 0) {
@@ -128,8 +132,17 @@ export function RegExTester() {
           <div className="bg-white dark:bg-slate-900/40 p-6 rounded-[2.5rem] border border-slate-200 dark:border-slate-800 space-y-4 relative">
              <div className="flex justify-between items-center px-1">
               <label htmlFor="test-text" className="text-xs font-black uppercase tracking-widest text-slate-400">Texte de Test</label>
-              <div className="text-xs font-bold text-slate-400">
-                {matchCount} match{matchCount > 1 ? 'es' : ''} trouvé{matchCount > 1 ? 's' : ''}
+              <div className="flex items-center gap-4">
+                <button
+                  onClick={handleClear}
+                  className="text-xs font-bold text-rose-500 flex items-center gap-1 hover:text-rose-600 transition-colors"
+                  aria-label="Effacer le texte de test"
+                >
+                  <Trash2 className="w-3 h-3" /> Effacer
+                </button>
+                <div className="text-xs font-bold text-slate-400">
+                  {matchCount} match{matchCount > 1 ? 'es' : ''} trouvé{matchCount > 1 ? 's' : ''}
+                </div>
               </div>
             </div>
 

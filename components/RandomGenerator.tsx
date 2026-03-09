@@ -22,16 +22,10 @@ export function RandomGenerator() {
     if (range <= 0) return 0;
 
     const array = new Uint32Array(1);
-    // Sentinel: If range is 2^32 or larger, just return a random 32-bit value.
-    // This prevents the infinite loop where limit would be 0.
-    if (range >= 0x100000000) {
-      window.crypto.getRandomValues(array);
-      return array[0];
-    }
-
     const maxUint32 = 0xffffffff;
 
-    // Handle range >= 2^32 to avoid infinite loop (limit would be 0)
+    // Sentinel: If range is 2^32 or larger, just return a random 32-bit value.
+    // This prevents the infinite loop where limit would be 0.
     if (range >= 0x100000000) {
       window.crypto.getRandomValues(array);
       return array[0];
@@ -97,8 +91,9 @@ export function RandomGenerator() {
 
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 items-end">
           <div className="space-y-2">
-            <label className="text-xs font-bold text-slate-400 px-1">MIN</label>
+            <label htmlFor="num-min" className="text-xs font-bold text-slate-400 px-1">MIN</label>
             <input
+              id="num-min"
               type="number"
               value={min}
               onChange={(e) => setMin(Number(e.target.value))}
@@ -106,8 +101,9 @@ export function RandomGenerator() {
             />
           </div>
           <div className="space-y-2">
-            <label className="text-xs font-bold text-slate-400 px-1">MAX</label>
+            <label htmlFor="num-max" className="text-xs font-bold text-slate-400 px-1">MAX</label>
             <input
+              id="num-max"
               type="number"
               value={max}
               onChange={(e) => setMax(Number(e.target.value))}
@@ -156,8 +152,9 @@ export function RandomGenerator() {
                 </button>
               ))}
               <div className="flex items-center gap-3 ml-auto">
-                <label className="text-xs font-bold text-slate-400">LONGUEUR</label>
+                <label htmlFor="str-length" className="text-xs font-bold text-slate-400">LONGUEUR</label>
                 <input
+                  id="str-length"
                   type="number"
                   value={strLength}
                   min="1"
@@ -169,7 +166,9 @@ export function RandomGenerator() {
             </div>
 
             <div className="relative">
+              <label htmlFor="random-str-output" className="sr-only">Résultat de la chaîne aléatoire</label>
               <input
+                id="random-str-output"
                 type="text"
                 value={randomString}
                 readOnly
@@ -204,8 +203,9 @@ export function RandomGenerator() {
 
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
           <div className="space-y-4">
-            <label className="text-xs font-bold text-slate-400 px-1">ENTRÉE (Une ligne par élément)</label>
+            <label htmlFor="list-input" className="text-xs font-bold text-slate-400 px-1">ENTRÉE (Une ligne par élément)</label>
             <textarea
+              id="list-input"
               value={list}
               onChange={(e) => setList(e.target.value)}
               className="w-full h-64 p-6 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-3xl outline-none focus:ring-2 focus:ring-indigo-500/20 transition-all resize-none font-medium dark:text-slate-300"

@@ -9,22 +9,38 @@ export function QRCodeGenerator() {
     ? `https://api.qrserver.com/v1/create-qr-code/?size=${size}x${size}&data=${encodeURIComponent(text)}`
     : '';
 
-  const downloadQRCode = () => {
+  const downloadQRCode = async () => {
     if (!qrCodeUrl) return;
     
-    const link = document.createElement('a');
-    link.href = qrCodeUrl;
-    link.download = 'qrcode.png';
-    link.click();
+    try {
+      const response = await fetch(qrCodeUrl);
+      const blob = await response.blob();
+      const url = window.URL.createObjectURL(blob);
+      const link = document.createElement('a');
+      link.href = url;
+      link.download = 'qrcode.png';
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      window.URL.revokeObjectURL(url);
+    } catch (error) {
+      console.error('Download failed:', error);
+      // Fallback to direct link if fetch fails
+      const link = document.createElement('a');
+      link.href = qrCodeUrl;
+      link.download = 'qrcode.png';
+      link.click();
+    }
   };
 
   return (
     <div className="max-w-2xl mx-auto">
       <div className="mb-6">
-        <label className="block text-sm font-semibold text-gray-700 mb-2">
+        <label htmlFor="qr-text" className="block text-sm font-semibold text-gray-700 mb-2">
           Texte ou URL à encoder
         </label>
         <textarea
+          id="qr-text"
           value={text}
           onChange={(e) => setText(e.target.value)}
           placeholder="Entrez du texte, une URL, un numéro de téléphone..."
@@ -33,10 +49,11 @@ export function QRCodeGenerator() {
       </div>
 
       <div className="mb-6">
-        <label className="block text-sm font-semibold text-gray-700 mb-2">
+        <label htmlFor="qr-size" className="block text-sm font-semibold text-gray-700 mb-2">
           Taille: {size}x{size} px
         </label>
         <input
+          id="qr-size"
           type="range"
           min="100"
           max="500"

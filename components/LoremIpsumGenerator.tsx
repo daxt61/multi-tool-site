@@ -1,11 +1,26 @@
 import { useState, useMemo, useCallback } from 'react';
-import { Copy, Check, RefreshCw } from 'lucide-react';
+import { Copy, Check, RefreshCw, Trash2 } from 'lucide-react';
 
 export function LoremIpsumGenerator() {
   const [count, setCount] = useState(3);
   const [type, setType] = useState<'paragraphs' | 'sentences' | 'words'>('paragraphs');
   const [copied, setCopied] = useState(false);
   const [refreshTrigger, setRefreshTrigger] = useState(0);
+  const [isCleared, setIsCleared] = useState(false);
+
+  // Secure random generator using crypto.getRandomValues with rejection sampling
+  const getSecureRandom = (range: number): number => {
+    if (range <= 0) return 0;
+    const array = new Uint32Array(1);
+    const maxUint32 = 0xffffffff;
+    const limit = maxUint32 - (maxUint32 % range);
+    let randomVal;
+    do {
+      window.crypto.getRandomValues(array);
+      randomVal = array[0];
+    } while (randomVal >= limit);
+    return randomVal % range;
+  };
 
   const loremWords = [
     'lorem', 'ipsum', 'dolor', 'sit', 'amet', 'consectetur', 'adipiscing', 'elit',
@@ -19,16 +34,16 @@ export function LoremIpsumGenerator() {
   ];
 
   const generateSentence = () => {
-    const length = Math.floor(Math.random() * 10) + 8;
+    const length = getSecureRandom(10) + 8;
     const words = [];
     for (let i = 0; i < length; i++) {
-      words.push(loremWords[Math.floor(Math.random() * loremWords.length)]);
+      words.push(loremWords[getSecureRandom(loremWords.length)]);
     }
     return words.join(' ').charAt(0).toUpperCase() + words.join(' ').slice(1) + '.';
   };
 
   const generateParagraph = () => {
-    const sentenceCount = Math.floor(Math.random() * 4) + 4;
+    const sentenceCount = getSecureRandom(4) + 4;
     const sentences = [];
     for (let i = 0; i < sentenceCount; i++) {
       sentences.push(generateSentence());
@@ -37,11 +52,12 @@ export function LoremIpsumGenerator() {
   };
 
   const text = useMemo(() => {
+    if (isCleared) return '';
     const generateText = () => {
       if (type === 'words') {
         const words = [];
         for (let i = 0; i < count; i++) {
-          words.push(loremWords[Math.floor(Math.random() * loremWords.length)]);
+          words.push(loremWords[getSecureRandom(loremWords.length)]);
         }
         return words.join(' ');
       } else if (type === 'sentences') {
@@ -59,10 +75,15 @@ export function LoremIpsumGenerator() {
       }
     };
     return generateText();
-  }, [count, type, refreshTrigger]);
+  }, [count, type, refreshTrigger, isCleared]);
 
   const handleRegenerate = useCallback(() => {
+    setIsCleared(false);
     setRefreshTrigger(prev => prev + 1);
+  }, []);
+
+  const handleClear = useCallback(() => {
+    setIsCleared(true);
   }, []);
 
   const copyToClipboard = () => {
@@ -85,7 +106,10 @@ export function LoremIpsumGenerator() {
               min="1"
               max="100"
               value={count}
-              onChange={(e) => setCount(Number(e.target.value))}
+              onChange={(e) => {
+                setCount(Number(e.target.value));
+                setIsCleared(false);
+              }}
               className="w-full p-4 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-2xl font-bold focus:ring-2 focus:ring-indigo-500/20 outline-none transition-all dark:text-white"
             />
           </div>
@@ -96,7 +120,10 @@ export function LoremIpsumGenerator() {
             <select
               id="lorem-type"
               value={type}
-              onChange={(e) => setType(e.target.value as any)}
+              onChange={(e) => {
+                setType(e.target.value as any);
+                setIsCleared(false);
+              }}
               className="w-full p-4 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-2xl font-bold focus:ring-2 focus:ring-indigo-500/20 outline-none transition-all dark:text-white cursor-pointer"
             >
               <option value="paragraphs">Paragraphes</option>
@@ -113,6 +140,14 @@ export function LoremIpsumGenerator() {
           >
             <RefreshCw className="w-5 h-5" />
             Régénérer
+          </button>
+          <button
+            onClick={handleClear}
+            className="flex-1 py-4 bg-rose-50 dark:bg-rose-500/10 text-rose-500 border border-rose-200 dark:border-rose-500/20 rounded-2xl hover:bg-rose-100 dark:hover:bg-rose-500/20 transition-all flex items-center justify-center gap-2 font-black active:scale-95"
+            aria-label="Effacer le texte"
+          >
+            <Trash2 className="w-5 h-5" />
+            Effacer
           </button>
           <button
             onClick={copyToClipboard}

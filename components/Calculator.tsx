@@ -9,8 +9,28 @@ export function Calculator() {
   const [isScientific, setIsScientific] = useState(false);
   const [isRadians, setIsRadians] = useState(false);
   const [history, setHistory] = useState<{ expression: string; result: string }[]>(() => {
-    const saved = localStorage.getItem('calc_history');
-    return saved ? JSON.parse(saved) : [];
+    try {
+      // Sentinel: Securely parse localStorage data to prevent app crashes (local DoS)
+      const saved = localStorage.getItem('calc_history');
+      if (!saved) return [];
+
+      const parsed = JSON.parse(saved);
+
+      // Sentinel: Validate data structure and content to prevent state poisoning.
+      if (Array.isArray(parsed)) {
+        return parsed
+          .filter((item: any) =>
+            typeof item === 'object' &&
+            item !== null &&
+            typeof item.expression === 'string' &&
+            typeof item.result === 'string'
+          )
+          .slice(0, 10);
+      }
+    } catch (e) {
+      console.error("Failed to load calculator history from localStorage", e);
+    }
+    return [];
   });
 
   const handleNumber = (num: string) => {

@@ -11,15 +11,38 @@ export function BudgetPlanner() {
     return localStorage.getItem("budget_income") || "";
   });
   const [categories, setCategories] = useState<BudgetCategory[]>(() => {
-    const saved = localStorage.getItem("budget_categories");
-    return saved ? JSON.parse(saved) : [
-    { name: "Logement", planned: 0, actual: 0 },
-    { name: "Alimentation", planned: 0, actual: 0 },
-    { name: "Transport", planned: 0, actual: 0 },
-    { name: "Santé", planned: 0, actual: 0 },
-    { name: "Loisirs", planned: 0, actual: 0 },
-    { name: "Épargne", planned: 0, actual: 0 },
-  ];});
+    const defaultCategories = [
+      { name: "Logement", planned: 0, actual: 0 },
+      { name: "Alimentation", planned: 0, actual: 0 },
+      { name: "Transport", planned: 0, actual: 0 },
+      { name: "Santé", planned: 0, actual: 0 },
+      { name: "Loisirs", planned: 0, actual: 0 },
+      { name: "Épargne", planned: 0, actual: 0 },
+    ];
+
+    try {
+      // Sentinel: Securely parse localStorage data to prevent app crashes (local DoS)
+      const saved = localStorage.getItem("budget_categories");
+      if (!saved) return defaultCategories;
+
+      const parsed = JSON.parse(saved);
+
+      // Sentinel: Validate data structure and content to prevent state poisoning.
+      if (Array.isArray(parsed)) {
+        return parsed.filter((cat: any) =>
+          typeof cat === 'object' &&
+          cat !== null &&
+          typeof cat.name === 'string' &&
+          typeof cat.planned === 'number' &&
+          typeof cat.actual === 'number'
+        ).slice(0, 50); // Limit number of categories to prevent potential DoS
+      }
+    } catch (e) {
+      console.error("Failed to load budget categories from localStorage", e);
+    }
+
+    return defaultCategories;
+  });
 
   useEffect(() => {
     localStorage.setItem("budget_income", income);

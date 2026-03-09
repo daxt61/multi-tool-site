@@ -21,3 +21,8 @@
 **Vulnerability:** The JSONCSVConverter component was vulnerable to Prototype Pollution by allowing users to specify dangerous keys like `__proto__` in CSV headers, which were then used to build plain objects.
 **Learning:** When building objects from user-controlled keys, always use `Object.create(null)` to ensure the object has no prototype, and explicitly sanitize or rename dangerous keys (`__proto__`, `constructor`, `prototype`).
 **Prevention:** Sanitize all keys from external data sources before using them as object properties. Using `Object.create(null)` is a robust secondary defense.
+
+## 2025-06-15 - [Persistent Local DoS via Malformed LocalStorage]
+**Vulnerability:** Several components (`BudgetPlanner.tsx`, `Calculator.tsx`) were parsing `localStorage` data using `JSON.parse()` without `try-catch` blocks or schema validation. This allowed malformed or tampered data to crash the application persistently for the user.
+**Learning:** `localStorage` is a client-side boundary that must be treated as untrusted. Malicious or accidental corruption of this data can lead to a "Local Denial of Service" where the app fails to boot or render specific tools.
+**Prevention:** Always wrap `localStorage` parsing in `try-catch` blocks and perform structural validation (e.g., checking for expected properties and types) before committing the data to the application state. Use `.slice()` to limit the size of stored arrays to prevent performance-based DoS.

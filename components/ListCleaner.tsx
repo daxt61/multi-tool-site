@@ -1,8 +1,10 @@
 import { useState } from 'react';
-import { Copy, Check, Trash2, SortAsc, SortDesc, ListChecks, Type, FileDown, Scissors } from 'lucide-react';
+import { Copy, Check, Trash2, SortAsc, SortDesc, ListChecks, Type, FileDown, Scissors, Plus } from 'lucide-react';
 
 export function ListCleaner() {
   const [text, setText] = useState('');
+  const [prefix, setPrefix] = useState('');
+  const [suffix, setSuffix] = useState('');
   const [copied, setCopied] = useState(false);
 
   const handleCopy = () => {
@@ -53,11 +55,17 @@ export function ListCleaner() {
     processList(lines => [...lines].sort((a, b) => a.length - b.length));
   };
 
+  const applyAdditions = () => {
+    processList(lines => lines.map(line => `${prefix}${line}${suffix}`));
+    setPrefix('');
+    setSuffix('');
+  };
+
   return (
     <div className="max-w-5xl mx-auto space-y-8">
       <div className="space-y-4">
         <div className="flex justify-between items-center px-1">
-          <label className="text-xs font-black uppercase tracking-widest text-slate-400">Votre Liste</label>
+          <label htmlFor="list-cleaner-input" className="text-xs font-black uppercase tracking-widest text-slate-400">Votre Liste</label>
           <div className="flex gap-2">
             <button
               onClick={handleCopy}
@@ -83,6 +91,7 @@ export function ListCleaner() {
           </div>
         </div>
         <textarea
+          id="list-cleaner-input"
           value={text}
           onChange={(e) => setText(e.target.value)}
           placeholder="Entrez vos éléments ici, un par ligne..."
@@ -183,6 +192,43 @@ export function ListCleaner() {
             >
               <span className="font-bold text-sm">Capitaliser</span>
               <Type className="w-4 h-4 text-slate-400 group-hover:text-indigo-500" />
+            </button>
+          </div>
+        </div>
+
+        {/* Ajouts */}
+        <div className="p-8 bg-white dark:bg-slate-900/50 border border-slate-200 dark:border-slate-800 rounded-[2.5rem] space-y-6">
+          <div className="flex items-center gap-3 text-indigo-500">
+            <Plus className="w-5 h-5" />
+            <h3 className="font-black uppercase tracking-widest text-xs text-slate-400">Ajouts</h3>
+          </div>
+          <div className="space-y-4">
+            <div className="space-y-2">
+              <label className="text-[10px] font-black uppercase text-slate-400 ml-1">Préfixe</label>
+              <input
+                type="text"
+                value={prefix}
+                onChange={(e) => setPrefix(e.target.value)}
+                placeholder="Ex: - "
+                className="w-full p-3 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-sm outline-none focus:border-indigo-500 transition-all"
+              />
+            </div>
+            <div className="space-y-2">
+              <label className="text-[10px] font-black uppercase text-slate-400 ml-1">Suffixe</label>
+              <input
+                type="text"
+                value={suffix}
+                onChange={(e) => setSuffix(e.target.value)}
+                placeholder="Ex: ;"
+                className="w-full p-3 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-sm outline-none focus:border-indigo-500 transition-all"
+              />
+            </div>
+            <button
+              onClick={applyAdditions}
+              disabled={!prefix && !suffix}
+              className="w-full py-3 bg-indigo-600 text-white rounded-xl font-bold text-sm shadow-lg shadow-indigo-600/20 hover:bg-indigo-700 transition-all active:scale-95 disabled:opacity-50"
+            >
+              Appliquer à tout
             </button>
           </div>
         </div>

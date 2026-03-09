@@ -3,6 +3,7 @@ import { Music, RotateCcw } from 'lucide-react';
 
 export function BPMCounter() {
   const [taps, setTaps] = useState<number[]>([]);
+  const [history, setHistory] = useState<number[]>([]);
   const [bpm, setBpm] = useState<number | null>(null);
   const [isAnimate, setIsAnimate] = useState(false);
 
@@ -23,6 +24,7 @@ export function BPMCounter() {
       const averageInterval = intervals.reduce((a, b) => a + b) / intervals.length;
       const calculatedBpm = Math.round(60000 / averageInterval);
       setBpm(calculatedBpm);
+      setHistory(prevH => [calculatedBpm, ...prevH].slice(0, 10));
 
       return newTaps;
     });
@@ -30,6 +32,7 @@ export function BPMCounter() {
 
   const reset = () => {
     setTaps([]);
+    setHistory([]);
     setBpm(null);
   };
 
@@ -47,9 +50,9 @@ export function BPMCounter() {
   return (
     <div className="max-w-md mx-auto text-center">
       <div
-        className={`mb-8 p-12 rounded-full border-4 transition-all duration-100 flex flex-col items-center justify-center aspect-square mx-auto max-w-[300px] cursor-pointer select-none ${
+        className={`mb-8 p-12 rounded-full border-4 transition-all duration-100 flex flex-col items-center justify-center aspect-square mx-auto max-w-[300px] cursor-pointer select-none shadow-xl ${
           isAnimate
-            ? 'bg-indigo-600 border-indigo-400 scale-95 text-white'
+            ? 'bg-indigo-600 border-indigo-400 scale-90 text-white ring-8 ring-indigo-500/20'
             : 'bg-white dark:bg-gray-800 border-indigo-100 dark:border-gray-700 text-gray-800 dark:text-white hover:border-indigo-200'
         }`}
         onClick={handleTap}
@@ -78,9 +81,24 @@ export function BPMCounter() {
           </button>
         </div>
 
-        {taps.length > 0 && (
-          <div className="text-sm text-gray-400">
-            {taps.length} tap{taps.length > 1 ? 's' : ''} enregistré{taps.length > 1 ? 's' : ''}
+        <div className="flex justify-between items-center text-sm">
+          <div className="text-gray-400">
+            {taps.length > 0 && (
+              <span>{taps.length} tap{taps.length > 1 ? 's' : ''} enregistré{taps.length > 1 ? 's' : ''}</span>
+            )}
+          </div>
+        </div>
+
+        {history.length > 1 && (
+          <div className="space-y-3 pt-6">
+            <h3 className="text-xs font-black uppercase tracking-widest text-slate-400 text-left px-1">Historique des mesures</h3>
+            <div className="flex flex-wrap gap-2">
+              {history.map((val, i) => (
+                <div key={i} className={`px-3 py-1.5 rounded-lg font-mono font-bold text-sm ${i === 0 ? 'bg-indigo-600 text-white' : 'bg-slate-100 dark:bg-slate-800 text-slate-500'}`}>
+                  {val}
+                </div>
+              ))}
+            </div>
           </div>
         )}
       </div>

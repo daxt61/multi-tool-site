@@ -59,7 +59,7 @@ export function JSONFormatter() {
           <div className="flex justify-between items-center px-1">
             <div className="flex items-center gap-2">
               <FileCode className="w-4 h-4 text-indigo-500" />
-              <label className="text-xs font-black uppercase tracking-widest text-slate-400">Entrée JSON</label>
+              <label htmlFor="json-input" className="text-xs font-black uppercase tracking-widest text-slate-400">Entrée JSON</label>
             </div>
             <button
               onClick={handleClear}
@@ -69,6 +69,7 @@ export function JSONFormatter() {
             </button>
           </div>
           <textarea
+            id="json-input"
             value={input}
             onChange={(e) => setInput(e.target.value)}
             placeholder='{"key": "value"}'
@@ -81,7 +82,7 @@ export function JSONFormatter() {
           <div className="flex justify-between items-center px-1">
             <div className="flex items-center gap-2">
               <Check className="w-4 h-4 text-emerald-500" />
-              <label className="text-xs font-black uppercase tracking-widest text-slate-400">Résultat</label>
+              <label htmlFor="json-output" className="text-xs font-black uppercase tracking-widest text-slate-400">Résultat</label>
             </div>
             <button
               onClick={handleCopy}
@@ -92,6 +93,7 @@ export function JSONFormatter() {
             </button>
           </div>
           <textarea
+            id="json-output"
             value={output}
             readOnly
             placeholder="Le résultat formaté apparaîtra ici..."

@@ -6,6 +6,8 @@ export function SQLFormatter() {
   const [input, setInput] = useState('');
   const [output, setOutput] = useState('');
   const [language, setLanguage] = useState('sql');
+  const [indentStyle, setIndentStyle] = useState<'tabularLeft' | 'standard'>('tabularLeft');
+  const [realtime, setRealtime] = useState(true);
   const [error, setError] = useState('');
   const [copied, setCopied] = useState(false);
 
@@ -18,20 +20,28 @@ export function SQLFormatter() {
     { id: 'tsql', name: 'T-SQL' },
   ];
 
-  const handleFormat = () => {
+  const handleFormat = (val: string = input) => {
     try {
-      if (!input.trim()) return;
-      const formatted = format(input, {
+      if (!val.trim()) {
+        setOutput('');
+        return;
+      }
+      const formatted = format(val, {
         language: language as any,
         tabWidth: 2,
         keywordCase: 'upper',
-        indentStyle: 'tabularLeft'
+        indentStyle: indentStyle
       });
       setOutput(formatted);
       setError('');
     } catch (e: any) {
-      setError('Erreur de formatage : ' + e.message);
+      if (!realtime) setError('Erreur de formatage : ' + e.message);
     }
+  };
+
+  const handleInputChange = (val: string) => {
+    setInput(val);
+    if (realtime) handleFormat(val);
   };
 
   const handleCopy = () => {
@@ -77,7 +87,7 @@ export function SQLFormatter() {
           <div className="flex justify-between items-center px-1">
             <div className="flex items-center gap-2">
               <Database className="w-4 h-4 text-indigo-500" />
-              <label className="text-xs font-black uppercase tracking-widest text-slate-400">Requête SQL</label>
+              <label htmlFor="sql-input" className="text-xs font-black uppercase tracking-widest text-slate-400">Requête SQL</label>
             </div>
             <button
               onClick={handleClear}
@@ -87,8 +97,9 @@ export function SQLFormatter() {
             </button>
           </div>
           <textarea
+            id="sql-input"
             value={input}
-            onChange={(e) => setInput(e.target.value)}
+            onChange={(e) => handleInputChange(e.target.value)}
             placeholder="SELECT * FROM users WHERE id = 1;"
             className="w-full h-[400px] p-6 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-3xl outline-none focus:ring-2 focus:ring-indigo-500/20 transition-all font-mono text-sm leading-relaxed dark:text-slate-300 resize-none"
           />
@@ -98,7 +109,7 @@ export function SQLFormatter() {
           <div className="flex justify-between items-center px-1">
             <div className="flex items-center gap-2">
               <FileCode className="w-4 h-4 text-emerald-500" />
-              <label className="text-xs font-black uppercase tracking-widest text-slate-400">SQL Formaté</label>
+              <label htmlFor="sql-output" className="text-xs font-black uppercase tracking-widest text-slate-400">SQL Formaté</label>
             </div>
             <button
               onClick={handleCopy}
@@ -109,6 +120,7 @@ export function SQLFormatter() {
             </button>
           </div>
           <textarea
+            id="sql-output"
             value={output}
             readOnly
             placeholder="Le SQL formaté apparaîtra ici..."
@@ -117,13 +129,40 @@ export function SQLFormatter() {
         </div>
       </div>
 
-      <div className="flex justify-center">
-        <button
-          onClick={handleFormat}
-          className="px-12 py-4 bg-indigo-600 text-white rounded-2xl font-black text-lg shadow-lg shadow-indigo-600/20 hover:bg-indigo-700 transition-all active:scale-95 flex items-center gap-2"
-        >
-          <Database className="w-5 h-5" /> Formater le SQL
-        </button>
+      <div className="flex flex-col md:flex-row items-center justify-center gap-8">
+        <div className="flex items-center gap-6">
+          <div className="flex items-center gap-2">
+            <input
+              id="realtime-toggle"
+              type="checkbox"
+              checked={realtime}
+              onChange={(e) => setRealtime(e.target.checked)}
+              className="w-4 h-4 rounded border-slate-300 text-indigo-600 focus:ring-indigo-500"
+            />
+            <label htmlFor="realtime-toggle" className="text-sm font-bold text-slate-600 dark:text-slate-400">Temps réel</label>
+          </div>
+          <div className="flex items-center gap-2">
+            <label htmlFor="indent-style" className="text-sm font-bold text-slate-600 dark:text-slate-400">Style :</label>
+            <select
+              id="indent-style"
+              value={indentStyle}
+              onChange={(e) => setIndentStyle(e.target.value as any)}
+              className="p-2 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg text-xs font-bold"
+            >
+              <option value="tabularLeft">Tabulaire</option>
+              <option value="standard">Standard</option>
+            </select>
+          </div>
+        </div>
+
+        {!realtime && (
+          <button
+            onClick={() => handleFormat()}
+            className="px-12 py-4 bg-indigo-600 text-white rounded-2xl font-black text-lg shadow-lg shadow-indigo-600/20 hover:bg-indigo-700 transition-all active:scale-90 flex items-center gap-2"
+          >
+            <Database className="w-5 h-5" /> Formater le SQL
+          </button>
+        )}
       </div>
     </div>
   );

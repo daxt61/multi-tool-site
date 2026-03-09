@@ -94,7 +94,9 @@ export function PasswordGenerator() {
       {/* Display Area */}
       <div className="bg-slate-900 dark:bg-black p-8 md:p-12 rounded-[2.5rem] shadow-xl shadow-indigo-500/5 relative overflow-hidden group">
         <div className="flex flex-col md:flex-row items-center gap-8 relative z-10">
+          <label htmlFor="generated-password" className="sr-only">Mot de passe généré</label>
           <input
+            id="generated-password"
             type="text"
             value={password}
             readOnly
@@ -146,10 +148,11 @@ export function PasswordGenerator() {
         <div className="bg-slate-50 dark:bg-slate-900/50 p-8 rounded-[2.5rem] border border-slate-200 dark:border-slate-800 space-y-8">
           <div className="space-y-6">
             <div className="flex justify-between items-center px-1">
-              <label className="text-xs font-black uppercase tracking-widest text-slate-400">Longueur</label>
+              <label htmlFor="password-length" className="text-xs font-black uppercase tracking-widest text-slate-400">Longueur</label>
               <span className="text-2xl font-black font-mono text-indigo-600 dark:text-indigo-400">{length}</span>
             </div>
             <input
+              id="password-length"
               type="range"
               min="4"
               max="64"

@@ -32,11 +32,14 @@ export function WordCounter() {
 
     return {
       characters: deferredText.length,
+      charactersNoSpaces: deferredText.replace(/\s/g, '').length,
       words: wordCount,
       lines: deferredText === '' ? 0 : deferredText.split('\n').length,
+      paragraphs: trimmed === '' ? 0 : deferredText.split(/\n\s*\n/).filter(p => p.trim().length > 0).length,
       sentences: trimmed === '' ? 0 : deferredText.split(/[.!?]+(?:\s|$)/).filter(s => s.trim().length > 0).length,
       readingTime: Math.ceil(wordCount / 200),
       speakingTime: Math.ceil(wordCount / 130),
+      weight: new Blob([deferredText]).size,
       topWords
     };
   }, [deferredText]);
@@ -50,11 +53,14 @@ export function WordCounter() {
   const handleCopyStats = () => {
     const report = `Rapport de texte :
 - Caractères : ${stats.characters}
+- Caractères (sans espaces) : ${stats.charactersNoSpaces}
 - Mots : ${stats.words}
 - Lignes : ${stats.lines}
+- Paragraphes : ${stats.paragraphs}
 - Phrases : ${stats.sentences}
 - Temps de lecture : ~${stats.readingTime} min
-- Temps de parole : ~${stats.speakingTime} min`;
+- Temps de parole : ~${stats.speakingTime} min
+- Poids : ${stats.weight} octets`;
 
     navigator.clipboard.writeText(report);
     setCopiedStats(true);
@@ -95,14 +101,17 @@ export function WordCounter() {
         />
       </div>
 
-      <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
+      <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
         {[
           { icon: <Hash className="w-4 h-4" />, label: 'Caractères', value: stats.characters },
+          { icon: <Hash className="w-4 h-4" />, label: 'Caractères (sans espaces)', value: stats.charactersNoSpaces },
           { icon: <Type className="w-4 h-4" />, label: 'Mots', value: stats.words },
           { icon: <FileText className="w-4 h-4" />, label: 'Lignes', value: stats.lines },
+          { icon: <AlignLeft className="w-4 h-4" />, label: 'Paragraphes', value: stats.paragraphs },
           { icon: <AlignLeft className="w-4 h-4" />, label: 'Phrases', value: stats.sentences },
           { icon: <Clock className="w-4 h-4" />, label: 'Lecture', value: `${stats.readingTime}m` },
           { icon: <MessageSquare className="w-4 h-4" />, label: 'Parole', value: `${stats.speakingTime}m` },
+          { icon: <FileText className="w-4 h-4" />, label: 'Poids', value: `${stats.weight} B` },
         ].map((stat) => (
           <div key={stat.label} className="p-6 bg-white dark:bg-slate-900 border border-slate-100 dark:border-slate-800 rounded-2xl space-y-2">
             <div className="text-indigo-500 dark:text-indigo-400">{stat.icon}</div>

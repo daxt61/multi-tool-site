@@ -17,6 +17,10 @@ export function WordCounter() {
     const trimmed = deferredText.trim();
     const words = trimmed === '' ? [] : trimmed.split(/\s+/);
     const wordCount = words.length;
+    const charsNoSpaces = deferredText.replace(/\s/g, '').length;
+    const paragraphs = deferredText === '' ? 0 : deferredText.split(/\n\s*\n/).filter(p => p.trim().length > 0).length;
+    // Sentinel: Accurate file size using Blob (handles multi-byte UTF-8)
+    const weight = new Blob([deferredText]).size;
 
     const wordFreq: Record<string, number> = {};
     words.forEach(w => {
@@ -32,9 +36,12 @@ export function WordCounter() {
 
     return {
       characters: deferredText.length,
+      charsNoSpaces,
       words: wordCount,
       lines: deferredText === '' ? 0 : deferredText.split('\n').length,
       sentences: trimmed === '' ? 0 : deferredText.split(/[.!?]+(?:\s|$)/).filter(s => s.trim().length > 0).length,
+      paragraphs,
+      weight,
       readingTime: Math.ceil(wordCount / 200),
       speakingTime: Math.ceil(wordCount / 130),
       topWords
@@ -47,12 +54,23 @@ export function WordCounter() {
     setTimeout(() => setCopied(false), 2000);
   };
 
+  const formatSize = (bytes: number) => {
+    if (bytes === 0) return '0 B';
+    const k = 1024;
+    const sizes = ['B', 'KB', 'MB', 'GB'];
+    const i = Math.floor(Math.log(bytes) / Math.log(k));
+    return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
+  };
+
   const handleCopyStats = () => {
     const report = `Rapport de texte :
 - Caractères : ${stats.characters}
+- Caractères (sans espaces) : ${stats.charsNoSpaces}
 - Mots : ${stats.words}
 - Lignes : ${stats.lines}
 - Phrases : ${stats.sentences}
+- Paragraphes : ${stats.paragraphs}
+- Poids : ${formatSize(stats.weight)}
 - Temps de lecture : ~${stats.readingTime} min
 - Temps de parole : ~${stats.speakingTime} min`;
 
@@ -95,12 +113,15 @@ export function WordCounter() {
         />
       </div>
 
-      <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
+      <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
         {[
           { icon: <Hash className="w-4 h-4" />, label: 'Caractères', value: stats.characters },
+          { icon: <Hash className="w-4 h-4" />, label: 'Sans espaces', value: stats.charsNoSpaces },
           { icon: <Type className="w-4 h-4" />, label: 'Mots', value: stats.words },
           { icon: <FileText className="w-4 h-4" />, label: 'Lignes', value: stats.lines },
           { icon: <AlignLeft className="w-4 h-4" />, label: 'Phrases', value: stats.sentences },
+          { icon: <AlignLeft className="w-4 h-4" />, label: 'Paragraphes', value: stats.paragraphs },
+          { icon: <FileText className="w-4 h-4" />, label: 'Poids', value: formatSize(stats.weight) },
           { icon: <Clock className="w-4 h-4" />, label: 'Lecture', value: `${stats.readingTime}m` },
           { icon: <MessageSquare className="w-4 h-4" />, label: 'Parole', value: `${stats.speakingTime}m` },
         ].map((stat) => (

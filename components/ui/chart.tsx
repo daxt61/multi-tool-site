@@ -47,7 +47,8 @@ function ChartContainer({
   >["children"];
 }) {
   const uniqueId = React.useId();
-  const chartId = `chart-${id || uniqueId.replace(/:/g, "")}`;
+  // Sentinel: Sanitize user-provided id to prevent attribute breakout and CSS injection
+  const chartId = `chart-${sanitizeId(id || uniqueId.replace(/:/g, ""))}`;
 
   return (
     <ChartContext.Provider value={{ config }}>
@@ -78,19 +79,23 @@ const ChartStyle = ({ id, config }: { id: string; config: ChartConfig }) => {
     return null;
   }
 
+  const safeId = sanitizeId(id);
+
   return (
     <style
       dangerouslySetInnerHTML={{
         __html: Object.entries(THEMES)
           .map(
             ([theme, prefix]) => `
-${prefix} [data-chart=${id}] {
+${prefix} [data-chart="${safeId}"] {
 ${colorConfig
   .map(([key, itemConfig]) => {
     const color =
       itemConfig.theme?.[theme as keyof typeof itemConfig.theme] ||
       itemConfig.color;
-    return color ? `  --color-${key}: ${color};` : null;
+    return color
+      ? `  --color-${sanitizeKey(key)}: ${sanitizeValue(color)};`
+      : null;
   })
   .join("\n")}
 }
@@ -343,6 +348,15 @@ function getPayloadConfigFromPayload(
     : config[key as keyof typeof config];
 }
 
+// Sentinel: Sanitize CSS identifiers and values to prevent injection and XSS
+const sanitizeId = (id: string) => id.replace(/[^a-zA-Z0-9-_]/g, "");
+const sanitizeKey = (key: string) => key.replace(/[^a-zA-Z0-9-]/g, "");
+const sanitizeValue = (value: string) => {
+  // Allow common color formats but strip dangerous characters
+  // that could be used for CSS injection or attribute breakout
+  return value.replace(/[;{}<>]/g, "");
+};
+
 export {
   ChartContainer,
   ChartTooltip,
@@ -350,4 +364,7 @@ export {
   ChartLegend,
   ChartLegendContent,
   ChartStyle,
+  sanitizeId,
+  sanitizeKey,
+  sanitizeValue,
 };

@@ -25,3 +25,7 @@
 ## 2025-05-24 - [Global Navigation & Tool Metadata Polish]
 **Learning:** For tool-based applications, the "Copy link" feature is a vital micro-UX that users expect for sharing specific configurations. Additionally, ensuring that metadata badges (like categories) use consistent icons and localized names from a central configuration, rather than tool-specific icons, improves the application's taxonomic clarity. Coupling this with global accessibility landmarks like "Skip to content" links and semantic `<main>` tags ensures a professional and inclusive user experience.
 **Action:** Prioritize "Copy link" utilities in tool views and audit metadata badges for taxonomic consistency. Always implement "Skip to content" for keyboard accessibility.
+
+## 2026-03-05 - [Web Audio Resource Management]
+**Learning:** When implementing tools using the Web Audio API, such as a Metronome, it is crucial to explicitly close the `AudioContext` in the component's cleanup function. This prevents memory leaks and ensures system audio resources are released when the user navigates away from the tool.
+**Action:** Always call `audioContext.close()` in `useEffect` cleanup for audio-based components.

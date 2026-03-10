@@ -70,6 +70,8 @@ import {
   ShieldCheck,
   Scissors,
   Binary,
+  Volume2,
+  Layers,
 } from "lucide-react";
 const AdPlaceholder = lazy(() => import("./components/AdPlaceholder").then(m => ({ default: m.AdPlaceholder })));
 
@@ -133,6 +135,9 @@ const JWTDecoder = lazy(() => import("./components/JWTDecoder").then(m => ({ def
 const CodeMinifier = lazy(() => import("./components/CodeMinifier").then(m => ({ default: m.CodeMinifier })));
 const BinaryTextConverter = lazy(() => import("./components/BinaryTextConverter").then(m => ({ default: m.BinaryTextConverter })));
 const Base64ToImage = lazy(() => import("./components/Base64ToImage").then(m => ({ default: m.Base64ToImage })));
+const Metronome = lazy(() => import("./components/Metronome").then(m => ({ default: m.Metronome })));
+const TextToSpeech = lazy(() => import("./components/TextToSpeech").then(m => ({ default: m.TextToSpeech })));
+const GlassmorphismGenerator = lazy(() => import("./components/GlassmorphismGenerator").then(m => ({ default: m.GlassmorphismGenerator })));
 const UnitPriceCalculator = lazy(() => import("./components/UnitPriceCalculator").then(m => ({ default: m.UnitPriceCalculator })));
 const AgeCalculator = lazy(() => import("./components/AgeCalculator").then(m => ({ default: m.AgeCalculator })));
 const ColorPaletteGenerator = lazy(() => import("./components/ColorPaletteGenerator").then(m => ({ default: m.ColorPaletteGenerator })));
@@ -586,6 +591,14 @@ const tools: Tool[] = [
     Component: BinaryTextConverter,
     category: "dev",
   },
+  {
+    id: "glassmorphism",
+    name: "Glassmorphism",
+    icon: Layers,
+    description: "Générateur CSS d'effets de verre dépoli",
+    Component: GlassmorphismGenerator,
+    category: "dev",
+  },
   // Other Tools
   {
     id: "timer",
@@ -641,6 +654,22 @@ const tools: Tool[] = [
     icon: Monitor,
     description: "Analyseur de navigateur et système",
     Component: UserAgentAnalyzer,
+    category: "other",
+  },
+  {
+    id: "metronome",
+    name: "Métronome",
+    icon: Music,
+    description: "Métronome précis pour vos sessions musicales",
+    Component: Metronome,
+    category: "other",
+  },
+  {
+    id: "text-to-speech",
+    name: "Synthèse Vocale",
+    icon: Volume2,
+    description: "Lecteur de texte à haute voix (TTS)",
+    Component: TextToSpeech,
     category: "other",
   },
 ];

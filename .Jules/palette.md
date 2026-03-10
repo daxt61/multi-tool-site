@@ -25,3 +25,7 @@
 ## 2025-05-24 - [Global Navigation & Tool Metadata Polish]
 **Learning:** For tool-based applications, the "Copy link" feature is a vital micro-UX that users expect for sharing specific configurations. Additionally, ensuring that metadata badges (like categories) use consistent icons and localized names from a central configuration, rather than tool-specific icons, improves the application's taxonomic clarity. Coupling this with global accessibility landmarks like "Skip to content" links and semantic `<main>` tags ensures a professional and inclusive user experience.
 **Action:** Prioritize "Copy link" utilities in tool views and audit metadata badges for taxonomic consistency. Always implement "Skip to content" for keyboard accessibility.
+
+## 2025-05-25 - [Bento Modernization & Contrast A11y]
+**Learning:** When modernizing legacy components to the Bento design system, aesthetic improvements must not compromise accessibility. Low-contrast labels (e.g., `slate-400` on white) often fail WCAG AA standards; use at least `slate-600` for primary labels. Additionally, a low-opacity focus ring (e.g., `ring-indigo-500/20`) is often insufficient for keyboard users; adding a solid border transition (e.g., `focus:border-indigo-500`) provides a much more robust focus indicator.
+**Action:** Audit Bento-themed components for color contrast and ensure focus states use both ring and border properties for high visibility.

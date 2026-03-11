@@ -32,11 +32,14 @@ export function WordCounter() {
 
     return {
       characters: deferredText.length,
+      charactersNoSpaces: deferredText.replace(/\s/g, '').length,
       words: wordCount,
       lines: deferredText === '' ? 0 : deferredText.split('\n').length,
+      paragraphs: deferredText === '' ? 0 : deferredText.split(/\n\s*\n/).filter(p => p.trim().length > 0).length,
       sentences: trimmed === '' ? 0 : deferredText.split(/[.!?]+(?:\s|$)/).filter(s => s.trim().length > 0).length,
       readingTime: Math.ceil(wordCount / 200),
       speakingTime: Math.ceil(wordCount / 130),
+      fileSize: new Blob([deferredText]).size,
       topWords
     };
   }, [deferredText]);
@@ -47,14 +50,25 @@ export function WordCounter() {
     setTimeout(() => setCopied(false), 2000);
   };
 
+  const formatFileSize = (bytes: number) => {
+    if (bytes === 0) return '0 o';
+    const k = 1024;
+    const sizes = ['o', 'Ko', 'Mo', 'Go'];
+    const i = Math.floor(Math.log(bytes) / Math.log(k));
+    return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
+  };
+
   const handleCopyStats = () => {
     const report = `Rapport de texte :
 - Caractères : ${stats.characters}
+- Caractères (sans espaces) : ${stats.charactersNoSpaces}
 - Mots : ${stats.words}
 - Lignes : ${stats.lines}
+- Paragraphes : ${stats.paragraphs}
 - Phrases : ${stats.sentences}
 - Temps de lecture : ~${stats.readingTime} min
-- Temps de parole : ~${stats.speakingTime} min`;
+- Temps de parole : ~${stats.speakingTime} min
+- Poids : ${formatFileSize(stats.fileSize)}`;
 
     navigator.clipboard.writeText(report);
     setCopiedStats(true);
@@ -65,7 +79,7 @@ export function WordCounter() {
     <div className="max-w-5xl mx-auto space-y-8">
       <div className="space-y-4">
         <div className="flex justify-between items-center px-1">
-          <label className="text-xs font-black uppercase tracking-widest text-slate-400">Votre Texte</label>
+          <label htmlFor="word-counter-input" className="text-xs font-black uppercase tracking-widest text-slate-400 cursor-pointer">Votre Texte</label>
           <div className="flex gap-2">
             <button
               onClick={handleCopyStats}
@@ -88,6 +102,7 @@ export function WordCounter() {
           </div>
         </div>
         <textarea
+          id="word-counter-input"
           value={text}
           onChange={(e) => setText(e.target.value)}
           placeholder="Commencez à taper..."
@@ -95,14 +110,17 @@ export function WordCounter() {
         />
       </div>
 
-      <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
+      <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
         {[
           { icon: <Hash className="w-4 h-4" />, label: 'Caractères', value: stats.characters },
           { icon: <Type className="w-4 h-4" />, label: 'Mots', value: stats.words },
           { icon: <FileText className="w-4 h-4" />, label: 'Lignes', value: stats.lines },
           { icon: <AlignLeft className="w-4 h-4" />, label: 'Phrases', value: stats.sentences },
-          { icon: <Clock className="w-4 h-4" />, label: 'Lecture', value: `${stats.readingTime}m` },
-          { icon: <MessageSquare className="w-4 h-4" />, label: 'Parole', value: `${stats.speakingTime}m` },
+          { icon: <Hash className="w-4 h-4" />, label: 'Caractères (sans espaces)', value: stats.charactersNoSpaces },
+          { icon: <FileText className="w-4 h-4" />, label: 'Paragraphes', value: stats.paragraphs },
+          { icon: <Hash className="w-4 h-4" />, label: 'Poids', value: formatFileSize(stats.fileSize) },
+          { icon: <Clock className="w-4 h-4" />, label: 'Lecture', value: `~${stats.readingTime}m` },
+          { icon: <MessageSquare className="w-4 h-4" />, label: 'Parole', value: `~${stats.speakingTime}m` },
         ].map((stat) => (
           <div key={stat.label} className="p-6 bg-white dark:bg-slate-900 border border-slate-100 dark:border-slate-800 rounded-2xl space-y-2">
             <div className="text-indigo-500 dark:text-indigo-400">{stat.icon}</div>

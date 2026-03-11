@@ -8,18 +8,37 @@ interface BudgetCategory {
 
 export function BudgetPlanner() {
   const [income, setIncome] = useState<string>(() => {
-    return localStorage.getItem("budget_income") || "";
+    try {
+      return localStorage.getItem("budget_income") || "";
+    } catch (e) {
+      console.error("Failed to load income from localStorage", e);
+      return "";
+    }
   });
   const [categories, setCategories] = useState<BudgetCategory[]>(() => {
-    const saved = localStorage.getItem("budget_categories");
-    return saved ? JSON.parse(saved) : [
-    { name: "Logement", planned: 0, actual: 0 },
-    { name: "Alimentation", planned: 0, actual: 0 },
-    { name: "Transport", planned: 0, actual: 0 },
-    { name: "Santé", planned: 0, actual: 0 },
-    { name: "Loisirs", planned: 0, actual: 0 },
-    { name: "Épargne", planned: 0, actual: 0 },
-  ];});
+    try {
+      const saved = localStorage.getItem("budget_categories");
+      const parsed = saved ? JSON.parse(saved) : null;
+      return Array.isArray(parsed) ? parsed : [
+        { name: "Logement", planned: 0, actual: 0 },
+        { name: "Alimentation", planned: 0, actual: 0 },
+        { name: "Transport", planned: 0, actual: 0 },
+        { name: "Santé", planned: 0, actual: 0 },
+        { name: "Loisirs", planned: 0, actual: 0 },
+        { name: "Épargne", planned: 0, actual: 0 },
+      ];
+    } catch (e) {
+      console.error("Failed to load budget_categories from localStorage", e);
+      return [
+        { name: "Logement", planned: 0, actual: 0 },
+        { name: "Alimentation", planned: 0, actual: 0 },
+        { name: "Transport", planned: 0, actual: 0 },
+        { name: "Santé", planned: 0, actual: 0 },
+        { name: "Loisirs", planned: 0, actual: 0 },
+        { name: "Épargne", planned: 0, actual: 0 },
+      ];
+    }
+  });
 
   useEffect(() => {
     localStorage.setItem("budget_income", income);

@@ -18,17 +18,29 @@ export function LoremIpsumGenerator() {
     'deserunt', 'mollit', 'anim', 'id', 'est', 'laborum'
   ];
 
+  const getSecureRandom = (max: number) => {
+    const array = new Uint32Array(1);
+    const range = Math.pow(2, 32);
+    const limit = range - (range % max);
+    let val;
+    do {
+      window.crypto.getRandomValues(array);
+      val = array[0];
+    } while (val >= limit);
+    return val % max;
+  };
+
   const generateSentence = () => {
-    const length = Math.floor(Math.random() * 10) + 8;
+    const length = getSecureRandom(10) + 8;
     const words = [];
     for (let i = 0; i < length; i++) {
-      words.push(loremWords[Math.floor(Math.random() * loremWords.length)]);
+      words.push(loremWords[getSecureRandom(loremWords.length)]);
     }
     return words.join(' ').charAt(0).toUpperCase() + words.join(' ').slice(1) + '.';
   };
 
   const generateParagraph = () => {
-    const sentenceCount = Math.floor(Math.random() * 4) + 4;
+    const sentenceCount = getSecureRandom(4) + 4;
     const sentences = [];
     for (let i = 0; i < sentenceCount; i++) {
       sentences.push(generateSentence());
@@ -37,28 +49,43 @@ export function LoremIpsumGenerator() {
   };
 
   const text = useMemo(() => {
-    const generateText = () => {
-      if (type === 'words') {
-        const words = [];
-        for (let i = 0; i < count; i++) {
-          words.push(loremWords[Math.floor(Math.random() * loremWords.length)]);
-        }
-        return words.join(' ');
-      } else if (type === 'sentences') {
-        const sentences = [];
-        for (let i = 0; i < count; i++) {
-          sentences.push(generateSentence());
-        }
-        return sentences.join(' ');
-      } else {
-        const paragraphs = [];
-        for (let i = 0; i < count; i++) {
-          paragraphs.push(generateParagraph());
-        }
-        return paragraphs.join('\n\n');
+    const generateSentenceLocal = () => {
+      const length = getSecureRandom(10) + 8;
+      const words = [];
+      for (let i = 0; i < length; i++) {
+        words.push(loremWords[getSecureRandom(loremWords.length)]);
       }
+      return words.join(' ').charAt(0).toUpperCase() + words.join(' ').slice(1) + '.';
     };
-    return generateText();
+
+    const generateParagraphLocal = () => {
+      const sentenceCount = getSecureRandom(4) + 4;
+      const sentences = [];
+      for (let i = 0; i < sentenceCount; i++) {
+        sentences.push(generateSentenceLocal());
+      }
+      return sentences.join(' ');
+    };
+
+    if (type === 'words') {
+      const words = [];
+      for (let i = 0; i < count; i++) {
+        words.push(loremWords[getSecureRandom(loremWords.length)]);
+      }
+      return words.join(' ');
+    } else if (type === 'sentences') {
+      const sentences = [];
+      for (let i = 0; i < count; i++) {
+        sentences.push(generateSentenceLocal());
+      }
+      return sentences.join(' ');
+    } else {
+      const paragraphs = [];
+      for (let i = 0; i < count; i++) {
+        paragraphs.push(generateParagraphLocal());
+      }
+      return paragraphs.join('\n\n');
+    }
   }, [count, type, refreshTrigger]);
 
   const handleRegenerate = useCallback(() => {

@@ -51,6 +51,8 @@ import {
   Briefcase,
   Search,
   Shuffle,
+  Layers,
+  Volume2,
   ArrowLeft,
   Database,
   ArrowLeftRight,
@@ -139,6 +141,9 @@ const ColorPaletteGenerator = lazy(() => import("./components/ColorPaletteGenera
 const RegExTester = lazy(() => import("./components/RegExTester").then(m => ({ default: m.RegExTester })));
 const UserAgentAnalyzer = lazy(() => import("./components/UserAgentAnalyzer").then(m => ({ default: m.UserAgentAnalyzer })));
 const SlugGenerator = lazy(() => import("./components/SlugGenerator").then(m => ({ default: m.SlugGenerator })));
+const GlassmorphismGenerator = lazy(() => import("./components/GlassmorphismGenerator").then(m => ({ default: m.GlassmorphismGenerator })));
+const Metronome = lazy(() => import("./components/Metronome").then(m => ({ default: m.Metronome })));
+const TextToSpeech = lazy(() => import("./components/TextToSpeech").then(m => ({ default: m.TextToSpeech })));
 
 // ⚡ Bolt Optimization: Pre-calculating tool map and search index for O(1) lookups and faster filtering
 const toolsMap: Record<string, Tool> = {};
@@ -642,6 +647,30 @@ const tools: Tool[] = [
     description: "Analyseur de navigateur et système",
     Component: UserAgentAnalyzer,
     category: "other",
+  },
+  {
+    id: "glassmorphism",
+    name: "Glassmorphism",
+    icon: Layers,
+    description: "Glassmorphism CSS effect generator",
+    Component: GlassmorphismGenerator,
+    category: "dev",
+  },
+  {
+    id: "metronome",
+    name: "Metronome",
+    icon: Music,
+    description: "Precise metronome for your music sessions",
+    Component: Metronome,
+    category: "other",
+  },
+  {
+    id: "text-to-speech",
+    name: "Text to Speech",
+    icon: Volume2,
+    description: "Convert your text into spoken words",
+    Component: TextToSpeech,
+    category: "text",
   },
 ];
 

@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { History as HistoryIcon, Trash2, Delete, Calculator as CalcIcon } from 'lucide-react';
+import { History as HistoryIcon, Trash2, Delete, Calculator as CalcIcon, Copy, Check } from 'lucide-react';
 
 export function Calculator() {
   const [display, setDisplay] = useState('0');
@@ -8,9 +8,16 @@ export function Calculator() {
   const [newNumber, setNewNumber] = useState(true);
   const [isScientific, setIsScientific] = useState(false);
   const [isRadians, setIsRadians] = useState(false);
+  const [copied, setCopied] = useState(false);
   const [history, setHistory] = useState<{ expression: string; result: string }[]>(() => {
-    const saved = localStorage.getItem('calc_history');
-    return saved ? JSON.parse(saved) : [];
+    try {
+      const saved = localStorage.getItem('calc_history');
+      const parsed = saved ? JSON.parse(saved) : [];
+      return Array.isArray(parsed) ? parsed : [];
+    } catch (e) {
+      console.error("Failed to load calc_history from localStorage", e);
+      return [];
+    }
   });
 
   const handleNumber = (num: string) => {
@@ -123,6 +130,13 @@ export function Calculator() {
     setNewNumber(true);
   };
 
+  const handleCopy = () => {
+    if (display === 'Erreur' || display === 'NaN') return;
+    navigator.clipboard.writeText(display);
+    setCopied(true);
+    setTimeout(() => setCopied(false), 2000);
+  };
+
   const handleBackspace = () => {
     if (display.length > 1) {
       setDisplay(display.slice(0, -1));
@@ -218,7 +232,17 @@ export function Calculator() {
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
         <div className="lg:col-span-8 space-y-6">
           {/* Display */}
-          <div className="bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-3xl p-8 text-right overflow-hidden group transition-all focus-within:ring-2 focus-within:ring-indigo-500/20">
+          <div className="bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-3xl p-8 text-right overflow-hidden group transition-all focus-within:ring-2 focus-within:ring-indigo-500/20 relative">
+            <div className="absolute top-4 left-4">
+              <button
+                onClick={handleCopy}
+                className={`p-2 rounded-lg transition-all ${copied ? 'bg-emerald-500 text-white' : 'text-slate-400 hover:text-indigo-500 hover:bg-white dark:hover:bg-slate-800'}`}
+                title="Copier le résultat"
+                aria-label="Copier le résultat"
+              >
+                {copied ? <Check className="w-4 h-4" /> : <Copy className="w-4 h-4" />}
+              </button>
+            </div>
             <div className="text-sm font-bold text-slate-400 dark:text-slate-500 mb-2 h-6 flex justify-end items-center gap-2">
               {previousValue !== null && operation && (
                 <>

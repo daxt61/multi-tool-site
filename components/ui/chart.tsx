@@ -47,7 +47,7 @@ function ChartContainer({
   >["children"];
 }) {
   const uniqueId = React.useId();
-  const chartId = `chart-${id || uniqueId.replace(/:/g, "")}`;
+  const chartId = `chart-${sanitizeId(id || uniqueId.replace(/:/g, ""))}`;
 
   return (
     <ChartContext.Provider value={{ config }}>
@@ -84,13 +84,15 @@ const ChartStyle = ({ id, config }: { id: string; config: ChartConfig }) => {
         __html: Object.entries(THEMES)
           .map(
             ([theme, prefix]) => `
-${prefix} [data-chart=${id}] {
+${prefix} [data-chart="${id}"] {
 ${colorConfig
   .map(([key, itemConfig]) => {
     const color =
       itemConfig.theme?.[theme as keyof typeof itemConfig.theme] ||
       itemConfig.color;
-    return color ? `  --color-${key}: ${color};` : null;
+    return color
+      ? `  --color-${sanitizeKey(key)}: ${sanitizeValue(color)};`
+      : null;
   })
   .join("\n")}
 }
@@ -303,6 +305,15 @@ function ChartLegendContent({
     </div>
   );
 }
+
+// Helper to sanitize IDs for CSS selectors.
+const sanitizeId = (id: string) => id.replace(/[^a-zA-Z0-9-_]/g, "");
+
+// Helper to sanitize CSS keys (variables).
+const sanitizeKey = (key: string) => key.replace(/[^a-zA-Z0-9-]/g, "");
+
+// Helper to sanitize CSS values to prevent style block termination.
+const sanitizeValue = (value: string) => value.replace(/[;{}<>]/g, "");
 
 // Helper to extract item config from a payload.
 function getPayloadConfigFromPayload(

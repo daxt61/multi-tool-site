@@ -139,6 +139,9 @@ const ColorPaletteGenerator = lazy(() => import("./components/ColorPaletteGenera
 const RegExTester = lazy(() => import("./components/RegExTester").then(m => ({ default: m.RegExTester })));
 const UserAgentAnalyzer = lazy(() => import("./components/UserAgentAnalyzer").then(m => ({ default: m.UserAgentAnalyzer })));
 const SlugGenerator = lazy(() => import("./components/SlugGenerator").then(m => ({ default: m.SlugGenerator })));
+const TextToSpeech = lazy(() => import("./components/TextToSpeech").then(m => ({ default: m.TextToSpeech })));
+const GlassmorphismGenerator = lazy(() => import("./components/GlassmorphismGenerator").then(m => ({ default: m.GlassmorphismGenerator })));
+const Metronome = lazy(() => import("./components/Metronome").then(m => ({ default: m.Metronome })));
 
 // ⚡ Bolt Optimization: Pre-calculating tool map and search index for O(1) lookups and faster filtering
 const toolsMap: Record<string, Tool> = {};
@@ -359,6 +362,14 @@ const tools: Tool[] = [
     icon: LinkIcon,
     description: "Générateur de slugs d'URL propres",
     Component: SlugGenerator,
+    category: "text",
+  },
+  {
+    id: "text-to-speech",
+    name: "Text to Speech",
+    icon: Music,
+    description: "Synthèse vocale à partir de texte",
+    Component: TextToSpeech,
     category: "text",
   },
   {
@@ -586,6 +597,14 @@ const tools: Tool[] = [
     Component: BinaryTextConverter,
     category: "dev",
   },
+  {
+    id: "glassmorphism",
+    name: "Glassmorphism",
+    icon: Sparkles,
+    description: "Générateur d'effets CSS Glassmorphism",
+    Component: GlassmorphismGenerator,
+    category: "dev",
+  },
   // Other Tools
   {
     id: "timer",
@@ -625,6 +644,14 @@ const tools: Tool[] = [
     icon: Music,
     description: "Compteur de battements par minute",
     Component: BPMCounter,
+    category: "other",
+  },
+  {
+    id: "metronome",
+    name: "Métronome",
+    icon: Music,
+    description: "Métronome précis pour la musique",
+    Component: Metronome,
     category: "other",
   },
   {

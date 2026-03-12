@@ -1,8 +1,10 @@
 import { useState } from 'react';
-import { Copy, Check, Trash2, SortAsc, SortDesc, ListChecks, Type, FileDown, Scissors } from 'lucide-react';
+import { Copy, Check, Trash2, SortAsc, SortDesc, ListChecks, Type, FileDown, Scissors, Plus } from 'lucide-react';
 
 export function ListCleaner() {
   const [text, setText] = useState('');
+  const [prefix, setPrefix] = useState('');
+  const [suffix, setSuffix] = useState('');
   const [copied, setCopied] = useState(false);
 
   const handleCopy = () => {
@@ -51,6 +53,12 @@ export function ListCleaner() {
 
   const sortLength = () => {
     processList(lines => [...lines].sort((a, b) => a.length - b.length));
+  };
+
+  const addPrefixSuffix = () => {
+    processList(lines => lines.map(line => `${prefix}${line}${suffix}`));
+    setPrefix('');
+    setSuffix('');
   };
 
   return (
@@ -185,6 +193,45 @@ export function ListCleaner() {
               <Type className="w-4 h-4 text-slate-400 group-hover:text-indigo-500" />
             </button>
           </div>
+        </div>
+
+        {/* Ajouts */}
+        <div className="p-8 bg-white dark:bg-slate-900/50 border border-slate-200 dark:border-slate-800 rounded-[2.5rem] space-y-6 lg:col-span-3">
+          <div className="flex items-center gap-3 text-indigo-500">
+            <Plus className="w-5 h-5" />
+            <h3 className="font-black uppercase tracking-widest text-xs text-slate-400">Ajouts</h3>
+          </div>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div className="space-y-2">
+              <label htmlFor="prefix-input" className="text-xs font-bold text-slate-400 px-1">Préfixe</label>
+              <input
+                id="prefix-input"
+                type="text"
+                value={prefix}
+                onChange={(e) => setPrefix(e.target.value)}
+                placeholder="Ex: - "
+                className="w-full p-4 bg-slate-50 dark:bg-slate-800/50 border border-slate-200 dark:border-slate-700 rounded-2xl outline-none focus:border-indigo-500 transition-all dark:text-white"
+              />
+            </div>
+            <div className="space-y-2">
+              <label htmlFor="suffix-input" className="text-xs font-bold text-slate-400 px-1">Suffixe</label>
+              <input
+                id="suffix-input"
+                type="text"
+                value={suffix}
+                onChange={(e) => setSuffix(e.target.value)}
+                placeholder="Ex: ;"
+                className="w-full p-4 bg-slate-50 dark:bg-slate-800/50 border border-slate-200 dark:border-slate-700 rounded-2xl outline-none focus:border-indigo-500 transition-all dark:text-white"
+              />
+            </div>
+          </div>
+          <button
+            onClick={addPrefixSuffix}
+            disabled={!prefix && !suffix}
+            className="w-full py-4 bg-indigo-600 text-white rounded-2xl font-black shadow-lg shadow-indigo-600/20 hover:bg-indigo-700 transition-all active:scale-[0.98] disabled:opacity-50 flex items-center justify-center gap-2"
+          >
+            Appliquer aux {text.split('\n').filter(l => l.length > 0).length} éléments
+          </button>
         </div>
       </div>
     </div>

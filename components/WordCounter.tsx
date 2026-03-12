@@ -30,11 +30,18 @@ export function WordCounter() {
       .sort((a, b) => b[1] - a[1])
       .slice(0, 10);
 
+    const paragraphs = deferredText === '' ? 0 : deferredText.split(/\n\s*\n/).filter(p => p.trim().length > 0).length;
+    const charNoSpaces = deferredText.replace(/\s/g, '').length;
+    const weight = new Blob([deferredText]).size;
+
     return {
       characters: deferredText.length,
+      charNoSpaces,
       words: wordCount,
       lines: deferredText === '' ? 0 : deferredText.split('\n').length,
       sentences: trimmed === '' ? 0 : deferredText.split(/[.!?]+(?:\s|$)/).filter(s => s.trim().length > 0).length,
+      paragraphs,
+      weight,
       readingTime: Math.ceil(wordCount / 200),
       speakingTime: Math.ceil(wordCount / 130),
       topWords
@@ -48,11 +55,20 @@ export function WordCounter() {
   };
 
   const handleCopyStats = () => {
+    const formatWeight = (bytes: number) => {
+      if (bytes < 1024) return `${bytes} B`;
+      if (bytes < 1048576) return `${(bytes / 1024).toFixed(1)} KB`;
+      return `${(bytes / 1048576).toFixed(1)} MB`;
+    };
+
     const report = `Rapport de texte :
 - Caractères : ${stats.characters}
+- Caractères (sans espaces) : ${stats.charNoSpaces}
 - Mots : ${stats.words}
 - Lignes : ${stats.lines}
 - Phrases : ${stats.sentences}
+- Paragraphes : ${stats.paragraphs}
+- Poids : ${formatWeight(stats.weight)}
 - Temps de lecture : ~${stats.readingTime} min
 - Temps de parole : ~${stats.speakingTime} min`;
 
@@ -95,12 +111,15 @@ export function WordCounter() {
         />
       </div>
 
-      <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
+      <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
         {[
           { icon: <Hash className="w-4 h-4" />, label: 'Caractères', value: stats.characters },
+          { icon: <Hash className="w-4 h-4" />, label: 'Caractères (sans espaces)', value: stats.charNoSpaces },
           { icon: <Type className="w-4 h-4" />, label: 'Mots', value: stats.words },
           { icon: <FileText className="w-4 h-4" />, label: 'Lignes', value: stats.lines },
           { icon: <AlignLeft className="w-4 h-4" />, label: 'Phrases', value: stats.sentences },
+          { icon: <AlignLeft className="w-4 h-4" />, label: 'Paragraphes', value: stats.paragraphs },
+          { icon: <FileText className="w-4 h-4" />, label: 'Poids', value: stats.weight < 1024 ? `${stats.weight} B` : `${(stats.weight / 1024).toFixed(1)} KB` },
           { icon: <Clock className="w-4 h-4" />, label: 'Lecture', value: `${stats.readingTime}m` },
           { icon: <MessageSquare className="w-4 h-4" />, label: 'Parole', value: `${stats.speakingTime}m` },
         ].map((stat) => (

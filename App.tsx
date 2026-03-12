@@ -70,6 +70,7 @@ import {
   ShieldCheck,
   Scissors,
   Binary,
+  Volume2,
 } from "lucide-react";
 const AdPlaceholder = lazy(() => import("./components/AdPlaceholder").then(m => ({ default: m.AdPlaceholder })));
 
@@ -139,6 +140,9 @@ const ColorPaletteGenerator = lazy(() => import("./components/ColorPaletteGenera
 const RegExTester = lazy(() => import("./components/RegExTester").then(m => ({ default: m.RegExTester })));
 const UserAgentAnalyzer = lazy(() => import("./components/UserAgentAnalyzer").then(m => ({ default: m.UserAgentAnalyzer })));
 const SlugGenerator = lazy(() => import("./components/SlugGenerator").then(m => ({ default: m.SlugGenerator })));
+const TextToSpeech = lazy(() => import("./components/TextToSpeech").then(m => ({ default: m.TextToSpeech })));
+const GlassmorphismGenerator = lazy(() => import("./components/GlassmorphismGenerator").then(m => ({ default: m.GlassmorphismGenerator })));
+const Metronome = lazy(() => import("./components/Metronome").then(m => ({ default: m.Metronome })));
 
 // ⚡ Bolt Optimization: Pre-calculating tool map and search index for O(1) lookups and faster filtering
 const toolsMap: Record<string, Tool> = {};
@@ -418,6 +422,14 @@ const tools: Tool[] = [
     category: "text",
   },
   {
+    id: "text-to-speech",
+    name: "Synthèse vocale",
+    icon: Volume2,
+    description: "Synthèse vocale à partir de texte",
+    Component: TextToSpeech,
+    category: "text",
+  },
+  {
     id: "list-cleaner",
     name: "Nettoyeur de liste",
     icon: ListChecks,
@@ -636,11 +648,27 @@ const tools: Tool[] = [
     category: "other",
   },
   {
+    id: "glassmorphism",
+    name: "Glassmorphism",
+    icon: Sparkles,
+    description: "Générateur d'effet CSS Glassmorphism",
+    Component: GlassmorphismGenerator,
+    category: "dev",
+  },
+  {
     id: "user-agent",
     name: "User Agent",
     icon: Monitor,
     description: "Analyseur de navigateur et système",
     Component: UserAgentAnalyzer,
+    category: "other",
+  },
+  {
+    id: "metronome",
+    name: "Métronome",
+    icon: Timer,
+    description: "Métronome précis pour musiciens",
+    Component: Metronome,
     category: "other",
   },
 ];

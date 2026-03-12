@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Eye, Code } from 'lucide-react';
+import { Eye, Code, Columns, Info, ShieldCheck } from 'lucide-react';
 import { AdPlaceholder } from './AdPlaceholder';
 
 export function MarkdownPreview() {
@@ -24,14 +24,14 @@ export function MarkdownPreview() {
     // 1. Multi-line code blocks (Protect them from subsequent rules)
     html = html.replace(/```(?:[a-z]*)\n?([\s\S]*?)```/g, (_, code) => {
       const p = `__BLOCK_${placeholders.length}__`;
-      placeholders.push(`<pre class="bg-gray-100 dark:bg-slate-800 p-4 rounded-lg my-4 font-mono text-sm overflow-x-auto text-slate-900 dark:text-slate-100"><code>${code}</code></pre>`);
+      placeholders.push(`<pre class="bg-slate-100 dark:bg-slate-800 p-4 rounded-lg my-4 font-mono text-sm overflow-x-auto text-slate-900 dark:text-slate-100 border border-slate-200 dark:border-slate-700"><code>${code}</code></pre>`);
       return p;
     });
 
     // 2. Code inline (Protect them)
     html = html.replace(/`(.*?)`/g, (_, code) => {
       const p = `__INLINE_${placeholders.length}__`;
-      placeholders.push(`<code class="bg-gray-100 dark:bg-slate-800 px-1 rounded text-indigo-600 dark:text-indigo-400 font-mono text-sm">${code}</code>`);
+      placeholders.push(`<code class="bg-slate-100 dark:bg-slate-800 px-1.5 py-0.5 rounded text-indigo-600 dark:text-indigo-400 font-mono text-sm border border-slate-200 dark:border-slate-700">${code}</code>`);
       return p;
     });
     
@@ -41,7 +41,7 @@ export function MarkdownPreview() {
     html = html.replace(/^# (.*$)/gim, '<h1 class="text-2xl font-black mt-10 mb-6 text-slate-900 dark:text-white border-b border-slate-200 dark:border-slate-800 pb-2">$1</h1>');
     
     // 4. Blockquotes
-    html = html.replace(/^\s*&gt;\s+(.*)$/gim, '<blockquote class="border-l-4 border-slate-300 dark:border-slate-700 pl-4 italic my-6 text-slate-600 dark:text-slate-400">$1</blockquote>');
+    html = html.replace(/^\s*&gt;\s+(.*)$/gim, '<blockquote class="border-l-4 border-indigo-500 dark:border-indigo-600 pl-4 italic my-6 text-slate-600 dark:text-slate-400 bg-slate-50 dark:bg-slate-800/50 py-2 rounded-r-lg">$1</blockquote>');
     
     // 5. Unordered lists
     html = html.replace(/^\s*[-*]\s+(.*)$/gim, '<li class="ml-6 list-disc text-slate-700 dark:text-slate-300 my-1">$1</li>');
@@ -58,12 +58,10 @@ export function MarkdownPreview() {
     // Sentinel: Exclude quotes and other attribute-breaking characters from the URL match.
     html = html.replace(/\[(.*?)\]\(([^)\s\<\>"\']+)\)/g, (match, linkText, url) => {
       // Sentinel: Improved protocol check to prevent XSS.
-      // We whitelist common safe protocols and ensure the URL doesn't contain
-      // encoded characters that could be used for bypasses.
       const isSafe = /^(https?:\/\/|mailto:|tel:|\/|#)/i.test(url) &&
-                    !/[\u0000-\u001F\u007F-\u009F]/.test(url) && // No control characters
-                    !url.includes('&#') && // No HTML entities in URL part
-                    !url.toLowerCase().includes('javascript:'); // Double check for javascript:
+                    !/[\u0000-\u001F\u007F-\u009F]/.test(url) &&
+                    !url.includes('&#') &&
+                    !url.toLowerCase().includes('javascript:');
       return isSafe
         ? `<a href="${url}" class="text-indigo-600 dark:text-indigo-400 underline underline-offset-4 hover:text-indigo-500 transition-colors" rel="noopener noreferrer" target="_blank">${linkText}</a>`
         : `<span class="text-slate-400 underline decoration-dotted" title="Lien non sécurisé">${linkText}</span>`;
@@ -85,67 +83,96 @@ export function MarkdownPreview() {
   };
 
   return (
-    <div className="max-w-6xl mx-auto">
-      <AdPlaceholder size="banner" className="mb-6" />
+    <div className="max-w-6xl mx-auto space-y-8">
+      <AdPlaceholder size="banner" className="mb-6 opacity-50" />
 
-      <div className="flex gap-2 mb-4">
-        <button
-          onClick={() => setMode('edit')}
-          className={`px-4 py-2 rounded-lg font-semibold transition-all ${
-            mode === 'edit' ? 'bg-blue-500 text-white' : 'bg-gray-200'
-          }`}
-        >
-          <Code className="w-4 h-4 inline mr-2" />
-          Édition
-        </button>
-        <button
-          onClick={() => setMode('split')}
-          className={`px-4 py-2 rounded-lg font-semibold transition-all ${
-            mode === 'split' ? 'bg-blue-500 text-white' : 'bg-gray-200'
-          }`}
-        >
-          Divisé
-        </button>
-        <button
-          onClick={() => setMode('preview')}
-          className={`px-4 py-2 rounded-lg font-semibold transition-all ${
-            mode === 'preview' ? 'bg-blue-500 text-white' : 'bg-gray-200'
-          }`}
-        >
-          <Eye className="w-4 h-4 inline mr-2" />
-          Aperçu
-        </button>
+      {/* Mode Selector */}
+      <div className="flex justify-center">
+        <div className="inline-flex bg-slate-100 dark:bg-slate-800 p-1 rounded-2xl border border-slate-200 dark:border-slate-700">
+          {[
+            { id: 'edit', name: 'Édition', icon: Code },
+            { id: 'split', name: 'Divisé', icon: Columns },
+            { id: 'preview', name: 'Aperçu', icon: Eye },
+          ].map((item) => (
+            <button
+              key={item.id}
+              onClick={() => setMode(item.id as any)}
+              className={`flex items-center gap-2 px-6 py-2.5 rounded-xl text-sm font-bold transition-all ${
+                mode === item.id
+                  ? 'bg-white dark:bg-slate-700 text-indigo-600 dark:text-indigo-400 shadow-md'
+                  : 'text-slate-500 hover:text-slate-900 dark:hover:text-slate-300'
+              }`}
+            >
+              <item.icon className="w-4 h-4" />
+              {item.name}
+            </button>
+          ))}
+        </div>
       </div>
 
-      <div className={`grid gap-4 ${mode === 'split' ? 'grid-cols-2' : 'grid-cols-1'}`}>
+      <div className={`grid gap-8 ${mode === 'split' ? 'grid-cols-1 lg:grid-cols-2' : 'grid-cols-1'}`}>
         {(mode === 'edit' || mode === 'split') && (
-          <div>
-            <label className="block text-sm font-semibold text-gray-700 mb-2">
-              Markdown
-            </label>
+          <div className="space-y-4">
+            <div className="flex justify-between items-center px-1">
+               <label htmlFor="markdown-input" className="text-xs font-black uppercase tracking-widest text-slate-400">Éditeur Markdown</label>
+            </div>
             <textarea
+              id="markdown-input"
               value={markdown}
               onChange={(e) => setMarkdown(e.target.value)}
-              className="w-full h-96 p-4 border border-gray-300 rounded-lg resize-none font-mono text-sm"
-              placeholder="# Titre..."
+              className="w-full h-[500px] p-8 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-[2.5rem] outline-none focus:ring-2 focus:ring-indigo-500/20 transition-all font-mono text-sm leading-relaxed dark:text-slate-300 resize-none"
+              placeholder="# Commencez à écrire..."
             />
           </div>
         )}
         
         {(mode === 'preview' || mode === 'split') && (
-          <div>
-            <label className="block text-sm font-semibold text-gray-700 mb-2">
-              Aperçu
-            </label>
+          <div className="space-y-4">
+             <div className="flex justify-between items-center px-1">
+               <span id="preview-label" className="text-xs font-black uppercase tracking-widest text-slate-400">Rendu Visuel</span>
+            </div>
             <div
-              className="w-full h-96 p-4 border border-gray-300 rounded-lg overflow-y-auto bg-white prose"
+              aria-labelledby="preview-label"
+              className="w-full h-[500px] p-8 bg-white dark:bg-slate-900/40 border border-slate-200 dark:border-slate-800 rounded-[2.5rem] overflow-y-auto prose dark:prose-invert max-w-none shadow-sm"
               dangerouslySetInnerHTML={{ __html: renderMarkdown(markdown) }}
             />
           </div>
         )}
       </div>
 
-      <AdPlaceholder size="medium" className="mt-6" />
+      <div className="mt-16 grid grid-cols-1 md:grid-cols-3 gap-8 pt-16 border-t border-slate-100 dark:border-slate-800">
+        <div className="space-y-4">
+          <h4 className="font-bold dark:text-white flex items-center gap-2">
+            <Info className="w-4 h-4 text-indigo-500" /> C'est quoi le Markdown ?
+          </h4>
+          <p className="text-sm text-slate-500 dark:text-slate-400 leading-relaxed">
+            Markdown est un langage de balisage léger qui permet d'écrire du texte formaté à l'aide d'une syntaxe simple en texte brut. Il est largement utilisé par les développeurs et les rédacteurs.
+          </p>
+        </div>
+        <div className="space-y-4">
+          <h4 className="font-bold dark:text-white flex items-center gap-2">
+            <Code className="w-4 h-4 text-indigo-500" /> Syntaxe de base
+          </h4>
+          <div className="text-xs font-mono bg-slate-50 dark:bg-slate-900 p-4 rounded-2xl border border-slate-200 dark:border-slate-800 space-y-1 text-slate-600 dark:text-slate-400">
+            <div># Titre 1</div>
+            <div>## Titre 2</div>
+            <div>**Gras**</div>
+            <div>*Italique*</div>
+            <div>[Lien](url)</div>
+            <div>- Liste</div>
+          </div>
+        </div>
+        <div className="space-y-4">
+          <h4 className="font-bold dark:text-white flex items-center gap-2">
+            <ShieldCheck className="w-4 h-4 text-indigo-500" /> Sécurisé & Privé
+          </h4>
+          <p className="text-sm text-slate-500 dark:text-slate-400 leading-relaxed">
+            Votre texte ne quitte jamais votre navigateur. Le rendu HTML est effectué localement et les scripts malveillants sont neutralisés avant l'affichage.
+          </p>
+        </div>
+      </div>
+
+      <AdPlaceholder size="medium" className="mt-6 opacity-50" />
     </div>
   );
 }

@@ -21,3 +21,8 @@
 **Vulnerability:** The JSONCSVConverter component was vulnerable to Prototype Pollution by allowing users to specify dangerous keys like `__proto__` in CSV headers, which were then used to build plain objects.
 **Learning:** When building objects from user-controlled keys, always use `Object.create(null)` to ensure the object has no prototype, and explicitly sanitize or rename dangerous keys (`__proto__`, `constructor`, `prototype`).
 **Prevention:** Sanitize all keys from external data sources before using them as object properties. Using `Object.create(null)` is a robust secondary defense.
+
+## 2025-06-15 - [CSS Injection in ChartStyle]
+**Vulnerability:** The `ChartStyle` component was using `dangerouslySetInnerHTML` to inject raw configuration keys and values into a `<style>` block, allowing for CSS injection.
+**Learning:** Dynamic generation of CSS using user-provided strings is highly dangerous. An attacker can break out of a CSS rule using `;` or `}` and inject malicious CSS properties (like `url()` for exfiltration) or even close the `<style>` tag to inject scripts.
+**Prevention:** Always sanitize any string being interpolated into a style block. Use whitelists for identifiers (alphanumeric, -, _) and strip dangerous characters (`;`, `{`, `}`, `<`, `>`) from values. Quote attribute selectors in CSS to prevent breakout.

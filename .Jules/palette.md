@@ -25,3 +25,7 @@
 ## 2025-05-24 - [Global Navigation & Tool Metadata Polish]
 **Learning:** For tool-based applications, the "Copy link" feature is a vital micro-UX that users expect for sharing specific configurations. Additionally, ensuring that metadata badges (like categories) use consistent icons and localized names from a central configuration, rather than tool-specific icons, improves the application's taxonomic clarity. Coupling this with global accessibility landmarks like "Skip to content" links and semantic `<main>` tags ensures a professional and inclusive user experience.
 **Action:** Prioritize "Copy link" utilities in tool views and audit metadata badges for taxonomic consistency. Always implement "Skip to content" for keyboard accessibility.
+
+## 2025-02-12 - [Contrast Compliance & Business Requirements]
+**Learning:** When modernizing UI with slate/indigo palettes, ensure text on light backgrounds uses at least `text-slate-600` to meet WCAG 2.1 AA contrast requirements (4.5:1). Success states like "Copied" should use `bg-emerald-600` for similar reasons. Additionally, always preserve existing AdPlaceholders during UI refactors as they are critical business requirements.
+**Action:** Audit contrast for labels and success states; never remove ad components without authorization.

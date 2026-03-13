@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Copy, Check, Hash, Binary, Octagon, Hexagon, Info } from 'lucide-react';
+import { Copy, Check, Hash, Binary, Octagon, Hexagon, Info, Trash2 } from 'lucide-react';
 
 const BASE_CONFIGS = [
   { label: 'Décimal (Base 10)', getter: (s: any) => s.decimal, onChange: (v: string, s: any) => s.updateFromDecimal(v), placeholder: '0-9', id: 'dec' },
@@ -66,9 +66,18 @@ export function NumberConverter() {
   };
 
   const copyToClipboard = (val: string, id: string) => {
+    if (!val) return;
     navigator.clipboard.writeText(val);
     setCopied(id);
     setTimeout(() => setCopied(null), 2000);
+  };
+
+  const handleClear = () => {
+    setDecimal('');
+    setBinary('');
+    setOctal('');
+    setHexadecimal('');
+    setCopied(null);
   };
 
   const getIcon = (id: string) => {
@@ -83,30 +92,64 @@ export function NumberConverter() {
 
   return (
     <div className="max-w-4xl mx-auto space-y-8">
+      <div className="flex justify-end px-2">
+        <button
+          onClick={handleClear}
+          disabled={!decimal && !binary && !octal && !hexadecimal}
+          className="text-xs font-bold px-4 py-2 rounded-full text-rose-500 bg-rose-50 dark:bg-rose-500/10 hover:bg-rose-100 dark:hover:bg-rose-500/20 transition-all flex items-center gap-2 disabled:opacity-0 disabled:pointer-events-none"
+        >
+          <Trash2 className="w-3 h-3" /> Effacer tout
+        </button>
+      </div>
+
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-        {BASE_CONFIGS.map((base) => (
-          <div key={base.id} className="bg-slate-50 dark:bg-slate-900/50 p-6 rounded-3xl border border-slate-200 dark:border-slate-800 space-y-4">
-            <div className="flex justify-between items-center px-1">
-              <div className="flex items-center gap-2">
-                <div className="text-indigo-500">{getIcon(base.id)}</div>
-                <label className="text-xs font-black uppercase tracking-widest text-slate-400">{base.label}</label>
+        {BASE_CONFIGS.map((base) => {
+          const value = base.getter({ decimal, binary, octal, hexadecimal });
+          const inputId = `number-base-${base.id}`;
+
+          return (
+            <div
+              key={base.id}
+              className="bg-slate-50 dark:bg-slate-900/50 p-6 rounded-3xl border border-slate-200 dark:border-slate-800 space-y-4"
+            >
+              <div className="flex justify-between items-center px-1">
+                <div className="flex items-center gap-2">
+                  <div className="text-indigo-500">{getIcon(base.id)}</div>
+                  <label htmlFor={inputId} className="text-xs font-black uppercase tracking-widest text-slate-400 cursor-pointer">
+                    {base.label}
+                  </label>
+                </div>
+                <button
+                  onClick={() => copyToClipboard(value, base.id)}
+                  disabled={!value}
+                  className={`p-2 rounded-xl transition-all ${
+                    copied === base.id
+                      ? 'bg-emerald-500 text-white'
+                      : 'text-slate-400 hover:text-indigo-500 bg-white dark:bg-slate-800 shadow-sm border border-slate-100 dark:border-slate-700 disabled:opacity-50 disabled:hover:text-slate-400'
+                  }`}
+                  aria-label={`Copier le résultat ${base.label}`}
+                >
+                  {copied === base.id ? <Check className="w-4 h-4" /> : <Copy className="w-4 h-4" />}
+                </button>
               </div>
-              <button
-                onClick={() => copyToClipboard(base.getter({decimal, binary, octal, hexadecimal}), base.id)}
-                className={`p-2 rounded-xl transition-all ${copied === base.id ? 'bg-emerald-500 text-white' : 'text-slate-400 hover:text-indigo-500 bg-white dark:bg-slate-800 shadow-sm border border-slate-100 dark:border-slate-700'}`}
-              >
-                {copied === base.id ? <Check className="w-4 h-4" /> : <Copy className="w-4 h-4" />}
-              </button>
+              <input
+                id={inputId}
+                type="text"
+                value={value}
+                onChange={(e) =>
+                  base.onChange(e.target.value, {
+                    updateFromDecimal,
+                    updateFromBinary,
+                    updateFromOctal,
+                    updateFromHexadecimal,
+                  })
+                }
+                className="w-full p-4 bg-white dark:bg-slate-950 border border-slate-200 dark:border-slate-700 rounded-2xl font-mono text-xl outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 transition-all dark:text-white"
+                placeholder={base.placeholder}
+              />
             </div>
-            <input
-              type="text"
-              value={base.getter({decimal, binary, octal, hexadecimal})}
-              onChange={(e) => base.onChange(e.target.value, {updateFromDecimal, updateFromBinary, updateFromOctal, updateFromHexadecimal})}
-              className="w-full p-4 bg-white dark:bg-slate-950 border border-slate-200 dark:border-slate-700 rounded-2xl font-mono text-xl outline-none focus:ring-2 focus:ring-indigo-500/20 transition-all dark:text-white"
-              placeholder={base.placeholder}
-            />
-          </div>
-        ))}
+          );
+        })}
       </div>
 
       <div className="bg-indigo-50 dark:bg-indigo-900/10 border border-indigo-100 dark:border-indigo-900/20 p-8 rounded-[2rem] flex items-start gap-6">

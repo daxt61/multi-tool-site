@@ -1,5 +1,5 @@
 import { useState, useMemo, useCallback } from 'react';
-import { Copy, Check, RefreshCw } from 'lucide-react';
+import { Copy, Check, RefreshCw, Trash2 } from 'lucide-react';
 
 export function LoremIpsumGenerator() {
   const [count, setCount] = useState(3);
@@ -71,14 +71,27 @@ export function LoremIpsumGenerator() {
     setTimeout(() => setCopied(false), 2000);
   };
 
+  const handleClear = () => {
+    setCount(0);
+    setRefreshTrigger(prev => prev + 1);
+  };
+
   return (
     <div className="max-w-4xl mx-auto space-y-8">
       <div className="bg-slate-50 dark:bg-slate-900/50 p-8 rounded-3xl border border-slate-200 dark:border-slate-800">
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
           <div className="space-y-2">
-            <label htmlFor="lorem-count" className="text-xs font-black uppercase tracking-widest text-slate-400 px-1">
-              Nombre
-            </label>
+            <div className="flex justify-between items-center px-1">
+              <label htmlFor="lorem-count" className="text-xs font-black uppercase tracking-widest text-slate-400">
+                Nombre
+              </label>
+              <button
+                onClick={handleClear}
+                className="text-xs font-bold text-rose-500 hover:text-rose-600 flex items-center gap-1 transition-colors"
+              >
+                <Trash2 className="w-3 h-3" /> Effacer
+              </button>
+            </div>
             <input
               id="lorem-count"
               type="number"

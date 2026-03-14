@@ -6,21 +6,98 @@ export function RegExTester() {
   const [flags, setFlags] = useState('g');
   const [testText, setTestText] = useState('Contactez-nous à support@example.com ou sales@test.org pour plus d\'informations.');
   const [copied, setCopied] = useState(false);
+  const [results, setResults] = useState<{ matches: any[], error: string | null, matchCount: number }>({
+    matches: [],
+    error: null,
+    matchCount: 0
+  });
+  const [isProcessing, setIsProcessing] = useState(false);
   const backdropRef = useRef<HTMLDivElement>(null);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
+  const workerRef = useRef<Worker | null>(null);
+  const workerUrlRef = useRef<string | null>(null);
 
-  const { matches, error, matchCount } = useMemo(() => {
-    if (!regex) return { matches: [], error: null, matchCount: 0 };
-    try {
-      // Ensure the 'g' flag is handled correctly for matchAll
-      const safeFlags = flags.includes('g') ? flags : flags + 'g';
-      const re = new RegExp(regex, safeFlags);
-      const allMatches = Array.from(testText.matchAll(re));
-      return { matches: allMatches, error: null, matchCount: allMatches.length };
-    } catch (e: any) {
-      return { matches: [], error: e.message, matchCount: 0 };
+  useEffect(() => {
+    // Worker code as a string
+    const workerCode = `
+      self.onmessage = (e) => {
+        const { regex, flags, testText } = e.data;
+        try {
+          const safeFlags = flags.includes('g') ? flags : flags + 'g';
+          const re = new RegExp(regex, safeFlags);
+          const allMatches = Array.from(testText.matchAll(re)).map(match => ({
+            0: match[0],
+            index: match.index
+          }));
+          self.postMessage({ matches: allMatches, error: null, matchCount: allMatches.length });
+        } catch (e) {
+          self.postMessage({ matches: [], error: e.message, matchCount: 0 });
+        }
+      };
+    `;
+
+    const blob = new Blob([workerCode], { type: 'application/javascript' });
+    const url = URL.createObjectURL(blob);
+    workerUrlRef.current = url;
+
+    return () => {
+      if (workerRef.current) {
+        workerRef.current.terminate();
+      }
+      if (workerUrlRef.current) {
+        URL.revokeObjectURL(workerUrlRef.current);
+      }
+    };
+  }, []);
+
+  useEffect(() => {
+    if (!regex) {
+      setResults({ matches: [], error: null, matchCount: 0 });
+      setIsProcessing(false);
+      return;
     }
+
+    setIsProcessing(true);
+
+    if (workerRef.current) {
+      workerRef.current.terminate();
+    }
+
+    workerRef.current = new Worker(workerUrlRef.current!);
+
+    const timeoutId = setTimeout(() => {
+      if (workerRef.current) {
+        workerRef.current.terminate();
+        workerRef.current = null;
+        setResults({
+          matches: [],
+          error: "Délai d'exécution dépassé (ReDoS probable). L'expression régulière est trop complexe.",
+          matchCount: 0
+        });
+        setIsProcessing(false);
+      }
+    }, 500);
+
+    workerRef.current.onmessage = (e) => {
+      clearTimeout(timeoutId);
+      setResults(e.data);
+      setIsProcessing(false);
+    };
+
+    workerRef.current.onerror = (e) => {
+      clearTimeout(timeoutId);
+      setResults({ matches: [], error: "Erreur d'exécution du Worker", matchCount: 0 });
+      setIsProcessing(false);
+    };
+
+    workerRef.current.postMessage({ regex, flags, testText });
+
+    return () => {
+      clearTimeout(timeoutId);
+    };
   }, [regex, flags, testText]);
+
+  const { matches, error, matchCount } = results;
 
   const syncScroll = () => {
     if (backdropRef.current && textareaRef.current) {
@@ -121,6 +198,11 @@ export function RegExTester() {
             {error && (
               <div className="flex items-center gap-2 text-rose-500 text-xs font-bold px-1 animate-in slide-in-from-top-1">
                 <AlertCircle className="w-3 h-3" /> {error}
+              </div>
+            )}
+            {isProcessing && (
+              <div className="text-xs font-bold text-indigo-500 px-1 animate-pulse">
+                Analyse en cours...
               </div>
             )}
           </div>

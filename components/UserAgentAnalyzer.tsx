@@ -132,7 +132,7 @@ export function UserAgentAnalyzer() {
         <section className="bg-slate-50 dark:bg-slate-900/50 p-8 rounded-[2.5rem] border border-slate-200 dark:border-slate-800 space-y-8 shadow-sm">
           <div className="flex items-center gap-2 px-1">
             <Cpu className="w-4 h-4 text-indigo-500" />
-            <h3 className="text-xs font-black uppercase tracking-widest text-slate-400">Détails Système</h3>
+            <h3 className="text-xs font-black uppercase tracking-widest text-slate-600">Détails Système</h3>
           </div>
 
           <div className="space-y-4">
@@ -144,7 +144,7 @@ export function UserAgentAnalyzer() {
             ].map((item, i) => (
               <div key={i} className="flex items-center justify-between p-5 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-2xl group hover:border-indigo-500/30 transition-all">
                 <div className="flex items-center gap-4">
-                  <div className="w-10 h-10 rounded-xl bg-slate-50 dark:bg-slate-900 flex items-center justify-center text-slate-400 group-hover:text-indigo-500 group-hover:bg-indigo-50 dark:group-hover:bg-indigo-900/20 transition-all">
+                  <div className="w-10 h-10 rounded-xl bg-slate-50 dark:bg-slate-900 flex items-center justify-center text-slate-600 group-hover:text-indigo-500 group-hover:bg-indigo-50 dark:group-hover:bg-indigo-900/20 transition-all">
                     {item.icon}
                   </div>
                   <span className="font-bold text-slate-600 dark:text-slate-300">{item.label}</span>
@@ -159,7 +159,7 @@ export function UserAgentAnalyzer() {
         <section className="bg-slate-50 dark:bg-slate-900/50 p-8 rounded-[2.5rem] border border-slate-200 dark:border-slate-800 space-y-8 shadow-sm">
           <div className="flex items-center gap-2 px-1">
             <Monitor className="w-4 h-4 text-indigo-500" />
-            <h3 className="text-xs font-black uppercase tracking-widest text-slate-400">Affichage & Écran</h3>
+            <h3 className="text-xs font-black uppercase tracking-widest text-slate-600">Affichage & Écran</h3>
           </div>
 
           <div className="grid grid-cols-2 gap-4">
@@ -170,7 +170,7 @@ export function UserAgentAnalyzer() {
               { label: 'Couleurs', value: `${screen?.colorDepth} bit` },
             ].map((item, i) => (
               <div key={i} className="p-6 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-3xl space-y-2 group hover:border-indigo-500/30 transition-all">
-                <span className="text-[10px] font-black uppercase tracking-widest text-slate-400 group-hover:text-indigo-500 transition-colors">{item.label}</span>
+                <span className="text-[10px] font-black uppercase tracking-widest text-slate-600 group-hover:text-indigo-500 transition-colors">{item.label}</span>
                 <div className="text-2xl font-black text-slate-900 dark:text-white font-mono">{item.value}</div>
               </div>
             ))}

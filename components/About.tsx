@@ -7,9 +7,9 @@ export function About() {
       <section className="text-center space-y-6">
         <h2 className="text-4xl md:text-6xl font-black tracking-tight leading-tight">
           La productivité <br />
-          <span className="text-slate-400 dark:text-slate-600">sans compromis.</span>
+          <span className="text-slate-600 dark:text-slate-600">sans compromis.</span>
         </h2>
-        <p className="text-xl text-slate-500 dark:text-slate-400 max-w-2xl mx-auto leading-relaxed font-medium">
+        <p className="text-xl text-slate-500 dark:text-slate-600 max-w-2xl mx-auto leading-relaxed font-medium">
           Boîte à Outils est une plateforme moderne regroupant tous les utilitaires essentiels pour vos tâches quotidiennes.
         </p>
       </section>
@@ -26,7 +26,7 @@ export function About() {
               {item.icon}
             </div>
             <h4 className="text-lg font-black">{item.title}</h4>
-            <p className="text-sm text-slate-500 dark:text-slate-400 leading-relaxed font-medium">{item.desc}</p>
+            <p className="text-sm text-slate-500 dark:text-slate-600 leading-relaxed font-medium">{item.desc}</p>
           </div>
         ))}
       </div>
@@ -37,7 +37,7 @@ export function About() {
             Notre Mission
           </div>
           <h3 className="text-3xl font-black tracking-tight">Accessibilité & Performance</h3>
-          <p className="text-slate-500 dark:text-slate-400 leading-relaxed font-medium">
+          <p className="text-slate-500 dark:text-slate-600 leading-relaxed font-medium">
             Le web regorge de convertisseurs et calculateurs, mais trop souvent ils sont encombrés de publicités, lents ou complexes. Notre mission est de fournir une alternative propre, rapide et agréable.
           </p>
           <ul className="space-y-4">
@@ -56,7 +56,7 @@ export function About() {
             <Wrench className="w-6 h-6" />
           </div>
           <h3 className="text-2xl font-black tracking-tight">Une boîte à outils en constante évolution</h3>
-          <p className="text-slate-400 leading-relaxed font-medium">
+          <p className="text-slate-600 leading-relaxed font-medium">
             Nous ajoutons régulièrement de nouveaux outils basés sur les retours de nos utilisateurs. De la finance au développement, nous couvrons tous vos besoins.
           </p>
           <div className="pt-4 flex flex-wrap gap-2">

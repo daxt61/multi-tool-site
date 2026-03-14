@@ -100,7 +100,7 @@ export function BMICalculator() {
 
           <div className="space-y-6">
             <div className="space-y-3">
-              <label htmlFor="weight" className="text-xs font-black uppercase tracking-widest text-slate-400 px-1 cursor-pointer">Poids ({unit === 'metric' ? 'kg' : 'lb'})</label>
+              <label htmlFor="weight" className="text-xs font-black uppercase tracking-widest text-slate-600 px-1 cursor-pointer">Poids ({unit === 'metric' ? 'kg' : 'lb'})</label>
               <input
                 id="weight"
                 type="number"
@@ -111,7 +111,7 @@ export function BMICalculator() {
               />
             </div>
             <div className="space-y-3">
-              <label htmlFor="height" className="text-xs font-black uppercase tracking-widest text-slate-400 px-1 cursor-pointer">Taille ({unit === 'metric' ? 'cm' : 'in'})</label>
+              <label htmlFor="height" className="text-xs font-black uppercase tracking-widest text-slate-600 px-1 cursor-pointer">Taille ({unit === 'metric' ? 'cm' : 'in'})</label>
               <input
                 id="height"
                 type="number"
@@ -149,7 +149,7 @@ export function BMICalculator() {
             >
               {copied ? <Check className="w-5 h-5" /> : <Copy className="w-5 h-5" />}
             </button>
-            <div className="text-slate-400 font-bold uppercase tracking-widest text-xs">Votre IMC</div>
+            <div className="text-slate-600 font-bold uppercase tracking-widest text-xs">Votre IMC</div>
             <div className="text-6xl md:text-8xl font-black text-white font-mono tracking-tighter">
               {bmi > 0 ? bmi.toFixed(1) : '0.0'}
             </div>
@@ -162,7 +162,7 @@ export function BMICalculator() {
              <div className="p-3 bg-indigo-50 dark:bg-indigo-900/20 text-indigo-600 dark:text-indigo-400 rounded-2xl shrink-0">
                 <Info className="w-5 h-5" />
              </div>
-             <p className="text-sm text-slate-500 dark:text-slate-400 leading-relaxed font-medium">
+             <p className="text-sm text-slate-500 dark:text-slate-600 leading-relaxed font-medium">
                L'IMC est un indicateur. Il ne mesure pas la graisse corporelle et ne tient pas compte de la masse musculaire, de la structure osseuse ou de la répartition des graisses.
              </p>
           </div>
@@ -170,7 +170,7 @@ export function BMICalculator() {
       </div>
 
       <div className="bg-slate-50 dark:bg-slate-900/50 p-8 rounded-[2.5rem] border border-slate-200 dark:border-slate-800">
-        <h3 className="text-sm font-black uppercase tracking-widest text-slate-400 mb-8 px-2 flex items-center gap-2">
+        <h3 className="text-sm font-black uppercase tracking-widest text-slate-600 mb-8 px-2 flex items-center gap-2">
           <Activity className="w-4 h-4" /> Classifications OMS
         </h3>
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
@@ -182,7 +182,7 @@ export function BMICalculator() {
           ].map((item) => (
             <div key={item.label} className="p-4 bg-white dark:bg-slate-900 border border-slate-100 dark:border-slate-800 rounded-2xl flex items-center justify-between shadow-sm">
               <div>
-                <div className="text-[10px] font-black text-slate-400 uppercase mb-1 tracking-wider">{item.label}</div>
+                <div className="text-[10px] font-black text-slate-600 uppercase mb-1 tracking-wider">{item.label}</div>
                 <div className="font-mono font-black text-slate-900 dark:text-white">{item.range}</div>
               </div>
               <div className={`w-3 h-3 rounded-full ${item.color}`}></div>
@@ -198,7 +198,7 @@ export function BMICalculator() {
             <BookOpen className="w-6 h-6" />
           </div>
           <h3 className="text-lg font-black">Qu'est-ce que l'IMC ?</h3>
-          <p className="text-sm text-slate-500 dark:text-slate-400 leading-relaxed">
+          <p className="text-sm text-slate-500 dark:text-slate-600 leading-relaxed">
             L'Indice de Masse Corporelle (IMC) est une mesure standard utilisée par l'Organisation Mondiale de la Santé (OMS) pour évaluer les risques pour la santé liés au poids.
           </p>
           <ul className="space-y-2">
@@ -215,7 +215,7 @@ export function BMICalculator() {
             <Scale className="w-6 h-6" />
           </div>
           <h3 className="text-lg font-black">Poids Idéal</h3>
-          <p className="text-sm text-slate-500 dark:text-slate-400 leading-relaxed">
+          <p className="text-sm text-slate-500 dark:text-slate-600 leading-relaxed">
             Le "poids idéal" affiché correspond à la plage de poids où votre IMC se situerait entre 18.5 et 25. C'est une plage indicative pour une santé optimale.
           </p>
         </div>
@@ -225,7 +225,7 @@ export function BMICalculator() {
             <HelpCircle className="w-6 h-6" />
           </div>
           <h3 className="text-lg font-black">Limites de l'IMC</h3>
-          <p className="text-sm text-slate-500 dark:text-slate-400 leading-relaxed">
+          <p className="text-sm text-slate-500 dark:text-slate-600 leading-relaxed">
             L'IMC ne distingue pas la masse grasse de la masse musculaire. Un athlète peut avoir un IMC élevé sans être en surpoids "gras".
           </p>
         </div>
@@ -236,11 +236,11 @@ export function BMICalculator() {
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           <div className="space-y-2">
             <h5 className="font-bold text-sm text-emerald-600">Alimentation équilibrée</h5>
-            <p className="text-sm text-slate-500 dark:text-slate-400">Privilégiez les fruits, légumes et protéines maigres tout en limitant les produits transformés.</p>
+            <p className="text-sm text-slate-500 dark:text-slate-600">Privilégiez les fruits, légumes et protéines maigres tout en limitant les produits transformés.</p>
           </div>
           <div className="space-y-2">
             <h5 className="font-bold text-sm text-indigo-600">Activité physique</h5>
-            <p className="text-sm text-slate-500 dark:text-slate-400">L'OMS recommande au moins 150 minutes d'activité physique modérée par semaine.</p>
+            <p className="text-sm text-slate-500 dark:text-slate-600">L'OMS recommande au moins 150 minutes d'activité physique modérée par semaine.</p>
           </div>
         </div>
       </div>

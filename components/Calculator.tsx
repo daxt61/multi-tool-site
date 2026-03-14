@@ -219,7 +219,7 @@ export function Calculator() {
         <div className="lg:col-span-8 space-y-6">
           {/* Display */}
           <div className="bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-3xl p-8 text-right overflow-hidden group transition-all focus-within:ring-2 focus-within:ring-indigo-500/20">
-            <div className="text-sm font-bold text-slate-400 dark:text-slate-500 mb-2 h-6 flex justify-end items-center gap-2">
+            <div className="text-sm font-bold text-slate-600 dark:text-slate-500 mb-2 h-6 flex justify-end items-center gap-2">
               {previousValue !== null && operation && (
                 <>
                   <span>{isNaN(previousValue) ? 'Erreur' : previousValue}</span>
@@ -258,7 +258,7 @@ export function Calculator() {
                       btn === 'C'
                         ? 'bg-rose-50 text-rose-600 dark:bg-rose-500/10 dark:text-rose-400 hover:bg-rose-100'
                         : btn === '←'
-                        ? 'bg-slate-100 text-slate-600 dark:bg-slate-800 dark:text-slate-400 hover:bg-slate-200'
+                        ? 'bg-slate-100 text-slate-600 dark:bg-slate-800 dark:text-slate-600 hover:bg-slate-200'
                         : btn === '='
                         ? 'bg-indigo-600 text-white shadow-lg shadow-indigo-600/20 hover:bg-indigo-700'
                         : ['+', '-', '×', '÷', 'x^y'].includes(btn)
@@ -277,13 +277,13 @@ export function Calculator() {
         {/* History */}
         <div className="lg:col-span-4 bg-slate-50 dark:bg-slate-900/50 rounded-[2rem] border border-slate-200 dark:border-slate-800 p-8">
           <div className="flex items-center justify-between mb-8 px-2">
-            <h3 className="text-sm font-black uppercase tracking-widest text-slate-400 flex items-center gap-2">
+            <h3 className="text-sm font-black uppercase tracking-widest text-slate-600 flex items-center gap-2">
               <HistoryIcon className="w-4 h-4" /> Historique
             </h3>
             {history.length > 0 && (
               <button
                 onClick={clearHistory}
-                className="text-slate-400 hover:text-rose-500 transition-colors"
+                className="text-slate-600 hover:text-rose-500 transition-colors"
               >
                 <Trash2 className="w-4 h-4" />
               </button>
@@ -296,7 +296,7 @@ export function Calculator() {
                 <div className="w-12 h-12 bg-slate-100 dark:bg-slate-800 rounded-full flex items-center justify-center mx-auto text-slate-300">
                   <CalcIcon className="w-6 h-6" />
                 </div>
-                <p className="text-sm font-medium text-slate-400">Aucun calcul récent</p>
+                <p className="text-sm font-medium text-slate-600">Aucun calcul récent</p>
               </div>
             ) : (
               history.map((item, index) => (
@@ -308,7 +308,7 @@ export function Calculator() {
                     setNewNumber(true);
                   }}
                 >
-                  <div className="text-xs font-bold text-slate-400 mb-1 group-hover:text-slate-500 transition-colors">{item.expression}</div>
+                  <div className="text-xs font-bold text-slate-600 mb-1 group-hover:text-slate-500 transition-colors">{item.expression}</div>
                   <div className="text-lg font-black font-mono dark:text-slate-200">{item.result === 'NaN' ? 'Erreur' : item.result}</div>
                 </button>
               ))

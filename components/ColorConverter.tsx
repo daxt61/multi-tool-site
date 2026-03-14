@@ -144,10 +144,10 @@ export function ColorConverter() {
         ].map((format) => (
           <div key={format.id} className="bg-slate-50 dark:bg-slate-900/50 p-6 rounded-3xl border border-slate-200 dark:border-slate-800 space-y-4">
             <div className="flex justify-between items-center">
-              <span className="text-xs font-black uppercase tracking-widest text-slate-400">{format.label}</span>
+              <span className="text-xs font-black uppercase tracking-widest text-slate-600">{format.label}</span>
               <button
                 onClick={() => copyToClipboard(format.value, format.id)}
-                className={`p-2 rounded-xl transition-all ${copied === format.id ? 'bg-emerald-500 text-white' : 'text-slate-400 hover:text-indigo-500 bg-white dark:bg-slate-800 shadow-sm'}`}
+                className={`p-2 rounded-xl transition-all ${copied === format.id ? 'bg-emerald-500 text-white' : 'text-slate-600 hover:text-indigo-500 bg-white dark:bg-slate-800 shadow-sm'}`}
               >
                 {copied === format.id ? <Check className="w-4 h-4" /> : <Copy className="w-4 h-4" />}
               </button>
@@ -163,7 +163,7 @@ export function ColorConverter() {
       <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
         {/* RGB Sliders */}
         <div className="bg-white dark:bg-slate-900/40 border border-slate-200 dark:border-slate-800 p-8 rounded-[2.5rem] space-y-8">
-          <h4 className="text-xs font-black uppercase tracking-widest text-slate-400 flex items-center gap-2 px-1">
+          <h4 className="text-xs font-black uppercase tracking-widest text-slate-600 flex items-center gap-2 px-1">
             <Sliders className="w-4 h-4" /> Composantes RGB
           </h4>
           <div className="space-y-6">
@@ -192,7 +192,7 @@ export function ColorConverter() {
 
         {/* HSL Sliders */}
         <div className="bg-white dark:bg-slate-900/40 border border-slate-200 dark:border-slate-800 p-8 rounded-[2.5rem] space-y-8">
-          <h4 className="text-xs font-black uppercase tracking-widest text-slate-400 flex items-center gap-2 px-1">
+          <h4 className="text-xs font-black uppercase tracking-widest text-slate-600 flex items-center gap-2 px-1">
             <Palette className="w-4 h-4" /> Composantes HSL
           </h4>
           <div className="space-y-6">

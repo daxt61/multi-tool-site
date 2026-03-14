@@ -33,7 +33,7 @@ export function TipCalculator() {
       <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
         <div className="space-y-6">
           <div className="flex justify-between items-center px-1">
-            <label htmlFor="bill-amount" className="text-xs font-black uppercase tracking-widest text-slate-400 flex items-center gap-2 cursor-pointer">
+            <label htmlFor="bill-amount" className="text-xs font-black uppercase tracking-widest text-slate-600 flex items-center gap-2 cursor-pointer">
               <Euro className="w-3 h-3" /> Montant de l'addition
             </label>
             <button
@@ -60,7 +60,7 @@ export function TipCalculator() {
           </div>
 
           <div className="space-y-3">
-             <label htmlFor="tip-range" className="text-xs font-black uppercase tracking-widest text-slate-400 px-1 flex items-center gap-2 cursor-pointer">
+             <label htmlFor="tip-range" className="text-xs font-black uppercase tracking-widest text-slate-600 px-1 flex items-center gap-2 cursor-pointer">
                <Percent className="w-3 h-3" /> Pourboire: {tipPercent}%
              </label>
              <div className="grid grid-cols-5 gap-2">
@@ -90,7 +90,7 @@ export function TipCalculator() {
           </div>
 
           <div className="space-y-3">
-            <label htmlFor="people-count" className="text-xs font-black uppercase tracking-widest text-slate-400 px-1 flex items-center gap-2 cursor-pointer">
+            <label htmlFor="people-count" className="text-xs font-black uppercase tracking-widest text-slate-600 px-1 flex items-center gap-2 cursor-pointer">
               <Users className="w-3 h-3" /> Nombre de personnes
             </label>
             <div className="flex items-center gap-4">
@@ -170,7 +170,7 @@ export function TipCalculator() {
              <div className="p-3 bg-indigo-50 dark:bg-indigo-900/20 text-indigo-600 dark:text-indigo-400 rounded-2xl">
                 <UtensilsCrossed className="w-6 h-6" />
              </div>
-             <p className="text-sm text-slate-500 dark:text-slate-400 leading-relaxed font-medium">
+             <p className="text-sm text-slate-500 dark:text-slate-600 leading-relaxed font-medium">
                Le pourboire est généralement de 10% à 15% dans la plupart des pays. En France, le service est inclus, mais un petit supplément est toujours apprécié.
              </p>
           </div>

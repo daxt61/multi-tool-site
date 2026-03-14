@@ -61,7 +61,7 @@ export function UnitPriceCalculator() {
 
           <div className="space-y-6">
             <div className="space-y-2">
-              <label htmlFor="priceA" className="text-xs font-bold text-slate-400 uppercase tracking-widest px-1">Prix (€)</label>
+              <label htmlFor="priceA" className="text-xs font-bold text-slate-600 uppercase tracking-widest px-1">Prix (€)</label>
               <input
                 id="priceA"
                 type="number"
@@ -73,7 +73,7 @@ export function UnitPriceCalculator() {
             </div>
             <div className="grid grid-cols-2 gap-4">
               <div className="space-y-2">
-                <label htmlFor="qtyA" className="text-xs font-bold text-slate-400 uppercase tracking-widest px-1">Quantité</label>
+                <label htmlFor="qtyA" className="text-xs font-bold text-slate-600 uppercase tracking-widest px-1">Quantité</label>
                 <input
                   id="qtyA"
                   type="number"
@@ -84,7 +84,7 @@ export function UnitPriceCalculator() {
                 />
               </div>
               <div className="space-y-2">
-                <label htmlFor="unitA" className="text-xs font-bold text-slate-400 uppercase tracking-widest px-1">Unité</label>
+                <label htmlFor="unitA" className="text-xs font-bold text-slate-600 uppercase tracking-widest px-1">Unité</label>
                 <select
                   id="unitA"
                   value={productA.unit}
@@ -99,7 +99,7 @@ export function UnitPriceCalculator() {
 
           {unitPriceA !== null && (
             <div className="mt-8 pt-8 border-t border-slate-200 dark:border-slate-700 text-center">
-              <div className="text-xs font-bold text-slate-400 uppercase tracking-widest mb-2">Prix pour 100{productA.unit === 'unit' ? ' unités' : (productA.unit.includes('l') ? 'ml' : 'g')}</div>
+              <div className="text-xs font-bold text-slate-600 uppercase tracking-widest mb-2">Prix pour 100{productA.unit === 'unit' ? ' unités' : (productA.unit.includes('l') ? 'ml' : 'g')}</div>
               <div className="text-4xl font-black font-mono text-indigo-600 dark:text-indigo-400">
                 {unitPriceA.toFixed(3)}€
               </div>
@@ -121,7 +121,7 @@ export function UnitPriceCalculator() {
 
           <div className="space-y-6">
             <div className="space-y-2">
-              <label htmlFor="priceB" className="text-xs font-bold text-slate-400 uppercase tracking-widest px-1">Prix (€)</label>
+              <label htmlFor="priceB" className="text-xs font-bold text-slate-600 uppercase tracking-widest px-1">Prix (€)</label>
               <input
                 id="priceB"
                 type="number"
@@ -133,7 +133,7 @@ export function UnitPriceCalculator() {
             </div>
             <div className="grid grid-cols-2 gap-4">
               <div className="space-y-2">
-                <label htmlFor="qtyB" className="text-xs font-bold text-slate-400 uppercase tracking-widest px-1">Quantité</label>
+                <label htmlFor="qtyB" className="text-xs font-bold text-slate-600 uppercase tracking-widest px-1">Quantité</label>
                 <input
                   id="qtyB"
                   type="number"
@@ -144,7 +144,7 @@ export function UnitPriceCalculator() {
                 />
               </div>
               <div className="space-y-2">
-                <label htmlFor="unitB" className="text-xs font-bold text-slate-400 uppercase tracking-widest px-1">Unité</label>
+                <label htmlFor="unitB" className="text-xs font-bold text-slate-600 uppercase tracking-widest px-1">Unité</label>
                 <select
                   id="unitB"
                   value={productB.unit}
@@ -159,7 +159,7 @@ export function UnitPriceCalculator() {
 
           {unitPriceB !== null && (
             <div className="mt-8 pt-8 border-t border-slate-200 dark:border-slate-700 text-center">
-              <div className="text-xs font-bold text-slate-400 uppercase tracking-widest mb-2">Prix pour 100{productB.unit === 'unit' ? ' unités' : (productB.unit.includes('l') ? 'ml' : 'g')}</div>
+              <div className="text-xs font-bold text-slate-600 uppercase tracking-widest mb-2">Prix pour 100{productB.unit === 'unit' ? ' unités' : (productB.unit.includes('l') ? 'ml' : 'g')}</div>
               <div className="text-4xl font-black font-mono text-indigo-600 dark:text-indigo-400">
                 {unitPriceB.toFixed(3)}€
               </div>
@@ -173,8 +173,8 @@ export function UnitPriceCalculator() {
           <Info className="w-8 h-8" />
         </div>
         <div className="space-y-2">
-          <h4 className="font-black uppercase tracking-widest text-xs text-slate-400">Comment ça marche ?</h4>
-          <p className="text-slate-500 dark:text-slate-400 leading-relaxed font-medium">
+          <h4 className="font-black uppercase tracking-widest text-xs text-slate-600">Comment ça marche ?</h4>
+          <p className="text-slate-500 dark:text-slate-600 leading-relaxed font-medium">
             Entrez le prix et la quantité de deux produits pour comparer leur rapport qualité-prix. Nous convertissons tout dans une unité de base (100g, 100ml ou à l'unité) pour faciliter la comparaison.
           </p>
         </div>

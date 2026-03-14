@@ -59,7 +59,7 @@ export function UnixTimestampConverter() {
       {/* Input Area */}
       <div className="bg-slate-50 dark:bg-slate-900/50 p-8 rounded-[2.5rem] border border-slate-200 dark:border-slate-800 space-y-6">
         <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 px-1">
-          <label className="text-xs font-black uppercase tracking-widest text-slate-400">Unix Timestamp</label>
+          <label className="text-xs font-black uppercase tracking-widest text-slate-600">Unix Timestamp</label>
           <button
             onClick={() => setTimestamp(Math.floor(Date.now() / 1000).toString())}
             className="flex items-center gap-2 text-xs font-bold text-indigo-600 dark:text-indigo-400 hover:bg-indigo-50 dark:hover:bg-indigo-900/20 px-3 py-1.5 rounded-full transition-all"
@@ -91,13 +91,13 @@ export function UnixTimestampConverter() {
         ].map((item) => (
           <div key={item.id} className="p-6 bg-white dark:bg-slate-900 border border-slate-100 dark:border-slate-800 rounded-[2rem] space-y-3 group transition-all hover:border-indigo-500/30">
             <div className="flex items-center justify-between">
-              <div className="flex items-center gap-2 text-slate-400 group-hover:text-indigo-500 transition-colors">
+              <div className="flex items-center gap-2 text-slate-600 group-hover:text-indigo-500 transition-colors">
                 {item.icon}
                 <span className="text-xs font-bold uppercase tracking-widest">{item.label}</span>
               </div>
               <button
                 onClick={() => item.value && copyToClipboard(item.value, item.id)}
-                className={`p-2 rounded-xl transition-all ${copied === item.id ? 'bg-emerald-500 text-white' : 'text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-800 hover:text-slate-600'}`}
+                className={`p-2 rounded-xl transition-all ${copied === item.id ? 'bg-emerald-500 text-white' : 'text-slate-600 hover:bg-slate-50 dark:hover:bg-slate-800 hover:text-slate-600'}`}
               >
                 {copied === item.id ? <Check className="w-4 h-4" /> : <Copy className="w-4 h-4" />}
               </button>

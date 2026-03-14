@@ -70,6 +70,9 @@ import {
   ShieldCheck,
   Scissors,
   Binary,
+  Activity,
+  Volume2,
+  Layers,
 } from "lucide-react";
 const AdPlaceholder = lazy(() => import("./components/AdPlaceholder").then(m => ({ default: m.AdPlaceholder })));
 
@@ -139,6 +142,9 @@ const ColorPaletteGenerator = lazy(() => import("./components/ColorPaletteGenera
 const RegExTester = lazy(() => import("./components/RegExTester").then(m => ({ default: m.RegExTester })));
 const UserAgentAnalyzer = lazy(() => import("./components/UserAgentAnalyzer").then(m => ({ default: m.UserAgentAnalyzer })));
 const SlugGenerator = lazy(() => import("./components/SlugGenerator").then(m => ({ default: m.SlugGenerator })));
+const Metronome = lazy(() => import("./components/Metronome").then(m => ({ default: m.Metronome })));
+const TextToSpeech = lazy(() => import("./components/TextToSpeech").then(m => ({ default: m.TextToSpeech })));
+const GlassmorphismGenerator = lazy(() => import("./components/GlassmorphismGenerator").then(m => ({ default: m.GlassmorphismGenerator })));
 
 // ⚡ Bolt Optimization: Pre-calculating tool map and search index for O(1) lookups and faster filtering
 const toolsMap: Record<string, Tool> = {};
@@ -425,6 +431,14 @@ const tools: Tool[] = [
     Component: ListCleaner,
     category: "text",
   },
+  {
+    id: "text-to-speech",
+    name: "Text to Speech",
+    icon: Volume2,
+    description: "Convertissez votre texte en voix naturelle",
+    Component: TextToSpeech,
+    category: "text",
+  },
   // Dev Tools
   {
     id: "password-generator",
@@ -628,11 +642,27 @@ const tools: Tool[] = [
     category: "other",
   },
   {
+    id: "metronome",
+    name: "Métronome",
+    icon: Activity,
+    description: "Gardez le rythme avec précision",
+    Component: Metronome,
+    category: "other",
+  },
+  {
     id: "random-generator",
     name: "Aléatoire",
     icon: Shuffle,
     description: "Nombres, chaînes et listes aléatoires",
     Component: RandomGenerator,
+    category: "other",
+  },
+  {
+    id: "glassmorphism-generator",
+    name: "Glassmorphism",
+    icon: Layers,
+    description: "Générateur d'effets CSS de verre dépoli",
+    Component: GlassmorphismGenerator,
     category: "other",
   },
   {

@@ -64,7 +64,7 @@ export function SalaryCalculator() {
       <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
         <div className="space-y-6">
           <div className="flex justify-between items-center px-1">
-            <label htmlFor="gross-salary" className="text-xs font-black uppercase tracking-widest text-slate-400 flex items-center gap-2">
+            <label htmlFor="gross-salary" className="text-xs font-black uppercase tracking-widest text-slate-600 flex items-center gap-2">
               <Banknote className="w-3 h-3" /> Salaire brut annuel
             </label>
             <button
@@ -87,7 +87,7 @@ export function SalaryCalculator() {
           </div>
 
           <div className="space-y-3">
-            <label className="text-xs font-black uppercase tracking-widest text-slate-400 px-1 flex items-center gap-2">
+            <label className="text-xs font-black uppercase tracking-widest text-slate-600 px-1 flex items-center gap-2">
               <Briefcase className="w-3 h-3" /> Statut professionnel
             </label>
             <div className="grid grid-cols-2 gap-3">
@@ -128,7 +128,7 @@ export function SalaryCalculator() {
           <div className="bg-slate-900 dark:bg-black p-8 md:p-10 rounded-[2.5rem] shadow-xl shadow-indigo-500/10 flex flex-col items-center justify-center space-y-4 min-h-[300px] relative overflow-hidden">
              <div className="absolute top-0 right-0 w-32 h-32 bg-indigo-500/10 rounded-full -mr-16 -mt-16 blur-3xl"></div>
 
-             <div className="text-slate-400 font-bold uppercase tracking-widest text-xs text-center">Net après impôts mensuel</div>
+             <div className="text-slate-600 font-bold uppercase tracking-widest text-xs text-center">Net après impôts mensuel</div>
              <div className="text-5xl md:text-6xl font-black text-white font-mono tracking-tighter">
                {results.netMonthlyAfterTax.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
              </div>
@@ -139,7 +139,7 @@ export function SalaryCalculator() {
 
           <div className="grid grid-cols-1 gap-4">
              <div className="bg-slate-50 dark:bg-slate-900/50 p-6 rounded-3xl border border-slate-200 dark:border-slate-800 space-y-4">
-                <div className="text-xs font-black uppercase tracking-widest text-slate-400 flex justify-between">
+                <div className="text-xs font-black uppercase tracking-widest text-slate-600 flex justify-between">
                   <span>Détail mensuel</span>
                   <span className="text-indigo-500">Estimations</span>
                 </div>
@@ -177,7 +177,7 @@ export function SalaryCalculator() {
             <BookOpen className="w-6 h-6" />
           </div>
           <h3 className="text-lg font-black">Brut vs Net</h3>
-          <p className="text-sm text-slate-500 dark:text-slate-400 leading-relaxed">
+          <p className="text-sm text-slate-500 dark:text-slate-600 leading-relaxed">
             Le salaire brut est le montant avant toute déduction. Le salaire net est ce que vous recevez réellement après le paiement des cotisations sociales.
           </p>
           <ul className="space-y-2">
@@ -194,7 +194,7 @@ export function SalaryCalculator() {
             <Calculator className="w-6 h-6" />
           </div>
           <h3 className="text-lg font-black">Impôt sur le Revenu</h3>
-          <p className="text-sm text-slate-500 dark:text-slate-400 leading-relaxed">
+          <p className="text-sm text-slate-500 dark:text-slate-600 leading-relaxed">
             Depuis 2019, l'impôt est prélevé à la source. Notre calculateur estime ce montant en utilisant le barème progressif de l'impôt sur le revenu français.
           </p>
         </div>
@@ -204,7 +204,7 @@ export function SalaryCalculator() {
             <HelpCircle className="w-6 h-6" />
           </div>
           <h3 className="text-lg font-black">Cadre ou Non-Cadre ?</h3>
-          <p className="text-sm text-slate-500 dark:text-slate-400 leading-relaxed">
+          <p className="text-sm text-slate-500 dark:text-slate-600 leading-relaxed">
             Le statut cadre implique généralement des cotisations sociales plus élevées (environ 25%) contre 22% pour les non-cadres, principalement pour la retraite complémentaire.
           </p>
         </div>
@@ -215,11 +215,11 @@ export function SalaryCalculator() {
         <div className="space-y-6">
           <div>
             <h5 className="font-bold text-sm mb-2">Le calcul inclut-il la CSG ?</h5>
-            <p className="text-sm text-slate-500 dark:text-slate-400">Oui, les taux de 22% et 25% incluent les cotisations sociales standards dont la CSG et la CRDS.</p>
+            <p className="text-sm text-slate-500 dark:text-slate-600">Oui, les taux de 22% et 25% incluent les cotisations sociales standards dont la CSG et la CRDS.</p>
           </div>
           <div>
             <h5 className="font-bold text-sm mb-2">Comment est calculé l'impôt ?</h5>
-            <p className="text-sm text-slate-500 dark:text-slate-400">Nous appliquons l'abattement forfaitaire de 10% pour frais professionnels avant d'appliquer le barème progressif par tranches.</p>
+            <p className="text-sm text-slate-500 dark:text-slate-600">Nous appliquons l'abattement forfaitaire de 10% pour frais professionnels avant d'appliquer le barème progressif par tranches.</p>
           </div>
         </div>
       </div>

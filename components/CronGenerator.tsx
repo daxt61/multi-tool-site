@@ -67,20 +67,20 @@ export function CronGenerator() {
           { label: 'Jour (Semaine)', value: dayOfWeek, setter: setDayOfWeek, hint: '0-6, *, SUN-SAT' },
         ].map((field) => (
           <div key={field.label} className="space-y-2">
-            <label className="text-xs font-black uppercase tracking-widest text-slate-400 px-1">{field.label}</label>
+            <label className="text-xs font-black uppercase tracking-widest text-slate-600 px-1">{field.label}</label>
             <input
               type="text"
               value={field.value}
               onChange={(e) => field.setter(e.target.value)}
               className="w-full p-4 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl text-center font-mono font-bold text-xl outline-none focus:ring-2 focus:ring-indigo-500/20 transition-all dark:text-white"
             />
-            <p className="text-[10px] text-center text-slate-400 font-bold">{field.hint}</p>
+            <p className="text-[10px] text-center text-slate-600 font-bold">{field.hint}</p>
           </div>
         ))}
       </div>
 
       <div className="space-y-4">
-        <h4 className="text-xs font-black uppercase tracking-widest text-slate-400 px-1">Préréglages rapides</h4>
+        <h4 className="text-xs font-black uppercase tracking-widest text-slate-600 px-1">Préréglages rapides</h4>
         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3">
           {presets.map((preset) => (
             <button
@@ -89,7 +89,7 @@ export function CronGenerator() {
               className="p-4 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl text-left hover:border-indigo-500/50 hover:bg-indigo-50/30 dark:hover:bg-indigo-900/10 transition-all group"
             >
               <div className="font-bold text-sm mb-1 group-hover:text-indigo-600 dark:group-hover:text-indigo-400 transition-colors">{preset.name}</div>
-              <div className="font-mono text-xs text-slate-400">{preset.value}</div>
+              <div className="font-mono text-xs text-slate-600">{preset.value}</div>
             </button>
           ))}
         </div>

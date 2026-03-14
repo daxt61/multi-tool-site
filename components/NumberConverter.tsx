@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Copy, Check, Hash, Binary, Octagon, Hexagon, Info } from 'lucide-react';
+import { Copy, Check, Hash, Binary, Octagon, Hexagon, Info, Trash2 } from 'lucide-react';
 
 const BASE_CONFIGS = [
   { label: 'Décimal (Base 10)', getter: (s: any) => s.decimal, onChange: (v: string, s: any) => s.updateFromDecimal(v), placeholder: '0-9', id: 'dec' },
@@ -18,8 +18,8 @@ export function NumberConverter() {
   const isValidNumber = (value: string, base: number): boolean => {
     if (!value) return false;
     try {
-      parseInt(value, base);
-      return true;
+      const parsed = parseInt(value, base);
+      return !isNaN(parsed);
     } catch {
       return false;
     }
@@ -32,6 +32,10 @@ export function NumberConverter() {
       setBinary(num.toString(2));
       setOctal(num.toString(8));
       setHexadecimal(num.toString(16).toUpperCase());
+    } else {
+      setBinary('');
+      setOctal('');
+      setHexadecimal('');
     }
   };
 
@@ -42,6 +46,10 @@ export function NumberConverter() {
       setDecimal(num.toString(10));
       setOctal(num.toString(8));
       setHexadecimal(num.toString(16).toUpperCase());
+    } else {
+      setDecimal('');
+      setOctal('');
+      setHexadecimal('');
     }
   };
 
@@ -52,6 +60,10 @@ export function NumberConverter() {
       setDecimal(num.toString(10));
       setBinary(num.toString(2));
       setHexadecimal(num.toString(16).toUpperCase());
+    } else {
+      setDecimal('');
+      setBinary('');
+      setHexadecimal('');
     }
   };
 
@@ -62,7 +74,18 @@ export function NumberConverter() {
       setDecimal(num.toString(10));
       setBinary(num.toString(2));
       setOctal(num.toString(8));
+    } else {
+      setDecimal('');
+      setBinary('');
+      setOctal('');
     }
+  };
+
+  const handleClearAll = () => {
+    setDecimal('');
+    setBinary('');
+    setOctal('');
+    setHexadecimal('');
   };
 
   const copyToClipboard = (val: string, id: string) => {
@@ -81,28 +104,41 @@ export function NumberConverter() {
     }
   };
 
+  const hasContent = decimal || binary || octal || hexadecimal;
+
   return (
     <div className="max-w-4xl mx-auto space-y-8">
+      <div className="flex justify-end px-1">
+        <button
+          onClick={handleClearAll}
+          disabled={!hasContent}
+          className="text-xs font-bold text-rose-500 hover:text-rose-600 flex items-center gap-1 transition-all disabled:opacity-0 disabled:pointer-events-none"
+        >
+          <Trash2 className="w-3 h-3" /> Effacer tout
+        </button>
+      </div>
+
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
         {BASE_CONFIGS.map((base) => (
           <div key={base.id} className="bg-slate-50 dark:bg-slate-900/50 p-6 rounded-3xl border border-slate-200 dark:border-slate-800 space-y-4">
             <div className="flex justify-between items-center px-1">
               <div className="flex items-center gap-2">
                 <div className="text-indigo-500">{getIcon(base.id)}</div>
-                <label className="text-xs font-black uppercase tracking-widest text-slate-400">{base.label}</label>
+                <label htmlFor={`input-${base.id}`} className="text-xs font-black uppercase tracking-widest text-slate-600">{base.label}</label>
               </div>
               <button
                 onClick={() => copyToClipboard(base.getter({decimal, binary, octal, hexadecimal}), base.id)}
-                className={`p-2 rounded-xl transition-all ${copied === base.id ? 'bg-emerald-500 text-white' : 'text-slate-400 hover:text-indigo-500 bg-white dark:bg-slate-800 shadow-sm border border-slate-100 dark:border-slate-700'}`}
+                className={`p-2 rounded-xl transition-all ${copied === base.id ? 'bg-emerald-500 text-white' : 'text-slate-600 hover:text-indigo-500 bg-white dark:bg-slate-800 shadow-sm border border-slate-100 dark:border-slate-700'}`}
               >
                 {copied === base.id ? <Check className="w-4 h-4" /> : <Copy className="w-4 h-4" />}
               </button>
             </div>
             <input
+              id={`input-${base.id}`}
               type="text"
               value={base.getter({decimal, binary, octal, hexadecimal})}
               onChange={(e) => base.onChange(e.target.value, {updateFromDecimal, updateFromBinary, updateFromOctal, updateFromHexadecimal})}
-              className="w-full p-4 bg-white dark:bg-slate-950 border border-slate-200 dark:border-slate-700 rounded-2xl font-mono text-xl outline-none focus:ring-2 focus:ring-indigo-500/20 transition-all dark:text-white"
+              className="w-full p-4 bg-white dark:bg-slate-950 border border-slate-200 dark:border-slate-700 rounded-2xl font-mono text-xl outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 transition-all dark:text-white"
               placeholder={base.placeholder}
             />
           </div>
@@ -116,7 +152,7 @@ export function NumberConverter() {
         <div className="space-y-4">
           <h4 className="font-bold dark:text-white">À propos des bases numériques</h4>
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-            <ul className="text-sm text-slate-500 dark:text-slate-400 space-y-2">
+            <ul className="text-sm text-slate-600 dark:text-slate-600 space-y-2">
               <li className="flex gap-2">
                 <span className="font-bold text-indigo-500">•</span>
                 <span><span className="font-bold">Binaire :</span> Système de base 2, utilisé par les ordinateurs au niveau le plus bas.</span>
@@ -126,7 +162,7 @@ export function NumberConverter() {
                 <span><span className="font-bold">Octal :</span> Système de base 8, utilisé parfois en informatique pour grouper les bits par trois.</span>
               </li>
             </ul>
-            <ul className="text-sm text-slate-500 dark:text-slate-400 space-y-2">
+            <ul className="text-sm text-slate-600 dark:text-slate-600 space-y-2">
               <li className="flex gap-2">
                 <span className="font-bold text-indigo-500">•</span>
                 <span><span className="font-bold">Décimal :</span> Système de base 10, le système standard utilisé par les humains.</span>

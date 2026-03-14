@@ -77,7 +77,7 @@ export function SQLFormatter() {
           <div className="flex justify-between items-center px-1">
             <div className="flex items-center gap-2">
               <Database className="w-4 h-4 text-indigo-500" />
-              <label className="text-xs font-black uppercase tracking-widest text-slate-400">Requête SQL</label>
+              <label className="text-xs font-black uppercase tracking-widest text-slate-600">Requête SQL</label>
             </div>
             <button
               onClick={handleClear}
@@ -98,7 +98,7 @@ export function SQLFormatter() {
           <div className="flex justify-between items-center px-1">
             <div className="flex items-center gap-2">
               <FileCode className="w-4 h-4 text-emerald-500" />
-              <label className="text-xs font-black uppercase tracking-widest text-slate-400">SQL Formaté</label>
+              <label className="text-xs font-black uppercase tracking-widest text-slate-600">SQL Formaté</label>
             </div>
             <button
               onClick={handleCopy}

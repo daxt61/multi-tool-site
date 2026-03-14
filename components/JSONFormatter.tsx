@@ -59,7 +59,7 @@ export function JSONFormatter() {
           <div className="flex justify-between items-center px-1">
             <div className="flex items-center gap-2">
               <FileCode className="w-4 h-4 text-indigo-500" />
-              <label className="text-xs font-black uppercase tracking-widest text-slate-400">Entrée JSON</label>
+              <label className="text-xs font-black uppercase tracking-widest text-slate-600">Entrée JSON</label>
             </div>
             <button
               onClick={handleClear}
@@ -81,7 +81,7 @@ export function JSONFormatter() {
           <div className="flex justify-between items-center px-1">
             <div className="flex items-center gap-2">
               <Check className="w-4 h-4 text-emerald-500" />
-              <label className="text-xs font-black uppercase tracking-widest text-slate-400">Résultat</label>
+              <label className="text-xs font-black uppercase tracking-widest text-slate-600">Résultat</label>
             </div>
             <button
               onClick={handleCopy}

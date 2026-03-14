@@ -143,7 +143,7 @@ export function MarkdownTableGenerator() {
       <div className="space-y-4">
         <div className="flex items-center gap-2 px-1">
           <Table className="w-4 h-4 text-indigo-500" />
-          <label className="text-xs font-black uppercase tracking-widest text-slate-400">Prévisualisation Markdown</label>
+          <label className="text-xs font-black uppercase tracking-widest text-slate-600">Prévisualisation Markdown</label>
         </div>
         <pre className="p-6 bg-slate-900 text-indigo-300 rounded-3xl font-mono text-sm overflow-x-auto selection:bg-indigo-500/30">
           {generateMarkdown()}

@@ -69,7 +69,7 @@ export function LoanCalculator() {
       <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
         <div className="space-y-6">
           <div className="flex justify-between items-center px-1">
-            <label htmlFor="principal" className="text-xs font-black uppercase tracking-widest text-slate-400 flex items-center gap-2">
+            <label htmlFor="principal" className="text-xs font-black uppercase tracking-widest text-slate-600 flex items-center gap-2">
               <Landmark className="w-3 h-3" /> Montant emprunté
             </label>
             <button
@@ -93,7 +93,7 @@ export function LoanCalculator() {
 
           <div className="grid grid-cols-2 gap-4">
             <div className="space-y-3">
-              <label htmlFor="annualRate" className="text-xs font-black uppercase tracking-widest text-slate-400 px-1 flex items-center gap-2">
+              <label htmlFor="annualRate" className="text-xs font-black uppercase tracking-widest text-slate-600 px-1 flex items-center gap-2">
                 <Percent className="w-3 h-3" /> Taux annuel
               </label>
               <div className="relative">
@@ -106,11 +106,11 @@ export function LoanCalculator() {
                   placeholder="5"
                   step="0.01"
                 />
-                <span className="absolute right-4 top-1/2 -translate-y-1/2 font-black text-slate-400">%</span>
+                <span className="absolute right-4 top-1/2 -translate-y-1/2 font-black text-slate-600">%</span>
               </div>
             </div>
             <div className="space-y-3">
-              <label htmlFor="years" className="text-xs font-black uppercase tracking-widest text-slate-400 px-1 flex items-center gap-2">
+              <label htmlFor="years" className="text-xs font-black uppercase tracking-widest text-slate-600 px-1 flex items-center gap-2">
                 <Clock className="w-3 h-3" /> Durée (ans)
               </label>
               <input
@@ -142,7 +142,7 @@ export function LoanCalculator() {
           <div className="bg-slate-900 dark:bg-black p-10 rounded-[2.5rem] shadow-xl shadow-indigo-500/10 flex flex-col items-center justify-center space-y-4 min-h-[300px] relative overflow-hidden">
              <div className="absolute -bottom-10 -left-10 w-40 h-40 bg-indigo-500/10 rounded-full blur-3xl"></div>
 
-             <div className="text-slate-400 font-bold uppercase tracking-widest text-xs">Mensualité estimée</div>
+             <div className="text-slate-600 font-bold uppercase tracking-widest text-xs">Mensualité estimée</div>
              <div className="text-5xl md:text-7xl font-black text-white font-mono tracking-tighter">
                {result ? result.monthlyPayment.toFixed(2) : "0.00"}
              </div>
@@ -153,7 +153,7 @@ export function LoanCalculator() {
 
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div className="bg-slate-50 dark:bg-slate-900/50 p-6 rounded-3xl border border-slate-200 dark:border-slate-800 space-y-2 text-center">
-               <div className="text-xs font-bold text-slate-400 uppercase tracking-widest">Coût total</div>
+               <div className="text-xs font-bold text-slate-600 uppercase tracking-widest">Coût total</div>
                <div className="text-2xl font-black text-slate-900 dark:text-white font-mono">
                  {result ? result.totalPayment.toFixed(2) : "0.00"}€
                </div>
@@ -171,7 +171,7 @@ export function LoanCalculator() {
                <div className="p-3 bg-indigo-50 dark:bg-indigo-900/20 text-indigo-600 dark:text-indigo-400 rounded-2xl">
                   <Info className="w-6 h-6" />
                </div>
-               <p className="text-sm text-slate-500 dark:text-slate-400 leading-relaxed font-medium">
+               <p className="text-sm text-slate-500 dark:text-slate-600 leading-relaxed font-medium">
                  Entrez le montant, le taux et la durée pour simuler votre crédit immobilier ou consommation en temps réel.
                </p>
             </div>
@@ -190,17 +190,17 @@ export function LoanCalculator() {
             <table className="w-full text-left border-collapse">
               <thead>
                 <tr className="bg-slate-50 dark:bg-slate-900/50 border-b border-slate-100 dark:border-slate-800">
-                  <th className="p-4 text-xs font-black uppercase text-slate-400 text-center">Mois</th>
-                  <th className="p-4 text-xs font-black uppercase text-slate-400">Mensualité</th>
-                  <th className="p-4 text-xs font-black uppercase text-slate-400">Principal</th>
-                  <th className="p-4 text-xs font-black uppercase text-slate-400 text-rose-500">Intérêt</th>
-                  <th className="p-4 text-xs font-black uppercase text-slate-400">Reste dû</th>
+                  <th className="p-4 text-xs font-black uppercase text-slate-600 text-center">Mois</th>
+                  <th className="p-4 text-xs font-black uppercase text-slate-600">Mensualité</th>
+                  <th className="p-4 text-xs font-black uppercase text-slate-600">Principal</th>
+                  <th className="p-4 text-xs font-black uppercase text-slate-600 text-rose-500">Intérêt</th>
+                  <th className="p-4 text-xs font-black uppercase text-slate-600">Reste dû</th>
                 </tr>
               </thead>
               <tbody>
                 {result.schedule.map((row) => (
                   <tr key={row.month} className="border-b border-slate-50 dark:border-slate-800/50 hover:bg-slate-50 dark:hover:bg-slate-800/50 transition-colors">
-                    <td className="p-4 font-mono text-sm text-slate-400 text-center">{row.month}</td>
+                    <td className="p-4 font-mono text-sm text-slate-600 text-center">{row.month}</td>
                     <td className="p-4 font-mono font-bold text-sm">{row.payment.toFixed(2)}€</td>
                     <td className="p-4 font-mono text-sm text-emerald-500">{row.principal.toFixed(2)}€</td>
                     <td className="p-4 font-mono text-sm text-rose-500">{row.interest.toFixed(2)}€</td>
@@ -220,7 +220,7 @@ export function LoanCalculator() {
             <BookOpen className="w-6 h-6" />
           </div>
           <h3 className="text-lg font-black">Comment ça marche ?</h3>
-          <p className="text-sm text-slate-500 dark:text-slate-400 leading-relaxed">
+          <p className="text-sm text-slate-500 dark:text-slate-600 leading-relaxed">
             Notre calculateur utilise la formule standard des annuités constantes. Il calcule la mensualité fixe qui permet de rembourser le capital et les intérêts sur la durée choisie.
           </p>
           <ul className="space-y-2">
@@ -237,7 +237,7 @@ export function LoanCalculator() {
             <HelpCircle className="w-6 h-6" />
           </div>
           <h3 className="text-lg font-black">Pourquoi simuler ?</h3>
-          <p className="text-sm text-slate-500 dark:text-slate-400 leading-relaxed">
+          <p className="text-sm text-slate-500 dark:text-slate-600 leading-relaxed">
             Comparer différentes durées et taux vous permet d'optimiser le coût total de votre crédit. Une durée plus courte augmente la mensualité mais réduit considérablement les intérêts totaux.
           </p>
         </div>
@@ -247,7 +247,7 @@ export function LoanCalculator() {
             <Calculator className="w-6 h-6" />
           </div>
           <h3 className="text-lg font-black">Informations techniques</h3>
-          <p className="text-sm text-slate-500 dark:text-slate-400 leading-relaxed">
+          <p className="text-sm text-slate-500 dark:text-slate-600 leading-relaxed">
             La formule utilisée est : <br/>
             <code className="bg-slate-100 dark:bg-slate-800 p-1 rounded font-mono text-xs">M = P * [r(1+r)^n] / [(1+r)^n - 1]</code><br/>
             Où M est la mensualité, P le capital, r le taux mensuel et n le nombre de mois.
@@ -260,11 +260,11 @@ export function LoanCalculator() {
         <div className="space-y-6">
           <div>
             <h5 className="font-bold text-sm mb-2">Puis-je inclure l'assurance ?</h5>
-            <p className="text-sm text-slate-500 dark:text-slate-400">Pour plus de précision, vous pouvez ajouter le taux de l'assurance au taux annuel (TAEG).</p>
+            <p className="text-sm text-slate-500 dark:text-slate-600">Pour plus de précision, vous pouvez ajouter le taux de l'assurance au taux annuel (TAEG).</p>
           </div>
           <div>
             <h5 className="font-bold text-sm mb-2">Le tableau d'amortissement est-il précis ?</h5>
-            <p className="text-sm text-slate-500 dark:text-slate-400">Oui, il suit la méthode de calcul bancaire standard française pour les prêts à mensualités constantes.</p>
+            <p className="text-sm text-slate-500 dark:text-slate-600">Oui, il suit la méthode de calcul bancaire standard française pour les prêts à mensualités constantes.</p>
           </div>
         </div>
       </div>

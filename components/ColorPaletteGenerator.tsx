@@ -113,7 +113,7 @@ export function ColorPaletteGenerator() {
       <div className="bg-slate-50 dark:bg-slate-900/50 p-8 rounded-[2.5rem] border border-slate-200 dark:border-slate-800 flex flex-col md:flex-row items-center justify-between gap-8">
         <div className="flex items-center gap-6">
           <div className="space-y-2">
-            <label htmlFor="baseColor" className="text-xs font-black uppercase tracking-widest text-slate-400 px-1">Couleur de base</label>
+            <label htmlFor="baseColor" className="text-xs font-black uppercase tracking-widest text-slate-600 px-1">Couleur de base</label>
             <div className="flex items-center gap-3">
               <input
                 id="baseColor"
@@ -150,7 +150,7 @@ export function ColorPaletteGenerator() {
             <div className="flex justify-between items-start">
               <div>
                 <h3 className="text-lg font-black dark:text-white">{palette.name}</h3>
-                <p className="text-xs font-bold text-slate-400 uppercase tracking-tight">{palette.desc}</p>
+                <p className="text-xs font-bold text-slate-600 uppercase tracking-tight">{palette.desc}</p>
               </div>
               <Palette className="w-5 h-5 text-indigo-500 opacity-20" />
             </div>
@@ -193,7 +193,7 @@ export function ColorPaletteGenerator() {
          </div>
          <div className="space-y-2">
             <h4 className="font-bold dark:text-white">Comment utiliser les palettes de couleurs ?</h4>
-            <p className="text-sm text-slate-500 dark:text-slate-400 leading-relaxed">
+            <p className="text-sm text-slate-500 dark:text-slate-600 leading-relaxed">
               Choisissez une couleur de base et explorez les différentes harmonies générées automatiquement. La théorie des couleurs aide à créer des designs équilibrés et agréables à l'œil. Cliquez sur n'importe quelle couleur pour copier son code HEX dans votre presse-papiers.
             </p>
          </div>

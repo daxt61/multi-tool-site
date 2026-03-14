@@ -49,7 +49,7 @@ export function MarginCalculator() {
         <div className="space-y-6">
           <div className="grid grid-cols-1 gap-6">
             <div className="space-y-3">
-              <label className="text-xs font-black uppercase tracking-widest text-slate-400 px-1 flex items-center gap-2">
+              <label className="text-xs font-black uppercase tracking-widest text-slate-600 px-1 flex items-center gap-2">
                 <DollarSign className="w-3 h-3" /> Prix d'achat (Coût)
               </label>
               <input
@@ -61,7 +61,7 @@ export function MarginCalculator() {
               />
             </div>
             <div className="space-y-3">
-              <label className="text-xs font-black uppercase tracking-widest text-slate-400 px-1 flex items-center gap-2">
+              <label className="text-xs font-black uppercase tracking-widest text-slate-600 px-1 flex items-center gap-2">
                 <TrendingUp className="w-3 h-3" /> Prix de vente
               </label>
               <input
@@ -83,7 +83,7 @@ export function MarginCalculator() {
 
           <div className="grid grid-cols-1 gap-6">
             <div className="space-y-3">
-              <label className="text-xs font-black uppercase tracking-widest text-slate-400 px-1 flex items-center gap-2">
+              <label className="text-xs font-black uppercase tracking-widest text-slate-600 px-1 flex items-center gap-2">
                 <Percent className="w-3 h-3" /> Marge (%)
               </label>
               <div className="flex gap-2">
@@ -103,7 +103,7 @@ export function MarginCalculator() {
               </div>
             </div>
             <div className="space-y-3">
-              <label className="text-xs font-black uppercase tracking-widest text-slate-400 px-1 flex items-center gap-2">
+              <label className="text-xs font-black uppercase tracking-widest text-slate-600 px-1 flex items-center gap-2">
                 <TrendingUp className="w-3 h-3" /> Coefficient (Markup %)
               </label>
               <div className="flex gap-2">
@@ -127,7 +127,7 @@ export function MarginCalculator() {
 
         <div className="space-y-6">
           <div className="bg-slate-900 dark:bg-black p-10 rounded-[2.5rem] shadow-xl shadow-indigo-500/10 flex flex-col items-center justify-center space-y-4 min-h-[300px]">
-             <div className="text-slate-400 font-bold uppercase tracking-widest text-xs">Bénéfice par unité</div>
+             <div className="text-slate-600 font-bold uppercase tracking-widest text-xs">Bénéfice par unité</div>
              <div className={`text-6xl font-black font-mono tracking-tighter ${profit >= 0 ? "text-emerald-400" : "text-rose-400"}`}>
                {profit.toFixed(2)}€
              </div>
@@ -141,7 +141,7 @@ export function MarginCalculator() {
                 <Info className="w-5 h-5" />
                 <span className="font-bold text-sm uppercase tracking-wider">Formules</span>
              </div>
-             <div className="space-y-4 text-sm text-slate-500 dark:text-slate-400 leading-relaxed">
+             <div className="space-y-4 text-sm text-slate-500 dark:text-slate-600 leading-relaxed">
                 <div className="p-4 bg-slate-50 dark:bg-slate-800/50 rounded-2xl border border-slate-100 dark:border-slate-700">
                   <p className="font-bold text-slate-900 dark:text-white mb-1">Marge</p>
                   <code className="text-indigo-600 dark:text-indigo-400">(Prix de vente - Coût) / Prix de vente × 100</code>

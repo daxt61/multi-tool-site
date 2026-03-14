@@ -66,7 +66,7 @@ export function AgeCalculator() {
         {/* Input */}
         <div className="lg:col-span-4 space-y-6">
           <div className="bg-slate-50 dark:bg-slate-900/50 p-8 rounded-[2.5rem] border border-slate-200 dark:border-slate-800 space-y-6">
-            <h3 className="text-xs font-black uppercase tracking-widest text-slate-400 flex items-center gap-2 px-1">
+            <h3 className="text-xs font-black uppercase tracking-widest text-slate-600 flex items-center gap-2 px-1">
               <Baby className="w-4 h-4" /> Date de naissance
             </h3>
             <input
@@ -100,27 +100,27 @@ export function AgeCalculator() {
         <div className="lg:col-span-8 space-y-8">
           {/* Main Age Display */}
           <div className="bg-white dark:bg-slate-900/40 border border-slate-200 dark:border-slate-800 rounded-[2.5rem] p-10 flex flex-col items-center justify-center text-center space-y-6">
-             <h3 className="text-xs font-black uppercase tracking-widest text-slate-400">Votre âge actuel</h3>
+             <h3 className="text-xs font-black uppercase tracking-widest text-slate-600">Votre âge actuel</h3>
              <div className="flex flex-wrap justify-center gap-4 md:gap-8">
                 <div className="space-y-1">
                   <div className="text-6xl md:text-8xl font-black text-slate-900 dark:text-white font-mono tracking-tighter">
                     {ageData?.years || 0}
                   </div>
-                  <div className="text-xs font-black uppercase tracking-widest text-slate-400">Ans</div>
+                  <div className="text-xs font-black uppercase tracking-widest text-slate-600">Ans</div>
                 </div>
                 <div className="text-6xl md:text-8xl font-black text-slate-200 dark:text-slate-800 font-mono">:</div>
                 <div className="space-y-1">
                   <div className="text-6xl md:text-8xl font-black text-slate-900 dark:text-white font-mono tracking-tighter">
                     {ageData?.months || 0}
                   </div>
-                  <div className="text-xs font-black uppercase tracking-widest text-slate-400">Mois</div>
+                  <div className="text-xs font-black uppercase tracking-widest text-slate-600">Mois</div>
                 </div>
                 <div className="text-6xl md:text-8xl font-black text-slate-200 dark:text-slate-800 font-mono">:</div>
                 <div className="space-y-1">
                   <div className="text-6xl md:text-8xl font-black text-slate-900 dark:text-white font-mono tracking-tighter">
                     {ageData?.days || 0}
                   </div>
-                  <div className="text-xs font-black uppercase tracking-widest text-slate-400">Jours</div>
+                  <div className="text-xs font-black uppercase tracking-widest text-slate-600">Jours</div>
                 </div>
              </div>
           </div>
@@ -136,7 +136,7 @@ export function AgeCalculator() {
                <div key={i} className="bg-slate-50 dark:bg-slate-900 border border-slate-100 dark:border-slate-800 p-6 rounded-3xl space-y-3">
                  <div className="text-indigo-500">{stat.icon}</div>
                  <div className="text-xl font-black font-mono tracking-tight dark:text-white">{stat.value}</div>
-                 <div className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">{stat.label}</div>
+                 <div className="text-[10px] font-bold text-slate-600 uppercase tracking-widest">{stat.label}</div>
                </div>
              ))}
           </div>
@@ -149,7 +149,7 @@ export function AgeCalculator() {
          </div>
          <div className="space-y-2">
             <h4 className="font-bold dark:text-white">Comment est calculé votre âge ?</h4>
-            <p className="text-sm text-slate-500 dark:text-slate-400 leading-relaxed">
+            <p className="text-sm text-slate-500 dark:text-slate-600 leading-relaxed">
               L'âge est calculé en soustrayant votre date de naissance de la date actuelle. Les mois et les jours sont ajustés en fonction du nombre de jours dans chaque mois écoulé. Les statistiques de vie sont des estimations basées sur une moyenne de 24 heures par jour et 7 jours par semaine.
             </p>
          </div>

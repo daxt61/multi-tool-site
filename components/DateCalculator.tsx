@@ -66,12 +66,12 @@ export function DateCalculator() {
       <div className="bg-slate-50 dark:bg-slate-900/50 p-8 rounded-[2.5rem] border border-slate-200 dark:border-slate-800 space-y-8">
         <div className="flex items-center gap-2 text-indigo-500">
           <History className="w-4 h-4" />
-          <label className="text-xs font-black uppercase tracking-widest text-slate-400">Différence entre deux dates</label>
+          <label className="text-xs font-black uppercase tracking-widest text-slate-600">Différence entre deux dates</label>
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           <div className="space-y-3">
-            <label htmlFor="date1" className="text-xs font-bold text-slate-400 px-1 uppercase tracking-widest cursor-pointer">Date de début</label>
+            <label htmlFor="date1" className="text-xs font-bold text-slate-600 px-1 uppercase tracking-widest cursor-pointer">Date de début</label>
             <input
               id="date1"
               type="date"
@@ -82,7 +82,7 @@ export function DateCalculator() {
             <div className="text-xs font-bold text-indigo-500 px-1">{getDayOfWeek(date1)}</div>
           </div>
           <div className="space-y-3">
-            <label htmlFor="date2" className="text-xs font-bold text-slate-400 px-1 uppercase tracking-widest cursor-pointer">Date de fin</label>
+            <label htmlFor="date2" className="text-xs font-bold text-slate-600 px-1 uppercase tracking-widest cursor-pointer">Date de fin</label>
             <input
               id="date2"
               type="date"
@@ -96,19 +96,19 @@ export function DateCalculator() {
 
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
            <div className="bg-white dark:bg-slate-800 p-6 rounded-2xl border border-slate-100 dark:border-slate-700 text-center">
-             <div className="text-xs font-bold text-slate-400 uppercase tracking-widest mb-1">Ans / Mois / Jours</div>
+             <div className="text-xs font-bold text-slate-600 uppercase tracking-widest mb-1">Ans / Mois / Jours</div>
              <div className="text-2xl font-black text-indigo-600 dark:text-indigo-400 font-mono">
                {diff.years}a {diff.months}m {diff.days}j
              </div>
            </div>
            <div className="bg-white dark:bg-slate-800 p-6 rounded-2xl border border-slate-100 dark:border-slate-700 text-center">
-             <div className="text-xs font-bold text-slate-400 uppercase tracking-widest mb-1">Total en Jours</div>
+             <div className="text-xs font-bold text-slate-600 uppercase tracking-widest mb-1">Total en Jours</div>
              <div className="text-2xl font-black text-indigo-600 dark:text-indigo-400 font-mono">
                {diff.totalDays} jours
              </div>
            </div>
            <div className="bg-white dark:bg-slate-800 p-6 rounded-2xl border border-slate-100 dark:border-slate-700 text-center">
-             <div className="text-xs font-bold text-slate-400 uppercase tracking-widest mb-1">Semaines</div>
+             <div className="text-xs font-bold text-slate-600 uppercase tracking-widest mb-1">Semaines</div>
              <div className="text-2xl font-black text-indigo-600 dark:text-indigo-400 font-mono">
                {(diff.totalDays / 7).toFixed(1)} sem.
              </div>
@@ -120,12 +120,12 @@ export function DateCalculator() {
       <div className="bg-slate-50 dark:bg-slate-900/50 p-8 rounded-[2.5rem] border border-slate-200 dark:border-slate-800 space-y-8">
         <div className="flex items-center gap-2 text-indigo-500">
           <Calendar className="w-4 h-4" />
-          <label className="text-xs font-black uppercase tracking-widest text-slate-400">Ajouter ou soustraire du temps</label>
+          <label className="text-xs font-black uppercase tracking-widest text-slate-600">Ajouter ou soustraire du temps</label>
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           <div className="space-y-3">
-             <label htmlFor="base-date" className="text-xs font-bold text-slate-400 px-1 uppercase tracking-widest cursor-pointer">Date de départ</label>
+             <label htmlFor="base-date" className="text-xs font-bold text-slate-600 px-1 uppercase tracking-widest cursor-pointer">Date de départ</label>
              <input
               id="base-date"
               type="date"
@@ -135,7 +135,7 @@ export function DateCalculator() {
             />
           </div>
           <div className="space-y-3">
-             <label htmlFor="days-offset" className="text-xs font-bold text-slate-400 px-1 uppercase tracking-widest cursor-pointer">Jours à ajouter/retirer</label>
+             <label htmlFor="days-offset" className="text-xs font-bold text-slate-600 px-1 uppercase tracking-widest cursor-pointer">Jours à ajouter/retirer</label>
              <div className="relative">
                 <input
                   id="days-offset"
@@ -164,7 +164,7 @@ export function DateCalculator() {
          <div className="p-3 bg-indigo-50 dark:bg-indigo-900/20 text-indigo-600 dark:text-indigo-400 rounded-2xl">
             <Info className="w-6 h-6" />
          </div>
-         <p className="text-sm text-slate-500 dark:text-slate-400 leading-relaxed font-medium">
+         <p className="text-sm text-slate-500 dark:text-slate-600 leading-relaxed font-medium">
            Ce calculateur permet de déterminer l'intervalle exact entre deux dates ou de projeter une date future en ajoutant un nombre de jours précis. Utile pour les délais de paiement, les périodes de préavis ou le suivi de projets.
          </p>
       </div>

@@ -24,7 +24,7 @@ export function PercentageCalculator() {
           <div className="space-y-4">
             <div className="flex items-center gap-2 text-indigo-500">
               <Percent className="w-4 h-4" />
-              <label className="text-xs font-black uppercase tracking-widest text-slate-400">Combien font X% de Y ?</label>
+              <label className="text-xs font-black uppercase tracking-widest text-slate-600">Combien font X% de Y ?</label>
             </div>
             <div className="flex items-center gap-3">
               <input
@@ -35,7 +35,7 @@ export function PercentageCalculator() {
                 className="w-full p-4 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-2xl text-xl font-black font-mono focus:border-indigo-500 outline-none transition-all dark:text-white"
                 placeholder="20"
               />
-              <span className="text-xl font-bold text-slate-400 whitespace-nowrap">% de</span>
+              <span className="text-xl font-bold text-slate-600 whitespace-nowrap">% de</span>
               <input
                 id="total-val"
                 type="number"
@@ -47,7 +47,7 @@ export function PercentageCalculator() {
             </div>
           </div>
           <div className="bg-white dark:bg-slate-800 p-6 rounded-2xl border border-slate-100 dark:border-slate-700 text-center">
-            <div className="text-xs font-bold text-slate-400 uppercase tracking-widest mb-2">Résultat</div>
+            <div className="text-xs font-bold text-slate-600 uppercase tracking-widest mb-2">Résultat</div>
             <div className="text-4xl font-black text-indigo-600 dark:text-indigo-400 font-mono">
                {isNaN(percentageOf) ? '0' : percentageOf.toLocaleString(undefined, { maximumFractionDigits: 2 })}
             </div>
@@ -59,7 +59,7 @@ export function PercentageCalculator() {
           <div className="space-y-4">
              <div className="flex items-center gap-2 text-indigo-500">
               <ArrowRight className="w-4 h-4" />
-              <label className="text-xs font-black uppercase tracking-widest text-slate-400">X représente quel % de Y ?</label>
+              <label className="text-xs font-black uppercase tracking-widest text-slate-600">X représente quel % de Y ?</label>
             </div>
             <div className="flex items-center gap-3">
               <input
@@ -70,7 +70,7 @@ export function PercentageCalculator() {
                 className="w-full p-4 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-2xl text-xl font-black font-mono focus:border-indigo-500 outline-none transition-all dark:text-white"
                 placeholder="150"
               />
-              <span className="text-xl font-bold text-slate-400 whitespace-nowrap">de</span>
+              <span className="text-xl font-bold text-slate-600 whitespace-nowrap">de</span>
               <input
                 id="whole-val"
                 type="number"
@@ -82,7 +82,7 @@ export function PercentageCalculator() {
             </div>
           </div>
           <div className="bg-white dark:bg-slate-800 p-6 rounded-2xl border border-slate-100 dark:border-slate-700 text-center">
-            <div className="text-xs font-bold text-slate-400 uppercase tracking-widest mb-2">Résultat</div>
+            <div className="text-xs font-bold text-slate-600 uppercase tracking-widest mb-2">Résultat</div>
             <div className="text-4xl font-black text-indigo-600 dark:text-indigo-400 font-mono">
                {isNaN(whatPercent) ? '0' : whatPercent.toLocaleString(undefined, { maximumFractionDigits: 2 })}%
             </div>
@@ -94,11 +94,11 @@ export function PercentageCalculator() {
       <div className="bg-slate-50 dark:bg-slate-900/50 p-8 rounded-[2.5rem] border border-slate-200 dark:border-slate-800 space-y-8">
         <div className="flex items-center gap-2 text-indigo-500">
           <TrendingUp className="w-4 h-4" />
-          <label className="text-xs font-black uppercase tracking-widest text-slate-400">Variation en % (Augmentation/Diminution)</label>
+          <label className="text-xs font-black uppercase tracking-widest text-slate-600">Variation en % (Augmentation/Diminution)</label>
         </div>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           <div className="space-y-3">
-             <label htmlFor="initial-val" className="text-xs font-bold text-slate-400 px-1 uppercase tracking-widest cursor-pointer">Valeur initiale</label>
+             <label htmlFor="initial-val" className="text-xs font-bold text-slate-600 px-1 uppercase tracking-widest cursor-pointer">Valeur initiale</label>
              <input
               id="initial-val"
               type="number"
@@ -108,7 +108,7 @@ export function PercentageCalculator() {
             />
           </div>
           <div className="space-y-3">
-             <label htmlFor="final-val" className="text-xs font-bold text-slate-400 px-1 uppercase tracking-widest cursor-pointer">Valeur finale</label>
+             <label htmlFor="final-val" className="text-xs font-bold text-slate-600 px-1 uppercase tracking-widest cursor-pointer">Valeur finale</label>
              <input
               id="final-val"
               type="number"
@@ -120,7 +120,7 @@ export function PercentageCalculator() {
         </div>
 
         <div className="bg-white dark:bg-slate-800 p-8 rounded-3xl border border-slate-100 dark:border-slate-700 text-center">
-            <div className="text-xs font-bold text-slate-400 uppercase tracking-widest mb-2">Variation</div>
+            <div className="text-xs font-bold text-slate-600 uppercase tracking-widest mb-2">Variation</div>
             <div className={`text-5xl font-black font-mono ${percentChange >= 0 ? 'text-emerald-500' : 'text-rose-500'}`}>
                {percentChange > 0 ? '+' : ''}{isNaN(percentChange) ? '0' : percentChange.toLocaleString(undefined, { maximumFractionDigits: 2 })}%
             </div>
@@ -131,11 +131,11 @@ export function PercentageCalculator() {
       <div className="bg-slate-50 dark:bg-slate-900/50 p-8 rounded-[2.5rem] border border-slate-200 dark:border-slate-800 space-y-8">
         <div className="flex items-center gap-2 text-indigo-500">
           <Info className="w-4 h-4" />
-          <label className="text-xs font-black uppercase tracking-widest text-slate-400">Calculer une valeur après changement</label>
+          <label className="text-xs font-black uppercase tracking-widest text-slate-600">Calculer une valeur après changement</label>
         </div>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           <div className="space-y-3">
-             <label className="text-xs font-bold text-slate-400 px-1 uppercase tracking-widest">Valeur de base</label>
+             <label className="text-xs font-bold text-slate-600 px-1 uppercase tracking-widest">Valeur de base</label>
              <input
               type="number"
               value={value1}
@@ -144,7 +144,7 @@ export function PercentageCalculator() {
             />
           </div>
           <div className="space-y-3">
-             <label className="text-xs font-bold text-slate-400 px-1 uppercase tracking-widest">Pourcentage (+ ou -)</label>
+             <label className="text-xs font-bold text-slate-600 px-1 uppercase tracking-widest">Pourcentage (+ ou -)</label>
              <input
               type="number"
               value={value2}

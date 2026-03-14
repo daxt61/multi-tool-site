@@ -146,7 +146,7 @@ export function PasswordGenerator() {
         <div className="bg-slate-50 dark:bg-slate-900/50 p-8 rounded-[2.5rem] border border-slate-200 dark:border-slate-800 space-y-8">
           <div className="space-y-6">
             <div className="flex justify-between items-center px-1">
-              <label className="text-xs font-black uppercase tracking-widest text-slate-400">Longueur</label>
+              <label className="text-xs font-black uppercase tracking-widest text-slate-600">Longueur</label>
               <span className="text-2xl font-black font-mono text-indigo-600 dark:text-indigo-400">{length}</span>
             </div>
             <input
@@ -174,7 +174,7 @@ export function PasswordGenerator() {
                 className={`flex items-center justify-between p-4 rounded-2xl border transition-all ${
                   opt.state
                   ? 'bg-indigo-50 dark:bg-indigo-500/10 border-indigo-200 dark:border-indigo-500/20 text-indigo-600 dark:text-indigo-400'
-                  : 'bg-white dark:bg-slate-800 border-slate-200 dark:border-slate-700 text-slate-400'
+                  : 'bg-white dark:bg-slate-800 border-slate-200 dark:border-slate-700 text-slate-600'
                 }`}
               >
                 <span className="font-bold text-sm">{opt.label}</span>

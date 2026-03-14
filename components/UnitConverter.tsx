@@ -217,7 +217,7 @@ export function UnitConverter() {
         {/* De */}
         <div className="space-y-4">
           <div className="flex justify-between items-center px-1">
-            <label htmlFor="fromValue" className="text-xs font-black uppercase tracking-widest text-slate-400 cursor-pointer">De</label>
+            <label htmlFor="fromValue" className="text-xs font-black uppercase tracking-widest text-slate-600 cursor-pointer">De</label>
             <button
               onClick={handleClear}
               className="text-xs font-bold text-rose-500 hover:text-rose-600 flex items-center gap-1 transition-colors"
@@ -268,7 +268,7 @@ export function UnitConverter() {
         {/* Vers */}
         <div className="space-y-4">
           <div className="flex justify-between items-center px-1">
-            <label htmlFor="toUnit" className="text-xs font-black uppercase tracking-widest text-slate-400 cursor-pointer">Vers</label>
+            <label htmlFor="toUnit" className="text-xs font-black uppercase tracking-widest text-slate-600 cursor-pointer">Vers</label>
             <button
               onClick={handleCopy}
               className={`text-xs font-bold flex items-center gap-1 transition-colors ${copied ? 'text-emerald-500' : 'text-indigo-500 hover:text-indigo-600'}`}
@@ -305,7 +305,7 @@ export function UnitConverter() {
           <h4 className="font-bold dark:text-white flex items-center gap-2">
             <Info className="w-4 h-4 text-indigo-500" /> Guide d'utilisation
           </h4>
-          <p className="text-sm text-slate-500 dark:text-slate-400 leading-relaxed">
+          <p className="text-sm text-slate-500 dark:text-slate-600 leading-relaxed">
             Choisissez d'abord une catégorie (Longueur, Poids, Angle, etc.) dans le menu supérieur. Saisissez ensuite la valeur à convertir dans le champ "De" et sélectionnez les unités correspondantes. Le résultat s'affiche instantanément.
           </p>
         </div>
@@ -313,7 +313,7 @@ export function UnitConverter() {
           <h4 className="font-bold dark:text-white flex items-center gap-2">
             <Ruler className="w-4 h-4 text-indigo-500" /> Précision & Calculs
           </h4>
-          <p className="text-sm text-slate-500 dark:text-slate-400 leading-relaxed">
+          <p className="text-sm text-slate-500 dark:text-slate-600 leading-relaxed">
             Toutes les conversions utilisent une unité de base interne pour chaque catégorie afin de garantir une précision maximale. Les résultats sont formatés selon les standards français pour une lecture aisée.
           </p>
         </div>
@@ -321,7 +321,7 @@ export function UnitConverter() {
           <h4 className="font-bold dark:text-white flex items-center gap-2">
             <Check className="w-4 h-4 text-indigo-500" /> Fiabilité
           </h4>
-          <p className="text-sm text-slate-500 dark:text-slate-400 leading-relaxed">
+          <p className="text-sm text-slate-500 dark:text-slate-600 leading-relaxed">
             Les facteurs de conversion sont basés sur les standards internationaux (SI). Pour les unités de stockage numérique, nous utilisons la base 1024 (Kio, Mio, etc.) conformément aux usages informatiques.
           </p>
         </div>

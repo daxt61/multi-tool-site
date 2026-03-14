@@ -51,7 +51,7 @@ export function InvoiceGenerator() {
     <div className="max-w-4xl mx-auto space-y-12">
       <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
         <div className="space-y-4">
-          <label className="text-xs font-black uppercase tracking-widest text-slate-400 px-1">
+          <label className="text-xs font-black uppercase tracking-widest text-slate-600 px-1">
             Informations Émetteur
           </label>
           <input
@@ -63,7 +63,7 @@ export function InvoiceGenerator() {
           />
         </div>
         <div className="space-y-4">
-          <label className="text-xs font-black uppercase tracking-widest text-slate-400 px-1">
+          <label className="text-xs font-black uppercase tracking-widest text-slate-600 px-1">
             Informations Client
           </label>
           <input
@@ -78,7 +78,7 @@ export function InvoiceGenerator() {
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
         <div className="space-y-4">
-          <label className="text-xs font-black uppercase tracking-widest text-slate-400 px-1">
+          <label className="text-xs font-black uppercase tracking-widest text-slate-600 px-1">
             Détails Facture
           </label>
           <input
@@ -90,7 +90,7 @@ export function InvoiceGenerator() {
           />
         </div>
         <div className="space-y-4">
-          <label className="text-xs font-black uppercase tracking-widest text-slate-400 px-1">
+          <label className="text-xs font-black uppercase tracking-widest text-slate-600 px-1">
             Taux de TVA (%)
           </label>
           <input
@@ -103,7 +103,7 @@ export function InvoiceGenerator() {
       </div>
 
       <div className="space-y-6">
-        <label className="text-xs font-black uppercase tracking-widest text-slate-400 px-1 flex justify-between items-center">
+        <label className="text-xs font-black uppercase tracking-widest text-slate-600 px-1 flex justify-between items-center">
           Articles & Services
           <span className="text-[10px] font-bold text-indigo-500">Total Articles: {items.length}</span>
         </label>
@@ -114,7 +114,7 @@ export function InvoiceGenerator() {
               className="grid grid-cols-1 md:grid-cols-12 gap-4 p-6 bg-slate-50 dark:bg-slate-900/30 rounded-3xl border border-slate-100 dark:border-slate-800/50 transition-all hover:border-indigo-500/20 group"
             >
               <div className="md:col-span-6 space-y-2">
-                <label className="text-[10px] font-bold uppercase text-slate-400 md:hidden">Description</label>
+                <label className="text-[10px] font-bold uppercase text-slate-600 md:hidden">Description</label>
                 <input
                   type="text"
                   value={item.description}
@@ -126,7 +126,7 @@ export function InvoiceGenerator() {
                 />
               </div>
               <div className="md:col-span-2 space-y-2">
-                <label className="text-[10px] font-bold uppercase text-slate-400 md:hidden">Quantité</label>
+                <label className="text-[10px] font-bold uppercase text-slate-600 md:hidden">Quantité</label>
                 <input
                   type="number"
                   value={item.quantity}
@@ -139,7 +139,7 @@ export function InvoiceGenerator() {
                 />
               </div>
               <div className="md:col-span-3 space-y-2">
-                <label className="text-[10px] font-bold uppercase text-slate-400 md:hidden">Prix Unitaire (€)</label>
+                <label className="text-[10px] font-bold uppercase text-slate-600 md:hidden">Prix Unitaire (€)</label>
                 <input
                   type="number"
                   value={item.unitPrice}
@@ -181,7 +181,7 @@ export function InvoiceGenerator() {
         </div>
 
         <div className="bg-slate-900 dark:bg-black p-8 rounded-[2.5rem] shadow-xl shadow-indigo-500/10 space-y-4">
-          <div className="flex justify-between items-center text-slate-400 text-sm font-bold uppercase tracking-widest px-2">
+          <div className="flex justify-between items-center text-slate-600 text-sm font-bold uppercase tracking-widest px-2">
             <span>Sous-total HT</span>
             <span className="font-mono text-white">{subtotal.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })} €</span>
           </div>

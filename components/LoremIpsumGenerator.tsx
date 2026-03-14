@@ -76,7 +76,7 @@ export function LoremIpsumGenerator() {
       <div className="bg-slate-50 dark:bg-slate-900/50 p-8 rounded-3xl border border-slate-200 dark:border-slate-800">
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
           <div className="space-y-2">
-            <label htmlFor="lorem-count" className="text-xs font-black uppercase tracking-widest text-slate-400 px-1">
+            <label htmlFor="lorem-count" className="text-xs font-black uppercase tracking-widest text-slate-600 px-1">
               Nombre
             </label>
             <input
@@ -90,7 +90,7 @@ export function LoremIpsumGenerator() {
             />
           </div>
           <div className="space-y-2">
-            <label htmlFor="lorem-type" className="text-xs font-black uppercase tracking-widest text-slate-400 px-1">
+            <label htmlFor="lorem-type" className="text-xs font-black uppercase tracking-widest text-slate-600 px-1">
               Type
             </label>
             <select

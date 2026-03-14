@@ -98,12 +98,12 @@ export function ExpenseTracker() {
               <div className="p-2 bg-indigo-50 dark:bg-indigo-900/20 rounded-xl">
                 <Plus className="w-5 h-5 text-indigo-600 dark:text-indigo-400" />
               </div>
-              <h3 className="text-sm font-black uppercase tracking-widest text-slate-400">Nouvelle dépense</h3>
+              <h3 className="text-sm font-black uppercase tracking-widest text-slate-600">Nouvelle dépense</h3>
             </div>
 
             <div className="space-y-4">
               <div className="space-y-2">
-                <label htmlFor="exp-desc" className="text-xs font-bold text-slate-500 dark:text-slate-400 px-1 cursor-pointer">Description</label>
+                <label htmlFor="exp-desc" className="text-xs font-bold text-slate-500 dark:text-slate-600 px-1 cursor-pointer">Description</label>
                 <input
                   id="exp-desc"
                   type="text"
@@ -116,7 +116,7 @@ export function ExpenseTracker() {
 
               <div className="grid grid-cols-2 gap-4">
                 <div className="space-y-2">
-                  <label htmlFor="exp-amount" className="text-xs font-bold text-slate-500 dark:text-slate-400 px-1 cursor-pointer">Montant (€)</label>
+                  <label htmlFor="exp-amount" className="text-xs font-bold text-slate-500 dark:text-slate-600 px-1 cursor-pointer">Montant (€)</label>
                   <input
                     id="exp-amount"
                     type="number"
@@ -128,7 +128,7 @@ export function ExpenseTracker() {
                   />
                 </div>
                 <div className="space-y-2">
-                  <label htmlFor="exp-date" className="text-xs font-bold text-slate-500 dark:text-slate-400 px-1 cursor-pointer">Date</label>
+                  <label htmlFor="exp-date" className="text-xs font-bold text-slate-500 dark:text-slate-600 px-1 cursor-pointer">Date</label>
                   <input
                     id="exp-date"
                     type="date"
@@ -140,7 +140,7 @@ export function ExpenseTracker() {
               </div>
 
               <div className="space-y-2">
-                <label htmlFor="exp-cat" className="text-xs font-bold text-slate-500 dark:text-slate-400 px-1 cursor-pointer">Catégorie</label>
+                <label htmlFor="exp-cat" className="text-xs font-bold text-slate-500 dark:text-slate-600 px-1 cursor-pointer">Catégorie</label>
                 <select
                   id="exp-cat"
                   value={category}
@@ -169,7 +169,7 @@ export function ExpenseTracker() {
             <div className="text-5xl font-black text-white font-mono tracking-tighter">
               {totalExpenses.toLocaleString('fr-FR', { minimumFractionDigits: 2 })} €
             </div>
-            <div className="flex items-center justify-center gap-2 text-slate-400 text-xs font-bold pt-2">
+            <div className="flex items-center justify-center gap-2 text-slate-600 text-xs font-bold pt-2">
               <TrendingDown className="w-3 h-3 text-rose-500" />
               {expenses.length} transaction{expenses.length > 1 ? 's' : ''}
             </div>
@@ -185,7 +185,7 @@ export function ExpenseTracker() {
                 <div className="p-2 bg-emerald-50 dark:bg-emerald-900/20 rounded-xl">
                   <PieChart className="w-5 h-5 text-emerald-600 dark:text-emerald-400" />
                 </div>
-                <h3 className="text-sm font-black uppercase tracking-widest text-slate-400">Par catégorie</h3>
+                <h3 className="text-sm font-black uppercase tracking-widest text-slate-600">Par catégorie</h3>
               </div>
 
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -193,7 +193,7 @@ export function ExpenseTracker() {
                   <div key={cat.category} className="p-4 bg-slate-50 dark:bg-slate-900/50 rounded-2xl border border-slate-100 dark:border-slate-800 flex items-center gap-4 group transition-all hover:border-indigo-500/20">
                     <div className={`w-3 h-3 rounded-full ${CATEGORY_COLORS[cat.category] || 'bg-slate-500'} shadow-sm`} />
                     <div className="flex-1">
-                      <div className="text-xs font-bold text-slate-400 uppercase tracking-tighter">{cat.category}</div>
+                      <div className="text-xs font-bold text-slate-600 uppercase tracking-tighter">{cat.category}</div>
                       <div className="font-black dark:text-white">{cat.total.toLocaleString('fr-FR', { minimumFractionDigits: 2 })} €</div>
                     </div>
                     <div className="text-xs font-black text-indigo-500 bg-indigo-50 dark:bg-indigo-900/30 px-2 py-1 rounded-lg">
@@ -212,9 +212,9 @@ export function ExpenseTracker() {
                 <div className="p-2 bg-blue-50 dark:bg-blue-900/20 rounded-xl">
                   <History className="w-5 h-5 text-blue-600 dark:text-blue-400" />
                 </div>
-                <h3 className="text-sm font-black uppercase tracking-widest text-slate-400">Historique</h3>
+                <h3 className="text-sm font-black uppercase tracking-widest text-slate-600">Historique</h3>
               </div>
-              <span className="text-[10px] font-black uppercase tracking-widest text-slate-400 bg-slate-100 dark:bg-slate-800 px-3 py-1 rounded-full">
+              <span className="text-[10px] font-black uppercase tracking-widest text-slate-600 bg-slate-100 dark:bg-slate-800 px-3 py-1 rounded-full">
                 {expenses.length} Entrées
               </span>
             </div>
@@ -225,7 +225,7 @@ export function ExpenseTracker() {
                   <div className="w-16 h-16 bg-slate-50 dark:bg-slate-900 rounded-full flex items-center justify-center mx-auto text-slate-200">
                     <Receipt className="w-8 h-8" />
                   </div>
-                  <p className="text-slate-400 font-medium">Aucune dépense enregistrée</p>
+                  <p className="text-slate-600 font-medium">Aucune dépense enregistrée</p>
                 </div>
               ) : (
                 expenses.map((expense) => (
@@ -236,7 +236,7 @@ export function ExpenseTracker() {
                     <div className={`w-1.5 h-10 rounded-full ${CATEGORY_COLORS[expense.category] || 'bg-slate-500'}`} />
                     <div className="flex-1 min-w-0">
                       <div className="font-bold text-slate-900 dark:text-white truncate">{expense.description}</div>
-                      <div className="flex items-center gap-2 text-[10px] font-bold text-slate-400 uppercase tracking-tighter">
+                      <div className="flex items-center gap-2 text-[10px] font-bold text-slate-600 uppercase tracking-tighter">
                         <span>{expense.category}</span>
                         <span>•</span>
                         <span className="flex items-center gap-1"><CalendarIcon className="w-3 h-3" /> {new Date(expense.date).toLocaleDateString("fr-FR")}</span>

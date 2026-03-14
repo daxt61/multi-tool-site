@@ -48,7 +48,7 @@ export function VATCalculator() {
           </div>
 
           <div className="space-y-3">
-            <label className="text-xs font-black uppercase tracking-widest text-slate-400 px-1">
+            <label className="text-xs font-black uppercase tracking-widest text-slate-600 px-1">
               Montant {mode === "ht-to-ttc" ? "HT" : "TTC"}
             </label>
             <div className="relative">
@@ -65,7 +65,7 @@ export function VATCalculator() {
           </div>
 
           <div className="space-y-3">
-             <label className="text-xs font-black uppercase tracking-widest text-slate-400 px-1">Taux de TVA</label>
+             <label className="text-xs font-black uppercase tracking-widest text-slate-600 px-1">Taux de TVA</label>
              <div className="grid grid-cols-2 gap-2">
                 {commonRates.map((rate) => (
                   <button
@@ -90,7 +90,7 @@ export function VATCalculator() {
                   placeholder="20"
                   step="0.1"
                 />
-                <span className="absolute right-4 top-1/2 -translate-y-1/2 font-black text-slate-400">%</span>
+                <span className="absolute right-4 top-1/2 -translate-y-1/2 font-black text-slate-600">%</span>
              </div>
           </div>
         </div>
@@ -98,7 +98,7 @@ export function VATCalculator() {
         <div className="space-y-6">
           <div className="bg-slate-900 dark:bg-black p-10 rounded-[2.5rem] shadow-xl shadow-indigo-500/10 space-y-8">
              <div className="text-center pb-4">
-                <div className="text-slate-400 font-bold uppercase tracking-widest text-xs mb-2">Montant TTC</div>
+                <div className="text-slate-600 font-bold uppercase tracking-widest text-xs mb-2">Montant TTC</div>
                 <div className="text-6xl font-black text-white font-mono tracking-tighter">
                   {ttc.toFixed(2)}€
                 </div>
@@ -120,7 +120,7 @@ export function VATCalculator() {
              <div className="p-3 bg-indigo-50 dark:bg-indigo-900/20 text-indigo-600 dark:text-indigo-400 rounded-2xl">
                 <Info className="w-6 h-6" />
              </div>
-             <div className="text-sm text-slate-500 dark:text-slate-400 leading-relaxed space-y-2">
+             <div className="text-sm text-slate-500 dark:text-slate-600 leading-relaxed space-y-2">
                 <p className="font-bold text-slate-900 dark:text-white">Taux en France :</p>
                 <ul className="grid grid-cols-2 gap-x-4 gap-y-1">
                   <li>Normal: 20%</li>

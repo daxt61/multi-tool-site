@@ -57,7 +57,7 @@ export function ListCleaner() {
     <div className="max-w-5xl mx-auto space-y-8">
       <div className="space-y-4">
         <div className="flex justify-between items-center px-1">
-          <label className="text-xs font-black uppercase tracking-widest text-slate-400">Votre Liste</label>
+          <label className="text-xs font-black uppercase tracking-widest text-slate-600">Votre Liste</label>
           <div className="flex gap-2">
             <button
               onClick={handleCopy}
@@ -88,7 +88,7 @@ export function ListCleaner() {
           placeholder="Entrez vos éléments ici, un par ligne..."
           className="w-full h-80 p-8 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-[2rem] outline-none focus:ring-2 focus:ring-indigo-500/20 transition-all text-lg leading-relaxed dark:text-slate-300 font-mono"
         />
-        <div className="flex justify-end text-xs font-bold text-slate-400 uppercase tracking-widest px-4">
+        <div className="flex justify-end text-xs font-bold text-slate-600 uppercase tracking-widest px-4">
           {text.split('\n').filter(l => l.length > 0).length} éléments
         </div>
       </div>
@@ -98,7 +98,7 @@ export function ListCleaner() {
         <div className="p-8 bg-white dark:bg-slate-900/50 border border-slate-200 dark:border-slate-800 rounded-[2.5rem] space-y-6">
           <div className="flex items-center gap-3 text-indigo-500">
             <Scissors className="w-5 h-5" />
-            <h3 className="font-black uppercase tracking-widest text-xs text-slate-400">Nettoyage</h3>
+            <h3 className="font-black uppercase tracking-widest text-xs text-slate-600">Nettoyage</h3>
           </div>
           <div className="space-y-2">
             <button
@@ -106,21 +106,21 @@ export function ListCleaner() {
               className="w-full flex items-center justify-between p-4 bg-slate-50 dark:bg-slate-800/50 hover:bg-indigo-50 dark:hover:bg-indigo-900/20 rounded-2xl transition-all group"
             >
               <span className="font-bold text-sm">Supprimer les doublons</span>
-              <ListChecks className="w-4 h-4 text-slate-400 group-hover:text-indigo-500" />
+              <ListChecks className="w-4 h-4 text-slate-600 group-hover:text-indigo-500" />
             </button>
             <button
               onClick={removeEmptyLines}
               className="w-full flex items-center justify-between p-4 bg-slate-50 dark:bg-slate-800/50 hover:bg-indigo-50 dark:hover:bg-indigo-900/20 rounded-2xl transition-all group"
             >
               <span className="font-bold text-sm">Supprimer les lignes vides</span>
-              <Trash2 className="w-4 h-4 text-slate-400 group-hover:text-indigo-500" />
+              <Trash2 className="w-4 h-4 text-slate-600 group-hover:text-indigo-500" />
             </button>
             <button
               onClick={trimLines}
               className="w-full flex items-center justify-between p-4 bg-slate-50 dark:bg-slate-800/50 hover:bg-indigo-50 dark:hover:bg-indigo-900/20 rounded-2xl transition-all group"
             >
               <span className="font-bold text-sm">Tronquer les espaces</span>
-              <Scissors className="w-4 h-4 text-slate-400 group-hover:text-indigo-500" />
+              <Scissors className="w-4 h-4 text-slate-600 group-hover:text-indigo-500" />
             </button>
           </div>
         </div>
@@ -129,7 +129,7 @@ export function ListCleaner() {
         <div className="p-8 bg-white dark:bg-slate-900/50 border border-slate-200 dark:border-slate-800 rounded-[2.5rem] space-y-6">
           <div className="flex items-center gap-3 text-indigo-500">
             <SortAsc className="w-5 h-5" />
-            <h3 className="font-black uppercase tracking-widest text-xs text-slate-400">Tri</h3>
+            <h3 className="font-black uppercase tracking-widest text-xs text-slate-600">Tri</h3>
           </div>
           <div className="space-y-2">
             <button
@@ -137,21 +137,21 @@ export function ListCleaner() {
               className="w-full flex items-center justify-between p-4 bg-slate-50 dark:bg-slate-800/50 hover:bg-indigo-50 dark:hover:bg-indigo-900/20 rounded-2xl transition-all group"
             >
               <span className="font-bold text-sm">Alphabétique (A-Z)</span>
-              <SortAsc className="w-4 h-4 text-slate-400 group-hover:text-indigo-500" />
+              <SortAsc className="w-4 h-4 text-slate-600 group-hover:text-indigo-500" />
             </button>
             <button
               onClick={sortZA}
               className="w-full flex items-center justify-between p-4 bg-slate-50 dark:bg-slate-800/50 hover:bg-indigo-50 dark:hover:bg-indigo-900/20 rounded-2xl transition-all group"
             >
               <span className="font-bold text-sm">Alphabétique (Z-A)</span>
-              <SortDesc className="w-4 h-4 text-slate-400 group-hover:text-indigo-500" />
+              <SortDesc className="w-4 h-4 text-slate-600 group-hover:text-indigo-500" />
             </button>
             <button
               onClick={sortLength}
               className="w-full flex items-center justify-between p-4 bg-slate-50 dark:bg-slate-800/50 hover:bg-indigo-50 dark:hover:bg-indigo-900/20 rounded-2xl transition-all group"
             >
               <span className="font-bold text-sm">Par longueur</span>
-              <SortAsc className="w-4 h-4 text-slate-400 group-hover:text-indigo-500" />
+              <SortAsc className="w-4 h-4 text-slate-600 group-hover:text-indigo-500" />
             </button>
           </div>
         </div>
@@ -160,7 +160,7 @@ export function ListCleaner() {
         <div className="p-8 bg-white dark:bg-slate-900/50 border border-slate-200 dark:border-slate-800 rounded-[2.5rem] space-y-6">
           <div className="flex items-center gap-3 text-indigo-500">
             <Type className="w-5 h-5" />
-            <h3 className="font-black uppercase tracking-widest text-xs text-slate-400">Casse</h3>
+            <h3 className="font-black uppercase tracking-widest text-xs text-slate-600">Casse</h3>
           </div>
           <div className="space-y-2">
             <button
@@ -168,21 +168,21 @@ export function ListCleaner() {
               className="w-full flex items-center justify-between p-4 bg-slate-50 dark:bg-slate-800/50 hover:bg-indigo-50 dark:hover:bg-indigo-900/20 rounded-2xl transition-all group"
             >
               <span className="font-bold text-sm">MAJUSCULES</span>
-              <Type className="w-4 h-4 text-slate-400 group-hover:text-indigo-500" />
+              <Type className="w-4 h-4 text-slate-600 group-hover:text-indigo-500" />
             </button>
             <button
               onClick={() => processList(lines => lines.map(l => l.toLowerCase()))}
               className="w-full flex items-center justify-between p-4 bg-slate-50 dark:bg-slate-800/50 hover:bg-indigo-50 dark:hover:bg-indigo-900/20 rounded-2xl transition-all group"
             >
               <span className="font-bold text-sm">minuscules</span>
-              <Type className="w-4 h-4 text-slate-400 group-hover:text-indigo-500" />
+              <Type className="w-4 h-4 text-slate-600 group-hover:text-indigo-500" />
             </button>
             <button
               onClick={() => processList(lines => lines.map(l => l.charAt(0).toUpperCase() + l.slice(1).toLowerCase()))}
               className="w-full flex items-center justify-between p-4 bg-slate-50 dark:bg-slate-800/50 hover:bg-indigo-50 dark:hover:bg-indigo-900/20 rounded-2xl transition-all group"
             >
               <span className="font-bold text-sm">Capitaliser</span>
-              <Type className="w-4 h-4 text-slate-400 group-hover:text-indigo-500" />
+              <Type className="w-4 h-4 text-slate-600 group-hover:text-indigo-500" />
             </button>
           </div>
         </div>

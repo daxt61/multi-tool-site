@@ -65,10 +65,10 @@ export function IPAddressTool() {
             <div className="p-2 bg-blue-50 dark:bg-blue-900/20 rounded-xl">
               <MapPin className="w-5 h-5 text-blue-500" />
             </div>
-            <span className="text-xs font-black uppercase tracking-widest text-slate-400">Localisation</span>
+            <span className="text-xs font-black uppercase tracking-widest text-slate-600">Localisation</span>
           </div>
           <p className="text-xl font-bold text-slate-900 dark:text-white">{ipInfo.city}, {ipInfo.region}</p>
-          <p className="text-slate-500 dark:text-slate-400 font-medium">{ipInfo.country}</p>
+          <p className="text-slate-500 dark:text-slate-600 font-medium">{ipInfo.country}</p>
         </div>
 
         <div className="bg-white dark:bg-slate-900/40 border border-slate-200 dark:border-slate-800 rounded-[2rem] p-8 shadow-sm transition-all hover:shadow-md">
@@ -76,7 +76,7 @@ export function IPAddressTool() {
             <div className="p-2 bg-indigo-50 dark:bg-indigo-900/20 rounded-xl">
               <Globe className="w-5 h-5 text-indigo-500" />
             </div>
-            <span className="text-xs font-black uppercase tracking-widest text-slate-400">Fuseau horaire</span>
+            <span className="text-xs font-black uppercase tracking-widest text-slate-600">Fuseau horaire</span>
           </div>
           <p className="text-xl font-bold text-slate-900 dark:text-white font-mono">{ipInfo.timezone}</p>
         </div>
@@ -86,7 +86,7 @@ export function IPAddressTool() {
             <div className="p-2 bg-emerald-50 dark:bg-emerald-900/20 rounded-xl">
               <Wifi className="w-5 h-5 text-emerald-500" />
             </div>
-            <span className="text-xs font-black uppercase tracking-widest text-slate-400">Fournisseur d'accès (ISP)</span>
+            <span className="text-xs font-black uppercase tracking-widest text-slate-600">Fournisseur d'accès (ISP)</span>
           </div>
           <p className="text-xl font-bold text-slate-900 dark:text-white">{ipInfo.isp}</p>
         </div>

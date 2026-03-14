@@ -41,7 +41,7 @@ export function MarkdownPreview() {
     html = html.replace(/^# (.*$)/gim, '<h1 class="text-2xl font-black mt-10 mb-6 text-slate-900 dark:text-white border-b border-slate-200 dark:border-slate-800 pb-2">$1</h1>');
     
     // 4. Blockquotes
-    html = html.replace(/^\s*&gt;\s+(.*)$/gim, '<blockquote class="border-l-4 border-slate-300 dark:border-slate-700 pl-4 italic my-6 text-slate-600 dark:text-slate-400">$1</blockquote>');
+    html = html.replace(/^\s*&gt;\s+(.*)$/gim, '<blockquote class="border-l-4 border-slate-300 dark:border-slate-700 pl-4 italic my-6 text-slate-600 dark:text-slate-600">$1</blockquote>');
     
     // 5. Unordered lists
     html = html.replace(/^\s*[-*]\s+(.*)$/gim, '<li class="ml-6 list-disc text-slate-700 dark:text-slate-300 my-1">$1</li>');
@@ -66,7 +66,7 @@ export function MarkdownPreview() {
                     !url.toLowerCase().includes('javascript:'); // Double check for javascript:
       return isSafe
         ? `<a href="${url}" class="text-indigo-600 dark:text-indigo-400 underline underline-offset-4 hover:text-indigo-500 transition-colors" rel="noopener noreferrer" target="_blank">${linkText}</a>`
-        : `<span class="text-slate-400 underline decoration-dotted" title="Lien non sécurisé">${linkText}</span>`;
+        : `<span class="text-slate-600 underline decoration-dotted" title="Lien non sécurisé">${linkText}</span>`;
     });
     
     // 9. Line breaks (apply only to non-block content)

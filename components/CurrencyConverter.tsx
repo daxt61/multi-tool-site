@@ -99,9 +99,9 @@ export function CurrencyConverter() {
         <div className="space-y-8">
           <div className="space-y-3">
             <div className="flex justify-between items-center px-1">
-              <label htmlFor="amount" className="text-xs font-black uppercase tracking-widest text-slate-400 cursor-pointer">Montant à convertir</label>
+              <label htmlFor="amount" className="text-xs font-black uppercase tracking-widest text-slate-600 cursor-pointer">Montant à convertir</label>
               {lastUpdated && (
-                <div className="text-[10px] font-bold text-slate-400 flex items-center gap-1">
+                <div className="text-[10px] font-bold text-slate-600 flex items-center gap-1">
                   <RefreshCw className={`w-3 h-3 ${loading ? 'animate-spin' : ''}`} />
                   Actualisé à {lastUpdated}
                 </div>
@@ -119,7 +119,7 @@ export function CurrencyConverter() {
 
           <div className="grid grid-cols-1 gap-4 relative">
             <div className="space-y-2">
-              <label htmlFor="fromCurrency" className="text-xs font-bold text-slate-400 px-1 uppercase tracking-widest cursor-pointer">De</label>
+              <label htmlFor="fromCurrency" className="text-xs font-bold text-slate-600 px-1 uppercase tracking-widest cursor-pointer">De</label>
               <select
                 id="fromCurrency"
                 value={fromCurrency}
@@ -141,7 +141,7 @@ export function CurrencyConverter() {
             </div>
 
             <div className="space-y-2 pt-4">
-              <label htmlFor="toCurrency" className="text-xs font-bold text-slate-400 px-1 uppercase tracking-widest cursor-pointer">Vers</label>
+              <label htmlFor="toCurrency" className="text-xs font-bold text-slate-600 px-1 uppercase tracking-widest cursor-pointer">Vers</label>
               <select
                 id="toCurrency"
                 value={toCurrency}
@@ -157,7 +157,7 @@ export function CurrencyConverter() {
         <div className="bg-slate-900 dark:bg-black p-10 rounded-[2.5rem] text-center flex flex-col items-center justify-center space-y-6 shadow-2xl shadow-indigo-500/10 min-h-[350px] relative overflow-hidden group">
           <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-indigo-500 to-blue-500 opacity-50"></div>
 
-          <div className="text-slate-400 font-bold uppercase tracking-widest text-xs">Résultat Estimé</div>
+          <div className="text-slate-600 font-bold uppercase tracking-widest text-xs">Résultat Estimé</div>
 
           <div className="space-y-1">
             <div className="text-6xl md:text-7xl font-black text-white font-mono tracking-tighter">

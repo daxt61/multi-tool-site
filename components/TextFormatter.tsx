@@ -81,7 +81,7 @@ export function TextFormatter() {
             <div className="text-indigo-500">{stat.icon}</div>
             <div>
               <div className="text-sm font-black font-mono dark:text-white">{stat.value}</div>
-              <div className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">{stat.label}</div>
+              <div className="text-[10px] font-bold text-slate-600 uppercase tracking-wider">{stat.label}</div>
             </div>
           </div>
         ))}
@@ -90,7 +90,7 @@ export function TextFormatter() {
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
         <div className="lg:col-span-8 space-y-4">
           <div className="flex justify-between items-center px-1">
-            <label className="text-xs font-black uppercase tracking-widest text-slate-400">Votre Texte</label>
+            <label className="text-xs font-black uppercase tracking-widest text-slate-600">Votre Texte</label>
             <div className="flex gap-2">
               <button onClick={handleCopy} className={`text-xs font-bold px-4 py-2 rounded-xl transition-all flex items-center gap-2 ${copied ? 'bg-emerald-500 text-white' : 'text-slate-600 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 hover:border-slate-300'}`}>
                 {copied ? <Check className="w-3.5 h-3.5" /> : <Copy className="w-3.5 h-3.5" />} {copied ? 'Copié' : 'Copier'}
@@ -113,7 +113,7 @@ export function TextFormatter() {
           <div className="bg-slate-50 dark:bg-slate-900/50 p-6 rounded-[2rem] border border-slate-200 dark:border-slate-800 space-y-4">
             <div className="flex items-center gap-2 px-1 mb-2">
               <Search className="w-3.5 h-3.5 text-indigo-500" />
-              <h4 className="text-[10px] font-black uppercase tracking-widest text-slate-400">Chercher & Remplacer</h4>
+              <h4 className="text-[10px] font-black uppercase tracking-widest text-slate-600">Chercher & Remplacer</h4>
             </div>
             <div className="space-y-3">
               <input
@@ -133,7 +133,7 @@ export function TextFormatter() {
               <div className="flex items-center justify-between gap-2">
                 <button
                   onClick={() => setIsCaseSensitive(!isCaseSensitive)}
-                  className={`flex-1 flex items-center justify-center gap-2 py-2 rounded-xl text-[10px] font-black transition-all border ${isCaseSensitive ? 'bg-indigo-600 border-indigo-600 text-white' : 'bg-white dark:bg-slate-800 text-slate-400 border-slate-200 dark:border-slate-700'}`}
+                  className={`flex-1 flex items-center justify-center gap-2 py-2 rounded-xl text-[10px] font-black transition-all border ${isCaseSensitive ? 'bg-indigo-600 border-indigo-600 text-white' : 'bg-white dark:bg-slate-800 text-slate-600 border-slate-200 dark:border-slate-700'}`}
                 >
                   <CaseSensitive className="w-3.5 h-3.5" /> MAJ/min
                 </button>
@@ -151,7 +151,7 @@ export function TextFormatter() {
           <div className="bg-white dark:bg-slate-900/40 p-6 rounded-[2rem] border border-slate-200 dark:border-slate-800 space-y-4">
              <div className="flex items-center gap-2 px-1 mb-2">
               <Sliders className="w-3.5 h-3.5 text-indigo-500" />
-              <h4 className="text-[10px] font-black uppercase tracking-widest text-slate-400">Actions Rapides</h4>
+              <h4 className="text-[10px] font-black uppercase tracking-widest text-slate-600">Actions Rapides</h4>
             </div>
             <div className="grid grid-cols-1 gap-2">
               {formatters.map((formatter, index) => (

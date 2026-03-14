@@ -79,7 +79,7 @@ export function SlugGenerator() {
         <section className="bg-slate-50 dark:bg-slate-900/50 p-8 rounded-[2.5rem] border border-slate-200 dark:border-slate-800 space-y-6">
           <div className="flex items-center gap-2 px-1">
             <LinkIcon className="w-4 h-4 text-indigo-500" />
-            <h3 className="text-xs font-black uppercase tracking-widest text-slate-400">Texte Source</h3>
+            <h3 className="text-xs font-black uppercase tracking-widest text-slate-600">Texte Source</h3>
           </div>
           <textarea
             value={text}
@@ -94,7 +94,7 @@ export function SlugGenerator() {
           <section className="bg-slate-50 dark:bg-slate-900/50 p-8 rounded-[2.5rem] border border-slate-200 dark:border-slate-800 space-y-6">
             <div className="flex items-center gap-2 px-1">
               <Settings className="w-4 h-4 text-indigo-500" />
-              <h3 className="text-xs font-black uppercase tracking-widest text-slate-400">Options de conversion</h3>
+              <h3 className="text-xs font-black uppercase tracking-widest text-slate-600">Options de conversion</h3>
             </div>
             <div className="space-y-3">
               {[
@@ -124,9 +124,9 @@ export function SlugGenerator() {
           <section className="bg-white dark:bg-slate-900/40 p-8 rounded-[2.5rem] border border-slate-200 dark:border-slate-800 space-y-4">
             <div className="flex items-center gap-2 px-1">
               <Info className="w-4 h-4 text-indigo-500" />
-              <h3 className="text-xs font-black uppercase tracking-widest text-slate-400">Qu'est-ce qu'un Slug ?</h3>
+              <h3 className="text-xs font-black uppercase tracking-widest text-slate-600">Qu'est-ce qu'un Slug ?</h3>
             </div>
-            <p className="text-sm text-slate-500 dark:text-slate-400 leading-relaxed px-1">
+            <p className="text-sm text-slate-500 dark:text-slate-600 leading-relaxed px-1">
               Un slug est la partie d'une URL qui identifie une page de manière lisible pour les humains et optimisée pour les moteurs de recherche (SEO). Il est généralement composé de mots séparés par des traits d'union.
             </p>
           </section>

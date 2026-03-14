@@ -117,7 +117,7 @@ export function TimerTool() {
             {!timerRunning && (
               <div className="flex justify-center items-end gap-4">
                 <div className="space-y-2">
-                  <label htmlFor="timerMinutes" className="text-xs font-black uppercase tracking-widest text-slate-400 px-1 cursor-pointer">Minutes</label>
+                  <label htmlFor="timerMinutes" className="text-xs font-black uppercase tracking-widest text-slate-600 px-1 cursor-pointer">Minutes</label>
                   <input
                     id="timerMinutes"
                     type="number"
@@ -135,7 +135,7 @@ export function TimerTool() {
                 </div>
                 <div className="text-3xl font-black text-slate-300 pb-4" aria-hidden="true">:</div>
                 <div className="space-y-2">
-                  <label htmlFor="timerSeconds" className="text-xs font-black uppercase tracking-widest text-slate-400 px-1 cursor-pointer">Secondes</label>
+                  <label htmlFor="timerSeconds" className="text-xs font-black uppercase tracking-widest text-slate-600 px-1 cursor-pointer">Secondes</label>
                   <input
                     id="timerSeconds"
                     type="number"
@@ -222,11 +222,11 @@ export function TimerTool() {
 
           {laps.length > 0 && (
             <div className="max-w-md mx-auto space-y-3">
-              <h4 className="text-xs font-black uppercase tracking-widest text-slate-400 px-1">Tours</h4>
+              <h4 className="text-xs font-black uppercase tracking-widest text-slate-600 px-1">Tours</h4>
               <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-3xl overflow-hidden divide-y divide-slate-100 dark:divide-slate-800">
                 {laps.map((lap, i) => (
                   <div key={i} className="flex justify-between items-center p-4">
-                    <span className="text-xs font-bold text-slate-400">TOUR {laps.length - i}</span>
+                    <span className="text-xs font-bold text-slate-600">TOUR {laps.length - i}</span>
                     <span className="font-mono font-black dark:text-white">{formatStopwatchTime(lap)}</span>
                   </div>
                 ))}

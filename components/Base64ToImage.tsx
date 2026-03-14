@@ -28,7 +28,7 @@ export function Base64ToImage() {
     <div className="max-w-4xl mx-auto space-y-8">
       <div className="space-y-4">
         <div className="flex justify-between items-center px-1">
-          <label className="text-xs font-black uppercase tracking-widest text-slate-400">Chaîne Base64</label>
+          <label className="text-xs font-black uppercase tracking-widest text-slate-600">Chaîne Base64</label>
           <button
             onClick={() => setBase64('')}
             className="text-xs font-bold text-rose-500 hover:text-rose-600 flex items-center gap-1 transition-colors"
@@ -40,14 +40,14 @@ export function Base64ToImage() {
           value={base64}
           onChange={(e) => setBase64(e.target.value)}
           placeholder="Collez votre code Base64 d'image ici..."
-          className="w-full h-40 p-6 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-3xl outline-none focus:ring-2 focus:ring-indigo-500/20 transition-all font-mono text-xs leading-relaxed dark:text-slate-400 break-all resize-none"
+          className="w-full h-40 p-6 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-3xl outline-none focus:ring-2 focus:ring-indigo-500/20 transition-all font-mono text-xs leading-relaxed dark:text-slate-600 break-all resize-none"
         />
       </div>
 
       {base64 && (
         <div className="space-y-6 animate-in fade-in slide-in-from-bottom-4 duration-500">
           <div className="flex justify-between items-center px-1">
-            <label className="text-xs font-black uppercase tracking-widest text-slate-400">Aperçu de l'image</label>
+            <label className="text-xs font-black uppercase tracking-widest text-slate-600">Aperçu de l'image</label>
             <button
               onClick={handleDownload}
               className="flex items-center gap-2 px-6 py-2 bg-indigo-600 text-white rounded-xl font-bold hover:bg-indigo-700 transition-all shadow-lg shadow-indigo-600/20"
@@ -80,7 +80,7 @@ export function Base64ToImage() {
           <div className="w-16 h-16 bg-slate-50 dark:bg-slate-900 rounded-full flex items-center justify-center mx-auto text-slate-300">
             <ImageIcon className="w-8 h-8" />
           </div>
-          <p className="text-slate-500 dark:text-slate-400 font-medium">Collez une chaîne Base64 pour voir l'aperçu de l'image</p>
+          <p className="text-slate-500 dark:text-slate-600 font-medium">Collez une chaîne Base64 pour voir l'aperçu de l'image</p>
         </div>
       )}
     </div>

@@ -48,7 +48,7 @@ export function AspectRatioCalculator() {
           <div className="bg-slate-50 dark:bg-slate-900/50 p-8 rounded-[2.5rem] border border-slate-200 dark:border-slate-800 space-y-8">
             {/* Dimensions Section */}
             <div className="space-y-6">
-              <h3 className="text-xs font-black uppercase tracking-widest text-slate-400 flex items-center gap-2 px-1">
+              <h3 className="text-xs font-black uppercase tracking-widest text-slate-600 flex items-center gap-2 px-1">
                 <Maximize2 className="w-4 h-4" /> Dimensions (Pixels)
               </h3>
               <div className="grid grid-cols-2 gap-4">
@@ -85,7 +85,7 @@ export function AspectRatioCalculator() {
 
             {/* Ratio Section */}
             <div className="space-y-6">
-              <h3 className="text-xs font-black uppercase tracking-widest text-slate-400 flex items-center gap-2 px-1">
+              <h3 className="text-xs font-black uppercase tracking-widest text-slate-600 flex items-center gap-2 px-1">
                 <Monitor className="w-4 h-4" /> Ratio
               </h3>
               <div className="flex items-center gap-4">
@@ -142,7 +142,7 @@ export function AspectRatioCalculator() {
         <div className="lg:col-span-5 space-y-8">
           {/* Visual Preview */}
           <div className="bg-white dark:bg-slate-900/40 border border-slate-200 dark:border-slate-800 rounded-[2.5rem] p-8 space-y-6">
-            <h3 className="text-xs font-black uppercase tracking-widest text-slate-400 px-1">Aperçu Visuel</h3>
+            <h3 className="text-xs font-black uppercase tracking-widest text-slate-600 px-1">Aperçu Visuel</h3>
             <div className="aspect-square bg-slate-50 dark:bg-slate-900 rounded-3xl flex items-center justify-center p-8 border border-slate-100 dark:border-slate-800 overflow-hidden">
                <div
                  className="bg-indigo-500/20 border-2 border-indigo-500 rounded-lg shadow-2xl shadow-indigo-500/10 transition-all duration-500 flex items-center justify-center text-indigo-500 font-black text-xs"
@@ -161,7 +161,7 @@ export function AspectRatioCalculator() {
 
           {/* Presets */}
           <div className="bg-white dark:bg-slate-900/40 border border-slate-200 dark:border-slate-800 rounded-[2.5rem] p-8">
-            <h3 className="text-xs font-black uppercase tracking-widest text-slate-400 mb-6 px-1">Ratios Standards</h3>
+            <h3 className="text-xs font-black uppercase tracking-widest text-slate-600 mb-6 px-1">Ratios Standards</h3>
             <div className="grid grid-cols-2 gap-3">
               {commonRatios.map((r) => (
                 <button
@@ -174,12 +174,12 @@ export function AspectRatioCalculator() {
                   className="flex flex-col items-start p-4 bg-slate-50 dark:bg-slate-800/50 border border-slate-100 dark:border-slate-700 rounded-2xl hover:border-indigo-500/30 hover:bg-white dark:hover:bg-slate-800 transition-all text-left group"
                 >
                   <div className="flex items-center gap-2 mb-2">
-                    <div className="p-1.5 bg-white dark:bg-slate-700 rounded-lg text-slate-400 group-hover:text-indigo-500 transition-colors">
+                    <div className="p-1.5 bg-white dark:bg-slate-700 rounded-lg text-slate-600 group-hover:text-indigo-500 transition-colors">
                       {r.icon}
                     </div>
                     <span className="font-black text-sm dark:text-white">{r.name}</span>
                   </div>
-                  <span className="text-[10px] font-bold text-slate-400 uppercase tracking-tight">{r.desc}</span>
+                  <span className="text-[10px] font-bold text-slate-600 uppercase tracking-tight">{r.desc}</span>
                 </button>
               ))}
             </div>
@@ -193,7 +193,7 @@ export function AspectRatioCalculator() {
          </div>
          <div className="space-y-2">
             <h4 className="font-bold dark:text-white">Pourquoi utiliser un calculateur de ratio ?</h4>
-            <p className="text-sm text-slate-500 dark:text-slate-400 leading-relaxed">
+            <p className="text-sm text-slate-500 dark:text-slate-600 leading-relaxed">
               Le ratio d'aspect représente le rapport entre la largeur et la hauteur d'une image ou d'un écran. Il est crucial pour éviter les déformations lors du redimensionnement (le fameux effet "écrasé" ou "étiré"). Utilisez cet outil pour calculer les dimensions exactes nécessaires pour vos montages vidéo, vos photos Instagram ou vos designs web.
             </p>
          </div>

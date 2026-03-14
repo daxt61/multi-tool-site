@@ -59,7 +59,7 @@ export function BinaryTextConverter() {
           <div className="flex justify-between items-center px-1">
             <div className="flex items-center gap-2">
               <Type className="w-4 h-4 text-indigo-500" />
-              <label className="text-xs font-black uppercase tracking-widest text-slate-400">Texte Clair</label>
+              <label className="text-xs font-black uppercase tracking-widest text-slate-600">Texte Clair</label>
             </div>
             <div className="flex gap-2">
               <button
@@ -95,7 +95,7 @@ export function BinaryTextConverter() {
           <div className="flex justify-between items-center px-1">
             <div className="flex items-center gap-2">
               <Binary className="w-4 h-4 text-indigo-500" />
-              <label className="text-xs font-black uppercase tracking-widest text-slate-400">Binaire</label>
+              <label className="text-xs font-black uppercase tracking-widest text-slate-600">Binaire</label>
             </div>
             <div className="flex gap-2">
               <button
@@ -120,7 +120,7 @@ export function BinaryTextConverter() {
 
       <div className="bg-slate-50 dark:bg-slate-900/50 p-8 rounded-[2.5rem] border border-slate-200 dark:border-slate-800">
         <h4 className="font-bold text-slate-900 dark:text-white mb-4">À propos du système binaire</h4>
-        <p className="text-sm text-slate-500 dark:text-slate-400 leading-relaxed">
+        <p className="text-sm text-slate-500 dark:text-slate-600 leading-relaxed">
           Le système binaire est un système de numération utilisant la base 2 avec seulement deux symboles : 0 et 1.
           Chaque caractère de votre texte est converti en son code ASCII, puis représenté par une séquence de 8 bits (un octet).
           C'est le langage fondamental utilisé par tous les ordinateurs pour traiter et stocker des informations.

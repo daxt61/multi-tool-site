@@ -76,7 +76,7 @@ export function JSONToTS() {
           <div className="flex justify-between items-center px-1">
             <div className="flex items-center gap-2">
               <FileCode className="w-4 h-4 text-indigo-500" />
-              <label className="text-xs font-black uppercase tracking-widest text-slate-400">Entrée JSON</label>
+              <label className="text-xs font-black uppercase tracking-widest text-slate-600">Entrée JSON</label>
             </div>
             <button
               onClick={handleClear}
@@ -97,7 +97,7 @@ export function JSONToTS() {
           <div className="flex justify-between items-center px-1">
             <div className="flex items-center gap-2">
               <Terminal className="w-4 h-4 text-emerald-500" />
-              <label className="text-xs font-black uppercase tracking-widest text-slate-400">Interfaces TypeScript</label>
+              <label className="text-xs font-black uppercase tracking-widest text-slate-600">Interfaces TypeScript</label>
             </div>
             <button
               onClick={handleCopy}

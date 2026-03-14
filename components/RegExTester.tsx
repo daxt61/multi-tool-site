@@ -97,14 +97,14 @@ export function RegExTester() {
         <div className="lg:col-span-7 space-y-6">
           <div className="bg-slate-50 dark:bg-slate-900/50 p-6 rounded-[2.5rem] border border-slate-200 dark:border-slate-800 space-y-4">
             <div className="flex justify-between items-center px-1">
-              <label htmlFor="regex-input" className="text-xs font-black uppercase tracking-widest text-slate-400">Expression Régulière</label>
+              <label htmlFor="regex-input" className="text-xs font-black uppercase tracking-widest text-slate-600">Expression Régulière</label>
               <button onClick={handleCopy} className="text-xs font-bold text-indigo-500 flex items-center gap-1">
                 {copied ? <Check className="w-3 h-3" /> : <Copy className="w-3 h-3" />} {copied ? 'Copié' : 'Copier'}
               </button>
             </div>
             <div className="relative group">
               <div className="absolute inset-y-0 left-4 flex items-center pointer-events-none">
-                <span className="text-slate-400 font-mono text-lg">/</span>
+                <span className="text-slate-600 font-mono text-lg">/</span>
               </div>
               <input
                 id="regex-input"
@@ -115,7 +115,7 @@ export function RegExTester() {
                 placeholder="Entrez votre regex ici..."
               />
               <div className="absolute inset-y-0 right-4 flex items-center pointer-events-none">
-                <span className="text-slate-400 font-mono text-lg">/{flags}</span>
+                <span className="text-slate-600 font-mono text-lg">/{flags}</span>
               </div>
             </div>
             {error && (
@@ -127,8 +127,8 @@ export function RegExTester() {
 
           <div className="bg-white dark:bg-slate-900/40 p-6 rounded-[2.5rem] border border-slate-200 dark:border-slate-800 space-y-4 relative">
              <div className="flex justify-between items-center px-1">
-              <label htmlFor="test-text" className="text-xs font-black uppercase tracking-widest text-slate-400">Texte de Test</label>
-              <div className="text-xs font-bold text-slate-400">
+              <label htmlFor="test-text" className="text-xs font-black uppercase tracking-widest text-slate-600">Texte de Test</label>
+              <div className="text-xs font-bold text-slate-600">
                 {matchCount} match{matchCount > 1 ? 'es' : ''} trouvé{matchCount > 1 ? 's' : ''}
               </div>
             </div>
@@ -162,7 +162,7 @@ export function RegExTester() {
           <div className="bg-slate-50 dark:bg-slate-900/50 p-8 rounded-[2.5rem] border border-slate-200 dark:border-slate-800 space-y-6">
             <div className="flex items-center gap-2 px-1">
               <Flag className="w-4 h-4 text-indigo-500" />
-              <h3 className="text-xs font-black uppercase tracking-widest text-slate-400">Flags</h3>
+              <h3 className="text-xs font-black uppercase tracking-widest text-slate-600">Flags</h3>
             </div>
             <div className="space-y-2">
               {availableFlags.map((flag) => (

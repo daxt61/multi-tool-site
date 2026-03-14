@@ -92,12 +92,12 @@ export function RandomGenerator() {
       <section className="bg-slate-50 dark:bg-slate-900/50 p-8 rounded-[2.5rem] border border-slate-200 dark:border-slate-800 space-y-8">
         <div className="flex items-center gap-2 px-1">
           <Hash className="w-4 h-4 text-indigo-500" />
-          <h3 className="text-xs font-black uppercase tracking-widest text-slate-400">Nombre Aléatoire</h3>
+          <h3 className="text-xs font-black uppercase tracking-widest text-slate-600">Nombre Aléatoire</h3>
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 items-end">
           <div className="space-y-2">
-            <label className="text-xs font-bold text-slate-400 px-1">MIN</label>
+            <label className="text-xs font-bold text-slate-600 px-1">MIN</label>
             <input
               type="number"
               value={min}
@@ -106,7 +106,7 @@ export function RandomGenerator() {
             />
           </div>
           <div className="space-y-2">
-            <label className="text-xs font-bold text-slate-400 px-1">MAX</label>
+            <label className="text-xs font-bold text-slate-600 px-1">MAX</label>
             <input
               type="number"
               value={max}
@@ -124,7 +124,7 @@ export function RandomGenerator() {
           {randomNumber !== null && (
             <div className="h-14 bg-white dark:bg-slate-800 border border-indigo-200 dark:border-indigo-900/30 rounded-2xl flex items-center justify-between px-6 animate-in zoom-in-95 duration-300">
               <span className="text-2xl font-black font-mono text-indigo-600 dark:text-indigo-400">{randomNumber}</span>
-              <button onClick={() => copyToClipboard(randomNumber.toString(), 'num')} className="text-slate-400 hover:text-indigo-500 transition-colors">
+              <button onClick={() => copyToClipboard(randomNumber.toString(), 'num')} className="text-slate-600 hover:text-indigo-500 transition-colors">
                 {copied === 'num' ? <Check className="w-5 h-5 text-emerald-500" /> : <Copy className="w-5 h-5" />}
               </button>
             </div>
@@ -136,7 +136,7 @@ export function RandomGenerator() {
       <section className="bg-white dark:bg-slate-900/40 p-8 rounded-[2.5rem] border border-slate-200 dark:border-slate-800 space-y-8 shadow-sm">
         <div className="flex items-center gap-2 px-1">
           <Type className="w-4 h-4 text-indigo-500" />
-          <h3 className="text-xs font-black uppercase tracking-widest text-slate-400">Chaîne Aléatoire</h3>
+          <h3 className="text-xs font-black uppercase tracking-widest text-slate-600">Chaîne Aléatoire</h3>
         </div>
 
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
@@ -150,13 +150,13 @@ export function RandomGenerator() {
                 <button
                   key={opt.label}
                   onClick={() => opt.set(!opt.state)}
-                  className={`px-6 py-2 rounded-full text-xs font-black transition-all border ${opt.state ? 'bg-indigo-600 border-indigo-600 text-white' : 'bg-slate-50 text-slate-400 border-slate-200'}`}
+                  className={`px-6 py-2 rounded-full text-xs font-black transition-all border ${opt.state ? 'bg-indigo-600 border-indigo-600 text-white' : 'bg-slate-50 text-slate-600 border-slate-200'}`}
                 >
                   {opt.label}
                 </button>
               ))}
               <div className="flex items-center gap-3 ml-auto">
-                <label className="text-xs font-bold text-slate-400">LONGUEUR</label>
+                <label className="text-xs font-bold text-slate-600">LONGUEUR</label>
                 <input
                   type="number"
                   value={strLength}
@@ -178,7 +178,7 @@ export function RandomGenerator() {
               />
               <button
                 onClick={() => randomString && copyToClipboard(randomString, 'str')}
-                className="absolute right-4 top-1/2 -translate-y-1/2 p-2 bg-white dark:bg-slate-800 shadow-sm rounded-xl text-slate-400 hover:text-indigo-500 transition-all border border-slate-100 dark:border-slate-700"
+                className="absolute right-4 top-1/2 -translate-y-1/2 p-2 bg-white dark:bg-slate-800 shadow-sm rounded-xl text-slate-600 hover:text-indigo-500 transition-all border border-slate-100 dark:border-slate-700"
               >
                 {copied === 'str' ? <Check className="w-5 h-5 text-emerald-500" /> : <Copy className="w-5 h-5" />}
               </button>
@@ -199,12 +199,12 @@ export function RandomGenerator() {
       <section className="bg-slate-50 dark:bg-slate-900/50 p-8 rounded-[2.5rem] border border-slate-200 dark:border-slate-800 space-y-8">
         <div className="flex items-center gap-2 px-1">
           <AlignLeft className="w-4 h-4 text-indigo-500" />
-          <h3 className="text-xs font-black uppercase tracking-widest text-slate-400">Mélanger une Liste</h3>
+          <h3 className="text-xs font-black uppercase tracking-widest text-slate-600">Mélanger une Liste</h3>
         </div>
 
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
           <div className="space-y-4">
-            <label className="text-xs font-bold text-slate-400 px-1">ENTRÉE (Une ligne par élément)</label>
+            <label className="text-xs font-bold text-slate-600 px-1">ENTRÉE (Une ligne par élément)</label>
             <textarea
               value={list}
               onChange={(e) => setList(e.target.value)}
@@ -221,7 +221,7 @@ export function RandomGenerator() {
 
           <div className="space-y-4">
             <div className="flex justify-between items-center px-1">
-              <label className="text-xs font-bold text-slate-400">RÉSULTAT</label>
+              <label className="text-xs font-bold text-slate-600">RÉSULTAT</label>
               <button
                 onClick={() => shuffledList.length > 0 && copyToClipboard(shuffledList.join('\n'), 'list')}
                 className="text-xs font-black text-indigo-600 dark:text-indigo-400 flex items-center gap-1"
@@ -237,7 +237,7 @@ export function RandomGenerator() {
               ) : (
                 shuffledList.map((item, i) => (
                   <div key={i} className="flex items-center gap-3 p-3 bg-slate-50 dark:bg-slate-800/50 rounded-xl border border-slate-100 dark:border-slate-800 animate-in slide-in-from-left-2 duration-300" style={{ animationDelay: `${i * 50}ms` }}>
-                    <span className="w-6 h-6 flex items-center justify-center bg-white dark:bg-slate-700 rounded-lg text-[10px] font-black text-slate-400 border border-slate-100 dark:border-slate-600">{i + 1}</span>
+                    <span className="w-6 h-6 flex items-center justify-center bg-white dark:bg-slate-700 rounded-lg text-[10px] font-black text-slate-600 border border-slate-100 dark:border-slate-600">{i + 1}</span>
                     <span className="font-bold text-sm dark:text-slate-200">{item}</span>
                   </div>
                 ))

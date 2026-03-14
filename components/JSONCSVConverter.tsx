@@ -136,7 +136,7 @@ export function JSONCSVConverter() {
           <div className="flex justify-between items-center px-1">
             <div className="flex items-center gap-2">
               <FileCode className="w-4 h-4 text-indigo-500" />
-              <label className="text-xs font-black uppercase tracking-widest text-slate-400">JSON</label>
+              <label className="text-xs font-black uppercase tracking-widest text-slate-600">JSON</label>
             </div>
             <div className="flex gap-2">
               <button
@@ -173,7 +173,7 @@ export function JSONCSVConverter() {
           <div className="flex justify-between items-center px-1">
             <div className="flex items-center gap-2">
               <FileSpreadsheet className="w-4 h-4 text-indigo-500" />
-              <label className="text-xs font-black uppercase tracking-widest text-slate-400">CSV</label>
+              <label className="text-xs font-black uppercase tracking-widest text-slate-600">CSV</label>
             </div>
             <div className="flex gap-2">
               <button

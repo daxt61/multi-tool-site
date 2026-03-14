@@ -55,7 +55,7 @@ export function Base64Tool() {
           <div className="flex justify-between items-center px-1">
             <div className="flex items-center gap-2">
               <Type className="w-4 h-4 text-indigo-500" />
-              <label className="text-xs font-black uppercase tracking-widest text-slate-400">Texte Clair</label>
+              <label className="text-xs font-black uppercase tracking-widest text-slate-600">Texte Clair</label>
             </div>
             <div className="flex gap-2">
               <button
@@ -85,7 +85,7 @@ export function Base64Tool() {
           <div className="flex justify-between items-center px-1">
             <div className="flex items-center gap-2">
               <FileCode className="w-4 h-4 text-indigo-500" />
-              <label className="text-xs font-black uppercase tracking-widest text-slate-400">Base64</label>
+              <label className="text-xs font-black uppercase tracking-widest text-slate-600">Base64</label>
             </div>
             <div className="flex gap-2">
               <button
@@ -107,7 +107,7 @@ export function Base64Tool() {
 
       <div className="bg-slate-50 dark:bg-slate-900/50 p-8 rounded-[2.5rem] border border-slate-200 dark:border-slate-800">
         <h4 className="font-bold text-slate-900 dark:text-white mb-4">À propos du Base64</h4>
-        <p className="text-sm text-slate-500 dark:text-slate-400 leading-relaxed">
+        <p className="text-sm text-slate-500 dark:text-slate-600 leading-relaxed">
           Le Base64 est un schéma d'encodage binaire vers texte qui représente des données binaires dans un format de chaîne ASCII en les traduisant dans une représentation radix-64.
           C'est particulièrement utile pour transmettre des données qui pourraient être mal interprétées par certains protocoles (comme les caractères spéciaux dans les URLs ou les données binaires dans les e-mails).
         </p>

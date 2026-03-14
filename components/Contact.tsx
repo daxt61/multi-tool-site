@@ -13,7 +13,7 @@ export function Contact() {
     <div className="max-w-4xl mx-auto py-12 space-y-16">
       <div className="text-center space-y-4">
         <h2 className="text-4xl md:text-5xl font-black tracking-tight">Contactez-nous.</h2>
-        <p className="text-xl text-slate-500 dark:text-slate-400 font-medium">Une suggestion ? Un bug ? Nous sommes à votre écoute.</p>
+        <p className="text-xl text-slate-500 dark:text-slate-600 font-medium">Une suggestion ? Un bug ? Nous sommes à votre écoute.</p>
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-12">
@@ -25,17 +25,17 @@ export function Contact() {
                 <Mail className="w-5 h-5" />
               </div>
               <div>
-                <p className="text-xs font-black uppercase tracking-widest text-slate-400 mb-1">Email</p>
+                <p className="text-xs font-black uppercase tracking-widest text-slate-600 mb-1">Email</p>
                 <p className="font-bold">contact@boiteaoutils.com</p>
               </div>
             </div>
 
             <div className="p-6 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-3xl flex items-center gap-6">
-              <div className="w-12 h-12 bg-white dark:bg-slate-800 rounded-xl flex items-center justify-center text-slate-400 shadow-sm">
+              <div className="w-12 h-12 bg-white dark:bg-slate-800 rounded-xl flex items-center justify-center text-slate-600 shadow-sm">
                 <MessageSquare className="w-5 h-5" />
               </div>
               <div>
-                <p className="text-xs font-black uppercase tracking-widest text-slate-400 mb-1">Support</p>
+                <p className="text-xs font-black uppercase tracking-widest text-slate-600 mb-1">Support</p>
                 <p className="font-bold">Réponse sous 24h</p>
               </div>
             </div>
@@ -64,7 +64,7 @@ export function Contact() {
           ) : (
             <form onSubmit={handleSubmit} className="space-y-6">
               <div className="space-y-2">
-                <label className="text-xs font-black uppercase tracking-widest text-slate-400 px-1">Email</label>
+                <label className="text-xs font-black uppercase tracking-widest text-slate-600 px-1">Email</label>
                 <input
                   required
                   type="email"
@@ -73,7 +73,7 @@ export function Contact() {
                 />
               </div>
               <div className="space-y-2">
-                <label className="text-xs font-black uppercase tracking-widest text-slate-400 px-1">Message</label>
+                <label className="text-xs font-black uppercase tracking-widest text-slate-600 px-1">Message</label>
                 <textarea
                   required
                   rows={4}

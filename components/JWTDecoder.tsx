@@ -79,7 +79,7 @@ export function JWTDecoder() {
       {/* Input Area */}
       <div className="space-y-4">
         <div className="flex justify-between items-center px-1">
-          <label className="text-xs font-black uppercase tracking-widest text-slate-400">Jeton JWT</label>
+          <label className="text-xs font-black uppercase tracking-widest text-slate-600">Jeton JWT</label>
           <button
             onClick={() => setJwt('')}
             className="text-xs font-bold px-3 py-1.5 rounded-full text-rose-500 bg-rose-50 dark:bg-rose-500/10 hover:bg-rose-100 transition-all flex items-center gap-1"
@@ -108,9 +108,9 @@ export function JWTDecoder() {
             <div className="flex justify-between items-center">
               <div className="flex items-center gap-3 text-rose-500">
                 <ShieldCheck className="w-5 h-5" />
-                <h3 className="font-black uppercase tracking-widest text-xs text-slate-400">En-tête (Header)</h3>
+                <h3 className="font-black uppercase tracking-widest text-xs text-slate-600">En-tête (Header)</h3>
               </div>
-              <button onClick={() => handleCopy(decoded.header)} className="text-slate-400 hover:text-indigo-500 transition-colors">
+              <button onClick={() => handleCopy(decoded.header)} className="text-slate-600 hover:text-indigo-500 transition-colors">
                 <Copy className="w-4 h-4" />
               </button>
             </div>
@@ -124,9 +124,9 @@ export function JWTDecoder() {
             <div className="flex justify-between items-center">
               <div className="flex items-center gap-3 text-indigo-500">
                 <Eye className="w-5 h-5" />
-                <h3 className="font-black uppercase tracking-widest text-xs text-slate-400">Données (Payload)</h3>
+                <h3 className="font-black uppercase tracking-widest text-xs text-slate-600">Données (Payload)</h3>
               </div>
-              <button onClick={() => handleCopy(decoded.payload)} className="text-slate-400 hover:text-indigo-500 transition-colors">
+              <button onClick={() => handleCopy(decoded.payload)} className="text-slate-600 hover:text-indigo-500 transition-colors">
                 <Copy className="w-4 h-4" />
               </button>
             </div>
@@ -139,7 +139,7 @@ export function JWTDecoder() {
           <div className="p-8 bg-white dark:bg-slate-900/50 border border-slate-200 dark:border-slate-800 rounded-[2.5rem] space-y-6 lg:col-span-2">
             <div className="flex items-center gap-3 text-amber-500">
               <Clock className="w-5 h-5" />
-              <h3 className="font-black uppercase tracking-widest text-xs text-slate-400">Informations Clés</h3>
+              <h3 className="font-black uppercase tracking-widest text-xs text-slate-600">Informations Clés</h3>
             </div>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               {[
@@ -149,7 +149,7 @@ export function JWTDecoder() {
                 { label: 'Émetteur (iss)', value: decoded.payload.iss || 'N/A' },
               ].map((claim) => (
                 <div key={claim.label} className="p-4 bg-slate-50 dark:bg-slate-800/50 rounded-2xl border border-slate-100 dark:border-slate-800">
-                  <div className="text-[10px] font-black uppercase tracking-widest text-slate-400 mb-1">{claim.label}</div>
+                  <div className="text-[10px] font-black uppercase tracking-widest text-slate-600 mb-1">{claim.label}</div>
                   <div className="font-bold text-sm truncate">{claim.value}</div>
                 </div>
               ))}
@@ -161,7 +161,7 @@ export function JWTDecoder() {
              <div className="flex justify-between items-center">
                 <div className="flex items-center gap-3 text-emerald-500">
                   <ShieldCheck className="w-5 h-5" />
-                  <h3 className="font-black uppercase tracking-widest text-xs text-slate-400">Signature</h3>
+                  <h3 className="font-black uppercase tracking-widest text-xs text-slate-600">Signature</h3>
                 </div>
                 <button
                   onClick={() => setShowSignature(!showSignature)}
@@ -174,7 +174,7 @@ export function JWTDecoder() {
              <div className="p-6 bg-slate-50 dark:bg-slate-800 rounded-2xl text-xs font-mono break-all text-emerald-600 dark:text-emerald-400">
                {showSignature ? decoded.signature : '•'.repeat(Math.min(decoded.signature.length, 64)) + (decoded.signature.length > 64 ? '...' : '')}
              </div>
-             <p className="text-[10px] text-slate-400 font-medium italic">
+             <p className="text-[10px] text-slate-600 font-medium italic">
                Note: La vérification de la signature nécessite la clé secrète et doit être effectuée côté serveur pour une sécurité réelle. Cet outil est destiné au débogage client-side uniquement.
              </p>
           </div>

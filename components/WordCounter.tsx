@@ -65,7 +65,7 @@ export function WordCounter() {
     <div className="max-w-5xl mx-auto space-y-8">
       <div className="space-y-4">
         <div className="flex justify-between items-center px-1">
-          <label className="text-xs font-black uppercase tracking-widest text-slate-400">Votre Texte</label>
+          <label className="text-xs font-black uppercase tracking-widest text-slate-600">Votre Texte</label>
           <div className="flex gap-2">
             <button
               onClick={handleCopyStats}
@@ -107,7 +107,7 @@ export function WordCounter() {
           <div key={stat.label} className="p-6 bg-white dark:bg-slate-900 border border-slate-100 dark:border-slate-800 rounded-2xl space-y-2">
             <div className="text-indigo-500 dark:text-indigo-400">{stat.icon}</div>
             <div className="text-2xl font-black font-mono tracking-tight dark:text-white">{stat.value}</div>
-            <div className="text-xs font-bold text-slate-400 uppercase tracking-wider">{stat.label}</div>
+            <div className="text-xs font-bold text-slate-600 uppercase tracking-wider">{stat.label}</div>
           </div>
         ))}
       </div>
@@ -135,7 +135,7 @@ export function WordCounter() {
 
       {stats.topWords.length > 0 && (
         <div className="pt-8 border-t border-slate-100 dark:border-slate-800">
-          <h3 className="text-xs font-black uppercase tracking-widest text-slate-400 mb-6 flex items-center gap-2">
+          <h3 className="text-xs font-black uppercase tracking-widest text-slate-600 mb-6 flex items-center gap-2">
             <BarChart3 className="w-4 h-4" /> Mots les plus fréquents
           </h3>
           <div className="flex flex-wrap gap-3">
@@ -160,7 +160,7 @@ export function WordCounter() {
           <h4 className="font-bold dark:text-white flex items-center gap-2">
             <Info className="w-4 h-4 text-indigo-500" /> Guide d'utilisation
           </h4>
-          <p className="text-sm text-slate-500 dark:text-slate-400 leading-relaxed">
+          <p className="text-sm text-slate-500 dark:text-slate-600 leading-relaxed">
             Collez simplement votre texte dans la zone de saisie. Les statistiques se mettent à jour instantanément. Vous pouvez utiliser les boutons pour changer la casse du texte ou copier les rapports de statistiques détaillés.
           </p>
         </div>
@@ -168,7 +168,7 @@ export function WordCounter() {
           <h4 className="font-bold dark:text-white flex items-center gap-2">
             <FileText className="w-4 h-4 text-indigo-500" /> Détails Techniques
           </h4>
-          <p className="text-sm text-slate-500 dark:text-slate-400 leading-relaxed">
+          <p className="text-sm text-slate-500 dark:text-slate-600 leading-relaxed">
             Le comptage des mots utilise une expression régulière robuste pour identifier les séparateurs. Le temps de lecture est estimé sur une base de 200 mots/minute, tandis que le temps de parole est calculé sur 130 mots/minute.
           </p>
         </div>
@@ -176,7 +176,7 @@ export function WordCounter() {
           <h4 className="font-bold dark:text-white flex items-center gap-2">
             <MessageSquare className="w-4 h-4 text-indigo-500" /> FAQ
           </h4>
-          <p className="text-sm text-slate-500 dark:text-slate-400 leading-relaxed">
+          <p className="text-sm text-slate-500 dark:text-slate-600 leading-relaxed">
             <strong>Mes données sont-elles privées ?</strong> Absolument. Aucun texte n'est envoyé à un serveur. Tout le traitement est effectué localement sur votre appareil.
           </p>
         </div>

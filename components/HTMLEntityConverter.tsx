@@ -46,7 +46,7 @@ export function HTMLEntityConverter() {
         <div className="space-y-4">
           <div className="flex justify-between items-center px-1">
             <div className="flex items-center gap-2">
-              <label className="text-xs font-black uppercase tracking-widest text-slate-400">Texte</label>
+              <label className="text-xs font-black uppercase tracking-widest text-slate-600">Texte</label>
             </div>
             <div className="flex gap-2">
               <button
@@ -75,7 +75,7 @@ export function HTMLEntityConverter() {
         <div className="space-y-4">
           <div className="flex justify-between items-center px-1">
             <div className="flex items-center gap-2">
-              <label className="text-xs font-black uppercase tracking-widest text-slate-400">Entités HTML</label>
+              <label className="text-xs font-black uppercase tracking-widest text-slate-600">Entités HTML</label>
             </div>
             <div className="flex gap-2">
               <button

@@ -1,25 +1,81 @@
-import React, { useState, useMemo, useEffect, useRef } from 'react';
-import { Search, Info, AlertCircle, Copy, Check, Flag } from 'lucide-react';
+import React, { useState, useEffect, useRef } from 'react';
+import { Search, Info, AlertCircle, Copy, Check, Flag, Loader2 } from 'lucide-react';
 
 export function RegExTester() {
   const [regex, setRegex] = useState('([a-zA-Z0-9._%+-]+)@([a-zA-Z0-9.-]+)\\.([a-zA-Z]{2,})');
   const [flags, setFlags] = useState('g');
   const [testText, setTestText] = useState('Contactez-nous à support@example.com ou sales@test.org pour plus d\'informations.');
   const [copied, setCopied] = useState(false);
+  const [matches, setMatches] = useState<any[]>([]);
+  const [error, setError] = useState<string | null>(null);
+  const [matchCount, setMatchCount] = useState(0);
+  const [isProcessing, setIsProcessing] = useState(false);
+
   const backdropRef = useRef<HTMLDivElement>(null);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
 
-  const { matches, error, matchCount } = useMemo(() => {
-    if (!regex) return { matches: [], error: null, matchCount: 0 };
-    try {
-      // Ensure the 'g' flag is handled correctly for matchAll
-      const safeFlags = flags.includes('g') ? flags : flags + 'g';
-      const re = new RegExp(regex, safeFlags);
-      const allMatches = Array.from(testText.matchAll(re));
-      return { matches: allMatches, error: null, matchCount: allMatches.length };
-    } catch (e: any) {
-      return { matches: [], error: e.message, matchCount: 0 };
+  useEffect(() => {
+    if (!regex) {
+      setMatches([]);
+      setError(null);
+      setMatchCount(0);
+      setIsProcessing(false);
+      return;
     }
+
+    setIsProcessing(true);
+
+    const workerCode = `
+      self.onmessage = (e) => {
+        const { regex, flags, testText } = e.data;
+        try {
+          const safeFlags = flags.includes('g') ? flags : flags + 'g';
+          const re = new RegExp(regex, safeFlags);
+          const allMatches = Array.from(testText.matchAll(re)).map(m => ({
+            0: m[0],
+            index: m.index
+          }));
+          self.postMessage({ matches: allMatches, matchCount: allMatches.length });
+        } catch (e) {
+          self.postMessage({ error: e.message });
+        }
+      };
+    `;
+
+    const blob = new Blob([workerCode], { type: 'application/javascript' });
+    const workerUrl = URL.createObjectURL(blob);
+    const worker = new Worker(workerUrl);
+
+    const timeoutId = setTimeout(() => {
+      worker.terminate();
+      setError('Délai d\'exécution dépassé (ReDoS possible)');
+      setMatches([]);
+      setMatchCount(0);
+      setIsProcessing(false);
+    }, 500);
+
+    worker.onmessage = (e) => {
+      clearTimeout(timeoutId);
+      const { matches, matchCount, error } = e.data;
+      if (error) {
+        setError(error);
+        setMatches([]);
+        setMatchCount(0);
+      } else {
+        setMatches(matches);
+        setMatchCount(matchCount);
+        setError(null);
+      }
+      setIsProcessing(false);
+    };
+
+    worker.postMessage({ regex, flags, testText });
+
+    return () => {
+      clearTimeout(timeoutId);
+      worker.terminate();
+      URL.revokeObjectURL(workerUrl);
+    };
   }, [regex, flags, testText]);
 
   const syncScroll = () => {
@@ -115,7 +171,10 @@ export function RegExTester() {
                 placeholder="Entrez votre regex ici..."
               />
               <div className="absolute inset-y-0 right-4 flex items-center pointer-events-none">
-                <span className="text-slate-400 font-mono text-lg">/{flags}</span>
+                <div className="flex items-center gap-2">
+                  {isProcessing && <Loader2 className="w-4 h-4 text-indigo-500 animate-spin" />}
+                  <span className="text-slate-400 font-mono text-lg">/{flags}</span>
+                </div>
               </div>
             </div>
             {error && (
@@ -200,11 +259,11 @@ export function RegExTester() {
                 <span>N'importe quel caractère</span>
               </div>
               <div className="flex gap-3">
-                <code className="bg-white/10 px-2 py-0.5 rounded text-white">\d</code>
+                <code className="bg-white/10 px-2 py-0.5 rounded text-white">\\d</code>
                 <span>Un chiffre (0-9)</span>
               </div>
               <div className="flex gap-3">
-                <code className="bg-white/10 px-2 py-0.5 rounded text-white">\w</code>
+                <code className="bg-white/10 px-2 py-0.5 rounded text-white">\\w</code>
                 <span>Un mot (a-z, A-Z, 0-9, _)</span>
               </div>
               <div className="flex gap-3">

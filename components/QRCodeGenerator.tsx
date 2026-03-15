@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Download } from 'lucide-react';
+import { Download, Trash2 } from 'lucide-react';
 
 export function QRCodeGenerator() {
   const [text, setText] = useState('');
@@ -21,9 +21,19 @@ export function QRCodeGenerator() {
   return (
     <div className="max-w-2xl mx-auto">
       <div className="mb-6">
-        <label className="block text-sm font-semibold text-gray-700 mb-2">
-          Texte ou URL à encoder
-        </label>
+        <div className="flex justify-between items-center mb-2">
+          <label className="text-sm font-semibold text-gray-700">
+            Texte ou URL à encoder
+          </label>
+          <button
+            onClick={() => setText('')}
+            disabled={!text}
+            className="text-xs font-bold text-rose-500 hover:text-rose-600 flex items-center gap-1 transition-all disabled:opacity-0 disabled:pointer-events-none"
+            aria-label="Effacer le texte"
+          >
+            <Trash2 className="w-3 h-3" /> Effacer
+          </button>
+        </div>
         <textarea
           value={text}
           onChange={(e) => setText(e.target.value)}

@@ -8,7 +8,7 @@
 
 ## 2025-05-15 - [Keyboard Shortcuts & Semantic Navigation]
 **Learning:** Adding a global keyboard shortcut (like '/') to focus the primary search or action significantly improves the "pro" feel of a tool-based dashboard. Coupling this with a visual `<kbd>` hint ensures the feature is discoverable. Additionally, using semantic icons (e.g., `ArrowLeft` instead of rotated `ArrowRight`) and `aria-pressed` for toggles are high-impact micro-UX improvements that combine accessibility with cleaner code.
-**Action:** Consider search focus shortcuts for dashboards and prioritize semantic icons over CSS transforms for basic navigation.
+**Action:** Consider search focus shortcuts for dashboards and prioritize semantic icons over UX-focused transforms for basic navigation.
 
 ## 2025-05-16 - [Semantic Navigation & Valid HTML Structure]
 **Learning:** Avoid nesting buttons inside buttons or links as it is invalid HTML and breaks keyboard/screen reader navigation. Instead, use a `div` container with a "stretched link" (absolute button with `z-10`) and place other interactive elements (like favorites) as siblings with higher `z-index`. Additionally, use semantic icons like `ArrowLeft` instead of rotated icons for back navigation to maintain consistency and clarity.
@@ -25,3 +25,7 @@
 ## 2025-05-24 - [Global Navigation & Tool Metadata Polish]
 **Learning:** For tool-based applications, the "Copy link" feature is a vital micro-UX that users expect for sharing specific configurations. Additionally, ensuring that metadata badges (like categories) use consistent icons and localized names from a central configuration, rather than tool-specific icons, improves the application's taxonomic clarity. Coupling this with global accessibility landmarks like "Skip to content" links and semantic `<main>` tags ensures a professional and inclusive user experience.
 **Action:** Prioritize "Copy link" utilities in tool views and audit metadata badges for taxonomic consistency. Always implement "Skip to content" for keyboard accessibility.
+
+## 2026-03-15 - [Micro-UX focus and Scope constraints]
+**Learning:** For a "Palette" mission, large-scale component redesigns—even if technically superior—can be rejected if they exceed scope (e.g., >50 lines) or significantly alter established design tokens. Users (and reviewers) prefer focused, surgical micro-UX improvements like adding a 'Clear' button over complete UI overhauls.
+**Action:** Always prioritize single, high-impact micro-UX improvements that stay within strict line-count boundaries.

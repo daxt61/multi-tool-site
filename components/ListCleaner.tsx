@@ -1,9 +1,11 @@
 import { useState } from 'react';
-import { Copy, Check, Trash2, SortAsc, SortDesc, ListChecks, Type, FileDown, Scissors } from 'lucide-react';
+import { Copy, Check, Trash2, SortAsc, SortDesc, ListChecks, Type, FileDown, Scissors, Plus } from 'lucide-react';
 
 export function ListCleaner() {
   const [text, setText] = useState('');
   const [copied, setCopied] = useState(false);
+  const [prefix, setPrefix] = useState('');
+  const [suffix, setSuffix] = useState('');
 
   const handleCopy = () => {
     navigator.clipboard.writeText(text);
@@ -53,6 +55,10 @@ export function ListCleaner() {
     processList(lines => [...lines].sort((a, b) => a.length - b.length));
   };
 
+  const addPrefixSuffix = () => {
+    processList(lines => lines.map(line => line.trim() === '' ? line : `${prefix}${line}${suffix}`));
+  };
+
   return (
     <div className="max-w-5xl mx-auto space-y-8">
       <div className="space-y-4">
@@ -83,6 +89,7 @@ export function ListCleaner() {
           </div>
         </div>
         <textarea
+          id="list-cleaner-input"
           value={text}
           onChange={(e) => setText(e.target.value)}
           placeholder="Entrez vos éléments ici, un par ligne..."
@@ -183,6 +190,43 @@ export function ListCleaner() {
             >
               <span className="font-bold text-sm">Capitaliser</span>
               <Type className="w-4 h-4 text-slate-400 group-hover:text-indigo-500" />
+            </button>
+          </div>
+        </div>
+
+        {/* Ajouts */}
+        <div className="p-8 bg-white dark:bg-slate-900/50 border border-slate-200 dark:border-slate-800 rounded-[2.5rem] space-y-6 lg:col-span-3">
+          <div className="flex items-center gap-3 text-indigo-500">
+            <Plus className="w-5 h-5" />
+            <h3 className="font-black uppercase tracking-widest text-xs text-slate-400">Ajouts</h3>
+          </div>
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 items-end">
+            <div className="space-y-2">
+              <label className="text-xs font-bold text-slate-400 px-1 uppercase">Préfixe</label>
+              <input
+                type="text"
+                value={prefix}
+                onChange={(e) => setPrefix(e.target.value)}
+                placeholder="ex: https://"
+                className="w-full p-4 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-2xl font-mono text-sm outline-none focus:ring-2 focus:ring-indigo-500/20 transition-all dark:text-white"
+              />
+            </div>
+            <div className="space-y-2">
+              <label className="text-xs font-bold text-slate-400 px-1 uppercase">Suffixe</label>
+              <input
+                type="text"
+                value={suffix}
+                onChange={(e) => setSuffix(e.target.value)}
+                placeholder="ex: .com"
+                className="w-full p-4 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-2xl font-mono text-sm outline-none focus:ring-2 focus:ring-indigo-500/20 transition-all dark:text-white"
+              />
+            </div>
+            <button
+              onClick={addPrefixSuffix}
+              disabled={!prefix && !suffix}
+              className="h-14 bg-indigo-600 text-white rounded-2xl font-black hover:bg-indigo-700 transition-all shadow-lg shadow-indigo-600/20 active:scale-95 flex items-center justify-center gap-2 disabled:opacity-50 disabled:shadow-none"
+            >
+              <Plus className="w-5 h-5" /> Appliquer à la liste
             </button>
           </div>
         </div>

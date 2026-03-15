@@ -70,6 +70,9 @@ import {
   ShieldCheck,
   Scissors,
   Binary,
+  Volume2,
+  Layers,
+  Activity,
 } from "lucide-react";
 const AdPlaceholder = lazy(() => import("./components/AdPlaceholder").then(m => ({ default: m.AdPlaceholder })));
 
@@ -139,6 +142,9 @@ const ColorPaletteGenerator = lazy(() => import("./components/ColorPaletteGenera
 const RegExTester = lazy(() => import("./components/RegExTester").then(m => ({ default: m.RegExTester })));
 const UserAgentAnalyzer = lazy(() => import("./components/UserAgentAnalyzer").then(m => ({ default: m.UserAgentAnalyzer })));
 const SlugGenerator = lazy(() => import("./components/SlugGenerator").then(m => ({ default: m.SlugGenerator })));
+const TextToSpeech = lazy(() => import("./components/TextToSpeech").then(m => ({ default: m.TextToSpeech })));
+const GlassmorphismGenerator = lazy(() => import("./components/GlassmorphismGenerator").then(m => ({ default: m.GlassmorphismGenerator })));
+const Metronome = lazy(() => import("./components/Metronome").then(m => ({ default: m.Metronome })));
 
 // ⚡ Bolt Optimization: Pre-calculating tool map and search index for O(1) lookups and faster filtering
 const toolsMap: Record<string, Tool> = {};
@@ -641,6 +647,30 @@ const tools: Tool[] = [
     icon: Monitor,
     description: "Analyseur de navigateur et système",
     Component: UserAgentAnalyzer,
+    category: "other",
+  },
+  {
+    id: "text-to-speech",
+    name: "Text to Speech",
+    icon: Volume2,
+    description: "Convert text to spoken audio with custom voices",
+    Component: TextToSpeech,
+    category: "other",
+  },
+  {
+    id: "glassmorphism",
+    name: "Glassmorphism Generator",
+    icon: Layers,
+    description: "Generate glassmorphism CSS effects in real-time",
+    Component: GlassmorphismGenerator,
+    category: "dev",
+  },
+  {
+    id: "metronome",
+    name: "Metronome",
+    icon: Activity,
+    description: "Keep the beat with a high-precision digital metronome",
+    Component: Metronome,
     category: "other",
   },
 ];

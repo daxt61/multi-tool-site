@@ -9,17 +9,66 @@ export function RegExTester() {
   const backdropRef = useRef<HTMLDivElement>(null);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
 
-  const { matches, error, matchCount } = useMemo(() => {
-    if (!regex) return { matches: [], error: null, matchCount: 0 };
-    try {
-      // Ensure the 'g' flag is handled correctly for matchAll
-      const safeFlags = flags.includes('g') ? flags : flags + 'g';
-      const re = new RegExp(regex, safeFlags);
-      const allMatches = Array.from(testText.matchAll(re));
-      return { matches: allMatches, error: null, matchCount: allMatches.length };
-    } catch (e: any) {
-      return { matches: [], error: e.message, matchCount: 0 };
+  const [matches, setMatches] = useState<any[]>([]);
+  const [error, setError] = useState<string | null>(null);
+  const [matchCount, setMatchCount] = useState(0);
+
+  useEffect(() => {
+    if (!regex) {
+      setMatches([]);
+      setError(null);
+      setMatchCount(0);
+      return;
     }
+
+    const workerCode = `
+      self.onmessage = function(e) {
+        const { regex, flags, testText } = e.data;
+        try {
+          const safeFlags = flags.includes('g') ? flags : flags + 'g';
+          const re = new RegExp(regex, safeFlags);
+          const allMatches = Array.from(testText.matchAll(re)).map(m => ({
+            index: m.index,
+            0: m[0]
+          }));
+          self.postMessage({ matches: allMatches });
+        } catch (err) {
+          self.postMessage({ error: err.message });
+        }
+      };
+    `;
+
+    const blob = new Blob([workerCode], { type: 'application/javascript' });
+    const workerUrl = URL.createObjectURL(blob);
+    const worker = new Worker(workerUrl);
+
+    const timeout = setTimeout(() => {
+      worker.terminate();
+      setError('Timeout: L\'exécution de la RegEx est trop longue (ReDoS possible)');
+    }, 500);
+
+    worker.onmessage = (e) => {
+      clearTimeout(timeout);
+      if (e.data.error) {
+        setError(e.data.error);
+        setMatches([]);
+        setMatchCount(0);
+      } else {
+        setMatches(e.data.matches);
+        setError(null);
+        setMatchCount(e.data.matches.length);
+      }
+      worker.terminate();
+      URL.revokeObjectURL(workerUrl);
+    };
+
+    worker.postMessage({ regex, flags, testText });
+
+    return () => {
+      worker.terminate();
+      URL.revokeObjectURL(workerUrl);
+      clearTimeout(timeout);
+    };
   }, [regex, flags, testText]);
 
   const syncScroll = () => {

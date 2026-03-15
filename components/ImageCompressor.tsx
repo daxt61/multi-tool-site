@@ -1,10 +1,18 @@
-import { useState, useRef } from 'react';
+import { useState, useRef, useEffect } from 'react';
 import { Upload, Download } from 'lucide-react';
 import { AdPlaceholder } from './AdPlaceholder';
 
 export function ImageCompressor() {
   const [originalImage, setOriginalImage] = useState<string | null>(null);
   const [compressedImage, setCompressedImage] = useState<string | null>(null);
+
+  useEffect(() => {
+    return () => {
+      if (compressedImage) {
+        URL.revokeObjectURL(compressedImage);
+      }
+    };
+  }, [compressedImage]);
   const [quality, setQuality] = useState(80);
   const [originalSize, setOriginalSize] = useState(0);
   const [compressedSize, setCompressedSize] = useState(0);

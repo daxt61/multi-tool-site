@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef } from 'react';
-import { Play, Pause, RotateCcw, Timer, StopCircle, Flag, Bell, BellOff } from 'lucide-react';
+import { Play, Pause, RotateCcw, Timer as TimerIcon, StopCircle, Flag, Bell, BellOff } from 'lucide-react';
 
 export function TimerTool() {
   const [mode, setMode] = useState<'timer' | 'stopwatch'>('timer');
@@ -59,11 +59,20 @@ export function TimerTool() {
       intervalRef.current = window.setInterval(() => {
         setStopwatchTime((prev) => prev + 1);
       }, 10);
-    } else if (intervalRef.current) {
-      clearInterval(intervalRef.current);
+    } else {
+      if (intervalRef.current) {
+        clearInterval(intervalRef.current);
+        intervalRef.current = null;
+      }
     }
-    return () => { if (intervalRef.current) clearInterval(intervalRef.current); };
-  }, [timerRunning, stopwatchRunning, mode]);
+
+    return () => {
+      if (intervalRef.current) {
+        clearInterval(intervalRef.current);
+        intervalRef.current = null;
+      }
+    };
+  }, [timerRunning, stopwatchRunning, mode, soundEnabled]); // Added soundEnabled to dependencies to ensure playBeep has access to latest state if needed, though here it's called inside. Actually playBeep is called in interval, so it's fine.
 
   const resetTimer = () => {
     setTimerRunning(false);
@@ -92,32 +101,33 @@ export function TimerTool() {
     return `${hours > 0 ? hours.toString().padStart(2, '0') + ':' : ''}${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}.${ms.toString().padStart(2, '0')}`;
   };
 
-  const progress = (timerMinutes * 60 + timerSeconds - timerTime) / (timerMinutes * 60 + timerSeconds || 1);
+  const totalPossibleSeconds = timerMinutes * 60 + timerSeconds || 1;
+  const progress = (totalPossibleSeconds - timerTime) / totalPossibleSeconds;
 
   return (
     <div className="max-w-4xl mx-auto space-y-12">
-      <div className="flex bg-slate-100 dark:bg-slate-800 p-1 rounded-2xl w-fit mx-auto">
+      <div className="flex bg-slate-100 dark:bg-slate-800 p-1.5 rounded-[2rem] w-fit mx-auto shadow-sm">
         <button
           onClick={() => setMode('timer')}
-          className={`px-8 py-3 rounded-xl text-sm font-bold transition-all flex items-center gap-2 ${mode === 'timer' ? 'bg-white dark:bg-slate-700 text-indigo-600 shadow-sm' : 'text-slate-500 hover:text-slate-900'}`}
+          className={`px-8 py-3 rounded-[1.5rem] text-sm font-black transition-all flex items-center gap-2 ${mode === 'timer' ? 'bg-white dark:bg-slate-700 text-indigo-600 shadow-md' : 'text-slate-500 hover:text-slate-900 dark:hover:text-slate-300'}`}
         >
-          <Timer className="w-4 h-4" /> Minuteur
+          <TimerIcon className="w-4 h-4" /> Minuteur
         </button>
         <button
           onClick={() => setMode('stopwatch')}
-          className={`px-8 py-3 rounded-xl text-sm font-bold transition-all flex items-center gap-2 ${mode === 'stopwatch' ? 'bg-white dark:bg-slate-700 text-indigo-600 shadow-sm' : 'text-slate-500 hover:text-slate-900'}`}
+          className={`px-8 py-3 rounded-[1.5rem] text-sm font-black transition-all flex items-center gap-2 ${mode === 'stopwatch' ? 'bg-white dark:bg-slate-700 text-indigo-600 shadow-md' : 'text-slate-500 hover:text-slate-900 dark:hover:text-slate-300'}`}
         >
           <StopCircle className="w-4 h-4" /> Chronomètre
         </button>
       </div>
 
       {mode === 'timer' ? (
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-12 items-center">
-          <div className="space-y-8">
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
+          <div className="space-y-10">
             {!timerRunning && (
-              <div className="flex justify-center items-end gap-4">
-                <div className="space-y-2">
-                  <label htmlFor="timerMinutes" className="text-xs font-black uppercase tracking-widest text-slate-400 px-1 cursor-pointer">Minutes</label>
+              <div className="flex justify-center items-end gap-6 animate-in fade-in zoom-in-95 duration-300">
+                <div className="space-y-3">
+                  <label htmlFor="timerMinutes" className="text-[10px] font-black uppercase tracking-[0.2em] text-slate-400 px-1 cursor-pointer">Minutes</label>
                   <input
                     id="timerMinutes"
                     type="number"
@@ -129,13 +139,13 @@ export function TimerTool() {
                       setTimerMinutes(val);
                       setTimerTime(val * 60 + timerSeconds);
                     }}
-                    className="w-24 p-4 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl text-center text-3xl font-black font-mono outline-none focus:border-indigo-500 transition-colors"
-                    aria-label="Minutes du minuteur"
+                    className="w-28 p-5 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-3xl text-center text-4xl font-black font-mono outline-none focus:ring-4 focus:ring-indigo-500/10 focus:border-indigo-500 transition-all"
+                    aria-label="Minutes"
                   />
                 </div>
-                <div className="text-3xl font-black text-slate-300 pb-4" aria-hidden="true">:</div>
-                <div className="space-y-2">
-                  <label htmlFor="timerSeconds" className="text-xs font-black uppercase tracking-widest text-slate-400 px-1 cursor-pointer">Secondes</label>
+                <div className="text-4xl font-black text-slate-200 dark:text-slate-800 pb-6" aria-hidden="true">:</div>
+                <div className="space-y-3">
+                  <label htmlFor="timerSeconds" className="text-[10px] font-black uppercase tracking-[0.2em] text-slate-400 px-1 cursor-pointer">Secondes</label>
                   <input
                     id="timerSeconds"
                     type="number"
@@ -147,52 +157,58 @@ export function TimerTool() {
                       setTimerSeconds(val);
                       setTimerTime(timerMinutes * 60 + val);
                     }}
-                    className="w-24 p-4 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl text-center text-3xl font-black font-mono outline-none focus:border-indigo-500 transition-colors"
-                    aria-label="Secondes du minuteur"
+                    className="w-28 p-5 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-3xl text-center text-4xl font-black font-mono outline-none focus:ring-4 focus:ring-indigo-500/10 focus:border-indigo-500 transition-all"
+                    aria-label="Secondes"
                   />
                 </div>
               </div>
             )}
 
-            <div className="flex gap-3 justify-center">
+            <div className="flex gap-4 justify-center">
               <button
                 onClick={() => setTimerRunning(!timerRunning)}
-                className={`px-10 py-4 rounded-2xl font-black text-lg transition-all active:scale-95 flex items-center gap-2 ${timerRunning ? 'bg-amber-500 text-white shadow-lg shadow-amber-500/20' : 'bg-indigo-600 text-white shadow-lg shadow-indigo-600/20 hover:bg-indigo-700'}`}
+                className={`px-12 py-5 rounded-3xl font-black text-xl transition-all active:scale-95 flex items-center gap-3 shadow-xl ${timerRunning ? 'bg-amber-500 text-white shadow-amber-500/20' : 'bg-indigo-600 text-white shadow-indigo-600/20 hover:bg-indigo-700'}`}
               >
-                {timerRunning ? <Pause className="w-5 h-5 fill-current" /> : <Play className="w-5 h-5 fill-current" />}
+                {timerRunning ? <Pause className="w-6 h-6 fill-current" /> : <Play className="w-6 h-6 fill-current" />}
                 {timerRunning ? 'Pause' : 'Démarrer'}
               </button>
               <button
                 onClick={resetTimer}
-                className="px-8 py-4 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-2xl font-bold text-slate-500 hover:border-slate-300 transition-all flex items-center gap-2"
+                className="px-8 py-5 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-3xl font-black text-slate-500 hover:border-slate-400 dark:hover:border-slate-600 transition-all flex items-center gap-2"
+                aria-label="Réinitialiser"
               >
-                <RotateCcw className="w-5 h-5" /> Reset
+                <RotateCcw className="w-5 h-5" />
               </button>
             </div>
           </div>
 
-          <div className={`relative aspect-square max-w-[320px] mx-auto flex items-center justify-center rounded-full border-4 ${timerDone ? 'border-rose-500 animate-pulse' : 'border-slate-100 dark:border-slate-800'}`}>
+          <div className="relative aspect-square max-w-[340px] w-full mx-auto flex items-center justify-center">
+            <div className={`absolute inset-0 rounded-full border-8 transition-colors duration-500 ${timerDone ? 'border-rose-500 animate-pulse' : 'border-slate-50 dark:border-slate-900'}`}></div>
             <svg className="absolute inset-0 w-full h-full -rotate-90">
               <circle
-                cx="50%" cy="50%" r="48%"
+                cx="50%" cy="50%" r="46%"
                 className="fill-none stroke-indigo-600 transition-all duration-1000"
-                strokeWidth="4" strokeDasharray="301.6%" strokeDashoffset={`${301.6 * (1 - progress)}%`} strokeLinecap="round"
+                strokeWidth="8" strokeDasharray="289%" strokeDashoffset={`${289 * (1 - progress)}%`} strokeLinecap="round"
               />
             </svg>
-            <div className="text-center relative z-10">
-              <div className={`text-6xl font-black font-mono tracking-tighter ${timerDone ? 'text-rose-500' : 'dark:text-white'}`}>
+            <div className="text-center relative z-10 space-y-4">
+              <div className={`text-7xl font-black font-mono tracking-tight ${timerDone ? 'text-rose-500' : 'text-slate-900 dark:text-white'}`}>
                 {formatTime(timerTime)}
               </div>
-              <button onClick={() => setSoundEnabled(!soundEnabled)} className={`mt-4 p-2 rounded-full transition-colors ${soundEnabled ? 'text-indigo-600' : 'text-slate-300'}`}>
-                {soundEnabled ? <Bell className="w-5 h-5" /> : <BellOff className="w-5 h-5" />}
+              <button
+                onClick={() => setSoundEnabled(!soundEnabled)}
+                className={`inline-flex items-center gap-2 px-4 py-2 rounded-full text-xs font-black uppercase tracking-widest transition-all ${soundEnabled ? 'bg-indigo-50 text-indigo-600 dark:bg-indigo-500/10 dark:text-indigo-400' : 'bg-slate-100 text-slate-400 dark:bg-slate-800 dark:text-slate-500'}`}
+              >
+                {soundEnabled ? <Bell className="w-4 h-4" /> : <BellOff className="w-4 h-4" />}
+                {soundEnabled ? 'Son activé' : 'Muet'}
               </button>
             </div>
           </div>
         </div>
       ) : (
         <div className="space-y-12">
-          <div className="text-center py-16 bg-slate-50 dark:bg-slate-900/50 rounded-[3rem] border border-slate-200 dark:border-slate-800">
-            <div className="text-8xl md:text-9xl font-black font-mono tracking-tighter dark:text-white">
+          <div className="text-center py-20 bg-slate-50 dark:bg-slate-900/50 rounded-[3.5rem] border border-slate-200 dark:border-slate-800 shadow-inner">
+            <div className="text-8xl md:text-9xl font-black font-mono tracking-tighter text-slate-900 dark:text-white tabular-nums">
               {formatStopwatchTime(stopwatchTime)}
             </div>
           </div>
@@ -200,34 +216,35 @@ export function TimerTool() {
           <div className="flex flex-wrap gap-4 justify-center">
             <button
               onClick={() => setStopwatchRunning(!stopwatchRunning)}
-              className={`px-10 py-4 rounded-2xl font-black text-lg transition-all active:scale-95 flex items-center gap-2 ${stopwatchRunning ? 'bg-amber-500 text-white shadow-lg shadow-amber-500/20' : 'bg-emerald-600 text-white shadow-lg shadow-emerald-600/20 hover:bg-emerald-700'}`}
+              className={`px-12 py-5 rounded-3xl font-black text-xl transition-all active:scale-95 flex items-center gap-3 shadow-xl ${stopwatchRunning ? 'bg-amber-500 text-white shadow-amber-500/20' : 'bg-emerald-600 text-white shadow-emerald-600/20 hover:bg-emerald-700'}`}
             >
-              {stopwatchRunning ? <Pause className="w-5 h-5 fill-current" /> : <Play className="w-5 h-5 fill-current" />}
+              {stopwatchRunning ? <Pause className="w-6 h-6 fill-current" /> : <Play className="w-6 h-6 fill-current" />}
               {stopwatchRunning ? 'Pause' : 'Démarrer'}
             </button>
             <button
               onClick={() => setLaps([stopwatchTime, ...laps])}
               disabled={!stopwatchRunning && stopwatchTime === 0}
-              className="px-8 py-4 bg-indigo-600 text-white rounded-2xl font-black text-lg shadow-lg shadow-indigo-600/20 hover:bg-indigo-700 transition-all active:scale-95 disabled:opacity-50 flex items-center gap-2"
+              className="px-10 py-5 bg-indigo-600 text-white rounded-3xl font-black text-xl shadow-xl shadow-indigo-600/20 hover:bg-indigo-700 transition-all active:scale-95 disabled:opacity-0 disabled:pointer-events-none flex items-center gap-3"
             >
-              <Flag className="w-5 h-5" /> Tour
+              <Flag className="w-6 h-6" /> Tour
             </button>
             <button
               onClick={resetStopwatch}
-              className="px-8 py-4 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-2xl font-bold text-slate-500 hover:border-slate-300 transition-all flex items-center gap-2"
+              className="px-8 py-5 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-3xl font-black text-slate-500 hover:border-slate-400 dark:hover:border-slate-600 transition-all flex items-center gap-2"
+              aria-label="Réinitialiser"
             >
-              <RotateCcw className="w-5 h-5" /> Reset
+              <RotateCcw className="w-5 h-5" />
             </button>
           </div>
 
           {laps.length > 0 && (
-            <div className="max-w-md mx-auto space-y-3">
-              <h4 className="text-xs font-black uppercase tracking-widest text-slate-400 px-1">Tours</h4>
-              <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-3xl overflow-hidden divide-y divide-slate-100 dark:divide-slate-800">
+            <div className="max-w-md mx-auto space-y-4 animate-in slide-in-from-bottom-4 duration-500">
+              <h4 className="text-[10px] font-black uppercase tracking-[0.2em] text-slate-400 px-1">Historique des tours</h4>
+              <div className="bg-white dark:bg-slate-900/40 border border-slate-200 dark:border-slate-800 rounded-[2rem] overflow-hidden divide-y divide-slate-100 dark:divide-slate-800/50 shadow-sm">
                 {laps.map((lap, i) => (
-                  <div key={i} className="flex justify-between items-center p-4">
-                    <span className="text-xs font-bold text-slate-400">TOUR {laps.length - i}</span>
-                    <span className="font-mono font-black dark:text-white">{formatStopwatchTime(lap)}</span>
+                  <div key={i} className="flex justify-between items-center p-5 group hover:bg-slate-50 dark:hover:bg-slate-800/50 transition-colors">
+                    <span className="text-[10px] font-black text-slate-400 group-hover:text-indigo-500 transition-colors">TOUR {laps.length - i}</span>
+                    <span className="font-mono font-black text-lg text-slate-900 dark:text-white tabular-nums">{formatStopwatchTime(lap)}</span>
                   </div>
                 ))}
               </div>

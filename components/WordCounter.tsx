@@ -17,6 +17,9 @@ export function WordCounter() {
     const trimmed = deferredText.trim();
     const words = trimmed === '' ? [] : trimmed.split(/\s+/);
     const wordCount = words.length;
+    const charNoSpaces = deferredText.replace(/\s/g, '').length;
+    const paragraphs = trimmed === '' ? 0 : deferredText.split(/\n\s*\n/).filter(p => p.trim().length > 0).length;
+    const weight = new Blob([deferredText]).size; // Estimated weight in bytes
 
     const wordFreq: Record<string, number> = {};
     words.forEach(w => {
@@ -32,14 +35,23 @@ export function WordCounter() {
 
     return {
       characters: deferredText.length,
+      charNoSpaces,
       words: wordCount,
       lines: deferredText === '' ? 0 : deferredText.split('\n').length,
       sentences: trimmed === '' ? 0 : deferredText.split(/[.!?]+(?:\s|$)/).filter(s => s.trim().length > 0).length,
+      paragraphs,
+      weight,
       readingTime: Math.ceil(wordCount / 200),
       speakingTime: Math.ceil(wordCount / 130),
       topWords
     };
   }, [deferredText]);
+
+  const formatWeight = (bytes: number) => {
+    if (bytes < 1024) return `${bytes} B`;
+    if (bytes < 1048576) return `${(bytes / 1024).toFixed(1)} KB`;
+    return `${(bytes / 1048576).toFixed(1)} MB`;
+  };
 
   const handleCopy = () => {
     navigator.clipboard.writeText(text);
@@ -50,9 +62,12 @@ export function WordCounter() {
   const handleCopyStats = () => {
     const report = `Rapport de texte :
 - Caractères : ${stats.characters}
+- Caractères (sans espaces) : ${stats.charNoSpaces}
 - Mots : ${stats.words}
 - Lignes : ${stats.lines}
 - Phrases : ${stats.sentences}
+- Paragraphes : ${stats.paragraphs}
+- Poids : ${formatWeight(stats.weight)}
 - Temps de lecture : ~${stats.readingTime} min
 - Temps de parole : ~${stats.speakingTime} min`;
 
@@ -91,16 +106,18 @@ export function WordCounter() {
           value={text}
           onChange={(e) => setText(e.target.value)}
           placeholder="Commencez à taper..."
-          className="w-full h-80 p-8 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-[2rem] outline-none focus:ring-2 focus:ring-indigo-500/20 transition-all text-lg leading-relaxed dark:text-slate-300"
+          className="w-full h-80 p-8 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-[2rem] outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 transition-all text-lg leading-relaxed dark:text-slate-300"
         />
       </div>
 
       <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
         {[
           { icon: <Hash className="w-4 h-4" />, label: 'Caractères', value: stats.characters },
+          { icon: <Hash className="w-4 h-4 opacity-50" />, label: 'Caract. (s.e)', value: stats.charNoSpaces },
           { icon: <Type className="w-4 h-4" />, label: 'Mots', value: stats.words },
-          { icon: <FileText className="w-4 h-4" />, label: 'Lignes', value: stats.lines },
+          { icon: <FileText className="w-4 h-4" />, label: 'Paragraphes', value: stats.paragraphs },
           { icon: <AlignLeft className="w-4 h-4" />, label: 'Phrases', value: stats.sentences },
+          { icon: <BarChart3 className="w-4 h-4" />, label: 'Poids', value: formatWeight(stats.weight) },
           { icon: <Clock className="w-4 h-4" />, label: 'Lecture', value: `${stats.readingTime}m` },
           { icon: <MessageSquare className="w-4 h-4" />, label: 'Parole', value: `${stats.speakingTime}m` },
         ].map((stat) => (

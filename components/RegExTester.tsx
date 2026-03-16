@@ -1,25 +1,80 @@
-import React, { useState, useMemo, useEffect, useRef } from 'react';
-import { Search, Info, AlertCircle, Copy, Check, Flag } from 'lucide-react';
+import React, { useState, useEffect, useRef } from 'react';
+import { Search, Info, AlertCircle, Copy, Check, Flag, Loader2 } from 'lucide-react';
 
 export function RegExTester() {
   const [regex, setRegex] = useState('([a-zA-Z0-9._%+-]+)@([a-zA-Z0-9.-]+)\\.([a-zA-Z]{2,})');
   const [flags, setFlags] = useState('g');
   const [testText, setTestText] = useState('Contactez-nous à support@example.com ou sales@test.org pour plus d\'informations.');
   const [copied, setCopied] = useState(false);
+  const [matches, setMatches] = useState<any[]>([]);
+  const [error, setError] = useState<string | null>(null);
+  const [isProcessing, setIsProcessing] = useState(false);
+
   const backdropRef = useRef<HTMLDivElement>(null);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
+  const workerRef = useRef<Worker | null>(null);
 
-  const { matches, error, matchCount } = useMemo(() => {
-    if (!regex) return { matches: [], error: null, matchCount: 0 };
-    try {
-      // Ensure the 'g' flag is handled correctly for matchAll
-      const safeFlags = flags.includes('g') ? flags : flags + 'g';
-      const re = new RegExp(regex, safeFlags);
-      const allMatches = Array.from(testText.matchAll(re));
-      return { matches: allMatches, error: null, matchCount: allMatches.length };
-    } catch (e: any) {
-      return { matches: [], error: e.message, matchCount: 0 };
+  useEffect(() => {
+    if (!regex) {
+      setMatches([]);
+      setError(null);
+      setIsProcessing(false);
+      return;
     }
+
+    setIsProcessing(true);
+
+    // Create worker code
+    const workerCode = `
+      self.onmessage = function(e) {
+        const { regex, flags, testText } = e.data;
+        try {
+          const safeFlags = flags.includes('g') ? flags : flags + 'g';
+          const re = new RegExp(regex, safeFlags);
+          const allMatches = Array.from(testText.matchAll(re)).map(match => ({
+            0: match[0],
+            index: match.index,
+            length: match[0].length
+          }));
+          self.postMessage({ matches: allMatches });
+        } catch (e) {
+          self.postMessage({ error: e.message });
+        }
+      };
+    `;
+
+    const blob = new Blob([workerCode], { type: 'application/javascript' });
+    const workerUrl = URL.createObjectURL(blob);
+    const worker = new Worker(workerUrl);
+    workerRef.current = worker;
+
+    const timeoutId = setTimeout(() => {
+      if (workerRef.current === worker) {
+        worker.terminate();
+        setError("L'exécution de la regex a pris trop de temps (ReDoS potentiel).");
+        setIsProcessing(false);
+      }
+    }, 500);
+
+    worker.onmessage = (e) => {
+      clearTimeout(timeoutId);
+      if (e.data.error) {
+        setError(e.data.error);
+        setMatches([]);
+      } else {
+        setMatches(e.data.matches);
+        setError(null);
+      }
+      setIsProcessing(false);
+    };
+
+    worker.postMessage({ regex, flags, testText });
+
+    return () => {
+      clearTimeout(timeoutId);
+      worker.terminate();
+      URL.revokeObjectURL(workerUrl);
+    };
   }, [regex, flags, testText]);
 
   const syncScroll = () => {
@@ -98,9 +153,12 @@ export function RegExTester() {
           <div className="bg-slate-50 dark:bg-slate-900/50 p-6 rounded-[2.5rem] border border-slate-200 dark:border-slate-800 space-y-4">
             <div className="flex justify-between items-center px-1">
               <label htmlFor="regex-input" className="text-xs font-black uppercase tracking-widest text-slate-400">Expression Régulière</label>
-              <button onClick={handleCopy} className="text-xs font-bold text-indigo-500 flex items-center gap-1">
-                {copied ? <Check className="w-3 h-3" /> : <Copy className="w-3 h-3" />} {copied ? 'Copié' : 'Copier'}
-              </button>
+              <div className="flex items-center gap-4">
+                {isProcessing && <Loader2 className="w-4 h-4 text-indigo-500 animate-spin" />}
+                <button onClick={handleCopy} className="text-xs font-bold text-indigo-500 flex items-center gap-1">
+                  {copied ? <Check className="w-3 h-3" /> : <Copy className="w-3 h-3" />} {copied ? 'Copié' : 'Copier'}
+                </button>
+              </div>
             </div>
             <div className="relative group">
               <div className="absolute inset-y-0 left-4 flex items-center pointer-events-none">
@@ -129,7 +187,7 @@ export function RegExTester() {
              <div className="flex justify-between items-center px-1">
               <label htmlFor="test-text" className="text-xs font-black uppercase tracking-widest text-slate-400">Texte de Test</label>
               <div className="text-xs font-bold text-slate-400">
-                {matchCount} match{matchCount > 1 ? 'es' : ''} trouvé{matchCount > 1 ? 's' : ''}
+                {matches.length} match{matches.length > 1 ? 'es' : ''} trouvé{matches.length > 1 ? 's' : ''}
               </div>
             </div>
 

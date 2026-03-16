@@ -1,5 +1,5 @@
-import { useState } from 'react';
-import { Copy, Check, Hash, Binary, Octagon, Hexagon, Info } from 'lucide-react';
+import { useState, useCallback } from 'react';
+import { Copy, Check, Hash, Binary, Octagon, Hexagon, Info, Trash2 } from 'lucide-react';
 
 const BASE_CONFIGS = [
   { label: 'Décimal (Base 10)', getter: (s: any) => s.decimal, onChange: (v: string, s: any) => s.updateFromDecimal(v), placeholder: '0-9', id: 'dec' },
@@ -14,6 +14,13 @@ export function NumberConverter() {
   const [octal, setOctal] = useState('52');
   const [hexadecimal, setHexadecimal] = useState('2A');
   const [copied, setCopied] = useState<string | null>(null);
+
+  const handleClearAll = useCallback(() => {
+    setDecimal('');
+    setBinary('');
+    setOctal('');
+    setHexadecimal('');
+  }, []);
 
   const isValidNumber = (value: string, base: number): boolean => {
     if (!value) return false;
@@ -83,22 +90,39 @@ export function NumberConverter() {
 
   return (
     <div className="max-w-4xl mx-auto space-y-8">
+      <div className="flex justify-end px-1">
+        <button
+          onClick={handleClearAll}
+          disabled={!decimal && !binary && !octal && !hexadecimal}
+          className="text-xs font-black uppercase tracking-widest text-rose-500 hover:text-rose-600 flex items-center gap-2 transition-all disabled:opacity-0 disabled:pointer-events-none"
+        >
+          <Trash2 className="w-3.5 h-3.5" /> Effacer tout
+        </button>
+      </div>
+
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
         {BASE_CONFIGS.map((base) => (
           <div key={base.id} className="bg-slate-50 dark:bg-slate-900/50 p-6 rounded-3xl border border-slate-200 dark:border-slate-800 space-y-4">
             <div className="flex justify-between items-center px-1">
               <div className="flex items-center gap-2">
                 <div className="text-indigo-500">{getIcon(base.id)}</div>
-                <label className="text-xs font-black uppercase tracking-widest text-slate-400">{base.label}</label>
+                <label
+                  htmlFor={base.id}
+                  className="text-xs font-black uppercase tracking-widest text-slate-600 dark:text-slate-400 cursor-pointer"
+                >
+                  {base.label}
+                </label>
               </div>
               <button
                 onClick={() => copyToClipboard(base.getter({decimal, binary, octal, hexadecimal}), base.id)}
                 className={`p-2 rounded-xl transition-all ${copied === base.id ? 'bg-emerald-500 text-white' : 'text-slate-400 hover:text-indigo-500 bg-white dark:bg-slate-800 shadow-sm border border-slate-100 dark:border-slate-700'}`}
+                aria-label={`Copier le résultat en ${base.label}`}
               >
                 {copied === base.id ? <Check className="w-4 h-4" /> : <Copy className="w-4 h-4" />}
               </button>
             </div>
             <input
+              id={base.id}
               type="text"
               value={base.getter({decimal, binary, octal, hexadecimal})}
               onChange={(e) => base.onChange(e.target.value, {updateFromDecimal, updateFromBinary, updateFromOctal, updateFromHexadecimal})}

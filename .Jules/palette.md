@@ -25,3 +25,7 @@
 ## 2025-05-24 - [Global Navigation & Tool Metadata Polish]
 **Learning:** For tool-based applications, the "Copy link" feature is a vital micro-UX that users expect for sharing specific configurations. Additionally, ensuring that metadata badges (like categories) use consistent icons and localized names from a central configuration, rather than tool-specific icons, improves the application's taxonomic clarity. Coupling this with global accessibility landmarks like "Skip to content" links and semantic `<main>` tags ensures a professional and inclusive user experience.
 **Action:** Prioritize "Copy link" utilities in tool views and audit metadata badges for taxonomic consistency. Always implement "Skip to content" for keyboard accessibility.
+
+## 2025-05-25 - [Accessibility & Pattern Consistency]
+**Learning:** For multi-input conversion tools, a global "Clear all" utility provides immediate value and improves the "clean slate" experience. Implementing this with Tailwind's `disabled:opacity-0` ensures the button is only present when useful. Additionally, explicitly linking labels to inputs via `id` and `htmlFor` and ensuring high-contrast colors (`text-slate-600` for light mode) are essential steps for baseline WCAG compliance in the Bento system.
+**Action:** Always verify input-label associations and use the `opacity-0` pattern for situational utility buttons.

@@ -43,10 +43,53 @@ export function MarkdownPreview() {
     // 4. Blockquotes
     html = html.replace(/^\s*&gt;\s+(.*)$/gim, '<blockquote class="border-l-4 border-slate-300 dark:border-slate-700 pl-4 italic my-6 text-slate-600 dark:text-slate-400">$1</blockquote>');
     
-    // 5. Unordered lists
-    html = html.replace(/^\s*[-*]\s+(.*)$/gim, '<li class="ml-6 list-disc text-slate-700 dark:text-slate-300 my-1">$1</li>');
-    // Wrap adjacent <li> in <ul>
-    html = html.replace(/((?:<li.*?>.*?<\/li>\s*)+)/g, '<ul class="my-4">$1</ul>');
+    // 5. Unordered lists (including nested ones)
+    // First, identify all list items and their indentation levels
+    const lines = html.split('\n');
+    let result = [];
+    let listStack = [];
+
+    for (let i = 0; i < lines.length; i++) {
+      const line = lines[i];
+      const match = line.match(/^(\s*)([-*])\s+(.*)$/i);
+
+      if (match) {
+        const indent = match[1].length;
+        const content = match[3];
+        const level = indent >= 2 ? 1 : 0;
+
+        // Close lists if we're moving to a shallower level
+        while (listStack.length > level + 1) {
+          result.push('</ul>');
+          listStack.pop();
+        }
+
+        // Open lists if we're moving to a deeper level
+        while (listStack.length <= level) {
+          const listClass = listStack.length === 0 ? 'my-4' : 'my-2';
+          result.push(`<ul class="${listClass}">`);
+          listStack.push(true);
+        }
+
+        const liClass = level === 0
+          ? 'ml-6 list-disc text-slate-700 dark:text-slate-300 my-1'
+          : 'ml-10 list-[circle] text-slate-600 dark:text-slate-400 my-1';
+        result.push(`<li class="${liClass}">${content}</li>`);
+      } else {
+        // Not a list item, close all open lists
+        while (listStack.length > 0) {
+          result.push('</ul>');
+          listStack.pop();
+        }
+        result.push(line);
+      }
+    }
+    // Close any remaining lists
+    while (listStack.length > 0) {
+      result.push('</ul>');
+      listStack.pop();
+    }
+    html = result.join('\n');
 
     // 6. Bold
     html = html.replace(/\*\*(.*?)\*\*/g, '<strong class="font-bold text-slate-900 dark:text-white">$1</strong>');
@@ -70,7 +113,7 @@ export function MarkdownPreview() {
     });
     
     // 9. Line breaks (apply only to non-block content)
-    html = html.replace(/\n/g, '<br>');
+    html = html.replace(/\n(?!(?:<\/ul>|<li))/g, '<br>');
 
     // Clean up breaks around block elements to avoid excessive spacing
     html = html.replace(/<br>\s*<(ul|li|blockquote|pre|h1|h2|h3)/gi, '<$1');

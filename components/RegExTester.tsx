@@ -9,17 +9,89 @@ export function RegExTester() {
   const backdropRef = useRef<HTMLDivElement>(null);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
 
-  const { matches, error, matchCount } = useMemo(() => {
-    if (!regex) return { matches: [], error: null, matchCount: 0 };
-    try {
-      // Ensure the 'g' flag is handled correctly for matchAll
-      const safeFlags = flags.includes('g') ? flags : flags + 'g';
-      const re = new RegExp(regex, safeFlags);
-      const allMatches = Array.from(testText.matchAll(re));
-      return { matches: allMatches, error: null, matchCount: allMatches.length };
-    } catch (e: any) {
-      return { matches: [], error: e.message, matchCount: 0 };
+  interface SerializedMatch {
+    [key: number]: string;
+    index: number;
+    groups?: { [key: string]: string };
+  }
+
+  const [matches, setMatches] = useState<SerializedMatch[]>([]);
+  const [error, setError] = useState<string | null>(null);
+  const [matchCount, setMatchCount] = useState(0);
+
+  useEffect(() => {
+    let worker: Worker | null = null;
+    let workerUrl: string | null = null;
+    let timeoutId: any = null;
+
+    if (!regex) {
+      setMatches([]);
+      setError(null);
+      setMatchCount(0);
+      return;
     }
+
+    // Debounce worker spawning to 200ms to reduce overhead on every keystroke
+    const debounceId = setTimeout(() => {
+      // Sentinel: Offload regex execution to a Web Worker to prevent ReDoS.
+      // This keeps the main thread responsive even if the regex is malicious or accidental catastrophic backtracking occurs.
+      const workerCode = `
+        self.onmessage = (e) => {
+          const { regex, flags, text } = e.data;
+          try {
+            const safeFlags = flags.includes('g') ? flags : flags + 'g';
+            const re = new RegExp(regex, safeFlags);
+            const allMatches = Array.from(text.matchAll(re)).map(match => {
+              const serialized = { index: match.index, groups: match.groups };
+              // Preserve all capture groups by copying numeric indices
+              for (let i = 0; i < match.length; i++) {
+                serialized[i] = match[i];
+              }
+              return serialized;
+            });
+            self.postMessage({ matches: allMatches });
+          } catch (e) {
+            self.postMessage({ error: e.message });
+          }
+        };
+      `;
+
+      const blob = new Blob([workerCode], { type: 'application/javascript' });
+      workerUrl = URL.createObjectURL(blob);
+      worker = new Worker(workerUrl);
+
+      timeoutId = setTimeout(() => {
+        if (worker) worker.terminate();
+        if (workerUrl) URL.revokeObjectURL(workerUrl);
+        setError('L\'exécution de la regex a pris trop de temps (timeout ReDoS).');
+        setMatches([]);
+        setMatchCount(0);
+      }, 500);
+
+      worker.onmessage = (e) => {
+        if (timeoutId) clearTimeout(timeoutId);
+        if (e.data.error) {
+          setError(e.data.error);
+          setMatches([]);
+          setMatchCount(0);
+        } else {
+          setError(null);
+          setMatches(e.data.matches);
+          setMatchCount(e.data.matches.length);
+        }
+        if (worker) worker.terminate();
+        if (workerUrl) URL.revokeObjectURL(workerUrl);
+      };
+
+      worker.postMessage({ regex, flags, text: testText });
+    }, 200);
+
+    return () => {
+      clearTimeout(debounceId);
+      if (timeoutId) clearTimeout(timeoutId);
+      if (worker) worker.terminate();
+      if (workerUrl) URL.revokeObjectURL(workerUrl);
+    };
   }, [regex, flags, testText]);
 
   const syncScroll = () => {

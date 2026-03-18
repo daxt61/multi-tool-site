@@ -25,3 +25,7 @@
 ## 2025-05-24 - [Global Navigation & Tool Metadata Polish]
 **Learning:** For tool-based applications, the "Copy link" feature is a vital micro-UX that users expect for sharing specific configurations. Additionally, ensuring that metadata badges (like categories) use consistent icons and localized names from a central configuration, rather than tool-specific icons, improves the application's taxonomic clarity. Coupling this with global accessibility landmarks like "Skip to content" links and semantic `<main>` tags ensures a professional and inclusive user experience.
 **Action:** Prioritize "Copy link" utilities in tool views and audit metadata badges for taxonomic consistency. Always implement "Skip to content" for keyboard accessibility.
+
+## 2025-05-25 - [Bento Layout for Converters & Contextual Actions]
+**Learning:** For converter-style tools, placing "Clear" and "Copy" actions directly in the section headers (next to the labels) improves task focus and reduces mouse travel compared to a global button row at the bottom. Combining this with `id`/`htmlFor` labeled textareas and a comprehensive reference grid ensures the tool is both accessible and "delightful" for power users.
+**Action:** Use header-aligned utility buttons for multi-input tools and prioritize visual reference guides (like Morse or ASCII tables) to add value.

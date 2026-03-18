@@ -1,26 +1,99 @@
-import React, { useState, useMemo, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { Search, Info, AlertCircle, Copy, Check, Flag } from 'lucide-react';
 
 export function RegExTester() {
   const [regex, setRegex] = useState('([a-zA-Z0-9._%+-]+)@([a-zA-Z0-9.-]+)\\.([a-zA-Z]{2,})');
   const [flags, setFlags] = useState('g');
   const [testText, setTestText] = useState('Contactez-nous à support@example.com ou sales@test.org pour plus d\'informations.');
+
+  // Debounced values for expensive regex processing
+  const [debouncedRegex, setDebouncedRegex] = useState(regex);
+  const [debouncedFlags, setDebouncedFlags] = useState(flags);
+  const [debouncedTestText, setDebouncedTestText] = useState(testText);
+
   const [copied, setCopied] = useState(false);
   const backdropRef = useRef<HTMLDivElement>(null);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
 
-  const { matches, error, matchCount } = useMemo(() => {
-    if (!regex) return { matches: [], error: null, matchCount: 0 };
-    try {
-      // Ensure the 'g' flag is handled correctly for matchAll
-      const safeFlags = flags.includes('g') ? flags : flags + 'g';
-      const re = new RegExp(regex, safeFlags);
-      const allMatches = Array.from(testText.matchAll(re));
-      return { matches: allMatches, error: null, matchCount: allMatches.length };
-    } catch (e: any) {
-      return { matches: [], error: e.message, matchCount: 0 };
-    }
+  const [matches, setMatches] = useState<any[]>([]);
+  const [error, setError] = useState<string | null>(null);
+  const [matchCount, setMatchCount] = useState(0);
+  const [lastProcessedText, setLastProcessedText] = useState(testText);
+
+  useEffect(() => {
+    const handler = setTimeout(() => {
+      setDebouncedRegex(regex);
+      setDebouncedFlags(flags);
+      setDebouncedTestText(testText);
+    }, 200);
+
+    return () => clearTimeout(handler);
   }, [regex, flags, testText]);
+
+  useEffect(() => {
+    if (!debouncedRegex) {
+      setMatches([]);
+      setError(null);
+      setMatchCount(0);
+      return;
+    }
+
+    const workerCode = `
+      self.onmessage = function(e) {
+        const { regex, flags, testText } = e.data;
+        try {
+          const safeFlags = flags.includes('g') ? flags : flags + 'g';
+          const re = new RegExp(regex, safeFlags);
+          const allMatches = Array.from(testText.matchAll(re));
+
+          // Serialize matches for postMessage
+          const serializedMatches = allMatches.map(match => {
+            const result = {
+              index: match.index,
+              0: match[0]
+            };
+            // Add capture groups
+            for (let i = 1; i < match.length; i++) {
+              result[i] = match[i];
+            }
+            return result;
+          });
+
+          self.postMessage({ matches: serializedMatches, error: null });
+        } catch (e) {
+          self.postMessage({ matches: [], error: e.message });
+        }
+      };
+    `;
+
+    const blob = new Blob([workerCode], { type: 'application/javascript' });
+    const workerUrl = URL.createObjectURL(blob);
+    const worker = new Worker(workerUrl);
+
+    const timeoutId = setTimeout(() => {
+      worker.terminate();
+      setError('L\'exécution de la RegEx a pris trop de temps (timeout ReDoS possible)');
+    }, 500);
+
+    worker.onmessage = (e) => {
+      clearTimeout(timeoutId);
+      const { matches: newMatches, error: newError } = e.data;
+      setMatches(newMatches);
+      setError(newError);
+      setMatchCount(newMatches.length);
+      setLastProcessedText(debouncedTestText);
+      worker.terminate();
+      URL.revokeObjectURL(workerUrl);
+    };
+
+    worker.postMessage({ regex: debouncedRegex, flags: debouncedFlags, testText: debouncedTestText });
+
+    return () => {
+      clearTimeout(timeoutId);
+      worker.terminate();
+      URL.revokeObjectURL(workerUrl);
+    };
+  }, [debouncedRegex, debouncedFlags, debouncedTestText]);
 
   const syncScroll = () => {
     if (backdropRef.current && textareaRef.current) {
@@ -36,7 +109,9 @@ export function RegExTester() {
   };
 
   const renderHighlightedText = () => {
-    if (error || !regex || matches.length === 0) {
+    // If we have an error or no regex, or if the text has changed since the last match,
+    // just render the current text transparently.
+    if (error || !debouncedRegex || matches.length === 0 || testText !== lastProcessedText) {
       return <span className="text-transparent whitespace-pre-wrap break-words">{testText}</span>;
     }
 

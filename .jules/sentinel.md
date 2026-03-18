@@ -21,3 +21,8 @@
 **Vulnerability:** The JSONCSVConverter component was vulnerable to Prototype Pollution by allowing users to specify dangerous keys like `__proto__` in CSV headers, which were then used to build plain objects.
 **Learning:** When building objects from user-controlled keys, always use `Object.create(null)` to ensure the object has no prototype, and explicitly sanitize or rename dangerous keys (`__proto__`, `constructor`, `prototype`).
 **Prevention:** Sanitize all keys from external data sources before using them as object properties. Using `Object.create(null)` is a robust secondary defense.
+
+## 2026-03-05 - [Syntax Error in Inline Web Worker String]
+**Vulnerability:** A ReDoS fix using an inline Web Worker failed because the worker string contained TypeScript syntax (`(result as any)[i]`), which caused a `SyntaxError` in the browser's JS engine.
+**Learning:** When inlining Web Workers as string blobs, the code inside the string must be pure JavaScript. TypeScript compilers (like `tsc` or Vite's `esbuild`) do not transform the contents of string literals.
+**Prevention:** Always use standard JavaScript syntax inside template literals intended for Web Worker consumption. Avoid type assertions, interfaces, or other TS-specific features in these contexts.

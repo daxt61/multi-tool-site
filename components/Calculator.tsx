@@ -9,8 +9,14 @@ export function Calculator() {
   const [isScientific, setIsScientific] = useState(false);
   const [isRadians, setIsRadians] = useState(false);
   const [history, setHistory] = useState<{ expression: string; result: string }[]>(() => {
-    const saved = localStorage.getItem('calc_history');
-    return saved ? JSON.parse(saved) : [];
+    try {
+      const saved = localStorage.getItem('calc_history');
+      const parsed = saved ? JSON.parse(saved) : [];
+      return Array.isArray(parsed) ? parsed : [];
+    } catch (e) {
+      console.error('Failed to parse calculator history', e);
+      return [];
+    }
   });
 
   const handleNumber = (num: string) => {
@@ -284,6 +290,7 @@ export function Calculator() {
               <button
                 onClick={clearHistory}
                 className="text-slate-400 hover:text-rose-500 transition-colors"
+                aria-label="Effacer l'historique"
               >
                 <Trash2 className="w-4 h-4" />
               </button>

@@ -25,3 +25,7 @@
 ## 2025-05-24 - [Global Navigation & Tool Metadata Polish]
 **Learning:** For tool-based applications, the "Copy link" feature is a vital micro-UX that users expect for sharing specific configurations. Additionally, ensuring that metadata badges (like categories) use consistent icons and localized names from a central configuration, rather than tool-specific icons, improves the application's taxonomic clarity. Coupling this with global accessibility landmarks like "Skip to content" links and semantic `<main>` tags ensures a professional and inclusive user experience.
 **Action:** Prioritize "Copy link" utilities in tool views and audit metadata badges for taxonomic consistency. Always implement "Skip to content" for keyboard accessibility.
+
+## 2026-03-19 - [Accessible Utility Controls & Layout Stability]
+**Learning:** For conversion tools, implementing a "Clear All" utility with `disabled:opacity-0` and `disabled:pointer-events-none` maintains a clean UI while preventing Layout Shift (CLS) when user input begins. Furthermore, ensuring that all tool inputs meet WCAG 2.1 AA contrast requirements (text-slate-600 on light backgrounds) and use explicit id/htmlFor associations is critical for a professional, accessible utility suite.
+**Action:** Use opacity-based hiding for optional controls to preserve layout and always audit tool inputs for contrast and accessibility associations.

@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Copy, Check, Hash, Binary, Octagon, Hexagon, Info } from 'lucide-react';
+import { Copy, Check, Hash, Binary, Octagon, Hexagon, Info, Trash2 } from 'lucide-react';
 
 const BASE_CONFIGS = [
   { label: 'Décimal (Base 10)', getter: (s: any) => s.decimal, onChange: (v: string, s: any) => s.updateFromDecimal(v), placeholder: '0-9', id: 'dec' },
@@ -71,6 +71,13 @@ export function NumberConverter() {
     setTimeout(() => setCopied(null), 2000);
   };
 
+  const handleClear = () => {
+    setDecimal('');
+    setBinary('');
+    setOctal('');
+    setHexadecimal('');
+  };
+
   const getIcon = (id: string) => {
     switch(id) {
       case 'dec': return <Hash className="w-4 h-4" />;
@@ -83,22 +90,38 @@ export function NumberConverter() {
 
   return (
     <div className="max-w-4xl mx-auto space-y-8">
+      <div className="flex justify-end px-1">
+        <button
+          onClick={handleClear}
+          disabled={!decimal && !binary && !octal && !hexadecimal}
+          className="text-xs font-bold px-3 py-1 rounded-full text-rose-500 bg-rose-50 dark:bg-rose-500/10 hover:bg-rose-100 transition-all flex items-center gap-1 disabled:opacity-0 disabled:pointer-events-none"
+        >
+          <Trash2 className="w-3 h-3" /> Effacer tout
+        </button>
+      </div>
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
         {BASE_CONFIGS.map((base) => (
           <div key={base.id} className="bg-slate-50 dark:bg-slate-900/50 p-6 rounded-3xl border border-slate-200 dark:border-slate-800 space-y-4">
             <div className="flex justify-between items-center px-1">
               <div className="flex items-center gap-2">
                 <div className="text-indigo-500">{getIcon(base.id)}</div>
-                <label className="text-xs font-black uppercase tracking-widest text-slate-400">{base.label}</label>
+                <label
+                  htmlFor={`number-input-${base.id}`}
+                  className="text-xs font-black uppercase tracking-widest text-slate-600"
+                >
+                  {base.label}
+                </label>
               </div>
               <button
                 onClick={() => copyToClipboard(base.getter({decimal, binary, octal, hexadecimal}), base.id)}
-                className={`p-2 rounded-xl transition-all ${copied === base.id ? 'bg-emerald-500 text-white' : 'text-slate-400 hover:text-indigo-500 bg-white dark:bg-slate-800 shadow-sm border border-slate-100 dark:border-slate-700'}`}
+                aria-label={`Copier le résultat en ${base.label}`}
+                className={`p-2 rounded-xl transition-all ${copied === base.id ? 'bg-emerald-500 text-white' : 'text-slate-600 hover:text-indigo-500 bg-white dark:bg-slate-800 shadow-sm border border-slate-100 dark:border-slate-700'}`}
               >
                 {copied === base.id ? <Check className="w-4 h-4" /> : <Copy className="w-4 h-4" />}
               </button>
             </div>
             <input
+              id={`number-input-${base.id}`}
               type="text"
               value={base.getter({decimal, binary, octal, hexadecimal})}
               onChange={(e) => base.onChange(e.target.value, {updateFromDecimal, updateFromBinary, updateFromOctal, updateFromHexadecimal})}

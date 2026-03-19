@@ -120,17 +120,19 @@ export function ColorConverter() {
   return (
     <div className="max-w-4xl mx-auto space-y-12">
       {/* Visual Preview Area */}
-      <div className="relative group">
+      <div className="relative group focus-within:ring-4 focus-within:ring-indigo-500/20 rounded-[2.5rem] transition-all">
         <div
           className="w-full h-64 rounded-[2.5rem] shadow-2xl shadow-indigo-500/10 transition-all duration-500 group-hover:scale-[1.01]"
           style={{ backgroundColor: hex }}
         />
-        <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
+        <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 group-focus-within:opacity-100 transition-opacity">
+          <label htmlFor="color-picker-visual" className="sr-only">Choisir une couleur</label>
           <input
+            id="color-picker-visual"
             type="color"
             value={hex}
             onChange={(e) => updateFromHex(e.target.value)}
-            className="w-20 h-20 rounded-full border-4 border-white dark:border-slate-800 cursor-pointer shadow-xl overflow-hidden"
+            className="w-20 h-20 rounded-full border-4 border-white dark:border-slate-800 cursor-pointer shadow-xl overflow-hidden focus:outline-none focus:ring-4 focus:ring-white/50"
           />
         </div>
       </div>

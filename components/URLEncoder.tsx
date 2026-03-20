@@ -1,10 +1,11 @@
 import { useState } from 'react';
-import { ArrowRight, ArrowLeft } from 'lucide-react';
+import { ArrowRight, ArrowLeft, Copy, Check } from 'lucide-react';
 import { AdPlaceholder } from './AdPlaceholder';
 
 export function URLEncoder() {
   const [decoded, setDecoded] = useState('');
   const [encoded, setEncoded] = useState('');
+  const [copied, setCopied] = useState<'decoded' | 'encoded' | null>(null);
 
   const encode = (text: string) => {
     try {
@@ -20,6 +21,13 @@ export function URLEncoder() {
     } catch {
       return 'Erreur de décodage';
     }
+  };
+
+  const handleCopy = (text: string, type: 'decoded' | 'encoded') => {
+    if (!text) return;
+    navigator.clipboard.writeText(text);
+    setCopied(type);
+    setTimeout(() => setCopied(null), 2000);
   };
 
   const handleDecodedChange = (value: string) => {
@@ -39,9 +47,19 @@ export function URLEncoder() {
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         <div>
           <div className="flex items-center justify-between mb-3">
-            <label className="font-semibold text-lg">URL/Texte décodé</label>
+            <label htmlFor="url-decoded" className="font-semibold text-lg">URL/Texte décodé</label>
+            <button
+              onClick={() => handleCopy(decoded, 'decoded')}
+              disabled={!decoded}
+              className={`p-1.5 rounded transition-all flex items-center gap-1.5 text-xs font-bold ${copied === 'decoded' ? 'bg-emerald-500 text-white' : 'hover:bg-gray-100 text-gray-500 disabled:opacity-30'}`}
+              aria-label="Copier le texte décodé"
+            >
+              {copied === 'decoded' ? <Check className="w-3.5 h-3.5" /> : <Copy className="w-3.5 h-3.5" />}
+              {copied === 'decoded' ? 'Copié' : 'Copier'}
+            </button>
           </div>
           <textarea
+            id="url-decoded"
             value={decoded}
             onChange={(e) => handleDecodedChange(e.target.value)}
             placeholder="Entrez du texte ou une URL..."
@@ -51,9 +69,19 @@ export function URLEncoder() {
 
         <div>
           <div className="flex items-center justify-between mb-3">
-            <label className="font-semibold text-lg">URL/Texte encodé</label>
+            <label htmlFor="url-encoded" className="font-semibold text-lg">URL/Texte encodé</label>
+            <button
+              onClick={() => handleCopy(encoded, 'encoded')}
+              disabled={!encoded}
+              className={`p-1.5 rounded transition-all flex items-center gap-1.5 text-xs font-bold ${copied === 'encoded' ? 'bg-emerald-500 text-white' : 'hover:bg-gray-100 text-gray-500 disabled:opacity-30'}`}
+              aria-label="Copier le texte encodé"
+            >
+              {copied === 'encoded' ? <Check className="w-3.5 h-3.5" /> : <Copy className="w-3.5 h-3.5" />}
+              {copied === 'encoded' ? 'Copié' : 'Copier'}
+            </button>
           </div>
           <textarea
+            id="url-encoded"
             value={encoded}
             onChange={(e) => handleEncodedChange(e.target.value)}
             placeholder="Ou entrez du texte encodé..."

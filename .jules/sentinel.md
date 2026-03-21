@@ -21,3 +21,8 @@
 **Vulnerability:** The JSONCSVConverter component was vulnerable to Prototype Pollution by allowing users to specify dangerous keys like `__proto__` in CSV headers, which were then used to build plain objects.
 **Learning:** When building objects from user-controlled keys, always use `Object.create(null)` to ensure the object has no prototype, and explicitly sanitize or rename dangerous keys (`__proto__`, `constructor`, `prototype`).
 **Prevention:** Sanitize all keys from external data sources before using them as object properties. Using `Object.create(null)` is a robust secondary defense.
+
+## 2026-03-05 - [ReDoS in Regex Testing Tool]
+**Vulnerability:** The RegExTester component executed regular expressions on the main thread without timeouts, allowing malicious or complex patterns (catastrophic backtracking) to freeze the browser tab.
+**Learning:** Tools that allow arbitrary user-defined regular expressions must never execute them on the main UI thread. Even with small inputs, certain patterns can take exponential time to process.
+**Prevention:** Always offload untrusted regex execution to a Web Worker and implement a strict execution timeout to terminate the worker if it exceeds a safe threshold.

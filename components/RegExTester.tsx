@@ -1,25 +1,102 @@
 import React, { useState, useMemo, useEffect, useRef } from 'react';
 import { Search, Info, AlertCircle, Copy, Check, Flag } from 'lucide-react';
 
+interface SerializedMatch {
+  index: number;
+  [0]: string;
+}
+
 export function RegExTester() {
   const [regex, setRegex] = useState('([a-zA-Z0-9._%+-]+)@([a-zA-Z0-9.-]+)\\.([a-zA-Z]{2,})');
   const [flags, setFlags] = useState('g');
   const [testText, setTestText] = useState('Contactez-nous à support@example.com ou sales@test.org pour plus d\'informations.');
+  const [matches, setMatches] = useState<SerializedMatch[]>([]);
+  const [error, setError] = useState<string | null>(null);
+  const [lastProcessedText, setLastProcessedText] = useState('');
   const [copied, setCopied] = useState(false);
   const backdropRef = useRef<HTMLDivElement>(null);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
+  const workerRef = useRef<Worker | null>(null);
 
-  const { matches, error, matchCount } = useMemo(() => {
-    if (!regex) return { matches: [], error: null, matchCount: 0 };
-    try {
-      // Ensure the 'g' flag is handled correctly for matchAll
-      const safeFlags = flags.includes('g') ? flags : flags + 'g';
-      const re = new RegExp(regex, safeFlags);
-      const allMatches = Array.from(testText.matchAll(re));
-      return { matches: allMatches, error: null, matchCount: allMatches.length };
-    } catch (e: any) {
-      return { matches: [], error: e.message, matchCount: 0 };
+  useEffect(() => {
+    // Create the worker once to avoid Blob URL leaks
+    const workerCode = `
+      self.onmessage = function(e) {
+        const { regex, flags, testText } = e.data;
+        try {
+          // Ensure the 'g' flag is handled correctly for matchAll
+          const re = new RegExp(regex, flags.includes('g') ? flags : flags + 'g');
+          const matches = Array.from(testText.matchAll(re)).map(m => ({
+            index: m.index,
+            0: m[0]
+          }));
+          self.postMessage({ matches, error: null });
+        } catch (e) {
+          self.postMessage({ matches: [], error: e.message });
+        }
+      };
+    `;
+    const blob = new Blob([workerCode], { type: 'application/javascript' });
+    const url = URL.createObjectURL(blob);
+    workerRef.current = new Worker(url);
+
+    return () => {
+      workerRef.current?.terminate();
+      URL.revokeObjectURL(url);
+    };
+  }, []);
+
+  useEffect(() => {
+    if (!regex) {
+      setMatches([]);
+      setError(null);
+      setLastProcessedText(testText);
+      return;
     }
+
+    const timeoutId: any = setTimeout(() => {
+      const worker = workerRef.current;
+      if (!worker) return;
+
+      const executionTimeout = setTimeout(() => {
+        // If the regex takes too long, it's likely a ReDoS pattern
+        worker.terminate();
+        // Restart the worker since it was terminated
+        const workerCode = `
+          self.onmessage = function(e) {
+            const { regex, flags, testText } = e.data;
+            try {
+              const re = new RegExp(regex, flags.includes('g') ? flags : flags + 'g');
+              const matches = Array.from(testText.matchAll(re)).map(m => ({
+                index: m.index,
+                0: m[0]
+              }));
+              self.postMessage({ matches, error: null });
+            } catch (e) {
+              self.postMessage({ matches: [], error: e.message });
+            }
+          };
+        `;
+        const blob = new Blob([workerCode], { type: 'application/javascript' });
+        const url = URL.createObjectURL(blob);
+        workerRef.current = new Worker(url);
+        // We'll let the cleanup of the long-lived effect handle the new URL/Worker if needed,
+        // but this manual restart is to recover from a terminated worker.
+        setError('Exécution trop longue (ReDoS possible)');
+        setMatches([]);
+      }, 500);
+
+      worker.onmessage = (e) => {
+        clearTimeout(executionTimeout);
+        setMatches(e.data.matches);
+        setError(e.data.error);
+        setLastProcessedText(testText);
+      };
+
+      worker.postMessage({ regex, flags, testText });
+    }, 200);
+
+    return () => clearTimeout(timeoutId);
   }, [regex, flags, testText]);
 
   const syncScroll = () => {
@@ -36,7 +113,8 @@ export function RegExTester() {
   };
 
   const renderHighlightedText = () => {
-    if (error || !regex || matches.length === 0) {
+    // Only render highlights if they correspond to the current text
+    if (error || !regex || matches.length === 0 || testText !== lastProcessedText) {
       return <span className="text-transparent whitespace-pre-wrap break-words">{testText}</span>;
     }
 
@@ -119,7 +197,7 @@ export function RegExTester() {
               </div>
             </div>
             {error && (
-              <div className="flex items-center gap-2 text-rose-500 text-xs font-bold px-1 animate-in slide-in-from-top-1">
+              <div className="flex items-center gap-2 text-rose-500 text-sm font-bold px-1 animate-in slide-in-from-top-1">
                 <AlertCircle className="w-3 h-3" /> {error}
               </div>
             )}
@@ -129,7 +207,7 @@ export function RegExTester() {
              <div className="flex justify-between items-center px-1">
               <label htmlFor="test-text" className="text-xs font-black uppercase tracking-widest text-slate-400">Texte de Test</label>
               <div className="text-xs font-bold text-slate-400">
-                {matchCount} match{matchCount > 1 ? 'es' : ''} trouvé{matchCount > 1 ? 's' : ''}
+                {matches.length} match{matches.length > 1 ? 'es' : ''} trouvé{matches.length > 1 ? 's' : ''}
               </div>
             </div>
 

@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Signal, Volume2, Copy, Check } from 'lucide-react';
+import { Signal, Copy, Check, Trash2, Type } from 'lucide-react';
 
 const MORSE_CODE: Record<string, string> = {
   'A': '.-', 'B': '-...', 'C': '-.-.', 'D': '-..', 'E': '.', 'F': '..-.',
@@ -39,62 +39,76 @@ export function MorseCodeConverter() {
     setTimeout(() => setCopied(false), 2000);
   };
 
+  const clear = () => {
+    setText('');
+    setMorse('');
+  };
+
   return (
-    <div className="max-w-4xl mx-auto">
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-8 mb-8">
+    <div className="max-w-4xl mx-auto space-y-8">
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
         {/* Text Input */}
-        <div>
-          <label className="block text-sm font-semibold text-gray-700 mb-2">
-            Texte Normal
-          </label>
+        <div className="bg-white dark:bg-slate-900/40 rounded-[2.5rem] border border-slate-200 dark:border-slate-800 p-6 space-y-4">
+          <div className="flex justify-between items-center px-2">
+            <label htmlFor="normal-text" className="flex items-center gap-2 text-sm font-bold text-slate-500 uppercase tracking-wider">
+              <Type className="w-4 h-4" /> Texte Normal
+            </label>
+          </div>
           <textarea
+            id="normal-text"
             value={text}
             onChange={(e) => encode(e.target.value)}
             placeholder="Entrez votre texte ici..."
-            className="w-full h-48 p-4 border border-gray-300 rounded-lg resize-none focus:outline-none focus:ring-2 focus:ring-blue-500"
+            className="w-full h-48 p-4 bg-slate-50 dark:bg-slate-800/50 border border-slate-200 dark:border-slate-700 rounded-3xl resize-none focus:outline-none focus:ring-2 focus:ring-indigo-500 transition-all"
           />
         </div>
 
         {/* Morse Input */}
-        <div>
-          <label className="block text-sm font-semibold text-gray-700 mb-2">
-            Code Morse (. et -)
-          </label>
+        <div className="bg-white dark:bg-slate-900/40 rounded-[2.5rem] border border-slate-200 dark:border-slate-800 p-6 space-y-4">
+          <div className="flex justify-between items-center px-2">
+            <label htmlFor="morse-text" className="flex items-center gap-2 text-sm font-bold text-slate-500 uppercase tracking-wider">
+              <Signal className="w-4 h-4" /> Signal Morse
+            </label>
+          </div>
           <textarea
+            id="morse-text"
             value={morse}
             onChange={(e) => decode(e.target.value)}
             placeholder="Ex: .... . .-.. .-.. ---"
-            className="w-full h-48 p-4 border border-gray-300 rounded-lg resize-none font-mono focus:outline-none focus:ring-2 focus:ring-blue-500"
+            className="w-full h-48 p-4 bg-slate-50 dark:bg-slate-800/50 border border-slate-200 dark:border-slate-700 rounded-3xl resize-none font-mono focus:outline-none focus:ring-2 focus:ring-indigo-500 transition-all"
           />
         </div>
       </div>
 
-      <div className="flex gap-4 justify-center">
+      <div className="flex flex-wrap gap-4 justify-center">
         <button
           onClick={handleCopy}
-          className="px-6 py-3 bg-blue-500 text-white rounded-lg font-semibold hover:bg-blue-600 transition-colors flex items-center gap-2"
+          disabled={!morse}
+          className="px-8 py-3 bg-indigo-600 text-white rounded-2xl font-bold hover:bg-indigo-700 transition-all shadow-lg shadow-indigo-500/20 flex items-center gap-2 active:scale-95 disabled:opacity-50 disabled:active:scale-100"
         >
           {copied ? <Check className="w-5 h-5" /> : <Copy className="w-5 h-5" />}
-          Copier le Code Morse
+          {copied ? "Copié !" : "Copier le Code Morse"}
         </button>
         <button
-          onClick={() => { setText(''); setMorse(''); }}
-          className="px-6 py-3 bg-gray-200 hover:bg-gray-300 rounded-lg font-semibold transition-colors"
+          onClick={clear}
+          disabled={!text && !morse}
+          className="px-8 py-3 bg-rose-50 dark:bg-rose-500/10 text-rose-500 rounded-2xl font-bold hover:bg-rose-100 dark:hover:bg-rose-500/20 transition-all flex items-center gap-2 active:scale-95 disabled:opacity-50 disabled:active:scale-100"
         >
+          <Trash2 className="w-5 h-5" />
           Effacer
         </button>
       </div>
 
-      <div className="mt-12 bg-gray-50 p-6 rounded-xl border border-gray-200">
-        <h3 className="font-semibold text-gray-800 mb-4 flex items-center gap-2">
-          <Signal className="w-5 h-5 text-orange-500" />
-          Référence Morse Rapide
+      <div className="bg-slate-50 dark:bg-slate-900/50 p-8 rounded-3xl border border-slate-200 dark:border-slate-800">
+        <h3 className="font-bold text-slate-900 dark:text-white mb-6 flex items-center gap-2 uppercase tracking-wider text-sm">
+          <Signal className="w-5 h-5 text-indigo-500" />
+          Référence Morse
         </h3>
-        <div className="grid grid-cols-4 sm:grid-cols-6 md:grid-cols-8 gap-4 text-xs font-mono">
+        <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-6 lg:grid-cols-8 gap-3 text-xs font-mono">
           {Object.entries(MORSE_CODE).filter(([k]) => k !== ' ').map(([char, code]) => (
-            <div key={char} className="flex flex-col items-center p-2 bg-white rounded shadow-sm">
-              <span className="font-bold text-gray-400">{char}</span>
-              <span className="text-gray-900">{code}</span>
+            <div key={char} className="flex flex-col items-center p-3 bg-white dark:bg-slate-800 rounded-2xl border border-slate-100 dark:border-slate-700 shadow-sm group hover:border-indigo-500 transition-colors">
+              <span className="font-black text-slate-400 dark:text-slate-500 group-hover:text-indigo-500 transition-colors text-base mb-1">{char}</span>
+              <span className="text-slate-900 dark:text-white font-bold">{code}</span>
             </div>
           ))}
         </div>

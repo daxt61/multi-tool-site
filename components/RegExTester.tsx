@@ -1,26 +1,132 @@
-import React, { useState, useMemo, useEffect, useRef } from 'react';
-import { Search, Info, AlertCircle, Copy, Check, Flag } from 'lucide-react';
+import React, { useState, useEffect, useRef } from 'react';
+import { Info, AlertCircle, Copy, Check, Flag, Loader2 } from 'lucide-react';
+
+// Serialized match format for worker communication
+interface SerializedMatch {
+  index: number;
+  [key: number]: string;
+  groups?: { [key: string]: string };
+}
 
 export function RegExTester() {
   const [regex, setRegex] = useState('([a-zA-Z0-9._%+-]+)@([a-zA-Z0-9.-]+)\\.([a-zA-Z]{2,})');
   const [flags, setFlags] = useState('g');
   const [testText, setTestText] = useState('Contactez-nous à support@example.com ou sales@test.org pour plus d\'informations.');
   const [copied, setCopied] = useState(false);
+  const [matches, setMatches] = useState<SerializedMatch[]>([]);
+  const [error, setError] = useState<string | null>(null);
+  const [isProcessing, setIsProcessing] = useState(false);
+  const [lastProcessedText, setLastProcessedText] = useState('');
+
   const backdropRef = useRef<HTMLDivElement>(null);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
+  const workerRef = useRef<Worker | null>(null);
+  const debounceTimerId = useRef<any>(null);
+  const executionTimerId = useRef<any>(null);
+  const currentObjectURL = useRef<string | null>(null);
 
-  const { matches, error, matchCount } = useMemo(() => {
-    if (!regex) return { matches: [], error: null, matchCount: 0 };
-    try {
-      // Ensure the 'g' flag is handled correctly for matchAll
-      const safeFlags = flags.includes('g') ? flags : flags + 'g';
-      const re = new RegExp(regex, safeFlags);
-      const allMatches = Array.from(testText.matchAll(re));
-      return { matches: allMatches, error: null, matchCount: allMatches.length };
-    } catch (e: any) {
-      return { matches: [], error: e.message, matchCount: 0 };
-    }
+  useEffect(() => {
+    // Clear previous debounce timer
+    if (debounceTimerId.current) clearTimeout(debounceTimerId.current);
+
+    // Debounce processing
+    debounceTimerId.current = setTimeout(() => {
+      processRegex();
+    }, 200);
+
+    return () => {
+      if (debounceTimerId.current) clearTimeout(debounceTimerId.current);
+      if (executionTimerId.current) clearTimeout(executionTimerId.current);
+      if (workerRef.current) workerRef.current.terminate();
+      if (currentObjectURL.current) URL.revokeObjectURL(currentObjectURL.current);
+    };
   }, [regex, flags, testText]);
+
+  const processRegex = () => {
+    if (!regex) {
+      setMatches([]);
+      setError(null);
+      setIsProcessing(false);
+      setLastProcessedText(testText);
+      return;
+    }
+
+    setIsProcessing(true);
+
+    // Terminate existing worker and clear its execution timeout
+    if (workerRef.current) {
+      workerRef.current.terminate();
+    }
+    if (executionTimerId.current) {
+      clearTimeout(executionTimerId.current);
+    }
+    if (currentObjectURL.current) {
+      URL.revokeObjectURL(currentObjectURL.current);
+      currentObjectURL.current = null;
+    }
+
+    // Create a new worker for each execution to ensure fresh state and timeout control
+    const workerCode = `
+      self.onmessage = function(e) {
+        const { regex, flags, text } = e.data;
+        try {
+          const safeFlags = flags.includes('g') ? flags : flags + 'g';
+          const re = new RegExp(regex, safeFlags);
+          const allMatches = Array.from(text.matchAll(re));
+
+          // Serialize matches for postMessage
+          const serialized = allMatches.map(m => {
+            const matchObj = { index: m.index };
+            for (let i = 0; i < m.length; i++) {
+              matchObj[i] = m[i];
+            }
+            if (m.groups) matchObj.groups = m.groups;
+            return matchObj;
+          }).slice(0, 1000); // Safety limit for results
+
+          self.postMessage({ matches: serialized });
+        } catch (e) {
+          self.postMessage({ error: e.message });
+        }
+      };
+    `;
+
+    const blob = new Blob([workerCode], { type: 'application/javascript' });
+    const url = URL.createObjectURL(blob);
+    currentObjectURL.current = url;
+
+    const worker = new Worker(url);
+    workerRef.current = worker;
+
+    executionTimerId.current = setTimeout(() => {
+      worker.terminate();
+      setError('L\'exécution de l\'expression régulière a pris trop de temps (possible ReDoS).');
+      setIsProcessing(false);
+      setMatches([]);
+      executionTimerId.current = null;
+    }, 500); // 500ms security timeout
+
+    worker.onmessage = (e) => {
+      // Use closure to capture this specific execution context
+      if (executionTimerId.current) {
+        clearTimeout(executionTimerId.current);
+        executionTimerId.current = null;
+      }
+
+      const { matches, error } = e.data;
+      if (error) {
+        setError(error);
+        setMatches([]);
+      } else {
+        setMatches(matches);
+        setError(null);
+      }
+      setIsProcessing(false);
+      setLastProcessedText(testText);
+    };
+
+    worker.postMessage({ regex, flags, text: testText });
+  };
 
   const syncScroll = () => {
     if (backdropRef.current && textareaRef.current) {
@@ -36,8 +142,11 @@ export function RegExTester() {
   };
 
   const renderHighlightedText = () => {
-    if (error || !regex || matches.length === 0) {
-      return <span className="text-transparent whitespace-pre-wrap break-words">{testText}</span>;
+    const effectiveText = testText;
+    const isOutOfSync = testText !== lastProcessedText;
+
+    if (error || !regex || matches.length === 0 || isOutOfSync) {
+      return <span className="text-transparent whitespace-pre-wrap break-words">{effectiveText}</span>;
     }
 
     const segments: React.ReactNode[] = [];
@@ -45,13 +154,17 @@ export function RegExTester() {
 
     matches.forEach((match, i) => {
       const start = match.index!;
-      const end = start + match[0].length;
+      const matchText = match[0];
+      const end = start + matchText.length;
+
+      // Basic safety check for match bounds
+      if (start < lastIndex || end > effectiveText.length) return;
 
       // Add text before match
       if (start > lastIndex) {
         segments.push(
           <span key={`text-${i}`} className="text-transparent">
-            {testText.substring(lastIndex, start)}
+            {effectiveText.substring(lastIndex, start)}
           </span>
         );
       }
@@ -59,7 +172,7 @@ export function RegExTester() {
       // Add highlighted match
       segments.push(
         <mark key={`match-${i}`} className="bg-indigo-500/30 text-transparent rounded-sm ring-1 ring-indigo-500/50">
-          {match[0]}
+          {matchText}
         </mark>
       );
 
@@ -67,10 +180,10 @@ export function RegExTester() {
     });
 
     // Add remaining text
-    if (lastIndex < testText.length) {
+    if (lastIndex < effectiveText.length) {
       segments.push(
         <span key="text-end" className="text-transparent">
-          {testText.substring(lastIndex)}
+          {effectiveText.substring(lastIndex)}
         </span>
       );
     }
@@ -98,9 +211,12 @@ export function RegExTester() {
           <div className="bg-slate-50 dark:bg-slate-900/50 p-6 rounded-[2.5rem] border border-slate-200 dark:border-slate-800 space-y-4">
             <div className="flex justify-between items-center px-1">
               <label htmlFor="regex-input" className="text-xs font-black uppercase tracking-widest text-slate-400">Expression Régulière</label>
-              <button onClick={handleCopy} className="text-xs font-bold text-indigo-500 flex items-center gap-1">
-                {copied ? <Check className="w-3 h-3" /> : <Copy className="w-3 h-3" />} {copied ? 'Copié' : 'Copier'}
-              </button>
+              <div className="flex items-center gap-4">
+                {isProcessing && <Loader2 className="w-3 h-3 text-indigo-500 animate-spin" />}
+                <button onClick={handleCopy} className="text-xs font-bold text-indigo-500 flex items-center gap-1">
+                  {copied ? <Check className="w-3 h-3" /> : <Copy className="w-3 h-3" />} {copied ? 'Copié' : 'Copier'}
+                </button>
+              </div>
             </div>
             <div className="relative group">
               <div className="absolute inset-y-0 left-4 flex items-center pointer-events-none">
@@ -129,7 +245,7 @@ export function RegExTester() {
              <div className="flex justify-between items-center px-1">
               <label htmlFor="test-text" className="text-xs font-black uppercase tracking-widest text-slate-400">Texte de Test</label>
               <div className="text-xs font-bold text-slate-400">
-                {matchCount} match{matchCount > 1 ? 'es' : ''} trouvé{matchCount > 1 ? 's' : ''}
+                {matches.length} match{matches.length > 1 ? 'es' : ''} trouvé{matches.length > 1 ? 's' : ''}
               </div>
             </div>
 

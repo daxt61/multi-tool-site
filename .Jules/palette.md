@@ -25,3 +25,7 @@
 ## 2025-05-24 - [Global Navigation & Tool Metadata Polish]
 **Learning:** For tool-based applications, the "Copy link" feature is a vital micro-UX that users expect for sharing specific configurations. Additionally, ensuring that metadata badges (like categories) use consistent icons and localized names from a central configuration, rather than tool-specific icons, improves the application's taxonomic clarity. Coupling this with global accessibility landmarks like "Skip to content" links and semantic `<main>` tags ensures a professional and inclusive user experience.
 **Action:** Prioritize "Copy link" utilities in tool views and audit metadata badges for taxonomic consistency. Always implement "Skip to content" for keyboard accessibility.
+
+## 2026-03-22 - [Asynchronous Feedback for Long-Running Tasks]
+**Learning:** When offloading intensive computations (like regex matching) to a background worker to maintain UI responsiveness, it's essential to provide immediate visual feedback via loading indicators. Furthermore, match results must be gated by a synchronization check (e.g., `lastProcessedText`) to ensure that highlights don't "drift" or misalign while the user is still typing.
+**Action:** Implement `isProcessing` states with loaders for background tasks and ensure rendered results are synchronized with the current input state to avoid visual flickering.

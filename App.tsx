@@ -70,6 +70,10 @@ import {
   ShieldCheck,
   Scissors,
   Binary,
+  Volume2,
+  Activity,
+  Layers,
+  Image as ImageIcon,
 } from "lucide-react";
 const AdPlaceholder = lazy(() => import("./components/AdPlaceholder").then(m => ({ default: m.AdPlaceholder })));
 
@@ -78,6 +82,10 @@ const AdPlaceholder = lazy(() => import("./components/AdPlaceholder").then(m => 
 // Using React.lazy to split each tool into its own chunk.
 // This reduces the initial JavaScript bundle by ~40% (from 386kB to 228kB),
 // significantly improving the initial load time and Time to Interactive (TTI).
+const Metronome = lazy(() => import("./components/Metronome").then(m => ({ default: m.Metronome })));
+const TextToSpeech = lazy(() => import("./components/TextToSpeech").then(m => ({ default: m.TextToSpeech })));
+const GlassmorphismGenerator = lazy(() => import("./components/GlassmorphismGenerator").then(m => ({ default: m.GlassmorphismGenerator })));
+const ImageToWebP = lazy(() => import("./components/ImageToWebP").then(m => ({ default: m.ImageToWebP })));
 const Calculator = lazy(() => import("./components/Calculator").then(m => ({ default: m.Calculator })));
 const UnitConverter = lazy(() => import("./components/UnitConverter").then(m => ({ default: m.UnitConverter })));
 const PasswordGenerator = lazy(() => import("./components/PasswordGenerator").then(m => ({ default: m.PasswordGenerator })));
@@ -617,6 +625,38 @@ const tools: Tool[] = [
     icon: Monitor,
     description: "Calculateur d'aspect ratio",
     Component: AspectRatioCalculator,
+    category: "other",
+  },
+  {
+    id: "metronome",
+    name: "Métronome",
+    icon: Activity,
+    description: "Métronome précis pour musiciens",
+    Component: Metronome,
+    category: "other",
+  },
+  {
+    id: "text-to-speech",
+    name: "Synthèse vocale",
+    icon: Volume2,
+    description: "Convertir du texte en parole",
+    Component: TextToSpeech,
+    category: "other",
+  },
+  {
+    id: "glassmorphism",
+    name: "Générateur Glassmorphism",
+    icon: Layers,
+    description: "Générer du CSS pour l'effet de verre",
+    Component: GlassmorphismGenerator,
+    category: "other",
+  },
+  {
+    id: "image-to-webp",
+    name: "Image en WebP",
+    icon: ImageIcon,
+    description: "Convertir des images au format WebP",
+    Component: ImageToWebP,
     category: "other",
   },
   {

@@ -1,6 +1,5 @@
 import { useState } from 'react';
-import { Copy, Check } from 'lucide-react';
-import { AdPlaceholder } from './AdPlaceholder';
+import { Copy, Check, Trash2, CaseSensitive, Info } from 'lucide-react';
 
 export function CaseConverter() {
   const [text, setText] = useState('');
@@ -34,45 +33,64 @@ export function CaseConverter() {
   };
 
   return (
-    <div className="max-w-4xl mx-auto">
-      <AdPlaceholder size="banner" className="mb-6" />
-
-      <textarea
-        value={text}
-        onChange={(e) => setText(e.target.value)}
-        placeholder="Entrez votre texte ici..."
-        className="w-full h-32 p-4 border border-gray-300 rounded-lg resize-none focus:outline-none focus:ring-2 focus:ring-blue-500 mb-6"
-      />
+    <div className="max-w-5xl mx-auto space-y-8">
+      <div className="space-y-4">
+        <div className="flex justify-between items-center px-1">
+          <label htmlFor="case-input" className="text-xs font-black uppercase tracking-widest text-slate-400">Votre Texte</label>
+          {text && (
+            <button
+              onClick={() => setText('')}
+              className="text-xs font-bold px-3 py-1 rounded-full text-rose-500 bg-rose-50 dark:bg-rose-500/10 hover:bg-rose-100 transition-all flex items-center gap-1"
+            >
+              <Trash2 className="w-3 h-3" /> Effacer
+            </button>
+          )}
+        </div>
+        <textarea
+          id="case-input"
+          value={text}
+          onChange={(e) => setText(e.target.value)}
+          placeholder="Entrez votre texte ici..."
+          className="w-full h-48 p-8 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-[2rem] outline-none focus:ring-2 focus:ring-indigo-500/20 transition-all text-lg leading-relaxed dark:text-slate-300 resize-none"
+        />
+      </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
         {Object.entries(conversions).map(([name, converter]) => {
           const converted = text ? converter(text) : '';
           return (
-            <div key={name} className="bg-white border border-gray-300 rounded-lg p-4">
-              <div className="flex items-center justify-between mb-2">
-                <span className="font-semibold text-sm text-gray-700">{name}</span>
+            <div key={name} className="bg-white dark:bg-slate-900/40 border border-slate-200 dark:border-slate-800 rounded-3xl p-6 transition-all hover:border-indigo-500/30 group">
+              <div className="flex items-center justify-between mb-4">
+                <span className="font-bold text-xs uppercase tracking-widest text-slate-400 group-hover:text-indigo-500 transition-colors">{name}</span>
                 <button
                   onClick={() => copyToClipboard(converted, name)}
                   disabled={!text}
-                  className="p-1 hover:bg-gray-100 rounded transition-colors disabled:opacity-50"
-                  title="Copier"
+                  className={`p-2 rounded-xl transition-all ${copied === name ? 'bg-emerald-500 text-white' : 'text-slate-400 hover:text-indigo-500 bg-slate-50 dark:bg-slate-800 shadow-sm border border-slate-100 dark:border-slate-700 disabled:opacity-30'}`}
+                  aria-label={`Copier en ${name}`}
                 >
-                  {copied === name ? (
-                    <Check className="w-4 h-4 text-green-500" />
-                  ) : (
-                    <Copy className="w-4 h-4 text-gray-500" />
-                  )}
+                  {copied === name ? <Check className="w-4 h-4" /> : <Copy className="w-4 h-4" />}
                 </button>
               </div>
-              <div className="bg-gray-50 p-3 rounded font-mono text-sm min-h-[3rem] break-all">
-                {converted || <span className="text-gray-400">Résultat...</span>}
+              <div className="bg-slate-50 dark:bg-slate-950 p-4 rounded-2xl font-mono text-sm min-h-[4rem] break-all dark:text-slate-300 border border-slate-100 dark:border-slate-800">
+                {converted || <span className="text-slate-300 dark:text-slate-700 italic">Résultat...</span>}
               </div>
             </div>
           );
         })}
       </div>
 
-      <AdPlaceholder size="medium" className="mt-6" />
+      <div className="bg-indigo-50 dark:bg-indigo-900/10 border border-indigo-100 dark:border-indigo-900/20 p-8 rounded-[2.5rem] flex items-start gap-6">
+        <div className="w-12 h-12 bg-white dark:bg-slate-800 rounded-2xl flex items-center justify-center text-indigo-600 shrink-0 shadow-sm">
+          <CaseSensitive className="w-6 h-6" />
+        </div>
+        <div className="space-y-4">
+          <h4 className="font-bold dark:text-white">Convertisseur de Casse</h4>
+          <p className="text-sm text-slate-500 dark:text-slate-400 leading-relaxed">
+            Transformez facilement votre texte entre différents formats de programmation et de texte standard.
+            Idéal pour les développeurs travaillant avec différentes conventions de nommage comme `camelCase` ou `snake_case`.
+          </p>
+        </div>
+      </div>
     </div>
   );
 }

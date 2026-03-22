@@ -1,25 +1,96 @@
-import React, { useState, useMemo, useEffect, useRef } from 'react';
-import { Search, Info, AlertCircle, Copy, Check, Flag } from 'lucide-react';
+import React, { useState, useEffect, useRef } from 'react';
+import { Search, Info, AlertCircle, Copy, Check, Flag, Trash2, Loader2 } from 'lucide-react';
+
+interface SerializedMatch {
+  index: number;
+  0: string;
+  [key: number]: string;
+  groups?: { [key: string]: string };
+}
+
+const WORKER_CODE = `
+  self.onmessage = function(e) {
+    const { regex, flags, testText } = e.data;
+    try {
+      const safeFlags = flags.includes('g') ? flags : flags + 'g';
+      const re = new RegExp(regex, safeFlags);
+      const allMatches = Array.from(testText.matchAll(re)).map(match => {
+        const serialized = { index: match.index, 0: match[0] };
+        if (match.groups) serialized.groups = match.groups;
+        for (let i = 1; i < match.length; i++) {
+          serialized[i] = match[i];
+        }
+        return serialized;
+      }).slice(0, 1000); // Safety limit
+      self.postMessage({ matches: allMatches, error: null });
+    } catch (err) {
+      self.postMessage({ matches: [], error: err.message });
+    }
+  };
+`;
 
 export function RegExTester() {
   const [regex, setRegex] = useState('([a-zA-Z0-9._%+-]+)@([a-zA-Z0-9.-]+)\\.([a-zA-Z]{2,})');
   const [flags, setFlags] = useState('g');
   const [testText, setTestText] = useState('Contactez-nous à support@example.com ou sales@test.org pour plus d\'informations.');
+  const [matches, setMatches] = useState<SerializedMatch[]>([]);
+  const [error, setError] = useState<string | null>(null);
+  const [isProcessing, setIsProcessing] = useState(false);
   const [copied, setCopied] = useState(false);
+
   const backdropRef = useRef<HTMLDivElement>(null);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
+  const workerRef = useRef<Worker | null>(null);
+  const executionTimerId = useRef<any>(null);
 
-  const { matches, error, matchCount } = useMemo(() => {
-    if (!regex) return { matches: [], error: null, matchCount: 0 };
-    try {
-      // Ensure the 'g' flag is handled correctly for matchAll
-      const safeFlags = flags.includes('g') ? flags : flags + 'g';
-      const re = new RegExp(regex, safeFlags);
-      const allMatches = Array.from(testText.matchAll(re));
-      return { matches: allMatches, error: null, matchCount: allMatches.length };
-    } catch (e: any) {
-      return { matches: [], error: e.message, matchCount: 0 };
+  const createWorker = () => {
+    const blob = new Blob([WORKER_CODE], { type: 'application/javascript' });
+    const worker = new Worker(URL.createObjectURL(blob));
+    worker.onmessage = (e) => {
+      if (executionTimerId.current) clearTimeout(executionTimerId.current);
+      const { matches, error } = e.data;
+      setMatches(matches);
+      setError(error);
+      setIsProcessing(false);
+    };
+    return worker;
+  };
+
+  useEffect(() => {
+    workerRef.current = createWorker();
+    return () => {
+      workerRef.current?.terminate();
+      if (executionTimerId.current) clearTimeout(executionTimerId.current);
+    };
+  }, []);
+
+  useEffect(() => {
+    if (!regex) {
+      setMatches([]);
+      setError(null);
+      setIsProcessing(false);
+      return;
     }
+
+    const timeoutId = setTimeout(() => {
+      setIsProcessing(true);
+      if (workerRef.current) {
+        workerRef.current.postMessage({ regex, flags, testText });
+
+        if (executionTimerId.current) clearTimeout(executionTimerId.current);
+        executionTimerId.current = setTimeout(() => {
+          workerRef.current?.terminate();
+          workerRef.current = createWorker();
+          setError("L'exécution de la RegEx a pris trop de temps (timeout).");
+          setIsProcessing(false);
+        }, 500);
+      }
+    }, 200);
+
+    return () => {
+      clearTimeout(timeoutId);
+      if (executionTimerId.current) clearTimeout(executionTimerId.current);
+    };
   }, [regex, flags, testText]);
 
   const syncScroll = () => {
@@ -44,10 +115,9 @@ export function RegExTester() {
     let lastIndex = 0;
 
     matches.forEach((match, i) => {
-      const start = match.index!;
+      const start = match.index;
       const end = start + match[0].length;
 
-      // Add text before match
       if (start > lastIndex) {
         segments.push(
           <span key={`text-${i}`} className="text-transparent">
@@ -56,7 +126,6 @@ export function RegExTester() {
         );
       }
 
-      // Add highlighted match
       segments.push(
         <mark key={`match-${i}`} className="bg-indigo-500/30 text-transparent rounded-sm ring-1 ring-indigo-500/50">
           {match[0]}
@@ -66,7 +135,6 @@ export function RegExTester() {
       lastIndex = end;
     });
 
-    // Add remaining text
     if (lastIndex < testText.length) {
       segments.push(
         <span key="text-end" className="text-transparent">
@@ -93,14 +161,18 @@ export function RegExTester() {
   return (
     <div className="max-w-5xl mx-auto space-y-8">
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
-        {/* Left Column: Editor */}
         <div className="lg:col-span-7 space-y-6">
           <div className="bg-slate-50 dark:bg-slate-900/50 p-6 rounded-[2.5rem] border border-slate-200 dark:border-slate-800 space-y-4">
             <div className="flex justify-between items-center px-1">
               <label htmlFor="regex-input" className="text-xs font-black uppercase tracking-widest text-slate-400">Expression Régulière</label>
-              <button onClick={handleCopy} className="text-xs font-bold text-indigo-500 flex items-center gap-1">
-                {copied ? <Check className="w-3 h-3" /> : <Copy className="w-3 h-3" />} {copied ? 'Copié' : 'Copier'}
-              </button>
+              <div className="flex gap-4">
+                <button onClick={handleCopy} className="text-xs font-bold text-indigo-500 flex items-center gap-1">
+                  {copied ? <Check className="w-3 h-3" /> : <Copy className="w-3 h-3" />} {copied ? 'Copié' : 'Copier'}
+                </button>
+                <button onClick={() => {setRegex(''); setMatches([]);}} className="text-xs font-bold text-rose-500 flex items-center gap-1">
+                  <Trash2 className="w-3 h-3" /> Effacer
+                </button>
+              </div>
             </div>
             <div className="relative group">
               <div className="absolute inset-y-0 left-4 flex items-center pointer-events-none">
@@ -128,13 +200,13 @@ export function RegExTester() {
           <div className="bg-white dark:bg-slate-900/40 p-6 rounded-[2.5rem] border border-slate-200 dark:border-slate-800 space-y-4 relative">
              <div className="flex justify-between items-center px-1">
               <label htmlFor="test-text" className="text-xs font-black uppercase tracking-widest text-slate-400">Texte de Test</label>
-              <div className="text-xs font-bold text-slate-400">
-                {matchCount} match{matchCount > 1 ? 'es' : ''} trouvé{matchCount > 1 ? 's' : ''}
+              <div className="text-xs font-bold text-slate-400 flex items-center gap-2">
+                {isProcessing && <Loader2 className="w-3 h-3 animate-spin text-indigo-500" />}
+                {matches.length} match{matches.length > 1 ? 'es' : ''} trouvé{matches.length > 1 ? 's' : ''}
               </div>
             </div>
 
             <div className="relative min-h-[300px] font-mono text-base leading-relaxed">
-              {/* Backdrop for highlighting */}
               <div
                 ref={backdropRef}
                 className="absolute inset-0 p-4 pointer-events-none whitespace-pre-wrap break-words overflow-auto no-scrollbar border border-transparent"
@@ -143,7 +215,6 @@ export function RegExTester() {
                 {renderHighlightedText()}
               </div>
 
-              {/* Actual Textarea */}
               <textarea
                 id="test-text"
                 ref={textareaRef}
@@ -157,7 +228,6 @@ export function RegExTester() {
           </div>
         </div>
 
-        {/* Right Column: Flags & Info */}
         <div className="lg:col-span-5 space-y-6">
           <div className="bg-slate-50 dark:bg-slate-900/50 p-8 rounded-[2.5rem] border border-slate-200 dark:border-slate-800 space-y-6">
             <div className="flex items-center gap-2 px-1">
@@ -200,11 +270,11 @@ export function RegExTester() {
                 <span>N'importe quel caractère</span>
               </div>
               <div className="flex gap-3">
-                <code className="bg-white/10 px-2 py-0.5 rounded text-white">\d</code>
+                <code className="bg-white/10 px-2 py-0.5 rounded text-white">\\d</code>
                 <span>Un chiffre (0-9)</span>
               </div>
               <div className="flex gap-3">
-                <code className="bg-white/10 px-2 py-0.5 rounded text-white">\w</code>
+                <code className="bg-white/10 px-2 py-0.5 rounded text-white">\\w</code>
                 <span>Un mot (a-z, A-Z, 0-9, _)</span>
               </div>
               <div className="flex gap-3">

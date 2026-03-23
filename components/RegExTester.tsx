@@ -1,25 +1,110 @@
 import React, { useState, useMemo, useEffect, useRef } from 'react';
-import { Search, Info, AlertCircle, Copy, Check, Flag } from 'lucide-react';
+import { Search, Info, AlertCircle, Copy, Check, Flag, Loader2 } from 'lucide-react';
+
+interface SerializedMatch {
+  index: number;
+  0: string;
+  [key: number]: string;
+  groups?: { [key: string]: string };
+}
 
 export function RegExTester() {
   const [regex, setRegex] = useState('([a-zA-Z0-9._%+-]+)@([a-zA-Z0-9.-]+)\\.([a-zA-Z]{2,})');
   const [flags, setFlags] = useState('g');
   const [testText, setTestText] = useState('Contactez-nous à support@example.com ou sales@test.org pour plus d\'informations.');
+  const [matches, setMatches] = useState<SerializedMatch[]>([]);
+  const [error, setError] = useState<string | null>(null);
+  const [isProcessing, setIsProcessing] = useState(false);
+  const [lastProcessedText, setLastProcessedText] = useState('');
   const [copied, setCopied] = useState(false);
+
   const backdropRef = useRef<HTMLDivElement>(null);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
+  const workerRef = useRef<Worker | null>(null);
+  const executionTimerId = useRef<any>(null);
 
-  const { matches, error, matchCount } = useMemo(() => {
-    if (!regex) return { matches: [], error: null, matchCount: 0 };
-    try {
-      // Ensure the 'g' flag is handled correctly for matchAll
-      const safeFlags = flags.includes('g') ? flags : flags + 'g';
-      const re = new RegExp(regex, safeFlags);
-      const allMatches = Array.from(testText.matchAll(re));
-      return { matches: allMatches, error: null, matchCount: allMatches.length };
-    } catch (e: any) {
-      return { matches: [], error: e.message, matchCount: 0 };
+  const matchCount = matches.length;
+
+  const workerUrlRef = useRef<string | null>(null);
+
+  useEffect(() => {
+    const workerCode = `
+      self.onmessage = function(e) {
+        const { regex, flags, text } = e.data;
+        try {
+          const safeFlags = flags.includes('g') ? flags : flags + 'g';
+          const re = new RegExp(regex, safeFlags);
+          const matches = [];
+          const it = text.matchAll(re);
+          let count = 0;
+          for (const match of it) {
+            if (count >= 1000) break; // Safety limit
+            matches.push({
+              index: match.index,
+              ...Array.from(match),
+              groups: match.groups
+            });
+            count++;
+          }
+          self.postMessage({ matches, error: null });
+        } catch (e) {
+          self.postMessage({ matches: [], error: e.message });
+        }
+      };
+    `;
+    const blob = new Blob([workerCode], { type: 'application/javascript' });
+    workerUrlRef.current = URL.createObjectURL(blob);
+
+    return () => {
+      if (workerUrlRef.current) URL.revokeObjectURL(workerUrlRef.current);
+      if (workerRef.current) workerRef.current.terminate();
+    };
+  }, []);
+
+  useEffect(() => {
+    if (!regex) {
+      setMatches([]);
+      setError(null);
+      setIsProcessing(false);
+      return;
     }
+
+    const timer = setTimeout(() => {
+      if (!workerUrlRef.current) return;
+
+      setIsProcessing(true);
+      setError(null);
+
+      if (workerRef.current) {
+        workerRef.current.terminate();
+      }
+      clearTimeout(executionTimerId.current);
+
+      const worker = new Worker(workerUrlRef.current);
+      workerRef.current = worker;
+
+      worker.onmessage = (e) => {
+        if (workerRef.current !== worker) return; // Ignore messages from old workers
+        clearTimeout(executionTimerId.current);
+        setMatches(e.data.matches);
+        setError(e.data.error);
+        setIsProcessing(false);
+        setLastProcessedText(testText);
+      };
+
+      worker.postMessage({ regex, flags, text: testText });
+
+      executionTimerId.current = setTimeout(() => {
+        worker.terminate();
+        setError('Délai d\'exécution dépassé (ReDoS possible)');
+        setIsProcessing(false);
+      }, 500);
+    }, 200);
+
+    return () => {
+      clearTimeout(timer);
+      clearTimeout(executionTimerId.current);
+    };
   }, [regex, flags, testText]);
 
   const syncScroll = () => {
@@ -36,7 +121,11 @@ export function RegExTester() {
   };
 
   const renderHighlightedText = () => {
-    if (error || !regex || matches.length === 0) {
+    // We use the current testText for layout consistency, but only highlight
+    // if we have matches that correspond to the current text content.
+    // If text has changed but worker hasn't finished, we don't render highlights
+    // to avoid misaligned markings.
+    if (error || !regex || matches.length === 0 || testText !== lastProcessedText) {
       return <span className="text-transparent whitespace-pre-wrap break-words">{testText}</span>;
     }
 
@@ -47,7 +136,6 @@ export function RegExTester() {
       const start = match.index!;
       const end = start + match[0].length;
 
-      // Add text before match
       if (start > lastIndex) {
         segments.push(
           <span key={`text-${i}`} className="text-transparent">
@@ -56,7 +144,6 @@ export function RegExTester() {
         );
       }
 
-      // Add highlighted match
       segments.push(
         <mark key={`match-${i}`} className="bg-indigo-500/30 text-transparent rounded-sm ring-1 ring-indigo-500/50">
           {match[0]}
@@ -66,7 +153,6 @@ export function RegExTester() {
       lastIndex = end;
     });
 
-    // Add remaining text
     if (lastIndex < testText.length) {
       segments.push(
         <span key="text-end" className="text-transparent">
@@ -128,8 +214,11 @@ export function RegExTester() {
           <div className="bg-white dark:bg-slate-900/40 p-6 rounded-[2.5rem] border border-slate-200 dark:border-slate-800 space-y-4 relative">
              <div className="flex justify-between items-center px-1">
               <label htmlFor="test-text" className="text-xs font-black uppercase tracking-widest text-slate-400">Texte de Test</label>
-              <div className="text-xs font-bold text-slate-400">
-                {matchCount} match{matchCount > 1 ? 'es' : ''} trouvé{matchCount > 1 ? 's' : ''}
+              <div className="flex items-center gap-4">
+                {isProcessing && <Loader2 className="w-3 h-3 text-indigo-500 animate-spin" />}
+                <div className="text-xs font-bold text-slate-400">
+                  {matchCount} match{matchCount > 1 ? 'es' : ''} trouvé{matchCount > 1 ? 's' : ''}
+                </div>
               </div>
             </div>
 

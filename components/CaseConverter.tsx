@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Copy, Check } from 'lucide-react';
+import { Copy, Check, Trash2, CaseSensitive } from 'lucide-react';
 import { AdPlaceholder } from './AdPlaceholder';
 
 export function CaseConverter() {
@@ -34,38 +34,61 @@ export function CaseConverter() {
   };
 
   return (
-    <div className="max-w-4xl mx-auto">
+    <div className="max-w-5xl mx-auto space-y-8">
       <AdPlaceholder size="banner" className="mb-6" />
 
-      <textarea
-        value={text}
-        onChange={(e) => setText(e.target.value)}
-        placeholder="Entrez votre texte ici..."
-        className="w-full h-32 p-4 border border-gray-300 rounded-lg resize-none focus:outline-none focus:ring-2 focus:ring-blue-500 mb-6"
-      />
+      <div className="space-y-4">
+        <div className="flex justify-between items-center px-1">
+          <label htmlFor="case-input" className="text-xs font-black uppercase tracking-widest text-slate-400">Votre Texte</label>
+          {text && (
+            <button
+              onClick={() => setText('')}
+              className="text-xs font-bold px-3 py-1 rounded-full text-rose-500 bg-rose-50 dark:bg-rose-500/10 hover:bg-rose-100 transition-all flex items-center gap-1"
+              aria-label="Effacer le texte"
+            >
+              <Trash2 className="w-3 h-3" /> Effacer
+            </button>
+          )}
+        </div>
+        <textarea
+          id="case-input"
+          value={text}
+          onChange={(e) => setText(e.target.value)}
+          placeholder="Entrez votre texte ici..."
+          className="w-full h-48 p-8 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-[2rem] outline-none focus:ring-2 focus:ring-indigo-500/20 transition-all text-lg leading-relaxed dark:text-slate-300 shadow-sm resize-none"
+        />
+      </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
         {Object.entries(conversions).map(([name, converter]) => {
           const converted = text ? converter(text) : '';
           return (
-            <div key={name} className="bg-white border border-gray-300 rounded-lg p-4">
-              <div className="flex items-center justify-between mb-2">
-                <span className="font-semibold text-sm text-gray-700">{name}</span>
+            <div key={name} className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-3xl p-5 shadow-sm hover:border-indigo-500/30 transition-all group">
+              <div className="flex items-center justify-between mb-3">
+                <span className="text-xs font-black uppercase tracking-widest text-slate-400 flex items-center gap-2">
+                  <CaseSensitive className="w-3.5 h-3.5 text-indigo-500" />
+                  {name}
+                </span>
                 <button
                   onClick={() => copyToClipboard(converted, name)}
                   disabled={!text}
-                  className="p-1 hover:bg-gray-100 rounded transition-colors disabled:opacity-50"
+                  className={`p-2 rounded-xl transition-all ${
+                    copied === name
+                      ? 'bg-emerald-500 text-white'
+                      : 'text-slate-400 hover:text-indigo-500 bg-slate-50 dark:bg-slate-800 hover:bg-indigo-50 dark:hover:bg-indigo-900/20'
+                  } disabled:opacity-50 disabled:cursor-not-allowed`}
                   title="Copier"
+                  aria-label={`Copier le texte en ${name}`}
                 >
                   {copied === name ? (
-                    <Check className="w-4 h-4 text-green-500" />
+                    <Check className="w-4 h-4" />
                   ) : (
-                    <Copy className="w-4 h-4 text-gray-500" />
+                    <Copy className="w-4 h-4" />
                   )}
                 </button>
               </div>
-              <div className="bg-gray-50 p-3 rounded font-mono text-sm min-h-[3rem] break-all">
-                {converted || <span className="text-gray-400">Résultat...</span>}
+              <div className="bg-slate-50 dark:bg-slate-800/50 p-4 rounded-2xl font-mono text-sm min-h-[4rem] break-all border border-slate-100 dark:border-slate-700/50 dark:text-slate-300">
+                {converted || <span className="text-slate-400 italic">Résultat...</span>}
               </div>
             </div>
           );

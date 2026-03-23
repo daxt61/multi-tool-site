@@ -70,6 +70,10 @@ import {
   ShieldCheck,
   Scissors,
   Binary,
+  Activity,
+  Volume2,
+  Layers,
+  Image as ImageIcon,
 } from "lucide-react";
 const AdPlaceholder = lazy(() => import("./components/AdPlaceholder").then(m => ({ default: m.AdPlaceholder })));
 
@@ -139,6 +143,12 @@ const ColorPaletteGenerator = lazy(() => import("./components/ColorPaletteGenera
 const RegExTester = lazy(() => import("./components/RegExTester").then(m => ({ default: m.RegExTester })));
 const UserAgentAnalyzer = lazy(() => import("./components/UserAgentAnalyzer").then(m => ({ default: m.UserAgentAnalyzer })));
 const SlugGenerator = lazy(() => import("./components/SlugGenerator").then(m => ({ default: m.SlugGenerator })));
+
+// New Tools
+const Metronome = lazy(() => import("./components/Metronome").then(m => ({ default: m.Metronome })));
+const TextToSpeech = lazy(() => import("./components/TextToSpeech").then(m => ({ default: m.TextToSpeech })));
+const GlassmorphismGenerator = lazy(() => import("./components/GlassmorphismGenerator").then(m => ({ default: m.GlassmorphismGenerator })));
+const ImageToWebP = lazy(() => import("./components/ImageToWebP").then(m => ({ default: m.ImageToWebP })));
 
 // ⚡ Bolt Optimization: Pre-calculating tool map and search index for O(1) lookups and faster filtering
 const toolsMap: Record<string, Tool> = {};
@@ -425,6 +435,14 @@ const tools: Tool[] = [
     Component: ListCleaner,
     category: "text",
   },
+  {
+    id: "text-to-speech",
+    name: "Synthèse vocale",
+    icon: Volume2,
+    description: "Convertir du texte en parole",
+    Component: TextToSpeech,
+    category: "text",
+  },
   // Dev Tools
   {
     id: "password-generator",
@@ -586,6 +604,14 @@ const tools: Tool[] = [
     Component: BinaryTextConverter,
     category: "dev",
   },
+  {
+    id: "glassmorphism-generator",
+    name: "Générateur Glassmorphism",
+    icon: Layers,
+    description: "Générer du CSS pour un effet de verre dépoli",
+    Component: GlassmorphismGenerator,
+    category: "dev",
+  },
   // Other Tools
   {
     id: "timer",
@@ -641,6 +667,22 @@ const tools: Tool[] = [
     icon: Monitor,
     description: "Analyseur de navigateur et système",
     Component: UserAgentAnalyzer,
+    category: "other",
+  },
+  {
+    id: "metronome",
+    name: "Métronome",
+    icon: Activity,
+    description: "Métronome précis pour musiciens",
+    Component: Metronome,
+    category: "other",
+  },
+  {
+    id: "image-to-webp",
+    name: "Image en WebP",
+    icon: ImageIcon,
+    description: "Convertir des images au format WebP",
+    Component: ImageToWebP,
     category: "other",
   },
 ];

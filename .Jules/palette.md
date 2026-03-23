@@ -25,3 +25,7 @@
 ## 2025-05-24 - [Global Navigation & Tool Metadata Polish]
 **Learning:** For tool-based applications, the "Copy link" feature is a vital micro-UX that users expect for sharing specific configurations. Additionally, ensuring that metadata badges (like categories) use consistent icons and localized names from a central configuration, rather than tool-specific icons, improves the application's taxonomic clarity. Coupling this with global accessibility landmarks like "Skip to content" links and semantic `<main>` tags ensures a professional and inclusive user experience.
 **Action:** Prioritize "Copy link" utilities in tool views and audit metadata badges for taxonomic consistency. Always implement "Skip to content" for keyboard accessibility.
+
+## 2026-05-22 - [Consistent Reset Patterns and Precise Visual Feedback]
+**Learning:** Implementing a consistent 'Clear' (Effacer) pattern across utility tools using the `Trash2` icon and `rose-500` styling provides a predictable user experience. Furthermore, using the Web Audio API for tools like Metronome ensures sub-millisecond precision that standard `setInterval` cannot achieve, meeting high-performance user expectations for rhythmic tools.
+**Action:** Standardize utility buttons across the suite and prefer high-precision APIs for time-sensitive features.

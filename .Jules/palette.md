@@ -25,3 +25,7 @@
 ## 2025-05-24 - [Global Navigation & Tool Metadata Polish]
 **Learning:** For tool-based applications, the "Copy link" feature is a vital micro-UX that users expect for sharing specific configurations. Additionally, ensuring that metadata badges (like categories) use consistent icons and localized names from a central configuration, rather than tool-specific icons, improves the application's taxonomic clarity. Coupling this with global accessibility landmarks like "Skip to content" links and semantic `<main>` tags ensures a professional and inclusive user experience.
 **Action:** Prioritize "Copy link" utilities in tool views and audit metadata badges for taxonomic consistency. Always implement "Skip to content" for keyboard accessibility.
+
+## 2025-05-25 - [Interactive State Feedback for Utilities]
+**Learning:** For utility tools like converters and generators, the "Clear" (Effacer) button should be disabled when the input is already empty to provide clear visual feedback about the tool's state. Using `disabled:opacity-50` and `disabled:cursor-not-allowed` ensures that the UI doesn't feel "broken" when a click has no effect.
+**Action:** Always implement disabled states for reset/clear actions when they are redundant.

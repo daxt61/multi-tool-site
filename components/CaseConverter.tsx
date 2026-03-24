@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Copy, Check } from 'lucide-react';
+import { Copy, Check, Trash2 } from 'lucide-react';
 import { AdPlaceholder } from './AdPlaceholder';
 
 export function CaseConverter() {
@@ -37,7 +37,20 @@ export function CaseConverter() {
     <div className="max-w-4xl mx-auto">
       <AdPlaceholder size="banner" className="mb-6" />
 
+      <div className="flex justify-between items-center mb-2 px-1">
+        <label htmlFor="text-input" className="text-sm font-semibold text-gray-700">Votre texte</label>
+        <button
+          onClick={() => setText('')}
+          disabled={!text}
+          className="text-xs font-bold text-rose-500 hover:text-rose-600 flex items-center gap-1 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+          aria-label="Effacer le texte"
+        >
+          <Trash2 className="w-3 h-3" /> Effacer
+        </button>
+      </div>
+
       <textarea
+        id="text-input"
         value={text}
         onChange={(e) => setText(e.target.value)}
         placeholder="Entrez votre texte ici..."

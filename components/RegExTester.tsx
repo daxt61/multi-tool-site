@@ -1,25 +1,115 @@
 import React, { useState, useMemo, useEffect, useRef } from 'react';
-import { Search, Info, AlertCircle, Copy, Check, Flag } from 'lucide-react';
+import { Search, Info, AlertCircle, Copy, Check, Flag, Trash2, Loader2 } from 'lucide-react';
+
+// Serialized match result from the worker
+interface SerializedMatch {
+  index: number;
+  0: string;
+  groups?: Record<string, string>;
+}
+
+const WORKER_CODE = `
+  self.onmessage = (e) => {
+    const { regex, flags, text } = e.data;
+    try {
+      const safeFlags = flags.includes('g') ? flags : flags + 'g';
+      const re = new RegExp(regex, safeFlags);
+      const matches = [];
+      let match;
+
+      // Limit to 1000 matches to prevent browser crash
+      let count = 0;
+      for (const m of text.matchAll(re)) {
+        matches.push({
+          index: m.index,
+          0: m[0],
+          groups: m.groups
+        });
+        if (++count >= 1000) break;
+      }
+
+      self.postMessage({ matches, error: null });
+    } catch (err) {
+      self.postMessage({ matches: [], error: err.message });
+    }
+  };
+`;
 
 export function RegExTester() {
   const [regex, setRegex] = useState('([a-zA-Z0-9._%+-]+)@([a-zA-Z0-9.-]+)\\.([a-zA-Z]{2,})');
   const [flags, setFlags] = useState('g');
   const [testText, setTestText] = useState('Contactez-nous à support@example.com ou sales@test.org pour plus d\'informations.');
+  const [matches, setMatches] = useState<SerializedMatch[]>([]);
+  const [error, setError] = useState<string | null>(null);
+  const [isProcessing, setIsProcessing] = useState(false);
   const [copied, setCopied] = useState(false);
+
+  const workerRef = useRef<Worker | null>(null);
+  const workerUrlRef = useRef<string | null>(null);
+  const executionTimerId = useRef<any>(null);
   const backdropRef = useRef<HTMLDivElement>(null);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
 
-  const { matches, error, matchCount } = useMemo(() => {
-    if (!regex) return { matches: [], error: null, matchCount: 0 };
-    try {
-      // Ensure the 'g' flag is handled correctly for matchAll
-      const safeFlags = flags.includes('g') ? flags : flags + 'g';
-      const re = new RegExp(regex, safeFlags);
-      const allMatches = Array.from(testText.matchAll(re));
-      return { matches: allMatches, error: null, matchCount: allMatches.length };
-    } catch (e: any) {
-      return { matches: [], error: e.message, matchCount: 0 };
-    }
+  // Track the text that was actually processed by the worker to keep UI in sync
+  const [lastProcessedText, setLastProcessedText] = useState(testText);
+
+  useEffect(() => {
+    const blob = new Blob([WORKER_CODE], { type: 'application/javascript' });
+    const url = URL.createObjectURL(blob);
+    workerUrlRef.current = url;
+
+    return () => {
+      if (workerRef.current) workerRef.current.terminate();
+      if (workerUrlRef.current) URL.revokeObjectURL(workerUrlRef.current);
+    };
+  }, []);
+
+  const spawnWorker = () => {
+    if (workerRef.current) workerRef.current.terminate();
+    if (executionTimerId.current) clearTimeout(executionTimerId.current);
+
+    const worker = new Worker(workerUrlRef.current!);
+
+    worker.onmessage = (e) => {
+      if (executionTimerId.current) clearTimeout(executionTimerId.current);
+      const { matches, error } = e.data;
+      setMatches(matches);
+      setError(error);
+      setIsProcessing(false);
+    };
+
+    workerRef.current = worker;
+    return worker;
+  };
+
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      if (!regex) {
+        setMatches([]);
+        setError(null);
+        setIsProcessing(false);
+        return;
+      }
+
+      setIsProcessing(true);
+      setLastProcessedText(testText);
+      const worker = spawnWorker();
+
+      worker.postMessage({ regex, flags, text: testText });
+
+      // Sentinel: Set a 500ms execution timeout to prevent ReDoS
+      executionTimerId.current = setTimeout(() => {
+        worker.terminate();
+        setError('Le traitement a pris trop de temps (ReDoS possible).');
+        setIsProcessing(false);
+      }, 500);
+
+    }, 200); // 200ms debounce
+
+    return () => {
+      clearTimeout(timer);
+      if (executionTimerId.current) clearTimeout(executionTimerId.current);
+    };
   }, [regex, flags, testText]);
 
   const syncScroll = () => {
@@ -36,27 +126,28 @@ export function RegExTester() {
   };
 
   const renderHighlightedText = () => {
+    // Only render highlights if we have matches and the text hasn't changed since processing
     if (error || !regex || matches.length === 0) {
       return <span className="text-transparent whitespace-pre-wrap break-words">{testText}</span>;
     }
 
     const segments: React.ReactNode[] = [];
     let lastIndex = 0;
+    // We use the text that was actually processed for highlighting to avoid offset issues while typing
+    const displayRefText = lastProcessedText;
 
     matches.forEach((match, i) => {
-      const start = match.index!;
+      const start = match.index;
       const end = start + match[0].length;
 
-      // Add text before match
       if (start > lastIndex) {
         segments.push(
           <span key={`text-${i}`} className="text-transparent">
-            {testText.substring(lastIndex, start)}
+            {displayRefText.substring(lastIndex, start)}
           </span>
         );
       }
 
-      // Add highlighted match
       segments.push(
         <mark key={`match-${i}`} className="bg-indigo-500/30 text-transparent rounded-sm ring-1 ring-indigo-500/50">
           {match[0]}
@@ -66,13 +157,21 @@ export function RegExTester() {
       lastIndex = end;
     });
 
-    // Add remaining text
-    if (lastIndex < testText.length) {
+    if (lastIndex < displayRefText.length) {
       segments.push(
         <span key="text-end" className="text-transparent">
-          {testText.substring(lastIndex)}
+          {displayRefText.substring(lastIndex)}
         </span>
       );
+    }
+
+    // Add any extra text that was typed after the last process
+    if (testText.length > displayRefText.length) {
+        segments.push(
+            <span key="extra-text" className="text-transparent">
+                {testText.substring(displayRefText.length)}
+            </span>
+        );
     }
 
     return segments;
@@ -98,9 +197,18 @@ export function RegExTester() {
           <div className="bg-slate-50 dark:bg-slate-900/50 p-6 rounded-[2.5rem] border border-slate-200 dark:border-slate-800 space-y-4">
             <div className="flex justify-between items-center px-1">
               <label htmlFor="regex-input" className="text-xs font-black uppercase tracking-widest text-slate-400">Expression Régulière</label>
-              <button onClick={handleCopy} className="text-xs font-bold text-indigo-500 flex items-center gap-1">
-                {copied ? <Check className="w-3 h-3" /> : <Copy className="w-3 h-3" />} {copied ? 'Copié' : 'Copier'}
-              </button>
+              <div className="flex gap-2">
+                <button onClick={handleCopy} className="text-xs font-bold text-indigo-500 flex items-center gap-1 bg-indigo-50 dark:bg-indigo-500/10 px-3 py-1 rounded-full hover:bg-indigo-100 transition-all">
+                  {copied ? <Check className="w-3 h-3" /> : <Copy className="w-3 h-3" />} {copied ? 'Copié' : 'Copier'}
+                </button>
+                <button
+                  onClick={() => {setRegex(''); setMatches([]); setError(null);}}
+                  disabled={!regex}
+                  className="text-xs font-bold text-rose-500 flex items-center gap-1 bg-rose-50 dark:bg-rose-500/10 px-3 py-1 rounded-full hover:bg-rose-100 transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+                >
+                  <Trash2 className="w-3 h-3" /> Effacer
+                </button>
+              </div>
             </div>
             <div className="relative group">
               <div className="absolute inset-y-0 left-4 flex items-center pointer-events-none">
@@ -128,13 +236,15 @@ export function RegExTester() {
           <div className="bg-white dark:bg-slate-900/40 p-6 rounded-[2.5rem] border border-slate-200 dark:border-slate-800 space-y-4 relative">
              <div className="flex justify-between items-center px-1">
               <label htmlFor="test-text" className="text-xs font-black uppercase tracking-widest text-slate-400">Texte de Test</label>
-              <div className="text-xs font-bold text-slate-400">
-                {matchCount} match{matchCount > 1 ? 'es' : ''} trouvé{matchCount > 1 ? 's' : ''}
+              <div className="flex items-center gap-3">
+                {isProcessing && <Loader2 className="w-3 h-3 text-indigo-500 animate-spin" />}
+                <div className="text-xs font-bold text-slate-400">
+                  {matches.length} match{matches.length > 1 ? 'es' : ''} trouvé{matches.length > 1 ? 's' : ''}
+                </div>
               </div>
             </div>
 
             <div className="relative min-h-[300px] font-mono text-base leading-relaxed">
-              {/* Backdrop for highlighting */}
               <div
                 ref={backdropRef}
                 className="absolute inset-0 p-4 pointer-events-none whitespace-pre-wrap break-words overflow-auto no-scrollbar border border-transparent"
@@ -143,14 +253,13 @@ export function RegExTester() {
                 {renderHighlightedText()}
               </div>
 
-              {/* Actual Textarea */}
               <textarea
                 id="test-text"
                 ref={textareaRef}
                 value={testText}
                 onChange={(e) => setTestText(e.target.value)}
                 onScroll={syncScroll}
-                className="absolute inset-0 w-full h-full p-4 bg-transparent border border-slate-200 dark:border-slate-800 rounded-2xl outline-none focus:ring-2 focus:ring-indigo-500/20 transition-all resize-none dark:text-white selection:bg-indigo-500/20"
+                className="absolute inset-0 w-full h-full p-4 bg-transparent border border-slate-200 dark:border-slate-800 rounded-[2rem] outline-none focus:ring-2 focus:ring-indigo-500/20 transition-all resize-none dark:text-white selection:bg-indigo-500/20"
                 placeholder="Saisissez le texte à tester..."
               />
             </div>
@@ -195,25 +304,33 @@ export function RegExTester() {
               <h3 className="text-xl font-black">Aide Rapide</h3>
             </div>
             <div className="space-y-4 text-indigo-100 text-sm font-medium leading-relaxed">
-              <div className="flex gap-3">
-                <code className="bg-white/10 px-2 py-0.5 rounded text-white">.</code>
+              <div className="flex gap-3 items-center">
+                <code className="bg-white/10 px-2 py-0.5 rounded text-white min-w-[2.5rem] text-center">.</code>
                 <span>N'importe quel caractère</span>
               </div>
-              <div className="flex gap-3">
-                <code className="bg-white/10 px-2 py-0.5 rounded text-white">\d</code>
+              <div className="flex gap-3 items-center">
+                <code className="bg-white/10 px-2 py-0.5 rounded text-white min-w-[2.5rem] text-center">\d</code>
                 <span>Un chiffre (0-9)</span>
               </div>
-              <div className="flex gap-3">
-                <code className="bg-white/10 px-2 py-0.5 rounded text-white">\w</code>
+              <div className="flex gap-3 items-center">
+                <code className="bg-white/10 px-2 py-0.5 rounded text-white min-w-[2.5rem] text-center">\w</code>
                 <span>Un mot (a-z, A-Z, 0-9, _)</span>
               </div>
-              <div className="flex gap-3">
-                <code className="bg-white/10 px-2 py-0.5 rounded text-white">+</code>
+              <div className="flex gap-3 items-center">
+                <code className="bg-white/10 px-2 py-0.5 rounded text-white min-w-[2.5rem] text-center">+</code>
                 <span>1 ou plusieurs occurrences</span>
               </div>
-              <div className="flex gap-3">
-                <code className="bg-white/10 px-2 py-0.5 rounded text-white">*</code>
+              <div className="flex gap-3 items-center">
+                <code className="bg-white/10 px-2 py-0.5 rounded text-white min-w-[2.5rem] text-center">*</code>
                 <span>0 ou plusieurs occurrences</span>
+              </div>
+              <div className="flex gap-3 items-center">
+                <code className="bg-white/10 px-2 py-0.5 rounded text-white min-w-[2.5rem] text-center">^</code>
+                <span>Début de ligne</span>
+              </div>
+              <div className="flex gap-3 items-center">
+                <code className="bg-white/10 px-2 py-0.5 rounded text-white min-w-[2.5rem] text-center">$</code>
+                <span>Fin de ligne</span>
               </div>
             </div>
           </div>

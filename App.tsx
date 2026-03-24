@@ -58,6 +58,10 @@ import {
   Sun,
   Moon,
   Music,
+  Activity,
+  Volume2,
+  Layers,
+  Image as ImageIcon,
   Star,
   Check,
   Clock,
@@ -139,6 +143,10 @@ const ColorPaletteGenerator = lazy(() => import("./components/ColorPaletteGenera
 const RegExTester = lazy(() => import("./components/RegExTester").then(m => ({ default: m.RegExTester })));
 const UserAgentAnalyzer = lazy(() => import("./components/UserAgentAnalyzer").then(m => ({ default: m.UserAgentAnalyzer })));
 const SlugGenerator = lazy(() => import("./components/SlugGenerator").then(m => ({ default: m.SlugGenerator })));
+const Metronome = lazy(() => import("./components/Metronome").then(m => ({ default: m.Metronome })));
+const TextToSpeech = lazy(() => import("./components/TextToSpeech").then(m => ({ default: m.TextToSpeech })));
+const GlassmorphismGenerator = lazy(() => import("./components/GlassmorphismGenerator").then(m => ({ default: m.GlassmorphismGenerator })));
+const ImageToWebP = lazy(() => import("./components/ImageToWebP").then(m => ({ default: m.ImageToWebP })));
 
 // ⚡ Bolt Optimization: Pre-calculating tool map and search index for O(1) lookups and faster filtering
 const toolsMap: Record<string, Tool> = {};
@@ -641,6 +649,38 @@ const tools: Tool[] = [
     icon: Monitor,
     description: "Analyseur de navigateur et système",
     Component: UserAgentAnalyzer,
+    category: "other",
+  },
+  {
+    id: "metronome",
+    name: "Métronome",
+    icon: Activity,
+    description: "Métronome de précision professionnel",
+    Component: Metronome,
+    category: "other",
+  },
+  {
+    id: "text-to-speech",
+    name: "Synthèse vocale",
+    icon: Volume2,
+    description: "Convertisseur de texte en parole",
+    Component: TextToSpeech,
+    category: "text",
+  },
+  {
+    id: "glassmorphism",
+    name: "Glassmorphism",
+    icon: Layers,
+    description: "Générateur CSS Glassmorphism",
+    Component: GlassmorphismGenerator,
+    category: "dev",
+  },
+  {
+    id: "image-to-webp",
+    name: "Image en WebP",
+    icon: ImageIcon,
+    description: "Convertir des images au format WebP",
+    Component: ImageToWebP,
     category: "other",
   },
 ];

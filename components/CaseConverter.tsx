@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Copy, Check } from 'lucide-react';
+import { Copy, Check, Trash2, CaseSensitive, Info, Sparkles } from 'lucide-react';
 import { AdPlaceholder } from './AdPlaceholder';
 
 export function CaseConverter() {
@@ -34,38 +34,50 @@ export function CaseConverter() {
   };
 
   return (
-    <div className="max-w-4xl mx-auto">
+    <div className="max-w-6xl mx-auto space-y-12">
       <AdPlaceholder size="banner" className="mb-6" />
+      <div className="space-y-4">
+        <div className="flex justify-between items-center px-1">
+          <label htmlFor="case-input" className="text-xs font-black uppercase tracking-widest text-slate-400">Votre Texte</label>
+          <button
+            onClick={() => setText('')}
+            className="text-xs font-bold px-3 py-1 rounded-full text-rose-500 bg-rose-50 dark:bg-rose-500/10 hover:bg-rose-100 transition-all flex items-center gap-1"
+            aria-label="Effacer le texte"
+          >
+            <Trash2 className="w-3 h-3" /> Effacer
+          </button>
+        </div>
+        <textarea
+          id="case-input"
+          value={text}
+          onChange={(e) => setText(e.target.value)}
+          placeholder="Entrez votre texte ici pour le convertir..."
+          className="w-full h-48 p-8 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-[2rem] outline-none focus:ring-2 focus:ring-indigo-500/20 transition-all text-lg leading-relaxed dark:text-slate-300 shadow-inner"
+        />
+      </div>
 
-      <textarea
-        value={text}
-        onChange={(e) => setText(e.target.value)}
-        placeholder="Entrez votre texte ici..."
-        className="w-full h-32 p-4 border border-gray-300 rounded-lg resize-none focus:outline-none focus:ring-2 focus:ring-blue-500 mb-6"
-      />
-
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
         {Object.entries(conversions).map(([name, converter]) => {
           const converted = text ? converter(text) : '';
           return (
-            <div key={name} className="bg-white border border-gray-300 rounded-lg p-4">
-              <div className="flex items-center justify-between mb-2">
-                <span className="font-semibold text-sm text-gray-700">{name}</span>
+            <div key={name} className="bg-white dark:bg-slate-900/50 border border-slate-200 dark:border-slate-800 rounded-3xl p-6 hover:border-indigo-500/30 transition-all group flex flex-col justify-between space-y-4 relative">
+              <div className="flex items-center justify-between">
+                <span className="text-xs font-black uppercase tracking-widest text-slate-400 group-hover:text-indigo-500 transition-colors">{name}</span>
                 <button
                   onClick={() => copyToClipboard(converted, name)}
                   disabled={!text}
-                  className="p-1 hover:bg-gray-100 rounded transition-colors disabled:opacity-50"
+                  className={`p-2 rounded-xl transition-all ${
+                    copied === name
+                    ? 'bg-emerald-500 text-white'
+                    : 'bg-slate-50 dark:bg-slate-800 text-slate-400 hover:text-indigo-500 dark:hover:text-indigo-400'
+                  } disabled:opacity-50 active:scale-95 shadow-sm group-hover:shadow-indigo-500/10`}
                   title="Copier"
                 >
-                  {copied === name ? (
-                    <Check className="w-4 h-4 text-green-500" />
-                  ) : (
-                    <Copy className="w-4 h-4 text-gray-500" />
-                  )}
+                  {copied === name ? <Check className="w-4 h-4" /> : <Copy className="w-4 h-4" />}
                 </button>
               </div>
-              <div className="bg-gray-50 p-3 rounded font-mono text-sm min-h-[3rem] break-all">
-                {converted || <span className="text-gray-400">Résultat...</span>}
+              <div className="p-4 bg-slate-50 dark:bg-slate-950/50 rounded-2xl font-mono text-xs break-all leading-relaxed text-slate-900 dark:text-slate-300 min-h-[4rem] flex items-center shadow-inner">
+                {converted || <span className="text-slate-400 opacity-50">En attente...</span>}
               </div>
             </div>
           );
@@ -73,6 +85,34 @@ export function CaseConverter() {
       </div>
 
       <AdPlaceholder size="medium" className="mt-6" />
+
+      {/* Info Section */}
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-8 pt-16 border-t border-slate-100 dark:border-slate-800">
+        <div className="space-y-4">
+          <h4 className="font-bold dark:text-white flex items-center gap-2">
+            <Sparkles className="w-4 h-4 text-indigo-500" /> Multi-formats
+          </h4>
+          <p className="text-sm text-slate-500 dark:text-slate-400 leading-relaxed">
+            Convertissez instantanément votre texte vers plus de 10 formats de casse différents, des standards de programmation aux formats littéraires.
+          </p>
+        </div>
+        <div className="space-y-4">
+          <h4 className="font-bold dark:text-white flex items-center gap-2">
+            <CaseSensitive className="w-4 h-4 text-indigo-500" /> Productivité
+          </h4>
+          <p className="text-sm text-slate-500 dark:text-slate-400 leading-relaxed">
+            Un gain de temps précieux pour les développeurs, rédacteurs et créateurs de contenu qui doivent respecter des conventions de nommage strictes.
+          </p>
+        </div>
+        <div className="space-y-4">
+          <h4 className="font-bold dark:text-white flex items-center gap-2">
+            <Info className="w-4 h-4 text-indigo-500" /> Confidentialité
+          </h4>
+          <p className="text-sm text-slate-500 dark:text-slate-400 leading-relaxed">
+            Tout le traitement est local. Votre texte reste dans votre navigateur et n'est jamais envoyé à un serveur externe.
+          </p>
+        </div>
+      </div>
     </div>
   );
 }

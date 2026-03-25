@@ -29,7 +29,7 @@ import {
   Calendar,
   FileCode,
   Link as LinkIcon,
-  Image,
+  Image as ImageIcon,
   Globe,
   CaseSensitive,
   Columns,
@@ -139,6 +139,7 @@ const ColorPaletteGenerator = lazy(() => import("./components/ColorPaletteGenera
 const RegExTester = lazy(() => import("./components/RegExTester").then(m => ({ default: m.RegExTester })));
 const UserAgentAnalyzer = lazy(() => import("./components/UserAgentAnalyzer").then(m => ({ default: m.UserAgentAnalyzer })));
 const SlugGenerator = lazy(() => import("./components/SlugGenerator").then(m => ({ default: m.SlugGenerator })));
+const Metronome = lazy(() => import("./components/Metronome").then(m => ({ default: m.Metronome })));
 
 // ⚡ Bolt Optimization: Pre-calculating tool map and search index for O(1) lookups and faster filtering
 const toolsMap: Record<string, Tool> = {};
@@ -565,7 +566,7 @@ const tools: Tool[] = [
   {
     id: "base64-to-image",
     name: "Base64 en Image",
-    icon: Image,
+    icon: ImageIcon,
     description: "Convertir des chaînes Base64 en images",
     Component: Base64ToImage,
     category: "dev",
@@ -596,9 +597,17 @@ const tools: Tool[] = [
     category: "other",
   },
   {
+    id: "metronome",
+    name: "Métronome",
+    icon: Music,
+    description: "Métronome précis pour vos sessions musicales",
+    Component: Metronome,
+    category: "other",
+  },
+  {
     id: "image-compressor",
     name: "Images",
-    icon: Image,
+    icon: ImageIcon,
     description: "Compresseur d'images client-side",
     Component: ImageCompressor,
     category: "other",

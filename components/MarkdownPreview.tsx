@@ -3,7 +3,7 @@ import { Eye, Code } from 'lucide-react';
 import { AdPlaceholder } from './AdPlaceholder';
 
 export function MarkdownPreview() {
-  const [markdown, setMarkdown] = useState('# Titre\n\nVotre texte **Markdown** ici...');
+  const [markdown, setMarkdown] = useState('# Titre\n\nVotre texte **Markdown** ici...\n\n- Liste\n  - Sous-liste\n  - Autre sous-liste\n- Retour');
   const [mode, setMode] = useState<'split' | 'edit' | 'preview'>('split');
 
   const escapeHTML = (str: string) => {
@@ -43,10 +43,59 @@ export function MarkdownPreview() {
     // 4. Blockquotes
     html = html.replace(/^\s*&gt;\s+(.*)$/gim, '<blockquote class="border-l-4 border-slate-300 dark:border-slate-700 pl-4 italic my-6 text-slate-600 dark:text-slate-400">$1</blockquote>');
     
-    // 5. Unordered lists
-    html = html.replace(/^\s*[-*]\s+(.*)$/gim, '<li class="ml-6 list-disc text-slate-700 dark:text-slate-300 my-1">$1</li>');
-    // Wrap adjacent <li> in <ul>
-    html = html.replace(/((?:<li.*?>.*?<\/li>\s*)+)/g, '<ul class="my-4">$1</ul>');
+    // 5. Unordered lists (Improved for nesting)
+    const lines = html.split('\n');
+    let inList = false;
+    let listStack: number[] = [];
+
+    const processedLines = lines.map(line => {
+      const listMatch = line.match(/^(\s*)([-*])\s+(.*)$/);
+      if (listMatch) {
+        const indent = listMatch[1].length;
+        const content = listMatch[3];
+        let prefix = '';
+
+        if (!inList) {
+          inList = true;
+          listStack.push(indent);
+          prefix = '<ul class="my-4">';
+        } else {
+          const lastIndent = listStack[listStack.length - 1];
+          if (indent > lastIndent) {
+            listStack.push(indent);
+            prefix = '<ul class="ml-4">';
+          } else if (indent < lastIndent) {
+            while (listStack.length > 1 && indent < listStack[listStack.length - 1]) {
+              listStack.pop();
+              prefix += '</ul>';
+            }
+          }
+        }
+        return `${prefix}<li class="ml-6 list-disc text-slate-700 dark:text-slate-300 my-1">${content}</li>`;
+      } else {
+        if (inList && line.trim() !== '') {
+          let suffix = '';
+          while (listStack.length > 0) {
+            listStack.pop();
+            suffix += '</ul>';
+          }
+          inList = false;
+          return suffix + line;
+        }
+        return line;
+      }
+    });
+
+    if (inList) {
+      let suffix = '';
+      while (listStack.length > 0) {
+        listStack.pop();
+        suffix += '</ul>';
+      }
+      processedLines.push(suffix);
+    }
+
+    html = processedLines.join('\n');
 
     // 6. Bold
     html = html.replace(/\*\*(.*?)\*\*/g, '<strong class="font-bold text-slate-900 dark:text-white">$1</strong>');
@@ -55,15 +104,11 @@ export function MarkdownPreview() {
     html = html.replace(/\*(.*?)\*/g, '<em class="italic">$1</em>');
     
     // 8. Links
-    // Sentinel: Exclude quotes and other attribute-breaking characters from the URL match.
     html = html.replace(/\[(.*?)\]\(([^)\s\<\>"\']+)\)/g, (match, linkText, url) => {
-      // Sentinel: Improved protocol check to prevent XSS.
-      // We whitelist common safe protocols and ensure the URL doesn't contain
-      // encoded characters that could be used for bypasses.
       const isSafe = /^(https?:\/\/|mailto:|tel:|\/|#)/i.test(url) &&
-                    !/[\u0000-\u001F\u007F-\u009F]/.test(url) && // No control characters
-                    !url.includes('&#') && // No HTML entities in URL part
-                    !url.toLowerCase().includes('javascript:'); // Double check for javascript:
+                    !/[\u0000-\u001F\u007F-\u009F]/.test(url) &&
+                    !url.includes('&#') &&
+                    !url.toLowerCase().includes('javascript:');
       return isSafe
         ? `<a href="${url}" class="text-indigo-600 dark:text-indigo-400 underline underline-offset-4 hover:text-indigo-500 transition-colors" rel="noopener noreferrer" target="_blank">${linkText}</a>`
         : `<span class="text-slate-400 underline decoration-dotted" title="Lien non sécurisé">${linkText}</span>`;
@@ -92,7 +137,7 @@ export function MarkdownPreview() {
         <button
           onClick={() => setMode('edit')}
           className={`px-4 py-2 rounded-lg font-semibold transition-all ${
-            mode === 'edit' ? 'bg-blue-500 text-white' : 'bg-gray-200'
+            mode === 'edit' ? 'bg-indigo-600 text-white' : 'bg-slate-200 dark:bg-slate-800 dark:text-slate-400'
           }`}
         >
           <Code className="w-4 h-4 inline mr-2" />
@@ -101,7 +146,7 @@ export function MarkdownPreview() {
         <button
           onClick={() => setMode('split')}
           className={`px-4 py-2 rounded-lg font-semibold transition-all ${
-            mode === 'split' ? 'bg-blue-500 text-white' : 'bg-gray-200'
+            mode === 'split' ? 'bg-indigo-600 text-white' : 'bg-slate-200 dark:bg-slate-800 dark:text-slate-400'
           }`}
         >
           Divisé
@@ -109,7 +154,7 @@ export function MarkdownPreview() {
         <button
           onClick={() => setMode('preview')}
           className={`px-4 py-2 rounded-lg font-semibold transition-all ${
-            mode === 'preview' ? 'bg-blue-500 text-white' : 'bg-gray-200'
+            mode === 'preview' ? 'bg-indigo-600 text-white' : 'bg-slate-200 dark:bg-slate-800 dark:text-slate-400'
           }`}
         >
           <Eye className="w-4 h-4 inline mr-2" />
@@ -120,13 +165,14 @@ export function MarkdownPreview() {
       <div className={`grid gap-4 ${mode === 'split' ? 'grid-cols-2' : 'grid-cols-1'}`}>
         {(mode === 'edit' || mode === 'split') && (
           <div>
-            <label className="block text-sm font-semibold text-gray-700 mb-2">
+            <label htmlFor="markdown-input" className="block text-sm font-semibold text-slate-700 dark:text-slate-300 mb-2">
               Markdown
             </label>
             <textarea
+              id="markdown-input"
               value={markdown}
               onChange={(e) => setMarkdown(e.target.value)}
-              className="w-full h-96 p-4 border border-gray-300 rounded-lg resize-none font-mono text-sm"
+              className="w-full h-[500px] p-4 bg-slate-50 dark:bg-slate-900 border border-slate-300 dark:border-slate-800 rounded-lg resize-none font-mono text-sm dark:text-white focus:ring-2 focus:ring-indigo-500/20 outline-none"
               placeholder="# Titre..."
             />
           </div>
@@ -134,11 +180,11 @@ export function MarkdownPreview() {
         
         {(mode === 'preview' || mode === 'split') && (
           <div>
-            <label className="block text-sm font-semibold text-gray-700 mb-2">
+            <label className="block text-sm font-semibold text-slate-700 dark:text-slate-300 mb-2">
               Aperçu
             </label>
             <div
-              className="w-full h-96 p-4 border border-gray-300 rounded-lg overflow-y-auto bg-white prose"
+              className="w-full h-[500px] p-4 border border-slate-300 dark:border-slate-800 rounded-lg overflow-y-auto bg-white dark:bg-slate-900/50 prose dark:prose-invert max-w-none"
               dangerouslySetInnerHTML={{ __html: renderMarkdown(markdown) }}
             />
           </div>

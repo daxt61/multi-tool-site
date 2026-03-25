@@ -1,25 +1,118 @@
-import React, { useState, useMemo, useEffect, useRef } from 'react';
-import { Search, Info, AlertCircle, Copy, Check, Flag } from 'lucide-react';
+import React, { useState, useEffect, useRef } from 'react';
+import { Search, Info, AlertCircle, Copy, Check, Flag, Loader2 } from 'lucide-react';
+
+// Sentinel: Move regex execution to a Web Worker to prevent ReDoS (Regular Expression Denial of Service)
+// from freezing the main thread. Pathological regexes like (a+)+$ can cause catastrophic backtracking.
+const WORKER_CODE = `
+  self.onmessage = function(e) {
+    const { regex, flags, testText } = e.data;
+    try {
+      const safeFlags = flags.includes('g') ? flags : flags + 'g';
+      const re = new RegExp(regex, safeFlags);
+      const matches = [];
+      const matchAll = testText.matchAll(re);
+
+      let count = 0;
+      for (const match of matchAll) {
+        // Sentinel: Limit match count to prevent memory issues and UI lag
+        if (count >= 1000) break;
+        matches.push({
+          index: match.index,
+          text: match[0],
+          length: match[0].length
+        });
+        count++;
+      }
+
+      self.postMessage({ matches, matchCount: count, error: null, processedText: testText });
+    } catch (e) {
+      self.postMessage({ matches: [], matchCount: 0, error: e.message, processedText: testText });
+    }
+  };
+`;
+
+interface MatchResult {
+  index: number;
+  text: string;
+  length: number;
+}
 
 export function RegExTester() {
   const [regex, setRegex] = useState('([a-zA-Z0-9._%+-]+)@([a-zA-Z0-9.-]+)\\.([a-zA-Z]{2,})');
   const [flags, setFlags] = useState('g');
   const [testText, setTestText] = useState('Contactez-nous à support@example.com ou sales@test.org pour plus d\'informations.');
+  const [matches, setMatches] = useState<MatchResult[]>([]);
+  const [matchCount, setMatchCount] = useState(0);
+  const [error, setError] = useState<string | null>(null);
+  const [isProcessing, setIsProcessing] = useState(false);
   const [copied, setCopied] = useState(false);
+  const [lastProcessedText, setLastProcessedText] = useState('');
+
+  const workerRef = useRef<Worker | null>(null);
+  const workerUrlRef = useRef<string | null>(null);
+  const executionTimerId = useRef<any>(null);
   const backdropRef = useRef<HTMLDivElement>(null);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
 
-  const { matches, error, matchCount } = useMemo(() => {
-    if (!regex) return { matches: [], error: null, matchCount: 0 };
-    try {
-      // Ensure the 'g' flag is handled correctly for matchAll
-      const safeFlags = flags.includes('g') ? flags : flags + 'g';
-      const re = new RegExp(regex, safeFlags);
-      const allMatches = Array.from(testText.matchAll(re));
-      return { matches: allMatches, error: null, matchCount: allMatches.length };
-    } catch (e: any) {
-      return { matches: [], error: e.message, matchCount: 0 };
+  useEffect(() => {
+    const blob = new Blob([WORKER_CODE], { type: 'application/javascript' });
+    workerUrlRef.current = URL.createObjectURL(blob);
+
+    return () => {
+      if (workerRef.current) workerRef.current.terminate();
+      if (workerUrlRef.current) URL.revokeObjectURL(workerUrlRef.current);
+      if (executionTimerId.current) clearTimeout(executionTimerId.current);
+    };
+  }, []);
+
+  useEffect(() => {
+    if (!regex) {
+      setMatches([]);
+      setMatchCount(0);
+      setError(null);
+      setIsProcessing(false);
+      setLastProcessedText('');
+      return;
     }
+
+    if (workerRef.current) {
+      workerRef.current.terminate();
+    }
+    if (executionTimerId.current) {
+      clearTimeout(executionTimerId.current);
+    }
+
+    setIsProcessing(true);
+    // Note: We don't clear matches here to avoid flickering,
+    // but we use lastProcessedText to ensure highlights match the current text.
+
+    workerRef.current = new Worker(workerUrlRef.current!);
+
+    workerRef.current.onmessage = (e) => {
+      const { matches, matchCount, error, processedText } = e.data;
+      setMatches(matches);
+      setMatchCount(matchCount);
+      setError(error);
+      setLastProcessedText(processedText);
+      setIsProcessing(false);
+      if (executionTimerId.current) clearTimeout(executionTimerId.current);
+    };
+
+    workerRef.current.postMessage({ regex, flags, testText });
+
+    // Sentinel: Set a timeout to terminate the worker if it takes too long (ReDoS protection)
+    executionTimerId.current = setTimeout(() => {
+      if (workerRef.current) {
+        workerRef.current.terminate();
+        workerRef.current = null;
+        setMatches([]);
+        setMatchCount(0);
+        setError("L'exécution a pris trop de temps (ReDoS potentiel détecté).");
+        setIsProcessing(false);
+        setLastProcessedText('');
+      }
+    }, 2000);
+
   }, [regex, flags, testText]);
 
   const syncScroll = () => {
@@ -36,7 +129,9 @@ export function RegExTester() {
   };
 
   const renderHighlightedText = () => {
-    if (error || !regex || matches.length === 0) {
+    // Sentinel: Only render highlights if they were calculated for the current text
+    // to prevent misaligned highlights while typing.
+    if (error || !regex || matches.length === 0 || lastProcessedText !== testText) {
       return <span className="text-transparent whitespace-pre-wrap break-words">{testText}</span>;
     }
 
@@ -44,10 +139,9 @@ export function RegExTester() {
     let lastIndex = 0;
 
     matches.forEach((match, i) => {
-      const start = match.index!;
-      const end = start + match[0].length;
+      const start = match.index;
+      const end = start + match.length;
 
-      // Add text before match
       if (start > lastIndex) {
         segments.push(
           <span key={`text-${i}`} className="text-transparent">
@@ -56,17 +150,15 @@ export function RegExTester() {
         );
       }
 
-      // Add highlighted match
       segments.push(
         <mark key={`match-${i}`} className="bg-indigo-500/30 text-transparent rounded-sm ring-1 ring-indigo-500/50">
-          {match[0]}
+          {match.text}
         </mark>
       );
 
       lastIndex = end;
     });
 
-    // Add remaining text
     if (lastIndex < testText.length) {
       segments.push(
         <span key="text-end" className="text-transparent">
@@ -93,7 +185,6 @@ export function RegExTester() {
   return (
     <div className="max-w-5xl mx-auto space-y-8">
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
-        {/* Left Column: Editor */}
         <div className="lg:col-span-7 space-y-6">
           <div className="bg-slate-50 dark:bg-slate-900/50 p-6 rounded-[2.5rem] border border-slate-200 dark:border-slate-800 space-y-4">
             <div className="flex justify-between items-center px-1">
@@ -128,13 +219,13 @@ export function RegExTester() {
           <div className="bg-white dark:bg-slate-900/40 p-6 rounded-[2.5rem] border border-slate-200 dark:border-slate-800 space-y-4 relative">
              <div className="flex justify-between items-center px-1">
               <label htmlFor="test-text" className="text-xs font-black uppercase tracking-widest text-slate-400">Texte de Test</label>
-              <div className="text-xs font-bold text-slate-400">
+              <div className="flex items-center gap-2 text-xs font-bold text-slate-400">
+                {isProcessing && <Loader2 className="w-3 h-3 animate-spin text-indigo-500" />}
                 {matchCount} match{matchCount > 1 ? 'es' : ''} trouvé{matchCount > 1 ? 's' : ''}
               </div>
             </div>
 
             <div className="relative min-h-[300px] font-mono text-base leading-relaxed">
-              {/* Backdrop for highlighting */}
               <div
                 ref={backdropRef}
                 className="absolute inset-0 p-4 pointer-events-none whitespace-pre-wrap break-words overflow-auto no-scrollbar border border-transparent"
@@ -143,7 +234,6 @@ export function RegExTester() {
                 {renderHighlightedText()}
               </div>
 
-              {/* Actual Textarea */}
               <textarea
                 id="test-text"
                 ref={textareaRef}
@@ -157,7 +247,6 @@ export function RegExTester() {
           </div>
         </div>
 
-        {/* Right Column: Flags & Info */}
         <div className="lg:col-span-5 space-y-6">
           <div className="bg-slate-50 dark:bg-slate-900/50 p-8 rounded-[2.5rem] border border-slate-200 dark:border-slate-800 space-y-6">
             <div className="flex items-center gap-2 px-1">

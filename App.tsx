@@ -29,7 +29,7 @@ import {
   Calendar,
   FileCode,
   Link as LinkIcon,
-  Image,
+  Image as ImageIcon,
   Globe,
   CaseSensitive,
   Columns,
@@ -67,6 +67,9 @@ import {
   ArrowRight, Loader2,
   Sparkles,
   ListChecks,
+  Activity,
+  Volume2,
+  Layers,
   ShieldCheck,
   Scissors,
   Binary,
@@ -139,6 +142,10 @@ const ColorPaletteGenerator = lazy(() => import("./components/ColorPaletteGenera
 const RegExTester = lazy(() => import("./components/RegExTester").then(m => ({ default: m.RegExTester })));
 const UserAgentAnalyzer = lazy(() => import("./components/UserAgentAnalyzer").then(m => ({ default: m.UserAgentAnalyzer })));
 const SlugGenerator = lazy(() => import("./components/SlugGenerator").then(m => ({ default: m.SlugGenerator })));
+const Metronome = lazy(() => import("./components/Metronome").then(m => ({ default: m.Metronome })));
+const TextToSpeech = lazy(() => import("./components/TextToSpeech").then(m => ({ default: m.TextToSpeech })));
+const GlassmorphismGenerator = lazy(() => import("./components/GlassmorphismGenerator").then(m => ({ default: m.GlassmorphismGenerator })));
+const ImageToWebP = lazy(() => import("./components/ImageToWebP").then(m => ({ default: m.ImageToWebP })));
 
 // ⚡ Bolt Optimization: Pre-calculating tool map and search index for O(1) lookups and faster filtering
 const toolsMap: Record<string, Tool> = {};
@@ -565,7 +572,7 @@ const tools: Tool[] = [
   {
     id: "base64-to-image",
     name: "Base64 en Image",
-    icon: Image,
+    icon: ImageIcon,
     description: "Convertir des chaînes Base64 en images",
     Component: Base64ToImage,
     category: "dev",
@@ -598,7 +605,7 @@ const tools: Tool[] = [
   {
     id: "image-compressor",
     name: "Images",
-    icon: Image,
+    icon: ImageIcon,
     description: "Compresseur d'images client-side",
     Component: ImageCompressor,
     category: "other",
@@ -625,6 +632,38 @@ const tools: Tool[] = [
     icon: Music,
     description: "Compteur de battements par minute",
     Component: BPMCounter,
+    category: "other",
+  },
+  {
+    id: "metronome",
+    name: "Métronome",
+    icon: Activity,
+    description: "Métronome précis pour musiciens (40-240 BPM)",
+    Component: Metronome,
+    category: "other",
+  },
+  {
+    id: "text-to-speech",
+    name: "Synthèse vocale",
+    icon: Volume2,
+    description: "Convertir du texte en parole avec plusieurs voix",
+    Component: TextToSpeech,
+    category: "text",
+  },
+  {
+    id: "glassmorphism",
+    name: "Générateur CSS Glassmorphism",
+    icon: Layers,
+    description: "Créer des effets de flou et transparence CSS",
+    Component: GlassmorphismGenerator,
+    category: "dev",
+  },
+  {
+    id: "image-webp",
+    name: "Image en WebP",
+    icon: ImageIcon,
+    description: "Convertir des images en format WebP optimisé",
+    Component: ImageToWebP,
     category: "other",
   },
   {

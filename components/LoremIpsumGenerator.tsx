@@ -1,5 +1,5 @@
 import { useState, useMemo, useCallback } from 'react';
-import { Copy, Check, RefreshCw } from 'lucide-react';
+import { Copy, Check, RefreshCw, Trash2 } from 'lucide-react';
 
 export function LoremIpsumGenerator() {
   const [count, setCount] = useState(3);
@@ -107,6 +107,13 @@ export function LoremIpsumGenerator() {
         </div>
 
         <div className="flex flex-col sm:flex-row gap-4">
+          <button
+            onClick={() => { setRefreshTrigger(0); setCount(3); setType('paragraphs'); }}
+            className="text-xs font-bold px-4 py-2 rounded-full text-rose-500 bg-rose-50 dark:bg-rose-500/10 hover:bg-rose-100 transition-all flex items-center justify-center gap-2"
+            aria-label="Effacer"
+          >
+            <Trash2 className="w-4 h-4" /> Effacer
+          </button>
           <button
             onClick={handleRegenerate}
             className="flex-1 py-4 bg-white dark:bg-slate-800 text-slate-600 dark:text-slate-300 border border-slate-200 dark:border-slate-700 rounded-2xl hover:bg-slate-50 dark:hover:bg-slate-700 transition-all flex items-center justify-center gap-2 font-black active:scale-95"

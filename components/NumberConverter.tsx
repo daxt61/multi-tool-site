@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Copy, Check, Hash, Binary, Octagon, Hexagon, Info } from 'lucide-react';
+import { Copy, Check, Hash, Binary, Octagon, Hexagon, Info, Trash2 } from 'lucide-react';
 
 const BASE_CONFIGS = [
   { label: 'Décimal (Base 10)', getter: (s: any) => s.decimal, onChange: (v: string, s: any) => s.updateFromDecimal(v), placeholder: '0-9', id: 'dec' },
@@ -81,8 +81,24 @@ export function NumberConverter() {
     }
   };
 
+  const clearAll = () => {
+    setDecimal('');
+    setBinary('');
+    setOctal('');
+    setHexadecimal('');
+  };
+
   return (
     <div className="max-w-4xl mx-auto space-y-8">
+      <div className="flex justify-end px-1">
+        <button
+          onClick={clearAll}
+          disabled={!decimal && !binary && !octal && !hexadecimal}
+          className="text-xs font-bold px-3 py-1 rounded-full text-rose-500 bg-rose-50 dark:bg-rose-500/10 hover:bg-rose-100 transition-all flex items-center gap-1 disabled:opacity-50 disabled:cursor-not-allowed"
+        >
+          <Trash2 className="w-3 h-3" /> Effacer
+        </button>
+      </div>
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
         {BASE_CONFIGS.map((base) => (
           <div key={base.id} className="bg-slate-50 dark:bg-slate-900/50 p-6 rounded-3xl border border-slate-200 dark:border-slate-800 space-y-4">

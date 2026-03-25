@@ -1,6 +1,5 @@
-import { useState } from 'react';
-import { Copy, Check } from 'lucide-react';
-import { AdPlaceholder } from './AdPlaceholder';
+import { useState, useCallback } from 'react';
+import { Copy, Check, Trash2, Type, FileText } from 'lucide-react';
 
 export function CaseConverter() {
   const [text, setText] = useState('');
@@ -27,52 +26,81 @@ export function CaseConverter() {
     'iNVERSE cASE': (t: string) => t.split('').map(c => c === c.toUpperCase() ? c.toLowerCase() : c.toUpperCase()).join('')
   };
 
-  const copyToClipboard = (converted: string, type: string) => {
+  const copyToClipboard = useCallback((converted: string, type: string) => {
     navigator.clipboard.writeText(converted);
     setCopied(type);
     setTimeout(() => setCopied(''), 2000);
-  };
+  }, []);
 
   return (
-    <div className="max-w-4xl mx-auto">
-      <AdPlaceholder size="banner" className="mb-6" />
+    <div className="max-w-6xl mx-auto space-y-12">
+      <div className="space-y-4">
+        <div className="flex justify-between items-center px-1">
+          <label htmlFor="case-text" className="text-xs font-black uppercase tracking-widest text-slate-400 flex items-center gap-2">
+            <Type className="w-4 h-4" /> Votre Texte
+          </label>
+          <button
+            onClick={() => setText('')}
+            disabled={!text}
+            className="text-xs font-bold px-3 py-1 rounded-full text-rose-500 bg-rose-50 dark:bg-rose-500/10 hover:bg-rose-100 transition-all flex items-center gap-1 disabled:opacity-50 disabled:cursor-not-allowed"
+          >
+            <Trash2 className="w-3.5 h-3.5" /> Effacer
+          </button>
+        </div>
+        <textarea
+          id="case-text"
+          value={text}
+          onChange={(e) => setText(e.target.value)}
+          placeholder="Entrez votre texte ici..."
+          className="w-full h-48 p-8 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-[2rem] outline-none focus:ring-2 focus:ring-indigo-500/20 transition-all text-lg leading-relaxed dark:text-slate-300 shadow-sm resize-none"
+        />
+      </div>
 
-      <textarea
-        value={text}
-        onChange={(e) => setText(e.target.value)}
-        placeholder="Entrez votre texte ici..."
-        className="w-full h-32 p-4 border border-gray-300 rounded-lg resize-none focus:outline-none focus:ring-2 focus:ring-blue-500 mb-6"
-      />
-
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
         {Object.entries(conversions).map(([name, converter]) => {
           const converted = text ? converter(text) : '';
           return (
-            <div key={name} className="bg-white border border-gray-300 rounded-lg p-4">
+            <div key={name} className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-[2rem] p-8 space-y-4 shadow-sm group hover:border-indigo-500/30 transition-all">
               <div className="flex items-center justify-between mb-2">
-                <span className="font-semibold text-sm text-gray-700">{name}</span>
+                <span className="text-xs font-black text-slate-400 uppercase tracking-widest">{name}</span>
                 <button
                   onClick={() => copyToClipboard(converted, name)}
                   disabled={!text}
-                  className="p-1 hover:bg-gray-100 rounded transition-colors disabled:opacity-50"
-                  title="Copier"
+                  className={`p-2 rounded-xl transition-all disabled:opacity-50 disabled:cursor-not-allowed ${
+                    copied === name
+                      ? 'bg-emerald-500 text-white shadow-lg shadow-emerald-500/20'
+                      : 'bg-slate-50 dark:bg-slate-800 text-slate-400 hover:text-indigo-600 dark:hover:text-indigo-400'
+                  }`}
+                  aria-label={`Copier ${name}`}
                 >
                   {copied === name ? (
-                    <Check className="w-4 h-4 text-green-500" />
+                    <Check className="w-4 h-4" />
                   ) : (
-                    <Copy className="w-4 h-4 text-gray-500" />
+                    <Copy className="w-4 h-4" />
                   )}
                 </button>
               </div>
-              <div className="bg-gray-50 p-3 rounded font-mono text-sm min-h-[3rem] break-all">
-                {converted || <span className="text-gray-400">Résultat...</span>}
+              <div className="bg-slate-50 dark:bg-slate-950/50 p-4 rounded-xl font-mono text-sm min-h-[4rem] flex items-center break-all dark:text-slate-300 border border-slate-100 dark:border-slate-800">
+                {converted || <span className="text-slate-300 dark:text-slate-700 italic">Résultat...</span>}
               </div>
             </div>
           );
         })}
       </div>
 
-      <AdPlaceholder size="medium" className="mt-6" />
+      <div className="pt-12 border-t border-slate-100 dark:border-slate-800">
+        <div className="p-8 bg-indigo-50 dark:bg-indigo-900/10 rounded-[2.5rem] flex flex-col md:flex-row items-center gap-8 border border-indigo-100 dark:border-indigo-900/30">
+          <div className="w-16 h-16 bg-white dark:bg-slate-800 rounded-2xl flex items-center justify-center text-indigo-500 flex-shrink-0 shadow-sm">
+            <FileText className="w-8 h-8" />
+          </div>
+          <div>
+            <h4 className="font-black text-indigo-900 dark:text-indigo-400 mb-2">Guide des formats</h4>
+            <p className="text-sm text-indigo-700/80 dark:text-indigo-400/80 leading-relaxed">
+              Le camelCase est couramment utilisé en JavaScript, le snake_case en Python et SQL, tandis que le kebab-case est privilégié pour les URLs et les sélecteurs CSS. Choisissez le format qui correspond le mieux à vos besoins de programmation.
+            </p>
+          </div>
+        </div>
+      </div>
     </div>
   );
 }

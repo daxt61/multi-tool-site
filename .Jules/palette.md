@@ -25,3 +25,7 @@
 ## 2025-05-24 - [Global Navigation & Tool Metadata Polish]
 **Learning:** For tool-based applications, the "Copy link" feature is a vital micro-UX that users expect for sharing specific configurations. Additionally, ensuring that metadata badges (like categories) use consistent icons and localized names from a central configuration, rather than tool-specific icons, improves the application's taxonomic clarity. Coupling this with global accessibility landmarks like "Skip to content" links and semantic `<main>` tags ensures a professional and inclusive user experience.
 **Action:** Prioritize "Copy link" utilities in tool views and audit metadata badges for taxonomic consistency. Always implement "Skip to content" for keyboard accessibility.
+
+## 2025-02-04 - [QR Code Generator Modernization & A11y]
+**Learning:** Legacy utility tools can be significantly enhanced by migrating to a responsive two-column "Bento" layout, which allows users to see generated results side-by-side with inputs on larger screens. Furthermore, replacing generic containers with specialized empty states (using descriptive icons like `QrCode`) provides immediate visual guidance and reduces cognitive load for new users.
+**Action:** Prioritize side-by-side layouts for generators and implement "QrCode" placeholder icons for empty states.

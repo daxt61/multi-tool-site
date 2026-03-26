@@ -70,6 +70,9 @@ import {
   ShieldCheck,
   Scissors,
   Binary,
+  Volume2,
+  Layers,
+  Wind,
 } from "lucide-react";
 const AdPlaceholder = lazy(() => import("./components/AdPlaceholder").then(m => ({ default: m.AdPlaceholder })));
 
@@ -139,6 +142,10 @@ const ColorPaletteGenerator = lazy(() => import("./components/ColorPaletteGenera
 const RegExTester = lazy(() => import("./components/RegExTester").then(m => ({ default: m.RegExTester })));
 const UserAgentAnalyzer = lazy(() => import("./components/UserAgentAnalyzer").then(m => ({ default: m.UserAgentAnalyzer })));
 const SlugGenerator = lazy(() => import("./components/SlugGenerator").then(m => ({ default: m.SlugGenerator })));
+const Metronome = lazy(() => import("./components/Metronome").then(m => ({ default: m.Metronome })));
+const TextToSpeech = lazy(() => import("./components/TextToSpeech").then(m => ({ default: m.TextToSpeech })));
+const GlassmorphismGenerator = lazy(() => import("./components/GlassmorphismGenerator").then(m => ({ default: m.GlassmorphismGenerator })));
+const ImageToWebP = lazy(() => import("./components/ImageToWebP").then(m => ({ default: m.ImageToWebP })));
 
 // ⚡ Bolt Optimization: Pre-calculating tool map and search index for O(1) lookups and faster filtering
 const toolsMap: Record<string, Tool> = {};
@@ -586,6 +593,14 @@ const tools: Tool[] = [
     Component: BinaryTextConverter,
     category: "dev",
   },
+  {
+    id: "glassmorphism",
+    name: "Glassmorphism",
+    icon: Layers,
+    description: "Générateur d'effets de flou CSS moderne",
+    Component: GlassmorphismGenerator,
+    category: "dev",
+  },
   // Other Tools
   {
     id: "timer",
@@ -641,6 +656,30 @@ const tools: Tool[] = [
     icon: Monitor,
     description: "Analyseur de navigateur et système",
     Component: UserAgentAnalyzer,
+    category: "other",
+  },
+  {
+    id: "metronome",
+    name: "Métronome",
+    icon: Music,
+    description: "Tempo précis pour la musique et l'étude",
+    Component: Metronome,
+    category: "other",
+  },
+  {
+    id: "text-to-speech",
+    name: "Synthèse Vocale",
+    icon: Volume2,
+    description: "Convertir du texte en parole naturelle",
+    Component: TextToSpeech,
+    category: "other",
+  },
+  {
+    id: "image-to-webp",
+    name: "Image en WebP",
+    icon: Wind,
+    description: "Convertir vos images au format WebP léger",
+    Component: ImageToWebP,
     category: "other",
   },
 ];

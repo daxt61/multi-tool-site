@@ -89,7 +89,7 @@ export function NumberConverter() {
             <div className="flex justify-between items-center px-1">
               <div className="flex items-center gap-2">
                 <div className="text-indigo-500">{getIcon(base.id)}</div>
-                <label className="text-xs font-black uppercase tracking-widest text-slate-400">{base.label}</label>
+                <label htmlFor={base.id} className="text-xs font-black uppercase tracking-widest text-slate-400 cursor-pointer">{base.label}</label>
               </div>
               <button
                 onClick={() => copyToClipboard(base.getter({decimal, binary, octal, hexadecimal}), base.id)}
@@ -99,6 +99,7 @@ export function NumberConverter() {
               </button>
             </div>
             <input
+              id={base.id}
               type="text"
               value={base.getter({decimal, binary, octal, hexadecimal})}
               onChange={(e) => base.onChange(e.target.value, {updateFromDecimal, updateFromBinary, updateFromOctal, updateFromHexadecimal})}

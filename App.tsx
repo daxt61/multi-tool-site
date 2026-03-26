@@ -82,8 +82,10 @@ const Calculator = lazy(() => import("./components/Calculator").then(m => ({ def
 const UnitConverter = lazy(() => import("./components/UnitConverter").then(m => ({ default: m.UnitConverter })));
 const PasswordGenerator = lazy(() => import("./components/PasswordGenerator").then(m => ({ default: m.PasswordGenerator })));
 const WordCounter = lazy(() => import("./components/WordCounter").then(m => ({ default: m.WordCounter })));
+const TextToSpeech = lazy(() => import("./components/TextToSpeech").then(m => ({ default: m.TextToSpeech })));
 const ColorConverter = lazy(() => import("./components/ColorConverter").then(m => ({ default: m.ColorConverter })));
 const TimerTool = lazy(() => import("./components/TimerTool").then(m => ({ default: m.TimerTool })));
+const Metronome = lazy(() => import("./components/Metronome").then(m => ({ default: m.Metronome })));
 const TextFormatter = lazy(() => import("./components/TextFormatter").then(m => ({ default: m.TextFormatter })));
 const NumberConverter = lazy(() => import("./components/NumberConverter").then(m => ({ default: m.NumberConverter })));
 const QRCodeGenerator = lazy(() => import("./components/QRCodeGenerator").then(m => ({ default: m.QRCodeGenerator })));
@@ -354,6 +356,14 @@ const tools: Tool[] = [
     category: "text",
   },
   {
+    id: "text-to-speech",
+    name: "Synthèse vocale",
+    icon: Type,
+    description: "Transformer du texte en parole audio",
+    Component: TextToSpeech,
+    category: "text",
+  },
+  {
     id: "slug-generator",
     name: "Slug",
     icon: LinkIcon,
@@ -593,6 +603,14 @@ const tools: Tool[] = [
     icon: Timer,
     description: "Minuteur et Chronomètre",
     Component: TimerTool,
+    category: "other",
+  },
+  {
+    id: "metronome",
+    name: "Métronome",
+    icon: Music,
+    description: "Un métronome précis pour vos sessions musicales",
+    Component: Metronome,
     category: "other",
   },
   {

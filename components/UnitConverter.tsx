@@ -220,7 +220,8 @@ export function UnitConverter() {
             <label htmlFor="fromValue" className="text-xs font-black uppercase tracking-widest text-slate-400 cursor-pointer">De</label>
             <button
               onClick={handleClear}
-              className="text-xs font-bold text-rose-500 hover:text-rose-600 flex items-center gap-1 transition-colors"
+              disabled={!fromValue}
+              className="text-xs font-bold text-rose-500 hover:text-rose-600 flex items-center gap-1 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
             >
               <Trash2 className="w-3 h-3" /> Effacer
             </button>

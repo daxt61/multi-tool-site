@@ -1,13 +1,13 @@
 import { useState } from 'react';
-import { Percent, ArrowRight, Info, TrendingUp } from 'lucide-react';
+import { Percent, ArrowRight, Info, TrendingUp, Trash2 } from 'lucide-react';
 
 export function PercentageCalculator() {
-  const [value1, setValue1] = useState('100');
-  const [value2, setValue2] = useState('20');
-  const [value3, setValue3] = useState('150');
-  const [value4, setValue4] = useState('100');
-  const [initialVal, setInitialVal] = useState('100');
-  const [finalVal, setFinalVal] = useState('150');
+  const [value1, setValue1] = useState('');
+  const [value2, setValue2] = useState('');
+  const [value3, setValue3] = useState('');
+  const [value4, setValue4] = useState('');
+  const [initialVal, setInitialVal] = useState('');
+  const [finalVal, setFinalVal] = useState('');
 
   const percentageOf = (Number(value2) / 100) * Number(value1);
   const whatPercent = Number(value4) !== 0 ? (Number(value3) / Number(value4)) * 100 : 0;
@@ -16,8 +16,28 @@ export function PercentageCalculator() {
   const v2 = Number(finalVal);
   const percentChange = v1 !== 0 ? ((v2 - v1) / v1) * 100 : 0;
 
+  const handleClear = () => {
+    setValue1('');
+    setValue2('');
+    setValue3('');
+    setValue4('');
+    setInitialVal('');
+    setFinalVal('');
+  };
+
+  const hasContent = value1 || value2 || value3 || value4 || initialVal || finalVal;
+
   return (
     <div className="max-w-4xl mx-auto space-y-8">
+      <div className="flex justify-end px-1">
+        <button
+          onClick={handleClear}
+          disabled={!hasContent}
+          className="text-xs font-bold text-rose-500 bg-rose-50 dark:bg-rose-500/10 hover:bg-rose-100 dark:hover:bg-rose-500/20 px-4 py-2 rounded-xl flex items-center gap-2 transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+        >
+          <Trash2 className="w-4 h-4" /> Effacer tout
+        </button>
+      </div>
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
         {/* Section 1: X% de Y */}
         <div className="bg-slate-50 dark:bg-slate-900/50 p-8 rounded-[2.5rem] border border-slate-200 dark:border-slate-800 flex flex-col justify-between space-y-6">
@@ -34,6 +54,7 @@ export function PercentageCalculator() {
                 onChange={(e) => setValue2(e.target.value)}
                 className="w-full p-4 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-2xl text-xl font-black font-mono focus:border-indigo-500 outline-none transition-all dark:text-white"
                 placeholder="20"
+                aria-label="Pourcentage"
               />
               <span className="text-xl font-bold text-slate-400 whitespace-nowrap">% de</span>
               <input
@@ -43,6 +64,7 @@ export function PercentageCalculator() {
                 onChange={(e) => setValue1(e.target.value)}
                 className="w-full p-4 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-2xl text-xl font-black font-mono focus:border-indigo-500 outline-none transition-all dark:text-white"
                 placeholder="100"
+                aria-label="Valeur totale"
               />
             </div>
           </div>
@@ -69,6 +91,7 @@ export function PercentageCalculator() {
                 onChange={(e) => setValue3(e.target.value)}
                 className="w-full p-4 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-2xl text-xl font-black font-mono focus:border-indigo-500 outline-none transition-all dark:text-white"
                 placeholder="150"
+                aria-label="Valeur partielle"
               />
               <span className="text-xl font-bold text-slate-400 whitespace-nowrap">de</span>
               <input
@@ -78,6 +101,7 @@ export function PercentageCalculator() {
                 onChange={(e) => setValue4(e.target.value)}
                 className="w-full p-4 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-2xl text-xl font-black font-mono focus:border-indigo-500 outline-none transition-all dark:text-white"
                 placeholder="100"
+                aria-label="Valeur de référence"
               />
             </div>
           </div>
@@ -135,21 +159,25 @@ export function PercentageCalculator() {
         </div>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           <div className="space-y-3">
-             <label className="text-xs font-bold text-slate-400 px-1 uppercase tracking-widest">Valeur de base</label>
+             <label htmlFor="base-val-after" className="text-xs font-bold text-slate-400 px-1 uppercase tracking-widest cursor-pointer">Valeur de base</label>
              <input
+              id="base-val-after"
               type="number"
               value={value1}
               onChange={(e) => setValue1(e.target.value)}
               className="w-full p-4 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-2xl text-2xl font-black font-mono focus:border-indigo-500 outline-none transition-all dark:text-white"
+              placeholder="100"
             />
           </div>
           <div className="space-y-3">
-             <label className="text-xs font-bold text-slate-400 px-1 uppercase tracking-widest">Pourcentage (+ ou -)</label>
+             <label htmlFor="percent-change-after" className="text-xs font-bold text-slate-400 px-1 uppercase tracking-widest cursor-pointer">Pourcentage (+ ou -)</label>
              <input
+              id="percent-change-after"
               type="number"
               value={value2}
               onChange={(e) => setValue2(e.target.value)}
               className="w-full p-4 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-2xl text-2xl font-black font-mono focus:border-indigo-500 outline-none transition-all dark:text-white"
+              placeholder="20"
             />
           </div>
         </div>

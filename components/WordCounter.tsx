@@ -32,6 +32,7 @@ export function WordCounter() {
 
     return {
       characters: deferredText.length,
+      charactersNoSpaces: deferredText.replace(/\s/g, '').length,
       words: wordCount,
       lines: deferredText === '' ? 0 : deferredText.split('\n').length,
       sentences: trimmed === '' ? 0 : deferredText.split(/[.!?]+(?:\s|$)/).filter(s => s.trim().length > 0).length,
@@ -70,7 +71,7 @@ export function WordCounter() {
             <button
               onClick={handleCopyStats}
               disabled={!text}
-              className={`text-xs font-bold px-3 py-1 rounded-full transition-all flex items-center gap-1 ${copiedStats ? 'bg-emerald-500 text-white' : 'text-indigo-500 bg-indigo-50 dark:bg-indigo-500/10 hover:bg-indigo-100'} disabled:opacity-50 disabled:cursor-not-allowed`}
+              className={`text-xs font-bold px-3 py-1 rounded-full transition-all flex items-center gap-1 ${copiedStats ? 'bg-emerald-50 dark:bg-emerald-500/10 text-emerald-600 dark:text-emerald-400' : 'text-indigo-500 bg-indigo-50 dark:bg-indigo-500/10 hover:bg-indigo-100 dark:hover:bg-indigo-500/20'} disabled:opacity-50 disabled:cursor-not-allowed`}
               title="Copier les statistiques"
             >
               {copiedStats ? <Check className="w-3 h-3" /> : <BarChart3 className="w-3 h-3" />}
@@ -78,11 +79,16 @@ export function WordCounter() {
             </button>
             <button
               onClick={handleCopy}
-              className={`text-xs font-bold px-3 py-1 rounded-full transition-all flex items-center gap-1 ${copied ? 'bg-emerald-500 text-white' : 'text-slate-500 bg-slate-100 dark:bg-slate-800'}`}
+              disabled={!text}
+              className={`text-xs font-bold px-3 py-1 rounded-full transition-all flex items-center gap-1 ${copied ? 'bg-emerald-50 dark:bg-emerald-500/10 text-emerald-600 dark:text-emerald-400' : 'text-slate-500 bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700'} disabled:opacity-50 disabled:cursor-not-allowed`}
             >
               {copied ? <Check className="w-3 h-3" /> : <Copy className="w-3 h-3" />} {copied ? 'Copié' : 'Copier'}
             </button>
-            <button onClick={() => setText('')} className="text-xs font-bold px-3 py-1 rounded-full text-rose-500 bg-rose-50 dark:bg-rose-500/10 hover:bg-rose-100 transition-all flex items-center gap-1">
+            <button
+              onClick={() => setText('')}
+              disabled={!text}
+              className="text-xs font-bold px-3 py-1 rounded-full text-rose-500 bg-rose-50 dark:bg-rose-500/10 hover:bg-rose-100 dark:hover:bg-rose-500/20 transition-all flex items-center gap-1 disabled:opacity-50 disabled:cursor-not-allowed"
+            >
               <Trash2 className="w-3 h-3" /> Effacer
             </button>
           </div>
@@ -95,9 +101,10 @@ export function WordCounter() {
         />
       </div>
 
-      <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
+      <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-7 gap-4">
         {[
           { icon: <Hash className="w-4 h-4" />, label: 'Caractères', value: stats.characters },
+          { icon: <Hash className="w-4 h-4" />, label: 'Sans espaces', value: stats.charactersNoSpaces },
           { icon: <Type className="w-4 h-4" />, label: 'Mots', value: stats.words },
           { icon: <FileText className="w-4 h-4" />, label: 'Lignes', value: stats.lines },
           { icon: <AlignLeft className="w-4 h-4" />, label: 'Phrases', value: stats.sentences },
@@ -127,9 +134,15 @@ export function WordCounter() {
         </button>
         <button
           onClick={() => setText(text.replace(/\b\w+/g, w => w.charAt(0).toUpperCase() + w.slice(1).toLowerCase()))}
-          className="px-6 py-3 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-sm font-bold hover:bg-slate-50 transition-all"
+          className="px-6 py-3 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-sm font-bold hover:bg-slate-50 dark:hover:bg-slate-700 transition-all"
         >
           Capitaliser
+        </button>
+        <button
+          onClick={() => setText(text.toLowerCase().replace(/(^\w|\.\s+\w)/gm, s => s.toUpperCase()))}
+          className="px-6 py-3 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-sm font-bold hover:bg-slate-50 dark:hover:bg-slate-700 transition-all"
+        >
+          Mode phrase
         </button>
       </div>
 

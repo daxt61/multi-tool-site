@@ -220,7 +220,8 @@ export function UnitConverter() {
             <label htmlFor="fromValue" className="text-xs font-black uppercase tracking-widest text-slate-400 cursor-pointer">De</label>
             <button
               onClick={handleClear}
-              className="text-xs font-bold text-rose-500 hover:text-rose-600 flex items-center gap-1 transition-colors"
+              disabled={!fromValue}
+              className="text-xs font-bold text-rose-500 bg-rose-50 dark:bg-rose-500/10 hover:bg-rose-100 dark:hover:bg-rose-500/20 px-2 py-1 rounded-lg flex items-center gap-1 transition-all disabled:opacity-50 disabled:cursor-not-allowed"
             >
               <Trash2 className="w-3 h-3" /> Effacer
             </button>
@@ -271,7 +272,8 @@ export function UnitConverter() {
             <label htmlFor="toUnit" className="text-xs font-black uppercase tracking-widest text-slate-400 cursor-pointer">Vers</label>
             <button
               onClick={handleCopy}
-              className={`text-xs font-bold flex items-center gap-1 transition-colors ${copied ? 'text-emerald-500' : 'text-indigo-500 hover:text-indigo-600'}`}
+              disabled={!toValue}
+              className={`text-xs font-bold flex items-center gap-1 px-2 py-1 rounded-lg transition-all ${copied ? 'bg-emerald-50 dark:bg-emerald-500/10 text-emerald-600 dark:text-emerald-400' : 'text-indigo-500 bg-indigo-50 dark:bg-indigo-500/10 hover:bg-indigo-100'} disabled:opacity-50 disabled:cursor-not-allowed`}
             >
               {copied ? <Check className="w-3 h-3" /> : <Copy className="w-3 h-3" />}
               {copied ? 'Copié' : 'Copier'}

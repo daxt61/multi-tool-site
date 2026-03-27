@@ -1,11 +1,12 @@
 import { useState, useMemo } from 'react';
-import { Activity, Info, Copy, Check, RotateCcw, HelpCircle, BookOpen, ChevronRight, Scale } from 'lucide-react';
+import { Activity, Info, Copy, Check, Trash2, HelpCircle, BookOpen, ChevronRight, Scale } from 'lucide-react';
 
 export function BMICalculator() {
   const [weight, setWeight] = useState('70');
   const [height, setHeight] = useState('170');
   const [unit, setUnit] = useState<'metric' | 'imperial'>('metric');
   const [copied, setCopied] = useState(false);
+  const [copiedIdeal, setCopiedIdeal] = useState(false);
 
   const { bmi, idealWeightRange } = useMemo(() => {
     let weightKg = parseFloat(weight);
@@ -60,10 +61,19 @@ export function BMICalculator() {
   const category = getCategory();
 
   const handleCopy = () => {
+    if (bmi === 0) return;
     const text = `Mon IMC est de ${bmi.toFixed(1)} (${category.label})`;
     navigator.clipboard.writeText(text);
     setCopied(true);
     setTimeout(() => setCopied(false), 2000);
+  };
+
+  const handleCopyIdeal = () => {
+    if (!idealWeightRange) return;
+    const text = `Mon poids idéal estimé est entre ${idealWeightRange.low.toFixed(1)} et ${idealWeightRange.high.toFixed(1)} ${idealWeightRange.unit}`;
+    navigator.clipboard.writeText(text);
+    setCopiedIdeal(true);
+    setTimeout(() => setCopiedIdeal(false), 2000);
   };
 
   const handleClear = () => {
@@ -92,9 +102,10 @@ export function BMICalculator() {
             </div>
             <button
               onClick={handleClear}
-              className="text-xs font-bold text-indigo-500 hover:text-indigo-600 flex items-center gap-1 transition-colors"
+              disabled={!weight && !height}
+              className="text-xs font-bold text-rose-500 bg-rose-50 dark:bg-rose-500/10 hover:bg-rose-100 dark:hover:bg-rose-500/20 px-3 py-1.5 rounded-xl flex items-center gap-1 transition-all disabled:opacity-50 disabled:cursor-not-allowed"
             >
-              <RotateCcw className="w-3 h-3" /> Effacer
+              <Trash2 className="w-3 h-3" /> Effacer
             </button>
           </div>
 
@@ -124,16 +135,25 @@ export function BMICalculator() {
           </div>
 
           {idealWeightRange && (
-            <div className="bg-indigo-50 dark:bg-indigo-900/20 p-6 rounded-3xl border border-indigo-100 dark:border-indigo-900/20 flex items-center gap-4">
-               <div className="p-3 bg-white dark:bg-slate-800 text-indigo-600 rounded-2xl shadow-sm shrink-0">
-                  <Scale className="w-6 h-6" />
+            <div className="bg-indigo-50 dark:bg-indigo-900/20 p-6 rounded-3xl border border-indigo-100 dark:border-indigo-900/20 flex items-center justify-between gap-4 group/ideal">
+               <div className="flex items-center gap-4">
+                 <div className="p-3 bg-white dark:bg-slate-800 text-indigo-600 rounded-2xl shadow-sm shrink-0">
+                    <Scale className="w-6 h-6" />
+                 </div>
+                 <div>
+                    <div className="text-xs font-bold text-indigo-400 uppercase tracking-widest mb-1">Poids idéal estimé</div>
+                    <div className="text-lg font-black text-indigo-900 dark:text-indigo-300 font-mono">
+                      {idealWeightRange.low.toFixed(1)} - {idealWeightRange.high.toFixed(1)} {idealWeightRange.unit}
+                    </div>
+                 </div>
                </div>
-               <div>
-                  <div className="text-xs font-bold text-indigo-400 uppercase tracking-widest mb-1">Poids idéal estimé</div>
-                  <div className="text-lg font-black text-indigo-900 dark:text-indigo-300 font-mono">
-                    {idealWeightRange.low.toFixed(1)} - {idealWeightRange.high.toFixed(1)} {idealWeightRange.unit}
-                  </div>
-               </div>
+               <button
+                  onClick={handleCopyIdeal}
+                  className={`p-2 rounded-xl transition-all ${copiedIdeal ? 'bg-emerald-500 text-white' : 'bg-white dark:bg-slate-800 text-slate-400 hover:text-indigo-500 opacity-0 group-hover/ideal:opacity-100'}`}
+                  aria-label="Copier le poids idéal"
+                >
+                  {copiedIdeal ? <Check className="w-4 h-4" /> : <Copy className="w-4 h-4" />}
+                </button>
             </div>
           )}
         </div>
@@ -144,7 +164,8 @@ export function BMICalculator() {
 
             <button
               onClick={handleCopy}
-              className={`absolute top-6 right-6 p-3 rounded-2xl transition-all ${copied ? 'bg-emerald-500 text-white' : 'bg-white/10 text-white/40 hover:text-white hover:bg-white/20 md:opacity-0 md:group-hover:opacity-100'}`}
+              disabled={bmi === 0}
+              className={`absolute top-6 right-6 p-3 rounded-2xl transition-all ${copied ? 'bg-emerald-500 text-white' : 'bg-white/10 text-white/40 hover:text-white hover:bg-white/20 md:opacity-0 md:group-hover:opacity-100'} disabled:opacity-0`}
               title="Copier le résultat"
             >
               {copied ? <Check className="w-5 h-5" /> : <Copy className="w-5 h-5" />}

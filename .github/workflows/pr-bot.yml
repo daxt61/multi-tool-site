@@ -1,0 +1,62 @@
+name: PR Automation Bot
+
+on:
+  pull_request:
+    types: [opened, synchronize, reopened]
+
+jobs:
+  automate-pr:
+    runs-on: ubuntu-latest
+    permissions:
+      pull-requests: write
+      contents: write
+    steps:
+      - name: Checkout PR
+        uses: actions/checkout@v4
+        with:
+          # We need to checkout the head ref to run tests on the PR's code
+          ref: ${{ github.event.pull_request.head.sha }}
+          fetch-depth: 0
+
+      - name: Install pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: 10
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: 'pnpm'
+
+      - name: Install dependencies
+        run: pnpm install
+
+      - name: Run Build and Tests
+        id: build
+        run: pnpm build
+        # continue-on-error so we can handle the failure in subsequent steps
+        continue-on-error: true
+
+      - name: Accept PR
+        if: steps.build.outcome == 'success'
+        env:
+          GH_TOKEN: ${{ github.token }}
+          PR_URL: ${{ github.event.pull_request.html_url }}
+        run: |
+          echo "Build successful. Attempting to merge PR..."
+          # Try to merge. --delete-branch removes the head branch after merge.
+          # We use --squash as a default clean merge strategy.
+          gh pr merge "$PR_URL" --squash --delete-branch || {
+            echo "Merge failed (possibly due to conflicts). Closing PR."
+            gh pr close "$PR_URL" --delete-branch --comment "Closed because merge failed (likely conflicts)."
+          }
+
+      - name: Reject PR
+        if: steps.build.outcome == 'failure'
+        env:
+          GH_TOKEN: ${{ github.token }}
+          PR_URL: ${{ github.event.pull_request.html_url }}
+        run: |
+          echo "Build failed. Closing PR and deleting branch..."
+          gh pr close "$PR_URL" --delete-branch --comment "Closed and deleted branch because the build or tests failed."

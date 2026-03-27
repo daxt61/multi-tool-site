@@ -29,7 +29,7 @@ import {
   Calendar,
   FileCode,
   Link as LinkIcon,
-  Image,
+  Image as ImageIcon,
   Globe,
   CaseSensitive,
   Columns,
@@ -70,6 +70,8 @@ import {
   ShieldCheck,
   Scissors,
   Binary,
+  Volume2,
+  Layers,
 } from "lucide-react";
 const AdPlaceholder = lazy(() => import("./components/AdPlaceholder").then(m => ({ default: m.AdPlaceholder })));
 
@@ -139,6 +141,10 @@ const ColorPaletteGenerator = lazy(() => import("./components/ColorPaletteGenera
 const RegExTester = lazy(() => import("./components/RegExTester").then(m => ({ default: m.RegExTester })));
 const UserAgentAnalyzer = lazy(() => import("./components/UserAgentAnalyzer").then(m => ({ default: m.UserAgentAnalyzer })));
 const SlugGenerator = lazy(() => import("./components/SlugGenerator").then(m => ({ default: m.SlugGenerator })));
+const Metronome = lazy(() => import("./components/Metronome").then(m => ({ default: m.Metronome })));
+const TextToSpeech = lazy(() => import("./components/TextToSpeech").then(m => ({ default: m.TextToSpeech })));
+const GlassmorphismGenerator = lazy(() => import("./components/GlassmorphismGenerator").then(m => ({ default: m.GlassmorphismGenerator })));
+const ImageToWebP = lazy(() => import("./components/ImageToWebP").then(m => ({ default: m.ImageToWebP })));
 
 // ⚡ Bolt Optimization: Pre-calculating tool map and search index for O(1) lookups and faster filtering
 const toolsMap: Record<string, Tool> = {};
@@ -565,7 +571,7 @@ const tools: Tool[] = [
   {
     id: "base64-to-image",
     name: "Base64 en Image",
-    icon: Image,
+    icon: ImageIcon,
     description: "Convertir des chaînes Base64 en images",
     Component: Base64ToImage,
     category: "dev",
@@ -598,7 +604,7 @@ const tools: Tool[] = [
   {
     id: "image-compressor",
     name: "Images",
-    icon: Image,
+    icon: ImageIcon,
     description: "Compresseur d'images client-side",
     Component: ImageCompressor,
     category: "other",
@@ -641,6 +647,38 @@ const tools: Tool[] = [
     icon: Monitor,
     description: "Analyseur de navigateur et système",
     Component: UserAgentAnalyzer,
+    category: "other",
+  },
+  {
+    id: "metronome",
+    name: "Métronome",
+    icon: Music,
+    description: "Métronome précis pour la pratique musicale",
+    Component: Metronome,
+    category: "other",
+  },
+  {
+    id: "text-to-speech",
+    name: "Synthèse Vocale",
+    icon: Volume2,
+    description: "Convertir du texte en parole",
+    Component: TextToSpeech,
+    category: "other",
+  },
+  {
+    id: "glassmorphism",
+    name: "Glassmorphism",
+    icon: Layers,
+    description: "Générateur CSS d'effets de verre",
+    Component: GlassmorphismGenerator,
+    category: "dev",
+  },
+  {
+    id: "image-to-webp",
+    name: "Convertir en WebP",
+    icon: ImageIcon,
+    description: "Optimiser vos images au format WebP",
+    Component: ImageToWebP,
     category: "other",
   },
 ];

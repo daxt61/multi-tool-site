@@ -1,25 +1,119 @@
-import React, { useState, useMemo, useEffect, useRef } from 'react';
-import { Search, Info, AlertCircle, Copy, Check, Flag } from 'lucide-react';
+import React, { useState, useEffect, useRef } from 'react';
+import { Search, Info, AlertCircle, Copy, Check, Flag, Loader2 } from 'lucide-react';
+
+interface MatchResult {
+  index: number;
+  text: string;
+  length: number;
+}
+
+const WORKER_CODE = `
+  self.onmessage = (e) => {
+    const { regex, flags, testText } = e.data;
+    try {
+      const safeFlags = flags.includes('g') ? flags : flags + 'g';
+      const re = new RegExp(regex, safeFlags);
+      const matches = [];
+      const matchAll = testText.matchAll(re);
+      let count = 0;
+
+      for (const match of matchAll) {
+        matches.push({
+          index: match.index,
+          text: match[0],
+          length: match[0].length
+        });
+        count++;
+        if (count >= 1000) break;
+      }
+      self.postMessage({ matches, error: null });
+    } catch (e) {
+      self.postMessage({ matches: [], error: e.message });
+    }
+  };
+`;
 
 export function RegExTester() {
   const [regex, setRegex] = useState('([a-zA-Z0-9._%+-]+)@([a-zA-Z0-9.-]+)\\.([a-zA-Z]{2,})');
   const [flags, setFlags] = useState('g');
   const [testText, setTestText] = useState('Contactez-nous à support@example.com ou sales@test.org pour plus d\'informations.');
+  const [matches, setMatches] = useState<MatchResult[]>([]);
+  const [error, setError] = useState<string | null>(null);
+  const [isLoading, setIsLoading] = useState(false);
   const [copied, setCopied] = useState(false);
+
   const backdropRef = useRef<HTMLDivElement>(null);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
+  const workerRef = useRef<Worker | null>(null);
+  const workerUrlRef = useRef<string | null>(null);
+  const executionTimerId = useRef<any>(null);
 
-  const { matches, error, matchCount } = useMemo(() => {
-    if (!regex) return { matches: [], error: null, matchCount: 0 };
-    try {
-      // Ensure the 'g' flag is handled correctly for matchAll
-      const safeFlags = flags.includes('g') ? flags : flags + 'g';
-      const re = new RegExp(regex, safeFlags);
-      const allMatches = Array.from(testText.matchAll(re));
-      return { matches: allMatches, error: null, matchCount: allMatches.length };
-    } catch (e: any) {
-      return { matches: [], error: e.message, matchCount: 0 };
+  useEffect(() => {
+    const blob = new Blob([WORKER_CODE], { type: 'application/javascript' });
+    workerUrlRef.current = URL.createObjectURL(blob);
+
+    return () => {
+      if (workerUrlRef.current) {
+        URL.revokeObjectURL(workerUrlRef.current);
+      }
+      if (workerRef.current) {
+        workerRef.current.terminate();
+      }
+      if (executionTimerId.current) {
+        clearTimeout(executionTimerId.current);
+      }
+    };
+  }, []);
+
+  useEffect(() => {
+    if (!regex) {
+      setMatches([]);
+      setError(null);
+      setIsLoading(false);
+      return;
     }
+
+    if (workerRef.current) {
+      workerRef.current.terminate();
+    }
+    if (executionTimerId.current) {
+      clearTimeout(executionTimerId.current);
+    }
+
+    setIsLoading(true);
+    setError(null);
+
+    const worker = new Worker(workerUrlRef.current!);
+    workerRef.current = worker;
+
+    worker.onmessage = (e) => {
+      if (executionTimerId.current) {
+        clearTimeout(executionTimerId.current);
+      }
+      setIsLoading(false);
+      const { matches, error } = e.data;
+      setMatches(matches);
+      setError(error);
+      worker.terminate();
+    };
+
+    worker.onerror = (e) => {
+      if (executionTimerId.current) {
+        clearTimeout(executionTimerId.current);
+      }
+      setIsLoading(false);
+      setError('Erreur du Web Worker');
+      worker.terminate();
+    };
+
+    worker.postMessage({ regex, flags, testText });
+
+    executionTimerId.current = setTimeout(() => {
+      worker.terminate();
+      setIsLoading(false);
+      setError("L'exécution a pris trop de temps (ReDoS potentiel détecté).");
+    }, 2000);
+
   }, [regex, flags, testText]);
 
   const syncScroll = () => {
@@ -44,8 +138,8 @@ export function RegExTester() {
     let lastIndex = 0;
 
     matches.forEach((match, i) => {
-      const start = match.index!;
-      const end = start + match[0].length;
+      const start = match.index;
+      const end = start + match.length;
 
       // Add text before match
       if (start > lastIndex) {
@@ -59,7 +153,7 @@ export function RegExTester() {
       // Add highlighted match
       segments.push(
         <mark key={`match-${i}`} className="bg-indigo-500/30 text-transparent rounded-sm ring-1 ring-indigo-500/50">
-          {match[0]}
+          {match.text}
         </mark>
       );
 
@@ -128,8 +222,9 @@ export function RegExTester() {
           <div className="bg-white dark:bg-slate-900/40 p-6 rounded-[2.5rem] border border-slate-200 dark:border-slate-800 space-y-4 relative">
              <div className="flex justify-between items-center px-1">
               <label htmlFor="test-text" className="text-xs font-black uppercase tracking-widest text-slate-400">Texte de Test</label>
-              <div className="text-xs font-bold text-slate-400">
-                {matchCount} match{matchCount > 1 ? 'es' : ''} trouvé{matchCount > 1 ? 's' : ''}
+              <div className="text-xs font-bold text-slate-400 flex items-center gap-2">
+                {isLoading && <Loader2 className="w-3 h-3 animate-spin text-indigo-500" />}
+                {matches.length} match{matches.length > 1 ? 'es' : ''} trouvé{matches.length > 1 ? 's' : ''}
               </div>
             </div>
 

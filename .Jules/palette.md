@@ -25,3 +25,7 @@
 ## 2025-05-24 - [Global Navigation & Tool Metadata Polish]
 **Learning:** For tool-based applications, the "Copy link" feature is a vital micro-UX that users expect for sharing specific configurations. Additionally, ensuring that metadata badges (like categories) use consistent icons and localized names from a central configuration, rather than tool-specific icons, improves the application's taxonomic clarity. Coupling this with global accessibility landmarks like "Skip to content" links and semantic `<main>` tags ensures a professional and inclusive user experience.
 **Action:** Prioritize "Copy link" utilities in tool views and audit metadata badges for taxonomic consistency. Always implement "Skip to content" for keyboard accessibility.
+
+## 2025-05-25 - [BPM Counter Modernization & Semantic Buttons]
+**Learning:** Using semantic `<button>` elements for primary interactions (like tapping) instead of non-semantic `divs` is essential for keyboard accessibility (Tab focus) and screen reader support. Additionally, unifying legacy `gray` color palettes to the modern `slate` system significantly improves visual cohesion in a Bento-styled application. Adding a "Copy" utility with immediate visual feedback (success color state) is a high-value micro-UX that users expect in output-driven tools.
+**Action:** Always prefer semantic buttons over interactive divs and ensure color palette consistency across all tool components.

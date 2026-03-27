@@ -1,44 +1,44 @@
-import { useState, useRef, useCallback, useEffect } from 'react';
+import { useState, useRef, useEffect } from 'react';
 import { Upload, Download, Trash2, Image as ImageIcon, Info, Zap, ShieldCheck } from 'lucide-react';
 
-export function ImageCompressor() {
+export function ImageToWebP() {
   const [originalImage, setOriginalImage] = useState<string | null>(null);
-  const [compressedImage, setCompressedImage] = useState<string | null>(null);
+  const [webpImage, setWebpImage] = useState<string | null>(null);
   const [quality, setQuality] = useState(80);
   const [originalSize, setOriginalSize] = useState(0);
-  const [compressedSize, setCompressedSize] = useState(0);
-  const [isCompressing, setIsCompressing] = useState(false);
+  const [webpSize, setWebpSize] = useState(0);
+  const [isConverting, setIsConverting] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
-  const imgRef = useRef<HTMLImageElement | null>(null);
+  const resultsRef = useRef<{ url: string }[]>([]);
 
-  const compressImage = useCallback((img: HTMLImageElement, q: number) => {
-    setIsCompressing(true);
+  const convertToWebP = (img: HTMLImageElement, q: number) => {
+    setIsConverting(true);
     const canvas = document.createElement('canvas');
     canvas.width = img.width;
     canvas.height = img.height;
-    
+
     const ctx = canvas.getContext('2d');
     if (!ctx) {
-      setIsCompressing(false);
+      setIsConverting(false);
       return;
     }
-    
+
     ctx.drawImage(img, 0, 0);
-    
+
     canvas.toBlob(
       (blob) => {
         if (blob) {
-          setCompressedSize(blob.size);
-          if (compressedImage) URL.revokeObjectURL(compressedImage);
+          setWebpSize(blob.size);
           const url = URL.createObjectURL(blob);
-          setCompressedImage(url);
+          setWebpImage(url);
+          resultsRef.current.push({ url });
         }
-        setIsCompressing(false);
+        setIsConverting(false);
       },
-      'image/jpeg',
+      'image/webp',
       q / 100
     );
-  }, [compressedImage]);
+  };
 
   const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -50,9 +50,8 @@ export function ImageCompressor() {
     reader.onload = (event) => {
       const img = new Image();
       img.onload = () => {
-        imgRef.current = img;
         setOriginalImage(event.target?.result as string);
-        compressImage(img, quality);
+        convertToWebP(img, quality);
       };
       img.src = event.target?.result as string;
     };
@@ -61,28 +60,36 @@ export function ImageCompressor() {
 
   const handleQualityChange = (newQuality: number) => {
     setQuality(newQuality);
-    if (imgRef.current) {
-      compressImage(imgRef.current, newQuality);
+    if (originalImage) {
+      const img = new Image();
+      img.onload = () => convertToWebP(img, newQuality);
+      img.src = originalImage;
     }
   };
 
   const downloadImage = () => {
-    if (!compressedImage) return;
+    if (!webpImage) return;
     const link = document.createElement('a');
-    link.href = compressedImage;
-    link.download = 'image-compressee.jpg';
+    link.href = webpImage;
+    link.download = 'image-convertie.webp';
     link.click();
   };
 
   const handleClear = () => {
     setOriginalImage(null);
-    if (compressedImage) URL.revokeObjectURL(compressedImage);
-    setCompressedImage(null);
+    setWebpImage(null);
     setOriginalSize(0);
-    setCompressedSize(0);
-    imgRef.current = null;
+    setWebpSize(0);
     if (fileInputRef.current) fileInputRef.current.value = '';
+    // Cleanup will be handled by useEffect or when new results are added
   };
+
+  useEffect(() => {
+    return () => {
+      // Cleanup all created Object URLs on unmount
+      resultsRef.current.forEach(result => URL.revokeObjectURL(result.url));
+    };
+  }, []);
 
   const formatFileSize = (bytes: number) => {
     if (bytes === 0) return '0 B';
@@ -92,19 +99,13 @@ export function ImageCompressor() {
     return Math.round(bytes / Math.pow(k, i) * 100) / 100 + ' ' + sizes[i];
   };
 
-  useEffect(() => {
-    return () => {
-      if (compressedImage) URL.revokeObjectURL(compressedImage);
-    };
-  }, [compressedImage]);
-
-  const compressionRate = originalSize > 0 ? ((1 - compressedSize / originalSize) * 100).toFixed(1) : 0;
+  const reductionRate = originalSize > 0 ? ((1 - webpSize / originalSize) * 100).toFixed(1) : 0;
 
   return (
     <div className="max-w-5xl mx-auto space-y-12">
       <input
         ref={fileInputRef}
-        id="image-upload"
+        id="image-upload-webp"
         type="file"
         accept="image/*"
         onChange={handleImageUpload}
@@ -120,9 +121,9 @@ export function ImageCompressor() {
             <Upload className="w-10 h-10" />
           </div>
           <p className="mt-8 text-2xl font-black tracking-tight dark:text-white text-center">
-            Cliquez pour uploader une image
+            Cliquez pour convertir une image en WebP
           </p>
-          <p className="mt-2 text-slate-500 font-bold uppercase tracking-widest text-xs">JPG, PNG, WEBP, GIF</p>
+          <p className="mt-2 text-slate-500 font-bold uppercase tracking-widest text-xs">JPG, PNG, GIF → WEBP</p>
 
           <div className="absolute inset-0 bg-indigo-600/5 opacity-0 group-hover:opacity-100 transition-opacity" />
         </div>
@@ -131,11 +132,11 @@ export function ImageCompressor() {
           <div className="flex flex-col md:flex-row justify-between items-center gap-6 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 p-6 rounded-[2.5rem]">
             <div className="flex-1 w-full space-y-4">
               <div className="flex justify-between items-center px-1">
-                <label htmlFor="quality-range" className="text-xs font-black uppercase tracking-widest text-slate-400">Qualité: {quality}%</label>
-                {isCompressing && <span className="text-[10px] font-bold text-indigo-500 animate-pulse">COMPRESSION...</span>}
+                <label htmlFor="webp-quality" className="text-xs font-black uppercase tracking-widest text-slate-400">Qualité WebP: {quality}%</label>
+                {isConverting && <span className="text-[10px] font-bold text-indigo-500 animate-pulse">CONVERSION...</span>}
               </div>
               <input
-                id="quality-range"
+                id="webp-quality"
                 type="range"
                 min="1"
                 max="100"
@@ -154,17 +155,18 @@ export function ImageCompressor() {
               </button>
               <button
                 onClick={downloadImage}
-                className="px-8 py-4 bg-indigo-600 text-white rounded-2xl font-black text-lg shadow-lg shadow-indigo-600/20 hover:bg-indigo-700 transition-all active:scale-95 flex items-center gap-2"
+                disabled={!webpImage}
+                className="px-8 py-4 bg-indigo-600 text-white rounded-2xl font-black text-lg shadow-lg shadow-indigo-600/20 hover:bg-indigo-700 transition-all active:scale-95 flex items-center gap-2 disabled:opacity-50"
               >
                 <Download className="w-6 h-6" />
-                Télécharger
+                Télécharger WebP
               </button>
             </div>
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
             <div className="space-y-4">
-              <h3 className="text-xs font-black uppercase tracking-widest text-slate-400 px-1">Image originale</h3>
+              <h3 className="text-xs font-black uppercase tracking-widest text-slate-400 px-1">Original</h3>
               <div className="relative group rounded-[2.5rem] overflow-hidden border border-slate-200 dark:border-slate-800 bg-slate-100 dark:bg-slate-800">
                 <img src={originalImage} alt="Original" className="w-full h-auto object-contain max-h-[500px]" />
                 <div className="absolute bottom-4 left-4 right-4">
@@ -176,24 +178,24 @@ export function ImageCompressor() {
             </div>
 
             <div className="space-y-4">
-              <h3 className="text-xs font-black uppercase tracking-widest text-slate-400 px-1">Image compressée</h3>
+              <h3 className="text-xs font-black uppercase tracking-widest text-slate-400 px-1">Résultat WebP</h3>
               <div className="relative group rounded-[2.5rem] overflow-hidden border border-slate-200 dark:border-slate-800 bg-slate-100 dark:bg-slate-800 min-h-[200px] flex items-center justify-center">
-                {compressedImage ? (
+                {webpImage ? (
                   <>
-                    <img src={compressedImage} alt="Compressed" className="w-full h-auto object-contain max-h-[500px]" />
+                    <img src={webpImage} alt="WebP Result" className="w-full h-auto object-contain max-h-[500px]" />
                     <div className="absolute bottom-4 left-4 right-4 flex justify-between items-center">
                       <div className="inline-flex items-center gap-2 px-4 py-2 bg-indigo-600 text-white rounded-full text-xs font-bold shadow-lg">
-                        <Zap className="w-3 h-3" /> {formatFileSize(compressedSize)}
+                        <Zap className="w-3 h-3" /> {formatFileSize(webpSize)}
                       </div>
                       <div className="inline-flex items-center gap-2 px-4 py-2 bg-emerald-500 text-white rounded-full text-xs font-bold shadow-lg">
-                        -{compressionRate}%
+                        {Number(reductionRate) > 0 ? `-${reductionRate}%` : `+${Math.abs(Number(reductionRate))}%`}
                       </div>
                     </div>
                   </>
                 ) : (
                   <div className="animate-pulse flex flex-col items-center gap-2 text-slate-400">
                     <ImageIcon className="w-8 h-8" />
-                    <p className="text-xs font-bold uppercase tracking-widest">Compression en cours...</p>
+                    <p className="text-xs font-bold uppercase tracking-widest">Conversion en cours...</p>
                   </div>
                 )}
               </div>
@@ -206,26 +208,26 @@ export function ImageCompressor() {
       <div className="mt-20 grid grid-cols-1 md:grid-cols-3 gap-12 pt-16 border-t border-slate-100 dark:border-slate-800">
         <div className="space-y-4">
           <h4 className="font-bold dark:text-white flex items-center gap-2">
-            <ShieldCheck className="w-4 h-4 text-indigo-500" /> 100% Client-Side
+            <Zap className="w-4 h-4 text-indigo-500" /> Pourquoi le WebP ?
           </h4>
           <p className="text-sm text-slate-500 dark:text-slate-400 leading-relaxed">
-            Vos images ne quittent jamais votre ordinateur. La compression est effectuée localement dans votre navigateur grâce à l'API Canvas.
+            Le format WebP offre une compression supérieure (environ 30% de moins que le JPEG) tout en conservant une excellente qualité visuelle et le support de la transparence.
           </p>
         </div>
         <div className="space-y-4">
           <h4 className="font-bold dark:text-white flex items-center gap-2">
-            <Zap className="w-4 h-4 text-indigo-500" /> Performance Web
+            <ShieldCheck className="w-4 h-4 text-indigo-500" /> Sécurité des données
           </h4>
           <p className="text-sm text-slate-500 dark:text-slate-400 leading-relaxed">
-            Réduisez le poids de vos pages web sans sacrifier la qualité visuelle. Idéal pour le SEO et le temps de chargement de vos sites.
+            Comme pour tous nos outils d'image, le traitement est 100% local. Vos fichiers ne sont jamais téléchargés sur nos serveurs.
           </p>
         </div>
         <div className="space-y-4">
           <h4 className="font-bold dark:text-white flex items-center gap-2">
-            <Info className="w-4 h-4 text-indigo-500" /> Formats supportés
+            <Info className="w-4 h-4 text-indigo-500" /> Conseils d'utilisation
           </h4>
           <p className="text-sm text-slate-500 dark:text-slate-400 leading-relaxed">
-            L'outil accepte les fichiers JPG, PNG, WEBP et GIF. Le fichier compressé est généré au format JPEG optimisé.
+            Une qualité de 80% est généralement le compromis idéal entre poids du fichier et fidélité visuelle pour le web.
           </p>
         </div>
       </div>

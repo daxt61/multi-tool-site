@@ -26,3 +26,8 @@
 **Vulnerability:** The RegExTester component executed user-provided regular expressions on the main UI thread, making it vulnerable to Regular Expression Denial of Service (ReDoS) attacks that could freeze the browser.
 **Learning:** Untrusted regular expressions should never be executed on the main thread. Even with simple patterns, catastrophic backtracking can occur with specific inputs, leading to infinite or extremely long execution times.
 **Prevention:** Always offload untrusted regex execution to a Web Worker and implement a mandatory watchdog timer (e.g., 2 seconds) to terminate the worker if it exceeds a safe time limit. Additionally, implement match limits to prevent memory exhaustion.
+
+## 2026-03-28 - [Stack Overflow DoS in JSON-to-TS Converter]
+**Vulnerability:** The JSONToTS component used unbounded recursion to process user-provided JSON, making it vulnerable to Stack Overflow Denial of Service (DoS) attacks with deeply nested inputs.
+**Learning:** Recursive functions that process untrusted or potentially large data structures must always implement a maximum depth limit. Even if the data is valid (e.g., from JSON.parse), the structure itself can be a weapon.
+**Prevention:** Enforce a strict recursion depth limit (e.g., 20) and use safer iteration methods like Object.entries() to avoid prototype-related issues.

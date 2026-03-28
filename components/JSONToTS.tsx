@@ -7,24 +7,27 @@ export function JSONToTS() {
   const [error, setError] = useState('');
   const [copied, setCopied] = useState(false);
 
-  const convertJSONToTS = (json: any, indent: string = ''): string => {
+  const MAX_DEPTH = 20;
+
+  const convertJSONToTS = (json: any, indent: string = '', depth: number = 0): string => {
+    if (depth > MAX_DEPTH) return 'any';
     if (json === null) return 'any';
     if (typeof json !== 'object') return typeof json;
 
     if (Array.isArray(json)) {
       if (json.length === 0) return 'any[]';
       // Use the first item to infer the type of the array
-      const itemType = convertJSONToTS(json[0], indent);
+      const itemType = convertJSONToTS(json[0], indent, depth + 1);
       return `${itemType}[]`;
     }
 
     let result = '{\n';
     const nextIndent = indent + '  ';
-    for (const key in json) {
-      const value = json[key];
-      const type = convertJSONToTS(value, nextIndent);
+    // Sentinel: Using Object.entries for safer iteration and enforcing depth limit to prevent stack overflow.
+    Object.entries(json).forEach(([key, value]) => {
+      const type = convertJSONToTS(value, nextIndent, depth + 1);
       result += `${nextIndent}${key}: ${type};\n`;
-    }
+    });
     result += `${indent}}`;
     return result;
   };

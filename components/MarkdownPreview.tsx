@@ -1,10 +1,11 @@
 import { useState } from 'react';
-import { Eye, Code } from 'lucide-react';
+import { Eye, Code, Trash2, Copy, Check } from 'lucide-react';
 import { AdPlaceholder } from './AdPlaceholder';
 
 export function MarkdownPreview() {
   const [markdown, setMarkdown] = useState('# Titre\n\nVotre texte **Markdown** ici...');
   const [mode, setMode] = useState<'split' | 'edit' | 'preview'>('split');
+  const [copied, setCopied] = useState(false);
 
   const escapeHTML = (str: string) => {
     return str
@@ -13,6 +14,13 @@ export function MarkdownPreview() {
       .replace(/>/g, '&gt;')
       .replace(/"/g, '&quot;')
       .replace(/'/g, '&#39;');
+  };
+
+  const handleCopy = () => {
+    if (!markdown) return;
+    navigator.clipboard.writeText(markdown);
+    setCopied(true);
+    setTimeout(() => setCopied(false), 2000);
   };
 
   const renderMarkdown = (text: string) => {
@@ -85,60 +93,86 @@ export function MarkdownPreview() {
   };
 
   return (
-    <div className="max-w-6xl mx-auto">
+    <div className="max-w-6xl mx-auto space-y-6">
       <AdPlaceholder size="banner" className="mb-6" />
 
-      <div className="flex gap-2 mb-4">
-        <button
-          onClick={() => setMode('edit')}
-          className={`px-4 py-2 rounded-lg font-semibold transition-all ${
-            mode === 'edit' ? 'bg-blue-500 text-white' : 'bg-gray-200'
-          }`}
-        >
-          <Code className="w-4 h-4 inline mr-2" />
-          Édition
-        </button>
-        <button
-          onClick={() => setMode('split')}
-          className={`px-4 py-2 rounded-lg font-semibold transition-all ${
-            mode === 'split' ? 'bg-blue-500 text-white' : 'bg-gray-200'
-          }`}
-        >
-          Divisé
-        </button>
-        <button
-          onClick={() => setMode('preview')}
-          className={`px-4 py-2 rounded-lg font-semibold transition-all ${
-            mode === 'preview' ? 'bg-blue-500 text-white' : 'bg-gray-200'
-          }`}
-        >
-          <Eye className="w-4 h-4 inline mr-2" />
-          Aperçu
-        </button>
+      <div className="flex flex-wrap items-center justify-between gap-4">
+        <div className="flex bg-slate-100 dark:bg-slate-800 p-1 rounded-2xl w-fit">
+          <button
+            onClick={() => setMode('edit')}
+            className={`px-6 py-2 rounded-xl text-sm font-bold transition-all flex items-center gap-2 ${
+              mode === 'edit' ? 'bg-white dark:bg-slate-700 text-indigo-600 shadow-sm' : 'text-slate-500 hover:text-slate-900 dark:hover:text-slate-200'
+            }`}
+          >
+            <Code className="w-4 h-4" /> Édition
+          </button>
+          <button
+            onClick={() => setMode('split')}
+            className={`px-6 py-2 rounded-xl text-sm font-bold transition-all flex items-center gap-2 ${
+              mode === 'split' ? 'bg-white dark:bg-slate-700 text-indigo-600 shadow-sm' : 'text-slate-500 hover:text-slate-900 dark:hover:text-slate-200'
+            }`}
+          >
+            Divisé
+          </button>
+          <button
+            onClick={() => setMode('preview')}
+            className={`px-6 py-2 rounded-xl text-sm font-bold transition-all flex items-center gap-2 ${
+              mode === 'preview' ? 'bg-white dark:bg-slate-700 text-indigo-600 shadow-sm' : 'text-slate-500 hover:text-slate-900 dark:hover:text-slate-200'
+            }`}
+          >
+            <Eye className="w-4 h-4" /> Aperçu
+          </button>
+        </div>
+
+        <div className="flex gap-2">
+          <button
+            onClick={handleCopy}
+            disabled={!markdown}
+            className={`flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-bold transition-all disabled:opacity-50 ${
+              copied ? 'bg-emerald-50 text-emerald-600 dark:bg-emerald-500/10' : 'bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 hover:bg-slate-200'
+            }`}
+          >
+            {copied ? <Check className="w-4 h-4" /> : <Copy className="w-4 h-4" />}
+            {copied ? 'Copié' : 'Copier'}
+          </button>
+          <button
+            onClick={() => setMarkdown('')}
+            disabled={!markdown}
+            aria-label="Effacer le markdown"
+            className="flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-bold bg-rose-50 dark:bg-rose-500/10 text-rose-500 hover:bg-rose-100 dark:hover:bg-rose-500/20 transition-all disabled:opacity-50"
+          >
+            <Trash2 className="w-4 h-4" /> Effacer
+          </button>
+        </div>
       </div>
 
-      <div className={`grid gap-4 ${mode === 'split' ? 'grid-cols-2' : 'grid-cols-1'}`}>
+      <div className={`grid gap-6 ${mode === 'split' ? 'grid-cols-1 lg:grid-cols-2' : 'grid-cols-1'}`}>
         {(mode === 'edit' || mode === 'split') && (
-          <div>
-            <label className="block text-sm font-semibold text-gray-700 mb-2">
-              Markdown
-            </label>
+          <div className="space-y-3">
+            <div className="flex justify-between items-center px-1">
+              <label htmlFor="markdown-input" className="text-xs font-black uppercase tracking-widest text-slate-400">
+                Markdown
+              </label>
+            </div>
             <textarea
+              id="markdown-input"
               value={markdown}
               onChange={(e) => setMarkdown(e.target.value)}
-              className="w-full h-96 p-4 border border-gray-300 rounded-lg resize-none font-mono text-sm"
+              className="w-full h-[500px] p-6 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-[2.5rem] outline-none focus:ring-2 focus:ring-indigo-500/20 transition-all font-mono text-sm leading-relaxed dark:text-slate-300 resize-none shadow-sm"
               placeholder="# Titre..."
             />
           </div>
         )}
         
         {(mode === 'preview' || mode === 'split') && (
-          <div>
-            <label className="block text-sm font-semibold text-gray-700 mb-2">
-              Aperçu
-            </label>
+          <div className="space-y-3">
+            <div className="flex justify-between items-center px-1">
+              <span className="text-xs font-black uppercase tracking-widest text-slate-400">
+                Aperçu
+              </span>
+            </div>
             <div
-              className="w-full h-96 p-4 border border-gray-300 rounded-lg overflow-y-auto bg-white prose"
+              className="w-full h-[500px] p-8 bg-white dark:bg-slate-950/50 border border-slate-200 dark:border-slate-800 rounded-[2.5rem] overflow-y-auto prose dark:prose-invert max-w-none shadow-sm"
               dangerouslySetInnerHTML={{ __html: renderMarkdown(markdown) }}
             />
           </div>

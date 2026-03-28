@@ -1,11 +1,24 @@
 import { useState, useMemo, useCallback } from 'react';
-import { Copy, Check, RefreshCw } from 'lucide-react';
+import { Copy, Check, RefreshCw, Trash2, Type, Hash } from 'lucide-react';
 
 export function LoremIpsumGenerator() {
   const [count, setCount] = useState(3);
   const [type, setType] = useState<'paragraphs' | 'sentences' | 'words'>('paragraphs');
   const [copied, setCopied] = useState(false);
   const [refreshTrigger, setRefreshTrigger] = useState(0);
+
+  // Sentinel: Use cryptographically secure random values instead of Math.random()
+  const secureRandomInt = (max: number) => {
+    const array = new Uint32Array(1);
+    const maxUint32 = 0xffffffff;
+    const limit = maxUint32 - (maxUint32 % max);
+    let randomValue;
+    do {
+      window.crypto.getRandomValues(array);
+      randomValue = array[0];
+    } while (randomValue >= limit);
+    return randomValue % max;
+  };
 
   const loremWords = [
     'lorem', 'ipsum', 'dolor', 'sit', 'amet', 'consectetur', 'adipiscing', 'elit',
@@ -19,16 +32,16 @@ export function LoremIpsumGenerator() {
   ];
 
   const generateSentence = () => {
-    const length = Math.floor(Math.random() * 10) + 8;
+    const length = secureRandomInt(10) + 8;
     const words = [];
     for (let i = 0; i < length; i++) {
-      words.push(loremWords[Math.floor(Math.random() * loremWords.length)]);
+      words.push(loremWords[secureRandomInt(loremWords.length)]);
     }
     return words.join(' ').charAt(0).toUpperCase() + words.join(' ').slice(1) + '.';
   };
 
   const generateParagraph = () => {
-    const sentenceCount = Math.floor(Math.random() * 4) + 4;
+    const sentenceCount = secureRandomInt(4) + 4;
     const sentences = [];
     for (let i = 0; i < sentenceCount; i++) {
       sentences.push(generateSentence());
@@ -37,11 +50,12 @@ export function LoremIpsumGenerator() {
   };
 
   const text = useMemo(() => {
+    if (count <= 0) return '';
     const generateText = () => {
       if (type === 'words') {
         const words = [];
         for (let i = 0; i < count; i++) {
-          words.push(loremWords[Math.floor(Math.random() * loremWords.length)]);
+          words.push(loremWords[secureRandomInt(loremWords.length)]);
         }
         return words.join(' ');
       } else if (type === 'sentences') {
@@ -64,6 +78,14 @@ export function LoremIpsumGenerator() {
   const handleRegenerate = useCallback(() => {
     setRefreshTrigger(prev => prev + 1);
   }, []);
+
+  const stats = useMemo(() => {
+    if (!text) return { words: 0, chars: 0 };
+    return {
+      words: text.split(/\s+/).filter(Boolean).length,
+      chars: text.length
+    };
+  }, [text]);
 
   const copyToClipboard = () => {
     navigator.clipboard.writeText(text);
@@ -116,7 +138,8 @@ export function LoremIpsumGenerator() {
           </button>
           <button
             onClick={copyToClipboard}
-            className={`flex-[2] py-4 rounded-2xl transition-all flex items-center justify-center gap-2 font-black active:scale-95 ${
+            disabled={!text}
+            className={`flex-[2] py-4 rounded-2xl transition-all flex items-center justify-center gap-2 font-black active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed ${
               copied
                 ? 'bg-emerald-500 text-white shadow-lg shadow-emerald-500/20'
                 : 'bg-indigo-600 text-white shadow-lg shadow-indigo-600/20 hover:bg-indigo-700'
@@ -125,13 +148,49 @@ export function LoremIpsumGenerator() {
             {copied ? <Check className="w-5 h-5" /> : <Copy className="w-5 h-5" />}
             {copied ? 'Copié !' : 'Copier le texte'}
           </button>
+          <button
+            onClick={() => {setCount(0); setRefreshTrigger(prev => prev + 1);}}
+            disabled={!text}
+            aria-label="Effacer le texte"
+            className="p-4 bg-rose-50 dark:bg-rose-500/10 text-rose-500 border border-rose-200 dark:border-rose-800 rounded-2xl hover:bg-rose-100 dark:hover:bg-rose-500/20 transition-all active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed"
+          >
+            <Trash2 className="w-5 h-5" />
+          </button>
+        </div>
+      </div>
+
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 p-4 rounded-2xl flex items-center gap-3">
+          <div className="w-10 h-10 bg-slate-50 dark:bg-slate-800 rounded-xl flex items-center justify-center text-slate-400">
+            <Type className="w-5 h-5" />
+          </div>
+          <div>
+            <div className="text-[10px] font-black uppercase tracking-widest text-slate-400">Mots</div>
+            <div className="text-xl font-black dark:text-white">{stats.words}</div>
+          </div>
+        </div>
+        <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 p-4 rounded-2xl flex items-center gap-3">
+          <div className="w-10 h-10 bg-slate-50 dark:bg-slate-800 rounded-xl flex items-center justify-center text-slate-400">
+            <Hash className="w-5 h-5" />
+          </div>
+          <div>
+            <div className="text-[10px] font-black uppercase tracking-widest text-slate-400">Caractères</div>
+            <div className="text-xl font-black dark:text-white">{stats.chars}</div>
+          </div>
         </div>
       </div>
 
       <div className="bg-white dark:bg-slate-950/50 border border-slate-200 dark:border-slate-800 rounded-[2.5rem] p-8 max-h-[500px] overflow-y-auto shadow-sm">
-        <p className="text-slate-700 dark:text-slate-300 whitespace-pre-wrap leading-relaxed text-lg">
-          {text}
-        </p>
+        {text ? (
+          <p className="text-slate-700 dark:text-slate-300 whitespace-pre-wrap leading-relaxed text-lg">
+            {text}
+          </p>
+        ) : (
+          <div className="flex flex-col items-center justify-center h-40 text-slate-400">
+            <Type className="w-12 h-12 mb-4 opacity-10" />
+            <p className="font-medium">Aucun texte généré</p>
+          </div>
+        )}
       </div>
     </div>
   );

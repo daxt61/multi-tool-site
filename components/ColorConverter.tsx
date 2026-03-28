@@ -125,12 +125,13 @@ export function ColorConverter() {
           className="w-full h-64 rounded-[2.5rem] shadow-2xl shadow-indigo-500/10 transition-all duration-500 group-hover:scale-[1.01]"
           style={{ backgroundColor: hex }}
         />
-        <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
+        <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 group-focus-within:opacity-100 transition-opacity">
           <input
             type="color"
             value={hex}
             onChange={(e) => updateFromHex(e.target.value)}
             className="w-20 h-20 rounded-full border-4 border-white dark:border-slate-800 cursor-pointer shadow-xl overflow-hidden"
+            aria-label="Choisir une couleur"
           />
         </div>
       </div>
@@ -147,7 +148,8 @@ export function ColorConverter() {
               <span className="text-xs font-black uppercase tracking-widest text-slate-400">{format.label}</span>
               <button
                 onClick={() => copyToClipboard(format.value, format.id)}
-                className={`p-2 rounded-xl transition-all ${copied === format.id ? 'bg-emerald-500 text-white' : 'text-slate-400 hover:text-indigo-500 bg-white dark:bg-slate-800 shadow-sm'}`}
+                className={`p-2 rounded-xl transition-all ${copied === format.id ? 'bg-emerald-50 dark:bg-emerald-500/10 text-emerald-600 dark:text-emerald-400' : 'text-slate-400 hover:text-indigo-500 bg-white dark:bg-slate-800 shadow-sm'}`}
+                aria-label={`Copier le format ${format.label}`}
               >
                 {copied === format.id ? <Check className="w-4 h-4" /> : <Copy className="w-4 h-4" />}
               </button>
@@ -174,10 +176,11 @@ export function ColorConverter() {
             ].map((chan) => (
               <div key={chan.key} className="space-y-2">
                 <div className="flex justify-between items-center px-1">
-                  <label className="text-xs font-bold text-slate-500">{chan.label}</label>
+                  <label htmlFor={`rgb-${chan.key}`} className="text-xs font-bold text-slate-500 cursor-pointer">{chan.label}</label>
                   <span className="text-sm font-black font-mono dark:text-slate-300">{rgb[chan.key as keyof typeof rgb]}</span>
                 </div>
                 <input
+                  id={`rgb-${chan.key}`}
                   type="range"
                   min="0"
                   max="255"
@@ -198,10 +201,11 @@ export function ColorConverter() {
           <div className="space-y-6">
             <div className="space-y-2">
               <div className="flex justify-between items-center px-1">
-                <label className="text-xs font-bold text-slate-500">Teinte</label>
+                <label htmlFor="hsl-h" className="text-xs font-bold text-slate-500 cursor-pointer">Teinte</label>
                 <span className="text-sm font-black font-mono dark:text-slate-300">{hsl.h}°</span>
               </div>
               <input
+                id="hsl-h"
                 type="range"
                 min="0"
                 max="360"
@@ -212,10 +216,11 @@ export function ColorConverter() {
             </div>
             <div className="space-y-2">
               <div className="flex justify-between items-center px-1">
-                <label className="text-xs font-bold text-slate-500">Saturation</label>
+                <label htmlFor="hsl-s" className="text-xs font-bold text-slate-500 cursor-pointer">Saturation</label>
                 <span className="text-sm font-black font-mono dark:text-slate-300">{hsl.s}%</span>
               </div>
               <input
+                id="hsl-s"
                 type="range"
                 min="0"
                 max="100"
@@ -226,10 +231,11 @@ export function ColorConverter() {
             </div>
             <div className="space-y-2">
               <div className="flex justify-between items-center px-1">
-                <label className="text-xs font-bold text-slate-500">Luminosité</label>
+                <label htmlFor="hsl-l" className="text-xs font-bold text-slate-500 cursor-pointer">Luminosité</label>
                 <span className="text-sm font-black font-mono dark:text-slate-300">{hsl.l}%</span>
               </div>
               <input
+                id="hsl-l"
                 type="range"
                 min="0"
                 max="100"

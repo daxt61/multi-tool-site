@@ -34,6 +34,7 @@ import {
   CaseSensitive,
   Columns,
   Monitor,
+  Activity,
   Signal,
   Info,
   Mail,
@@ -145,6 +146,8 @@ const Metronome = lazy(() => import("./components/Metronome").then(m => ({ defau
 const TextToSpeech = lazy(() => import("./components/TextToSpeech").then(m => ({ default: m.TextToSpeech })));
 const GlassmorphismGenerator = lazy(() => import("./components/GlassmorphismGenerator").then(m => ({ default: m.GlassmorphismGenerator })));
 const ImageToWebP = lazy(() => import("./components/ImageToWebP").then(m => ({ default: m.ImageToWebP })));
+const BMRCalculator = lazy(() => import("./components/BMRCalculator").then(m => ({ default: m.BMRCalculator })));
+const NumberToWords = lazy(() => import("./components/NumberToWords").then(m => ({ default: m.NumberToWords })));
 
 // ⚡ Bolt Optimization: Pre-calculating tool map and search index for O(1) lookups and faster filtering
 const toolsMap: Record<string, Tool> = {};
@@ -302,6 +305,14 @@ const tools: Tool[] = [
     category: "calculators",
   },
   {
+    id: "bmr-calculator",
+    name: "BMR & TDEE",
+    icon: Activity,
+    description: "Métabolisme de base et besoins caloriques",
+    Component: BMRCalculator,
+    category: "calculators",
+  },
+  {
     id: "date-calculator",
     name: "Dates",
     icon: Calendar,
@@ -357,6 +368,14 @@ const tools: Tool[] = [
     icon: Type,
     description: "Compteur de mots et caractères",
     Component: WordCounter,
+    category: "text",
+  },
+  {
+    id: "number-to-words",
+    name: "Nombres en lettres",
+    icon: FileText,
+    description: "Convertir des nombres en toutes lettres",
+    Component: NumberToWords,
     category: "text",
   },
   {

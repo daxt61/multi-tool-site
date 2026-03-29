@@ -34,6 +34,7 @@ import {
   CaseSensitive,
   Columns,
   Monitor,
+  Maximize,
   Activity,
   Signal,
   Info,
@@ -150,6 +151,7 @@ const BMRCalculator = lazy(() => import("./components/BMRCalculator").then(m => 
 const NumberToWords = lazy(() => import("./components/NumberToWords").then(m => ({ default: m.NumberToWords })));
 const BoxShadowGenerator = lazy(() => import("./components/BoxShadowGenerator").then(m => ({ default: m.BoxShadowGenerator })));
 const MetaTagsGenerator = lazy(() => import("./components/MetaTagsGenerator").then(m => ({ default: m.MetaTagsGenerator })));
+const CSSUnitConverter = lazy(() => import("./components/CSSUnitConverter").then(m => ({ default: m.CSSUnitConverter })));
 
 // ⚡ Bolt Optimization: Pre-calculating tool map and search index for O(1) lookups and faster filtering
 const toolsMap: Record<string, Tool> = {};
@@ -337,6 +339,14 @@ const tools: Tool[] = [
     icon: Ruler,
     description: "Longueurs, poids, températures",
     Component: UnitConverter,
+    category: "converters",
+  },
+  {
+    id: "css-unit-converter",
+    name: "Unités CSS",
+    icon: Maximize,
+    description: "Convertir px, rem, em, vw, vh",
+    Component: CSSUnitConverter,
     category: "converters",
   },
   {

@@ -29,3 +29,7 @@
 ## 2025-05-25 - [BPM Counter Modernization & Semantic Buttons]
 **Learning:** Using semantic `<button>` elements for primary interactions (like tapping) instead of non-semantic `divs` is essential for keyboard accessibility (Tab focus) and screen reader support. Additionally, unifying legacy `gray` color palettes to the modern `slate` system significantly improves visual cohesion in a Bento-styled application. Adding a "Copy" utility with immediate visual feedback (success color state) is a high-value micro-UX that users expect in output-driven tools.
 **Action:** Always prefer semantic buttons over interactive divs and ensure color palette consistency across all tool components.
+
+## 2025-05-26 - [Bento Card Grid & UI De-cluttering]
+**Learning:** For tools with multiple output formats (like case conversion), a responsive grid of standardized cards provides the best scannability. Each card should have its own localized "Copy" utility with immediate success feedback. Additionally, removing legacy UI clutter (like old ad placeholders) during modernization significantly improves the focus and "delight" of the tool.
+**Action:** Use a card grid for multi-output tools and prioritize removing non-essential legacy components to achieve a "blank slate" professional feel during modernization.

@@ -148,6 +148,8 @@ const GlassmorphismGenerator = lazy(() => import("./components/GlassmorphismGene
 const ImageToWebP = lazy(() => import("./components/ImageToWebP").then(m => ({ default: m.ImageToWebP })));
 const BMRCalculator = lazy(() => import("./components/BMRCalculator").then(m => ({ default: m.BMRCalculator })));
 const NumberToWords = lazy(() => import("./components/NumberToWords").then(m => ({ default: m.NumberToWords })));
+const BoxShadowGenerator = lazy(() => import("./components/BoxShadowGenerator").then(m => ({ default: m.BoxShadowGenerator })));
+const MetaTagsGenerator = lazy(() => import("./components/MetaTagsGenerator").then(m => ({ default: m.MetaTagsGenerator })));
 
 // ⚡ Bolt Optimization: Pre-calculating tool map and search index for O(1) lookups and faster filtering
 const toolsMap: Record<string, Tool> = {};
@@ -505,6 +507,22 @@ const tools: Tool[] = [
     icon: Search,
     description: "Testeur d'expressions régulières",
     Component: RegExTester,
+    category: "dev",
+  },
+  {
+    id: "box-shadow",
+    name: "Box Shadow",
+    icon: Layers,
+    description: "Générateur visuel d'ombres CSS",
+    Component: BoxShadowGenerator,
+    category: "dev",
+  },
+  {
+    id: "meta-tags",
+    name: "Meta Tags",
+    icon: Search,
+    description: "Générateur de balises meta SEO",
+    Component: MetaTagsGenerator,
     category: "dev",
   },
   {

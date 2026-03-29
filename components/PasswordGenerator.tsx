@@ -1,9 +1,24 @@
 import { useState, useEffect } from 'react';
-import { Copy, RefreshCw, Check, Shield, ShieldAlert, ShieldCheck } from 'lucide-react';
+import { Copy, RefreshCw, Check, Shield, ShieldAlert, ShieldCheck, Key, BookOpen } from 'lucide-react';
+
+const WORDS = [
+  'bleu', 'rouge', 'vert', 'jaune', 'noir', 'blanc', 'orange', 'rose', 'gris', 'brun',
+  'petit', 'grand', 'rapide', 'lent', 'fort', 'faible', 'chaud', 'froid', 'beau', 'jeune',
+  'chat', 'chien', 'oiseau', 'lion', 'tigre', 'ours', 'loup', 'renard', 'lapin', 'singe',
+  'maison', 'jardin', 'arbre', 'fleur', 'soleil', 'lune', 'etoile', 'mer', 'vent', 'pluie',
+  'pomme', 'pain', 'eau', 'lait', 'cafe', 'the', 'sucre', 'sel', 'riz', 'pate',
+  'livre', 'stylo', 'ecran', 'table', 'chaise', 'porte', 'fenetre', 'route', 'pont', 'ville',
+  'un', 'deux', 'trois', 'quatre', 'cinq', 'six', 'sept', 'huit', 'neuf', 'dix',
+  'calme', 'libre', 'heureux', 'nouveau', 'ancien', 'clair', 'sombre', 'doux', 'dur', 'leger',
+  'avion', 'train', 'velo', 'voiture', 'bateau', 'fusée', 'moteur', 'vitesse', 'espace', 'temps',
+  'musique', 'danse', 'peinture', 'cinema', 'theatre', 'poeme', 'histoire', 'reve', 'vie', 'coeur'
+];
 
 export function PasswordGenerator() {
+  const [mode, setMode] = useState<'random' | 'passphrase'>('random');
   const [password, setPassword] = useState('');
   const [length, setLength] = useState(16);
+  const [wordCount, setWordCount] = useState(4);
   const [includeUppercase, setIncludeUppercase] = useState(true);
   const [includeLowercase, setIncludeLowercase] = useState(true);
   const [includeNumbers, setIncludeNumbers] = useState(true);
@@ -11,60 +26,57 @@ export function PasswordGenerator() {
   const [excludeSimilar, setExcludeSimilar] = useState(false);
   const [copied, setCopied] = useState(false);
 
+  const getSecureRandomIndex = (range: number) => {
+    const array = new Uint32Array(1);
+    if (range >= 0x100000000) {
+      window.crypto.getRandomValues(array);
+      return array[0];
+    }
+    const maxUint32 = 0xffffffff;
+    const limit = maxUint32 - (maxUint32 % range);
+    let randomVal;
+    do {
+      window.crypto.getRandomValues(array);
+      randomVal = array[0];
+    } while (randomVal >= limit);
+    return randomVal % range;
+  };
+
   const generatePassword = () => {
-    let charset = '';
-    if (includeUppercase) charset += 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
-    if (includeLowercase) charset += 'abcdefghijklmnopqrstuvwxyz';
-    if (includeNumbers) charset += '0123456789';
-    if (includeSymbols) charset += '!@#$%^&*()_+-=[]{}|;:,.<>?';
+    if (mode === 'random') {
+      let charset = '';
+      if (includeUppercase) charset += 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
+      if (includeLowercase) charset += 'abcdefghijklmnopqrstuvwxyz';
+      if (includeNumbers) charset += '0123456789';
+      if (includeSymbols) charset += '!@#$%^&*()_+-=[]{}|;:,.<>?';
 
-    if (excludeSimilar) {
-      charset = charset.replace(/[il1Lo0O]/g, '');
-    }
-
-    if (charset === '') {
-      setPassword('');
-      return;
-    }
-
-    const getSecureRandomIndex = (range: number) => {
-      const array = new Uint32Array(1);
-
-      // Sentinel: If range is 2^32 or larger, just return a random 32-bit value.
-      // This prevents the infinite loop where limit would be 0.
-      if (range >= 0x100000000) {
-        window.crypto.getRandomValues(array);
-        return array[0];
+      if (excludeSimilar) {
+        charset = charset.replace(/[il1Lo0O]/g, '');
       }
 
-      const maxUint32 = 0xffffffff;
-
-      // Handle range >= 2^32 to avoid infinite loop (limit would be 0)
-      if (range >= 0x100000000) {
-        window.crypto.getRandomValues(array);
-        return array[0];
+      if (charset === '') {
+        setPassword('');
+        return;
       }
 
-      const limit = maxUint32 - (maxUint32 % range);
-      let randomVal;
-      do {
-        window.crypto.getRandomValues(array);
-        randomVal = array[0];
-      } while (randomVal >= limit);
-      return randomVal % range;
-    };
-
-    let newPassword = '';
-    for (let i = 0; i < length; i++) {
-      newPassword += charset.charAt(getSecureRandomIndex(charset.length));
+      let newPassword = '';
+      for (let i = 0; i < length; i++) {
+        newPassword += charset.charAt(getSecureRandomIndex(charset.length));
+      }
+      setPassword(newPassword);
+    } else {
+      const selectedWords = [];
+      for (let i = 0; i < wordCount; i++) {
+        selectedWords.push(WORDS[getSecureRandomIndex(WORDS.length)]);
+      }
+      setPassword(selectedWords.join('-'));
     }
-    setPassword(newPassword);
     setCopied(false);
   };
 
   useEffect(() => {
     generatePassword();
-  }, [length, includeUppercase, includeLowercase, includeNumbers, includeSymbols, excludeSimilar]);
+  }, [mode, length, wordCount, includeUppercase, includeLowercase, includeNumbers, includeSymbols, excludeSimilar]);
 
   const copyToClipboard = () => {
     navigator.clipboard.writeText(password);
@@ -74,6 +86,13 @@ export function PasswordGenerator() {
 
   const getStrength = () => {
     if (!password) return { label: '', color: 'bg-slate-200', icon: <ShieldAlert /> };
+
+    if (mode === 'passphrase') {
+      if (wordCount < 3) return { label: 'Faible', color: 'bg-rose-500', icon: <ShieldAlert className="w-4 h-4" /> };
+      if (wordCount < 5) return { label: 'Moyen', color: 'bg-amber-500', icon: <Shield className="w-4 h-4" /> };
+      return { label: 'Fort', color: 'bg-emerald-500', icon: <ShieldCheck className="w-4 h-4" /> };
+    }
+
     let score = 0;
     if (password.length >= 12) score++;
     if (password.length >= 20) score++;
@@ -91,6 +110,32 @@ export function PasswordGenerator() {
 
   return (
     <div className="max-w-4xl mx-auto space-y-8">
+      {/* Mode Selector */}
+      <div className="flex justify-center">
+        <div className="inline-flex bg-slate-100 dark:bg-slate-800 p-1 rounded-2xl border border-slate-200 dark:border-slate-700">
+          <button
+            onClick={() => setMode('random')}
+            className={`flex items-center gap-2 px-6 py-2.5 rounded-xl text-sm font-bold transition-all ${
+              mode === 'random'
+                ? 'bg-white dark:bg-slate-700 text-indigo-600 dark:text-indigo-400 shadow-md'
+                : 'text-slate-500 hover:text-slate-900 dark:hover:text-slate-300'
+            }`}
+          >
+            <Key className="w-4 h-4" /> Aléatoire
+          </button>
+          <button
+            onClick={() => setMode('passphrase')}
+            className={`flex items-center gap-2 px-6 py-2.5 rounded-xl text-sm font-bold transition-all ${
+              mode === 'passphrase'
+                ? 'bg-white dark:bg-slate-700 text-indigo-600 dark:text-indigo-400 shadow-md'
+                : 'text-slate-500 hover:text-slate-900 dark:hover:text-slate-300'
+            }`}
+          >
+            <BookOpen className="w-4 h-4" /> Memorable
+          </button>
+        </div>
+      </div>
+
       {/* Display Area */}
       <div className="bg-slate-900 dark:bg-black p-8 md:p-12 rounded-[2.5rem] shadow-xl shadow-indigo-500/5 relative overflow-hidden group">
         <div className="flex flex-col md:flex-row items-center gap-8 relative z-10">
@@ -98,7 +143,9 @@ export function PasswordGenerator() {
             type="text"
             value={password}
             readOnly
-            className="flex-1 bg-transparent text-3xl md:text-5xl font-mono text-white outline-none tracking-tight w-full text-center md:text-left selection:bg-indigo-500/30"
+            className={`flex-1 bg-transparent font-mono text-white outline-none tracking-tight w-full text-center md:text-left selection:bg-indigo-500/30 ${
+              password.length > 30 ? 'text-2xl md:text-3xl' : 'text-3xl md:text-5xl'
+            }`}
           />
           <div className="flex gap-3">
             <button
@@ -135,7 +182,7 @@ export function PasswordGenerator() {
               </div>
             </div>
             <div className="text-white/40 font-bold text-sm tracking-widest uppercase">
-              {password.length} caractères
+              {mode === 'random' ? `${password.length} caractères` : `${wordCount} mots`}
             </div>
           </div>
         )}
@@ -144,48 +191,75 @@ export function PasswordGenerator() {
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
         {/* Settings */}
         <div className="bg-slate-50 dark:bg-slate-900/50 p-8 rounded-[2.5rem] border border-slate-200 dark:border-slate-800 space-y-8">
-          <div className="space-y-6">
-            <div className="flex justify-between items-center px-1">
-              <label className="text-xs font-black uppercase tracking-widest text-slate-400">Longueur</label>
-              <span className="text-2xl font-black font-mono text-indigo-600 dark:text-indigo-400">{length}</span>
+          {mode === 'random' ? (
+            <div className="space-y-6">
+              <div className="flex justify-between items-center px-1">
+                <label className="text-xs font-black uppercase tracking-widest text-slate-400">Longueur</label>
+                <span className="text-2xl font-black font-mono text-indigo-600 dark:text-indigo-400">{length}</span>
+              </div>
+              <input
+                type="range"
+                min="4"
+                max="64"
+                value={length}
+                onChange={(e) => setLength(Number(e.target.value))}
+                className="w-full h-2 bg-slate-200 dark:bg-slate-800 rounded-lg appearance-none cursor-pointer accent-indigo-600"
+              />
             </div>
-            <input
-              type="range"
-              min="4"
-              max="64"
-              value={length}
-              onChange={(e) => setLength(Number(e.target.value))}
-              className="w-full h-2 bg-slate-200 dark:bg-slate-800 rounded-lg appearance-none cursor-pointer accent-indigo-600"
-            />
-          </div>
+          ) : (
+            <div className="space-y-6">
+              <div className="flex justify-between items-center px-1">
+                <label className="text-xs font-black uppercase tracking-widest text-slate-400">Nombre de mots</label>
+                <span className="text-2xl font-black font-mono text-indigo-600 dark:text-indigo-400">{wordCount}</span>
+              </div>
+              <input
+                type="range"
+                min="2"
+                max="10"
+                value={wordCount}
+                onChange={(e) => setWordCount(Number(e.target.value))}
+                className="w-full h-2 bg-slate-200 dark:bg-slate-800 rounded-lg appearance-none cursor-pointer accent-indigo-600"
+              />
+            </div>
+          )}
 
-          <div className="grid grid-cols-2 gap-3">
-            {[
-              { label: 'Majuscules', state: includeUppercase, setState: setIncludeUppercase },
-              { label: 'Minuscules', state: includeLowercase, setState: setIncludeLowercase },
-              { label: 'Chiffres', state: includeNumbers, setState: setIncludeNumbers },
-              { label: 'Symboles', state: includeSymbols, setState: setIncludeSymbols },
-              { label: 'Exclure similaires', state: excludeSimilar, setState: setExcludeSimilar },
-            ].map((opt) => (
-              <button
-                key={opt.label}
-                onClick={() => opt.setState(!opt.state)}
-                aria-pressed={opt.state}
-                className={`flex items-center justify-between p-4 rounded-2xl border transition-all ${
-                  opt.state
-                  ? 'bg-indigo-50 dark:bg-indigo-500/10 border-indigo-200 dark:border-indigo-500/20 text-indigo-600 dark:text-indigo-400'
-                  : 'bg-white dark:bg-slate-800 border-slate-200 dark:border-slate-700 text-slate-400'
-                }`}
-              >
-                <span className="font-bold text-sm">{opt.label}</span>
-                <div className={`w-5 h-5 rounded-md border flex items-center justify-center transition-all ${
-                  opt.state ? 'bg-indigo-600 border-indigo-600 text-white' : 'border-slate-300 dark:border-slate-600'
-                }`}>
-                  {opt.state && <Check className="w-3 h-3 stroke-[3]" />}
-                </div>
-              </button>
-            ))}
-          </div>
+          {mode === 'random' && (
+            <div className="grid grid-cols-2 gap-3">
+              {[
+                { label: 'Majuscules', state: includeUppercase, setState: setIncludeUppercase },
+                { label: 'Minuscules', state: includeLowercase, setState: setIncludeLowercase },
+                { label: 'Chiffres', state: includeNumbers, setState: setIncludeNumbers },
+                { label: 'Symboles', state: includeSymbols, setState: setIncludeSymbols },
+                { label: 'Exclure similaires', state: excludeSimilar, setState: setExcludeSimilar },
+              ].map((opt) => (
+                <button
+                  key={opt.label}
+                  onClick={() => opt.setState(!opt.state)}
+                  aria-pressed={opt.state}
+                  className={`flex items-center justify-between p-4 rounded-2xl border transition-all ${
+                    opt.state
+                    ? 'bg-indigo-50 dark:bg-indigo-500/10 border-indigo-200 dark:border-indigo-500/20 text-indigo-600 dark:text-indigo-400'
+                    : 'bg-white dark:bg-slate-800 border-slate-200 dark:border-slate-700 text-slate-400'
+                  }`}
+                >
+                  <span className="font-bold text-sm">{opt.label}</span>
+                  <div className={`w-5 h-5 rounded-md border flex items-center justify-center transition-all ${
+                    opt.state ? 'bg-indigo-600 border-indigo-600 text-white' : 'border-slate-300 dark:border-slate-600'
+                  }`}>
+                    {opt.state && <Check className="w-3 h-3 stroke-[3]" />}
+                  </div>
+                </button>
+              ))}
+            </div>
+          )}
+
+          {mode === 'passphrase' && (
+             <div className="bg-white dark:bg-slate-800 p-6 rounded-3xl border border-slate-200 dark:border-slate-700">
+               <p className="text-sm text-slate-500 dark:text-slate-400 leading-relaxed">
+                 Le mode <strong>Mémorable</strong> (Passphrase) génère une suite de mots aléatoires séparés par des tirets. Ces mots de passe sont souvent plus faciles à retenir tout en restant très sécurisés grâce à leur longueur.
+               </p>
+             </div>
+          )}
         </div>
 
         {/* Info */}

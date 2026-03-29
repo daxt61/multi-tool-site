@@ -10,7 +10,12 @@ export function MetaTagsGenerator() {
   const [copied, setCopied] = useState(false);
 
   const escapeHtml = (str: string) => {
-    return str.replace(/"/g, '&quot;').replace(/'/g, '&#39;');
+    return str
+      .replace(/&/g, '&amp;')
+      .replace(/</g, '&lt;')
+      .replace(/>/g, '&gt;')
+      .replace(/"/g, '&quot;')
+      .replace(/'/g, '&#39;');
   };
 
   const getHostname = (urlStr: string) => {
@@ -29,7 +34,7 @@ export function MetaTagsGenerator() {
 
     const tags = [
       '<!-- Primary Meta Tags -->',
-      `<title>${title || 'Titre de la page'}</title>`,
+      `<title>${eTitle || 'Titre de la page'}</title>`,
       `<meta name="title" content="${eTitle}">`,
       `<meta name="description" content="${eDesc}">`,
       '',

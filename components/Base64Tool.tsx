@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Copy, Check, Trash2, ArrowRightLeft, FileCode, Type } from 'lucide-react';
+import { Copy, Check, Trash2, ArrowRightLeft, FileCode, Type, Download } from 'lucide-react';
 
 export function Base64Tool() {
   const [text, setText] = useState('');
@@ -9,7 +9,13 @@ export function Base64Tool() {
   const encode = (input: string) => {
     try {
       if (!input) return '';
-      return btoa(unescape(encodeURIComponent(input)));
+      const bytes = new TextEncoder().encode(input);
+      let binary = '';
+      const len = bytes.byteLength;
+      for (let i = 0; i < len; i++) {
+        binary += String.fromCharCode(bytes[i]);
+      }
+      return btoa(binary);
     } catch (e) {
       return 'Erreur d\'encodage';
     }
@@ -18,7 +24,12 @@ export function Base64Tool() {
   const decode = (input: string) => {
     try {
       if (!input) return '';
-      return decodeURIComponent(escape(atob(input)));
+      const binary = atob(input);
+      const bytes = new Uint8Array(binary.length);
+      for (let i = 0; i < binary.length; i++) {
+        bytes[i] = binary.charCodeAt(i);
+      }
+      return new TextDecoder().decode(bytes);
     } catch (e) {
       return 'Erreur de décodage';
     }
@@ -41,6 +52,17 @@ export function Base64Tool() {
     setTimeout(() => setCopied(null), 2000);
   };
 
+  const handleDownload = () => {
+    if (!base64) return;
+    const blob = new Blob([base64], { type: 'text/plain' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = 'encoded_base64.txt';
+    a.click();
+    URL.revokeObjectURL(url);
+  };
+
   return (
     <div className="max-w-6xl mx-auto space-y-8">
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 relative">
@@ -60,13 +82,15 @@ export function Base64Tool() {
             <div className="flex gap-2">
               <button
                 onClick={() => copyToClipboard(text, 'text')}
-                className={`text-xs font-bold px-3 py-1 rounded-full transition-all flex items-center gap-1 ${copied === 'text' ? 'bg-emerald-500 text-white' : 'text-slate-500 bg-slate-100 dark:bg-slate-800'}`}
+                disabled={!text}
+                className={`text-xs font-bold px-3 py-1 rounded-full transition-all flex items-center gap-1 ${copied === 'text' ? 'bg-emerald-50 dark:bg-emerald-500/10 text-emerald-600 dark:text-emerald-400' : 'text-slate-500 bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700'} disabled:opacity-50 disabled:cursor-not-allowed`}
               >
                 {copied === 'text' ? <Check className="w-3 h-3" /> : <Copy className="w-3 h-3" />} {copied === 'text' ? 'Copié' : 'Copier'}
               </button>
               <button
                 onClick={() => {setText(''); setBase64('');}}
-                className="text-xs font-bold px-3 py-1 rounded-full text-rose-500 bg-rose-50 dark:bg-rose-500/10 hover:bg-rose-100 transition-all flex items-center gap-1"
+                disabled={!text && !base64}
+                className="text-xs font-bold px-3 py-1 rounded-full text-rose-500 bg-rose-50 dark:bg-rose-500/10 hover:bg-rose-100 dark:hover:bg-rose-500/20 transition-all flex items-center gap-1 disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 <Trash2 className="w-3 h-3" />
               </button>
@@ -89,8 +113,17 @@ export function Base64Tool() {
             </div>
             <div className="flex gap-2">
               <button
+                onClick={handleDownload}
+                disabled={!base64}
+                className="text-xs font-bold px-3 py-1 rounded-full text-indigo-500 bg-indigo-50 dark:bg-indigo-500/10 hover:bg-indigo-100 dark:hover:bg-indigo-500/20 transition-all flex items-center gap-1 disabled:opacity-50 disabled:cursor-not-allowed"
+                title="Télécharger"
+              >
+                <Download className="w-3 h-3" />
+              </button>
+              <button
                 onClick={() => copyToClipboard(base64, 'base64')}
-                className={`text-xs font-bold px-3 py-1 rounded-full transition-all flex items-center gap-1 ${copied === 'base64' ? 'bg-emerald-500 text-white' : 'text-slate-500 bg-slate-100 dark:bg-slate-800'}`}
+                disabled={!base64}
+                className={`text-xs font-bold px-3 py-1 rounded-full transition-all flex items-center gap-1 ${copied === 'base64' ? 'bg-emerald-50 dark:bg-emerald-500/10 text-emerald-600 dark:text-emerald-400' : 'text-slate-500 bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700'} disabled:opacity-50 disabled:cursor-not-allowed`}
               >
                 {copied === 'base64' ? <Check className="w-3 h-3" /> : <Copy className="w-3 h-3" />} {copied === 'base64' ? 'Copié' : 'Copier'}
               </button>

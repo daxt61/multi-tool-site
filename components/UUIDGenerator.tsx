@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Copy, Check, RefreshCw } from 'lucide-react';
+import { Copy, Check, RefreshCw, Trash2, Fingerprint } from 'lucide-react';
 
 export function UUIDGenerator() {
   const [uuids, setUuids] = useState<string[]>([]);
@@ -27,7 +27,8 @@ export function UUIDGenerator() {
 
   const generateUUIDs = () => {
     const newUuids = [];
-    for (let i = 0; i < count; i++) {
+    const safeCount = Math.min(Math.max(1, count), 100);
+    for (let i = 0; i < safeCount; i++) {
       newUuids.push(generateUUID());
     }
     setUuids(newUuids);
@@ -46,38 +47,57 @@ export function UUIDGenerator() {
     setTimeout(() => setCopiedIndex(null), 2000);
   };
 
+  const handleClear = () => {
+    setUuids([]);
+    setCopiedIndex(null);
+  };
+
   return (
-    <div className="max-w-3xl mx-auto">
-      <div className="bg-gray-50 p-6 rounded-lg mb-6">
-        <div className="flex items-center gap-4 mb-4">
-          <div className="flex-1">
-            <label className="block text-sm font-semibold text-gray-700 mb-2">
+    <div className="max-w-3xl mx-auto space-y-8">
+      <div className="bg-slate-50 dark:bg-slate-900/50 p-6 md:p-8 rounded-[2.5rem] border border-slate-200 dark:border-slate-800">
+        <div className="flex flex-col md:flex-row items-end gap-4 mb-6">
+          <div className="flex-1 w-full">
+            <label htmlFor="uuid-count" className="block text-xs font-black uppercase tracking-widest text-slate-400 mb-2 px-1">
               Nombre d'UUIDs à générer
             </label>
             <input
+              id="uuid-count"
               type="number"
               min="1"
               max="100"
               value={count}
               onChange={(e) => setCount(Number(e.target.value))}
-              className="w-full p-3 border border-gray-300 rounded-lg"
+              className="w-full p-4 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-2xl font-bold focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 outline-none transition-all dark:text-white"
             />
           </div>
-          <div className="pt-7">
+          <div className="flex gap-2 w-full md:w-auto">
             <button
               onClick={generateUUIDs}
-              className="px-6 py-3 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition-colors flex items-center gap-2"
+              className="flex-1 md:flex-none px-8 py-4 bg-indigo-600 text-white rounded-2xl font-bold hover:bg-indigo-700 transition-all active:scale-95 flex items-center justify-center gap-2 shadow-lg shadow-indigo-600/20"
             >
               <RefreshCw className="w-5 h-5" />
               Générer
             </button>
+            {uuids.length > 0 && (
+              <button
+                onClick={handleClear}
+                className="p-4 text-rose-500 bg-rose-50 dark:bg-rose-500/10 hover:bg-rose-100 dark:hover:bg-rose-500/20 rounded-2xl transition-all active:scale-95 border border-rose-100 dark:border-rose-500/20"
+                aria-label="Effacer tout"
+              >
+                <Trash2 className="w-5 h-5" />
+              </button>
+            )}
           </div>
         </div>
 
         {uuids.length > 1 && (
           <button
             onClick={copyAll}
-            className="w-full py-3 bg-green-500 text-white rounded-lg hover:bg-green-600 transition-colors flex items-center justify-center gap-2"
+            className={`w-full py-4 rounded-2xl font-bold transition-all flex items-center justify-center gap-2 border ${
+              copiedIndex === -1
+                ? 'bg-emerald-50 dark:bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border-emerald-200 dark:border-emerald-500/20'
+                : 'bg-white dark:bg-slate-800 text-slate-700 dark:text-slate-200 border-slate-200 dark:border-slate-700 hover:bg-slate-100 dark:hover:bg-slate-700'
+            }`}
           >
             {copiedIndex === -1 ? <Check className="w-5 h-5" /> : <Copy className="w-5 h-5" />}
             {copiedIndex === -1 ? 'Tous copiés !' : 'Copier tous les UUIDs'}
@@ -86,39 +106,54 @@ export function UUIDGenerator() {
       </div>
 
       {uuids.length > 0 ? (
-        <div className="space-y-3">
+        <div className="space-y-3 animate-in fade-in slide-in-from-bottom-4 duration-500">
           {uuids.map((uuid, index) => (
             <div
               key={index}
-              className="bg-white border border-gray-300 p-4 rounded-lg flex items-center justify-between hover:bg-gray-50 transition-colors"
+              className="bg-white dark:bg-slate-900/40 border border-slate-200 dark:border-slate-800 p-4 rounded-2xl flex items-center justify-between hover:border-indigo-500/30 transition-all group"
             >
-              <code className="font-mono text-gray-800">{uuid}</code>
+              <code className="font-mono text-sm md:text-base text-slate-700 dark:text-slate-300 break-all">{uuid}</code>
               <button
                 onClick={() => copyToClipboard(uuid, index)}
-                className="p-2 hover:bg-gray-200 rounded-lg transition-colors"
-                title="Copier"
+                className={`p-2.5 rounded-xl transition-all ${
+                  copiedIndex === index
+                    ? 'bg-emerald-50 dark:bg-emerald-500/10 text-emerald-600 dark:text-emerald-400'
+                    : 'text-slate-400 hover:text-indigo-500 hover:bg-indigo-50 dark:hover:bg-indigo-500/10'
+                }`}
+                aria-label="Copier l'UUID"
               >
                 {copiedIndex === index ? (
-                  <Check className="w-5 h-5 text-green-500" />
+                  <Check className="w-5 h-5" />
                 ) : (
-                  <Copy className="w-5 h-5 text-gray-500" />
+                  <Copy className="w-5 h-5" />
                 )}
               </button>
             </div>
           ))}
         </div>
       ) : (
-        <div className="bg-gray-100 p-12 rounded-lg text-center text-gray-500">
-          Cliquez sur "Générer" pour créer des UUIDs
+        <div className="bg-slate-50 dark:bg-slate-900/50 p-16 rounded-[2.5rem] border-2 border-dashed border-slate-200 dark:border-slate-800 text-center space-y-4">
+          <div className="w-16 h-16 bg-white dark:bg-slate-800 rounded-full flex items-center justify-center mx-auto text-slate-300 dark:text-slate-600">
+            <Fingerprint className="w-8 h-8" />
+          </div>
+          <div>
+            <h3 className="font-bold text-slate-900 dark:text-white">Aucun UUID généré</h3>
+            <p className="text-slate-500 dark:text-slate-400 text-sm">Cliquez sur "Générer" pour créer des identifiants uniques.</p>
+          </div>
         </div>
       )}
 
-      <div className="mt-6 bg-blue-50 border border-blue-200 rounded-lg p-4 text-sm text-blue-800">
-        <p className="font-semibold mb-2">Qu'est-ce qu'un UUID ?</p>
-        <p>
-          Un UUID (Universally Unique Identifier) est un identifiant unique de 128 bits utilisé
-          pour identifier des informations de manière unique dans les systèmes informatiques.
-        </p>
+      <div className="bg-indigo-50 dark:bg-indigo-900/10 border border-indigo-100 dark:border-indigo-900/20 rounded-3xl p-6 text-sm text-indigo-900 dark:text-indigo-400 flex gap-4 items-start">
+        <div className="p-2 bg-white dark:bg-slate-800 rounded-xl shadow-sm text-indigo-500">
+          <Fingerprint className="w-5 h-5" />
+        </div>
+        <div>
+          <p className="font-bold mb-1">Qu'est-ce qu'un UUID ?</p>
+          <p className="opacity-80 leading-relaxed">
+            Un UUID (Universally Unique Identifier) est un identifiant unique de 128 bits utilisé
+            pour identifier des informations de manière unique dans les systèmes informatiques sans coordination centrale.
+          </p>
+        </div>
       </div>
     </div>
   );

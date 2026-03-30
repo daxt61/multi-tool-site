@@ -7,19 +7,42 @@ interface BudgetCategory {
 }
 
 export function BudgetPlanner() {
-  const [income, setIncome] = useState<string>(() => {
-    return localStorage.getItem("budget_income") || "";
-  });
-  const [categories, setCategories] = useState<BudgetCategory[]>(() => {
-    const saved = localStorage.getItem("budget_categories");
-    return saved ? JSON.parse(saved) : [
+  const DEFAULT_CATEGORIES = [
     { name: "Logement", planned: 0, actual: 0 },
     { name: "Alimentation", planned: 0, actual: 0 },
     { name: "Transport", planned: 0, actual: 0 },
     { name: "Santé", planned: 0, actual: 0 },
     { name: "Loisirs", planned: 0, actual: 0 },
     { name: "Épargne", planned: 0, actual: 0 },
-  ];});
+  ];
+
+  const [income, setIncome] = useState<string>(() => {
+    const saved = localStorage.getItem("budget_income");
+    // Sentinel: Validate input length and return empty if suspicious or too large.
+    return (saved && saved.length < 50) ? saved : "";
+  });
+
+  const [categories, setCategories] = useState<BudgetCategory[]>(() => {
+    try {
+      // Sentinel: Securely parse localStorage data to prevent app crashes (Local DoS).
+      const saved = localStorage.getItem("budget_categories");
+      const parsed = saved ? JSON.parse(saved) : null;
+      if (!parsed || !Array.isArray(parsed)) return DEFAULT_CATEGORIES;
+
+      // Sentinel: Validate data structure and content to prevent state poisoning.
+      return parsed
+        .filter(cat => (
+          cat &&
+          typeof cat.name === 'string' &&
+          typeof cat.planned === 'number' &&
+          typeof cat.actual === 'number'
+        ))
+        .slice(0, 50); // Sentinel: Enforce max 50 categories limit.
+    } catch (e) {
+      console.error("Failed to load budget categories", e);
+      return DEFAULT_CATEGORIES;
+    }
+  });
 
   useEffect(() => {
     localStorage.setItem("budget_income", income);
@@ -30,6 +53,8 @@ export function BudgetPlanner() {
   }, [categories]);
 
   const addCategory = () => {
+    // Sentinel: Enforce maximum category limit to prevent resource exhaustion.
+    if (categories.length >= 50) return;
     setCategories([...categories, { name: "Nouvelle catégorie", planned: 0, actual: 0 }]);
   };
 

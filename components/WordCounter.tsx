@@ -36,11 +36,23 @@ export function WordCounter() {
       words: wordCount,
       lines: deferredText === '' ? 0 : deferredText.split('\n').length,
       sentences: trimmed === '' ? 0 : deferredText.split(/[.!?]+(?:\s|$)/).filter(s => s.trim().length > 0).length,
-      readingTime: Math.ceil(wordCount / 200),
-      speakingTime: Math.ceil(wordCount / 130),
+      readingTime: wordCount / 200,
+      speakingTime: wordCount / 130,
       topWords
     };
   }, [deferredText]);
+
+  const formatTime = (minutes: number) => {
+    if (minutes === 0) return "0s";
+    if (minutes < 1 / 60) return "moins d'une seconde";
+    if (minutes < 1) return `${Math.round(minutes * 60)}s`;
+
+    const totalSeconds = Math.round(minutes * 60);
+    const mins = Math.floor(totalSeconds / 60);
+    const secs = totalSeconds % 60;
+
+    return secs > 0 ? `${mins}m ${secs}s` : `${mins}m`;
+  };
 
   const handleCopy = () => {
     navigator.clipboard.writeText(text);
@@ -108,8 +120,8 @@ export function WordCounter() {
           { icon: <Type className="w-4 h-4" />, label: 'Mots', value: stats.words },
           { icon: <FileText className="w-4 h-4" />, label: 'Lignes', value: stats.lines },
           { icon: <AlignLeft className="w-4 h-4" />, label: 'Phrases', value: stats.sentences },
-          { icon: <Clock className="w-4 h-4" />, label: 'Lecture', value: `${stats.readingTime}m` },
-          { icon: <MessageSquare className="w-4 h-4" />, label: 'Parole', value: `${stats.speakingTime}m` },
+          { icon: <Clock className="w-4 h-4" />, label: 'Lecture', value: formatTime(stats.readingTime) },
+          { icon: <MessageSquare className="w-4 h-4" />, label: 'Parole', value: formatTime(stats.speakingTime) },
         ].map((stat) => (
           <div key={stat.label} className="p-6 bg-white dark:bg-slate-900 border border-slate-100 dark:border-slate-800 rounded-2xl space-y-2">
             <div className="text-indigo-500 dark:text-indigo-400">{stat.icon}</div>
@@ -139,7 +151,7 @@ export function WordCounter() {
           Capitaliser
         </button>
         <button
-          onClick={() => setText(text.toLowerCase().replace(/(^\w|\.\s+\w)/gm, s => s.toUpperCase()))}
+          onClick={() => setText(text.toLowerCase().replace(/(^\w|[.!?]\s+\w)/gm, s => s.toUpperCase()))}
           className="px-6 py-3 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-sm font-bold hover:bg-slate-50 dark:hover:bg-slate-700 transition-all"
         >
           Mode phrase

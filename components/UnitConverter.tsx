@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { Copy, Check, Trash2, ArrowUpDown, Info, Ruler } from 'lucide-react';
 
-type ConversionCategory = 'length' | 'weight' | 'temperature' | 'area' | 'volume' | 'digital' | 'pressure' | 'energy' | 'speed' | 'time' | 'power' | 'frequency' | 'consumption' | 'angle' | 'torque';
+type ConversionCategory = 'length' | 'weight' | 'temperature' | 'area' | 'volume' | 'digital' | 'pressure' | 'energy' | 'speed' | 'time' | 'power' | 'frequency' | 'consumption' | 'angle' | 'torque' | 'datarate';
 
 interface ConversionUnit {
   name: string;
@@ -120,6 +120,13 @@ const CONVERSIONS: Record<ConversionCategory, Record<string, ConversionUnit>> = 
     'rad': { name: 'Radians', toBase: (v) => v * (180 / Math.PI), fromBase: (v) => v * (Math.PI / 180) },
     'grad': { name: 'Grades', toBase: (v) => v * (9 / 10), fromBase: (v) => v * (10 / 9) },
     'tr': { name: 'Tours', toBase: (v) => v * 360, fromBase: (v) => v / 360 }
+  },
+  datarate: {
+    'bps': { name: 'bps (bit/s)', toBase: (v) => v, fromBase: (v) => v },
+    'kbps': { name: 'kbps (kbit/s)', toBase: (v) => v * 1000, fromBase: (v) => v / 1000 },
+    'Mbps': { name: 'Mbps (Mbit/s)', toBase: (v) => v * 1000000, fromBase: (v) => v / 1000000 },
+    'Gbps': { name: 'Gbps (Gbit/s)', toBase: (v) => v * 1000000000, fromBase: (v) => v / 1000000000 },
+    'Tbps': { name: 'Tbps (Tbit/s)', toBase: (v) => v * 1000000000000, fromBase: (v) => v / 1000000000000 }
   }
 };
 
@@ -138,7 +145,8 @@ const CATEGORIES_MAP = [
   { id: 'frequency', name: 'Fréquence' },
   { id: 'consumption', name: 'Consommation' },
   { id: 'angle', name: 'Angle' },
-  { id: 'torque', name: 'Torque' }
+  { id: 'torque', name: 'Torque' },
+  { id: 'datarate', name: 'Débit binaire' }
 ];
 
 const formatter = new Intl.NumberFormat('fr-FR', {

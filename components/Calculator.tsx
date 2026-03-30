@@ -12,6 +12,10 @@ export function Calculator() {
     const saved = localStorage.getItem('calc_history');
     return saved ? JSON.parse(saved) : [];
   });
+  const [memory, setMemory] = useState<number>(() => {
+    const saved = localStorage.getItem('calc_memory');
+    return saved ? parseFloat(saved) : 0;
+  });
 
   const handleNumber = (num: string) => {
     if (newNumber) {
@@ -57,6 +61,31 @@ export function Calculator() {
     }
   };
 
+  const handleMemory = (action: string) => {
+    const current = parseFloat(display);
+    let newMemory = memory;
+
+    switch (action) {
+      case 'MC':
+        newMemory = 0;
+        break;
+      case 'MR':
+        setDisplay(String(memory));
+        setNewNumber(true);
+        return;
+      case 'M+':
+        newMemory = memory + (isNaN(current) ? 0 : current);
+        break;
+      case 'M-':
+        newMemory = memory - (isNaN(current) ? 0 : current);
+        break;
+    }
+
+    setMemory(newMemory);
+    localStorage.setItem('calc_memory', String(newMemory));
+    setNewNumber(true);
+  };
+
   const handleScientificAction = (action: string) => {
     const current = parseFloat(display);
     let result = 0;
@@ -74,7 +103,8 @@ export function Calculator() {
       case 'exp': result = Math.exp(current); break;
       case 'abs': result = Math.abs(current); break;
       case 'n!': {
-        if (current < 0) result = NaN;
+        if (current < 0 || !Number.isInteger(current)) result = NaN;
+        else if (current > 170) result = Infinity;
         else if (current === 0) result = 1;
         else {
           let f = 1;
@@ -88,7 +118,11 @@ export function Calculator() {
       default: return;
     }
 
-    const resultStr = isNaN(result) ? 'Erreur' : String(Number(result.toFixed(10)));
+    const resultStr = isNaN(result)
+      ? 'Erreur'
+      : !isFinite(result)
+        ? 'Infini'
+        : String(Number(result.toFixed(10)));
     setDisplay(resultStr);
     setNewNumber(true);
 
@@ -197,6 +231,18 @@ export function Calculator() {
           </button>
         </div>
 
+        <div className="flex bg-slate-100 dark:bg-slate-800 p-1 rounded-xl">
+          {['MC', 'MR', 'M+', 'M-'].map((m) => (
+            <button
+              key={m}
+              onClick={() => handleMemory(m)}
+              className="px-3 py-1.5 rounded-lg text-xs font-black text-slate-500 hover:text-indigo-600 hover:bg-white dark:hover:bg-slate-700 transition-all"
+            >
+              {m}
+            </button>
+          ))}
+        </div>
+
         {isScientific && (
           <div className="flex bg-slate-100 dark:bg-slate-800 p-1 rounded-xl">
             <button
@@ -219,13 +265,20 @@ export function Calculator() {
         <div className="lg:col-span-8 space-y-6">
           {/* Display */}
           <div className="bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-3xl p-8 text-right overflow-hidden group transition-all focus-within:ring-2 focus-within:ring-indigo-500/20">
-            <div className="text-sm font-bold text-slate-400 dark:text-slate-500 mb-2 h-6 flex justify-end items-center gap-2">
-              {previousValue !== null && operation && (
-                <>
-                  <span>{isNaN(previousValue) ? 'Erreur' : previousValue}</span>
-                  <span className="text-indigo-500">{operation}</span>
-                </>
-              )}
+            <div className="text-sm font-bold text-slate-400 dark:text-slate-500 mb-2 h-6 flex justify-between items-center px-1">
+              <div className="flex items-center gap-2">
+                {memory !== 0 && (
+                  <span className="text-[10px] px-1.5 py-0.5 bg-indigo-50 dark:bg-indigo-500/10 text-indigo-600 dark:text-indigo-400 rounded-md font-black">M</span>
+                )}
+              </div>
+              <div className="flex items-center gap-2">
+                {previousValue !== null && operation && (
+                  <>
+                    <span>{isNaN(previousValue) ? 'Erreur' : previousValue}</span>
+                    <span className="text-indigo-500">{operation}</span>
+                  </>
+                )}
+              </div>
             </div>
             <div className="text-5xl md:text-6xl font-black font-mono tracking-tighter truncate dark:text-white">
               {display === 'NaN' ? 'Erreur' : display}

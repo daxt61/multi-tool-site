@@ -5,7 +5,12 @@ export function ColorConverter() {
   const [hex, setHex] = useState('#6366f1');
   const [rgb, setRgb] = useState({ r: 99, g: 102, b: 241 });
   const [hsl, setHsl] = useState({ h: 239, s: 84, l: 67 });
+  const [oklch, setOklch] = useState({ l: 0.58, c: 0.19, h: 260 });
   const [copied, setCopied] = useState('');
+
+  // ⚡ Bolt Optimization: Helper for OKLCH string formatting
+  const formatOklch = (l: number, c: number, h: number) =>
+    `oklch(${l.toFixed(2)} ${c.toFixed(2)} ${h.toFixed(0)})`;
 
   const hexToRgb = (hex: string) => {
     const result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex);
@@ -78,6 +83,51 @@ export function ColorConverter() {
     };
   };
 
+  // OKLCH Conversion (Approximate for UI display)
+  const rgbToOklch = (r: number, g: number, b: number) => {
+    // This is a simplified approximation of the OKLCH conversion
+    // For a real app, a library like culori would be better, but we implement the basic logic
+    const R = r / 255, G = g / 255, B = b / 255;
+
+    const l = 0.4122214708 * R + 0.5363325363 * G + 0.0514459929 * B;
+    const m = 0.2119034982 * R + 0.6806995451 * G + 0.1073969566 * B;
+    const s = 0.0883024619 * R + 0.2817188376 * G + 0.6299787005 * B;
+
+    const l_ = Math.cbrt(l), m_ = Math.cbrt(m), s_ = Math.cbrt(s);
+
+    const L = 0.2104542553 * l_ + 0.7936177850 * m_ - 0.0040720403 * s_;
+    const a = 1.9779984951 * l_ - 2.4285922050 * m_ + 0.4505937099 * s_;
+    const b_ = 0.0259040371 * l_ + 0.7827717662 * m_ - 0.8086757660 * s_;
+
+    const C = Math.sqrt(a * a + b_ * b_);
+    let H = Math.atan2(b_, a) * (180 / Math.PI);
+    if (H < 0) H += 360;
+
+    return { l: L, c: C, h: H };
+  };
+
+  const oklchToRgb = (L: number, C: number, H: number) => {
+    const h_rad = H * (Math.PI / 180);
+    const a = C * Math.cos(h_rad);
+    const b_ = C * Math.sin(h_rad);
+
+    const l_ = L + 0.3963377774 * a + 0.2158037573 * b_;
+    const m_ = L - 0.1055613458 * a - 0.0638541728 * b_;
+    const s_ = L - 0.0894841775 * a - 1.2914855480 * b_;
+
+    const l = l_ * l_ * l_, m = m_ * m_ * m_, s = s_ * s_ * s_;
+
+    const R = +4.0767416621 * l - 3.3077115913 * m + 0.2309699292 * s;
+    const G = -1.2684380046 * l + 2.6097574011 * m - 0.3413193965 * s;
+    const B = -0.0041960863 * l - 0.7034186147 * m + 1.7076147010 * s;
+
+    return {
+      r: Math.round(Math.max(0, Math.min(1, R)) * 255),
+      g: Math.round(Math.max(0, Math.min(1, G)) * 255),
+      b: Math.round(Math.max(0, Math.min(1, B)) * 255)
+    };
+  };
+
   const updateFromHex = (newHex: string) => {
     if (!newHex.startsWith('#')) newHex = '#' + newHex;
     if (!/^#[0-9A-Fa-f]{0,6}$/.test(newHex)) return;
@@ -88,6 +138,7 @@ export function ColorConverter() {
       if (rgbValue) {
         setRgb(rgbValue);
         setHsl(rgbToHsl(rgbValue.r, rgbValue.g, rgbValue.b));
+        setOklch(rgbToOklch(rgbValue.r, rgbValue.g, rgbValue.b));
       }
     }
   };
@@ -99,6 +150,7 @@ export function ColorConverter() {
     setRgb({ r, g, b });
     setHex(rgbToHex(r, g, b));
     setHsl(rgbToHsl(r, g, b));
+    setOklch(rgbToOklch(r, g, b));
   };
 
   const updateFromHsl = (newHsl: { h: number, s: number, l: number }) => {
@@ -109,6 +161,18 @@ export function ColorConverter() {
     const rgbValue = hslToRgb(h, s, l);
     setRgb(rgbValue);
     setHex(rgbToHex(rgbValue.r, rgbValue.g, rgbValue.b));
+    setOklch(rgbToOklch(rgbValue.r, rgbValue.g, rgbValue.b));
+  };
+
+  const updateFromOklch = (newL: number, newC: number, newH: number) => {
+    const l = Math.max(0, Math.min(1, newL));
+    const c = Math.max(0, Math.min(0.4, newC));
+    const h = Math.max(0, Math.min(360, newH));
+    setOklch({ l, c, h });
+    const rgbValue = oklchToRgb(l, c, h);
+    setRgb(rgbValue);
+    setHex(rgbToHex(rgbValue.r, rgbValue.g, rgbValue.b));
+    setHsl(rgbToHsl(rgbValue.r, rgbValue.g, rgbValue.b));
   };
 
   const copyToClipboard = (text: string, id: string) => {
@@ -118,7 +182,7 @@ export function ColorConverter() {
   };
 
   return (
-    <div className="max-w-4xl mx-auto space-y-12">
+    <div className="max-w-5xl mx-auto space-y-12">
       {/* Visual Preview Area */}
       <div className="relative group">
         <div
@@ -137,11 +201,12 @@ export function ColorConverter() {
       </div>
 
       {/* Main Formats Display */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
         {[
           { label: 'HEX', value: hex, id: 'hex' },
-          { label: 'RGB', value: `rgb(${rgb.r}, ${rgb.g}, ${rgb.b})`, id: 'rgb' },
-          { label: 'HSL', value: `hsl(${hsl.h}, ${hsl.s}%, ${hsl.l}%)`, id: 'hsl' },
+          { label: 'RGB', value: `rgb(${rgb.r} ${rgb.g} ${rgb.b})`, id: 'rgb' },
+          { label: 'HSL', value: `hsl(${hsl.h} ${hsl.s}% ${hsl.l}%)`, id: 'hsl' },
+          { label: 'OKLCH', value: formatOklch(oklch.l, oklch.c, oklch.h), id: 'oklch' },
         ].map((format) => (
           <div key={format.id} className="bg-slate-50 dark:bg-slate-900/50 p-6 rounded-3xl border border-slate-200 dark:border-slate-800 space-y-4">
             <div className="flex justify-between items-center">
@@ -241,6 +306,62 @@ export function ColorConverter() {
                 max="100"
                 value={hsl.l}
                 onChange={(e) => updateFromHsl({ ...hsl, l: Number(e.target.value) })}
+                className="w-full h-1.5 rounded-lg appearance-none cursor-pointer bg-slate-100 dark:bg-slate-800 accent-indigo-600"
+              />
+            </div>
+          </div>
+        </div>
+
+        {/* OKLCH Sliders */}
+        <div className="bg-white dark:bg-slate-900/40 border border-slate-200 dark:border-slate-800 p-8 rounded-[2.5rem] space-y-8 md:col-span-2">
+          <h4 className="text-xs font-black uppercase tracking-widest text-slate-400 flex items-center gap-2 px-1">
+            <Sliders className="w-4 h-4 text-indigo-500" /> Composantes OKLCH (Modern CSS)
+          </h4>
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+            <div className="space-y-2">
+              <div className="flex justify-between items-center px-1">
+                <label htmlFor="oklch-l" className="text-xs font-bold text-slate-500 cursor-pointer">Luminosité (L)</label>
+                <span className="text-sm font-black font-mono dark:text-slate-300">{oklch.l.toFixed(2)}</span>
+              </div>
+              <input
+                id="oklch-l"
+                type="range"
+                min="0"
+                max="1"
+                step="0.01"
+                value={oklch.l}
+                onChange={(e) => updateFromOklch(Number(e.target.value), oklch.c, oklch.h)}
+                className="w-full h-1.5 rounded-lg appearance-none cursor-pointer bg-slate-100 dark:bg-slate-800 accent-indigo-600"
+              />
+            </div>
+            <div className="space-y-2">
+              <div className="flex justify-between items-center px-1">
+                <label htmlFor="oklch-c" className="text-xs font-bold text-slate-500 cursor-pointer">Chroma (C)</label>
+                <span className="text-sm font-black font-mono dark:text-slate-300">{oklch.c.toFixed(2)}</span>
+              </div>
+              <input
+                id="oklch-c"
+                type="range"
+                min="0"
+                max="0.4"
+                step="0.01"
+                value={oklch.c}
+                onChange={(e) => updateFromOklch(oklch.l, Number(e.target.value), oklch.h)}
+                className="w-full h-1.5 rounded-lg appearance-none cursor-pointer bg-slate-100 dark:bg-slate-800 accent-indigo-600"
+              />
+            </div>
+            <div className="space-y-2">
+              <div className="flex justify-between items-center px-1">
+                <label htmlFor="oklch-h" className="text-xs font-bold text-slate-500 cursor-pointer">Teinte (H)</label>
+                <span className="text-sm font-black font-mono dark:text-slate-300">{oklch.h.toFixed(0)}°</span>
+              </div>
+              <input
+                id="oklch-h"
+                type="range"
+                min="0"
+                max="360"
+                value={oklch.h}
+                onChange={(e) => updateFromOklch(oklch.l, oklch.c, Number(e.target.value))}
                 className="w-full h-1.5 rounded-lg appearance-none cursor-pointer bg-slate-100 dark:bg-slate-800 accent-indigo-600"
               />
             </div>

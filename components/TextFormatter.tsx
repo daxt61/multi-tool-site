@@ -40,6 +40,8 @@ export function TextFormatter() {
     { name: 'Supprimer Espaces', action: (t: string) => t.replace(/\s+/g, '') },
     { name: 'Nettoyer Espaces', action: (t: string) => t.replace(/\s+/g, ' ').trim() },
     { name: 'Inverser', action: (t: string) => t.split('').reverse().join('') },
+    { name: 'Trier les lignes', action: (t: string) => t.split('\n').sort((a, b) => a.localeCompare(b, 'fr')).join('\n') },
+    { name: 'Supprimer lignes doubles', action: (t: string) => Array.from(new Set(t.split('\n'))).join('\n') },
     {
       name: 'camelCase',
       action: (t: string) => {

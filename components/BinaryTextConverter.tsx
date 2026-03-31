@@ -7,10 +7,9 @@ export function BinaryTextConverter() {
   const [copied, setCopied] = useState<'text' | 'binary' | null>(null);
 
   const textToBinary = (input: string) => {
-    return input
-      .split('')
+    return [...input]
       .map((char) => {
-        const bin = char.charCodeAt(0).toString(2);
+        const bin = char.codePointAt(0)?.toString(2) || '';
         return bin.padStart(8, '0');
       })
       .join(' ');
@@ -21,7 +20,7 @@ export function BinaryTextConverter() {
       const cleanBinary = input.replace(/[^01]/g, ' ');
       const binaries = cleanBinary.split(/\s+/).filter((b) => b.length > 0);
       return binaries
-        .map((bin) => String.fromCharCode(parseInt(bin, 2)))
+        .map((bin) => String.fromCodePoint(parseInt(bin, 2)))
         .join('');
     } catch (e) {
       return 'Erreur de conversion';

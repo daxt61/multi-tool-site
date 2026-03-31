@@ -13,6 +13,7 @@ export function TimerTool() {
   const [stopwatchRunning, setStopwatchRunning] = useState(false);
   const [laps, setLaps] = useState<number[]>([]);
   const intervalRef = useRef<number | null>(null);
+  const startTimeRef = useRef<number>(0);
   const audioContextRef = useRef<AudioContext | null>(null);
 
   const playBeep = () => {
@@ -56,8 +57,9 @@ export function TimerTool() {
         });
       }, 1000);
     } else if (stopwatchRunning && mode === 'stopwatch') {
+      startTimeRef.current = Date.now() - stopwatchTime * 10;
       intervalRef.current = window.setInterval(() => {
-        setStopwatchTime((prev) => prev + 1);
+        setStopwatchTime(Math.floor((Date.now() - startTimeRef.current) / 10));
       }, 10);
     } else if (intervalRef.current) {
       clearInterval(intervalRef.current);

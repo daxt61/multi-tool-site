@@ -18,6 +18,8 @@ export function CaseConverter() {
     'SCREAMING_SNAKE_CASE': (t: string) => t.toUpperCase().replace(/[\s-]+/g, '_'),
     'kebab-case': (t: string) => t.toLowerCase().replace(/[\s_]+/g, '-'),
     'SCREAMING-KEBAB-CASE': (t: string) => t.toUpperCase().replace(/[\s_]+/g, '-'),
+    'dot.case': (t: string) => t.toLowerCase().replace(/[\s_-]+/g, '.'),
+    'path/case': (t: string) => t.toLowerCase().replace(/[\s_-]+/g, '/'),
     'Title Case': (t: string) => t.toLowerCase().split(' ').map(w => w.charAt(0).toUpperCase() + w.slice(1)).join(' '),
     'Sentence case': (t: string) => t.charAt(0).toUpperCase() + t.slice(1).toLowerCase(),
     'UPPERCASE': (t: string) => t.toUpperCase(),

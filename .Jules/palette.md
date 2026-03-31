@@ -33,3 +33,7 @@
 ## 2025-05-26 - [Bento Card Grid & UI De-cluttering]
 **Learning:** For tools with multiple output formats (like case conversion), a responsive grid of standardized cards provides the best scannability. Each card should have its own localized "Copy" utility with immediate success feedback. Additionally, removing legacy UI clutter (like old ad placeholders) during modernization significantly improves the focus and "delight" of the tool.
 **Action:** Use a card grid for multi-output tools and prioritize removing non-essential legacy components to achieve a "blank slate" professional feel during modernization.
+
+## 2025-05-27 - [Contextual Reference & Educational UX]
+**Learning:** For specialized utility tools (like Morse code), providing a contextual reference card and educational sections significantly increases the "perceived value" and usability of the tool. It transforms a simple converter into a learning resource. Additionally, ensuring that both inputs (source and target) have independent utility buttons (Copy/Clear) creates a more flexible and "professional" interaction model.
+**Action:** Include reference data and educational context for specialized tools next time to improve user retention and delight.

@@ -152,6 +152,8 @@ const NumberToWords = lazy(() => import("./components/NumberToWords").then(m => 
 const BoxShadowGenerator = lazy(() => import("./components/BoxShadowGenerator").then(m => ({ default: m.BoxShadowGenerator })));
 const MetaTagsGenerator = lazy(() => import("./components/MetaTagsGenerator").then(m => ({ default: m.MetaTagsGenerator })));
 const CSSUnitConverter = lazy(() => import("./components/CSSUnitConverter").then(m => ({ default: m.CSSUnitConverter })));
+const RomanNumeralConverter = lazy(() => import("./components/RomanNumeralConverter").then(m => ({ default: m.RomanNumeralConverter })));
+const XMLFormatter = lazy(() => import("./components/XMLFormatter").then(m => ({ default: m.XMLFormatter })));
 
 // ⚡ Bolt Optimization: Pre-calculating tool map and search index for O(1) lookups and faster filtering
 const toolsMap: Record<string, Tool> = {};
@@ -366,6 +368,14 @@ const tools: Tool[] = [
     category: "converters",
   },
   {
+    id: "roman-numeral",
+    name: "Chiffres Romains",
+    icon: Hash,
+    description: "Convertisseur de chiffres romains",
+    Component: RomanNumeralConverter,
+    category: "converters",
+  },
+  {
     id: "color-palette",
     name: "Palette de couleurs",
     icon: Palette,
@@ -549,6 +559,14 @@ const tools: Tool[] = [
     icon: FileCode,
     description: "Prettify, minify et valide votre JSON",
     Component: JSONFormatter,
+    category: "dev",
+  },
+  {
+    id: "xml-formatter",
+    name: "Formateur XML",
+    icon: FileCode,
+    description: "Embellir, minifier et valider votre XML",
+    Component: XMLFormatter,
     category: "dev",
   },
   {

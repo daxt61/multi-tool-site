@@ -31,3 +31,8 @@
 **Vulnerability:** The JSONToTS component used unbounded recursion to process user-provided JSON, making it vulnerable to Stack Overflow Denial of Service (DoS) attacks with deeply nested inputs.
 **Learning:** Recursive functions that process untrusted or potentially large data structures must always implement a maximum depth limit. Even if the data is valid (e.g., from JSON.parse), the structure itself can be a weapon.
 **Prevention:** Enforce a strict recursion depth limit (e.g., 20) and use safer iteration methods like Object.entries() to avoid prototype-related issues.
+
+## 2025-06-15 - [Client-Side DoS in String Processing Tools]
+**Vulnerability:** The HTMLEntityConverter processed arbitrarily large strings using expensive regex-based encoding and DOM-based decoding, which could freeze the user's browser (Denial of Service).
+**Learning:** Utilities that perform heavy string manipulation or DOM parsing must implement input size constraints. Even if the operation is "safe" from XSS, it can still be weaponized to exhaust client-side resources.
+**Prevention:** Enforce a reasonable `MAX_LENGTH` limit (e.g., 100KB) on all text inputs that trigger immediate, heavy processing, and provide visual feedback to the user when the limit is exceeded.

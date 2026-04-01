@@ -1,10 +1,13 @@
 import { useState } from 'react';
-import { Code, Copy, Check, Trash2, ArrowRightLeft } from 'lucide-react';
+import { Code, Copy, Check, Trash2, ArrowRightLeft, AlertCircle } from 'lucide-react';
 
 export function HTMLEntityConverter() {
   const [text, setText] = useState('');
   const [entities, setEntities] = useState('');
   const [copied, setCopied] = useState<'text' | 'entities' | null>(null);
+  const [error, setError] = useState<string | null>(null);
+
+  const MAX_LENGTH = 100000; // 100KB limit to prevent DoS
 
   const encode = (str: string) => {
     return str.replace(/[\u00A0-\u9999<>&]/g, (i) => `&#${i.charCodeAt(0)};`);
@@ -17,11 +20,21 @@ export function HTMLEntityConverter() {
   };
 
   const handleTextChange = (val: string) => {
+    if (val.length > MAX_LENGTH) {
+      setError(`L'entrée est trop longue (max ${MAX_LENGTH.toLocaleString()} caractères).`);
+      return;
+    }
+    setError(null);
     setText(val);
     setEntities(encode(val));
   };
 
   const handleEntitiesChange = (val: string) => {
+    if (val.length > MAX_LENGTH) {
+      setError(`L'entrée est trop longue (max ${MAX_LENGTH.toLocaleString()} caractères).`);
+      return;
+    }
+    setError(null);
     setEntities(val);
     setText(decode(val));
   };
@@ -35,6 +48,13 @@ export function HTMLEntityConverter() {
 
   return (
     <div className="max-w-6xl mx-auto space-y-8">
+      {error && (
+        <div className="bg-rose-50 dark:bg-rose-500/10 border border-rose-200 dark:border-rose-800 p-4 rounded-2xl flex items-center gap-3 text-rose-600 dark:text-rose-400 font-bold animate-in fade-in slide-in-from-top-2">
+          <AlertCircle className="w-5 h-5" />
+          {error}
+        </div>
+      )}
+
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 relative">
         <div className="hidden lg:flex absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 z-10">
           <div className="bg-white dark:bg-slate-800 p-3 rounded-full shadow-xl border border-slate-200 dark:border-slate-700 text-indigo-600">
@@ -56,7 +76,7 @@ export function HTMLEntityConverter() {
                 {copied === 'text' ? <Check className="w-3 h-3" /> : <Copy className="w-3 h-3" />} {copied === 'text' ? 'Copié' : 'Copier'}
               </button>
               <button
-                onClick={() => {setText(''); setEntities('');}}
+                onClick={() => {setText(''); setEntities(''); setError(null);}}
                 className="text-xs font-bold px-3 py-1 rounded-full text-rose-500 bg-rose-50 dark:bg-rose-500/10 hover:bg-rose-100 transition-all flex items-center gap-1"
               >
                 <Trash2 className="w-3 h-3" />

@@ -64,6 +64,8 @@ import {
   Check,
   Clock,
   Table,
+  Eye,
+  Braces,
   Tag,
   LayoutGrid,
   ArrowRight, Loader2,
@@ -154,6 +156,8 @@ const MetaTagsGenerator = lazy(() => import("./components/MetaTagsGenerator").th
 const CSSUnitConverter = lazy(() => import("./components/CSSUnitConverter").then(m => ({ default: m.CSSUnitConverter })));
 const RomanNumeralConverter = lazy(() => import("./components/RomanNumeralConverter").then(m => ({ default: m.RomanNumeralConverter })));
 const XMLFormatter = lazy(() => import("./components/XMLFormatter").then(m => ({ default: m.XMLFormatter })));
+const ColorContrastChecker = lazy(() => import("./components/ColorContrastChecker").then(m => ({ default: m.ColorContrastChecker })));
+const JSONSchemaGenerator = lazy(() => import("./components/JSONSchemaGenerator").then(m => ({ default: m.JSONSchemaGenerator })));
 
 // ⚡ Bolt Optimization: Pre-calculating tool map and search index for O(1) lookups and faster filtering
 const toolsMap: Record<string, Tool> = {};
@@ -383,6 +387,14 @@ const tools: Tool[] = [
     Component: ColorPaletteGenerator,
     category: "converters",
   },
+  {
+    id: "contrast-checker",
+    name: "Contrast-mètre",
+    icon: Eye,
+    description: "Vérifier le contraste de couleurs (WCAG)",
+    Component: ColorContrastChecker,
+    category: "converters",
+  },
   // Text Tools
   {
     id: "word-counter",
@@ -479,6 +491,14 @@ const tools: Tool[] = [
     icon: Key,
     description: "Générateur de clés sécurisées",
     Component: PasswordGenerator,
+    category: "dev",
+  },
+  {
+    id: "json-schema",
+    name: "Schéma JSON",
+    icon: Braces,
+    description: "Générer un JSON Schema à partir d'un JSON",
+    Component: JSONSchemaGenerator,
     category: "dev",
   },
   {

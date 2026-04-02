@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Calendar, History, Info } from 'lucide-react';
+import { Calendar, History, Info, Trash2, Copy, Check } from 'lucide-react';
 
 export function DateCalculator() {
   const today = new Date().toISOString().split('T')[0];
@@ -57,16 +57,42 @@ export function DateCalculator() {
     return days[d.getDay()];
   };
 
+  const [copiedDiff, setCopiedDiff] = useState(false);
+  const [copiedDate, setCopiedDate] = useState(false);
+
   const diff = calculateDifference();
   const newDate = addDaysToDate(date1, parseInt(daysToAdd) || 0);
+
+  const handleCopyDiff = () => {
+    const text = `${diff.years}a ${diff.months}m ${diff.days}j (${diff.totalDays} jours)`;
+    navigator.clipboard.writeText(text);
+    setCopiedDiff(true);
+    setTimeout(() => setCopiedDiff(false), 2000);
+  };
+
+  const handleCopyDate = () => {
+    if (!newDate) return;
+    const text = `${newDate} (${getDayOfWeek(newDate)})`;
+    navigator.clipboard.writeText(text);
+    setCopiedDate(true);
+    setTimeout(() => setCopiedDate(false), 2000);
+  };
 
   return (
     <div className="max-w-4xl mx-auto space-y-8">
       {/* Date Difference Calculator */}
       <div className="bg-slate-50 dark:bg-slate-900/50 p-8 rounded-[2.5rem] border border-slate-200 dark:border-slate-800 space-y-8">
-        <div className="flex items-center gap-2 text-indigo-500">
-          <History className="w-4 h-4" />
-          <label className="text-xs font-black uppercase tracking-widest text-slate-400">Différence entre deux dates</label>
+        <div className="flex justify-between items-center px-1">
+          <div className="flex items-center gap-2 text-indigo-500">
+            <History className="w-4 h-4" />
+            <label className="text-xs font-black uppercase tracking-widest text-slate-400">Différence entre deux dates</label>
+          </div>
+          <button
+            onClick={() => {setDate1(today); setDate2(today);}}
+            className="text-xs font-bold text-rose-500 bg-rose-50 dark:bg-rose-500/10 hover:bg-rose-100 dark:hover:bg-rose-500/20 px-3 py-1.5 rounded-xl flex items-center gap-1 transition-all"
+          >
+            <Trash2 className="w-3 h-3" /> Effacer
+          </button>
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -94,33 +120,54 @@ export function DateCalculator() {
           </div>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-           <div className="bg-white dark:bg-slate-800 p-6 rounded-2xl border border-slate-100 dark:border-slate-700 text-center">
-             <div className="text-xs font-bold text-slate-400 uppercase tracking-widest mb-1">Ans / Mois / Jours</div>
-             <div className="text-2xl font-black text-indigo-600 dark:text-indigo-400 font-mono">
-               {diff.years}a {diff.months}m {diff.days}j
-             </div>
-           </div>
-           <div className="bg-white dark:bg-slate-800 p-6 rounded-2xl border border-slate-100 dark:border-slate-700 text-center">
-             <div className="text-xs font-bold text-slate-400 uppercase tracking-widest mb-1">Total en Jours</div>
-             <div className="text-2xl font-black text-indigo-600 dark:text-indigo-400 font-mono">
-               {diff.totalDays} jours
-             </div>
-           </div>
-           <div className="bg-white dark:bg-slate-800 p-6 rounded-2xl border border-slate-100 dark:border-slate-700 text-center">
-             <div className="text-xs font-bold text-slate-400 uppercase tracking-widest mb-1">Semaines</div>
-             <div className="text-2xl font-black text-indigo-600 dark:text-indigo-400 font-mono">
-               {(diff.totalDays / 7).toFixed(1)} sem.
-             </div>
-           </div>
+        <div className="relative group/diff">
+          <button
+            onClick={handleCopyDiff}
+            className={`absolute top-2 right-2 p-2 rounded-xl transition-all ${
+              copiedDiff
+                ? 'bg-emerald-50 dark:bg-emerald-500/10 text-emerald-600 dark:text-emerald-400'
+                : 'text-slate-400 hover:text-indigo-500 bg-white dark:bg-slate-800 opacity-0 group-hover/diff:opacity-100 shadow-sm border border-slate-100 dark:border-slate-700'
+            }`}
+            title="Copier le résultat"
+          >
+            {copiedDiff ? <Check className="w-4 h-4" /> : <Copy className="w-4 h-4" />}
+          </button>
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+            <div className="bg-white dark:bg-slate-800 p-6 rounded-2xl border border-slate-100 dark:border-slate-700 text-center">
+              <div className="text-xs font-bold text-slate-400 uppercase tracking-widest mb-1">Ans / Mois / Jours</div>
+              <div className="text-2xl font-black text-indigo-600 dark:text-indigo-400 font-mono">
+                {diff.years}a {diff.months}m {diff.days}j
+              </div>
+            </div>
+            <div className="bg-white dark:bg-slate-800 p-6 rounded-2xl border border-slate-100 dark:border-slate-700 text-center">
+              <div className="text-xs font-bold text-slate-400 uppercase tracking-widest mb-1">Total en Jours</div>
+              <div className="text-2xl font-black text-indigo-600 dark:text-indigo-400 font-mono">
+                {diff.totalDays} jours
+              </div>
+            </div>
+            <div className="bg-white dark:bg-slate-800 p-6 rounded-2xl border border-slate-100 dark:border-slate-700 text-center">
+              <div className="text-xs font-bold text-slate-400 uppercase tracking-widest mb-1">Semaines</div>
+              <div className="text-2xl font-black text-indigo-600 dark:text-indigo-400 font-mono">
+                {(diff.totalDays / 7).toFixed(1)} sem.
+              </div>
+            </div>
+          </div>
         </div>
       </div>
 
       {/* Add/Subtract Days */}
       <div className="bg-slate-50 dark:bg-slate-900/50 p-8 rounded-[2.5rem] border border-slate-200 dark:border-slate-800 space-y-8">
-        <div className="flex items-center gap-2 text-indigo-500">
-          <Calendar className="w-4 h-4" />
-          <label className="text-xs font-black uppercase tracking-widest text-slate-400">Ajouter ou soustraire du temps</label>
+        <div className="flex justify-between items-center px-1">
+          <div className="flex items-center gap-2 text-indigo-500">
+            <Calendar className="w-4 h-4" />
+            <label className="text-xs font-black uppercase tracking-widest text-slate-400">Ajouter ou soustraire du temps</label>
+          </div>
+          <button
+            onClick={() => {setDaysToAdd('30');}}
+            className="text-xs font-bold text-rose-500 bg-rose-50 dark:bg-rose-500/10 hover:bg-rose-100 dark:hover:bg-rose-500/20 px-3 py-1.5 rounded-xl flex items-center gap-1 transition-all"
+          >
+            <Trash2 className="w-3 h-3" /> Effacer
+          </button>
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -149,7 +196,18 @@ export function DateCalculator() {
           </div>
         </div>
 
-        <div className="bg-slate-900 dark:bg-black p-8 rounded-3xl text-center shadow-xl shadow-indigo-500/10">
+        <div className="bg-slate-900 dark:bg-black p-8 rounded-3xl text-center shadow-xl shadow-indigo-500/10 relative group/date">
+          <button
+            onClick={handleCopyDate}
+            className={`absolute top-4 right-4 p-3 rounded-2xl transition-all ${
+              copiedDate
+                ? 'bg-emerald-500 text-white'
+                : 'text-white/40 hover:text-white hover:bg-white/10 opacity-0 group-hover/date:opacity-100'
+            }`}
+            title="Copier la date"
+          >
+            {copiedDate ? <Check className="w-5 h-5" /> : <Copy className="w-5 h-5" />}
+          </button>
           <div className="text-xs font-bold text-indigo-400 uppercase tracking-widest mb-2">Nouvelle Date</div>
           <div className="text-4xl font-black text-white font-mono tracking-tight">
             {newDate || "Invalid Date"}

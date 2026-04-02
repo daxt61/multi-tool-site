@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Shield, Copy, Check, RefreshCcw } from 'lucide-react';
+import { Shield, Copy, Check, Trash2 } from 'lucide-react';
 
 export function HashGenerator() {
   const [inputText, setInputText] = useState('');
@@ -38,23 +38,38 @@ export function HashGenerator() {
     setTimeout(() => setCopied(null), 2000);
   };
 
+  const handleClear = () => {
+    setInputText('');
+    setHashes({ 'SHA-256': '', 'SHA-512': '' });
+  };
+
   return (
     <div className="max-w-4xl mx-auto space-y-8">
       <div className="space-y-4">
-        <label className="block text-sm font-bold text-gray-700 dark:text-gray-300 uppercase tracking-wider">
-          Texte à hasher
-        </label>
+        <div className="flex justify-between items-center">
+          <label htmlFor="hash-input" className="block text-sm font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wider cursor-pointer">
+            Texte à hasher
+          </label>
+          <button
+            onClick={handleClear}
+            disabled={!inputText}
+            className="text-xs font-bold px-3 py-1 rounded-full text-rose-500 bg-rose-50 dark:bg-rose-500/10 hover:bg-rose-100 dark:hover:bg-rose-500/20 transition-all flex items-center gap-1 disabled:opacity-50 disabled:cursor-not-allowed"
+          >
+            <Trash2 className="w-3 h-3" /> Effacer
+          </button>
+        </div>
         <textarea
+          id="hash-input"
           value={inputText}
           onChange={(e) => generateHashes(e.target.value)}
           placeholder="Entrez votre texte ici..."
-          className="w-full h-32 p-4 bg-white dark:bg-gray-800 border-2 border-gray-100 dark:border-gray-700 rounded-2xl focus:ring-4 focus:ring-indigo-500/10 focus:border-indigo-500 outline-none transition-all dark:text-white"
+          className="w-full h-32 p-4 bg-white dark:bg-slate-800 border-2 border-slate-100 dark:border-slate-700 rounded-2xl focus:ring-4 focus:ring-indigo-500/10 focus:border-indigo-500 outline-none transition-all dark:text-white"
         />
       </div>
 
       <div className="grid gap-6">
         {Object.entries(hashes).map(([algo, hash]) => (
-          <div key={algo} className="bg-gray-50 dark:bg-gray-900/50 rounded-2xl p-6 border border-gray-100 dark:border-gray-800">
+          <div key={algo} className="bg-slate-50 dark:bg-slate-900/50 rounded-2xl p-6 border border-slate-100 dark:border-slate-800">
             <div className="flex justify-between items-center mb-4">
               <span className="px-3 py-1 bg-indigo-100 dark:bg-indigo-900/30 text-indigo-600 dark:text-indigo-400 rounded-lg text-xs font-bold tracking-widest">
                 {algo}
@@ -63,6 +78,7 @@ export function HashGenerator() {
                 onClick={() => copyToClipboard(hash, algo)}
                 disabled={!hash}
                 className="flex items-center gap-2 text-sm font-bold text-indigo-600 dark:text-indigo-400 hover:text-indigo-700 disabled:opacity-30 disabled:cursor-not-allowed transition-colors"
+                aria-label={`Copier le hash ${algo}`}
               >
                 {copied === algo ? (
                   <>
@@ -77,7 +93,7 @@ export function HashGenerator() {
                 )}
               </button>
             </div>
-            <div className="font-mono text-sm break-all bg-white dark:bg-gray-800 p-4 rounded-xl border border-gray-100 dark:border-gray-700 text-gray-700 dark:text-gray-300">
+            <div className="font-mono text-sm break-all bg-white dark:bg-slate-800 p-4 rounded-xl border border-slate-100 dark:border-slate-700 text-slate-700 dark:text-slate-300">
               {hash || 'En attente de texte...'}
             </div>
           </div>

@@ -9,12 +9,36 @@ export function Calculator() {
   const [isScientific, setIsScientific] = useState(false);
   const [isRadians, setIsRadians] = useState(false);
   const [history, setHistory] = useState<{ expression: string; result: string }[]>(() => {
-    const saved = localStorage.getItem('calc_history');
-    return saved ? JSON.parse(saved) : [];
+    try {
+      // Sentinel: Securely parse localStorage data to prevent app crashes (Local DoS).
+      const saved = localStorage.getItem('calc_history');
+      const parsed = saved ? JSON.parse(saved) : [];
+
+      // Sentinel: Validate data structure and content to prevent state poisoning.
+      return Array.isArray(parsed)
+        ? parsed
+            .filter((item: any) => (
+              item &&
+              typeof item.expression === 'string' &&
+              typeof item.result === 'string'
+            ))
+            .slice(0, 10)
+        : [];
+    } catch (e) {
+      console.error("Failed to load calculator history", e);
+      return [];
+    }
   });
+
   const [memory, setMemory] = useState<number>(() => {
-    const saved = localStorage.getItem('calc_memory');
-    return saved ? parseFloat(saved) : 0;
+    try {
+      const saved = localStorage.getItem('calc_memory');
+      const parsed = saved ? parseFloat(saved) : 0;
+      // Sentinel: Ensure memory is a valid finite number.
+      return isFinite(parsed) ? parsed : 0;
+    } catch (e) {
+      return 0;
+    }
   });
 
   const handleNumber = (num: string) => {

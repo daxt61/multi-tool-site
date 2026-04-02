@@ -31,3 +31,8 @@
 **Vulnerability:** The JSONToTS component used unbounded recursion to process user-provided JSON, making it vulnerable to Stack Overflow Denial of Service (DoS) attacks with deeply nested inputs.
 **Learning:** Recursive functions that process untrusted or potentially large data structures must always implement a maximum depth limit. Even if the data is valid (e.g., from JSON.parse), the structure itself can be a weapon.
 **Prevention:** Enforce a strict recursion depth limit (e.g., 20) and use safer iteration methods like Object.entries() to avoid prototype-related issues.
+
+## 2025-06-15 - [Local DoS via Malformed LocalStorage Data]
+**Vulnerability:** The Calculator component was vulnerable to Local Denial of Service (DoS) and state poisoning by directly parsing `localStorage` data without validation. Corrupted or tampered data could crash the application on startup.
+**Learning:** Even local data sources like `localStorage` must be treated as untrusted. Component state initialization is a critical path; failure here can "brick" the application for the user.
+**Prevention:** Always wrap `JSON.parse` of `localStorage` data in `try-catch` blocks and implement explicit schema validation (checking types, structure, and limits) before updating the application state.

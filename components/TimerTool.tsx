@@ -166,7 +166,7 @@ export function TimerTool() {
               </button>
               <button
                 onClick={resetTimer}
-                className="px-8 py-4 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-2xl font-bold text-slate-500 hover:border-slate-300 transition-all flex items-center gap-2"
+                className="px-8 py-4 text-rose-500 bg-rose-50 dark:bg-rose-500/10 hover:bg-rose-100 dark:hover:bg-rose-500/20 border border-rose-100 dark:border-rose-500/20 rounded-2xl font-bold transition-all flex items-center gap-2"
               >
                 <RotateCcw className="w-5 h-5" /> Reset
               </button>
@@ -216,7 +216,7 @@ export function TimerTool() {
             </button>
             <button
               onClick={resetStopwatch}
-              className="px-8 py-4 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-2xl font-bold text-slate-500 hover:border-slate-300 transition-all flex items-center gap-2"
+              className="px-8 py-4 text-rose-500 bg-rose-50 dark:bg-rose-500/10 hover:bg-rose-100 dark:hover:bg-rose-500/20 border border-rose-100 dark:border-rose-500/20 rounded-2xl font-bold transition-all flex items-center gap-2"
             >
               <RotateCcw className="w-5 h-5" /> Reset
             </button>

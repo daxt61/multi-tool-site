@@ -56,6 +56,7 @@ export function CurrencyConverter() {
     THB: 39.45, HUF: 395.12, CZK: 25.32, ILS: 4.02, CLP: 1025.45, PKR: 304.12, EGP: 53.45, TWD: 34.12, VND: 26850.12, COP: 4250.45, QAR: 3.97, KWD: 0.33, BHD: 0.41
   });
   const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
   const [copied, setCopied] = useState(false);
   const [lastUpdated, setLastUpdated] = useState<string | null>(null);
 
@@ -65,8 +66,10 @@ export function CurrencyConverter() {
 
   const fetchRates = async () => {
     setLoading(true);
+    setError(null);
     try {
       const response = await fetch('https://api.frankfurter.app/latest?from=EUR');
+      if (!response.ok) throw new Error('Échec du chargement des taux');
       const data = await response.json();
       if (data.rates) {
         setRates({ EUR: 1, ...data.rates });
@@ -74,6 +77,7 @@ export function CurrencyConverter() {
       }
     } catch (error) {
       console.error('Failed to fetch rates:', error);
+      setError('Impossible de mettre à jour les taux de change. Les taux affichés sont des estimations.');
     } finally {
       setLoading(false);
     }
@@ -95,6 +99,13 @@ export function CurrencyConverter() {
 
   return (
     <div className="max-w-4xl mx-auto space-y-12">
+      {error && (
+        <div className="bg-rose-50 dark:bg-rose-500/10 border border-rose-100 dark:border-rose-500/20 p-4 rounded-2xl flex items-center gap-3 text-rose-600 dark:text-rose-400 text-sm font-bold animate-in fade-in slide-in-from-top-2">
+          <Info className="w-5 h-5 shrink-0" />
+          {error}
+          <button onClick={fetchRates} className="ml-auto underline decoration-2 underline-offset-4 hover:opacity-80 transition-opacity">Réessayer</button>
+        </div>
+      )}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-12 items-center">
         <div className="space-y-8">
           <div className="space-y-3">

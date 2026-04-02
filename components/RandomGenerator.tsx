@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Shuffle, Copy, Check, RefreshCw, Hash, Type, AlignLeft } from 'lucide-react';
+import { Shuffle, Copy, Check, RefreshCw, Hash, Type, AlignLeft, Trash2 } from 'lucide-react';
 
 export function RandomGenerator() {
   const [min, setMin] = useState(1);
@@ -22,20 +22,11 @@ export function RandomGenerator() {
     if (range <= 0) return 0;
 
     const array = new Uint32Array(1);
-    // Sentinel: If range is 2^32 or larger, just return a random 32-bit value.
-    // This prevents the infinite loop where limit would be 0.
     if (range >= 0x100000000) {
       window.crypto.getRandomValues(array);
       return array[0];
     }
-
     const maxUint32 = 0xffffffff;
-
-    // Handle range >= 2^32 to avoid infinite loop (limit would be 0)
-    if (range >= 0x100000000) {
-      window.crypto.getRandomValues(array);
-      return array[0];
-    }
 
     const limit = maxUint32 - (maxUint32 % range);
 
@@ -114,12 +105,21 @@ export function RandomGenerator() {
               className="w-full p-4 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl font-black font-mono outline-none focus:ring-2 focus:ring-indigo-500/20 transition-all dark:text-white"
             />
           </div>
-          <button
-            onClick={generateNumber}
-            className="h-14 bg-indigo-600 text-white rounded-2xl font-black hover:bg-indigo-700 transition-all shadow-lg shadow-indigo-600/20 active:scale-95 flex items-center justify-center gap-2"
-          >
-            <RefreshCw className="w-5 h-5" /> Générer
-          </button>
+          <div className="flex flex-col gap-2">
+            <button
+              onClick={() => setRandomNumber(null)}
+              disabled={randomNumber === null}
+              className="text-xs font-bold text-rose-500 bg-rose-50 dark:bg-rose-500/10 hover:bg-rose-100 dark:hover:bg-rose-500/20 px-3 py-1.5 rounded-xl flex items-center gap-1 transition-all disabled:opacity-50 disabled:cursor-not-allowed w-fit self-end"
+            >
+              <Trash2 className="w-3 h-3" /> Effacer
+            </button>
+            <button
+              onClick={generateNumber}
+              className="h-14 bg-indigo-600 text-white rounded-2xl font-black hover:bg-indigo-700 transition-all shadow-lg shadow-indigo-600/20 active:scale-95 flex items-center justify-center gap-2"
+            >
+              <RefreshCw className="w-5 h-5" /> Générer
+            </button>
+          </div>
 
           {randomNumber !== null && (
             <div className="h-14 bg-white dark:bg-slate-800 border border-indigo-200 dark:border-indigo-900/30 rounded-2xl flex items-center justify-between px-6 animate-in zoom-in-95 duration-300">
@@ -137,6 +137,16 @@ export function RandomGenerator() {
         <div className="flex items-center gap-2 px-1">
           <Type className="w-4 h-4 text-indigo-500" />
           <h3 className="text-xs font-black uppercase tracking-widest text-slate-400">Chaîne Aléatoire</h3>
+        </div>
+
+        <div className="flex justify-end px-1">
+          <button
+            onClick={() => setRandomString('')}
+            disabled={!randomString}
+            className="text-xs font-bold text-rose-500 bg-rose-50 dark:bg-rose-500/10 hover:bg-rose-100 dark:hover:bg-rose-500/20 px-3 py-1.5 rounded-xl flex items-center gap-1 transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+          >
+            <Trash2 className="w-3 h-3" /> Effacer
+          </button>
         </div>
 
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
@@ -200,6 +210,16 @@ export function RandomGenerator() {
         <div className="flex items-center gap-2 px-1">
           <AlignLeft className="w-4 h-4 text-indigo-500" />
           <h3 className="text-xs font-black uppercase tracking-widest text-slate-400">Mélanger une Liste</h3>
+        </div>
+
+        <div className="flex justify-end px-1">
+          <button
+            onClick={() => {setList(''); setShuffledList([]);}}
+            disabled={!list && shuffledList.length === 0}
+            className="text-xs font-bold text-rose-500 bg-rose-50 dark:bg-rose-500/10 hover:bg-rose-100 dark:hover:bg-rose-500/20 px-3 py-1.5 rounded-xl flex items-center gap-1 transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+          >
+            <Trash2 className="w-3 h-3" /> Effacer
+          </button>
         </div>
 
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">

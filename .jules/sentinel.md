@@ -36,3 +36,8 @@
 **Vulnerability:** The Calculator component was vulnerable to Local Denial of Service (DoS) and state poisoning by directly parsing `localStorage` data without validation. Corrupted or tampered data could crash the application on startup.
 **Learning:** Even local data sources like `localStorage` must be treated as untrusted. Component state initialization is a critical path; failure here can "brick" the application for the user.
 **Prevention:** Always wrap `JSON.parse` of `localStorage` data in `try-catch` blocks and implement explicit schema validation (checking types, structure, and limits) before updating the application state.
+
+## 2026-04-12 - [Stack Overflow DoS in JSON Schema Generator]
+**Vulnerability:** The JSONSchemaGenerator component used unbounded recursion to traverse user-provided JSON objects, making it vulnerable to Stack Overflow Denial of Service (DoS) attacks via deeply nested inputs.
+**Learning:** Any function that recursively traverses data structures provided by users must enforce a strict maximum depth limit to protect the execution stack. While `JSON.parse` handles some basic nesting limits, the application's secondary traversal can still trigger a stack overflow if it doesn't implement its own safeguards.
+**Prevention:** Implement a `MAX_DEPTH` constant and pass a current `depth` counter through recursive calls. Terminate recursion and return a safe placeholder or error once the limit is reached.

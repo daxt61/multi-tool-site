@@ -1,12 +1,19 @@
 import { useState, useMemo } from 'react';
 import { Copy, Check, Trash2, Braces, FileCode, Info, AlertCircle } from 'lucide-react';
 
+const MAX_DEPTH = 20;
+
 export function JSONSchemaGenerator() {
   const [jsonInput, setJsonInput] = useState('');
   const [copied, setCopied] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  const generateSchema = (obj: any): any => {
+  const generateSchema = (obj: any, depth: number = 0): any => {
+    // Sentinel: Enforce recursion depth limit to prevent Stack Overflow DoS.
+    if (depth > MAX_DEPTH) {
+      return { type: 'object', description: 'Maximum depth reached' };
+    }
+
     const type = typeof obj;
 
     if (obj === null) {
@@ -14,7 +21,7 @@ export function JSONSchemaGenerator() {
     }
 
     if (Array.isArray(obj)) {
-      const items = obj.length > 0 ? generateSchema(obj[0]) : {};
+      const items = obj.length > 0 ? generateSchema(obj[0], depth + 1) : {};
       return {
         type: 'array',
         items
@@ -26,7 +33,7 @@ export function JSONSchemaGenerator() {
       const required: string[] = [];
 
       Object.entries(obj).forEach(([key, value]) => {
-        properties[key] = generateSchema(value);
+        properties[key] = generateSchema(value, depth + 1);
         required.push(key);
       });
 
@@ -52,7 +59,7 @@ export function JSONSchemaGenerator() {
       const schema = {
         $schema: "http://json-schema.org/draft-07/schema#",
         title: "Generated Schema",
-        ...generateSchema(parsed)
+        ...generateSchema(parsed, 0)
       };
       return JSON.stringify(schema, null, 2);
     } catch (e: any) {

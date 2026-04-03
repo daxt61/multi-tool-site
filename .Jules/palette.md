@@ -37,3 +37,7 @@
 ## 2025-05-27 - [Contextual Reference & Educational UX]
 **Learning:** For specialized utility tools (like Morse code), providing a contextual reference card and educational sections significantly increases the "perceived value" and usability of the tool. It transforms a simple converter into a learning resource. Additionally, ensuring that both inputs (source and target) have independent utility buttons (Copy/Clear) creates a more flexible and "professional" interaction model.
 **Action:** Include reference data and educational context for specialized tools next time to improve user retention and delight.
+
+## 2025-05-28 - [Multi-Input Converter UX & State Syncing]
+**Learning:** For multi-input converters (like base conversion), users expect all fields to stay perfectly synchronized, including clearing all outputs when a source input is emptied. Adding a global "Clear All" (Effacer tout) button provides a high-value escape hatch for resetting complex states. Standardizing the "Copy" success state to a subtle emerald background (instead of solid) maintains visual hierarchy while providing clear feedback.
+**Action:** Implement "Clear All" and state synchronization for any tool with interdependent inputs.

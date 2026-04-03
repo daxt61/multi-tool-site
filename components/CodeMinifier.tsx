@@ -1,5 +1,5 @@
 import React, { useState, useMemo } from 'react';
-import { Copy, Check, Trash2, Zap, FileCode, Scissors } from 'lucide-react';
+import { Copy, Check, Trash2, Zap, FileCode, Scissors, Download } from 'lucide-react';
 
 export function CodeMinifier() {
   const [input, setInput] = useState('');
@@ -80,6 +80,21 @@ export function CodeMinifier() {
     setTimeout(() => setCopied(false), 2000);
   };
 
+  const handleDownload = () => {
+    if (!output) return;
+    const extensions = { js: 'min.js', css: 'min.css', html: 'min.html' };
+    const mimes = { js: 'text/javascript', css: 'text/css', html: 'text/html' };
+    const blob = new Blob([output], { type: mimes[mode] });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    link.href = url;
+    link.download = `code.${extensions[mode]}`;
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    URL.revokeObjectURL(url);
+  };
+
   return (
     <div className="max-w-6xl mx-auto space-y-8">
       {/* Mode Selector */}
@@ -110,7 +125,7 @@ export function CodeMinifier() {
         {/* Input */}
         <div className="space-y-4">
           <div className="flex justify-between items-center px-1">
-            <label className="text-xs font-black uppercase tracking-widest text-slate-400">Code Original</label>
+            <label htmlFor="minifier-input" className="text-xs font-black uppercase tracking-widest text-slate-400 cursor-pointer">Code Original</label>
             <button
               onClick={() => setInput('')}
               className="text-xs font-bold text-rose-500 hover:text-rose-600 flex items-center gap-1 transition-colors"
@@ -119,6 +134,7 @@ export function CodeMinifier() {
             </button>
           </div>
           <textarea
+            id="minifier-input"
             value={input}
             onChange={(e) => setInput(e.target.value)}
             placeholder={`Collez votre code ${mode.toUpperCase()} ici...`}
@@ -129,20 +145,30 @@ export function CodeMinifier() {
         {/* Output */}
         <div className="space-y-4">
           <div className="flex justify-between items-center px-1">
-            <label className="text-xs font-black uppercase tracking-widest text-slate-400">Version Minifiée</label>
-            <button
-              onClick={handleCopy}
-              disabled={!output}
-              className={`text-xs font-bold px-4 py-1.5 rounded-full transition-all flex items-center gap-2 ${
-                copied ? 'bg-emerald-500 text-white' : 'bg-indigo-600 text-white hover:bg-indigo-700 disabled:opacity-50'
-              }`}
-            >
-              {copied ? <Check className="w-3 h-3" /> : <Copy className="w-3 h-3" />}
-              {copied ? 'Copié !' : 'Copier'}
-            </button>
+            <label htmlFor="minifier-output" className="text-xs font-black uppercase tracking-widest text-slate-400 cursor-pointer">Version Minifiée</label>
+            <div className="flex gap-2">
+              <button
+                onClick={handleDownload}
+                disabled={!output}
+                className="text-xs font-bold px-4 py-1.5 rounded-full text-indigo-600 bg-indigo-50 dark:bg-indigo-500/10 hover:bg-indigo-100 transition-all flex items-center gap-2 disabled:opacity-50"
+              >
+                <Download className="w-3 h-3" /> Télécharger
+              </button>
+              <button
+                onClick={handleCopy}
+                disabled={!output}
+                className={`text-xs font-bold px-4 py-1.5 rounded-full transition-all flex items-center gap-2 ${
+                  copied ? 'bg-emerald-500 text-white' : 'bg-indigo-600 text-white hover:bg-indigo-700 disabled:opacity-50'
+                }`}
+              >
+                {copied ? <Check className="w-3 h-3" /> : <Copy className="w-3 h-3" />}
+                {copied ? 'Copié !' : 'Copier'}
+              </button>
+            </div>
           </div>
           <div className="relative group">
             <textarea
+              id="minifier-output"
               value={output}
               readOnly
               placeholder="Le code minifié apparaîtra ici..."

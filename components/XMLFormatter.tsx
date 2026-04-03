@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Copy, Check, Trash2, FileCode, Wand2, Info, AlertCircle } from 'lucide-react';
+import { Copy, Check, Trash2, FileCode, Wand2, Info, AlertCircle, Download } from 'lucide-react';
 
 export function XMLFormatter() {
   const [xml, setXml] = useState('');
@@ -14,6 +14,8 @@ export function XMLFormatter() {
       .replace(/"/g, "&quot;")
       .replace(/'/g, "&#039;");
   };
+
+  const MAX_DEPTH = 50;
 
   // Improved XML Prettifier using DOMParser
   const prettifyXml = (sourceXml: string) => {
@@ -31,7 +33,12 @@ export function XMLFormatter() {
         return sourceXml;
       }
 
-      const format = (node: Node, level: number): string => {
+      const format = (node: Node, level: number, depth: number): string => {
+        // Sentinel: Implement recursion depth limit to prevent stack overflow DoS.
+        if (depth > MAX_DEPTH) {
+          return '<!-- Max depth reached -->';
+        }
+
         const indent = '  '.repeat(level);
         let result = '';
 
@@ -58,7 +65,7 @@ export function XMLFormatter() {
             }
 
             for (let i = 0; i < element.childNodes.length; i++) {
-              result += format(element.childNodes[i], level + 1);
+              result += format(element.childNodes[i], level + 1, depth + 1);
             }
 
             if (hasChildElements) {
@@ -78,7 +85,7 @@ export function XMLFormatter() {
 
       let result = '';
       for (let i = 0; i < xmlDoc.childNodes.length; i++) {
-        result += format(xmlDoc.childNodes[i], 0);
+        result += format(xmlDoc.childNodes[i], 0, 0);
       }
       return result.trim();
     } catch (e: any) {
@@ -107,6 +114,19 @@ export function XMLFormatter() {
     navigator.clipboard.writeText(xml);
     setCopied(true);
     setTimeout(() => setCopied(false), 2000);
+  };
+
+  const handleDownload = () => {
+    if (!xml) return;
+    const blob = new Blob([xml], { type: 'application/xml' });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    link.href = url;
+    link.download = 'formatted.xml';
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    URL.revokeObjectURL(url);
   };
 
   return (
@@ -145,6 +165,13 @@ export function XMLFormatter() {
               } disabled:opacity-50`}
             >
               {copied ? <Check className="w-3.5 h-3.5" /> : <Copy className="w-3.5 h-3.5" />} {copied ? 'Copié' : 'Copier'}
+            </button>
+            <button
+              onClick={handleDownload}
+              disabled={!xml}
+              className="text-xs font-bold px-4 py-2 rounded-xl text-indigo-600 bg-indigo-50 dark:bg-indigo-500/10 hover:bg-indigo-100 transition-all flex items-center gap-2 disabled:opacity-50"
+            >
+              <Download className="w-3.5 h-3.5" /> Télécharger
             </button>
             <button
               onClick={() => {setXml(''); setError(null);}}

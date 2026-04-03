@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import {
   Copy, Check, Trash2, Search, Replace, CaseSensitive,
-  Type, AlignLeft, Hash, Clock, Sliders
+  Type, AlignLeft, Hash, Clock, Sliders, Download
 } from 'lucide-react';
 
 export function TextFormatter() {
@@ -69,6 +69,19 @@ export function TextFormatter() {
     setTimeout(() => setCopied(false), 2000);
   };
 
+  const handleDownload = () => {
+    if (!text) return;
+    const blob = new Blob([text], { type: 'text/plain' });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    link.href = url;
+    link.download = 'texte_formate.txt';
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    URL.revokeObjectURL(url);
+  };
+
   return (
     <div className="max-w-6xl mx-auto space-y-8">
       {/* Stats Header */}
@@ -92,8 +105,15 @@ export function TextFormatter() {
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
         <div className="lg:col-span-8 space-y-4">
           <div className="flex justify-between items-center px-1">
-            <label className="text-xs font-black uppercase tracking-widest text-slate-400">Votre Texte</label>
+            <label htmlFor="text-input" className="text-xs font-black uppercase tracking-widest text-slate-400 cursor-pointer">Votre Texte</label>
             <div className="flex gap-2">
+              <button
+                onClick={handleDownload}
+                disabled={!text}
+                className="text-xs font-bold px-4 py-2 rounded-xl text-indigo-600 bg-indigo-50 dark:bg-indigo-500/10 hover:bg-indigo-100 transition-all flex items-center gap-2 disabled:opacity-50"
+              >
+                <Download className="w-3.5 h-3.5" /> Télécharger
+              </button>
               <button onClick={handleCopy} className={`text-xs font-bold px-4 py-2 rounded-xl transition-all flex items-center gap-2 ${copied ? 'bg-emerald-500 text-white' : 'text-slate-600 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 hover:border-slate-300'}`}>
                 {copied ? <Check className="w-3.5 h-3.5" /> : <Copy className="w-3.5 h-3.5" />} {copied ? 'Copié' : 'Copier'}
               </button>
@@ -103,6 +123,7 @@ export function TextFormatter() {
             </div>
           </div>
           <textarea
+            id="text-input"
             value={text}
             onChange={(e) => setText(e.target.value)}
             placeholder="Tapez ou collez votre texte ici..."

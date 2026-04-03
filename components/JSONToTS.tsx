@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { FileCode, Copy, Check, Trash2, AlertCircle, Terminal } from 'lucide-react';
+import { FileCode, Copy, Check, Trash2, AlertCircle, Terminal, Download } from 'lucide-react';
 
 export function JSONToTS() {
   const [input, setInput] = useState('');
@@ -65,6 +65,19 @@ export function JSONToTS() {
     setError('');
   };
 
+  const handleDownload = () => {
+    if (!output) return;
+    const blob = new Blob([output], { type: 'text/typescript' });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    link.href = url;
+    link.download = 'interfaces.ts';
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    URL.revokeObjectURL(url);
+  };
+
   return (
     <div className="max-w-6xl mx-auto space-y-8">
       {error && (
@@ -79,7 +92,7 @@ export function JSONToTS() {
           <div className="flex justify-between items-center px-1">
             <div className="flex items-center gap-2">
               <FileCode className="w-4 h-4 text-indigo-500" />
-              <label className="text-xs font-black uppercase tracking-widest text-slate-400">Entrée JSON</label>
+              <label htmlFor="json-input" className="text-xs font-black uppercase tracking-widest text-slate-400 cursor-pointer">Entrée JSON</label>
             </div>
             <button
               onClick={handleClear}
@@ -89,6 +102,7 @@ export function JSONToTS() {
             </button>
           </div>
           <textarea
+            id="json-input"
             value={input}
             onChange={(e) => setInput(e.target.value)}
             placeholder='{"id": 1, "name": "John Doe", "active": true}'
@@ -100,17 +114,27 @@ export function JSONToTS() {
           <div className="flex justify-between items-center px-1">
             <div className="flex items-center gap-2">
               <Terminal className="w-4 h-4 text-emerald-500" />
-              <label className="text-xs font-black uppercase tracking-widest text-slate-400">Interfaces TypeScript</label>
+              <label htmlFor="ts-output" className="text-xs font-black uppercase tracking-widest text-slate-400 cursor-pointer">Interfaces TypeScript</label>
             </div>
-            <button
-              onClick={handleCopy}
-              disabled={!output}
-              className={`text-xs font-bold px-3 py-1 rounded-full transition-all flex items-center gap-1 ${copied ? 'bg-emerald-500 text-white' : 'text-slate-500 bg-slate-100 dark:bg-slate-800 disabled:opacity-50'}`}
-            >
-              {copied ? <Check className="w-3 h-3" /> : <Copy className="w-3 h-3" />} {copied ? 'Copié' : 'Copier'}
-            </button>
+            <div className="flex gap-2">
+              <button
+                onClick={handleDownload}
+                disabled={!output}
+                className="text-xs font-bold px-3 py-1 rounded-full text-indigo-500 bg-indigo-50 dark:bg-indigo-500/10 hover:bg-indigo-100 transition-all flex items-center gap-1 disabled:opacity-50"
+              >
+                <Download className="w-3 h-3" /> Télécharger
+              </button>
+              <button
+                onClick={handleCopy}
+                disabled={!output}
+                className={`text-xs font-bold px-3 py-1 rounded-full transition-all flex items-center gap-1 ${copied ? 'bg-emerald-500 text-white' : 'text-slate-500 bg-slate-100 dark:bg-slate-800 disabled:opacity-50'}`}
+              >
+                {copied ? <Check className="w-3 h-3" /> : <Copy className="w-3 h-3" />} {copied ? 'Copié' : 'Copier'}
+              </button>
+            </div>
           </div>
           <textarea
+            id="ts-output"
             value={output}
             readOnly
             placeholder="Les interfaces TypeScript apparaîtront ici..."

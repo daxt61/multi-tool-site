@@ -62,7 +62,6 @@ import {
   Music,
   Star,
   Check,
-  Clock,
   Table,
   Eye,
   Braces,
@@ -76,6 +75,8 @@ import {
   Binary,
   Volume2,
   Layers,
+  Network,
+  Clock,
 } from "lucide-react";
 const AdPlaceholder = lazy(() => import("./components/AdPlaceholder").then(m => ({ default: m.AdPlaceholder })));
 
@@ -158,6 +159,8 @@ const RomanNumeralConverter = lazy(() => import("./components/RomanNumeralConver
 const XMLFormatter = lazy(() => import("./components/XMLFormatter").then(m => ({ default: m.XMLFormatter })));
 const ColorContrastChecker = lazy(() => import("./components/ColorContrastChecker").then(m => ({ default: m.ColorContrastChecker })));
 const JSONSchemaGenerator = lazy(() => import("./components/JSONSchemaGenerator").then(m => ({ default: m.JSONSchemaGenerator })));
+const SubnetCalculator = lazy(() => import("./components/SubnetCalculator").then(m => ({ default: m.SubnetCalculator })));
+const TimezoneConverter = lazy(() => import("./components/TimezoneConverter").then(m => ({ default: m.TimezoneConverter })));
 
 // ⚡ Bolt Optimization: Pre-calculating tool map and search index for O(1) lookups and faster filtering
 const toolsMap: Record<string, Tool> = {};
@@ -502,6 +505,14 @@ const tools: Tool[] = [
     category: "dev",
   },
   {
+    id: "subnet-calculator",
+    name: "Calculateur IP",
+    icon: Network,
+    description: "Calcul de sous-réseaux IPv4 et CIDR",
+    Component: SubnetCalculator,
+    category: "dev",
+  },
+  {
     id: "jwt-decoder",
     name: "Décodeur JWT",
     icon: ShieldCheck,
@@ -764,6 +775,14 @@ const tools: Tool[] = [
     icon: ImageIcon,
     description: "Optimiser vos images au format WebP",
     Component: ImageToWebP,
+    category: "other",
+  },
+  {
+    id: "timezone-converter",
+    name: "Fuseaux Horaires",
+    icon: Clock,
+    description: "Convertisseur de temps international",
+    Component: TimezoneConverter,
     category: "other",
   },
 ];

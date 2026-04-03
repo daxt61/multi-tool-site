@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Copy, Check, Hash, Binary, Octagon, Hexagon, Info } from 'lucide-react';
+import { Copy, Check, Hash, Binary, Octagon, Hexagon, Info, Trash2 } from 'lucide-react';
 
 const BASE_CONFIGS = [
   { label: 'Décimal (Base 10)', getter: (s: any) => s.decimal, onChange: (v: string, s: any) => s.updateFromDecimal(v), placeholder: '0-9', id: 'dec' },
@@ -27,6 +27,12 @@ export function NumberConverter() {
 
   const updateFromDecimal = (value: string) => {
     setDecimal(value);
+    if (!value) {
+      setBinary('');
+      setOctal('');
+      setHexadecimal('');
+      return;
+    }
     const num = parseInt(value, 10);
     if (!isNaN(num)) {
       setBinary(num.toString(2));
@@ -37,6 +43,12 @@ export function NumberConverter() {
 
   const updateFromBinary = (value: string) => {
     setBinary(value);
+    if (!value) {
+      setDecimal('');
+      setOctal('');
+      setHexadecimal('');
+      return;
+    }
     if (isValidNumber(value, 2)) {
       const num = parseInt(value, 2);
       setDecimal(num.toString(10));
@@ -47,6 +59,12 @@ export function NumberConverter() {
 
   const updateFromOctal = (value: string) => {
     setOctal(value);
+    if (!value) {
+      setDecimal('');
+      setBinary('');
+      setHexadecimal('');
+      return;
+    }
     if (isValidNumber(value, 8)) {
       const num = parseInt(value, 8);
       setDecimal(num.toString(10));
@@ -57,6 +75,12 @@ export function NumberConverter() {
 
   const updateFromHexadecimal = (value: string) => {
     setHexadecimal(value);
+    if (!value) {
+      setDecimal('');
+      setBinary('');
+      setOctal('');
+      return;
+    }
     if (isValidNumber(value, 16)) {
       const num = parseInt(value, 16);
       setDecimal(num.toString(10));
@@ -71,6 +95,13 @@ export function NumberConverter() {
     setTimeout(() => setCopied(null), 2000);
   };
 
+  const handleClear = () => {
+    setDecimal('');
+    setBinary('');
+    setOctal('');
+    setHexadecimal('');
+  };
+
   const getIcon = (id: string) => {
     switch(id) {
       case 'dec': return <Hash className="w-4 h-4" />;
@@ -83,22 +114,34 @@ export function NumberConverter() {
 
   return (
     <div className="max-w-4xl mx-auto space-y-8">
+      <div className="flex justify-end px-1">
+        <button
+          onClick={handleClear}
+          disabled={!decimal && !binary && !octal && !hexadecimal}
+          className="text-xs font-bold text-rose-500 bg-rose-50 dark:bg-rose-500/10 hover:bg-rose-100 dark:hover:bg-rose-500/20 px-3 py-1.5 rounded-xl flex items-center gap-2 transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+        >
+          <Trash2 className="w-3.5 h-3.5" /> Effacer tout
+        </button>
+      </div>
+
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
         {BASE_CONFIGS.map((base) => (
           <div key={base.id} className="bg-slate-50 dark:bg-slate-900/50 p-6 rounded-3xl border border-slate-200 dark:border-slate-800 space-y-4">
             <div className="flex justify-between items-center px-1">
               <div className="flex items-center gap-2">
                 <div className="text-indigo-500">{getIcon(base.id)}</div>
-                <label className="text-xs font-black uppercase tracking-widest text-slate-400">{base.label}</label>
+                <label htmlFor={base.id} className="text-xs font-black uppercase tracking-widest text-slate-400 cursor-pointer">{base.label}</label>
               </div>
               <button
                 onClick={() => copyToClipboard(base.getter({decimal, binary, octal, hexadecimal}), base.id)}
-                className={`p-2 rounded-xl transition-all ${copied === base.id ? 'bg-emerald-500 text-white' : 'text-slate-400 hover:text-indigo-500 bg-white dark:bg-slate-800 shadow-sm border border-slate-100 dark:border-slate-700'}`}
+                className={`p-2 rounded-xl transition-all ${copied === base.id ? 'bg-emerald-50 dark:bg-emerald-500/10 text-emerald-600 dark:text-emerald-400' : 'text-slate-400 hover:text-indigo-500 bg-white dark:bg-slate-800 shadow-sm border border-slate-100 dark:border-slate-700'}`}
+                aria-label={`Copier le résultat en ${base.label}`}
               >
                 {copied === base.id ? <Check className="w-4 h-4" /> : <Copy className="w-4 h-4" />}
               </button>
             </div>
             <input
+              id={base.id}
               type="text"
               value={base.getter({decimal, binary, octal, hexadecimal})}
               onChange={(e) => base.onChange(e.target.value, {updateFromDecimal, updateFromBinary, updateFromOctal, updateFromHexadecimal})}

@@ -161,6 +161,8 @@ const ColorContrastChecker = lazy(() => import("./components/ColorContrastChecke
 const JSONSchemaGenerator = lazy(() => import("./components/JSONSchemaGenerator").then(m => ({ default: m.JSONSchemaGenerator })));
 const SubnetCalculator = lazy(() => import("./components/SubnetCalculator").then(m => ({ default: m.SubnetCalculator })));
 const TimezoneConverter = lazy(() => import("./components/TimezoneConverter").then(m => ({ default: m.TimezoneConverter })));
+const DownloadTimeCalculator = lazy(() => import("./components/DownloadTimeCalculator").then(m => ({ default: m.DownloadTimeCalculator })));
+const FreelanceTaxCalculator = lazy(() => import("./components/FreelanceTaxCalculator").then(m => ({ default: m.FreelanceTaxCalculator })));
 
 // ⚡ Bolt Optimization: Pre-calculating tool map and search index for O(1) lookups and faster filtering
 const toolsMap: Record<string, Tool> = {};
@@ -225,6 +227,14 @@ const tools: Tool[] = [
     icon: LineChart,
     description: "Calcul du retour sur investissement",
     Component: ROICalculator,
+    category: "business",
+  },
+  {
+    id: "freelance-tax",
+    name: "Cotisations Freelance",
+    icon: PiggyBank,
+    description: "Simulation de cotisations auto-entrepreneur",
+    Component: FreelanceTaxCalculator,
     category: "business",
   },
   // Budget & Finance Tools
@@ -783,6 +793,14 @@ const tools: Tool[] = [
     icon: Clock,
     description: "Convertisseur de temps international",
     Component: TimezoneConverter,
+    category: "other",
+  },
+  {
+    id: "download-time",
+    name: "Temps de téléchargement",
+    icon: Clock,
+    description: "Estimer le temps de transfert de fichiers",
+    Component: DownloadTimeCalculator,
     category: "other",
   },
 ];

@@ -40,6 +40,18 @@ export function TextFormatter() {
     { name: 'Supprimer Espaces', action: (t: string) => t.replace(/\s+/g, '') },
     { name: 'Nettoyer Espaces', action: (t: string) => t.replace(/\s+/g, ' ').trim() },
     { name: 'Inverser', action: (t: string) => t.split('').reverse().join('') },
+    {
+      name: 'Supprimer les accents',
+      action: (t: string) => t.normalize("NFD").replace(/[\u0300-\u036f]/g, "")
+    },
+    {
+      name: 'Supprimer lignes vides',
+      action: (t: string) => t.split('\n').filter(line => line.trim() !== '').join('\n')
+    },
+    {
+      name: 'Tronquer les espaces',
+      action: (t: string) => t.split('\n').map(line => line.trim()).join('\n')
+    },
     { name: 'Trier les lignes', action: (t: string) => t.split('\n').sort((a, b) => a.localeCompare(b, 'fr')).join('\n') },
     { name: 'Supprimer lignes doubles', action: (t: string) => Array.from(new Set(t.split('\n'))).join('\n') },
     {

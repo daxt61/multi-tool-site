@@ -41,3 +41,7 @@
 ## 2025-05-28 - [Multi-Input Converter UX & State Syncing]
 **Learning:** For multi-input converters (like base conversion), users expect all fields to stay perfectly synchronized, including clearing all outputs when a source input is emptied. Adding a global "Clear All" (Effacer tout) button provides a high-value escape hatch for resetting complex states. Standardizing the "Copy" success state to a subtle emerald background (instead of solid) maintains visual hierarchy while providing clear feedback.
 **Action:** Implement "Clear All" and state synchronization for any tool with interdependent inputs.
+
+## 2025-05-29 - [Bento Standardized Reset & Global A11y]
+**Learning:** In a multi-panel tool layout, placing a global "Effacer tout" (Clear all) button at the top-right of the main container provides a clear and expected reset mechanism that reduces cognitive load. Additionally, ensuring that all interactive elements (like textareas) have explicit `id` and `label` associations is a critical baseline for accessibility that often gets overlooked in "fast" development.
+**Action:** Always prioritize a global reset button for multi-input tools and audit for missing input-label associations to ensure baseline a11y.

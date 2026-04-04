@@ -46,6 +46,18 @@ export function BinaryTextConverter() {
 
   return (
     <div className="max-w-6xl mx-auto space-y-8">
+      <div className="flex justify-end px-1">
+        <button
+          onClick={() => {
+            setText('');
+            setBinary('');
+          }}
+          disabled={!text && !binary}
+          className="text-xs font-bold text-rose-500 bg-rose-50 dark:bg-rose-500/10 hover:bg-rose-100 dark:hover:bg-rose-500/20 px-3 py-1.5 rounded-xl flex items-center gap-2 transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+        >
+          <Trash2 className="w-3.5 h-3.5" /> Effacer tout
+        </button>
+      </div>
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 relative">
         <div className="hidden lg:flex absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 z-10">
           <div className="bg-white dark:bg-slate-800 p-3 rounded-full shadow-xl border border-slate-200 dark:border-slate-700 text-indigo-600">
@@ -58,30 +70,25 @@ export function BinaryTextConverter() {
           <div className="flex justify-between items-center px-1">
             <div className="flex items-center gap-2">
               <Type className="w-4 h-4 text-indigo-500" />
-              <label className="text-xs font-black uppercase tracking-widest text-slate-400">Texte Clair</label>
+              <label htmlFor="text-input" className="text-xs font-black uppercase tracking-widest text-slate-400">Texte Clair</label>
             </div>
             <div className="flex gap-2">
               <button
                 onClick={() => copyToClipboard(text, 'text')}
+                disabled={!text}
                 className={`text-xs font-bold px-3 py-1 rounded-full transition-all flex items-center gap-1 ${
-                  copied === 'text' ? 'bg-emerald-500 text-white' : 'text-slate-500 bg-slate-100 dark:bg-slate-800'
-                }`}
+                  copied === 'text'
+                    ? 'bg-emerald-50 dark:bg-emerald-500/10 text-emerald-600 dark:text-emerald-400'
+                    : 'text-slate-500 bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700'
+                } disabled:opacity-50 disabled:cursor-not-allowed`}
               >
                 {copied === 'text' ? <Check className="w-3 h-3" /> : <Copy className="w-3 h-3" />}{' '}
                 {copied === 'text' ? 'Copié' : 'Copier'}
               </button>
-              <button
-                onClick={() => {
-                  setText('');
-                  setBinary('');
-                }}
-                className="text-xs font-bold px-3 py-1 rounded-full text-rose-500 bg-rose-50 dark:bg-rose-500/10 hover:bg-rose-100 transition-all flex items-center gap-1"
-              >
-                <Trash2 className="w-3 h-3" />
-              </button>
             </div>
           </div>
           <textarea
+            id="text-input"
             value={text}
             onChange={(e) => handleTextChange(e.target.value)}
             placeholder="Entrez votre texte ici..."
@@ -94,14 +101,17 @@ export function BinaryTextConverter() {
           <div className="flex justify-between items-center px-1">
             <div className="flex items-center gap-2">
               <Binary className="w-4 h-4 text-indigo-500" />
-              <label className="text-xs font-black uppercase tracking-widest text-slate-400">Binaire</label>
+              <label htmlFor="binary-input" className="text-xs font-black uppercase tracking-widest text-slate-400">Binaire</label>
             </div>
             <div className="flex gap-2">
               <button
                 onClick={() => copyToClipboard(binary, 'binary')}
+                disabled={!binary}
                 className={`text-xs font-bold px-3 py-1 rounded-full transition-all flex items-center gap-1 ${
-                  copied === 'binary' ? 'bg-emerald-500 text-white' : 'text-slate-500 bg-slate-100 dark:bg-slate-800'
-                }`}
+                  copied === 'binary'
+                    ? 'bg-emerald-50 dark:bg-emerald-500/10 text-emerald-600 dark:text-emerald-400'
+                    : 'text-slate-500 bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700'
+                } disabled:opacity-50 disabled:cursor-not-allowed`}
               >
                 {copied === 'binary' ? <Check className="w-3 h-3" /> : <Copy className="w-3 h-3" />}{' '}
                 {copied === 'binary' ? 'Copié' : 'Copier'}
@@ -109,6 +119,7 @@ export function BinaryTextConverter() {
             </div>
           </div>
           <textarea
+            id="binary-input"
             value={binary}
             onChange={(e) => handleBinaryChange(e.target.value)}
             placeholder="Le résultat binaire apparaîtra ici..."

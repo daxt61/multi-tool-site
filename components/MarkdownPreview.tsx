@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Eye, Code, Trash2, Copy, Check } from 'lucide-react';
+import { Eye, Code, Trash2, Copy, Check, FileDown } from 'lucide-react';
 import { AdPlaceholder } from './AdPlaceholder';
 
 export function MarkdownPreview() {
@@ -21,6 +21,19 @@ export function MarkdownPreview() {
     navigator.clipboard.writeText(markdown);
     setCopied(true);
     setTimeout(() => setCopied(false), 2000);
+  };
+
+  const handleDownload = () => {
+    if (!markdown) return;
+    const blob = new Blob([markdown], { type: 'text/markdown' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `document-${Date.now()}.md`;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
   };
 
   const renderMarkdown = (text: string) => {
@@ -137,6 +150,13 @@ export function MarkdownPreview() {
           >
             {copied ? <Check className="w-4 h-4" /> : <Copy className="w-4 h-4" />}
             {copied ? 'Copié' : 'Copier'}
+          </button>
+          <button
+            onClick={handleDownload}
+            disabled={!markdown}
+            className="flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-bold bg-indigo-50 dark:bg-indigo-500/10 text-indigo-600 hover:bg-indigo-100 dark:hover:bg-indigo-500/20 transition-all disabled:opacity-50"
+          >
+            <FileDown className="w-4 h-4" /> Télécharger
           </button>
           <button
             onClick={() => setMarkdown('')}

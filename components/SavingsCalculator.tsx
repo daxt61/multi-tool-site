@@ -1,5 +1,5 @@
 import { useState, useMemo } from "react";
-import { PiggyBank, TrendingUp, Wallet, RotateCcw, Coins, Calendar, Percent, Info, Banknote } from "lucide-react";
+import { PiggyBank, TrendingUp, Wallet, RotateCcw, Coins, Calendar, Percent, Info, Banknote, Trash2 } from "lucide-react";
 
 export function SavingsCalculator() {
   const [initialAmount, setInitialAmount] = useState<string>("");
@@ -53,9 +53,10 @@ export function SavingsCalculator() {
             </label>
             <button
               onClick={handleClear}
-              className="text-xs font-bold text-indigo-500 hover:text-indigo-600 flex items-center gap-1 transition-colors"
+              disabled={!initialAmount && !monthlyDeposit && !annualRate && !years}
+              className="text-xs font-bold text-rose-500 bg-rose-50 dark:bg-rose-500/10 hover:bg-rose-100 dark:hover:bg-rose-500/20 px-3 py-1.5 rounded-xl flex items-center gap-1 transition-all disabled:opacity-50 disabled:cursor-not-allowed"
             >
-              <RotateCcw className="w-3 h-3" /> Effacer
+              <Trash2 className="w-3 h-3" /> Effacer
             </button>
           </div>
           <div className="relative">

@@ -1,5 +1,5 @@
 import { useState, useMemo } from "react";
-import { Calculator, Info, Percent, Landmark, Clock, RotateCcw, Table, HelpCircle, BookOpen, ChevronRight } from "lucide-react";
+import { Calculator, Info, Percent, Landmark, Clock, RotateCcw, Table, HelpCircle, BookOpen, ChevronRight, Trash2 } from "lucide-react";
 
 export function LoanCalculator() {
   const [principal, setPrincipal] = useState<string>("10000");
@@ -74,9 +74,10 @@ export function LoanCalculator() {
             </label>
             <button
               onClick={handleClear}
-              className="text-xs font-bold text-indigo-500 hover:text-indigo-600 flex items-center gap-1 transition-colors"
+              disabled={!principal && !annualRate && !years}
+              className="text-xs font-bold text-rose-500 bg-rose-50 dark:bg-rose-500/10 hover:bg-rose-100 dark:hover:bg-rose-500/20 px-3 py-1.5 rounded-xl flex items-center gap-1 transition-all disabled:opacity-50 disabled:cursor-not-allowed"
             >
-              <RotateCcw className="w-3 h-3" /> Effacer
+              <Trash2 className="w-3 h-3" /> Effacer
             </button>
           </div>
           <div className="relative">

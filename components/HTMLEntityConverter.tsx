@@ -1,27 +1,54 @@
 import { useState } from 'react';
-import { Code, Copy, Check, Trash2, ArrowRightLeft, Type, Info } from 'lucide-react';
+import { Code, Copy, Check, Trash2, ArrowRightLeft, Type, Info, AlertCircle } from 'lucide-react';
 
 export function HTMLEntityConverter() {
   const [text, setText] = useState('');
   const [entities, setEntities] = useState('');
+  const [error, setError] = useState<string | null>(null);
   const [copied, setCopied] = useState<'text' | 'entities' | null>(null);
 
+  const MAX_LENGTH = 100000;
+
   const encode = (str: string) => {
-    return str.replace(/[\u00A0-\u9999<>&]/g, (i) => `&#${i.charCodeAt(0)};`);
+    // Sentinel: Enhanced encode to also escape quotes for safer usage in attributes.
+    return str.replace(/[\u00A0-\u9999<>&"']/g, (i) => `&#${i.charCodeAt(0)};`);
   };
 
   const decode = (str: string) => {
-    const parser = new DOMParser();
-    const dom = parser.parseFromString(`<!doctype html><body>${str}`, 'text/html');
-    return dom.body.textContent || '';
+    // Sentinel: Safely decode entities by using a detached textarea element.
+    // This avoids destruction of raw HTML tags while preventing injection
+    // attacks like </textarea> by avoiding string interpolation.
+    try {
+      const parser = new DOMParser();
+      const doc = parser.parseFromString('<!doctype html><body></body>', 'text/html');
+      const textarea = doc.createElement('textarea');
+      textarea.innerHTML = str;
+      return textarea.value || textarea.textContent || '';
+    } catch (e) {
+      return '';
+    }
   };
 
   const handleTextChange = (val: string) => {
+    if (val.length > MAX_LENGTH) {
+      setError(`L'entrée est trop longue. Limite de ${MAX_LENGTH.toLocaleString()} caractères.`);
+      setText(val);
+      setEntities('');
+      return;
+    }
+    setError(null);
     setText(val);
     setEntities(encode(val));
   };
 
   const handleEntitiesChange = (val: string) => {
+    if (val.length > MAX_LENGTH) {
+      setError(`L'entrée est trop longue. Limite de ${MAX_LENGTH.toLocaleString()} caractères.`);
+      setEntities(val);
+      setText('');
+      return;
+    }
+    setError(null);
     setEntities(val);
     setText(decode(val));
   };
@@ -35,6 +62,13 @@ export function HTMLEntityConverter() {
 
   return (
     <div className="max-w-6xl mx-auto space-y-8">
+      {error && (
+        <div className="bg-rose-50 dark:bg-rose-500/10 border border-rose-200 dark:border-rose-800 p-4 rounded-2xl flex items-center gap-3 text-rose-600 dark:text-rose-400 font-bold animate-in fade-in slide-in-from-top-2">
+          <AlertCircle className="w-5 h-5" />
+          {error}
+        </div>
+      )}
+
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 relative">
         <div className="hidden lg:flex absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 z-10">
           <div className="bg-white dark:bg-slate-800 p-3 rounded-full shadow-xl border border-slate-200 dark:border-slate-700 text-indigo-600">

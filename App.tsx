@@ -58,7 +58,6 @@ import {
   ArrowLeftRight,
   X,
   Sun,
-  Moon,
   Music,
   Star,
   Check,
@@ -69,6 +68,8 @@ import {
   LayoutGrid,
   ArrowRight, Loader2,
   Sparkles,
+  Moon,
+  Droplets,
   ListChecks,
   ShieldCheck,
   Scissors,
@@ -163,6 +164,8 @@ const SubnetCalculator = lazy(() => import("./components/SubnetCalculator").then
 const TimezoneConverter = lazy(() => import("./components/TimezoneConverter").then(m => ({ default: m.TimezoneConverter })));
 const DownloadTimeCalculator = lazy(() => import("./components/DownloadTimeCalculator").then(m => ({ default: m.DownloadTimeCalculator })));
 const FreelanceTaxCalculator = lazy(() => import("./components/FreelanceTaxCalculator").then(m => ({ default: m.FreelanceTaxCalculator })));
+const SleepCalculator = lazy(() => import("./components/SleepCalculator").then(m => ({ default: m.SleepCalculator })));
+const WaterCalculator = lazy(() => import("./components/WaterCalculator").then(m => ({ default: m.WaterCalculator })));
 
 // ⚡ Bolt Optimization: Pre-calculating tool map and search index for O(1) lookups and faster filtering
 const toolsMap: Record<string, Tool> = {};
@@ -349,6 +352,22 @@ const tools: Tool[] = [
     icon: Calendar,
     description: "Calculer votre âge exact et prochain anniversaire",
     Component: AgeCalculator,
+    category: "calculators",
+  },
+  {
+    id: "sleep-calculator",
+    name: "Sommeil",
+    icon: Moon,
+    description: "Calculer les cycles de sommeil et réveils idéaux",
+    Component: SleepCalculator,
+    category: "calculators",
+  },
+  {
+    id: "water-calculator",
+    name: "Besoins en Eau",
+    icon: Droplets,
+    description: "Estimer vos besoins en hydratation quotidienne",
+    Component: WaterCalculator,
     category: "calculators",
   },
   // Converters

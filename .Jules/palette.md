@@ -49,3 +49,7 @@
 ## 2026-04-05 - [Formatted Output Copy & Semantic Labels]
 **Learning:** For calculation tools with multi-part results (like age in years, months, days), providing a "Copy" utility that formats the raw data into a natural language sentence (e.g., using "et" for the last item) significantly reduces user effort for sharing. Additionally, transforming generic headers into semantic `<label>` elements with `cursor-pointer` and `htmlFor` associations is a low-effort, high-impact accessibility win that improves both screen reader support and hit area for all users.
 **Action:** Implement natural language formatting for multi-part copies and prioritize semantic label associations for all primary inputs.
+
+## 2026-04-05 - [Section-wise Reset & Download Utilities]
+**Learning:** For complex calculators with multiple distinct sections (like percentage variations), adding localized "Effacer" buttons to each section provides a more granular and efficient UX than a single global reset. Furthermore, adding a "Télécharger" utility to conversion tools allows users to persist their work as a physical file (.txt), which is a high-value utility that transforms the site from a simple viewer into a productivity workbench.
+**Action:** Prioritize section-wise reset buttons for complex calculators and implement download utilities for conversion-heavy tools.

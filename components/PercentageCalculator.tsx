@@ -56,9 +56,18 @@ export function PercentageCalculator() {
         {/* Section 1: X% de Y */}
         <div className="bg-slate-50 dark:bg-slate-900/50 p-8 rounded-[2.5rem] border border-slate-200 dark:border-slate-800 flex flex-col justify-between space-y-6">
           <div className="space-y-4">
-            <div className="flex items-center gap-2 text-indigo-500">
-              <Percent className="w-4 h-4" />
-              <label htmlFor="percent-val" className="text-xs font-black uppercase tracking-widest text-slate-400 cursor-pointer">Combien font X% de Y ?</label>
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-2 text-indigo-500">
+                <Percent className="w-4 h-4" />
+                <label htmlFor="percent-val" className="text-xs font-black uppercase tracking-widest text-slate-400 cursor-pointer">Combien font X% de Y ?</label>
+              </div>
+              <button
+                onClick={() => { setValue2(''); setValue1(''); }}
+                disabled={!value2 && !value1}
+                className="text-[10px] font-bold text-rose-500 bg-rose-50 dark:bg-rose-500/10 hover:bg-rose-100 dark:hover:bg-rose-500/20 px-2 py-0.5 rounded-lg transition-all disabled:opacity-0"
+              >
+                Effacer
+              </button>
             </div>
             <div className="flex items-center gap-3">
               <input
@@ -105,9 +114,18 @@ export function PercentageCalculator() {
         {/* Section 2: X représente quel % de Y */}
         <div className="bg-slate-50 dark:bg-slate-900/50 p-8 rounded-[2.5rem] border border-slate-200 dark:border-slate-800 flex flex-col justify-between space-y-6">
           <div className="space-y-4">
-             <div className="flex items-center gap-2 text-indigo-500">
-              <ArrowRight className="w-4 h-4" />
-              <label htmlFor="part-val" className="text-xs font-black uppercase tracking-widest text-slate-400 cursor-pointer">X représente quel % de Y ?</label>
+             <div className="flex items-center justify-between">
+              <div className="flex items-center gap-2 text-indigo-500">
+                <ArrowRight className="w-4 h-4" />
+                <label htmlFor="part-val" className="text-xs font-black uppercase tracking-widest text-slate-400 cursor-pointer">X représente quel % de Y ?</label>
+              </div>
+              <button
+                onClick={() => { setValue3(''); setValue4(''); }}
+                disabled={!value3 && !value4}
+                className="text-[10px] font-bold text-rose-500 bg-rose-50 dark:bg-rose-500/10 hover:bg-rose-100 dark:hover:bg-rose-500/20 px-2 py-0.5 rounded-lg transition-all disabled:opacity-0"
+              >
+                Effacer
+              </button>
             </div>
             <div className="flex items-center gap-3">
               <input
@@ -154,9 +172,18 @@ export function PercentageCalculator() {
 
       {/* Section 3: Variation en % */}
       <div className="bg-slate-50 dark:bg-slate-900/50 p-8 rounded-[2.5rem] border border-slate-200 dark:border-slate-800 space-y-8">
-        <div className="flex items-center gap-2 text-indigo-500">
-          <TrendingUp className="w-4 h-4" />
-          <label htmlFor="initial-val" className="text-xs font-black uppercase tracking-widest text-slate-400 cursor-pointer">Variation en % (Augmentation/Diminution)</label>
+        <div className="flex items-center justify-between">
+          <div className="flex items-center gap-2 text-indigo-500">
+            <TrendingUp className="w-4 h-4" />
+            <label htmlFor="initial-val" className="text-xs font-black uppercase tracking-widest text-slate-400 cursor-pointer">Variation en % (Augmentation/Diminution)</label>
+          </div>
+          <button
+            onClick={() => { setInitialVal(''); setFinalVal(''); }}
+            disabled={!initialVal && !finalVal}
+            className="text-[10px] font-bold text-rose-500 bg-rose-50 dark:bg-rose-500/10 hover:bg-rose-100 dark:hover:bg-rose-500/20 px-2 py-0.5 rounded-lg transition-all disabled:opacity-0"
+          >
+            Effacer
+          </button>
         </div>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           <div className="space-y-3">
@@ -203,9 +230,18 @@ export function PercentageCalculator() {
 
       {/* Section 4: Résultat après % de changement */}
       <div className="bg-slate-50 dark:bg-slate-900/50 p-8 rounded-[2.5rem] border border-slate-200 dark:border-slate-800 space-y-8">
-        <div className="flex items-center gap-2 text-indigo-500">
-          <Info className="w-4 h-4" />
-          <label htmlFor="base-val-after" className="text-xs font-black uppercase tracking-widest text-slate-400 cursor-pointer">Calculer une valeur après changement</label>
+        <div className="flex items-center justify-between">
+          <div className="flex items-center gap-2 text-indigo-500">
+            <Info className="w-4 h-4" />
+            <label htmlFor="base-val-after" className="text-xs font-black uppercase tracking-widest text-slate-400 cursor-pointer">Calculer une valeur après changement</label>
+          </div>
+          <button
+            onClick={() => { setValAfter(''); setPercentAfter(''); }}
+            disabled={!valAfter && !percentAfter}
+            className="text-[10px] font-bold text-rose-500 bg-rose-50 dark:bg-rose-500/10 hover:bg-rose-100 dark:hover:bg-rose-500/20 px-2 py-0.5 rounded-lg transition-all disabled:opacity-0"
+          >
+            Effacer
+          </button>
         </div>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           <div className="space-y-3">

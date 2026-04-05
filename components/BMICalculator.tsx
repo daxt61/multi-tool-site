@@ -149,7 +149,7 @@ export function BMICalculator() {
                </div>
                <button
                   onClick={handleCopyIdeal}
-                  className={`p-2 rounded-xl transition-all ${copiedIdeal ? 'bg-emerald-500 text-white' : 'bg-white dark:bg-slate-800 text-slate-400 hover:text-indigo-500 opacity-0 group-hover/ideal:opacity-100'}`}
+                  className={`p-2 rounded-xl transition-all ${copiedIdeal ? 'bg-emerald-50 dark:bg-emerald-500/10 text-emerald-600 dark:text-emerald-400' : 'bg-white dark:bg-slate-800 text-slate-400 hover:text-indigo-500 opacity-0 group-hover/ideal:opacity-100'}`}
                   aria-label="Copier le poids idéal"
                 >
                   {copiedIdeal ? <Check className="w-4 h-4" /> : <Copy className="w-4 h-4" />}
@@ -165,7 +165,7 @@ export function BMICalculator() {
             <button
               onClick={handleCopy}
               disabled={bmi === 0}
-              className={`absolute top-6 right-6 p-3 rounded-2xl transition-all ${copied ? 'bg-emerald-500 text-white' : 'bg-white/10 text-white/40 hover:text-white hover:bg-white/20 md:opacity-0 md:group-hover:opacity-100'} disabled:opacity-0`}
+              className={`absolute top-6 right-6 p-3 rounded-2xl transition-all ${copied ? 'bg-emerald-50 dark:bg-emerald-500/10 text-emerald-600 dark:text-emerald-400' : 'bg-white/10 text-white/40 hover:text-white hover:bg-white/20 md:opacity-0 md:group-hover:opacity-100'} disabled:opacity-0`}
               title="Copier le résultat"
             >
               {copied ? <Check className="w-5 h-5" /> : <Copy className="w-5 h-5" />}

@@ -235,7 +235,7 @@ export function BMRCalculator() {
                         onClick={() => handleCopy(results.bmr, 'bmr')}
                         className={`p-1.5 rounded-lg transition-all ${
                           copied === 'bmr'
-                            ? 'bg-emerald-500 text-white'
+                            ? 'bg-emerald-50 dark:bg-emerald-500/10 text-emerald-600 dark:text-emerald-400'
                             : 'text-slate-400 hover:text-indigo-500 hover:bg-indigo-50 dark:hover:bg-indigo-500/10 opacity-0 group-hover/bmr:opacity-100'
                         }`}
                       >
@@ -253,7 +253,7 @@ export function BMRCalculator() {
                         onClick={() => handleCopy(results.lose, 'lose')}
                         className={`p-1.5 rounded-lg transition-all ${
                           copied === 'lose'
-                            ? 'bg-emerald-500 text-white'
+                            ? 'bg-emerald-50 dark:bg-emerald-500/10 text-emerald-600 dark:text-emerald-400'
                             : 'text-rose-400 hover:text-rose-600 hover:bg-rose-50 dark:hover:bg-rose-500/10 opacity-0 group-hover/lose:opacity-100'
                         }`}
                       >
@@ -271,7 +271,7 @@ export function BMRCalculator() {
                         onClick={() => handleCopy(results.gain, 'gain')}
                         className={`p-1.5 rounded-lg transition-all ${
                           copied === 'gain'
-                            ? 'bg-emerald-500 text-white'
+                            ? 'bg-emerald-50 dark:bg-emerald-500/10 text-emerald-600 dark:text-emerald-400'
                             : 'text-emerald-400 hover:text-emerald-600 hover:bg-emerald-50 dark:hover:bg-emerald-500/10 opacity-0 group-hover/gain:opacity-100'
                         }`}
                       >

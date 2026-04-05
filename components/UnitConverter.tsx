@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Copy, Check, Trash2, ArrowUpDown, Info, Ruler } from 'lucide-react';
+import { Copy, Check, Trash2, ArrowUpDown, Info, Ruler, Download } from 'lucide-react';
 
 type ConversionCategory = 'length' | 'weight' | 'temperature' | 'area' | 'volume' | 'digital' | 'pressure' | 'energy' | 'speed' | 'time' | 'power' | 'frequency' | 'consumption' | 'angle' | 'torque' | 'datarate';
 
@@ -170,6 +170,18 @@ export function UnitConverter() {
   const [toValue, setToValue] = useState(0.001);
   const [copied, setCopied] = useState(false);
 
+  const handleDownload = () => {
+    if (!fromValue) return;
+    const content = `${fromValue} ${CONVERSIONS[category][fromUnit].name} = ${formatter.format(toValue)} ${CONVERSIONS[category][toUnit].name}`;
+    const blob = new Blob([content], { type: 'text/plain' });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    link.href = url;
+    link.download = `conversion-${category}.txt`;
+    link.click();
+    URL.revokeObjectURL(url);
+  };
+
   const handleCategoryChange = (newCategory: ConversionCategory) => {
     setCategory(newCategory);
     const units = Object.keys(CONVERSIONS[newCategory]);
@@ -278,14 +290,23 @@ export function UnitConverter() {
         <div className="space-y-4">
           <div className="flex justify-between items-center px-1">
             <label htmlFor="toUnit" className="text-xs font-black uppercase tracking-widest text-slate-400 cursor-pointer">Vers</label>
-            <button
-              onClick={handleCopy}
-              disabled={!toValue}
-              className={`text-xs font-bold flex items-center gap-1 px-2 py-1 rounded-lg transition-all ${copied ? 'bg-emerald-50 dark:bg-emerald-500/10 text-emerald-600 dark:text-emerald-400' : 'text-indigo-500 bg-indigo-50 dark:bg-indigo-500/10 hover:bg-indigo-100'} disabled:opacity-50 disabled:cursor-not-allowed`}
-            >
-              {copied ? <Check className="w-3 h-3" /> : <Copy className="w-3 h-3" />}
-              {copied ? 'Copié' : 'Copier'}
-            </button>
+            <div className="flex gap-2">
+              <button
+                onClick={handleDownload}
+                disabled={!fromValue}
+                className="text-xs font-bold text-indigo-500 bg-indigo-50 dark:bg-indigo-500/10 hover:bg-indigo-100 px-2 py-1 rounded-lg flex items-center gap-1 transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+              >
+                <Download className="w-3 h-3" /> Télécharger
+              </button>
+              <button
+                onClick={handleCopy}
+                disabled={!fromValue}
+                className={`text-xs font-bold flex items-center gap-1 px-2 py-1 rounded-lg transition-all ${copied ? 'bg-emerald-50 dark:bg-emerald-500/10 text-emerald-600 dark:text-emerald-400' : 'text-indigo-500 bg-indigo-50 dark:bg-indigo-500/10 hover:bg-indigo-100'} disabled:opacity-50 disabled:cursor-not-allowed`}
+              >
+                {copied ? <Check className="w-3 h-3" /> : <Copy className="w-3 h-3" />}
+                {copied ? 'Copié' : 'Copier'}
+              </button>
+            </div>
           </div>
           <div className="flex flex-col gap-3 p-6 bg-slate-50 dark:bg-slate-900/50 rounded-3xl border border-slate-200 dark:border-slate-800 transition-all">
             <div className="bg-transparent text-4xl font-black font-mono outline-none text-indigo-600 dark:text-indigo-400 truncate" aria-live="polite">

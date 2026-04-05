@@ -29,12 +29,20 @@ export function BinaryTextConverter() {
 
   const handleTextChange = (value: string) => {
     setText(value);
-    setBinary(textToBinary(value));
+    if (!value) {
+      setBinary('');
+    } else {
+      setBinary(textToBinary(value));
+    }
   };
 
   const handleBinaryChange = (value: string) => {
     setBinary(value);
-    setText(binaryToText(value));
+    if (!value) {
+      setText('');
+    } else {
+      setText(binaryToText(value));
+    }
   };
 
   const copyToClipboard = (val: string, type: 'text' | 'binary') => {

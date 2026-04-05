@@ -45,3 +45,7 @@
 ## 2025-05-29 - [Bento Standardized Reset & Global A11y]
 **Learning:** In a multi-panel tool layout, placing a global "Effacer tout" (Clear all) button at the top-right of the main container provides a clear and expected reset mechanism that reduces cognitive load. Additionally, ensuring that all interactive elements (like textareas) have explicit `id` and `label` associations is a critical baseline for accessibility that often gets overlooked in "fast" development.
 **Action:** Always prioritize a global reset button for multi-input tools and audit for missing input-label associations to ensure baseline a11y.
+
+## 2026-04-05 - [Formatted Output Copy & Semantic Labels]
+**Learning:** For calculation tools with multi-part results (like age in years, months, days), providing a "Copy" utility that formats the raw data into a natural language sentence (e.g., using "et" for the last item) significantly reduces user effort for sharing. Additionally, transforming generic headers into semantic `<label>` elements with `cursor-pointer` and `htmlFor` associations is a low-effort, high-impact accessibility win that improves both screen reader support and hit area for all users.
+**Action:** Implement natural language formatting for multi-part copies and prioritize semantic label associations for all primary inputs.

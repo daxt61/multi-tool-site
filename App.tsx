@@ -854,7 +854,7 @@ const ToolCard = React.memo(({ tool, isFavorite, onToggleFavorite, onClick }: {
         </div>
         <button
           onClick={(e) => onToggleFavorite(e, tool.id)}
-          className={`p-1.5 rounded-lg transition-colors ${isFavorite ? 'text-amber-500' : 'text-slate-300 hover:text-slate-400'}`}
+          className={`p-1.5 rounded-lg transition-colors focus-visible:ring-2 focus-visible:ring-indigo-500 focus-visible:outline-none ${isFavorite ? 'text-amber-500' : 'text-slate-300 hover:text-slate-400'}`}
           aria-label={isFavorite ? "Retirer des favoris" : "Ajouter aux favoris"}
         >
           <Star className={`w-5 h-5 ${isFavorite ? 'fill-current' : ''}`} />
@@ -1113,7 +1113,7 @@ function MainApp() {
                       </kbd>
                     </div>
                   )}
-                  {searchQuery && <button onClick={() => setSearchQuery("")} className="absolute inset-y-0 right-4 flex items-center text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 transition-colors" aria-label="Effacer"><X className="h-5 w-5" /></button>}
+                  {searchQuery && <button onClick={() => setSearchQuery("")} className="absolute inset-y-0 right-4 flex items-center text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 transition-colors focus-visible:ring-2 focus-visible:ring-indigo-500 focus-visible:outline-none rounded-lg" aria-label="Effacer"><X className="h-5 w-5" /></button>}
                 </div>
               </div>
 
@@ -1242,7 +1242,7 @@ function ToolView({ favorites, toggleFavorite }: { favorites: string[], toggleFa
     return (
       <div className="text-center py-20">
         <h2 className="text-2xl font-bold mb-4">Outil non trouvé</h2>
-        <Link to="/" className="text-indigo-600 font-bold hover:underline">Retour au tableau de bord</Link>
+        <Link to="/" className="text-indigo-600 font-bold hover:underline focus-visible:ring-2 focus-visible:ring-indigo-500 focus-visible:outline-none rounded-lg">Retour au tableau de bord</Link>
       </div>
     );
   }
@@ -1251,7 +1251,7 @@ function ToolView({ favorites, toggleFavorite }: { favorites: string[], toggleFa
     <div className="animate-in fade-in slide-in-from-bottom-4 duration-500">
       <Link
         to="/"
-        className="mb-8 inline-flex items-center gap-2 text-sm font-semibold text-slate-500 hover:text-slate-900 dark:text-slate-400 dark:hover:text-white transition-colors group"
+        className="mb-8 inline-flex items-center gap-2 text-sm font-semibold text-slate-500 hover:text-slate-900 dark:text-slate-400 dark:hover:text-white transition-colors group focus-visible:ring-2 focus-visible:ring-indigo-500 focus-visible:outline-none rounded-lg"
       >
         <ArrowLeft className="w-4 h-4 group-hover:-translate-x-1 transition-transform" />
         Retour au tableau de bord
@@ -1271,9 +1271,9 @@ function ToolView({ favorites, toggleFavorite }: { favorites: string[], toggleFa
           <div className="flex items-center gap-3">
             <button
               onClick={handleCopyLink}
-              className={`flex items-center gap-2 px-6 py-3 rounded-2xl font-bold transition-all border ${
+              className={`flex items-center gap-2 px-6 py-3 rounded-2xl font-bold transition-all border focus-visible:ring-2 focus-visible:ring-indigo-500 focus-visible:outline-none ${
                 linkCopied
-                  ? "bg-emerald-50 text-emerald-600 border-emerald-200"
+                  ? "bg-emerald-50 dark:bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border-emerald-200 dark:border-emerald-500/20"
                   : "bg-slate-50 text-slate-500 border-slate-200 dark:bg-slate-900 dark:border-slate-800 hover:border-slate-300 dark:hover:border-slate-700"
               }`}
             >
@@ -1283,9 +1283,9 @@ function ToolView({ favorites, toggleFavorite }: { favorites: string[], toggleFa
             <button
               onClick={(e) => toggleFavorite(e, currentTool.id)}
               aria-pressed={favorites.includes(currentTool.id)}
-              className={`flex items-center gap-2 px-6 py-3 rounded-2xl font-bold transition-all border ${
+              className={`flex items-center gap-2 px-6 py-3 rounded-2xl font-bold transition-all border focus-visible:ring-2 focus-visible:ring-indigo-500 focus-visible:outline-none ${
                 favorites.includes(currentTool.id)
-                  ? "bg-amber-50 text-amber-600 border-amber-200"
+                  ? "bg-amber-50 dark:bg-amber-500/10 text-amber-600 dark:text-amber-400 border-amber-200 dark:border-amber-500/20"
                   : "bg-slate-50 text-slate-500 border-slate-200 dark:bg-slate-900 dark:border-slate-800 hover:border-slate-300 dark:hover:border-slate-700"
               }`}
             >
@@ -1316,7 +1316,7 @@ function InfoPage({ title, component }: { title: string, component: React.ReactN
     <div className="animate-in fade-in slide-in-from-bottom-4 duration-500">
       <Link
         to="/"
-        className="mb-8 inline-flex items-center gap-2 text-sm font-semibold text-slate-500 hover:text-slate-900 dark:text-slate-400 dark:hover:text-white transition-colors group"
+        className="mb-8 inline-flex items-center gap-2 text-sm font-semibold text-slate-500 hover:text-slate-900 dark:text-slate-400 dark:hover:text-white transition-colors group focus-visible:ring-2 focus-visible:ring-indigo-500 focus-visible:outline-none rounded-lg"
       >
         <ArrowLeft className="w-4 h-4 group-hover:-translate-x-1 transition-transform" />
         Retour au tableau de bord

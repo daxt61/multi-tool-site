@@ -53,3 +53,7 @@
 ## 2026-04-05 - [Section-wise Reset & Download Utilities]
 **Learning:** For complex calculators with multiple distinct sections (like percentage variations), adding localized "Effacer" buttons to each section provides a more granular and efficient UX than a single global reset. Furthermore, adding a "Télécharger" utility to conversion tools allows users to persist their work as a physical file (.txt), which is a high-value utility that transforms the site from a simple viewer into a productivity workbench.
 **Action:** Prioritize section-wise reset buttons for complex calculators and implement download utilities for conversion-heavy tools.
+
+## 2026-04-06 - [Dark Mode Success States & Consistent Focus]
+**Learning:** Standardizing success/active states with dark mode specific variants (e.g., `dark:bg-emerald-500/10` and `dark:text-emerald-400`) ensures UI feedback remains legible and visually pleasing across themes. Additionally, applying a consistent `focus-visible:ring-2` pattern to all global navigation elements (search utilities, back links, toggles) is a high-impact accessibility win that provides a professional feel for keyboard-driven navigation.
+**Action:** Always implement theme-aware success states and audit for consistent focus indicators on all high-level interactive elements.

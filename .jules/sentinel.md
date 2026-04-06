@@ -41,3 +41,8 @@
 **Vulnerability:** The JSONSchemaGenerator component used unbounded recursion to traverse user-provided JSON objects, making it vulnerable to Stack Overflow Denial of Service (DoS) attacks via deeply nested inputs.
 **Learning:** Any function that recursively traverses data structures provided by users must enforce a strict maximum depth limit to protect the execution stack. While `JSON.parse` handles some basic nesting limits, the application's secondary traversal can still trigger a stack overflow if it doesn't implement its own safeguards.
 **Prevention:** Implement a `MAX_DEPTH` constant and pass a current `depth` counter through recursive calls. Terminate recursion and return a safe placeholder or error once the limit is reached.
+
+## 2025-05-15 - [DoS via Large Input in Regex-based Parsers]
+**Vulnerability:** The MarkdownPreview component processed arbitrary lengths of user input through complex regular expressions on the main thread, making it vulnerable to Denial of Service (DoS) and browser freezing if the input was extremely large.
+**Learning:** Tools that use multi-pass regex replacements for rendering (like custom markdown or code formatters) must enforce a strict `MAX_LENGTH` limit on the input to ensure predictable performance and prevent the UI from becoming unresponsive.
+**Prevention:** Define a `MAX_LENGTH` constant (e.g., 50,000 characters) and validate the input length before triggering any computationally expensive processing. Provide clear UI feedback when the limit is exceeded.

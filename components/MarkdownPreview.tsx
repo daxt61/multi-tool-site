@@ -1,10 +1,13 @@
 import { useState } from 'react';
-import { Eye, Code, Trash2, Copy, Check, FileDown } from 'lucide-react';
+import { Eye, Code, Trash2, Copy, Check, FileDown, AlertCircle } from 'lucide-react';
 import { AdPlaceholder } from './AdPlaceholder';
+
+const MAX_LENGTH = 50000;
 
 export function MarkdownPreview() {
   const [markdown, setMarkdown] = useState('# Titre\n\nVotre texte **Markdown** ici...');
   const [mode, setMode] = useState<'split' | 'edit' | 'preview'>('split');
+  const [error, setError] = useState<string | null>(null);
   const [copied, setCopied] = useState(false);
 
   const escapeHTML = (str: string) => {
@@ -37,6 +40,9 @@ export function MarkdownPreview() {
   };
 
   const renderMarkdown = (text: string) => {
+    if (text.length > MAX_LENGTH) {
+      return `<div class="text-rose-500 font-bold p-4 border border-rose-200 rounded-xl bg-rose-50">L'entrée est trop longue pour être traitée en toute sécurité (maximum ${MAX_LENGTH.toLocaleString()} caractères).</div>`;
+    }
     const placeholders: string[] = [];
 
     // Escape input to prevent XSS
@@ -180,8 +186,16 @@ export function MarkdownPreview() {
             <textarea
               id="markdown-input"
               value={markdown}
-              onChange={(e) => setMarkdown(e.target.value)}
-              className="w-full h-[500px] p-6 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-[2.5rem] outline-none focus:ring-2 focus:ring-indigo-500/20 transition-all font-mono text-sm leading-relaxed dark:text-slate-300 resize-none shadow-sm"
+              onChange={(e) => {
+                const val = e.target.value;
+                setMarkdown(val);
+                if (val.length > MAX_LENGTH) {
+                  setError(`L'entrée est trop longue. Limite de ${MAX_LENGTH.toLocaleString()} caractères pour la prévisualisation.`);
+                } else {
+                  setError(null);
+                }
+              }}
+              className={`w-full h-[500px] p-6 bg-slate-50 dark:bg-slate-900 border ${error ? 'border-rose-500 ring-rose-500/20' : 'border-slate-200 dark:border-slate-800 focus:ring-indigo-500/20'} rounded-[2.5rem] outline-none focus:ring-2 transition-all font-mono text-sm leading-relaxed dark:text-slate-300 resize-none shadow-sm`}
               placeholder="# Titre..."
             />
           </div>
@@ -194,10 +208,18 @@ export function MarkdownPreview() {
                 Aperçu
               </span>
             </div>
-            <div
-              className="w-full h-[500px] p-8 bg-white dark:bg-slate-950/50 border border-slate-200 dark:border-slate-800 rounded-[2.5rem] overflow-y-auto prose dark:prose-invert max-w-none shadow-sm"
-              dangerouslySetInnerHTML={{ __html: renderMarkdown(markdown) }}
-            />
+            <div className="relative group">
+              <div
+                className={`w-full h-[500px] p-8 bg-white dark:bg-slate-950/50 border ${error ? 'border-rose-500/50' : 'border-slate-200 dark:border-slate-800'} rounded-[2.5rem] overflow-y-auto prose dark:prose-invert max-w-none shadow-sm`}
+                dangerouslySetInnerHTML={{ __html: renderMarkdown(markdown) }}
+              />
+              {error && (
+                <div className="absolute bottom-6 left-6 right-6 p-4 bg-rose-50 dark:bg-rose-500/10 border border-rose-200 dark:border-rose-500/20 rounded-xl flex items-start gap-3 animate-in fade-in slide-in-from-bottom-2">
+                  <AlertCircle className="w-5 h-5 text-rose-500 shrink-0" />
+                  <p className="text-xs font-bold text-rose-600 dark:text-rose-400">{error}</p>
+                </div>
+              )}
+            </div>
           </div>
         )}
       </div>

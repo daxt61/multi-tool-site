@@ -13,6 +13,7 @@ export function TimerTool() {
   const [stopwatchRunning, setStopwatchRunning] = useState(false);
   const [laps, setLaps] = useState<number[]>([]);
   const intervalRef = useRef<number | null>(null);
+  const targetTimeRef = useRef<number>(0);
   const startTimeRef = useRef<number>(0);
   const audioContextRef = useRef<AudioContext | null>(null);
 
@@ -45,17 +46,17 @@ export function TimerTool() {
   useEffect(() => {
     if (timerRunning && mode === 'timer') {
       setTimerDone(false);
+      targetTimeRef.current = Date.now() + timerTime * 1000;
       intervalRef.current = window.setInterval(() => {
-        setTimerTime((prev) => {
-          if (prev <= 1) {
-            setTimerRunning(false);
-            setTimerDone(true);
-            playBeep();
-            return 0;
-          }
-          return prev - 1;
-        });
-      }, 1000);
+        const remaining = Math.max(0, Math.ceil((targetTimeRef.current - Date.now()) / 1000));
+        setTimerTime(remaining);
+        if (remaining <= 0) {
+          setTimerRunning(false);
+          setTimerDone(true);
+          playBeep();
+          if (intervalRef.current) clearInterval(intervalRef.current);
+        }
+      }, 100);
     } else if (stopwatchRunning && mode === 'stopwatch') {
       startTimeRef.current = Date.now() - stopwatchTime * 10;
       intervalRef.current = window.setInterval(() => {
@@ -96,6 +97,14 @@ export function TimerTool() {
 
   const progress = (timerMinutes * 60 + timerSeconds - timerTime) / (timerMinutes * 60 + timerSeconds || 1);
 
+  const setPreset = (mins: number) => {
+    setTimerMinutes(mins);
+    setTimerSeconds(0);
+    setTimerTime(mins * 60);
+    setTimerRunning(false);
+    setTimerDone(false);
+  };
+
   return (
     <div className="max-w-4xl mx-auto space-y-12">
       <div className="flex bg-slate-100 dark:bg-slate-800 p-1 rounded-2xl w-fit mx-auto">
@@ -117,6 +126,19 @@ export function TimerTool() {
         <div className="grid grid-cols-1 md:grid-cols-2 gap-12 items-center">
           <div className="space-y-8">
             {!timerRunning && (
+              <div className="space-y-6">
+              <div className="flex flex-wrap justify-center gap-2">
+                {[1, 5, 10, 15, 30].map((m) => (
+                  <button
+                    key={m}
+                    onClick={() => setPreset(m)}
+                    className="px-3 py-1.5 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-xs font-bold hover:border-indigo-500 transition-colors"
+                  >
+                    {m} min
+                  </button>
+                ))}
+              </div>
+
               <div className="flex justify-center items-end gap-4">
                 <div className="space-y-2">
                   <label htmlFor="timerMinutes" className="text-xs font-black uppercase tracking-widest text-slate-400 px-1 cursor-pointer">Minutes</label>
@@ -153,6 +175,7 @@ export function TimerTool() {
                     aria-label="Secondes du minuteur"
                   />
                 </div>
+              </div>
               </div>
             )}
 

@@ -38,7 +38,16 @@ export function DateCalculator() {
       months += 12;
     }
 
-    return { totalDays, years, months, days };
+    // Working days calculation (Mon-Fri)
+    let workingDays = 0;
+    const curDate = new Date(start);
+    while (curDate < end) {
+      const dayOfWeek = curDate.getDay();
+      if (dayOfWeek !== 0 && dayOfWeek !== 6) workingDays++;
+      curDate.setDate(curDate.getDate() + 1);
+    }
+
+    return { totalDays, years, months, days, workingDays };
   };
 
   const addDaysToDate = (date: string, days: number) => {
@@ -64,7 +73,7 @@ export function DateCalculator() {
   const newDate = addDaysToDate(date1, parseInt(daysToAdd) || 0);
 
   const handleCopyDiff = () => {
-    const text = `${diff.years}a ${diff.months}m ${diff.days}j (${diff.totalDays} jours)`;
+    const text = `${diff.years}a ${diff.months}m ${diff.days}j (${diff.totalDays} jours, ${diff.workingDays} ouvrés)`;
     navigator.clipboard.writeText(text);
     setCopiedDiff(true);
     setTimeout(() => setCopiedDiff(false), 2000);
@@ -132,7 +141,7 @@ export function DateCalculator() {
           >
             {copiedDiff ? <Check className="w-4 h-4" /> : <Copy className="w-4 h-4" />}
           </button>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
             <div className="bg-white dark:bg-slate-800 p-6 rounded-2xl border border-slate-100 dark:border-slate-700 text-center">
               <div className="text-xs font-bold text-slate-400 uppercase tracking-widest mb-1">Ans / Mois / Jours</div>
               <div className="text-2xl font-black text-indigo-600 dark:text-indigo-400 font-mono">
@@ -149,6 +158,12 @@ export function DateCalculator() {
               <div className="text-xs font-bold text-slate-400 uppercase tracking-widest mb-1">Semaines</div>
               <div className="text-2xl font-black text-indigo-600 dark:text-indigo-400 font-mono">
                 {(diff.totalDays / 7).toFixed(1)} sem.
+              </div>
+            </div>
+            <div className="bg-white dark:bg-slate-800 p-6 rounded-2xl border border-slate-100 dark:border-slate-700 text-center">
+              <div className="text-xs font-bold text-slate-400 uppercase tracking-widest mb-1">Jours Ouvrés</div>
+              <div className="text-2xl font-black text-indigo-600 dark:text-indigo-400 font-mono">
+                {diff.workingDays} j
               </div>
             </div>
           </div>

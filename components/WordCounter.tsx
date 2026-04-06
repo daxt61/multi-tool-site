@@ -1,5 +1,5 @@
 import { useState, useMemo, useDeferredValue } from 'react';
-import { Copy, Check, Trash2, Hash, Type, FileText, AlignLeft, Clock, MessageSquare, BarChart3, Info } from 'lucide-react';
+import { Copy, Check, Trash2, Hash, Type, FileText, AlignLeft, Clock, MessageSquare, BarChart3, Info, Star } from 'lucide-react';
 
 export function WordCounter() {
   const [text, setText] = useState('');
@@ -30,14 +30,44 @@ export function WordCounter() {
       .sort((a, b) => b[1] - a[1])
       .slice(0, 10);
 
+    const sentenceCount = trimmed === '' ? 0 : deferredText.split(/[.!?]+(?:\s|$)/).filter(s => s.trim().length > 0).length;
+    const charCount = deferredText.replace(/\s/g, '').length;
+
+    // Automated Readability Index (ARI)
+    // ARI = 4.71 * (characters/words) + 0.5 * (words/sentences) - 21.43
+    let ari = 0;
+    if (wordCount > 0 && sentenceCount > 0) {
+      ari = 4.71 * (charCount / wordCount) + 0.5 * (wordCount / sentenceCount) - 21.43;
+    }
+
+    const getAriGrade = (score: number) => {
+      const rounded = Math.ceil(score);
+      if (rounded <= 1) return "CP";
+      if (rounded === 2) return "CE1";
+      if (rounded === 3) return "CE2";
+      if (rounded === 4) return "CM1";
+      if (rounded === 5) return "CM2";
+      if (rounded === 6) return "6ème";
+      if (rounded === 7) return "5ème";
+      if (rounded === 8) return "4ème";
+      if (rounded === 9) return "3ème";
+      if (rounded === 10) return "Seconde";
+      if (rounded === 11) return "Première";
+      if (rounded === 12) return "Terminale";
+      if (rounded === 13) return "Université";
+      return "Expert / Académique";
+    };
+
     return {
       characters: deferredText.length,
-      charactersNoSpaces: deferredText.replace(/\s/g, '').length,
+      charactersNoSpaces: charCount,
       words: wordCount,
       lines: deferredText === '' ? 0 : deferredText.split('\n').length,
-      sentences: trimmed === '' ? 0 : deferredText.split(/[.!?]+(?:\s|$)/).filter(s => s.trim().length > 0).length,
+      sentences: sentenceCount,
       readingTime: wordCount / 200,
       speakingTime: wordCount / 130,
+      ari: ari > 0 ? ari.toFixed(1) : 0,
+      ariGrade: getAriGrade(ari),
       topWords
     };
   }, [deferredText]);
@@ -66,6 +96,7 @@ export function WordCounter() {
 - Mots : ${stats.words}
 - Lignes : ${stats.lines}
 - Phrases : ${stats.sentences}
+- Lisibilité (ARI) : ${stats.ari} (${stats.ariGrade})
 - Temps de lecture : ~${stats.readingTime} min
 - Temps de parole : ~${stats.speakingTime} min`;
 
@@ -113,13 +144,14 @@ export function WordCounter() {
         />
       </div>
 
-      <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-7 gap-4">
+      <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-8 gap-4">
         {[
           { icon: <Hash className="w-4 h-4" />, label: 'Caractères', value: stats.characters },
           { icon: <Hash className="w-4 h-4" />, label: 'Sans espaces', value: stats.charactersNoSpaces },
           { icon: <Type className="w-4 h-4" />, label: 'Mots', value: stats.words },
           { icon: <FileText className="w-4 h-4" />, label: 'Lignes', value: stats.lines },
           { icon: <AlignLeft className="w-4 h-4" />, label: 'Phrases', value: stats.sentences },
+          { icon: <Star className="w-4 h-4" />, label: 'Lisibilité', value: stats.ariGrade },
           { icon: <Clock className="w-4 h-4" />, label: 'Lecture', value: formatTime(stats.readingTime) },
           { icon: <MessageSquare className="w-4 h-4" />, label: 'Parole', value: formatTime(stats.speakingTime) },
         ].map((stat) => (

@@ -57,6 +57,7 @@ import {
   Database,
   ArrowLeftRight,
   X,
+  Share2,
   Sun,
   Music,
   Star,
@@ -166,6 +167,8 @@ const DownloadTimeCalculator = lazy(() => import("./components/DownloadTimeCalcu
 const FreelanceTaxCalculator = lazy(() => import("./components/FreelanceTaxCalculator").then(m => ({ default: m.FreelanceTaxCalculator })));
 const SleepCalculator = lazy(() => import("./components/SleepCalculator").then(m => ({ default: m.SleepCalculator })));
 const WaterCalculator = lazy(() => import("./components/WaterCalculator").then(m => ({ default: m.WaterCalculator })));
+const UTMBuilder = lazy(() => import("./components/UTMBuilder").then(m => ({ default: m.UTMBuilder })));
+const DiscountCalculator = lazy(() => import("./components/DiscountCalculator").then(m => ({ default: m.DiscountCalculator })));
 
 // ⚡ Bolt Optimization: Pre-calculating tool map and search index for O(1) lookups and faster filtering
 const toolsMap: Record<string, Tool> = {};
@@ -303,6 +306,14 @@ const tools: Tool[] = [
     icon: Tag,
     description: "Comparer le prix au kilo ou à l'unité",
     Component: UnitPriceCalculator,
+    category: "budget",
+  },
+  {
+    id: "discount-calculator",
+    name: "Soldes & Remises",
+    icon: Tag,
+    description: "Calculer le prix final après une ou plusieurs remises",
+    Component: DiscountCalculator,
     category: "budget",
   },
   // Calculators
@@ -587,6 +598,14 @@ const tools: Tool[] = [
     icon: Search,
     description: "Testeur d'expressions régulières",
     Component: RegExTester,
+    category: "dev",
+  },
+  {
+    id: "utm-builder",
+    name: "UTM Builder",
+    icon: Share2,
+    description: "Générateur de liens de suivi UTM",
+    Component: UTMBuilder,
     category: "dev",
   },
   {

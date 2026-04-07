@@ -2,16 +2,18 @@ import { useState, useEffect } from 'react';
 import { Copy, RefreshCw, Check, Shield, ShieldAlert, ShieldCheck, Key, BookOpen, Trash2 } from 'lucide-react';
 
 const WORDS = [
-  'bleu', 'rouge', 'vert', 'jaune', 'noir', 'blanc', 'orange', 'rose', 'gris', 'brun',
-  'petit', 'grand', 'rapide', 'lent', 'fort', 'faible', 'chaud', 'froid', 'beau', 'jeune',
-  'chat', 'chien', 'oiseau', 'lion', 'tigre', 'ours', 'loup', 'renard', 'lapin', 'singe',
-  'maison', 'jardin', 'arbre', 'fleur', 'soleil', 'lune', 'etoile', 'mer', 'vent', 'pluie',
-  'pomme', 'pain', 'eau', 'lait', 'cafe', 'the', 'sucre', 'sel', 'riz', 'pate',
-  'livre', 'stylo', 'ecran', 'table', 'chaise', 'porte', 'fenetre', 'route', 'pont', 'ville',
-  'un', 'deux', 'trois', 'quatre', 'cinq', 'six', 'sept', 'huit', 'neuf', 'dix',
-  'calme', 'libre', 'heureux', 'nouveau', 'ancien', 'clair', 'sombre', 'doux', 'dur', 'leger',
-  'avion', 'train', 'velo', 'voiture', 'bateau', 'fusée', 'moteur', 'vitesse', 'espace', 'temps',
-  'musique', 'danse', 'peinture', 'cinema', 'theatre', 'poeme', 'histoire', 'reve', 'vie', 'coeur'
+  'bleu', 'rouge', 'vert', 'jaune', 'noir', 'blanc', 'orange', 'rose', 'gris', 'brun', 'violet', 'marron', 'argent', 'or', 'indigo', 'turquoise', 'beige', 'ocre', 'cyan', 'lime',
+  'petit', 'grand', 'rapide', 'lent', 'fort', 'faible', 'chaud', 'froid', 'beau', 'jeune', 'vieux', 'riche', 'pauvre', 'doux', 'dur', 'leger', 'lourd', 'propre', 'sale', 'neuf', 'ancien', 'haut', 'bas', 'large', 'etroit', 'rond', 'carre', 'plat', 'amer', 'sucre',
+  'chat', 'chien', 'oiseau', 'lion', 'tigre', 'ours', 'loup', 'renard', 'lapin', 'singe', 'cheval', 'vache', 'cochon', 'poule', 'canard', 'souris', 'rat', 'serpent', 'tortue', 'grenouille', 'poisson', 'requin', 'baleine', 'dauphin', 'abeille', 'fourmi', 'mouche', 'papillon', 'araignee', 'hibou',
+  'maison', 'jardin', 'arbre', 'fleur', 'soleil', 'lune', 'etoile', 'mer', 'vent', 'pluie', 'neige', 'glace', 'nuage', 'orage', 'foudre', 'terre', 'ciel', 'montagne', 'vallee', 'riviere', 'lac', 'ocean', 'foret', 'desert', 'plage', 'ile', 'rocher', 'sable', 'herbe', 'buisson',
+  'pomme', 'pain', 'eau', 'lait', 'cafe', 'the', 'sucre', 'sel', 'riz', 'pate', 'oeuf', 'fromage', 'beurre', 'viande', 'fruit', 'legume', 'soupe', 'salade', 'miel', 'chocolat', 'gateau', 'pizza', 'jus', 'vin', 'biere', 'noix', 'amande', 'fraise', 'banane', 'citron',
+  'table', 'chaise', 'porte', 'fenetre', 'lit', 'armoire', 'miroir', 'tapis', 'rideau', 'canape', 'lampe', 'bureau', 'cuisine', 'salon', 'douche', 'cle', 'sac', 'boite', 'verre', 'bol', 'four', 'frigo', 'poele', 'assiette', 'couteau', 'fourchette', 'cuillere', 'serviette', 'balai', 'savon',
+  'livre', 'stylo', 'ecran', 'route', 'pont', 'ville', 'village', 'avion', 'train', 'velo', 'voiture', 'bateau', 'moto', 'bus', 'camion', 'fusée', 'moteur', 'vitesse', 'tel', 'ordi', 'clavier', 'souris', 'montre', 'outil', 'marteau', 'scie', 'vis', 'clou', 'colle', 'papier',
+  'joie', 'paix', 'amour', 'espoir', 'force', 'esprit', 'raison', 'action', 'travail', 'succes', 'vie', 'mort', 'temps', 'heure', 'minute', 'seconde', 'jour', 'nuit', 'matin', 'soir', 'midi', 'nord', 'sud', 'est', 'ouest', 'droit', 'gauche', 'centre', 'but', 'nom',
+  'tete', 'corps', 'bras', 'main', 'doigt', 'jambe', 'pied', 'dos', 'coeur', 'sang', 'peau', 'os', 'nerf', 'oeil', 'nez', 'bouche', 'oreille', 'cheveu', 'voix', 'souffle', 'rire', 'pleur', 'sommeil', 'reve', 'idee', 'sens', 'gout', 'odeur', 'faim', 'soif',
+  'musique', 'danse', 'peinture', 'cinema', 'theatre', 'poeme', 'histoire', 'chant', 'piano', 'guitare', 'violon', 'tambour', 'trompette', 'harpe', 'flute', 'orgue', 'cloche', 'rythme', 'son', 'note', 'film', 'page', 'musee', 'art', 'dessin', 'image', 'photo', 'couleur', 'forme',
+  'espace', 'atome', 'photon', 'onde', 'masse', 'poids', 'metal', 'acier', 'fer', 'cuivre', 'platine', 'plastique', 'code', 'web', 'site', 'app', 'bug', 'data', 'cloud', 'pixel', 'octet', 'bit', 'hertz', 'volt', 'watt',
+  'marche', 'course', 'vol', 'nage', 'saut', 'cri', 'appel', 'jeu', 'sport', 'fight', 'choc', 'clic', 'zoom', 'scan', 'flux', 'bloc', 'lien', 'post', 'mail', 'chat', 'quiz', 'test', 'avis', 'plan', 'prix', 'gain', 'perte', 'choix', 'vue'
 ];
 
 export function PasswordGenerator() {

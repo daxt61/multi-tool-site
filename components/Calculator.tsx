@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { History as HistoryIcon, Trash2, Delete, Calculator as CalcIcon } from 'lucide-react';
+import { History as HistoryIcon, Trash2, Delete, Calculator as CalcIcon, Copy, Check } from 'lucide-react';
 
 export function Calculator() {
   const [display, setDisplay] = useState('0');
@@ -8,6 +8,7 @@ export function Calculator() {
   const [newNumber, setNewNumber] = useState(true);
   const [isScientific, setIsScientific] = useState(false);
   const [isRadians, setIsRadians] = useState(false);
+  const [copied, setCopied] = useState(false);
   const [history, setHistory] = useState<{ expression: string; result: string }[]>(() => {
     try {
       // Sentinel: Securely parse localStorage data to prevent app crashes (Local DoS).
@@ -65,6 +66,12 @@ export function Calculator() {
     if (previousValue === null) {
       setPreviousValue(current);
     } else if (operation) {
+      if (newNumber) {
+        // If an operation is already pending and we haven't started typing a new number,
+        // just update the operator instead of calculating.
+        setOperation(op);
+        return;
+      }
       const result = calculate(previousValue, current, operation);
       setDisplay(String(result));
       setPreviousValue(result);
@@ -172,6 +179,12 @@ export function Calculator() {
       setOperation(null);
       setNewNumber(true);
     }
+  };
+
+  const handleCopy = () => {
+    navigator.clipboard.writeText(display);
+    setCopied(true);
+    setTimeout(() => setCopied(false), 2000);
   };
 
   const handleClear = () => {
@@ -288,7 +301,19 @@ export function Calculator() {
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
         <div className="lg:col-span-8 space-y-6">
           {/* Display */}
-          <div className="bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-3xl p-8 text-right overflow-hidden group transition-all focus-within:ring-2 focus-within:ring-indigo-500/20">
+          <div className="bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-3xl p-8 text-right overflow-hidden group transition-all focus-within:ring-2 focus-within:ring-indigo-500/20 relative">
+            <button
+              onClick={handleCopy}
+              disabled={display === '0' || display === 'Erreur'}
+              className={`absolute top-4 left-4 p-2.5 rounded-xl transition-all z-10 border focus-visible:ring-2 focus-visible:ring-indigo-500 focus-visible:outline-none disabled:opacity-0 disabled:cursor-not-allowed ${
+                copied
+                  ? 'bg-emerald-50 dark:bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border-emerald-200 dark:border-emerald-500/20'
+                  : 'bg-white dark:bg-slate-800 text-slate-500 border-slate-200 dark:border-slate-700 hover:text-indigo-500 hover:border-indigo-500/50'
+              }`}
+              title="Copier le résultat"
+            >
+              {copied ? <Check className="w-4 h-4" /> : <Copy className="w-4 h-4" />}
+            </button>
             <div className="text-sm font-bold text-slate-400 dark:text-slate-500 mb-2 h-6 flex justify-between items-center px-1">
               <div className="flex items-center gap-2">
                 {memory !== 0 && (

@@ -14,6 +14,7 @@ export function RandomGenerator() {
 
   const [list, setList] = useState('');
   const [shuffledList, setShuffledList] = useState<string[]>([]);
+  const [winner, setWinner] = useState<string | null>(null);
 
   const [copied, setCopied] = useState('');
 
@@ -63,12 +64,21 @@ export function RandomGenerator() {
 
   const shuffleList = () => {
     const items = list.split('\n').filter(i => i.trim() !== '');
+    if (items.length === 0) return;
     const shuffled = [...items];
     for (let i = shuffled.length - 1; i > 0; i--) {
       const j = getSecureRandom(i + 1);
       [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
     }
     setShuffledList(shuffled);
+    setWinner(null);
+  };
+
+  const pickWinner = () => {
+    const items = list.split('\n').filter(i => i.trim() !== '');
+    if (items.length === 0) return;
+    const randomIndex = getSecureRandom(items.length);
+    setWinner(items[randomIndex]);
   };
 
   const copyToClipboard = (text: string, id: string) => {
@@ -197,7 +207,8 @@ export function RandomGenerator() {
           <div className="lg:col-span-4 flex items-end">
             <button
               onClick={generateString}
-              className="w-full h-14 lg:h-20 bg-slate-900 dark:bg-white text-white dark:text-slate-900 rounded-2xl font-black text-lg hover:opacity-90 transition-all active:scale-95 flex items-center justify-center gap-2"
+              disabled={!includeUpper && !includeLower && !includeNumbers}
+              className="w-full h-14 lg:h-20 bg-slate-900 dark:bg-white text-white dark:text-slate-900 rounded-2xl font-black text-lg hover:opacity-90 transition-all active:scale-95 flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
             >
               <RefreshCw className="w-6 h-6" /> Générer
             </button>
@@ -214,8 +225,8 @@ export function RandomGenerator() {
 
         <div className="flex justify-end px-1">
           <button
-            onClick={() => {setList(''); setShuffledList([]);}}
-            disabled={!list && shuffledList.length === 0}
+            onClick={() => {setList(''); setShuffledList([]); setWinner(null);}}
+            disabled={!list && shuffledList.length === 0 && !winner}
             className="text-xs font-bold text-rose-500 bg-rose-50 dark:bg-rose-500/10 hover:bg-rose-100 dark:hover:bg-rose-500/20 px-3 py-1.5 rounded-xl flex items-center gap-1 transition-all disabled:opacity-50 disabled:cursor-not-allowed"
           >
             <Trash2 className="w-3 h-3" /> Effacer
@@ -231,28 +242,61 @@ export function RandomGenerator() {
               className="w-full h-64 p-6 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-3xl outline-none focus:ring-2 focus:ring-indigo-500/20 transition-all resize-none font-medium dark:text-slate-300"
               placeholder="Élément 1&#10;Élément 2&#10;Élément 3..."
             />
-            <button
-              onClick={shuffleList}
-              className="w-full py-4 bg-indigo-600 text-white rounded-2xl font-black hover:bg-indigo-700 transition-all shadow-lg shadow-indigo-600/20 active:scale-95 flex items-center justify-center gap-2"
-            >
-              <Shuffle className="w-5 h-5" /> Mélanger la liste
-            </button>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+              <button
+                onClick={shuffleList}
+                disabled={!list.trim()}
+                className="py-4 bg-slate-900 dark:bg-white text-white dark:text-slate-900 rounded-2xl font-black hover:opacity-90 transition-all active:scale-95 flex items-center justify-center gap-2 disabled:opacity-50"
+              >
+                <Shuffle className="w-5 h-5" /> Mélanger
+              </button>
+              <button
+                onClick={pickWinner}
+                disabled={!list.trim()}
+                className="py-4 bg-indigo-600 text-white rounded-2xl font-black hover:bg-indigo-700 transition-all shadow-lg shadow-indigo-600/20 active:scale-95 flex items-center justify-center gap-2 disabled:opacity-50"
+              >
+                <RefreshCw className="w-5 h-5" /> Tirer au sort
+              </button>
+            </div>
           </div>
 
           <div className="space-y-4">
             <div className="flex justify-between items-center px-1">
               <label className="text-xs font-bold text-slate-400">RÉSULTAT</label>
-              <button
-                onClick={() => shuffledList.length > 0 && copyToClipboard(shuffledList.join('\n'), 'list')}
-                className="text-xs font-black text-indigo-600 dark:text-indigo-400 flex items-center gap-1"
-              >
-                {copied === 'list' ? <Check className="w-3 h-3" /> : <Copy className="w-3 h-3" />} {copied === 'list' ? 'Copié' : 'Tout copier'}
-              </button>
+              {(shuffledList.length > 0 || winner) && (
+                <button
+                  onClick={() => {
+                    const text = winner || shuffledList.join('\n');
+                    copyToClipboard(text, 'list');
+                  }}
+                  className="text-xs font-black text-indigo-600 dark:text-indigo-400 flex items-center gap-1"
+                >
+                  {copied === 'list' ? <Check className="w-3 h-3" /> : <Copy className="w-3 h-3" />} {copied === 'list' ? 'Copié' : 'Copier'}
+                </button>
+              )}
             </div>
             <div className="h-64 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-3xl p-6 overflow-y-auto space-y-2">
-              {shuffledList.length === 0 ? (
-                <div className="h-full flex items-center justify-center text-slate-300 font-bold italic">
-                  La liste mélangée apparaîtra ici
+              {winner ? (
+                <div className="h-full flex flex-col items-center justify-center space-y-6 animate-in zoom-in-95 duration-500">
+                  <div className="text-xs font-black uppercase tracking-widest text-indigo-500">Gagnant Tiré au sort !</div>
+                  <div className="text-3xl font-black text-slate-900 dark:text-white bg-indigo-50 dark:bg-indigo-500/10 px-8 py-6 rounded-2xl border-2 border-indigo-500/20 text-center break-all max-w-full">
+                    {winner}
+                  </div>
+                  <button
+                    onClick={() => copyToClipboard(winner, 'winner-btn')}
+                    className={`flex items-center gap-2 px-6 py-3 rounded-2xl font-bold transition-all border focus-visible:ring-2 focus-visible:ring-indigo-500 focus-visible:outline-none ${
+                      copied === 'winner-btn'
+                        ? "bg-emerald-50 dark:bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border-emerald-200 dark:border-emerald-500/20"
+                        : "bg-slate-50 text-slate-500 border-slate-200 dark:bg-slate-800 dark:border-slate-700 hover:border-slate-300 dark:hover:border-slate-600"
+                    }`}
+                  >
+                    {copied === 'winner-btn' ? <Check className="w-4 h-4" /> : <Copy className="w-4 h-4" />}
+                    {copied === 'winner-btn' ? "Copié" : "Copier le gagnant"}
+                  </button>
+                </div>
+              ) : shuffledList.length === 0 ? (
+                <div className="h-full flex items-center justify-center text-slate-300 font-bold italic text-center px-4">
+                  La liste mélangée ou le gagnant apparaîtra ici
                 </div>
               ) : (
                 shuffledList.map((item, i) => (

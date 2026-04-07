@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { Copy, Check, Trash2, ArrowUpDown, Info, Ruler, Download } from 'lucide-react';
 
-type ConversionCategory = 'length' | 'weight' | 'temperature' | 'area' | 'volume' | 'digital' | 'pressure' | 'energy' | 'speed' | 'time' | 'power' | 'frequency' | 'consumption' | 'angle' | 'torque' | 'datarate';
+type ConversionCategory = 'length' | 'weight' | 'temperature' | 'area' | 'volume' | 'digital' | 'pressure' | 'energy' | 'speed' | 'time' | 'power' | 'frequency' | 'consumption' | 'angle' | 'torque' | 'force' | 'datarate';
 
 interface ConversionUnit {
   name: string;
@@ -121,6 +121,13 @@ const CONVERSIONS: Record<ConversionCategory, Record<string, ConversionUnit>> = 
     'grad': { name: 'Grades', toBase: (v) => v * (9 / 10), fromBase: (v) => v * (10 / 9) },
     'tr': { name: 'Tours', toBase: (v) => v * 360, fromBase: (v) => v / 360 }
   },
+  force: {
+    'N': { name: 'Newton (N)', toBase: (v) => v, fromBase: (v) => v },
+    'kN': { name: 'Kilonewton (kN)', toBase: (v) => v * 1000, fromBase: (v) => v / 1000 },
+    'gf': { name: 'Gramme-force (gf)', toBase: (v) => v * 0.00980665, fromBase: (v) => v / 0.00980665 },
+    'kgf': { name: 'Kilogramme-force (kgf)', toBase: (v) => v * 9.80665, fromBase: (v) => v / 9.80665 },
+    'lbf': { name: 'Pound-force (lbf)', toBase: (v) => v * 4.448222, fromBase: (v) => v / 4.448222 }
+  },
   datarate: {
     'bps': { name: 'bps (bit/s)', toBase: (v) => v, fromBase: (v) => v },
     'kbps': { name: 'kbps (kbit/s)', toBase: (v) => v * 1000, fromBase: (v) => v / 1000 },
@@ -145,7 +152,8 @@ const CATEGORIES_MAP = [
   { id: 'frequency', name: 'Fréquence' },
   { id: 'consumption', name: 'Consommation' },
   { id: 'angle', name: 'Angle' },
-  { id: 'torque', name: 'Torque' },
+  { id: 'torque', name: 'Couple (Torque)' },
+  { id: 'force', name: 'Force' },
   { id: 'datarate', name: 'Débit binaire' }
 ];
 

@@ -1,13 +1,17 @@
 import React, { useState, useMemo } from 'react';
-import { Copy, Check, Trash2, Zap, FileCode, Scissors, Download } from 'lucide-react';
+import { Copy, Check, Trash2, Zap, FileCode, Scissors, Download, AlertCircle } from 'lucide-react';
+
+const MAX_LENGTH = 100000;
 
 export function CodeMinifier() {
   const [input, setInput] = useState('');
   const [mode, setMode] = useState<'js' | 'css' | 'html'>('js');
+  const [error, setError] = useState<string | null>(null);
   const [copied, setCopied] = useState(false);
 
   const minify = (code: string, type: 'js' | 'css' | 'html') => {
     if (!code) return '';
+    if (code.length > MAX_LENGTH) return '';
 
     try {
       if (type === 'js') {
@@ -67,7 +71,7 @@ export function CodeMinifier() {
   const output = useMemo(() => minify(input, mode), [input, mode]);
 
   const stats = useMemo(() => {
-    if (!input) return { original: 0, minified: 0, reduction: 0 };
+    if (!input || input.length > MAX_LENGTH) return { original: 0, minified: 0, reduction: 0 };
     const original = input.length;
     const minified = output.length;
     const reduction = ((original - minified) / original) * 100;
@@ -97,6 +101,13 @@ export function CodeMinifier() {
 
   return (
     <div className="max-w-6xl mx-auto space-y-8">
+      {error && (
+        <div className="bg-rose-50 dark:bg-rose-500/10 border border-rose-200 dark:border-rose-800 p-4 rounded-2xl flex items-center gap-3 text-rose-600 dark:text-rose-400 font-bold animate-in fade-in slide-in-from-top-2">
+          <AlertCircle className="w-5 h-5" />
+          {error}
+        </div>
+      )}
+
       {/* Mode Selector */}
       <div className="flex justify-center">
         <div className="inline-flex bg-slate-100 dark:bg-slate-800 p-1 rounded-2xl border border-slate-200 dark:border-slate-700">
@@ -127,7 +138,10 @@ export function CodeMinifier() {
           <div className="flex justify-between items-center px-1">
             <label htmlFor="minifier-input" className="text-xs font-black uppercase tracking-widest text-slate-400 cursor-pointer">Code Original</label>
             <button
-              onClick={() => setInput('')}
+              onClick={() => {
+                setInput('');
+                setError(null);
+              }}
               className="text-xs font-bold text-rose-500 hover:text-rose-600 flex items-center gap-1 transition-colors"
             >
               <Trash2 className="w-3 h-3" /> Effacer
@@ -136,7 +150,15 @@ export function CodeMinifier() {
           <textarea
             id="minifier-input"
             value={input}
-            onChange={(e) => setInput(e.target.value)}
+            onChange={(e) => {
+              const val = e.target.value;
+              setInput(val);
+              if (val.length > MAX_LENGTH) {
+                setError(`L'entrée est trop longue. Limite de ${MAX_LENGTH.toLocaleString()} caractères pour la minification.`);
+              } else {
+                setError(null);
+              }
+            }}
             placeholder={`Collez votre code ${mode.toUpperCase()} ici...`}
             className="w-full h-[450px] p-6 bg-slate-50 dark:bg-slate-900/50 border border-slate-200 dark:border-slate-800 rounded-3xl outline-none focus:ring-2 focus:ring-indigo-500/20 transition-all font-mono text-sm leading-relaxed dark:text-slate-300 resize-none"
           />

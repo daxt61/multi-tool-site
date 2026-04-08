@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import { Clock, Copy, Check, Info, AlertCircle } from 'lucide-react';
 
 export function CronGenerator() {
@@ -9,6 +9,45 @@ export function CronGenerator() {
   const [dayOfWeek, setDayOfWeek] = useState('*');
   const [cron, setCron] = useState('* * * * *');
   const [copied, setCopied] = useState(false);
+
+  const humanDescription = useMemo(() => {
+    if (cron === '* * * * *') return "Toutes les minutes, tous les jours.";
+
+    const monthsArr = ['', 'janvier', 'février', 'mars', 'avril', 'mai', 'juin', 'juillet', 'août', 'septembre', 'octobre', 'novembre', 'décembre'];
+    const daysArr = ['dimanche', 'lundi', 'mardi', 'mercredi', 'jeudi', 'vendredi', 'samedi', 'dimanche'];
+
+    let res = "S'exécute ";
+
+    // Minutes
+    if (minutes === '*') res += "chaque minute ";
+    else if (minutes.startsWith('*/')) res += `toutes les ${minutes.slice(2)} minutes `;
+    else res += `à la minute ${minutes} `;
+
+    // Hours
+    if (hours === '*') {
+      if (minutes !== '*') res += "de chaque heure ";
+    } else if (hours.startsWith('*/')) res += `toutes les ${hours.slice(2)} heures `;
+    else res += `à ${hours}h `;
+
+    // Day of Month
+    if (dayOfMonth !== '*') {
+      res += `le ${dayOfMonth === 'L' ? 'dernier jour' : dayOfMonth} du mois `;
+    }
+
+    // Month
+    if (month !== '*') {
+      const mIdx = parseInt(month);
+      res += `en ${monthsArr[mIdx] || month} `;
+    }
+
+    // Day of Week
+    if (dayOfWeek !== '*') {
+      const dIdx = parseInt(dayOfWeek);
+      res += `le ${daysArr[dIdx] || dayOfWeek} `;
+    }
+
+    return res.trim() + ".";
+  }, [cron, minutes, hours, dayOfMonth, month, dayOfWeek]);
 
   useEffect(() => {
     setCron(`${minutes} ${hours} ${dayOfMonth} ${month} ${dayOfWeek}`);
@@ -44,8 +83,13 @@ export function CronGenerator() {
         <div className="inline-flex items-center gap-2 px-4 py-1.5 bg-indigo-500/10 text-indigo-400 rounded-full text-xs font-black uppercase tracking-widest border border-indigo-500/20">
           <Clock className="w-3 h-3" /> Expression Cron
         </div>
-        <div className="text-4xl md:text-6xl font-mono font-black text-white tracking-wider break-all">
-          {cron}
+        <div className="space-y-2">
+          <div className="text-4xl md:text-6xl font-mono font-black text-white tracking-wider break-all">
+            {cron}
+          </div>
+          <p className="text-indigo-300 font-medium text-sm md:text-base animate-in fade-in slide-in-from-bottom-2 duration-500">
+            {humanDescription}
+          </p>
         </div>
         <button
           onClick={handleCopy}

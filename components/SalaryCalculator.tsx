@@ -4,9 +4,18 @@ import { Banknote, Briefcase, Info, TrendingDown, TrendingUp, RotateCcw, HelpCir
 export function SalaryCalculator() {
   const [grossAnnual, setGrossAnnual] = useState<string>("35000");
   const [status, setStatus] = useState<"non-cadre" | "cadre">("non-cadre");
+  const [is13thMonth, setIs13thMonth] = useState(false);
+  const [mealVoucherValue, setMealVoucherValue] = useState<string>("0");
+  const [mealVoucherDays, setMealVoucherDays] = useState<string>("20");
+  const [employerShare, setEmployerShare] = useState<string>("50");
+  const [benefitsInKind, setBenefitsInKind] = useState<string>("0");
 
   const results = useMemo(() => {
     const gross = parseFloat(grossAnnual) || 0;
+    const benefits = parseFloat(benefitsInKind) || 0;
+    const mvValue = parseFloat(mealVoucherValue) || 0;
+    const mvDays = parseFloat(mealVoucherDays) || 0;
+    const mvShare = parseFloat(employerShare) || 0;
 
     const rates = {
       "non-cadre": 0.22,
@@ -18,7 +27,8 @@ export function SalaryCalculator() {
 
     // Simplified French Income Tax calculation (progressive)
     // Based on taxable income (approx 90% of net before tax after 10% deduction)
-    const taxableIncome = netAnnualBeforeTax * 0.9;
+    // Benefits in kind are added to taxable income
+    const taxableIncome = (netAnnualBeforeTax + (benefits * 12)) * 0.9;
     let tax = 0;
     const brackets = [
       { limit: 11294, rate: 0 },
@@ -39,24 +49,31 @@ export function SalaryCalculator() {
       }
     }
 
-    const netAnnualAfterTax = netAnnualBeforeTax - tax;
+    const mealVoucherEmployeeShareMonthly = mvValue * (1 - mvShare / 100) * mvDays;
+    const netAnnualAfterTax = netAnnualBeforeTax - tax - (mealVoucherEmployeeShareMonthly * 12);
+
+    const months = is13thMonth ? 13 : 12;
 
     return {
       grossAnnual: gross,
-      grossMonthly: gross / 12,
+      grossMonthly: gross / months,
       netAnnualBeforeTax,
-      netMonthlyBeforeTax: netAnnualBeforeTax / 12,
+      netMonthlyBeforeTax: netAnnualBeforeTax / months,
       netAnnualAfterTax,
-      netMonthlyAfterTax: netAnnualAfterTax / 12,
+      netMonthlyAfterTax: netAnnualAfterTax / months,
       chargesAnnual: gross - netAnnualBeforeTax,
-      chargesMonthly: (gross - netAnnualBeforeTax) / 12,
+      chargesMonthly: (gross - netAnnualBeforeTax) / months,
       taxAnnual: tax,
-      taxMonthly: tax / 12,
+      taxMonthly: tax / months,
+      mealVoucherDeduction: mealVoucherEmployeeShareMonthly,
+      benefitsInKind: benefits,
     };
-  }, [grossAnnual, status]);
+  }, [grossAnnual, status, is13thMonth, mealVoucherValue, mealVoucherDays, employerShare, benefitsInKind]);
 
   const handleClear = () => {
     setGrossAnnual("");
+    setMealVoucherValue("0");
+    setBenefitsInKind("0");
   };
 
   return (
@@ -69,7 +86,7 @@ export function SalaryCalculator() {
             </label>
             <button
               onClick={handleClear}
-              className="text-xs font-bold text-indigo-500 hover:text-indigo-600 flex items-center gap-1 transition-colors"
+              className="text-xs font-bold text-rose-500 bg-rose-50 dark:bg-rose-500/10 hover:bg-rose-100 dark:hover:bg-rose-500/20 px-3 py-1.5 rounded-xl flex items-center gap-1 transition-all"
             >
               <RotateCcw className="w-3 h-3" /> Effacer
             </button>
@@ -86,31 +103,71 @@ export function SalaryCalculator() {
             <span className="absolute right-6 top-1/2 -translate-y-1/2 text-2xl font-black text-slate-300">€</span>
           </div>
 
-          <div className="space-y-3">
-            <label className="text-xs font-black uppercase tracking-widest text-slate-400 px-1 flex items-center gap-2">
-              <Briefcase className="w-3 h-3" /> Statut professionnel
-            </label>
-            <div className="grid grid-cols-2 gap-3">
+          <div className="grid grid-cols-2 gap-4">
+            <div className="space-y-3">
+              <label className="text-xs font-black uppercase tracking-widest text-slate-400 px-1 flex items-center gap-2">
+                <Briefcase className="w-3 h-3" /> Statut
+              </label>
+              <div className="flex bg-slate-100 dark:bg-slate-800 p-1 rounded-xl">
+                <button
+                  onClick={() => setStatus("non-cadre")}
+                  className={`flex-1 py-2 rounded-lg text-xs font-bold transition-all ${status === "non-cadre" ? "bg-white dark:bg-slate-700 text-indigo-600 shadow-sm" : "text-slate-500"}`}
+                >
+                  Non-cadre
+                </button>
+                <button
+                  onClick={() => setStatus("cadre")}
+                  className={`flex-1 py-2 rounded-lg text-xs font-bold transition-all ${status === "cadre" ? "bg-white dark:bg-slate-700 text-indigo-600 shadow-sm" : "text-slate-500"}`}
+                >
+                  Cadre
+                </button>
+              </div>
+            </div>
+            <div className="space-y-3">
+              <label className="text-xs font-black uppercase tracking-widest text-slate-400 px-1 flex items-center gap-2">
+                <Calculator className="w-3 h-3" /> Périodicité
+              </label>
               <button
-                onClick={() => setStatus("non-cadre")}
-                className={`py-4 rounded-2xl font-bold text-sm transition-all border ${
-                  status === "non-cadre"
-                    ? "bg-indigo-600 text-white border-indigo-600 shadow-lg shadow-indigo-600/20"
-                    : "bg-white dark:bg-slate-800 text-slate-500 border-slate-200 dark:border-slate-700 hover:border-slate-300"
-                }`}
+                onClick={() => setIs13thMonth(!is13thMonth)}
+                className={`w-full py-2.5 rounded-xl text-xs font-bold transition-all border ${is13thMonth ? "bg-indigo-50 dark:bg-indigo-900/20 border-indigo-200 text-indigo-600" : "bg-white dark:bg-slate-800 border-slate-200 text-slate-500"}`}
               >
-                Non-cadre (~22%)
+                {is13thMonth ? "13 mois" : "12 mois"}
               </button>
-              <button
-                onClick={() => setStatus("cadre")}
-                className={`py-4 rounded-2xl font-bold text-sm transition-all border ${
-                  status === "cadre"
-                    ? "bg-indigo-600 text-white border-indigo-600 shadow-lg shadow-indigo-600/20"
-                    : "bg-white dark:bg-slate-800 text-slate-500 border-slate-200 dark:border-slate-700 hover:border-slate-300"
-                }`}
-              >
-                Cadre (~25%)
-              </button>
+            </div>
+          </div>
+
+          <div className="space-y-4 pt-4 border-t border-slate-100 dark:border-slate-800">
+            <h4 className="text-xs font-black uppercase tracking-widest text-slate-400 px-1">Avantages & Frais</h4>
+
+            <div className="grid grid-cols-2 gap-4">
+              <div className="space-y-2">
+                <label htmlFor="meal-vouchers" className="text-[10px] font-bold text-slate-500 uppercase px-1">Tickets Resto (Valeur)</label>
+                <div className="relative">
+                  <input
+                    id="meal-vouchers"
+                    type="number"
+                    value={mealVoucherValue}
+                    onChange={(e) => setMealVoucherValue(e.target.value)}
+                    className="w-full p-3 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl text-sm font-bold outline-none focus:border-indigo-500 transition-colors dark:text-white"
+                    placeholder="9.50"
+                  />
+                  <span className="absolute right-3 top-1/2 -translate-y-1/2 text-xs font-bold text-slate-300">€</span>
+                </div>
+              </div>
+              <div className="space-y-2">
+                <label htmlFor="benefits" className="text-[10px] font-bold text-slate-500 uppercase px-1">Avantages nature / mois</label>
+                <div className="relative">
+                  <input
+                    id="benefits"
+                    type="number"
+                    value={benefitsInKind}
+                    onChange={(e) => setBenefitsInKind(e.target.value)}
+                    className="w-full p-3 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl text-sm font-bold outline-none focus:border-indigo-500 transition-colors dark:text-white"
+                    placeholder="0"
+                  />
+                  <span className="absolute right-3 top-1/2 -translate-y-1/2 text-xs font-bold text-slate-300">€</span>
+                </div>
+              </div>
             </div>
           </div>
 
@@ -160,6 +217,12 @@ export function SalaryCalculator() {
                       <span className="text-sm flex items-center gap-1"><TrendingDown className="w-3 h-3" /> Impôt estimé</span>
                       <span className="font-bold font-mono">-{results.taxMonthly.toFixed(2)}€</span>
                    </div>
+                   {results.mealVoucherDeduction > 0 && (
+                     <div className="flex justify-between items-center gap-2 text-rose-500">
+                        <span className="text-sm flex items-center gap-1"><TrendingDown className="w-3 h-3" /> Part Tickets Resto</span>
+                        <span className="font-bold font-mono">-{results.mealVoucherDeduction.toFixed(2)}€</span>
+                     </div>
+                   )}
                    <div className="pt-2 border-t border-slate-200 dark:border-slate-700 flex justify-between items-center gap-2 text-emerald-500">
                       <span className="font-bold text-sm uppercase tracking-wider">Net après impôt</span>
                       <span className="font-black font-mono text-xl text-right">{results.netMonthlyAfterTax.toFixed(2)}€</span>

@@ -9,6 +9,7 @@ export function MarkdownPreview() {
   const [mode, setMode] = useState<'split' | 'edit' | 'preview'>('split');
   const [error, setError] = useState<string | null>(null);
   const [copied, setCopied] = useState(false);
+  const [copiedHtml, setCopiedHtml] = useState(false);
 
   const escapeHTML = (str: string) => {
     return str
@@ -24,6 +25,14 @@ export function MarkdownPreview() {
     navigator.clipboard.writeText(markdown);
     setCopied(true);
     setTimeout(() => setCopied(false), 2000);
+  };
+
+  const handleCopyHtml = () => {
+    if (!markdown) return;
+    const html = renderMarkdown(markdown);
+    navigator.clipboard.writeText(html);
+    setCopiedHtml(true);
+    setTimeout(() => setCopiedHtml(false), 2000);
   };
 
   const handleDownload = () => {
@@ -155,7 +164,17 @@ export function MarkdownPreview() {
             }`}
           >
             {copied ? <Check className="w-4 h-4" /> : <Copy className="w-4 h-4" />}
-            {copied ? 'Copié' : 'Copier'}
+            {copied ? 'Copié' : 'Markdown'}
+          </button>
+          <button
+            onClick={handleCopyHtml}
+            disabled={!markdown}
+            className={`flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-bold transition-all disabled:opacity-50 ${
+              copiedHtml ? 'bg-emerald-50 text-emerald-600 dark:bg-emerald-500/10' : 'bg-indigo-50 dark:bg-indigo-900/10 text-indigo-600 dark:text-indigo-400 hover:bg-indigo-100'
+            }`}
+          >
+            {copiedHtml ? <Check className="w-4 h-4" /> : <Code className="w-4 h-4" />}
+            {copiedHtml ? 'HTML Copié' : 'HTML'}
           </button>
           <button
             onClick={handleDownload}

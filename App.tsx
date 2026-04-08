@@ -169,6 +169,8 @@ const SleepCalculator = lazy(() => import("./components/SleepCalculator").then(m
 const WaterCalculator = lazy(() => import("./components/WaterCalculator").then(m => ({ default: m.WaterCalculator })));
 const UTMBuilder = lazy(() => import("./components/UTMBuilder").then(m => ({ default: m.UTMBuilder })));
 const DiscountCalculator = lazy(() => import("./components/DiscountCalculator").then(m => ({ default: m.DiscountCalculator })));
+const OvertimeCalculator = lazy(() => import("./components/OvertimeCalculator").then(m => ({ default: m.OvertimeCalculator })));
+const RetirementCalculator = lazy(() => import("./components/RetirementCalculator").then(m => ({ default: m.RetirementCalculator })));
 
 // ⚡ Bolt Optimization: Pre-calculating tool map and search index for O(1) lookups and faster filtering
 const toolsMap: Record<string, Tool> = {};
@@ -314,6 +316,22 @@ const tools: Tool[] = [
     icon: Tag,
     description: "Calculer le prix final après une ou plusieurs remises",
     Component: DiscountCalculator,
+    category: "budget",
+  },
+  {
+    id: "overtime-calculator",
+    name: "Heures Sup",
+    icon: Clock,
+    description: "Calculer le gain net des heures supplémentaires",
+    Component: OvertimeCalculator,
+    category: "budget",
+  },
+  {
+    id: "retirement-calculator",
+    name: "Retraite",
+    icon: Landmark,
+    description: "Âge légal et trimestres (Réforme 2023)",
+    Component: RetirementCalculator,
     category: "budget",
   },
   // Calculators

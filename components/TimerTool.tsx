@@ -158,6 +158,28 @@ export function TimerTool() {
     setTimerDone(false);
   };
 
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (document.activeElement?.tagName === "INPUT" || document.activeElement?.tagName === "TEXTAREA") {
+        return;
+      }
+
+      if (e.code === 'Space') {
+        e.preventDefault();
+        if (mode === 'timer') setTimerRunning(prev => !prev);
+        else if (mode === 'stopwatch') setStopwatchRunning(prev => !prev);
+        else if (mode === 'pomodoro') setPomodoroRunning(prev => !prev);
+      } else if (e.key.toLowerCase() === 'r') {
+        if (mode === 'timer') resetTimer();
+        else if (mode === 'stopwatch') resetStopwatch();
+        else if (mode === 'pomodoro') resetPomodoro();
+      }
+    };
+
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [mode]);
+
   return (
     <div className="max-w-4xl mx-auto space-y-12">
       <div className="flex bg-slate-100 dark:bg-slate-800 p-1 rounded-2xl w-fit mx-auto overflow-x-auto no-scrollbar max-w-full">

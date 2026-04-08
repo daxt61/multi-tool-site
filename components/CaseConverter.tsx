@@ -21,7 +21,7 @@ export function CaseConverter() {
     'dot.case': (t: string) => t.toLowerCase().replace(/[\s_-]+/g, '.'),
     'path/case': (t: string) => t.toLowerCase().replace(/[\s_-]+/g, '/'),
     'Title Case': (t: string) => t.toLowerCase().split(' ').map(w => w.charAt(0).toUpperCase() + w.slice(1)).join(' '),
-    'Sentence case': (t: string) => t.charAt(0).toUpperCase() + t.slice(1).toLowerCase(),
+    'Sentence case': (t: string) => t.toLowerCase().replace(/(^\s*\w|[.!?]\s+\w)/g, s => s.toUpperCase()),
     'UPPERCASE': (t: string) => t.toUpperCase(),
     'lowercase': (t: string) => t.toLowerCase(),
     'aLtErNaTiNg CaSe': (t: string) => t.split('').map((c, i) => i % 2 === 0 ? c.toLowerCase() : c.toUpperCase()).join(''),

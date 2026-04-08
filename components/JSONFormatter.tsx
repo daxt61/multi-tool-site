@@ -1,6 +1,8 @@
 import { useState } from 'react';
 import { FileCode, Copy, Check, Trash2, AlertCircle, Maximize2, Minimize2, Download } from 'lucide-react';
 
+const MAX_LENGTH = 100000;
+
 export function JSONFormatter() {
   const [input, setInput] = useState('');
   const [output, setOutput] = useState('');
@@ -9,7 +11,7 @@ export function JSONFormatter() {
 
   const handlePrettify = () => {
     try {
-      if (!input.trim()) return;
+      if (!input.trim() || input.length > MAX_LENGTH) return;
       const parsed = JSON.parse(input);
       const formatted = JSON.stringify(parsed, null, 2);
       setOutput(formatted);
@@ -21,7 +23,7 @@ export function JSONFormatter() {
 
   const handleMinify = () => {
     try {
-      if (!input.trim()) return;
+      if (!input.trim() || input.length > MAX_LENGTH) return;
       const parsed = JSON.parse(input);
       const formatted = JSON.stringify(parsed);
       setOutput(formatted);
@@ -42,6 +44,15 @@ export function JSONFormatter() {
     setInput('');
     setOutput('');
     setError('');
+  };
+
+  const handleInputChange = (val: string) => {
+    setInput(val);
+    if (val.length > MAX_LENGTH) {
+      setError(`L'entrée est trop longue. Limite de ${MAX_LENGTH.toLocaleString()} caractères.`);
+    } else {
+      setError('');
+    }
   };
 
   const handleDownload = () => {
@@ -70,7 +81,7 @@ export function JSONFormatter() {
           <div className="flex justify-between items-center px-1">
             <div className="flex items-center gap-2">
               <FileCode className="w-4 h-4 text-indigo-500" />
-              <label className="text-xs font-black uppercase tracking-widest text-slate-400">Entrée JSON</label>
+              <label htmlFor="json-input" className="text-xs font-black uppercase tracking-widest text-slate-400 cursor-pointer">Entrée JSON</label>
             </div>
             <button
               onClick={handleClear}
@@ -81,10 +92,11 @@ export function JSONFormatter() {
             </button>
           </div>
           <textarea
+            id="json-input"
             value={input}
-            onChange={(e) => setInput(e.target.value)}
+            onChange={(e) => handleInputChange(e.target.value)}
             placeholder='{"key": "value"}'
-            className="w-full h-[450px] p-6 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-3xl outline-none focus:ring-2 focus:ring-indigo-500/20 transition-all font-mono text-sm leading-relaxed dark:text-slate-300 resize-none"
+            className={`w-full h-[450px] p-6 bg-slate-50 dark:bg-slate-900 border ${error.includes('trop longue') ? 'border-rose-500 ring-rose-500/20' : 'border-slate-200 dark:border-slate-800'} rounded-3xl outline-none focus:ring-2 ${error.includes('trop longue') ? 'focus:ring-rose-500/20' : 'focus:ring-indigo-500/20'} transition-all font-mono text-sm leading-relaxed dark:text-slate-300 resize-none`}
           />
         </div>
 
@@ -93,7 +105,7 @@ export function JSONFormatter() {
           <div className="flex justify-between items-center px-1">
             <div className="flex items-center gap-2">
               <Check className="w-4 h-4 text-emerald-500" />
-              <label className="text-xs font-black uppercase tracking-widest text-slate-400">Résultat</label>
+              <label htmlFor="json-output" className="text-xs font-black uppercase tracking-widest text-slate-400 cursor-pointer">Résultat</label>
             </div>
             <div className="flex gap-2">
               <button
@@ -114,6 +126,7 @@ export function JSONFormatter() {
             </div>
           </div>
           <textarea
+            id="json-output"
             value={output}
             readOnly
             placeholder="Le résultat formaté apparaîtra ici..."

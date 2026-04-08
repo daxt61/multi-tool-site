@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Tag, Info } from 'lucide-react';
+import { Tag, Info, Trash2 } from 'lucide-react';
 
 interface Product {
   price: string;
@@ -54,9 +54,18 @@ export function UnitPriceCalculator() {
               <span className="w-8 h-8 rounded-lg bg-indigo-600 text-white flex items-center justify-center text-xs">A</span>
               Produit A
             </h3>
-            {win === 'A' && (
-              <span className="px-3 py-1 bg-emerald-500 text-white text-[10px] font-black uppercase tracking-widest rounded-full animate-bounce">Moins cher</span>
-            )}
+            <div className="flex items-center gap-2">
+              <button
+                onClick={() => setProductA({ price: '', quantity: '', unit: 'g' })}
+                disabled={!productA.price && !productA.quantity}
+                className="text-xs font-bold text-rose-500 bg-rose-50 dark:bg-rose-500/10 hover:bg-rose-100 dark:hover:bg-rose-500/20 px-2 py-1 rounded-lg flex items-center gap-1 transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+              >
+                <Trash2 className="w-3 h-3" /> Effacer
+              </button>
+              {win === 'A' && (
+                <span className="px-3 py-1 bg-emerald-500 text-white text-[10px] font-black uppercase tracking-widest rounded-full animate-bounce">Moins cher</span>
+              )}
+            </div>
           </div>
 
           <div className="space-y-6">
@@ -114,9 +123,18 @@ export function UnitPriceCalculator() {
               <span className="w-8 h-8 rounded-lg bg-slate-400 text-white flex items-center justify-center text-xs">B</span>
               Produit B
             </h3>
-            {win === 'B' && (
-              <span className="px-3 py-1 bg-emerald-500 text-white text-[10px] font-black uppercase tracking-widest rounded-full animate-bounce">Moins cher</span>
-            )}
+            <div className="flex items-center gap-2">
+              <button
+                onClick={() => setProductB({ price: '', quantity: '', unit: 'g' })}
+                disabled={!productB.price && !productB.quantity}
+                className="text-xs font-bold text-rose-500 bg-rose-50 dark:bg-rose-500/10 hover:bg-rose-100 dark:hover:bg-rose-500/20 px-2 py-1 rounded-lg flex items-center gap-1 transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+              >
+                <Trash2 className="w-3 h-3" /> Effacer
+              </button>
+              {win === 'B' && (
+                <span className="px-3 py-1 bg-emerald-500 text-white text-[10px] font-black uppercase tracking-widest rounded-full animate-bounce">Moins cher</span>
+              )}
+            </div>
           </div>
 
           <div className="space-y-6">

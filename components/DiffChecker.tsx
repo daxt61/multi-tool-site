@@ -23,24 +23,34 @@ export function DiffChecker() {
   const diffResult = useMemo(() => {
     const lines1 = text1.slice(0, MAX_LENGTH).split('\n');
     const lines2 = text2.slice(0, MAX_LENGTH).split('\n');
-    const maxLines = Math.max(lines1.length, lines2.length);
-    const diff = [];
 
-    for (let i = 0; i < maxLines; i++) {
-      const line1 = lines1[i] || '';
-      const line2 = lines2[i] || '';
+    const n = lines1.length;
+    const m = lines2.length;
+    const dp = Array.from({ length: n + 1 }, () => Array(m + 1).fill(0));
 
-      if (line1 === line2) {
-        diff.push({ type: 'unchanged', text: line1 });
-      } else {
-        if (line1 && !line2) {
-          diff.push({ type: 'removed', text: line1 });
-        } else if (!line1 && line2) {
-          diff.push({ type: 'added', text: line2 });
+    for (let i = 1; i <= n; i++) {
+      for (let j = 1; j <= m; j++) {
+        if (lines1[i - 1] === lines2[j - 1]) {
+          dp[i][j] = dp[i - 1][j - 1] + 1;
         } else {
-          diff.push({ type: 'removed', text: line1 });
-          diff.push({ type: 'added', text: line2 });
+          dp[i][j] = Math.max(dp[i - 1][j], dp[i][j - 1]);
         }
+      }
+    }
+
+    const diff = [];
+    let i = n, j = m;
+    while (i > 0 || j > 0) {
+      if (i > 0 && j > 0 && lines1[i - 1] === lines2[j - 1]) {
+        diff.unshift({ type: 'unchanged', text: lines1[i - 1] });
+        i--;
+        j--;
+      } else if (j > 0 && (i === 0 || dp[i][j - 1] >= dp[i - 1][j])) {
+        diff.unshift({ type: 'added', text: lines2[j - 1] });
+        j--;
+      } else {
+        diff.unshift({ type: 'removed', text: lines1[i - 1] });
+        i--;
       }
     }
     return diff;

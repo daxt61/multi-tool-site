@@ -57,3 +57,7 @@
 ## 2026-04-06 - [Dark Mode Success States & Consistent Focus]
 **Learning:** Standardizing success/active states with dark mode specific variants (e.g., `dark:bg-emerald-500/10` and `dark:text-emerald-400`) ensures UI feedback remains legible and visually pleasing across themes. Additionally, applying a consistent `focus-visible:ring-2` pattern to all global navigation elements (search utilities, back links, toggles) is a high-impact accessibility win that provides a professional feel for keyboard-driven navigation.
 **Action:** Always implement theme-aware success states and audit for consistent focus indicators on all high-level interactive elements.
+
+## 2026-04-07 - [Informative Tool Utilities & Actionable UX]
+**Learning:** Purely informative or detection-based tools (like IP Address detection) are often overlooked when it comes to standard utility buttons like "Copy". However, the primary user intent for these tools is often to capture and use the detected data. Adding a "Copy" utility transforms these tools from passive displays into active, actionable utilities.
+**Action:** Always audit informative tools for "Copy" utilities to ensure they meet the user's ultimate goal of data portability.

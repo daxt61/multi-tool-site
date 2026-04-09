@@ -1,10 +1,13 @@
 import { useState, useMemo, useDeferredValue } from 'react';
-import { Copy, Check, Trash2, Hash, Type, FileText, AlignLeft, Clock, MessageSquare, BarChart3, Info, Star } from 'lucide-react';
+import { Copy, Check, Trash2, Hash, Type, FileText, AlignLeft, Clock, MessageSquare, BarChart3, Info, Star, AlertCircle } from 'lucide-react';
+
+const MAX_LENGTH = 100000;
 
 export function WordCounter() {
   const [text, setText] = useState('');
   const [copied, setCopied] = useState(false);
   const [copiedStats, setCopiedStats] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
   // ⚡ Bolt Optimization: useDeferredValue for text analysis
   // This allows the input to remain responsive even with large texts by offloading the
@@ -14,6 +17,20 @@ export function WordCounter() {
   // ⚡ Bolt Optimization: useMemo to avoid redundant calculations
   // We consolidate string operations (trimming, splitting) to minimize CPU usage.
   const stats = useMemo(() => {
+    if (deferredText.length > MAX_LENGTH) {
+      return {
+        characters: deferredText.length,
+        charactersNoSpaces: 0,
+        words: 0,
+        lines: 0,
+        sentences: 0,
+        readingTime: 0,
+        speakingTime: 0,
+        ari: 0,
+        ariGrade: 'N/A',
+        topWords: []
+      };
+    }
     const trimmed = deferredText.trim();
     const words = trimmed === '' ? [] : trimmed.split(/\s+/);
     const wordCount = words.length;
@@ -85,6 +102,7 @@ export function WordCounter() {
   };
 
   const handleCopy = () => {
+    if (text.length > MAX_LENGTH) return;
     navigator.clipboard.writeText(text);
     setCopied(true);
     setTimeout(() => setCopied(false), 2000);
@@ -107,13 +125,19 @@ export function WordCounter() {
 
   return (
     <div className="max-w-5xl mx-auto space-y-8">
+      {error && (
+        <div className="bg-rose-50 dark:bg-rose-500/10 border border-rose-200 dark:border-rose-800 p-4 rounded-2xl flex items-center gap-3 text-rose-600 dark:text-rose-400 font-bold animate-in fade-in slide-in-from-top-2">
+          <AlertCircle className="w-5 h-5" />
+          {error}
+        </div>
+      )}
       <div className="space-y-4">
         <div className="flex justify-between items-center px-1">
-          <label className="text-xs font-black uppercase tracking-widest text-slate-400">Votre Texte</label>
+          <label htmlFor="word-counter-input" className="text-xs font-black uppercase tracking-widest text-slate-400 cursor-pointer">Votre Texte</label>
           <div className="flex gap-2">
             <button
               onClick={handleCopyStats}
-              disabled={!text}
+              disabled={!text || text.length > MAX_LENGTH}
               className={`text-xs font-bold px-3 py-1 rounded-full transition-all flex items-center gap-1 ${copiedStats ? 'bg-emerald-50 dark:bg-emerald-500/10 text-emerald-600 dark:text-emerald-400' : 'text-indigo-500 bg-indigo-50 dark:bg-indigo-500/10 hover:bg-indigo-100 dark:hover:bg-indigo-500/20'} disabled:opacity-50 disabled:cursor-not-allowed`}
               title="Copier les statistiques"
             >
@@ -128,7 +152,10 @@ export function WordCounter() {
               {copied ? <Check className="w-3 h-3" /> : <Copy className="w-3 h-3" />} {copied ? 'Copié' : 'Copier'}
             </button>
             <button
-              onClick={() => setText('')}
+              onClick={() => {
+                setText('');
+                setError(null);
+              }}
               disabled={!text}
               className="text-xs font-bold px-3 py-1 rounded-full text-rose-500 bg-rose-50 dark:bg-rose-500/10 hover:bg-rose-100 dark:hover:bg-rose-500/20 transition-all flex items-center gap-1 disabled:opacity-50 disabled:cursor-not-allowed"
             >
@@ -137,10 +164,19 @@ export function WordCounter() {
           </div>
         </div>
         <textarea
+          id="word-counter-input"
           value={text}
-          onChange={(e) => setText(e.target.value)}
+          onChange={(e) => {
+            const val = e.target.value;
+            setText(val);
+            if (val.length > MAX_LENGTH) {
+              setError(`L'entrée est trop longue. Limite de ${MAX_LENGTH.toLocaleString()} caractères.`);
+            } else {
+              setError(null);
+            }
+          }}
           placeholder="Commencez à taper..."
-          className="w-full h-80 p-8 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-[2rem] outline-none focus:ring-2 focus:ring-indigo-500/20 transition-all text-lg leading-relaxed dark:text-slate-300"
+          className={`w-full h-80 p-8 bg-slate-50 dark:bg-slate-900 border ${error ? 'border-rose-500 focus:ring-rose-500/20' : 'border-slate-200 dark:border-slate-800 focus:ring-indigo-500/20'} rounded-[2rem] outline-none focus:ring-2 transition-all text-lg leading-relaxed dark:text-slate-300`}
         />
       </div>
 

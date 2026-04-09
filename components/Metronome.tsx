@@ -52,7 +52,7 @@ export function Metronome() {
     timerIDRef.current = window.setTimeout(scheduler, 25);
   }, [playClick]);
 
-  const togglePlay = () => {
+  const togglePlay = useCallback(() => {
     if (!isPlaying) {
       if (!audioContextRef.current) {
         audioContextRef.current = new (window.AudioContext || (window as any).webkitAudioContext)();
@@ -66,11 +66,44 @@ export function Metronome() {
       if (timerIDRef.current) clearTimeout(timerIDRef.current);
       setIsPlaying(false);
     }
-  };
+  }, [isPlaying, scheduler]);
 
-  const handleBpmChange = (newBpm: number) => {
+  const handleBpmChange = useCallback((newBpm: number) => {
     setBpm(Math.max(30, Math.min(280, newBpm)));
-  };
+  }, []);
+
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (document.activeElement?.tagName === "INPUT" || document.activeElement?.tagName === "TEXTAREA") {
+        return;
+      }
+
+      if (e.code === 'Space') {
+        e.preventDefault();
+        togglePlay();
+      } else if (e.key === 'ArrowUp') {
+        e.preventDefault();
+        handleBpmChange(bpm + 1);
+      } else if (e.key === 'ArrowDown') {
+        e.preventDefault();
+        handleBpmChange(bpm - 1);
+      } else if (e.key === 'ArrowRight') {
+        e.preventDefault();
+        handleBpmChange(bpm + 5);
+      } else if (e.key === 'ArrowLeft') {
+        e.preventDefault();
+        handleBpmChange(bpm - 5);
+      } else if (e.key.toLowerCase() === 'm') {
+        e.preventDefault();
+        setIsMuted(prev => !prev);
+      }
+    };
+
+    window.addEventListener('keydown', handleKeyDown);
+    return () => {
+      window.removeEventListener('keydown', handleKeyDown);
+    };
+  }, [bpm, togglePlay, handleBpmChange]);
 
   useEffect(() => {
     return () => {
@@ -110,6 +143,7 @@ export function Metronome() {
               onClick={() => handleBpmChange(bpm - 1)}
               className="p-4 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-2xl hover:bg-slate-50 transition-all active:scale-90"
               aria-label="Diminuer le BPM"
+              title="Diminuer le BPM (Flèche Bas)"
             >
               <Minus className="w-6 h-6" />
             </button>
@@ -126,6 +160,7 @@ export function Metronome() {
               onClick={() => handleBpmChange(bpm + 1)}
               className="p-4 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-2xl hover:bg-slate-50 transition-all active:scale-90"
               aria-label="Augmenter le BPM"
+              title="Augmenter le BPM (Flèche Haut)"
             >
               <Plus className="w-6 h-6" />
             </button>
@@ -139,6 +174,7 @@ export function Metronome() {
                   ? 'bg-rose-500 text-white shadow-rose-500/20'
                   : 'bg-indigo-600 text-white shadow-indigo-600/20'
               }`}
+              title={isPlaying ? "Arrêter (Espace)" : "Démarrer (Espace)"}
             >
               {isPlaying ? <Pause className="w-8 h-8 fill-current" /> : <Play className="w-8 h-8 fill-current" />}
               {isPlaying ? 'STOP' : 'START'}
@@ -151,6 +187,7 @@ export function Metronome() {
                   : 'bg-white border-slate-200 text-slate-400 dark:bg-slate-800 dark:border-slate-700'
               }`}
               aria-label={isMuted ? "Réactiver le son" : "Couper le son"}
+              title={isMuted ? "Réactiver le son (M)" : "Couper le son (M)"}
             >
               {isMuted ? <VolumeX className="w-8 h-8" /> : <Volume2 className="w-8 h-8" />}
             </button>
@@ -186,7 +223,7 @@ export function Metronome() {
             <Info className="w-4 h-4 text-indigo-500" /> Guide d'utilisation
           </h4>
           <p className="text-sm text-slate-500 dark:text-slate-400 leading-relaxed">
-            Utilisez le curseur ou les boutons +/- pour régler le tempo (BPM). Le premier temps de chaque mesure est accentué par un son plus aigu et une animation visuelle distincte.
+            Utilisez le curseur ou les boutons +/- pour régler le tempo (BPM). Vous pouvez aussi utiliser les flèches du clavier (±1 ou ±5 avec Gauche/Droite), <kbd className="px-1 bg-slate-100 dark:bg-slate-800 rounded">Espace</kbd> pour Start/Stop et <kbd className="px-1 bg-slate-100 dark:bg-slate-800 rounded">M</kbd> pour le mode muet.
           </p>
         </div>
         <div className="space-y-4">

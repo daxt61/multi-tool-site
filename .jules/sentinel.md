@@ -46,3 +46,8 @@
 **Vulnerability:** The MarkdownPreview component processed arbitrary lengths of user input through complex regular expressions on the main thread, making it vulnerable to Denial of Service (DoS) and browser freezing if the input was extremely large.
 **Learning:** Tools that use multi-pass regex replacements for rendering (like custom markdown or code formatters) must enforce a strict `MAX_LENGTH` limit on the input to ensure predictable performance and prevent the UI from becoming unresponsive.
 **Prevention:** Define a `MAX_LENGTH` constant (e.g., 50,000 characters) and validate the input length before triggering any computationally expensive processing. Provide clear UI feedback when the limit is exceeded.
+
+## 2026-04-09 - [Replacement String Injection in Placeholder Restoration]
+**Vulnerability:** In custom markdown parsers or code formatters that use placeholders (like `__BLOCK_0__`) to protect content during multi-pass processing, restoring those placeholders using `string.replace(regex, content)` is vulnerable to replacement string injection if `content` contains special patterns like $\&, $1, or $`.
+**Learning:** The second argument to `.replace()` in JavaScript can contain special patterns that refer to matched substrings. If user-controlled data (like code snippets) containing these patterns is passed directly as the second argument, the final output can be corrupted or leak internal placeholder markers.
+**Prevention:** Always use the function form of `.replace()` when the replacement content is dynamic or user-controlled: `string.replace(regex, () => content)`. This ensures the string is treated as a literal and no special patterns are interpreted.

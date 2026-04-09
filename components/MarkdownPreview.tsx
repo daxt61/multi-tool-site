@@ -117,7 +117,7 @@ export function MarkdownPreview() {
     
     // 10. Restore placeholders
     placeholders.forEach((content, i) => {
-      html = html.replace(new RegExp(`__(?:BLOCK|INLINE)_${i}__`, 'g'), content);
+      html = html.replace(new RegExp(`__(?:BLOCK|INLINE)_${i}__`, 'g'), () => content);
     });
 
     return html;

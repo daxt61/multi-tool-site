@@ -171,6 +171,8 @@ const UTMBuilder = lazy(() => import("./components/UTMBuilder").then(m => ({ def
 const DiscountCalculator = lazy(() => import("./components/DiscountCalculator").then(m => ({ default: m.DiscountCalculator })));
 const OvertimeCalculator = lazy(() => import("./components/OvertimeCalculator").then(m => ({ default: m.OvertimeCalculator })));
 const RetirementCalculator = lazy(() => import("./components/RetirementCalculator").then(m => ({ default: m.RetirementCalculator })));
+const GradeCalculator = lazy(() => import("./components/GradeCalculator").then(m => ({ default: m.GradeCalculator })));
+const BodyFatCalculator = lazy(() => import("./components/BodyFatCalculator").then(m => ({ default: m.BodyFatCalculator })));
 
 // ⚡ Bolt Optimization: Pre-calculating tool map and search index for O(1) lookups and faster filtering
 const toolsMap: Record<string, Tool> = {};
@@ -334,6 +336,14 @@ const tools: Tool[] = [
     Component: RetirementCalculator,
     category: "budget",
   },
+  {
+    id: "grade-calculator",
+    name: "Notes",
+    icon: ListChecks,
+    description: "Calculer sa moyenne et note nécessaire",
+    Component: GradeCalculator,
+    category: "calculators",
+  },
   // Calculators
   {
     id: "calculator",
@@ -357,6 +367,14 @@ const tools: Tool[] = [
     icon: Heart,
     description: "Calcul de l'Indice de Masse Corporelle",
     Component: BMICalculator,
+    category: "calculators",
+  },
+  {
+    id: "body-fat-calculator",
+    name: "Masse Grasse",
+    icon: Activity,
+    description: "Estimer son taux de graisse corporelle",
+    Component: BodyFatCalculator,
     category: "calculators",
   },
   {

@@ -5,6 +5,7 @@ export function BMICalculator() {
   const [weight, setWeight] = useState('70');
   const [height, setHeight] = useState('170');
   const [unit, setUnit] = useState<'metric' | 'imperial'>('metric');
+  const [useNewFormula, setUseNewFormula] = useState(false);
   const [copied, setCopied] = useState(false);
   const [copiedIdeal, setCopiedIdeal] = useState(false);
 
@@ -23,9 +24,17 @@ export function BMICalculator() {
       heightM = heightM / 100;
     }
 
-    const bmiValue = weightKg / (heightM * heightM);
+    let bmiValue = 0;
+    if (useNewFormula) {
+      // New BMI formula: 1.3 * weight / (height^2.5)
+      bmiValue = 1.3 * weightKg / Math.pow(heightM, 2.5);
+    } else {
+      // Standard BMI formula: weight / height^2
+      bmiValue = weightKg / (heightM * heightM);
+    }
 
     // Ideal weight range based on BMI 18.5 - 25
+    // For simplicity, we keep standard BMI range for ideal weight calculation
     const lowKg = 18.5 * (heightM * heightM);
     const highKg = 25 * (heightM * heightM);
 
@@ -110,6 +119,19 @@ export function BMICalculator() {
           </div>
 
           <div className="space-y-6">
+            <div className="flex items-center justify-between p-4 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-2xl">
+              <div className="space-y-1">
+                <div className="text-xs font-bold dark:text-white">Nouvelle Formule</div>
+                <div className="text-[10px] text-slate-400">Proposée par Nick Trefethen (Oxon)</div>
+              </div>
+              <button
+                onClick={() => setUseNewFormula(!useNewFormula)}
+                className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 ${useNewFormula ? 'bg-indigo-600' : 'bg-slate-200 dark:bg-slate-700'}`}
+              >
+                <span className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform ${useNewFormula ? 'translate-x-6' : 'translate-x-1'}`} />
+              </button>
+            </div>
+
             <div className="space-y-3">
               <label htmlFor="weight" className="text-xs font-black uppercase tracking-widest text-slate-400 px-1 cursor-pointer">Poids ({unit === 'metric' ? 'kg' : 'lb'})</label>
               <input
@@ -242,12 +264,12 @@ export function BMICalculator() {
         </div>
 
         <div className="space-y-4">
-          <div className="w-12 h-12 bg-rose-50 dark:bg-rose-900/20 rounded-2xl flex items-center justify-center text-rose-600">
-            <HelpCircle className="w-6 h-6" />
+          <div className="w-12 h-12 bg-indigo-50 dark:bg-indigo-900/20 rounded-2xl flex items-center justify-center text-indigo-600">
+            <Activity className="w-6 h-6" />
           </div>
-          <h3 className="text-lg font-black">Limites de l'IMC</h3>
+          <h3 className="text-lg font-black">Nouvelle Formule (Oxon)</h3>
           <p className="text-sm text-slate-500 dark:text-slate-400 leading-relaxed">
-            L'IMC ne distingue pas la masse grasse de la masse musculaire. Un athlète peut avoir un IMC élevé sans être en surpoids "gras".
+            La formule <code>1.3 * poids / taille^2.5</code> corrige le biais de la formule standard qui sous-estime la corpulence des personnes de petite taille et la surestime pour les personnes grandes.
           </p>
         </div>
       </div>

@@ -5,6 +5,7 @@ export function ColorConverter() {
   const [hex, setHex] = useState('#6366f1');
   const [rgb, setRgb] = useState({ r: 99, g: 102, b: 241 });
   const [hsl, setHsl] = useState({ h: 239, s: 84, l: 67 });
+  const [cmyk, setCmyk] = useState({ c: 59, m: 58, y: 0, k: 5 });
   const [oklch, setOklch] = useState({ l: 0.58, c: 0.19, h: 260 });
   const [copied, setCopied] = useState('');
 
@@ -89,6 +90,46 @@ export function ColorConverter() {
     };
   };
 
+  const rgbToCmyk = (r: number, g: number, b: number) => {
+    let c = 1 - (r / 255);
+    let m = 1 - (g / 255);
+    let y = 1 - (b / 255);
+    let k = Math.min(c, m, y);
+
+    if (k === 1) {
+      return { c: 0, m: 0, y: 0, k: 100 };
+    }
+
+    c = ((c - k) / (1 - k)) * 100;
+    m = ((m - k) / (1 - k)) * 100;
+    y = ((y - k) / (1 - k)) * 100;
+    k = k * 100;
+
+    return {
+      c: Math.round(c),
+      m: Math.round(m),
+      y: Math.round(y),
+      k: Math.round(k)
+    };
+  };
+
+  const cmykToRgb = (c: number, m: number, y: number, k: number) => {
+    c /= 100;
+    m /= 100;
+    y /= 100;
+    k /= 100;
+
+    const r = 255 * (1 - c) * (1 - k);
+    const g = 255 * (1 - m) * (1 - k);
+    const b = 255 * (1 - y) * (1 - k);
+
+    return {
+      r: Math.round(r),
+      g: Math.round(g),
+      b: Math.round(b)
+    };
+  };
+
   // OKLCH Conversion (Approximate for UI display)
   const rgbToOklch = (r: number, g: number, b: number) => {
     // This is a simplified approximation of the OKLCH conversion
@@ -144,6 +185,7 @@ export function ColorConverter() {
       if (rgbValue) {
         setRgb(rgbValue);
         setHsl(rgbToHsl(rgbValue.r, rgbValue.g, rgbValue.b));
+        setCmyk(rgbToCmyk(rgbValue.r, rgbValue.g, rgbValue.b));
         setOklch(rgbToOklch(rgbValue.r, rgbValue.g, rgbValue.b));
       }
     }
@@ -156,6 +198,7 @@ export function ColorConverter() {
     setRgb({ r, g, b });
     setHex(rgbToHex(r, g, b));
     setHsl(rgbToHsl(r, g, b));
+    setCmyk(rgbToCmyk(r, g, b));
     setOklch(rgbToOklch(r, g, b));
   };
 
@@ -167,6 +210,20 @@ export function ColorConverter() {
     const rgbValue = hslToRgb(h, s, l);
     setRgb(rgbValue);
     setHex(rgbToHex(rgbValue.r, rgbValue.g, rgbValue.b));
+    setCmyk(rgbToCmyk(rgbValue.r, rgbValue.g, rgbValue.b));
+    setOklch(rgbToOklch(rgbValue.r, rgbValue.g, rgbValue.b));
+  };
+
+  const updateFromCmyk = (newCmyk: { c: number, m: number, y: number, k: number }) => {
+    const c = Math.max(0, Math.min(100, newCmyk.c));
+    const m = Math.max(0, Math.min(100, newCmyk.m));
+    const y = Math.max(0, Math.min(100, newCmyk.y));
+    const k = Math.max(0, Math.min(100, newCmyk.k));
+    setCmyk({ c, m, y, k });
+    const rgbValue = cmykToRgb(c, m, y, k);
+    setRgb(rgbValue);
+    setHex(rgbToHex(rgbValue.r, rgbValue.g, rgbValue.b));
+    setHsl(rgbToHsl(rgbValue.r, rgbValue.g, rgbValue.b));
     setOklch(rgbToOklch(rgbValue.r, rgbValue.g, rgbValue.b));
   };
 
@@ -179,6 +236,7 @@ export function ColorConverter() {
     setRgb(rgbValue);
     setHex(rgbToHex(rgbValue.r, rgbValue.g, rgbValue.b));
     setHsl(rgbToHsl(rgbValue.r, rgbValue.g, rgbValue.b));
+    setCmyk(rgbToCmyk(rgbValue.r, rgbValue.g, rgbValue.b));
   };
 
   const copyToClipboard = (text: string, id: string) => {
@@ -207,14 +265,15 @@ export function ColorConverter() {
       </div>
 
       {/* Main Formats Display */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-4">
         {[
           { label: 'HEX', value: hex, id: 'hex' },
           { label: 'RGB', value: `rgb(${rgb.r} ${rgb.g} ${rgb.b})`, id: 'rgb' },
           { label: 'HSL', value: `hsl(${hsl.h} ${hsl.s}% ${hsl.l}%)`, id: 'hsl' },
+          { label: 'CMYK', value: `cmyk(${cmyk.c}% ${cmyk.m}% ${cmyk.y}% ${cmyk.k}%)`, id: 'cmyk' },
           { label: 'OKLCH', value: formatOklch(oklch.l, oklch.c, oklch.h), id: 'oklch' },
         ].map((format) => (
-          <div key={format.id} className="bg-slate-50 dark:bg-slate-900/50 p-6 rounded-3xl border border-slate-200 dark:border-slate-800 space-y-4">
+          <div key={format.id} className="bg-slate-50 dark:bg-slate-900/50 p-5 rounded-3xl border border-slate-200 dark:border-slate-800 space-y-3">
             <div className="flex justify-between items-center">
               <span className="text-xs font-black uppercase tracking-widest text-slate-400">{format.label}</span>
               <button
@@ -318,12 +377,43 @@ export function ColorConverter() {
           </div>
         </div>
 
+        {/* CMYK Sliders */}
+        <div className="bg-white dark:bg-slate-900/40 border border-slate-200 dark:border-slate-800 p-8 rounded-[2.5rem] space-y-8">
+          <h4 className="text-xs font-black uppercase tracking-widest text-slate-400 flex items-center gap-2 px-1">
+            <Sliders className="w-4 h-4 text-indigo-500" /> Composantes CMYK (Impression)
+          </h4>
+          <div className="space-y-6">
+            {[
+              { label: 'Cyan', key: 'c' },
+              { label: 'Magenta', key: 'm' },
+              { label: 'Jaune', key: 'y' },
+              { label: 'Noir', key: 'k' },
+            ].map((chan) => (
+              <div key={chan.key} className="space-y-2">
+                <div className="flex justify-between items-center px-1">
+                  <label htmlFor={`cmyk-${chan.key}`} className="text-xs font-bold text-slate-500 cursor-pointer">{chan.label}</label>
+                  <span className="text-sm font-black font-mono dark:text-slate-300">{cmyk[chan.key as keyof typeof cmyk]}%</span>
+                </div>
+                <input
+                  id={`cmyk-${chan.key}`}
+                  type="range"
+                  min="0"
+                  max="100"
+                  value={cmyk[chan.key as keyof typeof cmyk]}
+                  onChange={(e) => updateFromCmyk({ ...cmyk, [chan.key]: Number(e.target.value) })}
+                  className="w-full h-1.5 rounded-lg appearance-none cursor-pointer bg-slate-100 dark:bg-slate-800 accent-indigo-600"
+                />
+              </div>
+            ))}
+          </div>
+        </div>
+
         {/* OKLCH Sliders */}
-        <div className="bg-white dark:bg-slate-900/40 border border-slate-200 dark:border-slate-800 p-8 rounded-[2.5rem] space-y-8 md:col-span-2">
+        <div className="bg-white dark:bg-slate-900/40 border border-slate-200 dark:border-slate-800 p-8 rounded-[2.5rem] space-y-8">
           <h4 className="text-xs font-black uppercase tracking-widest text-slate-400 flex items-center gap-2 px-1">
             <Sliders className="w-4 h-4 text-indigo-500" /> Composantes OKLCH (Modern CSS)
           </h4>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+          <div className="space-y-6">
             <div className="space-y-2">
               <div className="flex justify-between items-center px-1">
                 <label htmlFor="oklch-l" className="text-xs font-bold text-slate-500 cursor-pointer">Luminosité (L)</label>

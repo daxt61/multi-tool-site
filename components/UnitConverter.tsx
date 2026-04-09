@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Copy, Check, Trash2, ArrowUpDown, Info, Ruler, Download } from 'lucide-react';
 
 type ConversionCategory = 'length' | 'weight' | 'temperature' | 'area' | 'volume' | 'digital' | 'pressure' | 'energy' | 'speed' | 'time' | 'power' | 'frequency' | 'consumption' | 'angle' | 'torque' | 'force' | 'datarate';
@@ -170,13 +170,17 @@ const convert = (value: string, from: string, to: string, cat: ConversionCategor
   return result;
 };
 
-export function UnitConverter() {
-  const [category, setCategory] = useState<ConversionCategory>('length');
-  const [fromUnit, setFromUnit] = useState('m');
-  const [toUnit, setToUnit] = useState('km');
-  const [fromValue, setFromValue] = useState('1');
-  const [toValue, setToValue] = useState(0.001);
+export function UnitConverter({ initialData, onStateChange }: { initialData?: any; onStateChange?: (state: any) => void }) {
+  const [category, setCategory] = useState<ConversionCategory>(initialData?.category || 'length');
+  const [fromUnit, setFromUnit] = useState(initialData?.fromUnit || 'm');
+  const [toUnit, setToUnit] = useState(initialData?.toUnit || 'km');
+  const [fromValue, setFromValue] = useState(initialData?.fromValue || '1');
+  const [toValue, setToValue] = useState(initialData?.toValue || 0.001);
   const [copied, setCopied] = useState(false);
+
+  useEffect(() => {
+    onStateChange?.({ category, fromUnit, toUnit, fromValue, toValue });
+  }, [category, fromUnit, toUnit, fromValue, toValue, onStateChange]);
 
   const handleDownload = () => {
     if (!fromValue) return;

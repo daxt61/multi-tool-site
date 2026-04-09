@@ -1,16 +1,20 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Percent, ArrowRight, Info, TrendingUp, Trash2, Copy, Check } from 'lucide-react';
 
-export function PercentageCalculator() {
-  const [value1, setValue1] = useState('');
-  const [value2, setValue2] = useState('');
-  const [value3, setValue3] = useState('');
-  const [value4, setValue4] = useState('');
-  const [initialVal, setInitialVal] = useState('');
-  const [finalVal, setFinalVal] = useState('');
-  const [valAfter, setValAfter] = useState('');
-  const [percentAfter, setPercentAfter] = useState('');
+export function PercentageCalculator({ initialData, onStateChange }: { initialData?: any; onStateChange?: (state: any) => void }) {
+  const [value1, setValue1] = useState(initialData?.value1 || '');
+  const [value2, setValue2] = useState(initialData?.value2 || '');
+  const [value3, setValue3] = useState(initialData?.value3 || '');
+  const [value4, setValue4] = useState(initialData?.value4 || '');
+  const [initialVal, setInitialVal] = useState(initialData?.initialVal || '');
+  const [finalVal, setFinalVal] = useState(initialData?.finalVal || '');
+  const [valAfter, setValAfter] = useState(initialData?.valAfter || '');
+  const [percentAfter, setPercentAfter] = useState(initialData?.percentAfter || '');
   const [copiedId, setCopiedId] = useState<string | null>(null);
+
+  useEffect(() => {
+    onStateChange?.({ value1, value2, value3, value4, initialVal, finalVal, valAfter, percentAfter });
+  }, [value1, value2, value3, value4, initialVal, finalVal, valAfter, percentAfter, onStateChange]);
 
   const percentageOf = (Number(value2) / 100) * Number(value1);
   const whatPercent = Number(value4) !== 0 ? (Number(value3) / Number(value4)) * 100 : 0;
@@ -262,7 +266,7 @@ export function PercentageCalculator() {
               type="number"
               value={percentAfter}
               onChange={(e) => setPercentAfter(e.target.value)}
-              className="w-full p-4 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-800 rounded-2xl text-2xl font-black font-mono focus:border-indigo-500 outline-none transition-all dark:text-white"
+              className="w-full p-4 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-2xl text-2xl font-black font-mono focus:border-indigo-500 outline-none transition-all dark:text-white"
               placeholder="20"
             />
           </div>

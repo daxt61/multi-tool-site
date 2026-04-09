@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { Clock, Copy, Check, RefreshCw, Calendar, Globe } from 'lucide-react';
+import { Clock, Copy, Check, RefreshCw, Calendar, Globe, Trash2 } from 'lucide-react';
 
 export function UnixTimestampConverter() {
   const [timestamp, setTimestamp] = useState(Math.floor(Date.now() / 1000).toString());
@@ -54,18 +54,31 @@ export function UnixTimestampConverter() {
     setTimeout(() => setCopied(''), 2000);
   };
 
+  const handleClear = () => {
+    setTimestamp('');
+  };
+
   return (
     <div className="max-w-4xl mx-auto space-y-8">
       {/* Input Area */}
       <div className="bg-slate-50 dark:bg-slate-900/50 p-8 rounded-[2.5rem] border border-slate-200 dark:border-slate-800 space-y-6">
         <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 px-1">
           <label className="text-xs font-black uppercase tracking-widest text-slate-400">Unix Timestamp</label>
-          <button
-            onClick={() => setTimestamp(Math.floor(Date.now() / 1000).toString())}
-            className="flex items-center gap-2 text-xs font-bold text-indigo-600 dark:text-indigo-400 hover:bg-indigo-50 dark:hover:bg-indigo-900/20 px-3 py-1.5 rounded-full transition-all"
-          >
-            <RefreshCw className="w-3 h-3" /> Utiliser le temps actuel
-          </button>
+          <div className="flex items-center gap-2">
+            <button
+              onClick={() => setTimestamp(Math.floor(Date.now() / 1000).toString())}
+              className="flex items-center gap-2 text-xs font-bold text-indigo-600 dark:text-indigo-400 hover:bg-indigo-50 dark:hover:bg-indigo-900/20 px-3 py-1.5 rounded-full transition-all"
+            >
+              <RefreshCw className="w-3 h-3" /> Utiliser le temps actuel
+            </button>
+            <button
+              onClick={handleClear}
+              disabled={!timestamp}
+              className="text-xs font-bold text-rose-500 bg-rose-50 dark:bg-rose-500/10 hover:bg-rose-100 dark:hover:bg-rose-500/20 px-3 py-1.5 rounded-full flex items-center gap-1 transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+            >
+              <Trash2 className="w-3 h-3" /> Effacer
+            </button>
+          </div>
         </div>
         <div className="relative">
           <input
@@ -97,7 +110,7 @@ export function UnixTimestampConverter() {
               </div>
               <button
                 onClick={() => item.value && copyToClipboard(item.value, item.id)}
-                className={`p-2 rounded-xl transition-all ${copied === item.id ? 'bg-emerald-500 text-white' : 'text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-800 hover:text-slate-600'}`}
+                className={`p-2 rounded-xl transition-all ${copied === item.id ? 'bg-emerald-50 dark:bg-emerald-500/10 text-emerald-600 dark:text-emerald-400' : 'text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-800 hover:text-slate-600'}`}
               >
                 {copied === item.id ? <Check className="w-4 h-4" /> : <Copy className="w-4 h-4" />}
               </button>

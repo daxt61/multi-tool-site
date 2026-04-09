@@ -1,5 +1,7 @@
 import { useState } from 'react';
-import { Shield, Copy, Check, Trash2 } from 'lucide-react';
+import { Shield, Copy, Check, Trash2, AlertCircle } from 'lucide-react';
+
+const MAX_LENGTH = 100000;
 
 export function HashGenerator() {
   const [inputText, setInputText] = useState('');
@@ -8,28 +10,42 @@ export function HashGenerator() {
     'SHA-512': '',
   });
   const [copied, setCopied] = useState<string | null>(null);
+  const [error, setError] = useState<string | null>(null);
 
   const generateHashes = async (text: string) => {
     setInputText(text);
+
+    if (text.length > MAX_LENGTH) {
+      setError(`L'entrée est trop longue. Limite de ${MAX_LENGTH.toLocaleString()} caractères.`);
+      setHashes({ 'SHA-256': '', 'SHA-512': '' });
+      return;
+    }
+
+    setError(null);
+
     if (!text) {
       setHashes({ 'SHA-256': '', 'SHA-512': '' });
       return;
     }
 
-    const encoder = new TextEncoder();
-    const data = encoder.encode(text);
+    try {
+      const encoder = new TextEncoder();
+      const data = encoder.encode(text);
 
-    const hashAlgorithms = ['SHA-256', 'SHA-512'];
-    const newHashes: { [key: string]: string } = {};
+      const hashAlgorithms = ['SHA-256', 'SHA-512'];
+      const newHashes: { [key: string]: string } = {};
 
-    for (const algo of hashAlgorithms) {
-      const hashBuffer = await crypto.subtle.digest(algo, data);
-      const hashArray = Array.from(new Uint8Array(hashBuffer));
-      const hashHex = hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
-      newHashes[algo] = hashHex;
+      for (const algo of hashAlgorithms) {
+        const hashBuffer = await crypto.subtle.digest(algo, data);
+        const hashArray = Array.from(new Uint8Array(hashBuffer));
+        const hashHex = hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
+        newHashes[algo] = hashHex;
+      }
+
+      setHashes(newHashes);
+    } catch (e: any) {
+      setError('Erreur lors de la génération du hash : ' + e.message);
     }
-
-    setHashes(newHashes);
   };
 
   const copyToClipboard = (text: string, algo: string) => {
@@ -41,10 +57,18 @@ export function HashGenerator() {
   const handleClear = () => {
     setInputText('');
     setHashes({ 'SHA-256': '', 'SHA-512': '' });
+    setError(null);
   };
 
   return (
     <div className="max-w-4xl mx-auto space-y-8">
+      {error && (
+        <div className="bg-rose-50 dark:bg-rose-500/10 border border-rose-200 dark:border-rose-800 p-4 rounded-2xl flex items-center gap-3 text-rose-600 dark:text-rose-400 font-bold animate-in fade-in slide-in-from-top-2">
+          <AlertCircle className="w-5 h-5" />
+          {error}
+        </div>
+      )}
+
       <div className="space-y-4">
         <div className="flex justify-between items-center">
           <label htmlFor="hash-input" className="block text-sm font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wider cursor-pointer">
@@ -63,7 +87,7 @@ export function HashGenerator() {
           value={inputText}
           onChange={(e) => generateHashes(e.target.value)}
           placeholder="Entrez votre texte ici..."
-          className="w-full h-32 p-4 bg-white dark:bg-slate-800 border-2 border-slate-100 dark:border-slate-700 rounded-2xl focus:ring-4 focus:ring-indigo-500/10 focus:border-indigo-500 outline-none transition-all dark:text-white"
+          className={`w-full h-32 p-4 bg-white dark:bg-slate-800 border-2 ${error ? 'border-rose-500 ring-rose-500/10' : 'border-slate-100 dark:border-slate-700'} rounded-2xl focus:ring-4 focus:ring-indigo-500/10 focus:border-indigo-500 outline-none transition-all dark:text-white`}
         />
       </div>
 

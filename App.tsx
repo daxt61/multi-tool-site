@@ -9,6 +9,7 @@ import {
   useNavigate,
   useParams,
   useLocation,
+  useSearchParams,
 } from "react-router-dom";
 import {
   Calculator as CalcIcon,
@@ -79,6 +80,8 @@ import {
   Layers,
   Network,
   Clock,
+  Download,
+  FileUp,
 } from "lucide-react";
 const AdPlaceholder = lazy(() => import("./components/AdPlaceholder").then(m => ({ default: m.AdPlaceholder })));
 
@@ -183,7 +186,7 @@ interface Tool {
   name: string;
   icon: React.ElementType;
   description: string;
-  Component: React.ElementType;
+  Component: React.ElementType<{ initialData?: any; onStateChange?: (state: any) => void }>;
   category: string;
 }
 
@@ -1035,6 +1038,41 @@ function MainApp() {
     return recents.map(id => toolsMap[id]).filter(Boolean);
   }, [recents]);
 
+  const handleExportFavorites = useCallback(() => {
+    if (favorites.length === 0) return;
+    const blob = new Blob([JSON.stringify(favorites, null, 2)], { type: 'application/json' });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    link.href = url;
+    link.download = `favoris-boite-a-outils.json`;
+    link.click();
+    URL.revokeObjectURL(url);
+  }, [favorites]);
+
+  const handleImportFavorites = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    const reader = new FileReader();
+    reader.onload = (event) => {
+      try {
+        const imported = JSON.parse(event.target?.result as string);
+        if (Array.isArray(imported)) {
+          const validIds = imported.filter(id => Object.prototype.hasOwnProperty.call(toolsMap, id));
+          setFavorites(prev => {
+            const combined = Array.from(new Set([...prev, ...validIds])).slice(0, 100);
+            localStorage.setItem("favorites", JSON.stringify(combined));
+            return combined;
+          });
+          e.target.value = ''; // Reset input
+        }
+      } catch (err) {
+        console.error("Failed to import favorites", err);
+      }
+    };
+    reader.readAsText(file);
+  }, []);
+
   const toggleFavorite = useCallback((e: React.MouseEvent, id: string) => {
     e.stopPropagation();
     // Sentinel: Validate tool ID before toggling favorite status.
@@ -1215,6 +1253,21 @@ function MainApp() {
                         {cat.name}
                       </button>
                     ))}
+
+                    {selectedCategory === 'favorites' && favorites.length > 0 && (
+                      <div className="flex items-center gap-2 ml-auto">
+                        <button
+                          onClick={handleExportFavorites}
+                          className="flex items-center gap-2 px-4 py-2 rounded-full text-sm font-bold text-indigo-600 dark:text-indigo-400 hover:bg-indigo-50 dark:hover:bg-indigo-900/20 transition-all border border-indigo-100 dark:border-indigo-900/30"
+                        >
+                          <Download className="w-4 h-4" /> Exporter
+                        </button>
+                        <label className="flex items-center gap-2 px-4 py-2 rounded-full text-sm font-bold text-slate-600 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-900 transition-all border border-slate-200 dark:border-slate-800 cursor-pointer">
+                          <FileUp className="w-4 h-4" /> Importer
+                          <input type="file" accept=".json" onChange={handleImportFavorites} className="hidden" />
+                        </label>
+                      </div>
+                    )}
                   </div>
                 </div>
 
@@ -1280,9 +1333,30 @@ function MainApp() {
 
 function ToolView({ favorites, toggleFavorite }: { favorites: string[], toggleFavorite: (e: React.MouseEvent, id: string) => void }) {
   const { toolId } = useParams();
+  const [searchParams] = useSearchParams();
   // ⚡ Bolt Optimization: Use toolsMap for O(1) lookup
   const currentTool = toolId ? toolsMap[toolId] : null;
   const [linkCopied, setLinkCopied] = useState(false);
+  const [shareCopied, setShareCopied] = useState(false);
+  const [toolState, setToolState] = useState<any>(null);
+
+  useEffect(() => {
+    setToolState(null);
+  }, [toolId]);
+
+  const initialData = useMemo(() => {
+    const data = searchParams.get('data');
+    if (!data) return null;
+    try {
+      const json = decodeURIComponent(Array.prototype.map.call(atob(data), (c: string) => {
+        return '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2);
+      }).join(''));
+      return JSON.parse(json);
+    } catch (e) {
+      console.error('Failed to parse tool state from URL', e);
+      return null;
+    }
+  }, [searchParams]);
 
   const category = useMemo(() => {
     if (!currentTool) return null;
@@ -1290,9 +1364,24 @@ function ToolView({ favorites, toggleFavorite }: { favorites: string[], toggleFa
   }, [currentTool]);
 
   const handleCopyLink = () => {
-    navigator.clipboard.writeText(window.location.href);
+    const url = new URL(window.location.href);
+    url.searchParams.delete('data');
+    navigator.clipboard.writeText(url.toString());
     setLinkCopied(true);
     setTimeout(() => setLinkCopied(false), 2000);
+  };
+
+  const handleShareWithState = () => {
+    if (!toolState) return;
+    const json = JSON.stringify(toolState);
+    const data = btoa(encodeURIComponent(json).replace(/%([0-9A-F]{2})/g, (_, p1) => {
+      return String.fromCharCode(parseInt(p1, 16));
+    }));
+    const url = new URL(window.location.href);
+    url.searchParams.set('data', data);
+    navigator.clipboard.writeText(url.toString());
+    setShareCopied(true);
+    setTimeout(() => setShareCopied(false), 2000);
   };
 
   if (!currentTool) {
@@ -1325,18 +1414,32 @@ function ToolView({ favorites, toggleFavorite }: { favorites: string[], toggleFa
             <h1 className="text-4xl md:text-5xl font-black tracking-tight">{currentTool.name}</h1>
             <p className="text-lg text-slate-500 dark:text-slate-400 max-w-2xl">{currentTool.description}</p>
           </div>
-          <div className="flex items-center gap-3">
+          <div className="flex items-center gap-3 flex-wrap">
             <button
               onClick={handleCopyLink}
-              className={`flex items-center gap-2 px-6 py-3 rounded-2xl font-bold transition-all border focus-visible:ring-2 focus-visible:ring-indigo-500 focus-visible:outline-none ${
+              className={`flex items-center gap-2 px-4 py-2.5 rounded-2xl text-sm font-bold transition-all border focus-visible:ring-2 focus-visible:ring-indigo-500 focus-visible:outline-none ${
                 linkCopied
                   ? "bg-emerald-50 dark:bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border-emerald-200 dark:border-emerald-500/20"
                   : "bg-slate-50 text-slate-500 border-slate-200 dark:bg-slate-900 dark:border-slate-800 hover:border-slate-300 dark:hover:border-slate-700"
               }`}
             >
-              {linkCopied ? <Check className="w-5 h-5" /> : <LinkIcon className="w-5 h-5" />}
-              {linkCopied ? "Copié" : "Copier le lien"}
+              {linkCopied ? <Check className="w-4 h-4" /> : <LinkIcon className="w-4 h-4" />}
+              {linkCopied ? "Lien copié" : "Copier lien"}
             </button>
+            {toolState && (
+              <button
+                onClick={handleShareWithState}
+                title="Copier le lien avec la configuration actuelle"
+                className={`flex items-center gap-2 px-4 py-2.5 rounded-2xl text-sm font-bold transition-all border focus-visible:ring-2 focus-visible:ring-indigo-500 focus-visible:outline-none ${
+                  shareCopied
+                    ? "bg-emerald-50 dark:bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border-emerald-200 dark:border-emerald-500/20"
+                    : "bg-indigo-50 dark:bg-indigo-900/20 text-indigo-600 dark:text-indigo-400 border-indigo-100 dark:border-indigo-900/30 hover:bg-indigo-100 dark:hover:bg-indigo-900/40"
+                }`}
+              >
+                {shareCopied ? <Check className="w-4 h-4" /> : <Share2 className="w-4 h-4" />}
+                {shareCopied ? "Config copiée" : "Partager config"}
+              </button>
+            )}
             <button
               onClick={(e) => toggleFavorite(e, currentTool.id)}
               aria-pressed={favorites.includes(currentTool.id)}
@@ -1355,7 +1458,7 @@ function ToolView({ favorites, toggleFavorite }: { favorites: string[], toggleFa
 
       <div className="bg-white dark:bg-slate-900/40 rounded-[2.5rem] border border-slate-200 dark:border-slate-800 p-5 md:p-12 shadow-sm min-h-[500px]">
         <Suspense fallback={<LoadingTool />}>
-          <currentTool.Component />
+          <currentTool.Component initialData={initialData} onStateChange={setToolState} />
         </Suspense>
       </div>
 

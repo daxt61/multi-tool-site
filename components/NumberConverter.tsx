@@ -15,19 +15,19 @@ export function NumberConverter() {
   const [hexadecimal, setHexadecimal] = useState('2A');
   const [copied, setCopied] = useState<string | null>(null);
 
-  const isValidNumber = (value: string, base: number): boolean => {
-    if (!value) return false;
-    try {
-      parseInt(value, base);
-      return true;
-    } catch {
-      return false;
-    }
+  const isValidForBase = (value: string, base: number): boolean => {
+    const patterns: Record<number, RegExp> = {
+      2: /^[01]+$/,
+      8: /^[0-7]+$/,
+      10: /^[0-9]+$/,
+      16: /^[0-9A-Fa-f]+$/
+    };
+    return patterns[base]?.test(value) ?? false;
   };
 
   const updateFromDecimal = (value: string) => {
     setDecimal(value);
-    if (!value) {
+    if (!value || !isValidForBase(value, 10)) {
       setBinary('');
       setOctal('');
       setHexadecimal('');
@@ -43,50 +43,44 @@ export function NumberConverter() {
 
   const updateFromBinary = (value: string) => {
     setBinary(value);
-    if (!value) {
+    if (!value || !isValidForBase(value, 2)) {
       setDecimal('');
       setOctal('');
       setHexadecimal('');
       return;
     }
-    if (isValidNumber(value, 2)) {
-      const num = parseInt(value, 2);
-      setDecimal(num.toString(10));
-      setOctal(num.toString(8));
-      setHexadecimal(num.toString(16).toUpperCase());
-    }
+    const num = parseInt(value, 2);
+    setDecimal(num.toString(10));
+    setOctal(num.toString(8));
+    setHexadecimal(num.toString(16).toUpperCase());
   };
 
   const updateFromOctal = (value: string) => {
     setOctal(value);
-    if (!value) {
+    if (!value || !isValidForBase(value, 8)) {
       setDecimal('');
       setBinary('');
       setHexadecimal('');
       return;
     }
-    if (isValidNumber(value, 8)) {
-      const num = parseInt(value, 8);
-      setDecimal(num.toString(10));
-      setBinary(num.toString(2));
-      setHexadecimal(num.toString(16).toUpperCase());
-    }
+    const num = parseInt(value, 8);
+    setDecimal(num.toString(10));
+    setBinary(num.toString(2));
+    setHexadecimal(num.toString(16).toUpperCase());
   };
 
   const updateFromHexadecimal = (value: string) => {
     setHexadecimal(value);
-    if (!value) {
+    if (!value || !isValidForBase(value, 16)) {
       setDecimal('');
       setBinary('');
       setOctal('');
       return;
     }
-    if (isValidNumber(value, 16)) {
-      const num = parseInt(value, 16);
-      setDecimal(num.toString(10));
-      setBinary(num.toString(2));
-      setOctal(num.toString(8));
-    }
+    const num = parseInt(value, 16);
+    setDecimal(num.toString(10));
+    setBinary(num.toString(2));
+    setOctal(num.toString(8));
   };
 
   const copyToClipboard = (val: string, id: string) => {

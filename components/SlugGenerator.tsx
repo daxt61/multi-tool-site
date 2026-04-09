@@ -53,18 +53,11 @@ export function SlugGenerator() {
             </div>
           </div>
           <div className="flex gap-3">
-             <button
-              onClick={handleClear}
-              className="p-4 bg-white/10 hover:bg-rose-500/20 text-white hover:text-rose-400 rounded-2xl transition-all active:scale-95 border border-transparent hover:border-rose-500/20"
-              title="Tout effacer"
-            >
-              <Trash2 className="w-6 h-6" />
-            </button>
             <button
               onClick={handleCopy}
               disabled={!slug}
               className={`px-8 py-4 rounded-2xl transition-all active:scale-95 flex items-center gap-2 font-black text-lg disabled:opacity-50 disabled:scale-100 ${
-                copied ? 'bg-emerald-500 text-white' : 'bg-white text-slate-900 hover:bg-slate-100'
+                copied ? 'bg-emerald-50 dark:bg-emerald-500/10 text-emerald-600 dark:text-emerald-400' : 'bg-white text-slate-900 hover:bg-slate-100'
               }`}
             >
               {copied ? <Check className="w-6 h-6" /> : <Copy className="w-6 h-6" />}
@@ -77,9 +70,18 @@ export function SlugGenerator() {
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
         {/* Input area */}
         <section className="bg-slate-50 dark:bg-slate-900/50 p-8 rounded-[2.5rem] border border-slate-200 dark:border-slate-800 space-y-6">
-          <div className="flex items-center gap-2 px-1">
-            <LinkIcon className="w-4 h-4 text-indigo-500" />
-            <h3 className="text-xs font-black uppercase tracking-widest text-slate-400">Texte Source</h3>
+          <div className="flex items-center justify-between px-1">
+            <div className="flex items-center gap-2">
+              <LinkIcon className="w-4 h-4 text-indigo-500" />
+              <h3 className="text-xs font-black uppercase tracking-widest text-slate-400">Texte Source</h3>
+            </div>
+            <button
+              onClick={handleClear}
+              disabled={!text}
+              className="text-xs font-bold text-rose-500 bg-rose-50 dark:bg-rose-500/10 hover:bg-rose-100 dark:hover:bg-rose-500/20 px-3 py-1.5 rounded-xl flex items-center gap-1 transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+            >
+              <Trash2 className="w-3 h-3" /> Effacer
+            </button>
           </div>
           <textarea
             value={text}

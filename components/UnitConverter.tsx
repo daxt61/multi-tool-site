@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { Copy, Check, Trash2, ArrowUpDown, Info, Ruler, Download } from 'lucide-react';
 
-type ConversionCategory = 'length' | 'weight' | 'temperature' | 'area' | 'volume' | 'digital' | 'pressure' | 'energy' | 'speed' | 'time' | 'power' | 'frequency' | 'consumption' | 'angle' | 'torque' | 'force' | 'datarate';
+type ConversionCategory = 'length' | 'weight' | 'temperature' | 'area' | 'volume' | 'digital' | 'pressure' | 'energy' | 'speed' | 'time' | 'power' | 'frequency' | 'consumption' | 'angle' | 'torque' | 'force' | 'datarate' | 'illuminance' | 'luminance';
 
 interface ConversionUnit {
   name: string;
@@ -134,6 +134,16 @@ const CONVERSIONS: Record<ConversionCategory, Record<string, ConversionUnit>> = 
     'Mbps': { name: 'Mbps (Mbit/s)', toBase: (v) => v * 1000000, fromBase: (v) => v / 1000000 },
     'Gbps': { name: 'Gbps (Gbit/s)', toBase: (v) => v * 1000000000, fromBase: (v) => v / 1000000000 },
     'Tbps': { name: 'Tbps (Tbit/s)', toBase: (v) => v * 1000000000000, fromBase: (v) => v / 1000000000000 }
+  },
+  illuminance: {
+    'lx': { name: 'Lux (lx)', toBase: (v) => v, fromBase: (v) => v },
+    'fc': { name: 'Foot-candle (fc)', toBase: (v) => v * 10.76391, fromBase: (v) => v / 10.76391 },
+    'ph': { name: 'Phot (ph)', toBase: (v) => v * 10000, fromBase: (v) => v / 10000 }
+  },
+  luminance: {
+    'cd/m2': { name: 'Candela par m² (cd/m²)', toBase: (v) => v, fromBase: (v) => v },
+    'fl': { name: 'Foot-lambert (fL)', toBase: (v) => v * 3.426259, fromBase: (v) => v / 3.426259 },
+    'sb': { name: 'Stilb (sb)', toBase: (v) => v * 10000, fromBase: (v) => v / 10000 }
   }
 };
 
@@ -154,7 +164,9 @@ const CATEGORIES_MAP = [
   { id: 'angle', name: 'Angle' },
   { id: 'torque', name: 'Couple (Torque)' },
   { id: 'force', name: 'Force' },
-  { id: 'datarate', name: 'Débit binaire' }
+  { id: 'datarate', name: 'Débit binaire' },
+  { id: 'illuminance', name: 'Éclairement' },
+  { id: 'luminance', name: 'Luminance' }
 ];
 
 const formatter = new Intl.NumberFormat('fr-FR', {

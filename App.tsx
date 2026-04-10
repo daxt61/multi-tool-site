@@ -82,6 +82,8 @@ import {
   Clock,
   Download,
   FileUp,
+  Target,
+  SunDim,
 } from "lucide-react";
 const AdPlaceholder = lazy(() => import("./components/AdPlaceholder").then(m => ({ default: m.AdPlaceholder })));
 
@@ -176,6 +178,8 @@ const OvertimeCalculator = lazy(() => import("./components/OvertimeCalculator").
 const RetirementCalculator = lazy(() => import("./components/RetirementCalculator").then(m => ({ default: m.RetirementCalculator })));
 const GradeCalculator = lazy(() => import("./components/GradeCalculator").then(m => ({ default: m.GradeCalculator })));
 const BodyFatCalculator = lazy(() => import("./components/BodyFatCalculator").then(m => ({ default: m.BodyFatCalculator })));
+const BreakevenCalculator = lazy(() => import("./components/BreakevenCalculator").then(m => ({ default: m.BreakevenCalculator })));
+const SocialMediaLinks = lazy(() => import("./components/SocialMediaLinks").then(m => ({ default: m.SocialMediaLinks })));
 
 // ⚡ Bolt Optimization: Pre-calculating tool map and search index for O(1) lookups and faster filtering
 const toolsMap: Record<string, Tool> = {};
@@ -346,6 +350,14 @@ const tools: Tool[] = [
     description: "Calculer sa moyenne et note nécessaire",
     Component: GradeCalculator,
     category: "calculators",
+  },
+  {
+    id: "breakeven-calculator",
+    name: "Seuil de Rentabilité",
+    icon: Target,
+    description: "Calculer le point mort et la rentabilité",
+    Component: BreakevenCalculator,
+    category: "business",
   },
   // Calculators
   {
@@ -645,6 +657,14 @@ const tools: Tool[] = [
     icon: Share2,
     description: "Générateur de liens de suivi UTM",
     Component: UTMBuilder,
+    category: "dev",
+  },
+  {
+    id: "social-links",
+    name: "Liens Sociaux",
+    icon: Share2,
+    description: "Générer des liens de partage pour réseaux sociaux",
+    Component: SocialMediaLinks,
     category: "dev",
   },
   {

@@ -21,6 +21,9 @@ export function PasswordGenerator() {
   const [password, setPassword] = useState('');
   const [length, setLength] = useState(16);
   const [wordCount, setWordCount] = useState(4);
+  const [capitalizeWords, setCapitalizeWords] = useState(false);
+  const [addNumber, setAddNumber] = useState(false);
+  const [addSymbol, setAddSymbol] = useState(false);
   const [includeUppercase, setIncludeUppercase] = useState(true);
   const [includeLowercase, setIncludeLowercase] = useState(true);
   const [includeNumbers, setIncludeNumbers] = useState(true);
@@ -69,16 +72,29 @@ export function PasswordGenerator() {
     } else {
       const selectedWords = [];
       for (let i = 0; i < wordCount; i++) {
-        selectedWords.push(WORDS[getSecureRandomIndex(WORDS.length)]);
+        let word = WORDS[getSecureRandomIndex(WORDS.length)];
+        if (capitalizeWords) {
+          word = word.charAt(0).toUpperCase() + word.slice(1);
+        }
+        selectedWords.push(word);
       }
-      setPassword(selectedWords.join('-'));
+
+      let res = selectedWords.join('-');
+      if (addNumber) {
+        res += getSecureRandomIndex(10);
+      }
+      if (addSymbol) {
+        const symbols = '!@#$%^&*';
+        res += symbols.charAt(getSecureRandomIndex(symbols.length));
+      }
+      setPassword(res);
     }
     setCopied(false);
   };
 
   useEffect(() => {
     generatePassword();
-  }, [mode, length, wordCount, includeUppercase, includeLowercase, includeNumbers, includeSymbols, excludeSimilar]);
+  }, [mode, length, wordCount, capitalizeWords, addNumber, addSymbol, includeUppercase, includeLowercase, includeNumbers, includeSymbols, excludeSimilar]);
 
   const copyToClipboard = () => {
     navigator.clipboard.writeText(password);
@@ -272,11 +288,38 @@ export function PasswordGenerator() {
           )}
 
           {mode === 'passphrase' && (
-             <div className="bg-white dark:bg-slate-800 p-6 rounded-3xl border border-slate-200 dark:border-slate-700">
-               <p className="text-sm text-slate-500 dark:text-slate-400 leading-relaxed">
-                 Le mode <strong>Mémorable</strong> (Passphrase) génère une suite de mots aléatoires séparés par des tirets. Ces mots de passe sont souvent plus faciles à retenir tout en restant très sécurisés grâce à leur longueur.
-               </p>
-             </div>
+            <div className="space-y-6">
+              <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                {[
+                  { label: 'Capitaliser', state: capitalizeWords, setState: setCapitalizeWords },
+                  { label: 'Ajouter Chiffre', state: addNumber, setState: setAddNumber },
+                  { label: 'Ajouter Symbole', state: addSymbol, setState: setAddSymbol },
+                ].map((opt) => (
+                  <button
+                    key={opt.label}
+                    onClick={() => opt.setState(!opt.state)}
+                    aria-pressed={opt.state}
+                    className={`flex items-center justify-between p-4 rounded-2xl border transition-all ${
+                      opt.state
+                      ? 'bg-indigo-50 dark:bg-indigo-500/10 border-indigo-200 dark:border-indigo-500/20 text-indigo-600 dark:text-indigo-400'
+                      : 'bg-white dark:bg-slate-800 border-slate-200 dark:border-slate-700 text-slate-400'
+                    }`}
+                  >
+                    <span className="font-bold text-xs">{opt.label}</span>
+                    <div className={`w-4 h-4 rounded border flex items-center justify-center transition-all ${
+                      opt.state ? 'bg-indigo-600 border-indigo-600 text-white' : 'border-slate-300 dark:border-slate-600'
+                    }`}>
+                      {opt.state && <Check className="w-2.5 h-2.5 stroke-[3]" />}
+                    </div>
+                  </button>
+                ))}
+              </div>
+              <div className="bg-white dark:bg-slate-800 p-6 rounded-3xl border border-slate-200 dark:border-slate-700">
+                <p className="text-sm text-slate-500 dark:text-slate-400 leading-relaxed">
+                  Le mode <strong>Mémorable</strong> (Passphrase) génère une suite de mots aléatoires séparés par des tirets. Ces mots de passe sont souvent plus faciles à retenir tout en restant très sécurisés grâce à leur longueur.
+                </p>
+              </div>
+            </div>
           )}
         </div>
 

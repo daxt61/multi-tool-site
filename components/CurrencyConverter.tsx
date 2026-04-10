@@ -72,7 +72,8 @@ export function CurrencyConverter() {
       if (!response.ok) throw new Error('Échec du chargement des taux');
       const data = await response.json();
       if (data.rates) {
-        setRates({ EUR: 1, ...data.rates });
+        // Merge with existing rates to preserve currencies not in the API response
+        setRates(prev => ({ ...prev, ...data.rates }));
         setLastUpdated(new Date().toLocaleTimeString());
       }
     } catch (error) {

@@ -29,7 +29,7 @@ export function TextFormatter() {
     },
     {
       name: 'Phrase',
-      action: (t: string) => t.charAt(0).toUpperCase() + t.slice(1).toLowerCase()
+      action: (t: string) => t.toLowerCase().replace(/(^\s*\w|[.!?]\s+\w)/g, s => s.toUpperCase())
     },
     {
       name: 'iNVERSER lA cASSE',
@@ -72,7 +72,9 @@ export function TextFormatter() {
     const flags = isCaseSensitive ? 'g' : 'gi';
     const escapedFind = findText.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
     const regex = new RegExp(escapedFind, flags);
-    setText(text.replace(regex, replaceText));
+    // Sentinel: Use the function form of replace to avoid replacement string injection
+    // where characters like $&, $1 etc in replaceText would be interpreted by the regex engine.
+    setText(text.replace(regex, () => replaceText));
   };
 
   const handleCopy = () => {

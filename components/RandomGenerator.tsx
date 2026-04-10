@@ -98,8 +98,9 @@ export function RandomGenerator() {
 
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 items-end">
           <div className="space-y-2">
-            <label className="text-xs font-bold text-slate-400 px-1">MIN</label>
+            <label htmlFor="num-min" className="text-xs font-bold text-slate-400 px-1 cursor-pointer">MIN</label>
             <input
+              id="num-min"
               type="number"
               value={min}
               onChange={(e) => setMin(Number(e.target.value))}
@@ -107,8 +108,9 @@ export function RandomGenerator() {
             />
           </div>
           <div className="space-y-2">
-            <label className="text-xs font-bold text-slate-400 px-1">MAX</label>
+            <label htmlFor="num-max" className="text-xs font-bold text-slate-400 px-1 cursor-pointer">MAX</label>
             <input
+              id="num-max"
               type="number"
               value={max}
               onChange={(e) => setMax(Number(e.target.value))}
@@ -134,8 +136,16 @@ export function RandomGenerator() {
           {randomNumber !== null && (
             <div className="h-14 bg-white dark:bg-slate-800 border border-indigo-200 dark:border-indigo-900/30 rounded-2xl flex items-center justify-between px-6 animate-in zoom-in-95 duration-300">
               <span className="text-2xl font-black font-mono text-indigo-600 dark:text-indigo-400">{randomNumber}</span>
-              <button onClick={() => copyToClipboard(randomNumber.toString(), 'num')} className="text-slate-400 hover:text-indigo-500 transition-colors">
-                {copied === 'num' ? <Check className="w-5 h-5 text-emerald-500" /> : <Copy className="w-5 h-5" />}
+              <button
+                onClick={() => copyToClipboard(randomNumber.toString(), 'num')}
+                className={`p-2 rounded-xl transition-all ${
+                  copied === 'num'
+                    ? 'bg-emerald-50 dark:bg-emerald-500/10 text-emerald-600 dark:text-emerald-400'
+                    : 'text-slate-400 hover:text-indigo-500'
+                }`}
+                aria-label="Copier le nombre"
+              >
+                {copied === 'num' ? <Check className="w-5 h-5" /> : <Copy className="w-5 h-5" />}
               </button>
             </div>
           )}
@@ -176,8 +186,9 @@ export function RandomGenerator() {
                 </button>
               ))}
               <div className="flex items-center gap-3 ml-auto">
-                <label className="text-xs font-bold text-slate-400">LONGUEUR</label>
+                <label htmlFor="str-length" className="text-xs font-bold text-slate-400 cursor-pointer">LONGUEUR</label>
                 <input
+                  id="str-length"
                   type="number"
                   value={strLength}
                   min="1"
@@ -198,9 +209,14 @@ export function RandomGenerator() {
               />
               <button
                 onClick={() => randomString && copyToClipboard(randomString, 'str')}
-                className="absolute right-4 top-1/2 -translate-y-1/2 p-2 bg-white dark:bg-slate-800 shadow-sm rounded-xl text-slate-400 hover:text-indigo-500 transition-all border border-slate-100 dark:border-slate-700"
+                className={`absolute right-4 top-1/2 -translate-y-1/2 p-2 shadow-sm rounded-xl transition-all border ${
+                  copied === 'str'
+                    ? 'bg-emerald-50 dark:bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border-emerald-200 dark:border-emerald-500/20'
+                    : 'bg-white dark:bg-slate-800 text-slate-400 hover:text-indigo-500 border-slate-100 dark:border-slate-700'
+                }`}
+                aria-label="Copier la chaîne"
               >
-                {copied === 'str' ? <Check className="w-5 h-5 text-emerald-500" /> : <Copy className="w-5 h-5" />}
+                {copied === 'str' ? <Check className="w-5 h-5" /> : <Copy className="w-5 h-5" />}
               </button>
             </div>
           </div>
@@ -235,8 +251,9 @@ export function RandomGenerator() {
 
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
           <div className="space-y-4">
-            <label className="text-xs font-bold text-slate-400 px-1">ENTRÉE (Une ligne par élément)</label>
+            <label htmlFor="list-input" className="text-xs font-bold text-slate-400 px-1 cursor-pointer">ENTRÉE (Une ligne par élément)</label>
             <textarea
+              id="list-input"
               value={list}
               onChange={(e) => setList(e.target.value)}
               className="w-full h-64 p-6 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-3xl outline-none focus:ring-2 focus:ring-indigo-500/20 transition-all resize-none font-medium dark:text-slate-300"

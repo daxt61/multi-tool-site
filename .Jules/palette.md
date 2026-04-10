@@ -61,3 +61,7 @@
 ## 2026-04-07 - [Informative Tool Utilities & Actionable UX]
 **Learning:** Purely informative or detection-based tools (like IP Address detection) are often overlooked when it comes to standard utility buttons like "Copy". However, the primary user intent for these tools is often to capture and use the detected data. Adding a "Copy" utility transforms these tools from passive displays into active, actionable utilities.
 **Action:** Always audit informative tools for "Copy" utilities to ensure they meet the user's ultimate goal of data portability.
+
+## 2026-04-10 - [Keyboard Accessibility & Feedback Standardization]
+**Learning:** Global navigation elements like logo links and theme toggles are often overlooked for keyboard focus states, but adding consistent `focus-visible` rings is a high-impact accessibility win. Additionally, standardizing "Copy" feedback to use a subtle emerald background (instead of just icon color changes) provides much clearer visual confirmation of success, especially in complex utility tools.
+**Action:** Always audit global navigation for focus indicators and prioritize the standardized emerald success state for all "Copy" utilities.

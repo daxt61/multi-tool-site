@@ -1366,7 +1366,8 @@ function ToolView({ favorites, toggleFavorite }: { favorites: string[], toggleFa
 
   const initialData = useMemo(() => {
     const data = searchParams.get('data');
-    if (!data) return null;
+    // Sentinel: Mitigate DoS attacks via large shared state data (limit to 10KB)
+    if (!data || data.length > 10000) return null;
     try {
       const json = decodeURIComponent(Array.prototype.map.call(atob(data), (c: string) => {
         return '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2);

@@ -1,6 +1,8 @@
 import { useState, useEffect } from 'react';
 import { Copy, Check, Trash2, ShieldCheck, Clock, Eye, EyeOff, AlertCircle } from 'lucide-react';
 
+const MAX_LENGTH = 100000;
+
 export function JWTDecoder() {
   const [jwt, setJwt] = useState('');
   const [decoded, setDecoded] = useState<{
@@ -20,6 +22,16 @@ export function JWTDecoder() {
   const decodeJWT = (token: string) => {
     if (!token.trim()) {
       setDecoded({ header: null, payload: null, signature: '', error: null });
+      return;
+    }
+
+    if (token.length > MAX_LENGTH) {
+      setDecoded({
+        header: null,
+        payload: null,
+        signature: '',
+        error: `L'entrée est trop longue. Limite de ${MAX_LENGTH.toLocaleString()} caractères.`,
+      });
       return;
     }
 
@@ -79,23 +91,24 @@ export function JWTDecoder() {
       {/* Input Area */}
       <div className="space-y-4">
         <div className="flex justify-between items-center px-1">
-          <label className="text-xs font-black uppercase tracking-widest text-slate-400">Jeton JWT</label>
+          <label htmlFor="jwt-input" className="text-xs font-black uppercase tracking-widest text-slate-400 cursor-pointer">Jeton JWT</label>
           <button
             onClick={() => setJwt('')}
-            className="text-xs font-bold px-3 py-1.5 rounded-full text-rose-500 bg-rose-50 dark:bg-rose-500/10 hover:bg-rose-100 transition-all flex items-center gap-1"
+            className="text-xs font-bold px-3 py-1.5 rounded-full text-rose-500 bg-rose-50 dark:bg-rose-500/10 hover:bg-rose-100 dark:hover:bg-rose-500/20 transition-all flex items-center gap-1"
           >
             <Trash2 className="w-3 h-3" /> Effacer
           </button>
         </div>
         <textarea
+          id="jwt-input"
           value={jwt}
           onChange={(e) => setJwt(e.target.value)}
           placeholder="Collez votre JWT ici (header.payload.signature)..."
-          className="w-full h-32 p-6 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-[2rem] outline-none focus:ring-2 focus:ring-indigo-500/20 transition-all text-sm font-mono break-all dark:text-slate-300"
+          className={`w-full h-32 p-6 bg-slate-50 dark:bg-slate-900 border ${decoded.error?.includes('trop longue') ? 'border-rose-500 ring-rose-500/20' : 'border-slate-200 dark:border-slate-800'} rounded-[2rem] outline-none focus:ring-2 ${decoded.error?.includes('trop longue') ? 'focus:ring-rose-500/20' : 'focus:ring-indigo-500/20'} transition-all text-sm font-mono break-all dark:text-slate-300`}
         />
         {decoded.error && (
-          <div className="flex items-center gap-2 text-rose-500 text-sm font-bold px-4">
-            <AlertCircle className="w-4 h-4" />
+          <div className="flex items-center gap-2 text-rose-500 text-sm font-bold px-4 animate-in slide-in-from-top-1">
+            <AlertCircle className="w-4 h-4 shrink-0" />
             {decoded.error}
           </div>
         )}

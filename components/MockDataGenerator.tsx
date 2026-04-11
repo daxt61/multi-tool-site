@@ -1,4 +1,4 @@
-import { useState, useCallback, useMemo } from 'react';
+import { useState, useCallback, useMemo, useEffect } from 'react';
 import { Copy, Check, Trash2, RefreshCw, FileCode, FileSpreadsheet, Download, Settings2, Table } from 'lucide-react';
 
 const FIRST_NAMES = ['Jean', 'Marie', 'Pierre', 'Anne', 'Thomas', 'Julie', 'Nicolas', 'Léa', 'Julien', 'Sarah', 'Benoît', 'Chloé', 'David', 'Emma', 'Éric', 'Inès', 'Hugo', 'Jade', 'Léo', 'Manon'];
@@ -8,26 +8,46 @@ const COUNTRIES = ['France', 'Belgique', 'Suisse', 'Canada', 'Luxembourg', 'Sén
 const COMPANIES = ['TechCorp', 'Innovate', 'GlobalSolutions', 'FutureSystems', 'WebFlow', 'DataDynamics', 'CloudNine', 'SoftServe', 'SmartScale', 'NetWorks'];
 const DOMAINS = ['gmail.com', 'yahoo.fr', 'outlook.com', 'orange.fr', 'icloud.com', 'protonmail.com'];
 
-export function MockDataGenerator() {
-  const [count, setCount] = useState(10);
-  const [format, setFormat] = useState<'json' | 'csv'>('json');
+export function MockDataGenerator({ initialData, onStateChange }: { initialData?: any; onStateChange?: (state: any) => void }) {
+  const [count, setCount] = useState(initialData?.count || 10);
+  const [format, setFormat] = useState<'json' | 'csv'>(initialData?.format || 'json');
   const [generatedData, setGeneratedData] = useState<any[]>([]);
   const [copied, setCopied] = useState(false);
+
+  useEffect(() => {
+    onStateChange?.({ count, format });
+  }, [count, format, onStateChange]);
+
+  // Sentinel: Use cryptographically secure random values instead of Math.random()
+  const secureRandomInt = useCallback((max: number) => {
+    if (typeof window === 'undefined' || !window.crypto) {
+      return Math.floor(Math.random() * max);
+    }
+    const array = new Uint32Array(1);
+    const maxUint32 = 0xffffffff;
+    const limit = maxUint32 - (maxUint32 % max);
+    let randomValue;
+    do {
+      window.crypto.getRandomValues(array);
+      randomValue = array[0];
+    } while (randomValue >= limit);
+    return randomValue % max;
+  }, []);
 
   const generateData = useCallback(() => {
     const newData = [];
     for (let i = 0; i < count; i++) {
-      const firstName = FIRST_NAMES[Math.floor(Math.random() * FIRST_NAMES.length)];
-      const lastName = LAST_NAMES[Math.floor(Math.random() * LAST_NAMES.length)];
+      const firstName = FIRST_NAMES[secureRandomInt(FIRST_NAMES.length)];
+      const lastName = LAST_NAMES[secureRandomInt(LAST_NAMES.length)];
       newData.push({
         id: i + 1,
         prenom: firstName,
         nom: lastName,
-        email: `${firstName.toLowerCase()}.${lastName.toLowerCase()}@${DOMAINS[Math.floor(Math.random() * DOMAINS.length)]}`,
-        telephone: `0${Math.floor(Math.random() * 9) + 1}${Math.floor(Math.random() * 100000000).toString().padStart(8, '0')}`,
-        entreprise: COMPANIES[Math.floor(Math.random() * COMPANIES.length)],
-        ville: CITIES[Math.floor(Math.random() * CITIES.length)],
-        pays: COUNTRIES[Math.floor(Math.random() * COUNTRIES.length)],
+        email: `${firstName.toLowerCase()}.${lastName.toLowerCase()}@${DOMAINS[secureRandomInt(DOMAINS.length)]}`,
+        telephone: `0${secureRandomInt(9) + 1}${secureRandomInt(100000000).toString().padStart(8, '0')}`,
+        entreprise: COMPANIES[secureRandomInt(COMPANIES.length)],
+        ville: CITIES[secureRandomInt(CITIES.length)],
+        pays: COUNTRIES[secureRandomInt(COUNTRIES.length)],
       });
     }
     setGeneratedData(newData);
@@ -75,8 +95,9 @@ export function MockDataGenerator() {
             </label>
             <div className="grid grid-cols-2 gap-4">
               <div className="space-y-2">
-                <span className="text-[10px] font-bold text-slate-400 uppercase">Quantité</span>
+                <label htmlFor="mock-count" className="text-[10px] font-bold text-slate-400 uppercase">Quantité</label>
                 <input
+                  id="mock-count"
                   type="number"
                   min="1"
                   max="100"
@@ -129,7 +150,11 @@ export function MockDataGenerator() {
               </button>
               <button
                 onClick={handleCopy}
-                className={`text-xs font-bold px-4 py-2 rounded-xl transition-all flex items-center gap-2 ${copied ? 'bg-emerald-500 text-white' : 'bg-indigo-600 text-white shadow-lg shadow-indigo-600/20 hover:bg-indigo-700'}`}
+                className={`text-xs font-bold px-4 py-2 rounded-xl transition-all flex items-center gap-2 border ${
+                  copied
+                    ? "bg-emerald-50 dark:bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border-emerald-200 dark:border-emerald-500/20"
+                    : "bg-indigo-600 text-white shadow-lg shadow-indigo-600/20 hover:bg-indigo-700 border-transparent"
+                }`}
               >
                 {copied ? <Check className="w-4 h-4" /> : <Copy className="w-4 h-4" />}
                 {copied ? 'Copié' : 'Copier'}

@@ -608,7 +608,21 @@ function SidebarMenuSkeleton({
 }) {
   // Random width between 50 to 90%.
   const width = React.useMemo(() => {
-    return `${Math.floor(Math.random() * 40) + 50}%`;
+    // Sentinel: Use cryptographically secure random values instead of Math.random()
+    // with a fallback for SSR or environments where CSPRNG is not available.
+    if (typeof window === 'undefined' || !window.crypto) {
+      return `${Math.floor(Math.random() * 40) + 50}%`;
+    }
+    const array = new Uint32Array(1);
+    const range = 40;
+    const maxUint32 = 0xffffffff;
+    const limit = maxUint32 - (maxUint32 % range);
+    let randomValue;
+    do {
+      window.crypto.getRandomValues(array);
+      randomValue = array[0];
+    } while (randomValue >= limit);
+    return `${(randomValue % range) + 50}%`;
   }, []);
 
   return (

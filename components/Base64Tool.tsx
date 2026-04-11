@@ -1,10 +1,13 @@
 import { useState } from 'react';
-import { Copy, Check, Trash2, ArrowRightLeft, FileCode, Type, Download } from 'lucide-react';
+import { Copy, Check, Trash2, ArrowRightLeft, FileCode, Type, Download, AlertCircle } from 'lucide-react';
+
+const MAX_LENGTH = 100000;
 
 export function Base64Tool() {
   const [text, setText] = useState('');
   const [base64, setBase64] = useState('');
   const [copied, setCopied] = useState<'text' | 'base64' | null>(null);
+  const [error, setError] = useState<string | null>(null);
 
   const encode = (input: string) => {
     try {
@@ -36,11 +39,25 @@ export function Base64Tool() {
   };
 
   const handleTextChange = (value: string) => {
+    if (value.length > MAX_LENGTH) {
+      setError(`L'entrée est trop longue. Limite de ${MAX_LENGTH.toLocaleString()} caractères.`);
+      setText(value);
+      setBase64('');
+      return;
+    }
+    setError(null);
     setText(value);
     setBase64(encode(value));
   };
 
   const handleBase64Change = (value: string) => {
+    if (value.length > MAX_LENGTH) {
+      setError(`L'entrée est trop longue. Limite de ${MAX_LENGTH.toLocaleString()} caractères.`);
+      setBase64(value);
+      setText('');
+      return;
+    }
+    setError(null);
     setBase64(value);
     setText(decode(value));
   };
@@ -65,6 +82,13 @@ export function Base64Tool() {
 
   return (
     <div className="max-w-6xl mx-auto space-y-8">
+      {error && (
+        <div className="bg-rose-50 dark:bg-rose-500/10 border border-rose-200 dark:border-rose-800 p-4 rounded-2xl flex items-center gap-3 text-rose-600 dark:text-rose-400 font-bold animate-in fade-in slide-in-from-top-2">
+          <AlertCircle className="w-5 h-5" />
+          {error}
+        </div>
+      )}
+
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 relative">
         <div className="hidden lg:flex absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 z-10">
           <div className="bg-white dark:bg-slate-800 p-3 rounded-full shadow-xl border border-slate-200 dark:border-slate-700 text-indigo-600">
@@ -88,7 +112,7 @@ export function Base64Tool() {
                 {copied === 'text' ? <Check className="w-3 h-3" /> : <Copy className="w-3 h-3" />} {copied === 'text' ? 'Copié' : 'Copier'}
               </button>
               <button
-                onClick={() => {setText(''); setBase64('');}}
+                onClick={() => {setText(''); setBase64(''); setError(null);}}
                 disabled={!text && !base64}
                 className="text-xs font-bold px-3 py-1 rounded-full text-rose-500 bg-rose-50 dark:bg-rose-500/10 hover:bg-rose-100 dark:hover:bg-rose-500/20 transition-all flex items-center gap-1 disabled:opacity-50 disabled:cursor-not-allowed"
               >
@@ -100,7 +124,7 @@ export function Base64Tool() {
             value={text}
             onChange={(e) => handleTextChange(e.target.value)}
             placeholder="Entrez votre texte ici..."
-            className="w-full h-[400px] p-6 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-3xl outline-none focus:ring-2 focus:ring-indigo-500/20 transition-all font-mono text-sm leading-relaxed dark:text-slate-300 resize-none"
+            className={`w-full h-[400px] p-6 bg-slate-50 dark:bg-slate-900 border ${error ? 'border-rose-500 ring-rose-500/20' : 'border-slate-200 dark:border-slate-800'} rounded-3xl outline-none focus:ring-2 ${error ? 'focus:ring-rose-500/20' : 'focus:ring-indigo-500/20'} transition-all font-mono text-sm leading-relaxed dark:text-slate-300 resize-none`}
           />
         </div>
 
@@ -133,7 +157,7 @@ export function Base64Tool() {
             value={base64}
             onChange={(e) => handleBase64Change(e.target.value)}
             placeholder="Le résultat Base64 apparaîtra ici..."
-            className="w-full h-[400px] p-6 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-3xl outline-none focus:ring-2 focus:ring-indigo-500/20 transition-all font-mono text-sm leading-relaxed text-indigo-600 dark:text-indigo-400 break-all resize-none"
+            className={`w-full h-[400px] p-6 bg-slate-50 dark:bg-slate-900 border ${error ? 'border-rose-500 ring-rose-500/20' : 'border-slate-200 dark:border-slate-800'} rounded-3xl outline-none focus:ring-2 ${error ? 'focus:ring-rose-500/20' : 'focus:ring-indigo-500/20'} transition-all font-mono text-sm leading-relaxed text-indigo-600 dark:text-indigo-400 break-all resize-none`}
           />
         </div>
       </div>

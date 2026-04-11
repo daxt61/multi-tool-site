@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { Copy, Check, Trash2, ArrowUpDown, Info, Ruler, Download } from 'lucide-react';
 
-type ConversionCategory = 'length' | 'weight' | 'temperature' | 'area' | 'volume' | 'digital' | 'pressure' | 'energy' | 'speed' | 'time' | 'power' | 'frequency' | 'consumption' | 'angle' | 'torque' | 'force' | 'datarate' | 'illuminance' | 'luminance';
+type ConversionCategory = 'length' | 'weight' | 'temperature' | 'area' | 'volume' | 'digital' | 'pressure' | 'energy' | 'speed' | 'time' | 'power' | 'frequency' | 'consumption' | 'angle' | 'torque' | 'force' | 'datarate' | 'illuminance' | 'luminance' | 'radiation' | 'magnetic';
 
 interface ConversionUnit {
   name: string;
@@ -144,6 +144,16 @@ const CONVERSIONS: Record<ConversionCategory, Record<string, ConversionUnit>> = 
     'cd/m2': { name: 'Candela par m² (cd/m²)', toBase: (v) => v, fromBase: (v) => v },
     'fl': { name: 'Foot-lambert (fL)', toBase: (v) => v * 3.426259, fromBase: (v) => v / 3.426259 },
     'sb': { name: 'Stilb (sb)', toBase: (v) => v * 10000, fromBase: (v) => v / 10000 }
+  },
+  radiation: {
+    'Gy': { name: 'Gray (Gy)', toBase: (v) => v, fromBase: (v) => v },
+    'Sv': { name: 'Sievert (Sv)', toBase: (v) => v, fromBase: (v) => v },
+    'rad': { name: 'Rad', toBase: (v) => v * 0.01, fromBase: (v) => v / 0.01 },
+    'rem': { name: 'Rem', toBase: (v) => v * 0.01, fromBase: (v) => v / 0.01 }
+  },
+  magnetic: {
+    'T': { name: 'Tesla (T)', toBase: (v) => v, fromBase: (v) => v },
+    'G': { name: 'Gauss (G)', toBase: (v) => v / 10000, fromBase: (v) => v * 10000 }
   }
 };
 
@@ -166,7 +176,9 @@ const CATEGORIES_MAP = [
   { id: 'force', name: 'Force' },
   { id: 'datarate', name: 'Débit binaire' },
   { id: 'illuminance', name: 'Éclairement' },
-  { id: 'luminance', name: 'Luminance' }
+  { id: 'luminance', name: 'Luminance' },
+  { id: 'radiation', name: 'Radiation' },
+  { id: 'magnetic', name: 'Champ Magnétique' }
 ];
 
 const formatter = new Intl.NumberFormat('fr-FR', {

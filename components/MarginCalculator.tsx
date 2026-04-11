@@ -1,11 +1,22 @@
-import { useState } from "react";
-import { TrendingUp, Info, DollarSign, Percent, Calculator as CalcIcon } from "lucide-react";
+import { useState, useEffect } from "react";
+import { TrendingUp, Info, DollarSign, Percent, Calculator as CalcIcon, Trash2 } from "lucide-react";
 
-export function MarginCalculator() {
-  const [costPrice, setCostPrice] = useState<string>("");
-  const [sellingPrice, setSellingPrice] = useState<string>("");
-  const [marginPercent, setMarginPercent] = useState<string>("");
-  const [markupPercent, setMarkupPercent] = useState<string>("");
+export function MarginCalculator({ initialData, onStateChange }: { initialData?: any; onStateChange?: (state: any) => void }) {
+  const [costPrice, setCostPrice] = useState<string>(initialData?.costPrice || "");
+  const [sellingPrice, setSellingPrice] = useState<string>(initialData?.sellingPrice || "");
+  const [marginPercent, setMarginPercent] = useState<string>(initialData?.marginPercent || "");
+  const [markupPercent, setMarkupPercent] = useState<string>(initialData?.markupPercent || "");
+
+  useEffect(() => {
+    onStateChange?.({ costPrice, sellingPrice, marginPercent, markupPercent });
+  }, [costPrice, sellingPrice, marginPercent, markupPercent, onStateChange]);
+
+  const handleClear = () => {
+    setCostPrice("");
+    setSellingPrice("");
+    setMarginPercent("");
+    setMarkupPercent("");
+  };
 
   const calculateFromCostAndSelling = () => {
     const cost = parseFloat(costPrice);
@@ -45,29 +56,52 @@ export function MarginCalculator() {
 
   return (
     <div className="max-w-4xl mx-auto space-y-8">
+      <div className="flex justify-end px-1">
+        <button
+          onClick={handleClear}
+          disabled={!costPrice && !sellingPrice && !marginPercent && !markupPercent}
+          className="text-xs font-bold text-rose-500 bg-rose-50 dark:bg-rose-500/10 hover:bg-rose-100 dark:hover:bg-rose-500/20 px-3 py-1.5 rounded-xl flex items-center gap-1 transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+        >
+          <Trash2 className="w-3 h-3" /> Effacer
+        </button>
+      </div>
       <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
         <div className="space-y-6">
           <div className="grid grid-cols-1 gap-6">
             <div className="space-y-3">
-              <label className="text-xs font-black uppercase tracking-widest text-slate-400 px-1 flex items-center gap-2">
+              <label htmlFor="cost-price" className="text-xs font-black uppercase tracking-widest text-slate-400 px-1 flex items-center gap-2">
                 <DollarSign className="w-3 h-3" /> Prix d'achat (Coût)
               </label>
               <input
+                id="cost-price"
                 type="number"
                 value={costPrice}
-                onChange={(e) => setCostPrice(e.target.value)}
+                onChange={(e) => {
+                  setCostPrice(e.target.value);
+                  if (!e.target.value) {
+                    setMarginPercent("");
+                    setMarkupPercent("");
+                  }
+                }}
                 className="w-full p-4 bg-slate-50 dark:bg-slate-900/50 border border-slate-200 dark:border-slate-800 rounded-2xl text-2xl font-black font-mono focus:border-indigo-500 outline-none transition-all dark:text-white"
                 placeholder="0.00"
               />
             </div>
             <div className="space-y-3">
-              <label className="text-xs font-black uppercase tracking-widest text-slate-400 px-1 flex items-center gap-2">
+              <label htmlFor="selling-price" className="text-xs font-black uppercase tracking-widest text-slate-400 px-1 flex items-center gap-2">
                 <TrendingUp className="w-3 h-3" /> Prix de vente
               </label>
               <input
+                id="selling-price"
                 type="number"
                 value={sellingPrice}
-                onChange={(e) => setSellingPrice(e.target.value)}
+                onChange={(e) => {
+                  setSellingPrice(e.target.value);
+                  if (!e.target.value) {
+                    setMarginPercent("");
+                    setMarkupPercent("");
+                  }
+                }}
                 className="w-full p-4 bg-slate-50 dark:bg-slate-900/50 border border-slate-200 dark:border-slate-800 rounded-2xl text-2xl font-black font-mono focus:border-indigo-500 outline-none transition-all dark:text-white"
                 placeholder="0.00"
               />
@@ -83,14 +117,21 @@ export function MarginCalculator() {
 
           <div className="grid grid-cols-1 gap-6">
             <div className="space-y-3">
-              <label className="text-xs font-black uppercase tracking-widest text-slate-400 px-1 flex items-center gap-2">
+              <label htmlFor="margin-percent" className="text-xs font-black uppercase tracking-widest text-slate-400 px-1 flex items-center gap-2">
                 <Percent className="w-3 h-3" /> Marge (%)
               </label>
               <div className="flex gap-2">
                 <input
+                  id="margin-percent"
                   type="number"
                   value={marginPercent}
-                  onChange={(e) => setMarginPercent(e.target.value)}
+                  onChange={(e) => {
+                    setMarginPercent(e.target.value);
+                    if (!e.target.value) {
+                      setSellingPrice("");
+                      setMarkupPercent("");
+                    }
+                  }}
                   className="flex-1 p-4 bg-slate-50 dark:bg-slate-900/50 border border-slate-200 dark:border-slate-800 rounded-2xl text-xl font-black font-mono focus:border-indigo-500 outline-none transition-all dark:text-white"
                   placeholder="0.00"
                 />
@@ -103,14 +144,21 @@ export function MarginCalculator() {
               </div>
             </div>
             <div className="space-y-3">
-              <label className="text-xs font-black uppercase tracking-widest text-slate-400 px-1 flex items-center gap-2">
+              <label htmlFor="markup-percent" className="text-xs font-black uppercase tracking-widest text-slate-400 px-1 flex items-center gap-2">
                 <TrendingUp className="w-3 h-3" /> Coefficient (Markup %)
               </label>
               <div className="flex gap-2">
                 <input
+                  id="markup-percent"
                   type="number"
                   value={markupPercent}
-                  onChange={(e) => setMarkupPercent(e.target.value)}
+                  onChange={(e) => {
+                    setMarkupPercent(e.target.value);
+                    if (!e.target.value) {
+                      setSellingPrice("");
+                      setMarginPercent("");
+                    }
+                  }}
                   className="flex-1 p-4 bg-slate-50 dark:bg-slate-900/50 border border-slate-200 dark:border-slate-800 rounded-2xl text-xl font-black font-mono focus:border-indigo-500 outline-none transition-all dark:text-white"
                   placeholder="0.00"
                 />

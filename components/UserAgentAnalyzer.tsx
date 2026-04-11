@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { Monitor, Cpu, Laptop, Smartphone, Search, Copy, Check, Globe } from 'lucide-react';
+import { Monitor, Cpu, Laptop, Smartphone, Search, Copy, Check, Globe, ShieldCheck, Info, FileText } from 'lucide-react';
 
 interface BrowserInfo {
   name: string;
@@ -23,6 +23,7 @@ export function UserAgentAnalyzer() {
   const [browser, setBrowser] = useState<BrowserInfo | null>(null);
   const [screen, setScreen] = useState<ScreenInfo | null>(null);
   const [copied, setCopied] = useState(false);
+  const [copiedReport, setCopiedReport] = useState(false);
 
   useEffect(() => {
     const ua = navigator.userAgent;
@@ -84,6 +85,33 @@ export function UserAgentAnalyzer() {
     setTimeout(() => setCopied(false), 2000);
   };
 
+  const handleCopyReport = () => {
+    if (!browser || !screen) return;
+    const report = `Rapport d'analyse système :
+---
+Navigateur : ${browser.name}
+Version : ${browser.version}
+Système d'exploitation : ${browser.os}
+Plateforme : ${browser.platform}
+Langue : ${browser.language}
+Fuseau Horaire : ${Intl.DateTimeFormat().resolvedOptions().timeZone}
+Cookies : ${navigator.cookieEnabled ? 'Activés' : 'Désactivés'}
+
+Affichage :
+Résolution : ${screen.width} x ${screen.height}
+Zone disponible : ${screen.availWidth} x ${screen.availHeight}
+Ratio de pixels : ${screen.pixelRatio}
+Profondeur de couleurs : ${screen.colorDepth} bits
+Fenêtre actuelle : ${window.innerWidth} x ${window.innerHeight}
+
+User Agent :
+${browser.userAgent}`;
+
+    navigator.clipboard.writeText(report);
+    setCopiedReport(true);
+    setTimeout(() => setCopiedReport(false), 2000);
+  };
+
   const getDeviceIcon = () => {
     if (!browser) return <Laptop className="w-8 h-8" />;
     const ua = browser.userAgent.toLowerCase();
@@ -117,9 +145,22 @@ export function UserAgentAnalyzer() {
         <div className="mt-12 relative z-10">
           <div className="flex justify-between items-center mb-4 px-1">
             <label className="text-xs font-black uppercase tracking-widest text-white/40">User Agent</label>
-            <button onClick={handleCopy} className={`text-xs font-bold flex items-center gap-2 transition-all ${copied ? 'text-emerald-400' : 'text-white/60 hover:text-white'}`}>
-              {copied ? <Check className="w-3 h-3" /> : <Copy className="w-3 h-3" />} {copied ? 'Copié' : 'Copier'}
-            </button>
+            <div className="flex gap-4">
+              <button
+                onClick={handleCopyReport}
+                className={`text-xs font-bold flex items-center gap-2 transition-all ${copiedReport ? 'text-emerald-400' : 'text-white/60 hover:text-white'}`}
+                aria-label="Copier le rapport complet"
+              >
+                {copiedReport ? <Check className="w-3 h-3" /> : <FileText className="w-3 h-3" />} {copiedReport ? 'Rapport copié' : 'Copier le rapport'}
+              </button>
+              <button
+                onClick={handleCopy}
+                className={`text-xs font-bold flex items-center gap-2 transition-all ${copied ? 'text-emerald-400' : 'text-white/60 hover:text-white'}`}
+                aria-label="Copier le User Agent"
+              >
+                {copied ? <Check className="w-3 h-3" /> : <Copy className="w-3 h-3" />} {copied ? 'UA copié' : 'Copier UA'}
+              </button>
+            </div>
           </div>
           <div className="p-6 bg-white/5 border border-white/10 rounded-2xl font-mono text-sm text-white/80 break-all leading-relaxed backdrop-blur-sm">
             {browser?.userAgent}
@@ -184,6 +225,34 @@ export function UserAgentAnalyzer() {
             </div>
           </div>
         </section>
+      </div>
+
+      {/* Educational Content */}
+      <div className="mt-16 grid grid-cols-1 md:grid-cols-3 gap-8 pt-16 border-t border-slate-100 dark:border-slate-800">
+        <div className="space-y-4">
+          <h4 className="font-bold dark:text-white flex items-center gap-2">
+            <Info className="w-4 h-4 text-indigo-500" /> Guide d'utilisation
+          </h4>
+          <p className="text-sm text-slate-500 dark:text-slate-400 leading-relaxed">
+            Cet outil analyse automatiquement les informations envoyées par votre navigateur. Vous pouvez consulter les détails de votre système, de votre écran et votre "User Agent" complet. Utilisez les boutons de copie pour partager ces informations lors d'un débogage.
+          </p>
+        </div>
+        <div className="space-y-4">
+          <h4 className="font-bold dark:text-white flex items-center gap-2">
+            <Monitor className="w-4 h-4 text-indigo-500" /> Détails Techniques
+          </h4>
+          <p className="text-sm text-slate-500 dark:text-slate-400 leading-relaxed">
+            Le "User Agent" est une chaîne de caractères que votre navigateur envoie aux sites web pour s'identifier. Il contient des informations sur le moteur de rendu, le système d'exploitation et la version du logiciel.
+          </p>
+        </div>
+        <div className="space-y-4">
+          <h4 className="font-bold dark:text-white flex items-center gap-2">
+            <ShieldCheck className="w-4 h-4 text-indigo-500" /> Confidentialité
+          </h4>
+          <p className="text-sm text-slate-500 dark:text-slate-400 leading-relaxed">
+            <strong>Vos données sont-elles privées ?</strong> Oui. Toute l'analyse est effectuée localement dans votre navigateur via l'objet <code>navigator</code>. Aucune information n'est transmise ou stockée sur nos serveurs.
+          </p>
+        </div>
       </div>
     </div>
   );

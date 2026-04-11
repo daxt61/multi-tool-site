@@ -180,6 +180,8 @@ const GradeCalculator = lazy(() => import("./components/GradeCalculator").then(m
 const BodyFatCalculator = lazy(() => import("./components/BodyFatCalculator").then(m => ({ default: m.BodyFatCalculator })));
 const BreakevenCalculator = lazy(() => import("./components/BreakevenCalculator").then(m => ({ default: m.BreakevenCalculator })));
 const SocialMediaLinks = lazy(() => import("./components/SocialMediaLinks").then(m => ({ default: m.SocialMediaLinks })));
+const MockDataGenerator = lazy(() => import("./components/MockDataGenerator").then(m => ({ default: m.MockDataGenerator })));
+const ChartGenerator = lazy(() => import("./components/ChartGenerator").then(m => ({ default: m.ChartGenerator })));
 
 // ⚡ Bolt Optimization: Pre-calculating tool map and search index for O(1) lookups and faster filtering
 const toolsMap: Record<string, Tool> = {};
@@ -357,6 +359,22 @@ const tools: Tool[] = [
     icon: Target,
     description: "Calculer le point mort et la rentabilité",
     Component: BreakevenCalculator,
+    category: "business",
+  },
+  {
+    id: "mock-data",
+    name: "Mock Data",
+    icon: Database,
+    description: "Générateur de données de test (JSON, CSV)",
+    Component: MockDataGenerator,
+    category: "dev",
+  },
+  {
+    id: "chart-generator",
+    name: "Graphiques",
+    icon: LineChart,
+    description: "Générer des graphiques à partir de données",
+    Component: ChartGenerator,
     category: "business",
   },
   // Calculators

@@ -182,6 +182,7 @@ const BreakevenCalculator = lazy(() => import("./components/BreakevenCalculator"
 const SocialMediaLinks = lazy(() => import("./components/SocialMediaLinks").then(m => ({ default: m.SocialMediaLinks })));
 const MockDataGenerator = lazy(() => import("./components/MockDataGenerator").then(m => ({ default: m.MockDataGenerator })));
 const ChartGenerator = lazy(() => import("./components/ChartGenerator").then(m => ({ default: m.ChartGenerator })));
+const NatoPhoneticTranslator = lazy(() => import("./components/NatoPhoneticTranslator").then(m => ({ default: m.NatoPhoneticTranslator })));
 
 // ⚡ Bolt Optimization: Pre-calculating tool map and search index for O(1) lookups and faster filtering
 const toolsMap: Record<string, Tool> = {};
@@ -594,6 +595,14 @@ const tools: Tool[] = [
     icon: ListChecks,
     description: "Trier, dédoublonner et nettoyer vos listes",
     Component: ListCleaner,
+    category: "text",
+  },
+  {
+    id: "nato-translator",
+    name: "Alphabet OTAN",
+    icon: Volume2,
+    description: "Traduire du texte en alphabet phonétique de l'OTAN (Alpha, Bravo...)",
+    Component: NatoPhoneticTranslator,
     category: "text",
   },
   // Dev Tools

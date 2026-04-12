@@ -1,6 +1,8 @@
 import { useState } from 'react';
 import { FileCode, FileSpreadsheet, Copy, Check, Trash2, AlertCircle, Download } from 'lucide-react';
 
+const MAX_LENGTH = 100000;
+
 export function JSONCSVConverter() {
   const [jsonInput, setJsonInput] = useState('');
   const [csvInput, setCsvInput] = useState('');
@@ -91,12 +93,26 @@ export function JSONCSVConverter() {
 
   const handleJsonChange = (val: string) => {
     setJsonInput(val);
+    // Sentinel: Implement input length limit to mitigate client-side Denial of Service (DoS)
+    // by preventing processing of excessively large data sets that could freeze the browser.
+    if (val.length > MAX_LENGTH) {
+      setError(`L'entrée est trop longue. Limite de ${MAX_LENGTH.toLocaleString()} caractères.`);
+      return;
+    }
+    setError('');
     const csv = jsonToCsv(val);
     if (csv) setCsvInput(csv);
   };
 
   const handleCsvChange = (val: string) => {
     setCsvInput(val);
+    // Sentinel: Implement input length limit to mitigate client-side Denial of Service (DoS)
+    // by preventing processing of excessively large data sets that could freeze the browser.
+    if (val.length > MAX_LENGTH) {
+      setError(`L'entrée est trop longue. Limite de ${MAX_LENGTH.toLocaleString()} caractères.`);
+      return;
+    }
+    setError('');
     const json = csvToJson(val);
     if (json) setJsonInput(json);
   };
@@ -164,7 +180,7 @@ export function JSONCSVConverter() {
             value={jsonInput}
             onChange={(e) => handleJsonChange(e.target.value)}
             placeholder='[{"id": 1, "name": "Test"}]'
-            className="w-full h-[400px] p-6 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-3xl outline-none focus:ring-2 focus:ring-indigo-500/20 transition-all font-mono text-sm leading-relaxed dark:text-slate-300 resize-none"
+            className={`w-full h-[400px] p-6 bg-slate-50 dark:bg-slate-900 border ${jsonInput.length > MAX_LENGTH ? 'border-rose-500 ring-rose-500/20' : 'border-slate-200 dark:border-slate-800 focus:ring-indigo-500/20'} rounded-3xl outline-none focus:ring-2 transition-all font-mono text-sm leading-relaxed dark:text-slate-300 resize-none`}
           />
         </div>
 
@@ -195,7 +211,7 @@ export function JSONCSVConverter() {
             value={csvInput}
             onChange={(e) => handleCsvChange(e.target.value)}
             placeholder='id,name\n1,Test'
-            className="w-full h-[400px] p-6 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-3xl outline-none focus:ring-2 focus:ring-indigo-500/20 transition-all font-mono text-sm leading-relaxed dark:text-slate-300 resize-none"
+            className={`w-full h-[400px] p-6 bg-slate-50 dark:bg-slate-900 border ${csvInput.length > MAX_LENGTH ? 'border-rose-500 ring-rose-500/20' : 'border-slate-200 dark:border-slate-800 focus:ring-indigo-500/20'} rounded-3xl outline-none focus:ring-2 transition-all font-mono text-sm leading-relaxed dark:text-slate-300 resize-none`}
           />
         </div>
       </div>

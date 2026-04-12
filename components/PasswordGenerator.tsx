@@ -1,5 +1,5 @@
-import { useState, useEffect } from 'react';
-import { Copy, RefreshCw, Check, Shield, ShieldAlert, ShieldCheck, Key, BookOpen, Trash2 } from 'lucide-react';
+import { useState, useEffect, useCallback } from 'react';
+import { Copy, RefreshCw, Check, Shield, ShieldAlert, ShieldCheck, Key, BookOpen, Trash2, Download } from 'lucide-react';
 
 const WORDS = [
   'bleu', 'rouge', 'vert', 'jaune', 'noir', 'blanc', 'orange', 'rose', 'gris', 'brun', 'violet', 'marron', 'argent', 'or', 'indigo', 'turquoise', 'beige', 'ocre', 'cyan', 'lime',
@@ -31,7 +31,7 @@ export function PasswordGenerator() {
   const [excludeSimilar, setExcludeSimilar] = useState(false);
   const [copied, setCopied] = useState(false);
 
-  const getSecureRandomIndex = (range: number) => {
+  const getSecureRandomIndex = useCallback((range: number) => {
     const array = new Uint32Array(1);
     if (range >= 0x100000000) {
       window.crypto.getRandomValues(array);
@@ -45,9 +45,9 @@ export function PasswordGenerator() {
       randomVal = array[0];
     } while (randomVal >= limit);
     return randomVal % range;
-  };
+  }, []);
 
-  const generatePassword = () => {
+  const generatePassword = useCallback(() => {
     if (mode === 'random') {
       let charset = '';
       if (includeUppercase) charset += 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
@@ -90,17 +90,18 @@ export function PasswordGenerator() {
       setPassword(res);
     }
     setCopied(false);
-  };
+  }, [mode, includeUppercase, includeLowercase, includeNumbers, includeSymbols, excludeSimilar, length, wordCount, capitalizeWords, addNumber, addSymbol, getSecureRandomIndex]);
 
   useEffect(() => {
     generatePassword();
-  }, [mode, length, wordCount, capitalizeWords, addNumber, addSymbol, includeUppercase, includeLowercase, includeNumbers, includeSymbols, excludeSimilar]);
+  }, [generatePassword]);
 
-  const copyToClipboard = () => {
+  const copyToClipboard = useCallback(() => {
+    if (!password) return;
     navigator.clipboard.writeText(password);
     setCopied(true);
     setTimeout(() => setCopied(false), 2000);
-  };
+  }, [password]);
 
   const getStrength = () => {
     if (!password) return { label: '', color: 'bg-slate-200', icon: <ShieldAlert /> };
@@ -130,13 +131,55 @@ export function PasswordGenerator() {
     setPassword('');
   };
 
+  const handleDownload = () => {
+    if (!password) return;
+    const blob = new Blob([password], { type: 'text/plain' });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    link.href = url;
+    link.download = `mot-de-passe-${Date.now()}.txt`;
+    link.click();
+    URL.revokeObjectURL(url);
+  };
+
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (document.activeElement?.tagName === "INPUT" || document.activeElement?.tagName === "TEXTAREA") {
+        return;
+      }
+
+      // We allow Space for regeneration only if it doesn't interfere with standard accessibility
+      // Native behavior for Space on buttons is to activate them.
+      // If no interactive element is focused (except body), we can use Space.
+      const isBodyFocused = document.activeElement === document.body;
+
+      if ((e.key.toLowerCase() === 'r') || (e.code === 'Space' && isBodyFocused)) {
+        e.preventDefault();
+        generatePassword();
+      } else if (e.key.toLowerCase() === 'c') {
+        e.preventDefault();
+        copyToClipboard();
+      }
+    };
+
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [generatePassword, copyToClipboard]);
+
   return (
     <div className="max-w-4xl mx-auto space-y-8">
-      <div className="flex justify-end px-1">
+      <div className="flex justify-end items-center gap-2 px-1">
+        <button
+          onClick={handleDownload}
+          disabled={!password}
+          className="text-xs font-bold text-indigo-600 bg-indigo-50 dark:bg-indigo-500/10 hover:bg-indigo-100 dark:hover:bg-indigo-500/20 px-3 py-1.5 rounded-xl flex items-center gap-1 transition-all disabled:opacity-50 disabled:cursor-not-allowed focus-visible:ring-2 focus-visible:ring-indigo-500 focus-visible:outline-none"
+        >
+          <Download className="w-3 h-3" /> Télécharger
+        </button>
         <button
           onClick={handleClear}
           disabled={!password}
-          className="text-xs font-bold text-rose-500 bg-rose-50 dark:bg-rose-500/10 hover:bg-rose-100 dark:hover:bg-rose-500/20 px-3 py-1.5 rounded-xl flex items-center gap-1 transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+          className="text-xs font-bold text-rose-500 bg-rose-50 dark:bg-rose-500/10 hover:bg-rose-100 dark:hover:bg-rose-500/20 px-3 py-1.5 rounded-xl flex items-center gap-1 transition-all disabled:opacity-50 disabled:cursor-not-allowed focus-visible:ring-2 focus-visible:ring-rose-500 focus-visible:outline-none"
         >
           <Trash2 className="w-3 h-3" /> Effacer
         </button>
@@ -147,7 +190,7 @@ export function PasswordGenerator() {
         <div className="inline-flex bg-slate-100 dark:bg-slate-800 p-1 rounded-2xl border border-slate-200 dark:border-slate-700">
           <button
             onClick={() => setMode('random')}
-            className={`flex items-center gap-2 px-6 py-2.5 rounded-xl text-sm font-bold transition-all ${
+            className={`flex items-center gap-2 px-6 py-2.5 rounded-xl text-sm font-bold transition-all focus-visible:ring-2 focus-visible:ring-indigo-500 focus-visible:outline-none ${
               mode === 'random'
                 ? 'bg-white dark:bg-slate-700 text-indigo-600 dark:text-indigo-400 shadow-md'
                 : 'text-slate-500 hover:text-slate-900 dark:hover:text-slate-300'
@@ -157,7 +200,7 @@ export function PasswordGenerator() {
           </button>
           <button
             onClick={() => setMode('passphrase')}
-            className={`flex items-center gap-2 px-6 py-2.5 rounded-xl text-sm font-bold transition-all ${
+            className={`flex items-center gap-2 px-6 py-2.5 rounded-xl text-sm font-bold transition-all focus-visible:ring-2 focus-visible:ring-indigo-500 focus-visible:outline-none ${
               mode === 'passphrase'
                 ? 'bg-white dark:bg-slate-700 text-indigo-600 dark:text-indigo-400 shadow-md'
                 : 'text-slate-500 hover:text-slate-900 dark:hover:text-slate-300'
@@ -182,19 +225,20 @@ export function PasswordGenerator() {
           <div className="flex gap-3">
             <button
               onClick={generatePassword}
-              className="p-4 bg-white/10 hover:bg-white/20 text-white rounded-2xl transition-all active:scale-95"
-              title="Régénérer"
+              className="p-4 bg-white/10 hover:bg-white/20 text-white rounded-2xl transition-all active:scale-95 focus-visible:ring-2 focus-visible:ring-indigo-500 focus-visible:outline-none"
+              title="Régénérer (R)"
               aria-label="Régénérer le mot de passe"
             >
               <RefreshCw className="w-6 h-6" />
             </button>
             <button
               onClick={copyToClipboard}
-              className={`px-8 py-4 rounded-2xl transition-all active:scale-95 flex items-center gap-2 font-black text-lg ${
+              className={`px-8 py-4 rounded-2xl transition-all active:scale-95 flex items-center gap-2 font-black text-lg focus-visible:ring-2 focus-visible:ring-indigo-500 focus-visible:outline-none ${
                 copied
                   ? 'bg-emerald-50 dark:bg-emerald-500/10 text-emerald-600 dark:text-emerald-400'
                   : 'bg-white text-slate-900 hover:bg-slate-100'
               }`}
+              title="Copier (C)"
             >
               {copied ? <Check className="w-6 h-6" /> : <Copy className="w-6 h-6" />}
               {copied ? 'Copié' : 'Copier'}
@@ -228,31 +272,33 @@ export function PasswordGenerator() {
           {mode === 'random' ? (
             <div className="space-y-6">
               <div className="flex justify-between items-center px-1">
-                <label className="text-xs font-black uppercase tracking-widest text-slate-400">Longueur</label>
+                <label htmlFor="password-length" className="text-xs font-black uppercase tracking-widest text-slate-400 cursor-pointer">Longueur</label>
                 <span className="text-2xl font-black font-mono text-indigo-600 dark:text-indigo-400">{length}</span>
               </div>
               <input
+                id="password-length"
                 type="range"
                 min="4"
                 max="64"
                 value={length}
                 onChange={(e) => setLength(Number(e.target.value))}
-                className="w-full h-2 bg-slate-200 dark:bg-slate-800 rounded-lg appearance-none cursor-pointer accent-indigo-600"
+                className="w-full h-2 bg-slate-200 dark:bg-slate-800 rounded-lg appearance-none cursor-pointer accent-indigo-600 focus-visible:ring-2 focus-visible:ring-indigo-500 focus-visible:outline-none"
               />
             </div>
           ) : (
             <div className="space-y-6">
               <div className="flex justify-between items-center px-1">
-                <label className="text-xs font-black uppercase tracking-widest text-slate-400">Nombre de mots</label>
+                <label htmlFor="word-count" className="text-xs font-black uppercase tracking-widest text-slate-400 cursor-pointer">Nombre de mots</label>
                 <span className="text-2xl font-black font-mono text-indigo-600 dark:text-indigo-400">{wordCount}</span>
               </div>
               <input
+                id="word-count"
                 type="range"
                 min="2"
                 max="10"
                 value={wordCount}
                 onChange={(e) => setWordCount(Number(e.target.value))}
-                className="w-full h-2 bg-slate-200 dark:bg-slate-800 rounded-lg appearance-none cursor-pointer accent-indigo-600"
+                className="w-full h-2 bg-slate-200 dark:bg-slate-800 rounded-lg appearance-none cursor-pointer accent-indigo-600 focus-visible:ring-2 focus-visible:ring-indigo-500 focus-visible:outline-none"
               />
             </div>
           )}
@@ -270,7 +316,7 @@ export function PasswordGenerator() {
                   key={opt.label}
                   onClick={() => opt.setState(!opt.state)}
                   aria-pressed={opt.state}
-                  className={`flex items-center justify-between p-4 rounded-2xl border transition-all ${
+                  className={`flex items-center justify-between p-4 rounded-2xl border transition-all focus-visible:ring-2 focus-visible:ring-indigo-500 focus-visible:outline-none ${
                     opt.state
                     ? 'bg-indigo-50 dark:bg-indigo-500/10 border-indigo-200 dark:border-indigo-500/20 text-indigo-600 dark:text-indigo-400'
                     : 'bg-white dark:bg-slate-800 border-slate-200 dark:border-slate-700 text-slate-400'
@@ -299,7 +345,7 @@ export function PasswordGenerator() {
                     key={opt.label}
                     onClick={() => opt.setState(!opt.state)}
                     aria-pressed={opt.state}
-                    className={`flex items-center justify-between p-4 rounded-2xl border transition-all ${
+                    className={`flex items-center justify-between p-4 rounded-2xl border transition-all focus-visible:ring-2 focus-visible:ring-indigo-500 focus-visible:outline-none ${
                       opt.state
                       ? 'bg-indigo-50 dark:bg-indigo-500/10 border-indigo-200 dark:border-indigo-500/20 text-indigo-600 dark:text-indigo-400'
                       : 'bg-white dark:bg-slate-800 border-slate-200 dark:border-slate-700 text-slate-400'

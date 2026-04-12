@@ -1,5 +1,7 @@
 import { useState, useMemo } from "react";
-import { Calculator, Info, Percent, Landmark, Clock, RotateCcw, Table, HelpCircle, BookOpen, ChevronRight, Trash2 } from "lucide-react";
+import { Calculator, Info, Percent, Landmark, Clock, RotateCcw, Table, HelpCircle, BookOpen, ChevronRight, Trash2, AreaChart as ChartIcon } from "lucide-react";
+import { Area, AreaChart, CartesianGrid, XAxis, YAxis } from "recharts";
+import { ChartContainer, ChartTooltip, ChartTooltipContent } from "./ui/chart";
 
 export function LoanCalculator() {
   const [principal, setPrincipal] = useState<string>("10000");
@@ -33,25 +35,55 @@ export function LoanCalculator() {
         });
       }
 
+      const chartData = [];
+      let currentCumulativeInterest = 0;
+      for (let i = 0; i < schedule.length; i++) {
+        currentCumulativeInterest += schedule[i].interest;
+        if ((i + 1) % 12 === 0 || i === schedule.length - 1 || i === 0) {
+          chartData.push({
+            month: schedule[i].month,
+            year: Math.ceil(schedule[i].month / 12),
+            balance: Math.round(schedule[i].balance),
+            interest: Math.round(currentCumulativeInterest),
+          });
+        }
+      }
+
       return {
         monthlyPayment,
         totalPayment,
         totalInterest,
         schedule,
+        chartData,
       };
     } else if (!isNaN(p) && r === 0 && !isNaN(n) && n > 0) {
       const monthlyPayment = p / n;
+      const schedule = Array.from({ length: Math.floor(n) }, (_, i) => ({
+        month: i + 1,
+        payment: monthlyPayment,
+        principal: monthlyPayment,
+        interest: 0,
+        balance: Math.max(0, p - (monthlyPayment * (i + 1))),
+      }));
+
+      const chartData = [];
+      for (let i = 0; i < schedule.length; i++) {
+        if ((i + 1) % 12 === 0 || i === schedule.length - 1 || i === 0) {
+          chartData.push({
+            month: schedule[i].month,
+            year: Math.ceil(schedule[i].month / 12),
+            balance: Math.round(schedule[i].balance),
+            interest: 0,
+          });
+        }
+      }
+
       return {
         monthlyPayment,
         totalPayment: p,
         totalInterest: 0,
-        schedule: Array.from({ length: n }, (_, i) => ({
-          month: i + 1,
-          payment: monthlyPayment,
-          principal: monthlyPayment,
-          interest: 0,
-          balance: p - (monthlyPayment * (i + 1)),
-        })),
+        schedule,
+        chartData,
       };
     }
     return null;
@@ -62,6 +94,17 @@ export function LoanCalculator() {
     setAnnualRate("");
     setYears("");
     setShowSchedule(false);
+  };
+
+  const chartConfig = {
+    balance: {
+      label: "Capital restant",
+      color: "rgb(99, 102, 241)",
+    },
+    interest: {
+      label: "Intérêts cumulés",
+      color: "rgb(244, 63, 94)",
+    },
   };
 
   return (
@@ -167,7 +210,7 @@ export function LoanCalculator() {
             </div>
           </div>
 
-          {!result && (
+          {!result ? (
             <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 p-6 rounded-[2rem] flex items-start gap-4">
                <div className="p-3 bg-indigo-50 dark:bg-indigo-900/20 text-indigo-600 dark:text-indigo-400 rounded-2xl">
                   <Info className="w-6 h-6" />
@@ -175,6 +218,60 @@ export function LoanCalculator() {
                <p className="text-sm text-slate-500 dark:text-slate-400 leading-relaxed font-medium">
                  Entrez le montant, le taux et la durée pour simuler votre crédit immobilier ou consommation en temps réel.
                </p>
+            </div>
+          ) : (
+            <div className="bg-white dark:bg-slate-900/40 p-6 rounded-[2rem] border border-slate-200 dark:border-slate-800 space-y-4">
+              <div className="flex items-center gap-2 px-1">
+                <ChartIcon className="w-4 h-4 text-indigo-500" />
+                <h3 className="text-xs font-black uppercase tracking-widest text-slate-400">Évolution du crédit</h3>
+              </div>
+              <ChartContainer config={chartConfig} className="h-[200px] w-full">
+                <AreaChart data={result.chartData} margin={{ top: 10, right: 10, left: 0, bottom: 0 }}>
+                  <defs>
+                    <linearGradient id="colorBalance" x1="0" y1="0" x2="0" y2="1">
+                      <stop offset="5%" stopColor="rgb(99, 102, 241)" stopOpacity={0.3}/>
+                      <stop offset="95%" stopColor="rgb(99, 102, 241)" stopOpacity={0}/>
+                    </linearGradient>
+                    <linearGradient id="colorInterest" x1="0" y1="0" x2="0" y2="1">
+                      <stop offset="5%" stopColor="rgb(244, 63, 94)" stopOpacity={0.3}/>
+                      <stop offset="95%" stopColor="rgb(244, 63, 94)" stopOpacity={0}/>
+                    </linearGradient>
+                  </defs>
+                  <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="rgba(203, 213, 225, 0.2)" />
+                  <XAxis
+                    dataKey="year"
+                    axisLine={false}
+                    tickLine={false}
+                    tick={{ fill: '#94a3b8', fontSize: 10, fontWeight: 'bold' }}
+                    label={{ value: 'Années', position: 'insideBottomRight', offset: -5, fill: '#94a3b8', fontSize: 10, fontWeight: 'bold' }}
+                  />
+                  <YAxis
+                    axisLine={false}
+                    tickLine={false}
+                    tick={{ fill: '#94a3b8', fontSize: 10, fontWeight: 'bold' }}
+                    tickFormatter={(value) => `${(value / 1000).toFixed(0)}k`}
+                  />
+                  <ChartTooltip content={<ChartTooltipContent />} />
+                  <Area
+                    type="monotone"
+                    dataKey="balance"
+                    stroke="rgb(99, 102, 241)"
+                    strokeWidth={3}
+                    fillOpacity={1}
+                    fill="url(#colorBalance)"
+                    name="Capital restant"
+                  />
+                  <Area
+                    type="monotone"
+                    dataKey="interest"
+                    stroke="rgb(244, 63, 94)"
+                    strokeWidth={3}
+                    fillOpacity={1}
+                    fill="url(#colorInterest)"
+                    name="Intérêts cumulés"
+                  />
+                </AreaChart>
+              </ChartContainer>
             </div>
           )}
         </div>

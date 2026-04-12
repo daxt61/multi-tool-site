@@ -1,5 +1,5 @@
 import { useState, useMemo } from 'react';
-import { Copy, Check, RefreshCw, Palette, Layers, Grid, Info } from 'lucide-react';
+import { Copy, Check, RefreshCw, Palette, Layers, Grid, Info, Download } from 'lucide-react';
 
 export function ColorPaletteGenerator() {
   const [baseColor, setBaseColor] = useState('#6366f1');
@@ -91,6 +91,21 @@ export function ColorPaletteGenerator() {
     setTimeout(() => setCopied(null), 2000);
   };
 
+  const handleDownload = () => {
+    let content = `Palette de couleurs basée sur ${baseColor.toUpperCase()}\n\n`;
+    palettes.forEach(p => {
+      content += `${p.name}:\n`;
+      content += p.colors.map(c => c.toUpperCase()).join(', ') + '\n\n';
+    });
+    const blob = new Blob([content], { type: 'text/plain' });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    link.href = url;
+    link.download = `palette-${baseColor.replace('#', '')}.txt`;
+    link.click();
+    URL.revokeObjectURL(url);
+  };
+
   const generateRandom = () => {
     // Sentinel: Use cryptographically secure random values instead of Math.random()
     const range = 16777216; // 0x1000000 (covers 0x000000 to 0xFFFFFF)
@@ -135,12 +150,20 @@ export function ColorPaletteGenerator() {
           </div>
         </div>
 
-        <button
-          onClick={generateRandom}
-          className="px-8 py-4 bg-indigo-600 text-white rounded-2xl font-black text-lg shadow-xl shadow-indigo-600/20 hover:bg-indigo-700 transition-all active:scale-95 flex items-center gap-2"
-        >
-          <RefreshCw className="w-5 h-5" /> Générer aléatoirement
-        </button>
+        <div className="flex flex-wrap gap-4">
+          <button
+            onClick={handleDownload}
+            className="px-6 py-4 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-600 dark:text-slate-300 rounded-2xl font-bold transition-all hover:bg-slate-50 dark:hover:bg-slate-700 flex items-center gap-2"
+          >
+            <Download className="w-5 h-5" /> Télécharger
+          </button>
+          <button
+            onClick={generateRandom}
+            className="px-8 py-4 bg-indigo-600 text-white rounded-2xl font-black text-lg shadow-xl shadow-indigo-600/20 hover:bg-indigo-700 transition-all active:scale-95 flex items-center gap-2"
+          >
+            <RefreshCw className="w-5 h-5" /> Générer aléatoirement
+          </button>
+        </div>
       </div>
 
       {/* Palettes Grid */}

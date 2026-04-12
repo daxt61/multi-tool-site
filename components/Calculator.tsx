@@ -73,7 +73,17 @@ export function Calculator() {
         return;
       }
       const result = calculate(previousValue, current, operation);
-      setDisplay(String(result));
+
+      let resultStr = '';
+      if (isNaN(result)) {
+        resultStr = 'Erreur';
+      } else if (!isFinite(result)) {
+        resultStr = 'Infini';
+      } else {
+        resultStr = String(Number(result.toFixed(10)));
+      }
+
+      setDisplay(resultStr);
       setPreviousValue(result);
     }
 
@@ -168,9 +178,17 @@ export function Calculator() {
       const current = parseFloat(display);
       const result = calculate(previousValue, current, operation);
       const expression = `${isNaN(previousValue) ? 'Erreur' : previousValue} ${operation} ${isNaN(current) ? 'Erreur' : current}`;
-      const resultStr = isNaN(result) ? 'Erreur' : String(result);
 
-      const newHistory = [{ expression, result: resultStr === 'NaN' ? 'Erreur' : resultStr }, ...history].slice(0, 10);
+      let resultStr = '';
+      if (isNaN(result)) {
+        resultStr = 'Erreur';
+      } else if (!isFinite(result)) {
+        resultStr = 'Infini';
+      } else {
+        resultStr = String(Number(result.toFixed(10)));
+      }
+
+      const newHistory = [{ expression, result: resultStr }, ...history].slice(0, 10);
       setHistory(newHistory);
       localStorage.setItem('calc_history', JSON.stringify(newHistory));
 
@@ -195,11 +213,25 @@ export function Calculator() {
   };
 
   const handleBackspace = () => {
+    if (display === 'Erreur' || display === 'Infini') {
+      setDisplay('0');
+      setNewNumber(true);
+      return;
+    }
     if (display.length > 1) {
       setDisplay(display.slice(0, -1));
     } else {
       setDisplay('0');
       setNewNumber(true);
+    }
+  };
+
+  const handleToggleSign = () => {
+    if (display === '0' || display === 'Erreur' || display === 'Infini') return;
+    if (display.startsWith('-')) {
+      setDisplay(display.substring(1));
+    } else {
+      setDisplay('-' + display);
     }
   };
 
@@ -233,21 +265,21 @@ export function Calculator() {
   }, [display, previousValue, operation, newNumber]);
 
   const standardButtons = [
-    ['C', '←', '÷', '×'],
+    ['C', '±', '÷', '×'],
     ['7', '8', '9', '-'],
     ['4', '5', '6', '+'],
-    ['1', '2', '3', '.'],
-    ['0', '=']
+    ['1', '2', '3', '←'],
+    ['0', '.', '=']
   ];
 
   const scientificButtons = [
     ['sin', 'cos', 'tan', 'abs', 'n!'],
     ['log', 'ln', '√', 'exp', 'π'],
-    ['C', '←', '÷', '×', 'e'],
+    ['C', '±', '÷', '×', 'e'],
     ['7', '8', '9', '-', 'x²'],
     ['4', '5', '6', '+', 'x^y'],
-    ['1', '2', '3', '0', '.'],
-    ['=']
+    ['1', '2', '3', '.', '←'],
+    ['0', '=']
   ];
 
   return (
@@ -330,7 +362,9 @@ export function Calculator() {
               </div>
             </div>
             <div className="text-5xl md:text-6xl font-black font-mono tracking-tighter truncate dark:text-white">
-              {display === 'NaN' ? 'Erreur' : display}
+              {display === 'NaN' || display === 'Infinity'
+                ? (display === 'NaN' ? 'Erreur' : 'Infini')
+                : display}
             </div>
           </div>
 
@@ -350,6 +384,7 @@ export function Calculator() {
                     onClick={() => {
                       if (btn === 'C') handleClear();
                       else if (btn === '←') handleBackspace();
+                      else if (btn === '±') handleToggleSign();
                       else if (btn === '=') handleEquals();
                       else if (['+', '-', '×', '÷', 'x^y'].includes(btn)) handleOperation(btn);
                       else if (['sin', 'cos', 'tan', 'log', 'ln', '√', 'x²', 'π', 'e', 'exp', 'abs', 'n!'].includes(btn)) handleScientificAction(btn);

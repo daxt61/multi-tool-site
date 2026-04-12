@@ -1,12 +1,18 @@
-import { useState, useMemo } from 'react';
+import { useState, useMemo, useEffect } from 'react';
 import { Calendar, Clock, Heart, Baby, Gift, Info, Star, Trash2, Copy, Check } from 'lucide-react';
 
 export function AgeCalculator() {
   const [birthDate, setBirthDate] = useState<string>('1990-01-01');
   const [copied, setCopied] = useState(false);
+  const [currentTime, setCurrentTime] = useState(new Date());
+
+  useEffect(() => {
+    const timer = setInterval(() => setCurrentTime(new Date()), 1000);
+    return () => clearInterval(timer);
+  }, []);
 
   const ageData = useMemo(() => {
-    const today = new Date();
+    const today = currentTime;
     const birth = new Date(birthDate);
     if (isNaN(birth.getTime())) return null;
 
@@ -30,7 +36,11 @@ export function AgeCalculator() {
       nextBirthday.setFullYear(today.getFullYear() + 1);
     }
     const diffTime = nextBirthday.getTime() - today.getTime();
-    const daysToNextBirthday = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+
+    const daysToNextBirthday = Math.floor(diffTime / (1000 * 60 * 60 * 24));
+    const hoursToNextBirthday = Math.floor((diffTime % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+    const minsToNextBirthday = Math.floor((diffTime % (1000 * 60 * 60)) / (1000 * 60));
+    const secsToNextBirthday = Math.floor((diffTime % (1000 * 60)) / 1000);
 
     // Stats
     const totalMs = today.getTime() - birth.getTime();
@@ -42,10 +52,13 @@ export function AgeCalculator() {
     return {
       years, months, days,
       daysToNextBirthday,
+      hoursToNextBirthday,
+      minsToNextBirthday,
+      secsToNextBirthday,
       totalDays, totalWeeks, totalMonths, totalHours,
       zodiac: getZodiacSign(birth.getMonth() + 1, birth.getDate())
     };
-  }, [birthDate]);
+  }, [birthDate, currentTime]);
 
   function getZodiacSign(month: number, day: number) {
     const signs = [
@@ -117,11 +130,26 @@ export function AgeCalculator() {
             )}
           </div>
 
-          <div className="bg-indigo-600 rounded-[2.5rem] p-8 text-white shadow-xl shadow-indigo-600/10 text-center space-y-2">
+          <div className="bg-indigo-600 rounded-[2.5rem] p-8 text-white shadow-xl shadow-indigo-600/10 text-center space-y-4">
              <Gift className="w-8 h-8 mx-auto mb-2 opacity-50" />
-             <p className="text-indigo-100 text-xs font-black uppercase tracking-widest">Prochain Anniversaire</p>
-             <h4 className="text-4xl font-black">{ageData?.daysToNextBirthday || 0}</h4>
-             <p className="text-sm font-bold text-indigo-200">jours restants</p>
+             <div className="space-y-1">
+               <p className="text-indigo-100 text-xs font-black uppercase tracking-widest">Prochain Anniversaire</p>
+               <h4 className="text-4xl font-black">{ageData?.daysToNextBirthday || 0}j</h4>
+             </div>
+             <div className="grid grid-cols-3 gap-2 pt-2 border-t border-white/10">
+                <div className="space-y-1">
+                  <div className="text-xl font-black font-mono">{ageData?.hoursToNextBirthday || 0}</div>
+                  <div className="text-[10px] font-bold uppercase opacity-60">Heures</div>
+                </div>
+                <div className="space-y-1">
+                  <div className="text-xl font-black font-mono">{ageData?.minsToNextBirthday || 0}</div>
+                  <div className="text-[10px] font-bold uppercase opacity-60">Min</div>
+                </div>
+                <div className="space-y-1">
+                  <div className="text-xl font-black font-mono">{ageData?.secsToNextBirthday || 0}</div>
+                  <div className="text-[10px] font-bold uppercase opacity-60">Sec</div>
+                </div>
+             </div>
           </div>
         </div>
 

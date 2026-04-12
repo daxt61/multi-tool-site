@@ -43,9 +43,17 @@ export function RandomGenerator() {
   };
 
   const generateNumber = () => {
-    const range = max - min + 1;
+    let finalMin = min;
+    let finalMax = max;
+    if (min > max) {
+      finalMin = max;
+      finalMax = min;
+      setMin(finalMin);
+      setMax(finalMax);
+    }
+    const range = finalMax - finalMin + 1;
     if (range <= 0) return;
-    const val = getSecureRandom(range) + min;
+    const val = getSecureRandom(range) + finalMin;
     setRandomNumber(val);
   };
 
@@ -340,7 +348,23 @@ export function RandomGenerator() {
                 </button>
               )}
             </div>
-            <div className="h-64 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-3xl p-6 overflow-y-auto space-y-2">
+            <div className="h-64 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-3xl p-6 overflow-y-auto space-y-2 relative group/result">
+              {teams.length > 0 && (
+                <button
+                  onClick={() => {
+                    const text = teams.map((t, i) => `Équipe ${i + 1}:\n${t.join('\n')}`).join('\n\n');
+                    copyToClipboard(text, 'teams-all');
+                  }}
+                  className={`absolute top-4 right-4 z-10 p-2 rounded-xl transition-all border ${
+                    copied === 'teams-all'
+                      ? "bg-emerald-50 dark:bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border-emerald-200 dark:border-emerald-500/20"
+                      : "bg-white dark:bg-slate-800 text-slate-400 hover:text-indigo-500 border-slate-100 dark:border-slate-700 opacity-0 group-hover/result:opacity-100"
+                  }`}
+                  title="Copier toutes les équipes"
+                >
+                  {copied === 'teams-all' ? <Check className="w-4 h-4" /> : <Copy className="w-4 h-4" />}
+                </button>
+              )}
               {winner ? (
                 <div className="h-full flex flex-col items-center justify-center space-y-6 animate-in zoom-in-95 duration-500">
                   <div className="text-xs font-black uppercase tracking-widest text-indigo-500">Gagnant Tiré au sort !</div>

@@ -23,13 +23,11 @@ export function TextFormatter() {
     { name: 'minuscules', action: (t: string) => t.toLowerCase() },
     {
       name: 'Capitaliser Chaque Mot',
-      action: (t: string) => t.replace(/\b\w+/g, (word) =>
-        word.charAt(0).toUpperCase() + word.slice(1).toLowerCase()
-      )
+      action: (t: string) => t.replace(/\b\p{L}/gu, (s) => s.toUpperCase())
     },
     {
       name: 'Phrase',
-      action: (t: string) => t.toLowerCase().replace(/(^\s*\w|[.!?]\s+\w)/g, s => s.toUpperCase())
+      action: (t: string) => t.toLowerCase().replace(/(^\s*\p{L}|[.!?]\s+\p{L})/gu, s => s.toUpperCase())
     },
     {
       name: 'iNVERSER lA cASSE',

@@ -54,6 +54,11 @@ const CONVERSIONS: Record<ConversionCategory, Record<string, ConversionUnit>> = 
     'cup': { name: 'Tasses (US)', toBase: (v) => v * 0.000236588, fromBase: (v) => v / 0.000236588 }
   },
   digital: {
+    'bit': { name: 'Bits (bit)', toBase: (v) => v / 8, fromBase: (v) => v * 8 },
+    'Kbit': { name: 'Kilobits (Kbit)', toBase: (v) => (v * 1024) / 8, fromBase: (v) => (v * 8) / 1024 },
+    'Mbit': { name: 'Mégabits (Mbit)', toBase: (v) => (v * Math.pow(1024, 2)) / 8, fromBase: (v) => (v * 8) / Math.pow(1024, 2) },
+    'Gbit': { name: 'Gigabits (Gbit)', toBase: (v) => (v * Math.pow(1024, 3)) / 8, fromBase: (v) => (v * 8) / Math.pow(1024, 3) },
+    'Tbit': { name: 'Térabits (Tbit)', toBase: (v) => (v * Math.pow(1024, 4)) / 8, fromBase: (v) => (v * 8) / Math.pow(1024, 4) },
     'B': { name: 'Octets (B)', toBase: (v) => v, fromBase: (v) => v },
     'KB': { name: 'Kilooctets (KB)', toBase: (v) => v * 1024, fromBase: (v) => v / 1024 },
     'MB': { name: 'Megaoctets (MB)', toBase: (v) => v * Math.pow(1024, 2), fromBase: (v) => v / Math.pow(1024, 2) },

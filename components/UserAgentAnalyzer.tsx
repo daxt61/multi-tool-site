@@ -1,5 +1,5 @@
-import { useState, useEffect } from 'react';
-import { Monitor, Cpu, Laptop, Smartphone, Search, Copy, Check, Globe, ShieldCheck, Info, FileText } from 'lucide-react';
+import { useState, useEffect, useCallback } from 'react';
+import { Monitor, Cpu, Laptop, Smartphone, Search, Copy, Check, Globe, ShieldCheck, Info, FileText, Download } from 'lucide-react';
 
 interface BrowserInfo {
   name: string;
@@ -85,9 +85,9 @@ export function UserAgentAnalyzer() {
     setTimeout(() => setCopied(false), 2000);
   };
 
-  const handleCopyReport = () => {
-    if (!browser || !screen) return;
-    const report = `Rapport d'analyse système :
+  const generateReport = useCallback(() => {
+    if (!browser || !screen) return '';
+    return `Rapport d'analyse système :
 ---
 Navigateur : ${browser.name}
 Version : ${browser.version}
@@ -106,10 +106,26 @@ Fenêtre actuelle : ${window.innerWidth} x ${window.innerHeight}
 
 User Agent :
 ${browser.userAgent}`;
+  }, [browser, screen]);
 
+  const handleCopyReport = () => {
+    const report = generateReport();
+    if (!report) return;
     navigator.clipboard.writeText(report);
     setCopiedReport(true);
     setTimeout(() => setCopiedReport(false), 2000);
+  };
+
+  const handleDownloadReport = () => {
+    const report = generateReport();
+    if (!report) return;
+    const blob = new Blob([report], { type: 'text/plain' });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    link.href = url;
+    link.download = `rapport-systeme-${Date.now()}.txt`;
+    link.click();
+    URL.revokeObjectURL(url);
   };
 
   const getDeviceIcon = () => {
@@ -145,17 +161,24 @@ ${browser.userAgent}`;
         <div className="mt-12 relative z-10">
           <div className="flex justify-between items-center mb-4 px-1">
             <label className="text-xs font-black uppercase tracking-widest text-white/40">User Agent</label>
-            <div className="flex gap-4">
+            <div className="flex gap-4 flex-wrap justify-end">
+              <button
+                onClick={handleDownloadReport}
+                className="text-xs font-bold text-white/60 hover:text-white flex items-center gap-2 transition-all focus-visible:ring-2 focus-visible:ring-white focus-visible:outline-none rounded-lg"
+                aria-label="Télécharger le rapport"
+              >
+                <Download className="w-3 h-3" /> Télécharger
+              </button>
               <button
                 onClick={handleCopyReport}
-                className={`text-xs font-bold flex items-center gap-2 transition-all ${copiedReport ? 'text-emerald-400' : 'text-white/60 hover:text-white'}`}
+                className={`text-xs font-bold flex items-center gap-2 transition-all focus-visible:ring-2 focus-visible:ring-white focus-visible:outline-none rounded-lg ${copiedReport ? 'text-emerald-400' : 'text-white/60 hover:text-white'}`}
                 aria-label="Copier le rapport complet"
               >
                 {copiedReport ? <Check className="w-3 h-3" /> : <FileText className="w-3 h-3" />} {copiedReport ? 'Rapport copié' : 'Copier le rapport'}
               </button>
               <button
                 onClick={handleCopy}
-                className={`text-xs font-bold flex items-center gap-2 transition-all ${copied ? 'text-emerald-400' : 'text-white/60 hover:text-white'}`}
+                className={`text-xs font-bold flex items-center gap-2 transition-all focus-visible:ring-2 focus-visible:ring-white focus-visible:outline-none rounded-lg ${copied ? 'text-emerald-400' : 'text-white/60 hover:text-white'}`}
                 aria-label="Copier le User Agent"
               >
                 {copied ? <Check className="w-3 h-3" /> : <Copy className="w-3 h-3" />} {copied ? 'UA copié' : 'Copier UA'}

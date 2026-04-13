@@ -69,3 +69,7 @@
 ## 2026-04-15 - [Safe Global Keyboard Shortcuts & Memoized State]
 **Learning:** Implementing global keyboard shortcuts (like Space for regeneration) can regress accessibility if they hijack native browser behaviors like scrolling or button activation. Restricting such shortcuts to when `document.activeElement` is the `body` ensures they only trigger when no other interactive element is focused. Additionally, for tools with frequent regeneration, memoizing the generation logic with `useCallback` prevents unnecessary effect re-runs when state (like a "Copied" toast) changes.
 **Action:** Always check `activeElement` before preventing default on common keys and prioritize `useCallback` for generation handlers that are dependencies of keyboard listeners.
+
+## 2026-04-16 - [Browser Shortcut Integrity & Character Key A11y]
+**Learning:** Hijacking standard browser shortcuts (like 'C' for copy) with global event listeners breaks expected user behavior and accessibility (WCAG 2.1.4). Even if restricted to the `body`, single-character shortcuts without modifiers can be triggered accidentally. A "micro-UX" mission should remain focused on a single, high-impact improvement to maintain code leaness and avoid regressions in standard browser functionality.
+**Action:** Avoid overriding standard browser shortcuts (Ctrl+C, etc.) and prioritize single, focused micro-UX improvements that enhance rather than replace native behaviors.

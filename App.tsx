@@ -183,6 +183,8 @@ const SocialMediaLinks = lazy(() => import("./components/SocialMediaLinks").then
 const MockDataGenerator = lazy(() => import("./components/MockDataGenerator").then(m => ({ default: m.MockDataGenerator })));
 const ChartGenerator = lazy(() => import("./components/ChartGenerator").then(m => ({ default: m.ChartGenerator })));
 const NatoPhoneticTranslator = lazy(() => import("./components/NatoPhoneticTranslator").then(m => ({ default: m.NatoPhoneticTranslator })));
+const CreditCardValidator = lazy(() => import("./components/CreditCardValidator").then(m => ({ default: m.CreditCardValidator })));
+const BrailleTranslator = lazy(() => import("./components/BrailleTranslator").then(m => ({ default: m.BrailleTranslator })));
 
 // ⚡ Bolt Optimization: Pre-calculating tool map and search index for O(1) lookups and faster filtering
 const toolsMap: Record<string, Tool> = {};
@@ -605,6 +607,14 @@ const tools: Tool[] = [
     Component: NatoPhoneticTranslator,
     category: "text",
   },
+  {
+    id: "braille-translator",
+    name: "Traducteur Braille",
+    icon: Type,
+    description: "Convertir du texte en Braille Grade 1 et vice versa",
+    Component: BrailleTranslator,
+    category: "text",
+  },
   // Dev Tools
   {
     id: "password-generator",
@@ -612,6 +622,14 @@ const tools: Tool[] = [
     icon: Key,
     description: "Générateur de clés sécurisées",
     Component: PasswordGenerator,
+    category: "dev",
+  },
+  {
+    id: "credit-card-validator",
+    name: "Validateur de Carte",
+    icon: ShieldCheck,
+    description: "Vérifier la validité d'une carte bancaire (Luhn)",
+    Component: CreditCardValidator,
     category: "dev",
   },
   {

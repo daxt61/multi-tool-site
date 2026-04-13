@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef, useCallback } from 'react';
-import { Play, Pause, Plus, Minus, Music, Info, Volume2, VolumeX } from 'lucide-react';
+import { Play, Pause, Plus, Minus, Music, Info, Volume2, VolumeX, Fingerprint } from 'lucide-react';
 
 export function Metronome() {
   const [bpm, setBpm] = useState(120);
@@ -7,6 +7,7 @@ export function Metronome() {
   const [isMuted, setIsMuted] = useState(false);
   const [beatsPerMeasure, setBeatsPerMeasure] = useState(4);
   const [currentBeat, setCurrentBeat] = useState(0);
+  const [taps, setTaps] = useState<number[]>([]);
 
   const audioContextRef = useRef<AudioContext | null>(null);
   const nextTickTimeRef = useRef<number>(0);
@@ -70,6 +71,25 @@ export function Metronome() {
 
   const handleBpmChange = useCallback((newBpm: number) => {
     setBpm(Math.max(30, Math.min(280, newBpm)));
+  }, []);
+
+  const handleTapTempo = useCallback(() => {
+    const now = Date.now();
+    setTaps(prev => {
+      const newTaps = [...prev, now].slice(-4); // Use last 4 taps for average
+      if (newTaps.length >= 2) {
+        const intervals = [];
+        for (let i = 1; i < newTaps.length; i++) {
+          intervals.push(newTaps[i] - newTaps[i - 1]);
+        }
+        const averageInterval = intervals.reduce((a, b) => a + b) / intervals.length;
+        const newBpm = Math.round(60000 / averageInterval);
+        if (newBpm >= 30 && newBpm <= 280) {
+          setBpm(newBpm);
+        }
+      }
+      return newTaps;
+    });
   }, []);
 
   useEffect(() => {
@@ -168,6 +188,16 @@ export function Metronome() {
 
           <div className="flex items-center gap-4 w-full">
             <button
+              onClick={handleTapTempo}
+              className="flex-1 py-4 bg-white dark:bg-slate-800 border-2 border-slate-200 dark:border-slate-700 rounded-2xl font-bold text-slate-600 dark:text-slate-300 hover:border-indigo-500/50 transition-all active:scale-95 flex items-center justify-center gap-2"
+              title="Taper le tempo"
+            >
+              <Fingerprint className="w-5 h-5" /> TAP TEMPO
+            </button>
+          </div>
+
+          <div className="flex items-center gap-4 w-full">
+            <button
               onClick={togglePlay}
               className={`flex-1 py-6 rounded-[2rem] font-black text-2xl transition-all active:scale-95 flex items-center justify-center gap-3 shadow-xl ${
                 isPlaying
@@ -223,7 +253,7 @@ export function Metronome() {
             <Info className="w-4 h-4 text-indigo-500" /> Guide d'utilisation
           </h4>
           <p className="text-sm text-slate-500 dark:text-slate-400 leading-relaxed">
-            Utilisez le curseur ou les boutons +/- pour régler le tempo (BPM). Vous pouvez aussi utiliser les flèches du clavier (±1 ou ±5 avec Gauche/Droite), <kbd className="px-1 bg-slate-100 dark:bg-slate-800 rounded">Espace</kbd> pour Start/Stop et <kbd className="px-1 bg-slate-100 dark:bg-slate-800 rounded">M</kbd> pour le mode muet.
+            Utilisez le curseur ou les boutons +/- pour régler le tempo (BPM), ou utilisez le bouton <strong>TAP TEMPO</strong> pour définir le tempo en tapant au rythme. Vous pouvez aussi utiliser les flèches du clavier (±1 ou ±5 avec Gauche/Droite), <kbd className="px-1 bg-slate-100 dark:bg-slate-800 rounded">Espace</kbd> pour Start/Stop et <kbd className="px-1 bg-slate-100 dark:bg-slate-800 rounded">M</kbd> pour le mode muet.
           </p>
         </div>
         <div className="space-y-4">

@@ -3,11 +3,17 @@ import { PiggyBank, TrendingUp, Wallet, RotateCcw, Coins, Calendar, Percent, Inf
 import { Area, AreaChart, CartesianGrid, XAxis, YAxis, ResponsiveContainer, Tooltip } from "recharts";
 import { ChartContainer, ChartTooltip, ChartTooltipContent } from "./ui/chart";
 
-export function SavingsCalculator() {
-  const [initialAmount, setInitialAmount] = useState<string>("");
-  const [monthlyDeposit, setMonthlyDeposit] = useState<string>("");
-  const [annualRate, setAnnualRate] = useState<string>("");
-  const [years, setYears] = useState<string>("");
+import { useEffect } from 'react';
+
+export function SavingsCalculator({ initialData, onStateChange }: { initialData?: any; onStateChange?: (state: any) => void }) {
+  const [initialAmount, setInitialAmount] = useState<string>(initialData?.initialAmount || "");
+  const [monthlyDeposit, setMonthlyDeposit] = useState<string>(initialData?.monthlyDeposit || "");
+  const [annualRate, setAnnualRate] = useState<string>(initialData?.annualRate || "");
+  const [years, setYears] = useState<string>(initialData?.years || "");
+
+  useEffect(() => {
+    onStateChange?.({ initialAmount, monthlyDeposit, annualRate, years });
+  }, [initialAmount, monthlyDeposit, annualRate, years, onStateChange]);
 
   const calculation = useMemo(() => {
     const p = parseFloat(initialAmount) || 0;

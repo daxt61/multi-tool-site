@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Copy, Check, Hash, Binary, Octagon, Hexagon, Info, Trash2 } from 'lucide-react';
 
 const BASE_CONFIGS = [
@@ -8,11 +8,15 @@ const BASE_CONFIGS = [
   { label: 'Hexadécimal (Base 16)', getter: (s: any) => s.hexadecimal, onChange: (v: string, s: any) => s.updateFromHexadecimal(v.toUpperCase()), placeholder: '0-9, A-F', id: 'hex' },
 ];
 
-export function NumberConverter() {
-  const [decimal, setDecimal] = useState('42');
-  const [binary, setBinary] = useState('101010');
-  const [octal, setOctal] = useState('52');
-  const [hexadecimal, setHexadecimal] = useState('2A');
+export function NumberConverter({ initialData, onStateChange }: { initialData?: any; onStateChange?: (state: any) => void }) {
+  const [decimal, setDecimal] = useState(initialData?.decimal || '42');
+  const [binary, setBinary] = useState(initialData?.binary || '101010');
+  const [octal, setOctal] = useState(initialData?.octal || '52');
+  const [hexadecimal, setHexadecimal] = useState(initialData?.hexadecimal || '2A');
+
+  useEffect(() => {
+    onStateChange?.({ decimal, binary, octal, hexadecimal });
+  }, [decimal, binary, octal, hexadecimal, onStateChange]);
   const [copied, setCopied] = useState<string | null>(null);
 
   const isValidForBase = (value: string, base: number): boolean => {
@@ -128,7 +132,11 @@ export function NumberConverter() {
               </div>
               <button
                 onClick={() => copyToClipboard(base.getter({decimal, binary, octal, hexadecimal}), base.id)}
-                className={`p-2 rounded-xl transition-all ${copied === base.id ? 'bg-emerald-50 dark:bg-emerald-500/10 text-emerald-600 dark:text-emerald-400' : 'text-slate-400 hover:text-indigo-500 bg-white dark:bg-slate-800 shadow-sm border border-slate-100 dark:border-slate-700'}`}
+                className={`p-2 rounded-xl transition-all border ${
+                  copied === base.id
+                    ? 'bg-emerald-50 dark:bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border-emerald-200 dark:border-emerald-500/20'
+                    : 'text-slate-400 hover:text-indigo-500 bg-white dark:bg-slate-800 shadow-sm border-slate-100 dark:border-slate-700'
+                }`}
                 aria-label={`Copier le résultat en ${base.label}`}
               >
                 {copied === base.id ? <Check className="w-4 h-4" /> : <Copy className="w-4 h-4" />}

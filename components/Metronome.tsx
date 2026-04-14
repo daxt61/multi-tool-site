@@ -1,11 +1,15 @@
 import { useState, useEffect, useRef, useCallback } from 'react';
-import { Play, Pause, Plus, Minus, Music, Info, Volume2, VolumeX, Fingerprint } from 'lucide-react';
+import { Play, Pause, Plus, Minus, Music, Info, Volume2, VolumeX, Fingerprint, RotateCcw } from 'lucide-react';
 
-export function Metronome() {
-  const [bpm, setBpm] = useState(120);
+export function Metronome({ initialData, onStateChange }: { initialData?: any; onStateChange?: (state: any) => void }) {
+  const [bpm, setBpm] = useState(initialData?.bpm || 120);
   const [isPlaying, setIsPlaying] = useState(false);
-  const [isMuted, setIsMuted] = useState(false);
-  const [beatsPerMeasure, setBeatsPerMeasure] = useState(4);
+  const [isMuted, setIsMuted] = useState(initialData?.isMuted ?? false);
+  const [beatsPerMeasure, setBeatsPerMeasure] = useState(initialData?.beatsPerMeasure || 4);
+
+  useEffect(() => {
+    onStateChange?.({ bpm, isMuted, beatsPerMeasure });
+  }, [bpm, isMuted, beatsPerMeasure, onStateChange]);
   const [currentBeat, setCurrentBeat] = useState(0);
   const [taps, setTaps] = useState<number[]>([]);
 
@@ -73,6 +77,16 @@ export function Metronome() {
     setBpm(Math.max(30, Math.min(280, newBpm)));
   }, []);
 
+  const handleReset = useCallback(() => {
+    setBpm(120);
+    setBeatsPerMeasure(4);
+    setIsPlaying(false);
+    setIsMuted(false);
+    beatRef.current = 0;
+    setCurrentBeat(0);
+    if (timerIDRef.current) clearTimeout(timerIDRef.current);
+  }, []);
+
   const handleTapTempo = useCallback(() => {
     const now = Date.now();
     setTaps(prev => {
@@ -115,7 +129,7 @@ export function Metronome() {
         handleBpmChange(bpm - 5);
       } else if (e.key.toLowerCase() === 'm') {
         e.preventDefault();
-        setIsMuted(prev => !prev);
+        setIsMuted((prev: boolean) => !prev);
       }
     };
 
@@ -224,6 +238,7 @@ export function Metronome() {
           </div>
         </div>
 
+        <div className="flex flex-wrap justify-center gap-4">
         {/* Settings */}
         <div className="flex gap-2 bg-slate-100 dark:bg-slate-800/50 p-1 rounded-2xl">
           {[2, 3, 4, 6].map((num) => (
@@ -243,6 +258,13 @@ export function Metronome() {
               {num}/4
             </button>
           ))}
+        </div>
+        <button
+          onClick={handleReset}
+          className="px-6 py-2 text-rose-500 bg-rose-50 dark:bg-rose-500/10 hover:bg-rose-100 dark:hover:bg-rose-500/20 rounded-xl font-bold text-sm transition-all flex items-center gap-2"
+        >
+          <RotateCcw className="w-4 h-4" /> Reset
+        </button>
         </div>
       </div>
 

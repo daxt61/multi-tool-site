@@ -3,12 +3,16 @@ import { Play, Pause, RotateCcw, Timer, StopCircle, Flag, Bell, BellOff, Coffee,
 
 type PomodoroState = 'work' | 'shortBreak' | 'longBreak';
 
-export function TimerTool() {
-  const [mode, setMode] = useState<'timer' | 'stopwatch' | 'pomodoro'>('timer');
+export function TimerTool({ initialData, onStateChange }: { initialData?: any; onStateChange?: (state: any) => void }) {
+  const [mode, setMode] = useState<'timer' | 'stopwatch' | 'pomodoro'>(initialData?.mode || 'timer');
 
   // Timer state
-  const [timerMinutes, setTimerMinutes] = useState(5);
-  const [timerSeconds, setTimerSeconds] = useState(0);
+  const [timerMinutes, setTimerMinutes] = useState(initialData?.timerMinutes ?? 5);
+  const [timerSeconds, setTimerSeconds] = useState(initialData?.timerSeconds ?? 0);
+
+  useEffect(() => {
+    onStateChange?.({ mode, timerMinutes, timerSeconds });
+  }, [mode, timerMinutes, timerSeconds, onStateChange]);
   const [timerRunning, setTimerRunning] = useState(false);
   const [timerTime, setTimerTime] = useState(300);
   const [timerDone, setTimerDone] = useState(false);

@@ -1,13 +1,19 @@
 import { useState } from 'react';
 import { Table, Plus, RotateCcw, Copy, Check } from 'lucide-react';
 
-export function MarkdownTableGenerator() {
-  const [data, setData] = useState<string[][]>([
+import { useEffect } from 'react';
+
+export function MarkdownTableGenerator({ initialData, onStateChange }: { initialData?: any; onStateChange?: (state: any) => void }) {
+  const [data, setData] = useState<string[][]>(initialData?.data || [
     ['En-tête 1', 'En-tête 2', 'En-tête 3'],
     ['Donnée 1', 'Donnée 2', 'Donnée 3'],
     ['Donnée 4', 'Donnée 5', 'Donnée 6']
   ]);
   const [copied, setCopied] = useState(false);
+
+  useEffect(() => {
+    onStateChange?.({ data });
+  }, [data, onStateChange]);
 
   const updateCell = (r: number, c: number, val: string) => {
     const newData = data.map((row, rowIndex) =>
@@ -76,7 +82,8 @@ export function MarkdownTableGenerator() {
           </button>
           <button
             onClick={reset}
-            className="px-4 py-2 bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 rounded-xl font-bold text-sm flex items-center gap-2 hover:bg-slate-200 transition-all"
+            disabled={JSON.stringify(data) === JSON.stringify([['En-tête 1', 'En-tête 2', 'En-tête 3'],['Donnée 1', 'Donnée 2', 'Donnée 3'],['Donnée 4', 'Donnée 5', 'Donnée 6']])}
+            className="px-4 py-2 text-rose-500 bg-rose-50 dark:bg-rose-500/10 hover:bg-rose-100 dark:hover:bg-rose-500/20 rounded-xl font-bold text-sm flex items-center gap-2 transition-all disabled:opacity-50 disabled:cursor-not-allowed"
           >
             <RotateCcw className="w-4 h-4" /> Reset
           </button>
@@ -84,7 +91,11 @@ export function MarkdownTableGenerator() {
 
         <button
           onClick={copyToClipboard}
-          className={`px-6 py-2 rounded-xl font-black text-sm flex items-center gap-2 transition-all ${copied ? 'bg-emerald-500 text-white' : 'bg-indigo-600 text-white shadow-lg shadow-indigo-600/20 hover:bg-indigo-700'}`}
+          className={`px-6 py-2 rounded-xl font-black text-sm flex items-center gap-2 transition-all border ${
+            copied
+              ? 'bg-emerald-50 dark:bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border-emerald-200 dark:border-emerald-500/20'
+              : 'bg-indigo-600 text-white border-transparent shadow-lg shadow-indigo-600/20 hover:bg-indigo-700'
+          }`}
         >
           {copied ? <Check className="w-4 h-4" /> : <Copy className="w-4 h-4" />}
           {copied ? 'Copié' : 'Copier le Markdown'}

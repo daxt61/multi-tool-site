@@ -282,7 +282,7 @@ export function UnitConverter({ initialData, onStateChange }: { initialData?: an
             <button
               onClick={handleClear}
               disabled={!fromValue}
-              className="text-xs font-bold text-rose-500 bg-rose-50 dark:bg-rose-500/10 hover:bg-rose-100 dark:hover:bg-rose-500/20 px-2 py-1 rounded-lg flex items-center gap-1 transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+              className="text-xs font-bold text-rose-500 bg-rose-50 dark:bg-rose-500/10 hover:bg-rose-100 dark:hover:bg-rose-500/20 px-3 py-1.5 rounded-xl flex items-center gap-1 transition-all disabled:opacity-50 disabled:cursor-not-allowed"
             >
               <Trash2 className="w-3 h-3" /> Effacer
             </button>

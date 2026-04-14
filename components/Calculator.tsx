@@ -393,7 +393,7 @@ export function Calculator() {
                     }}
                     className={`h-16 md:h-20 rounded-2xl text-xl font-bold transition-all active:scale-95 flex items-center justify-center ${
                       btn === 'C'
-                        ? 'bg-rose-50 text-rose-600 dark:bg-rose-500/10 dark:text-rose-400 hover:bg-rose-100'
+                        ? 'bg-rose-50 text-rose-500 dark:bg-rose-500/10 dark:text-rose-400 hover:bg-rose-100 dark:hover:bg-rose-500/20'
                         : btn === '←'
                         ? 'bg-slate-100 text-slate-600 dark:bg-slate-800 dark:text-slate-400 hover:bg-slate-200'
                         : btn === '='
@@ -420,7 +420,8 @@ export function Calculator() {
             {history.length > 0 && (
               <button
                 onClick={clearHistory}
-                className="text-slate-400 hover:text-rose-500 transition-colors"
+                className="text-rose-500 bg-rose-50 dark:bg-rose-500/10 hover:bg-rose-100 dark:hover:bg-rose-500/20 p-1.5 rounded-lg transition-all"
+                aria-label="Effacer l'historique"
               >
                 <Trash2 className="w-4 h-4" />
               </button>

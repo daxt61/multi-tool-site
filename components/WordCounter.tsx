@@ -35,7 +35,9 @@ export function WordCounter() {
     const words = trimmed === '' ? [] : trimmed.split(/\s+/);
     const wordCount = words.length;
 
-    const wordFreq: Record<string, number> = {};
+    // Sentinel: Use Object.create(null) to prevent Prototype Pollution
+    // from user-provided words (e.g., "constructor", "toString").
+    const wordFreq: Record<string, number> = Object.create(null);
     words.forEach(w => {
       const clean = w.toLowerCase().replace(/[.,/#!$%^&*;:{}=\-_`~()]/g, "");
       if (clean && clean.length > 1) {

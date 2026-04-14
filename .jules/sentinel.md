@@ -56,3 +56,8 @@
 **Vulnerability:** The application supports sharing tool state via a `data` URL parameter. Lack of length validation on this parameter allowed for potential Denial of Service (DoS) attacks where a malicious link could force the browser to parse and process massive JSON structures, leading to crashes or hangs.
 **Learning:** Any entry point for user-controlled data, including URL parameters used for state initialization, must be considered an attack vector for resource exhaustion. Even if the data is subsequently validated by individual tools, the initial parsing step in the root component can still trigger a DoS.
 **Prevention:** Implement a strict length limit (e.g., 10KB) on large URL parameters at the application's entry point before any processing or decoding occurs. This provides a first line of defense before data reaches more complex tool-specific logic.
+
+## 2026-04-20 - [Prototype Pollution in Word Frequency Counter]
+**Vulnerability:** The WordCounter component used a plain object literal (`{}`) to store word frequencies from user-provided text, allowing "special" words like `constructor` or `toString` to collide with the object's prototype properties.
+**Learning:** Any mapping of user-controlled keys to an object is a potential Prototype Pollution or logic bypass vector if the object is initialized with the standard `Object` prototype.
+**Prevention:** Always use `Object.create(null)` for objects that will store arbitrary user-controlled keys, or use a `Map` which does not share the same prototype risks.

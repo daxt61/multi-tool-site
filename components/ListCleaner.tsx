@@ -66,8 +66,10 @@ export function ListCleaner() {
             <button
               onClick={handleCopy}
               disabled={!text}
-              className={`text-xs font-bold px-3 py-1.5 rounded-full transition-all flex items-center gap-1 ${
-                copied ? 'bg-emerald-500 text-white' : 'text-slate-500 bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700'
+              className={`text-xs font-bold px-3 py-1.5 rounded-full transition-all flex items-center gap-1 border ${
+                copied
+                  ? 'bg-emerald-50 dark:bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border-emerald-200 dark:border-emerald-500/20'
+                  : 'text-slate-500 bg-slate-100 dark:bg-slate-800 border-transparent hover:bg-slate-200 dark:hover:bg-slate-700'
               } disabled:opacity-50 disabled:cursor-not-allowed`}
               aria-label={copied ? "Copié" : "Copier la liste"}
             >
@@ -84,7 +86,7 @@ export function ListCleaner() {
             <button
               onClick={() => setText('')}
               disabled={!text}
-              className="text-xs font-bold px-3 py-1.5 rounded-full text-rose-500 bg-rose-50 dark:bg-rose-500/10 hover:bg-rose-100 dark:hover:bg-rose-500/20 transition-all flex items-center gap-1 disabled:opacity-50 disabled:cursor-not-allowed"
+              className="text-xs font-bold text-rose-500 bg-rose-50 dark:bg-rose-500/10 hover:bg-rose-100 dark:hover:bg-rose-500/20 px-3 py-1.5 rounded-xl flex items-center gap-1 transition-all disabled:opacity-50 disabled:cursor-not-allowed"
               aria-label="Effacer tout"
             >
               <Trash2 className="w-3 h-3" /> Effacer

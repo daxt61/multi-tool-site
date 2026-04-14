@@ -1,11 +1,15 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { UtensilsCrossed, Users, Euro, Percent, Copy, Check, Trash2 } from "lucide-react";
 
-export function TipCalculator() {
-  const [billAmount, setBillAmount] = useState<string>("");
-  const [tipPercent, setTipPercent] = useState<number>(15);
-  const [numberOfPeople, setNumberOfPeople] = useState<string>("1");
+export function TipCalculator({ initialData, onStateChange }: { initialData?: any; onStateChange?: (state: any) => void }) {
+  const [billAmount, setBillAmount] = useState<string>(initialData?.billAmount || "");
+  const [tipPercent, setTipPercent] = useState<number>(initialData?.tipPercent ?? 15);
+  const [numberOfPeople, setNumberOfPeople] = useState<string>(initialData?.numberOfPeople || "1");
   const [copied, setCopied] = useState(false);
+
+  useEffect(() => {
+    onStateChange?.({ billAmount, tipPercent, numberOfPeople });
+  }, [billAmount, tipPercent, numberOfPeople, onStateChange]);
 
   const bill = parseFloat(billAmount) || 0;
   const people = parseInt(numberOfPeople) || 1;
@@ -38,7 +42,8 @@ export function TipCalculator() {
             </label>
             <button
               onClick={handleClear}
-              className="text-xs font-bold text-rose-500 hover:text-rose-600 flex items-center gap-1 transition-colors"
+              disabled={!billAmount && tipPercent === 15 && numberOfPeople === "1"}
+              className="text-xs font-bold text-rose-500 bg-rose-50 dark:bg-rose-500/10 hover:bg-rose-100 dark:hover:bg-rose-500/20 px-3 py-1.5 rounded-xl flex items-center gap-1 transition-all disabled:opacity-50 disabled:cursor-not-allowed"
               aria-label="Effacer tout"
             >
               <Trash2 className="w-3 h-3" /> Effacer
@@ -124,7 +129,11 @@ export function TipCalculator() {
           <div className="bg-slate-900 dark:bg-black p-10 rounded-[2.5rem] shadow-xl shadow-indigo-500/10 space-y-8 relative group">
             <button
               onClick={handleCopy}
-              className={`absolute top-6 right-6 p-3 rounded-2xl transition-all ${copied ? 'bg-emerald-500 text-white' : 'bg-white/10 text-white/40 hover:text-white hover:bg-white/20 md:opacity-0 md:group-hover:opacity-100'}`}
+              className={`absolute top-6 right-6 p-3 rounded-2xl transition-all border ${
+                copied
+                  ? "bg-emerald-50 dark:bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border-emerald-200 dark:border-emerald-500/20"
+                  : "bg-white/10 text-white/40 border-transparent hover:text-white hover:bg-white/20 md:opacity-0 md:group-hover:opacity-100"
+              }`}
               title="Copier le résumé"
               aria-label="Copier le résumé"
             >

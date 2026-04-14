@@ -3,10 +3,16 @@ import { Calculator, Info, Percent, Landmark, Clock, RotateCcw, Table, HelpCircl
 import { Area, AreaChart, CartesianGrid, XAxis, YAxis } from "recharts";
 import { ChartContainer, ChartTooltip, ChartTooltipContent } from "./ui/chart";
 
-export function LoanCalculator() {
-  const [principal, setPrincipal] = useState<string>("10000");
-  const [annualRate, setAnnualRate] = useState<string>("5");
-  const [years, setYears] = useState<string>("5");
+import { useEffect } from 'react';
+
+export function LoanCalculator({ initialData, onStateChange }: { initialData?: any; onStateChange?: (state: any) => void }) {
+  const [principal, setPrincipal] = useState<string>(initialData?.principal || "10000");
+  const [annualRate, setAnnualRate] = useState<string>(initialData?.annualRate || "5");
+  const [years, setYears] = useState<string>(initialData?.years || "5");
+
+  useEffect(() => {
+    onStateChange?.({ principal, annualRate, years });
+  }, [principal, annualRate, years, onStateChange]);
   const [showSchedule, setShowSchedule] = useState(false);
 
   const result = useMemo(() => {

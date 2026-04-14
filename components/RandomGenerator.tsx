@@ -1,18 +1,24 @@
 import { useState } from 'react';
 import { Shuffle, Copy, Check, RefreshCw, Hash, Type, AlignLeft, Trash2 } from 'lucide-react';
 
-export function RandomGenerator() {
-  const [min, setMin] = useState(1);
-  const [max, setMax] = useState(100);
+import { useEffect } from 'react';
+
+export function RandomGenerator({ initialData, onStateChange }: { initialData?: any; onStateChange?: (state: any) => void }) {
+  const [min, setMin] = useState(initialData?.min ?? 1);
+  const [max, setMax] = useState(initialData?.max ?? 100);
   const [randomNumber, setRandomNumber] = useState<number | null>(null);
 
-  const [strLength, setStrLength] = useState(12);
+  const [strLength, setStrLength] = useState(initialData?.strLength ?? 12);
   const [randomString, setRandomString] = useState('');
-  const [includeUpper, setIncludeUpper] = useState(true);
-  const [includeLower, setIncludeLower] = useState(true);
-  const [includeNumbers, setIncludeNumbers] = useState(true);
+  const [includeUpper, setIncludeUpper] = useState(initialData?.includeUpper ?? true);
+  const [includeLower, setIncludeLower] = useState(initialData?.includeLower ?? true);
+  const [includeNumbers, setIncludeNumbers] = useState(initialData?.includeNumbers ?? true);
 
-  const [list, setList] = useState('');
+  const [list, setList] = useState(initialData?.list ?? '');
+
+  useEffect(() => {
+    onStateChange?.({ min, max, strLength, includeUpper, includeLower, includeNumbers, list });
+  }, [min, max, strLength, includeUpper, includeLower, includeNumbers, list, onStateChange]);
   const [shuffledList, setShuffledList] = useState<string[]>([]);
   const [teams, setTeams] = useState<string[][]>([]);
   const [teamCount, setTeamCount] = useState(2);
@@ -73,7 +79,7 @@ export function RandomGenerator() {
   };
 
   const shuffleList = () => {
-    const items = list.split('\n').filter(i => i.trim() !== '');
+    const items = list.split('\n').filter((i: string) => i.trim() !== '');
     if (items.length === 0) return;
     const shuffled = [...items];
     for (let i = shuffled.length - 1; i > 0; i--) {
@@ -86,7 +92,7 @@ export function RandomGenerator() {
   };
 
   const pickWinner = () => {
-    const items = list.split('\n').filter(i => i.trim() !== '');
+    const items = list.split('\n').filter((i: string) => i.trim() !== '');
     if (items.length === 0) return;
     const randomIndex = getSecureRandom(items.length);
     setWinner(items[randomIndex]);
@@ -95,7 +101,7 @@ export function RandomGenerator() {
   };
 
   const generateTeams = () => {
-    const items = list.split('\n').filter(i => i.trim() !== '');
+    const items = list.split('\n').filter((i: string) => i.trim() !== '');
     if (items.length === 0) return;
 
     // Shuffle first
@@ -173,10 +179,10 @@ export function RandomGenerator() {
               <span className="text-2xl font-black font-mono text-indigo-600 dark:text-indigo-400">{randomNumber}</span>
               <button
                 onClick={() => copyToClipboard(randomNumber.toString(), 'num')}
-                className={`p-2 rounded-xl transition-all ${
+                className={`p-2 rounded-xl transition-all border ${
                   copied === 'num'
-                    ? 'bg-emerald-50 dark:bg-emerald-500/10 text-emerald-600 dark:text-emerald-400'
-                    : 'text-slate-400 hover:text-indigo-500'
+                    ? 'bg-emerald-50 dark:bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border-emerald-200 dark:border-emerald-500/20'
+                    : 'text-slate-400 hover:text-indigo-500 border-transparent'
                 }`}
                 aria-label="Copier le nombre"
               >
@@ -342,7 +348,11 @@ export function RandomGenerator() {
                     const text = winner || (teams.length > 0 ? teams.map((t, i) => `Équipe ${i + 1}:\n${t.join('\n')}`).join('\n\n') : shuffledList.join('\n'));
                     copyToClipboard(text, 'list');
                   }}
-                  className="text-xs font-black text-indigo-600 dark:text-indigo-400 flex items-center gap-1"
+                  className={`text-xs font-bold px-3 py-1 rounded-full transition-all flex items-center gap-1 border ${
+                    copied === 'list'
+                      ? 'bg-emerald-50 dark:bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border-emerald-200 dark:border-emerald-500/20'
+                      : 'text-indigo-600 dark:text-indigo-400 border-transparent hover:bg-indigo-50 dark:hover:bg-indigo-900/20'
+                  }`}
                 >
                   {copied === 'list' ? <Check className="w-3 h-3" /> : <Copy className="w-3 h-3" />} {copied === 'list' ? 'Copié' : 'Copier'}
                 </button>

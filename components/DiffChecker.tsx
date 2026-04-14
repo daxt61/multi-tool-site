@@ -1,10 +1,16 @@
 import { useState, useMemo } from 'react';
 import { Split, ArrowRight, Trash2, Copy, Check, ArrowLeftRight, Info, Search } from 'lucide-react';
 
-export function DiffChecker() {
-  const [text1, setText1] = useState('');
-  const [text2, setText2] = useState('');
+import { useEffect } from 'react';
+
+export function DiffChecker({ initialData, onStateChange }: { initialData?: any; onStateChange?: (state: any) => void }) {
+  const [text1, setText1] = useState(initialData?.text1 || '');
+  const [text2, setText2] = useState(initialData?.text2 || '');
   const [copied, setCopied] = useState(false);
+
+  useEffect(() => {
+    onStateChange?.({ text1, text2 });
+  }, [text1, text2, onStateChange]);
   const MAX_LENGTH = 50000; // 50KB safety limit
 
   const handleSwap = () => {
@@ -130,8 +136,10 @@ export function DiffChecker() {
           <button
             onClick={handleCopy}
             disabled={!text1 && !text2}
-            className={`text-xs font-bold px-4 py-2 rounded-xl transition-all flex items-center gap-2 ${
-              copied ? 'bg-emerald-50 text-emerald-600 border border-emerald-200' : 'bg-white dark:bg-slate-800 text-slate-600 dark:text-slate-300 border border-slate-200 dark:border-slate-700 hover:border-slate-300'
+            className={`text-xs font-bold px-4 py-2 rounded-xl transition-all flex items-center gap-2 border ${
+              copied
+                ? 'bg-emerald-50 dark:bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border-emerald-200 dark:border-emerald-500/20'
+                : 'bg-white dark:bg-slate-800 text-slate-600 dark:text-slate-300 border-slate-200 dark:border-slate-700 hover:border-slate-300'
             } disabled:opacity-50`}
           >
             {copied ? <Check className="w-3.5 h-3.5" /> : <Copy className="w-3.5 h-3.5" />}

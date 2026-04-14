@@ -1,11 +1,17 @@
 import { useState, useMemo } from 'react';
 import { Activity, Info, Copy, Check, Trash2, HelpCircle, BookOpen, ChevronRight, Scale } from 'lucide-react';
 
-export function BMICalculator() {
-  const [weight, setWeight] = useState('70');
-  const [height, setHeight] = useState('170');
-  const [unit, setUnit] = useState<'metric' | 'imperial'>('metric');
-  const [useNewFormula, setUseNewFormula] = useState(false);
+import { useEffect } from 'react';
+
+export function BMICalculator({ initialData, onStateChange }: { initialData?: any; onStateChange?: (state: any) => void }) {
+  const [weight, setWeight] = useState(initialData?.weight || '70');
+  const [height, setHeight] = useState(initialData?.height || '170');
+  const [unit, setUnit] = useState<'metric' | 'imperial'>(initialData?.unit || 'metric');
+  const [useNewFormula, setUseNewFormula] = useState(initialData?.useNewFormula ?? false);
+
+  useEffect(() => {
+    onStateChange?.({ weight, height, unit, useNewFormula });
+  }, [weight, height, unit, useNewFormula, onStateChange]);
   const [copied, setCopied] = useState(false);
   const [copiedIdeal, setCopiedIdeal] = useState(false);
 
@@ -187,7 +193,11 @@ export function BMICalculator() {
             <button
               onClick={handleCopy}
               disabled={bmi === 0}
-              className={`absolute top-6 right-6 p-3 rounded-2xl transition-all ${copied ? 'bg-emerald-50 dark:bg-emerald-500/10 text-emerald-600 dark:text-emerald-400' : 'bg-white/10 text-white/40 hover:text-white hover:bg-white/20 md:opacity-0 md:group-hover:opacity-100'} disabled:opacity-0`}
+              className={`absolute top-6 right-6 p-3 rounded-2xl transition-all border ${
+                copied
+                  ? "bg-emerald-50 dark:bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border-emerald-200 dark:border-emerald-500/20"
+                  : "bg-white/10 text-white/40 border-transparent hover:text-white hover:bg-white/20 md:opacity-0 md:group-hover:opacity-100"
+              } disabled:opacity-0`}
               title="Copier le résultat"
             >
               {copied ? <Check className="w-5 h-5" /> : <Copy className="w-5 h-5" />}

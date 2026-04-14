@@ -46,10 +46,10 @@ const CURRENCIES = [
   { code: 'BHD', name: 'Dinar Bahreïni', symbol: 'BD' }
 ];
 
-export function CurrencyConverter() {
-  const [amount, setAmount] = useState('100');
-  const [fromCurrency, setFromCurrency] = useState('EUR');
-  const [toCurrency, setToCurrency] = useState('USD');
+export function CurrencyConverter({ initialData, onStateChange }: { initialData?: any; onStateChange?: (state: any) => void }) {
+  const [amount, setAmount] = useState(initialData?.amount || '100');
+  const [fromCurrency, setFromCurrency] = useState(initialData?.fromCurrency || 'EUR');
+  const [toCurrency, setToCurrency] = useState(initialData?.toCurrency || 'USD');
   const [rates, setRates] = useState<Record<string, number>>({
     EUR: 1, USD: 1.09, GBP: 0.86, JPY: 163.25, CHF: 0.94, CAD: 1.51, AUD: 1.68, CNY: 7.86, INR: 90.45, BRL: 5.42, RUB: 100.12, MXN: 18.65, AED: 4.01, SAR: 4.09,
     NZD: 1.82, SEK: 11.45, NOK: 11.58, DKK: 7.46, TRY: 35.12, SGD: 1.46, HKD: 8.52, KRW: 1452.36, ZAR: 20.45, PLN: 4.32, PHP: 61.23, IDR: 17235.45, MYR: 5.18,
@@ -63,6 +63,10 @@ export function CurrencyConverter() {
   useEffect(() => {
     fetchRates();
   }, []);
+
+  useEffect(() => {
+    onStateChange?.({ amount, fromCurrency, toCurrency });
+  }, [amount, fromCurrency, toCurrency, onStateChange]);
 
   const fetchRates = async () => {
     setLoading(true);
@@ -187,10 +191,10 @@ export function CurrencyConverter() {
           <button
             onClick={handleCopy}
             disabled={loading || isNaN(result)}
-            className={`flex items-center gap-2 px-6 py-3 rounded-xl font-bold transition-all ${
+            className={`flex items-center gap-2 px-6 py-3 rounded-xl font-bold transition-all border ${
               copied
-                ? 'bg-emerald-500 text-white'
-                : 'bg-white/10 text-white hover:bg-white/20'
+                ? 'bg-emerald-50 dark:bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border-emerald-200 dark:border-emerald-500/20'
+                : 'bg-white/10 text-white border-transparent hover:bg-white/20'
             }`}
           >
             {copied ? <Check className="w-4 h-4" /> : <Copy className="w-4 h-4" />}

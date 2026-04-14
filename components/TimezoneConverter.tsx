@@ -129,7 +129,7 @@ export function TimezoneConverter() {
                 setDate(new Date().toISOString().split('T')[0]);
                 setTime(new Date().toTimeString().slice(0, 5));
               }}
-              className="w-full py-4 text-rose-500 bg-rose-50 dark:bg-rose-500/10 hover:bg-rose-100 transition-all rounded-2xl font-bold flex items-center justify-center gap-2"
+              className="w-full py-4 text-rose-500 bg-rose-50 dark:bg-rose-500/10 hover:bg-rose-100 dark:hover:bg-rose-500/20 rounded-2xl font-bold flex items-center justify-center gap-2 transition-all"
             >
               <Trash2 className="w-4 h-4" /> Réinitialiser à maintenant
             </button>
@@ -154,7 +154,9 @@ export function TimezoneConverter() {
             <button
               onClick={handleCopy}
               className={`flex items-center gap-2 px-8 py-4 rounded-2xl font-black transition-all border ${
-                copied ? 'bg-emerald-50 text-emerald-600 border-emerald-200' : 'bg-slate-900 text-white dark:bg-white dark:text-slate-900 border-transparent hover:opacity-90'
+                copied
+                  ? 'bg-emerald-50 dark:bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border-emerald-200 dark:border-emerald-500/20'
+                  : 'bg-slate-900 text-white dark:bg-white dark:text-slate-900 border-transparent hover:opacity-90'
               }`}
             >
               {copied ? <Check className="w-5 h-5" /> : <Copy className="w-5 h-5" />}

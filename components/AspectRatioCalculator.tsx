@@ -1,11 +1,15 @@
 import { useState, useEffect } from 'react';
 import { Maximize2, Monitor, Smartphone, Laptop, Tablet, Tv, Info } from 'lucide-react';
 
-export function AspectRatioCalculator() {
-  const [width, setWidth] = useState<string>('1920');
-  const [height, setHeight] = useState<string>('1080');
-  const [ratioW, setRatioW] = useState<string>('16');
-  const [ratioH, setRatioH] = useState<string>('9');
+export function AspectRatioCalculator({ initialData, onStateChange }: { initialData?: any; onStateChange?: (state: any) => void }) {
+  const [width, setWidth] = useState<string>(initialData?.width || '1920');
+  const [height, setHeight] = useState<string>(initialData?.height || '1080');
+  const [ratioW, setRatioW] = useState<string>(initialData?.ratioW || '16');
+  const [ratioH, setRatioH] = useState<string>(initialData?.ratioH || '9');
+
+  useEffect(() => {
+    onStateChange?.({ width, height, ratioW, ratioH });
+  }, [width, height, ratioW, ratioH, onStateChange]);
 
   const commonRatios = [
     { name: '16:9', w: 16, h: 9, icon: <Monitor className="w-4 h-4" />, desc: 'Vidéo HD, Écrans' },

@@ -16,19 +16,19 @@ const WORDS = [
   'marche', 'course', 'vol', 'nage', 'saut', 'cri', 'appel', 'jeu', 'sport', 'fight', 'choc', 'clic', 'zoom', 'scan', 'flux', 'bloc', 'lien', 'post', 'mail', 'chat', 'quiz', 'test', 'avis', 'plan', 'prix', 'gain', 'perte', 'choix', 'vue'
 ];
 
-export function PasswordGenerator() {
-  const [mode, setMode] = useState<'random' | 'passphrase'>('random');
+export function PasswordGenerator({ initialData, onStateChange }: { initialData?: any; onStateChange?: (state: any) => void }) {
+  const [mode, setMode] = useState<'random' | 'passphrase'>(initialData?.mode || 'random');
   const [password, setPassword] = useState('');
-  const [length, setLength] = useState(16);
-  const [wordCount, setWordCount] = useState(4);
-  const [capitalizeWords, setCapitalizeWords] = useState(false);
-  const [addNumber, setAddNumber] = useState(false);
-  const [addSymbol, setAddSymbol] = useState(false);
-  const [includeUppercase, setIncludeUppercase] = useState(true);
-  const [includeLowercase, setIncludeLowercase] = useState(true);
-  const [includeNumbers, setIncludeNumbers] = useState(true);
-  const [includeSymbols, setIncludeSymbols] = useState(true);
-  const [excludeSimilar, setExcludeSimilar] = useState(false);
+  const [length, setLength] = useState(initialData?.length || 16);
+  const [wordCount, setWordCount] = useState(initialData?.wordCount || 4);
+  const [capitalizeWords, setCapitalizeWords] = useState(initialData?.capitalizeWords ?? false);
+  const [addNumber, setAddNumber] = useState(initialData?.addNumber ?? false);
+  const [addSymbol, setAddSymbol] = useState(initialData?.addSymbol ?? false);
+  const [includeUppercase, setIncludeUppercase] = useState(initialData?.includeUppercase ?? true);
+  const [includeLowercase, setIncludeLowercase] = useState(initialData?.includeLowercase ?? true);
+  const [includeNumbers, setIncludeNumbers] = useState(initialData?.includeNumbers ?? true);
+  const [includeSymbols, setIncludeSymbols] = useState(initialData?.includeSymbols ?? true);
+  const [excludeSimilar, setExcludeSimilar] = useState(initialData?.excludeSimilar ?? false);
   const [copied, setCopied] = useState(false);
 
   const getSecureRandomIndex = useCallback((range: number) => {
@@ -95,6 +95,13 @@ export function PasswordGenerator() {
   useEffect(() => {
     generatePassword();
   }, [generatePassword]);
+
+  useEffect(() => {
+    onStateChange?.({
+      mode, length, wordCount, capitalizeWords, addNumber, addSymbol,
+      includeUppercase, includeLowercase, includeNumbers, includeSymbols, excludeSimilar
+    });
+  }, [mode, length, wordCount, capitalizeWords, addNumber, addSymbol, includeUppercase, includeLowercase, includeNumbers, includeSymbols, excludeSimilar, onStateChange]);
 
   const copyToClipboard = useCallback(() => {
     if (!password) return;
@@ -233,10 +240,10 @@ export function PasswordGenerator() {
             </button>
             <button
               onClick={copyToClipboard}
-              className={`px-8 py-4 rounded-2xl transition-all active:scale-95 flex items-center gap-2 font-black text-lg focus-visible:ring-2 focus-visible:ring-indigo-500 focus-visible:outline-none ${
+              className={`px-8 py-4 rounded-2xl transition-all active:scale-95 flex items-center gap-2 font-black text-lg border focus-visible:ring-2 focus-visible:ring-indigo-500 focus-visible:outline-none ${
                 copied
-                  ? 'bg-emerald-50 dark:bg-emerald-500/10 text-emerald-600 dark:text-emerald-400'
-                  : 'bg-white text-slate-900 hover:bg-slate-100'
+                  ? 'bg-emerald-50 dark:bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border-emerald-200 dark:border-emerald-500/20'
+                  : 'bg-white text-slate-900 border-transparent hover:bg-slate-100'
               }`}
               title="Copier (C)"
             >

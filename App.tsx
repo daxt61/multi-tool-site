@@ -1319,14 +1319,16 @@ function MainApp() {
                       </button>
                     ))}
 
-                    {selectedCategory === 'favorites' && favorites.length > 0 && (
+                    {selectedCategory === 'favorites' && (
                       <div className="flex items-center gap-2 ml-auto">
-                        <button
-                          onClick={handleExportFavorites}
-                          className="flex items-center gap-2 px-4 py-2 rounded-full text-sm font-bold text-indigo-600 dark:text-indigo-400 hover:bg-indigo-50 dark:hover:bg-indigo-900/20 transition-all border border-indigo-100 dark:border-indigo-900/30"
-                        >
-                          <Download className="w-4 h-4" /> Exporter
-                        </button>
+                        {favorites.length > 0 && (
+                          <button
+                            onClick={handleExportFavorites}
+                            className="flex items-center gap-2 px-4 py-2 rounded-full text-sm font-bold text-indigo-600 dark:text-indigo-400 hover:bg-indigo-50 dark:hover:bg-indigo-900/20 transition-all border border-indigo-100 dark:border-indigo-900/30"
+                          >
+                            <Download className="w-4 h-4" /> Exporter
+                          </button>
+                        )}
                         <label className="flex items-center gap-2 px-4 py-2 rounded-full text-sm font-bold text-slate-600 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-900 transition-all border border-slate-200 dark:border-slate-800 cursor-pointer">
                           <FileUp className="w-4 h-4" /> Importer
                           <input type="file" accept=".json" onChange={handleImportFavorites} className="hidden" />
@@ -1352,15 +1354,28 @@ function MainApp() {
                 ) : (
                   <div className="text-center py-24 border-2 border-dashed border-slate-200 dark:border-slate-800 rounded-[2.5rem]">
                     <div className="w-16 h-16 bg-slate-50 dark:bg-slate-900 rounded-full flex items-center justify-center mx-auto mb-6 text-slate-400">
-                      <Search className="w-8 h-8" />
+                      {selectedCategory === "favorites" && !searchQuery ? <Star className="w-8 h-8" /> : <Search className="w-8 h-8" />}
                     </div>
-                    <h4 className="text-xl font-bold mb-2">Aucun outil trouvé</h4>
-                    <p className="text-slate-500 dark:text-slate-400 mb-8">Essayez un autre mot-clé ou effacez les filtres.</p>
+                    <h4 className="text-xl font-bold mb-2">
+                      {selectedCategory === "favorites" && !searchQuery ? "Aucun favori pour le moment" : "Aucun outil trouvé"}
+                    </h4>
+                    <p className="text-slate-500 dark:text-slate-400 mb-8">
+                      {selectedCategory === "favorites" && !searchQuery
+                        ? "Cliquez sur l'étoile d'un outil pour l'ajouter à votre liste de favoris."
+                        : "Essayez un autre mot-clé ou effacez les filtres."}
+                    </p>
                     <button
-                      onClick={() => {setSearchQuery(""); setSelectedCategory(null);}}
+                      onClick={() => {
+                        if (selectedCategory === "favorites" && !searchQuery) {
+                          setSelectedCategory(null);
+                        } else {
+                          setSearchQuery("");
+                          setSelectedCategory(null);
+                        }
+                      }}
                       className="px-6 py-2 bg-slate-900 dark:bg-white text-white dark:text-slate-900 rounded-xl font-bold transition-all"
                     >
-                      Effacer tout
+                      {selectedCategory === "favorites" && !searchQuery ? "Voir tous les outils" : "Effacer tout"}
                     </button>
                   </div>
                 )}

@@ -1,5 +1,5 @@
-import { useState } from 'react';
-import { Copy, Check, RefreshCw, Trash2, Fingerprint } from 'lucide-react';
+import { useState, useCallback } from 'react';
+import { Copy, Check, RefreshCw, Trash2, Fingerprint, Download } from 'lucide-react';
 
 export function UUIDGenerator() {
   const [uuids, setUuids] = useState<string[]>([]);
@@ -52,8 +52,36 @@ export function UUIDGenerator() {
     setCopiedIndex(null);
   };
 
+  const handleDownload = useCallback(() => {
+    if (uuids.length === 0) return;
+    const blob = new Blob([uuids.join('\n')], { type: 'text/plain' });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    link.href = url;
+    link.download = `uuids-${Date.now()}.txt`;
+    link.click();
+    URL.revokeObjectURL(url);
+  }, [uuids]);
+
   return (
     <div className="max-w-3xl mx-auto space-y-8">
+      <div className="flex justify-end items-center gap-2 px-1">
+        <button
+          onClick={handleDownload}
+          disabled={uuids.length === 0}
+          className="text-xs font-bold text-indigo-600 bg-indigo-50 dark:bg-indigo-500/10 hover:bg-indigo-100 dark:hover:bg-indigo-500/20 px-3 py-1.5 rounded-xl flex items-center gap-1 transition-all disabled:opacity-50 disabled:cursor-not-allowed focus-visible:ring-2 focus-visible:ring-indigo-500 focus-visible:outline-none"
+        >
+          <Download className="w-3 h-3" /> Télécharger
+        </button>
+        <button
+          onClick={handleClear}
+          disabled={uuids.length === 0}
+          className="text-xs font-bold text-rose-500 bg-rose-50 dark:bg-rose-500/10 hover:bg-rose-100 dark:hover:bg-rose-500/20 px-3 py-1.5 rounded-xl flex items-center gap-1 transition-all disabled:opacity-50 disabled:cursor-not-allowed focus-visible:ring-2 focus-visible:ring-rose-500 focus-visible:outline-none"
+        >
+          <Trash2 className="w-3 h-3" /> Effacer
+        </button>
+      </div>
+
       <div className="bg-slate-50 dark:bg-slate-900/50 p-6 md:p-8 rounded-[2.5rem] border border-slate-200 dark:border-slate-800">
         <div className="flex flex-col md:flex-row items-end gap-4 mb-6">
           <div className="flex-1 w-full">
@@ -73,20 +101,11 @@ export function UUIDGenerator() {
           <div className="flex gap-2 w-full md:w-auto">
             <button
               onClick={generateUUIDs}
-              className="flex-1 md:flex-none px-8 py-4 bg-indigo-600 text-white rounded-2xl font-bold hover:bg-indigo-700 transition-all active:scale-95 flex items-center justify-center gap-2 shadow-lg shadow-indigo-600/20"
+              className="flex-1 md:flex-none px-8 py-4 bg-indigo-600 text-white rounded-2xl font-bold hover:bg-indigo-700 transition-all active:scale-95 flex items-center justify-center gap-2 shadow-lg shadow-indigo-600/20 focus-visible:ring-2 focus-visible:ring-indigo-500 focus-visible:outline-none"
             >
               <RefreshCw className="w-5 h-5" />
               Générer
             </button>
-            {uuids.length > 0 && (
-              <button
-                onClick={handleClear}
-                className="p-4 text-rose-500 bg-rose-50 dark:bg-rose-500/10 hover:bg-rose-100 dark:hover:bg-rose-500/20 rounded-2xl transition-all active:scale-95 border border-rose-100 dark:border-rose-500/20"
-                aria-label="Effacer tout"
-              >
-                <Trash2 className="w-5 h-5" />
-              </button>
-            )}
           </div>
         </div>
 

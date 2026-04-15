@@ -1,9 +1,16 @@
-import { useState } from 'react';
-import { Copy, Check, Type, FileText, Trash2 } from 'lucide-react';
+import { useState, useEffect } from 'react';
+import { Copy, Check, Type, FileText, Trash2, AlertCircle } from 'lucide-react';
 
-export function CaseConverter() {
-  const [text, setText] = useState('');
+const MAX_LENGTH = 100000;
+
+export function CaseConverter({ initialData, onStateChange }: { initialData?: any; onStateChange?: (state: any) => void }) {
+  const [text, setText] = useState(initialData?.text || '');
   const [copied, setCopied] = useState('');
+  const [error, setError] = useState<string | null>(null);
+
+  useEffect(() => {
+    onStateChange?.({ text });
+  }, [text, onStateChange]);
 
   const conversions = {
     'camelCase': (t: string) => {
@@ -34,12 +41,29 @@ export function CaseConverter() {
     setTimeout(() => setCopied(''), 2000);
   };
 
+  const handleTextChange = (val: string) => {
+    setText(val);
+    if (val.length > MAX_LENGTH) {
+      setError(`L'entrée est trop longue. Limite de ${MAX_LENGTH.toLocaleString()} caractères.`);
+    } else {
+      setError(null);
+    }
+  };
+
   const handleClear = () => {
     setText('');
+    setError(null);
   };
 
   return (
     <div className="max-w-5xl mx-auto space-y-8">
+      {error && (
+        <div className="bg-rose-50 dark:bg-rose-500/10 border border-rose-200 dark:border-rose-800 p-4 rounded-2xl flex items-center gap-3 text-rose-600 dark:text-rose-400 font-bold animate-in fade-in slide-in-from-top-2">
+          <AlertCircle className="w-5 h-5" />
+          {error}
+        </div>
+      )}
+
       <div className="space-y-4">
         <div className="flex justify-between items-center px-1">
           <label htmlFor="case-text" className="text-xs font-black uppercase tracking-widest text-slate-400 flex items-center gap-2">
@@ -57,15 +81,15 @@ export function CaseConverter() {
         <textarea
           id="case-text"
           value={text}
-          onChange={(e) => setText(e.target.value)}
+          onChange={(e) => handleTextChange(e.target.value)}
           placeholder="Entrez votre texte ici..."
-          className="w-full h-48 p-8 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-[2rem] outline-none focus:ring-2 focus:ring-indigo-500/20 transition-all text-lg leading-relaxed dark:text-slate-300 resize-none"
+          className={`w-full h-48 p-8 bg-slate-50 dark:bg-slate-900 border ${error ? 'border-rose-500 ring-rose-500/20' : 'border-slate-200 dark:border-slate-800'} rounded-[2rem] outline-none focus:ring-2 ${error ? 'focus:ring-rose-500/20' : 'focus:ring-indigo-500/20'} transition-all text-lg leading-relaxed dark:text-slate-300 resize-none`}
         />
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
         {Object.entries(conversions).map(([name, converter]) => {
-          const converted = text ? converter(text) : '';
+          const converted = (text && !error) ? converter(text) : '';
           return (
             <div key={name} className="bg-white dark:bg-slate-900/40 border border-slate-200 dark:border-slate-800 p-6 rounded-3xl space-y-4">
               <div className="flex items-center justify-between">

@@ -950,8 +950,9 @@ const tools: Tool[] = [
 // Initialize toolsMap and search index
 tools.forEach(tool => {
   toolsMap[tool.id] = tool;
+  const category = categories.find(c => c.id === tool.category);
   TOOL_SEARCH_INDEX.set(tool.id, {
-    name: tool.name.toLowerCase(),
+    name: `${tool.name} ${category?.name || ''}`.toLowerCase(),
     description: tool.description.toLowerCase(),
   });
 });
@@ -1274,6 +1275,19 @@ function MainApp() {
                     </div>
                   )}
                   {searchQuery && <button onClick={() => setSearchQuery("")} className="absolute inset-y-0 right-4 flex items-center text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 transition-colors focus-visible:ring-2 focus-visible:ring-indigo-500 focus-visible:outline-none rounded-lg" aria-label="Effacer"><X className="h-5 w-5" /></button>}
+                </div>
+
+                <div className="flex justify-center">
+                  <button
+                    onClick={() => {
+                      const randomTool = tools[Math.floor(Math.random() * tools.length)];
+                      handleToolSelect(randomTool.id);
+                    }}
+                    className="flex items-center gap-2 px-6 py-3 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl text-sm font-bold text-slate-600 dark:text-slate-400 hover:border-indigo-500 dark:hover:border-indigo-500 hover:text-indigo-600 dark:hover:text-indigo-400 transition-all shadow-sm focus-visible:ring-2 focus-visible:ring-indigo-500 focus-visible:outline-none"
+                    aria-label="Ouvrir un outil au hasard"
+                  >
+                    <Shuffle className="w-4 h-4" /> J'ai de la chance
+                  </button>
                 </div>
               </div>
 

@@ -10,23 +10,30 @@ export function TimerTool({ initialData, onStateChange }: { initialData?: any; o
   const [timerMinutes, setTimerMinutes] = useState(initialData?.timerMinutes ?? 5);
   const [timerSeconds, setTimerSeconds] = useState(initialData?.timerSeconds ?? 0);
 
-  useEffect(() => {
-    onStateChange?.({ mode, timerMinutes, timerSeconds });
-  }, [mode, timerMinutes, timerSeconds, onStateChange]);
-  const [timerRunning, setTimerRunning] = useState(false);
-  const [timerTime, setTimerTime] = useState(300);
-  const [timerDone, setTimerDone] = useState(false);
-
   // Stopwatch state
   const [stopwatchTime, setStopwatchTime] = useState(0);
   const [stopwatchRunning, setStopwatchRunning] = useState(false);
   const [laps, setLaps] = useState<number[]>([]);
 
   // Pomodoro state
-  const [pomodoroState, setPomodoroState] = useState<PomodoroState>('work');
+  const [pomodoroState, setPomodoroState] = useState<PomodoroState>(initialData?.pomodoroState || 'work');
   const [pomodoroRunning, setPomodoroRunning] = useState(false);
-  const [pomodoroTime, setPomodoroTime] = useState(25 * 60);
-  const [pomodoroCycles, setPomodoroCycles] = useState(0);
+  const [pomodoroTime, setPomodoroTime] = useState(initialData?.pomodoroTime ?? 25 * 60);
+  const [pomodoroCycles, setPomodoroCycles] = useState(initialData?.pomodoroCycles ?? 0);
+
+  useEffect(() => {
+    onStateChange?.({
+      mode,
+      timerMinutes,
+      timerSeconds,
+      pomodoroState,
+      pomodoroTime,
+      pomodoroCycles
+    });
+  }, [mode, timerMinutes, timerSeconds, pomodoroState, pomodoroTime, pomodoroCycles, onStateChange]);
+  const [timerRunning, setTimerRunning] = useState(false);
+  const [timerTime, setTimerTime] = useState(timerMinutes * 60 + timerSeconds);
+  const [timerDone, setTimerDone] = useState(false);
 
   const [soundEnabled, setSoundEnabled] = useState(true);
 

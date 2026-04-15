@@ -51,7 +51,9 @@ const CONVERSIONS: Record<ConversionCategory, Record<string, ConversionUnit>> = 
     'gal': { name: 'Gallons (US)', toBase: (v) => v * 0.00378541, fromBase: (v) => v / 0.00378541 },
     'qt': { name: 'Quarts (US)', toBase: (v) => v * 0.000946353, fromBase: (v) => v / 0.000946353 },
     'pt': { name: 'Pintes (US)', toBase: (v) => v * 0.000473176, fromBase: (v) => v / 0.000473176 },
-    'cup': { name: 'Tasses (US)', toBase: (v) => v * 0.000236588, fromBase: (v) => v / 0.000236588 }
+    'cup': { name: 'Tasses (US)', toBase: (v) => v * 0.000236588, fromBase: (v) => v / 0.000236588 },
+    'tbsp': { name: 'Cuillères à soupe (15ml)', toBase: (v) => v * 0.000015, fromBase: (v) => v / 0.000015 },
+    'tsp': { name: 'Cuillères à café (5ml)', toBase: (v) => v * 0.000005, fromBase: (v) => v / 0.000005 }
   },
   digital: {
     'bit': { name: 'Bits (bit)', toBase: (v) => v / 8, fromBase: (v) => v * 8 },

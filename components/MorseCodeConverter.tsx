@@ -1,5 +1,7 @@
 import { useState } from 'react';
-import { Signal, Copy, Check, Trash2, Info } from 'lucide-react';
+import { Signal, Copy, Check, Trash2, Info, AlertCircle } from 'lucide-react';
+
+const MAX_LENGTH = 100000;
 
 const MORSE_CODE: Record<string, string> = {
   'A': '.-', 'B': '-...', 'C': '-.-.', 'D': '-..', 'E': '.', 'F': '..-.',
@@ -11,26 +13,46 @@ const MORSE_CODE: Record<string, string> = {
   '8': '---..', '9': '----.', ' ': '/'
 };
 
+// Sentinel: Use Object.create(null) for the reverse mapping to prevent Prototype Pollution.
+// This ensures that user-provided "Morse codes" (like "toString" or "__proto__") do not
+// resolve to native object properties during the decoding process.
 const REVERSE_MORSE: Record<string, string> = Object.entries(MORSE_CODE).reduce(
-  (acc, [key, value]) => ({ ...acc, [value]: key }),
-  {}
+  (acc: Record<string, string>, [key, value]) => {
+    acc[value] = key;
+    return acc;
+  },
+  Object.create(null)
 );
 
 export function MorseCodeConverter() {
   const [text, setText] = useState('');
   const [morse, setMorse] = useState('');
   const [copied, setCopied] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
   const encode = (input: string) => {
+    setText(input);
+    // Sentinel: Implement input length limit to mitigate client-side Denial of Service (DoS)
+    // by preventing expensive string operations on excessively large inputs.
+    if (input.length > MAX_LENGTH) {
+      setError(`L'entrée est trop longue. Limite de ${MAX_LENGTH.toLocaleString()} caractères.`);
+      return;
+    }
+    setError(null);
     const encoded = input.toUpperCase().split('').map(char => MORSE_CODE[char] || char).join(' ');
     setMorse(encoded);
-    setText(input);
   };
 
   const decode = (input: string) => {
+    setMorse(input);
+    // Sentinel: Implement input length limit to mitigate client-side Denial of Service (DoS).
+    if (input.length > MAX_LENGTH) {
+      setError(`L'entrée est trop longue. Limite de ${MAX_LENGTH.toLocaleString()} caractères.`);
+      return;
+    }
+    setError(null);
     const decoded = input.trim().split(' ').map(code => REVERSE_MORSE[code] || code).join('');
     setText(decoded);
-    setMorse(input);
   };
 
   const handleCopy = () => {
@@ -43,10 +65,17 @@ export function MorseCodeConverter() {
   const handleClear = () => {
     setText('');
     setMorse('');
+    setError(null);
   };
 
   return (
     <div className="max-w-5xl mx-auto space-y-12">
+      {error && (
+        <div className="bg-rose-50 dark:bg-rose-500/10 border border-rose-200 dark:border-rose-800 p-4 rounded-2xl flex items-center gap-3 text-rose-600 dark:text-rose-400 font-bold animate-in fade-in slide-in-from-top-2">
+          <AlertCircle className="w-5 h-5" />
+          {error}
+        </div>
+      )}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 items-start">
         {/* Normal Text Input */}
         <div className="space-y-4">

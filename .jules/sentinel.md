@@ -61,3 +61,8 @@
 **Vulnerability:** The WordCounter component used a plain object literal (`{}`) to store word frequencies from user-provided text, allowing "special" words like `constructor` or `toString` to collide with the object's prototype properties.
 **Learning:** Any mapping of user-controlled keys to an object is a potential Prototype Pollution or logic bypass vector if the object is initialized with the standard `Object` prototype.
 **Prevention:** Always use `Object.create(null)` for objects that will store arbitrary user-controlled keys, or use a `Map` which does not share the same prototype risks.
+
+## 2025-06-20 - [Prototype Pollution in Morse Code Decoder]
+**Vulnerability:** The MorseCodeConverter component was vulnerable to Prototype Pollution by using a plain object literal for reverse mapping of Morse codes to characters. User-provided strings like "toString" could collide with object prototype properties during decoding.
+**Learning:** Any mapping of user-controlled keys to an object is a potential vector for Prototype Pollution or logic bypass if the object is initialized with the standard Object prototype. This is especially risky in decoders where user input is split and used as keys.
+**Prevention:** Always use `Object.create(null)` for objects that will store arbitrary user-controlled keys, and implement strict input length limits to prevent resource exhaustion attacks.

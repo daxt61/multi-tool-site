@@ -1,14 +1,19 @@
-import { useState, useMemo } from "react";
-import { Banknote, Briefcase, Info, TrendingDown, TrendingUp, RotateCcw, HelpCircle, BookOpen, ChevronRight, Calculator } from "lucide-react";
+import { useState, useMemo, useEffect, useCallback } from "react";
+import { Banknote, Briefcase, Info, TrendingDown, TrendingUp, RotateCcw, HelpCircle, BookOpen, ChevronRight, Calculator, Copy, Check } from "lucide-react";
 
-export function SalaryCalculator() {
-  const [grossAnnual, setGrossAnnual] = useState<string>("35000");
-  const [status, setStatus] = useState<"non-cadre" | "cadre">("non-cadre");
-  const [is13thMonth, setIs13thMonth] = useState(false);
-  const [mealVoucherValue, setMealVoucherValue] = useState<string>("0");
-  const [mealVoucherDays, setMealVoucherDays] = useState<string>("20");
-  const [employerShare, setEmployerShare] = useState<string>("50");
-  const [benefitsInKind, setBenefitsInKind] = useState<string>("0");
+export function SalaryCalculator({ initialData, onStateChange }: { initialData?: any; onStateChange?: (state: any) => void }) {
+  const [grossAnnual, setGrossAnnual] = useState<string>(initialData?.grossAnnual || "35000");
+  const [status, setStatus] = useState<"non-cadre" | "cadre">(initialData?.status || "non-cadre");
+  const [is13thMonth, setIs13thMonth] = useState(initialData?.is13thMonth ?? false);
+  const [mealVoucherValue, setMealVoucherValue] = useState<string>(initialData?.mealVoucherValue || "0");
+  const [mealVoucherDays, setMealVoucherDays] = useState<string>(initialData?.mealVoucherDays || "20");
+  const [employerShare, setEmployerShare] = useState<string>(initialData?.employerShare || "50");
+  const [benefitsInKind, setBenefitsInKind] = useState<string>(initialData?.benefitsInKind || "0");
+  const [copied, setCopied] = useState(false);
+
+  useEffect(() => {
+    onStateChange?.({ grossAnnual, status, is13thMonth, mealVoucherValue, mealVoucherDays, employerShare, benefitsInKind });
+  }, [grossAnnual, status, is13thMonth, mealVoucherValue, mealVoucherDays, employerShare, benefitsInKind, onStateChange]);
 
   const results = useMemo(() => {
     const gross = parseFloat(grossAnnual) || 0;
@@ -76,6 +81,14 @@ export function SalaryCalculator() {
     setBenefitsInKind("0");
   };
 
+  const handleCopy = useCallback(() => {
+    const text = `Salaire Brut : ${results.grossAnnual.toFixed(2)}€ / an (${results.grossMonthly.toFixed(2)}€/mois)
+Net après impôts : ${results.netAnnualAfterTax.toFixed(2)}€ / an (${results.netMonthlyAfterTax.toFixed(2)}€/mois)`;
+    navigator.clipboard.writeText(text);
+    setCopied(true);
+    setTimeout(() => setCopied(false), 2000);
+  }, [results]);
+
   return (
     <div className="max-w-4xl mx-auto space-y-8">
       <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
@@ -86,7 +99,8 @@ export function SalaryCalculator() {
             </label>
             <button
               onClick={handleClear}
-              className="text-xs font-bold text-rose-500 bg-rose-50 dark:bg-rose-500/10 hover:bg-rose-100 dark:hover:bg-rose-500/20 px-3 py-1.5 rounded-xl flex items-center gap-1 transition-all"
+              disabled={!grossAnnual && mealVoucherValue === "0" && benefitsInKind === "0"}
+              className="text-xs font-bold text-rose-500 bg-rose-50 dark:bg-rose-500/10 hover:bg-rose-100 dark:hover:bg-rose-500/20 px-3 py-1.5 rounded-xl flex items-center gap-1 transition-all disabled:opacity-50 disabled:cursor-not-allowed focus-visible:ring-2 focus-visible:ring-rose-500 focus-visible:outline-none"
             >
               <RotateCcw className="w-3 h-3" /> Effacer
             </button>
@@ -97,7 +111,7 @@ export function SalaryCalculator() {
               type="number"
               value={grossAnnual}
               onChange={(e) => setGrossAnnual(e.target.value)}
-              className="w-full p-6 bg-slate-50 dark:bg-slate-900/50 border border-slate-200 dark:border-slate-800 rounded-3xl text-3xl md:text-4xl font-black font-mono outline-none focus:ring-2 focus:ring-indigo-500/20 transition-all dark:text-white"
+              className="w-full p-6 bg-slate-50 dark:bg-slate-900/50 border border-slate-200 dark:border-slate-800 rounded-3xl text-3xl md:text-4xl font-black font-mono outline-none focus:ring-2 focus:ring-indigo-500/20 transition-all dark:text-white focus-visible:ring-indigo-500"
               placeholder="35000"
             />
             <span className="absolute right-6 top-1/2 -translate-y-1/2 text-2xl font-black text-slate-300">€</span>
@@ -111,13 +125,15 @@ export function SalaryCalculator() {
               <div className="flex bg-slate-100 dark:bg-slate-800 p-1 rounded-xl">
                 <button
                   onClick={() => setStatus("non-cadre")}
-                  className={`flex-1 py-2 rounded-lg text-xs font-bold transition-all ${status === "non-cadre" ? "bg-white dark:bg-slate-700 text-indigo-600 shadow-sm" : "text-slate-500"}`}
+                  aria-pressed={status === "non-cadre"}
+                  className={`flex-1 py-2 rounded-lg text-xs font-bold transition-all focus-visible:ring-2 focus-visible:ring-indigo-500 focus-visible:outline-none ${status === "non-cadre" ? "bg-white dark:bg-slate-700 text-indigo-600 shadow-sm" : "text-slate-500"}`}
                 >
                   Non-cadre
                 </button>
                 <button
                   onClick={() => setStatus("cadre")}
-                  className={`flex-1 py-2 rounded-lg text-xs font-bold transition-all ${status === "cadre" ? "bg-white dark:bg-slate-700 text-indigo-600 shadow-sm" : "text-slate-500"}`}
+                  aria-pressed={status === "cadre"}
+                  className={`flex-1 py-2 rounded-lg text-xs font-bold transition-all focus-visible:ring-2 focus-visible:ring-indigo-500 focus-visible:outline-none ${status === "cadre" ? "bg-white dark:bg-slate-700 text-indigo-600 shadow-sm" : "text-slate-500"}`}
                 >
                   Cadre
                 </button>
@@ -129,7 +145,8 @@ export function SalaryCalculator() {
               </label>
               <button
                 onClick={() => setIs13thMonth(!is13thMonth)}
-                className={`w-full py-2.5 rounded-xl text-xs font-bold transition-all border ${is13thMonth ? "bg-indigo-50 dark:bg-indigo-900/20 border-indigo-200 text-indigo-600" : "bg-white dark:bg-slate-800 border-slate-200 text-slate-500"}`}
+                aria-pressed={is13thMonth}
+                className={`w-full py-2.5 rounded-xl text-xs font-bold transition-all border focus-visible:ring-2 focus-visible:ring-indigo-500 focus-visible:outline-none ${is13thMonth ? "bg-indigo-50 dark:bg-indigo-900/20 border-indigo-200 text-indigo-600" : "bg-white dark:bg-slate-800 border-slate-200 text-slate-500"}`}
               >
                 {is13thMonth ? "13 mois" : "12 mois"}
               </button>
@@ -148,7 +165,7 @@ export function SalaryCalculator() {
                     type="number"
                     value={mealVoucherValue}
                     onChange={(e) => setMealVoucherValue(e.target.value)}
-                    className="w-full p-3 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl text-sm font-bold outline-none focus:border-indigo-500 transition-colors dark:text-white"
+                    className="w-full p-3 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl text-sm font-bold outline-none focus:border-indigo-500 transition-colors dark:text-white focus-visible:ring-2 focus-visible:ring-indigo-500 focus-visible:outline-none"
                     placeholder="9.50"
                   />
                   <span className="absolute right-3 top-1/2 -translate-y-1/2 text-xs font-bold text-slate-300">€</span>
@@ -162,7 +179,7 @@ export function SalaryCalculator() {
                     type="number"
                     value={benefitsInKind}
                     onChange={(e) => setBenefitsInKind(e.target.value)}
-                    className="w-full p-3 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl text-sm font-bold outline-none focus:border-indigo-500 transition-colors dark:text-white"
+                    className="w-full p-3 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl text-sm font-bold outline-none focus:border-indigo-500 transition-colors dark:text-white focus-visible:ring-2 focus-visible:ring-indigo-500 focus-visible:outline-none"
                     placeholder="0"
                   />
                   <span className="absolute right-3 top-1/2 -translate-y-1/2 text-xs font-bold text-slate-300">€</span>
@@ -182,8 +199,20 @@ export function SalaryCalculator() {
         </div>
 
         <div className="space-y-6">
-          <div className="bg-slate-900 dark:bg-black p-8 md:p-10 rounded-[2.5rem] shadow-xl shadow-indigo-500/10 flex flex-col items-center justify-center space-y-4 min-h-[300px] relative overflow-hidden">
+          <div className="bg-slate-900 dark:bg-black p-8 md:p-10 rounded-[2.5rem] shadow-xl shadow-indigo-500/10 flex flex-col items-center justify-center space-y-4 min-h-[300px] relative overflow-hidden group">
              <div className="absolute top-0 right-0 w-32 h-32 bg-indigo-500/10 rounded-full -mr-16 -mt-16 blur-3xl"></div>
+
+             <button
+              onClick={handleCopy}
+              className={`absolute top-6 right-6 p-3 rounded-2xl transition-all border focus-visible:ring-2 focus-visible:ring-indigo-500 focus-visible:outline-none ${
+                copied
+                  ? "bg-emerald-50 dark:bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border-emerald-200 dark:border-emerald-500/20"
+                  : "bg-white/10 text-white/40 border-transparent hover:text-white hover:bg-white/20 md:opacity-0 md:group-hover:opacity-100 md:focus-visible:opacity-100"
+              }`}
+              title="Copier le résultat"
+            >
+              {copied ? <Check className="w-5 h-5" /> : <Copy className="w-5 h-5" />}
+            </button>
 
              <div className="text-slate-400 font-bold uppercase tracking-widest text-xs text-center">Net après impôts mensuel</div>
              <div className="text-5xl md:text-6xl font-black text-white font-mono tracking-tighter">

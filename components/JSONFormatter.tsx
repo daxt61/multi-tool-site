@@ -6,6 +6,7 @@ const MAX_LENGTH = 100000;
 export function JSONFormatter() {
   const [input, setInput] = useState('');
   const [output, setOutput] = useState('');
+  const [indentSize, setIndentSize] = useState('2');
   const [error, setError] = useState('');
   const [copied, setCopied] = useState(false);
 
@@ -13,7 +14,8 @@ export function JSONFormatter() {
     try {
       if (!input.trim() || input.length > MAX_LENGTH) return;
       const parsed = JSON.parse(input);
-      const formatted = JSON.stringify(parsed, null, 2);
+      const indent = indentSize === 'tab' ? '\t' : Number(indentSize);
+      const formatted = JSON.stringify(parsed, null, indent);
       setOutput(formatted);
       setError('');
     } catch (e: any) {
@@ -135,7 +137,27 @@ export function JSONFormatter() {
         </div>
       </div>
 
-      <div className="flex flex-wrap gap-4 justify-center">
+      <div className="flex flex-wrap gap-4 justify-center items-center">
+        <div className="flex bg-slate-100 dark:bg-slate-800 p-1.5 rounded-2xl border border-slate-200 dark:border-slate-700">
+          {[
+            { label: '2 espaces', value: '2' },
+            { label: '4 espaces', value: '4' },
+            { label: 'Tab', value: 'tab' }
+          ].map((opt) => (
+            <button
+              key={opt.value}
+              onClick={() => setIndentSize(opt.value)}
+              className={`px-4 py-2 rounded-xl text-xs font-bold transition-all ${
+                indentSize === opt.value
+                  ? 'bg-white dark:bg-slate-900 text-indigo-600 shadow-sm'
+                  : 'text-slate-500 hover:text-slate-700 dark:hover:text-slate-300'
+              }`}
+            >
+              {opt.label}
+            </button>
+          ))}
+        </div>
+
         <button
           onClick={handlePrettify}
           className="px-8 py-4 bg-indigo-600 text-white rounded-2xl font-black text-lg shadow-lg shadow-indigo-600/20 hover:bg-indigo-700 transition-all active:scale-95 flex items-center gap-2"

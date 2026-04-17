@@ -1,7 +1,5 @@
-import { useState } from 'react';
-import { Table, Plus, RotateCcw, Copy, Check } from 'lucide-react';
-
-import { useEffect } from 'react';
+import { useState, useEffect } from 'react';
+import { Table, Plus, RotateCcw, Copy, Check, Download } from 'lucide-react';
 
 export function MarkdownTableGenerator({ initialData, onStateChange }: { initialData?: any; onStateChange?: (state: any) => void }) {
   const [data, setData] = useState<string[][]>(initialData?.data || [
@@ -42,10 +40,11 @@ export function MarkdownTableGenerator({ initialData, onStateChange }: { initial
 
   const generateMarkdown = () => {
     if (data.length === 0) return '';
-    let md = '| ' + data[0].join(' | ') + ' |\n';
+    const escape = (val: string) => val.replace(/\|/g, '\\|');
+    let md = '| ' + data[0].map(escape).join(' | ') + ' |\n';
     md += '| ' + data[0].map(() => '---').join(' | ') + ' |\n';
     for (let i = 1; i < data.length; i++) {
-      md += '| ' + data[i].join(' | ') + ' |\n';
+      md += '| ' + data[i].map(escape).join(' | ') + ' |\n';
     }
     return md;
   };
@@ -54,6 +53,17 @@ export function MarkdownTableGenerator({ initialData, onStateChange }: { initial
     navigator.clipboard.writeText(generateMarkdown());
     setCopied(true);
     setTimeout(() => setCopied(false), 2000);
+  };
+
+  const handleDownload = () => {
+    const content = generateMarkdown();
+    const blob = new Blob([content], { type: 'text/markdown' });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    link.href = url;
+    link.download = `table-${Date.now()}.md`;
+    link.click();
+    URL.revokeObjectURL(url);
   };
 
   const reset = () => {
@@ -83,23 +93,31 @@ export function MarkdownTableGenerator({ initialData, onStateChange }: { initial
           <button
             onClick={reset}
             disabled={JSON.stringify(data) === JSON.stringify([['En-tête 1', 'En-tête 2', 'En-tête 3'],['Donnée 1', 'Donnée 2', 'Donnée 3'],['Donnée 4', 'Donnée 5', 'Donnée 6']])}
-            className="px-4 py-2 text-rose-500 bg-rose-50 dark:bg-rose-500/10 hover:bg-rose-100 dark:hover:bg-rose-500/20 rounded-xl font-bold text-sm flex items-center gap-2 transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+            className="px-4 py-2 text-rose-500 bg-rose-50 dark:bg-rose-500/10 hover:bg-rose-100 dark:hover:bg-rose-500/20 rounded-xl font-bold text-sm flex items-center gap-2 transition-all disabled:opacity-50 disabled:cursor-not-allowed focus-visible:ring-2 focus-visible:ring-indigo-500 focus-visible:outline-none"
           >
             <RotateCcw className="w-4 h-4" /> Reset
           </button>
         </div>
 
-        <button
-          onClick={copyToClipboard}
-          className={`px-6 py-2 rounded-xl font-black text-sm flex items-center gap-2 transition-all border ${
-            copied
-              ? 'bg-emerald-50 dark:bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border-emerald-200 dark:border-emerald-500/20'
-              : 'bg-indigo-600 text-white border-transparent shadow-lg shadow-indigo-600/20 hover:bg-indigo-700'
-          }`}
-        >
-          {copied ? <Check className="w-4 h-4" /> : <Copy className="w-4 h-4" />}
-          {copied ? 'Copié' : 'Copier le Markdown'}
-        </button>
+        <div className="flex gap-2">
+          <button
+            onClick={handleDownload}
+            className="px-4 py-2 bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 rounded-xl font-bold text-sm flex items-center gap-2 hover:bg-slate-200 transition-all focus-visible:ring-2 focus-visible:ring-indigo-500 focus-visible:outline-none"
+          >
+            <Download className="w-4 h-4" /> Télécharger
+          </button>
+          <button
+            onClick={copyToClipboard}
+            className={`px-6 py-2 rounded-xl font-black text-sm flex items-center gap-2 transition-all border focus-visible:ring-2 focus-visible:ring-indigo-500 focus-visible:outline-none ${
+              copied
+                ? 'bg-emerald-50 dark:bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border-emerald-200 dark:border-emerald-500/20'
+                : 'bg-indigo-600 text-white border-transparent shadow-lg shadow-indigo-600/20 hover:bg-indigo-700'
+            }`}
+          >
+            {copied ? <Check className="w-4 h-4" /> : <Copy className="w-4 h-4" />}
+            {copied ? 'Copié' : 'Copier le Markdown'}
+          </button>
+        </div>
       </div>
 
       <div className="overflow-x-auto bg-slate-50 dark:bg-slate-900/50 p-6 rounded-[2.5rem] border border-slate-200 dark:border-slate-800">

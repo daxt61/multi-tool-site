@@ -1,7 +1,5 @@
-import { useState } from 'react';
-import { Shuffle, Copy, Check, RefreshCw, Hash, Type, AlignLeft, Trash2 } from 'lucide-react';
-
-import { useEffect } from 'react';
+import { useState, useEffect } from 'react';
+import { Shuffle, Copy, Check, RefreshCw, Hash, Type, AlignLeft, Trash2, Download } from 'lucide-react';
 
 export function RandomGenerator({ initialData, onStateChange }: { initialData?: any; onStateChange?: (state: any) => void }) {
   const [min, setMin] = useState(initialData?.min ?? 1);
@@ -128,6 +126,17 @@ export function RandomGenerator({ initialData, onStateChange }: { initialData?: 
     setTimeout(() => setCopied(''), 2000);
   };
 
+  const handleDownload = (text: string, filename: string) => {
+    if (!text) return;
+    const blob = new Blob([text], { type: 'text/plain' });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    link.href = url;
+    link.download = `${filename}-${Date.now()}.txt`;
+    link.click();
+    URL.revokeObjectURL(url);
+  };
+
   return (
     <div className="max-w-5xl mx-auto space-y-12">
       {/* Random Number */}
@@ -159,13 +168,22 @@ export function RandomGenerator({ initialData, onStateChange }: { initialData?: 
             />
           </div>
           <div className="flex flex-col gap-2">
-            <button
-              onClick={() => setRandomNumber(null)}
-              disabled={randomNumber === null}
-              className="text-xs font-bold text-rose-500 bg-rose-50 dark:bg-rose-500/10 hover:bg-rose-100 dark:hover:bg-rose-500/20 px-3 py-1.5 rounded-xl flex items-center gap-1 transition-all disabled:opacity-50 disabled:cursor-not-allowed w-fit self-end"
-            >
-              <Trash2 className="w-3 h-3" /> Effacer
-            </button>
+            <div className="flex gap-2 self-end">
+              <button
+                onClick={() => randomNumber !== null && handleDownload(randomNumber.toString(), 'nombre-aleatoire')}
+                disabled={randomNumber === null}
+                className="text-xs font-bold text-indigo-600 bg-indigo-50 dark:bg-indigo-900/20 hover:bg-indigo-100 dark:hover:bg-indigo-900/30 px-3 py-1.5 rounded-xl flex items-center gap-1 transition-all disabled:opacity-50 disabled:cursor-not-allowed focus-visible:ring-2 focus-visible:ring-indigo-500 focus-visible:outline-none"
+              >
+                <Download className="w-3 h-3" /> Télécharger
+              </button>
+              <button
+                onClick={() => setRandomNumber(null)}
+                disabled={randomNumber === null}
+                className="text-xs font-bold text-rose-500 bg-rose-50 dark:bg-rose-500/10 hover:bg-rose-100 dark:hover:bg-rose-500/20 px-3 py-1.5 rounded-xl flex items-center gap-1 transition-all disabled:opacity-50 disabled:cursor-not-allowed focus-visible:ring-2 focus-visible:ring-indigo-500 focus-visible:outline-none"
+              >
+                <Trash2 className="w-3 h-3" /> Effacer
+              </button>
+            </div>
             <button
               onClick={generateNumber}
               className="h-14 bg-indigo-600 text-white rounded-2xl font-black hover:bg-indigo-700 transition-all shadow-lg shadow-indigo-600/20 active:scale-95 flex items-center justify-center gap-2"
@@ -200,11 +218,18 @@ export function RandomGenerator({ initialData, onStateChange }: { initialData?: 
           <h3 className="text-xs font-black uppercase tracking-widest text-slate-400">Chaîne Aléatoire</h3>
         </div>
 
-        <div className="flex justify-end px-1">
+        <div className="flex justify-end gap-2 px-1">
+          <button
+            onClick={() => handleDownload(randomString, 'chaine-aleatoire')}
+            disabled={!randomString}
+            className="text-xs font-bold text-indigo-600 bg-indigo-50 dark:bg-indigo-900/20 hover:bg-indigo-100 dark:hover:bg-indigo-900/30 px-3 py-1.5 rounded-xl flex items-center gap-1 transition-all disabled:opacity-50 disabled:cursor-not-allowed focus-visible:ring-2 focus-visible:ring-indigo-500 focus-visible:outline-none"
+          >
+            <Download className="w-3 h-3" /> Télécharger
+          </button>
           <button
             onClick={() => setRandomString('')}
             disabled={!randomString}
-            className="text-xs font-bold text-rose-500 bg-rose-50 dark:bg-rose-500/10 hover:bg-rose-100 dark:hover:bg-rose-500/20 px-3 py-1.5 rounded-xl flex items-center gap-1 transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+            className="text-xs font-bold text-rose-500 bg-rose-50 dark:bg-rose-500/10 hover:bg-rose-100 dark:hover:bg-rose-500/20 px-3 py-1.5 rounded-xl flex items-center gap-1 transition-all disabled:opacity-50 disabled:cursor-not-allowed focus-visible:ring-2 focus-visible:ring-indigo-500 focus-visible:outline-none"
           >
             <Trash2 className="w-3 h-3" /> Effacer
           </button>
@@ -280,11 +305,22 @@ export function RandomGenerator({ initialData, onStateChange }: { initialData?: 
           <h3 className="text-xs font-black uppercase tracking-widest text-slate-400">Mélanger une Liste</h3>
         </div>
 
-        <div className="flex justify-end px-1">
+        <div className="flex justify-end gap-2 px-1">
+          {(shuffledList.length > 0 || winner || teams.length > 0) && (
+            <button
+              onClick={() => {
+                const text = winner || (teams.length > 0 ? teams.map((t, i) => `Équipe ${i + 1}:\n${t.join('\n')}`).join('\n\n') : shuffledList.join('\n'));
+                handleDownload(text, 'resultat-tirage');
+              }}
+              className="text-xs font-bold text-indigo-600 bg-indigo-50 dark:bg-indigo-900/20 hover:bg-indigo-100 dark:hover:bg-indigo-900/30 px-3 py-1.5 rounded-xl flex items-center gap-1 transition-all focus-visible:ring-2 focus-visible:ring-indigo-500 focus-visible:outline-none"
+            >
+              <Download className="w-3 h-3" /> Télécharger
+            </button>
+          )}
           <button
             onClick={() => {setList(''); setShuffledList([]); setWinner(null); setTeams([]);}}
             disabled={!list && shuffledList.length === 0 && !winner && teams.length === 0}
-            className="text-xs font-bold text-rose-500 bg-rose-50 dark:bg-rose-500/10 hover:bg-rose-100 dark:hover:bg-rose-500/20 px-3 py-1.5 rounded-xl flex items-center gap-1 transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+            className="text-xs font-bold text-rose-500 bg-rose-50 dark:bg-rose-500/10 hover:bg-rose-100 dark:hover:bg-rose-500/20 px-3 py-1.5 rounded-xl flex items-center gap-1 transition-all disabled:opacity-50 disabled:cursor-not-allowed focus-visible:ring-2 focus-visible:ring-indigo-500 focus-visible:outline-none"
           >
             <Trash2 className="w-3 h-3" /> Effacer
           </button>

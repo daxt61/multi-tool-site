@@ -1,5 +1,5 @@
 import { useState, useMemo, useEffect } from 'react';
-import { Calendar, Clock, Heart, Baby, Gift, Info, Star, Trash2, Copy, Check } from 'lucide-react';
+import { Calendar, Clock, Heart, Baby, Gift, Info, Star, Trash2, Copy, Check, Download } from 'lucide-react';
 
 export function AgeCalculator() {
   const [birthDate, setBirthDate] = useState<string>('1990-01-01');
@@ -92,6 +92,29 @@ export function AgeCalculator() {
     setTimeout(() => setCopied(false), 2000);
   };
 
+  const handleDownload = () => {
+    if (!ageData) return;
+    const content = `Rapport d'âge :
+- Date de naissance : ${birthDate}
+- Âge actuel : ${ageData.years} ans, ${ageData.months} mois, ${ageData.days} jours
+- Signe : ${ageData.zodiac.name} ${ageData.zodiac.icon}
+- Prochain anniversaire dans : ${ageData.daysToNextBirthday}j ${ageData.hoursToNextBirthday}h ${ageData.minsToNextBirthday}m
+
+Statistiques de vie :
+- Total mois : ${ageData.totalMonths.toLocaleString()}
+- Total semaines : ${ageData.totalWeeks.toLocaleString()}
+- Total jours : ${ageData.totalDays.toLocaleString()}
+- Total heures : ${ageData.totalHours.toLocaleString()}`;
+
+    const blob = new Blob([content], { type: 'text/plain' });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    link.href = url;
+    link.download = `rapport-age-${Date.now()}.txt`;
+    link.click();
+    URL.revokeObjectURL(url);
+  };
+
   return (
     <div className="max-w-5xl mx-auto space-y-12">
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
@@ -102,13 +125,22 @@ export function AgeCalculator() {
               <label htmlFor="birth-date" className="text-xs font-black uppercase tracking-widest text-slate-400 flex items-center gap-2 cursor-pointer">
                 <Baby className="w-4 h-4" /> Date de naissance
               </label>
-              <button
-                onClick={() => setBirthDate('')}
-                disabled={!birthDate}
-                className="text-xs font-bold text-rose-500 bg-rose-50 dark:bg-rose-500/10 hover:bg-rose-100 dark:hover:bg-rose-500/20 px-3 py-1.5 rounded-xl flex items-center gap-1 transition-all disabled:opacity-50 disabled:cursor-not-allowed"
-              >
-                <Trash2 className="w-3 h-3" /> Effacer
-              </button>
+              <div className="flex gap-2">
+                <button
+                  onClick={handleDownload}
+                  disabled={!ageData}
+                  className="text-xs font-bold text-indigo-600 bg-indigo-50 dark:bg-indigo-900/20 hover:bg-indigo-100 dark:hover:bg-indigo-900/30 px-3 py-1.5 rounded-xl flex items-center gap-1 transition-all disabled:opacity-50 disabled:cursor-not-allowed focus-visible:ring-2 focus-visible:ring-indigo-500 focus-visible:outline-none"
+                >
+                  <Download className="w-3 h-3" /> Télécharger
+                </button>
+                <button
+                  onClick={() => setBirthDate('')}
+                  disabled={!birthDate}
+                  className="text-xs font-bold text-rose-500 bg-rose-50 dark:bg-rose-500/10 hover:bg-rose-100 dark:hover:bg-rose-500/20 px-3 py-1.5 rounded-xl flex items-center gap-1 transition-all disabled:opacity-50 disabled:cursor-not-allowed focus-visible:ring-2 focus-visible:ring-rose-500 focus-visible:outline-none"
+                >
+                  <Trash2 className="w-3 h-3" /> Effacer
+                </button>
+              </div>
             </div>
             <input
               id="birth-date"

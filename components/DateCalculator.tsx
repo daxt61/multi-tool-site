@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Calendar, History, Info, Trash2, Copy, Check } from 'lucide-react';
+import { Calendar, History, Info, Trash2, Copy, Check, Download } from 'lucide-react';
 
 export function DateCalculator() {
   const today = new Date().toISOString().split('T')[0];
@@ -17,7 +17,7 @@ export function DateCalculator() {
 
     // Total days
     const diffTime = Math.abs(d2.getTime() - d1.getTime());
-    const totalDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+    const totalDays = Math.round(diffTime / (1000 * 60 * 60 * 24));
 
     // Breakdown
     const start = d1 < d2 ? d1 : d2;
@@ -87,6 +87,39 @@ export function DateCalculator() {
     setTimeout(() => setCopiedDate(false), 2000);
   };
 
+  const handleDownloadDiff = () => {
+    const content = `Différence entre deux dates :
+- Date de début : ${date1}
+- Date de fin : ${date2}
+- Résultat : ${diff.years} ans, ${diff.months} mois, ${diff.days} jours
+- Total jours : ${diff.totalDays}
+- Jours ouvrés (Lun-Ven) : ${diff.workingDays}`;
+
+    const blob = new Blob([content], { type: 'text/plain' });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    link.href = url;
+    link.download = `difference-dates-${Date.now()}.txt`;
+    link.click();
+    URL.revokeObjectURL(url);
+  };
+
+  const handleDownloadAdd = () => {
+    if (!newDate) return;
+    const content = `Calcul de date :
+- Date de départ : ${date1}
+- Jours ajoutés/retirés : ${daysToAdd}
+- Nouvelle date : ${newDate} (${getDayOfWeek(newDate)})`;
+
+    const blob = new Blob([content], { type: 'text/plain' });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    link.href = url;
+    link.download = `calcul-date-${Date.now()}.txt`;
+    link.click();
+    URL.revokeObjectURL(url);
+  };
+
   return (
     <div className="max-w-4xl mx-auto space-y-8">
       {/* Date Difference Calculator */}
@@ -96,12 +129,21 @@ export function DateCalculator() {
             <History className="w-4 h-4" />
             <label className="text-xs font-black uppercase tracking-widest text-slate-400">Différence entre deux dates</label>
           </div>
-          <button
-            onClick={() => {setDate1(today); setDate2(today);}}
-            className="text-xs font-bold text-rose-500 bg-rose-50 dark:bg-rose-500/10 hover:bg-rose-100 dark:hover:bg-rose-500/20 px-3 py-1.5 rounded-xl flex items-center gap-1 transition-all"
-          >
-            <Trash2 className="w-3 h-3" /> Effacer
-          </button>
+          <div className="flex gap-2">
+            <button
+              onClick={handleDownloadDiff}
+              className="text-xs font-bold text-indigo-600 bg-indigo-50 dark:bg-indigo-900/20 hover:bg-indigo-100 dark:hover:bg-indigo-900/30 px-3 py-1.5 rounded-xl flex items-center gap-1 transition-all focus-visible:ring-2 focus-visible:ring-indigo-500 focus-visible:outline-none"
+            >
+              <Download className="w-3 h-3" /> Télécharger
+            </button>
+            <button
+              onClick={() => {setDate1(today); setDate2(today);}}
+              disabled={date1 === today && date2 === today}
+              className="text-xs font-bold text-rose-500 bg-rose-50 dark:bg-rose-500/10 hover:bg-rose-100 dark:hover:bg-rose-500/20 px-3 py-1.5 rounded-xl flex items-center gap-1 transition-all disabled:opacity-50 disabled:cursor-not-allowed focus-visible:ring-2 focus-visible:ring-rose-500 focus-visible:outline-none"
+            >
+              <Trash2 className="w-3 h-3" /> Effacer
+            </button>
+          </div>
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -177,12 +219,22 @@ export function DateCalculator() {
             <Calendar className="w-4 h-4" />
             <label className="text-xs font-black uppercase tracking-widest text-slate-400">Ajouter ou soustraire du temps</label>
           </div>
-          <button
-            onClick={() => {setDaysToAdd('30');}}
-            className="text-xs font-bold text-rose-500 bg-rose-50 dark:bg-rose-500/10 hover:bg-rose-100 dark:hover:bg-rose-500/20 px-3 py-1.5 rounded-xl flex items-center gap-1 transition-all"
-          >
-            <Trash2 className="w-3 h-3" /> Effacer
-          </button>
+          <div className="flex gap-2">
+            <button
+              onClick={handleDownloadAdd}
+              disabled={!newDate}
+              className="text-xs font-bold text-indigo-600 bg-indigo-50 dark:bg-indigo-900/20 hover:bg-indigo-100 dark:hover:bg-indigo-900/30 px-3 py-1.5 rounded-xl flex items-center gap-1 transition-all disabled:opacity-50 disabled:cursor-not-allowed focus-visible:ring-2 focus-visible:ring-indigo-500 focus-visible:outline-none"
+            >
+              <Download className="w-3 h-3" /> Télécharger
+            </button>
+            <button
+              onClick={() => {setDaysToAdd('30');}}
+              disabled={daysToAdd === '30'}
+              className="text-xs font-bold text-rose-500 bg-rose-50 dark:bg-rose-500/10 hover:bg-rose-100 dark:hover:bg-rose-500/20 px-3 py-1.5 rounded-xl flex items-center gap-1 transition-all disabled:opacity-50 disabled:cursor-not-allowed focus-visible:ring-2 focus-visible:ring-rose-500 focus-visible:outline-none"
+            >
+              <Trash2 className="w-3 h-3" /> Effacer
+            </button>
+          </div>
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">

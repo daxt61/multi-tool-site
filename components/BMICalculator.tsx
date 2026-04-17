@@ -1,7 +1,5 @@
-import { useState, useMemo } from 'react';
-import { Activity, Info, Copy, Check, Trash2, HelpCircle, BookOpen, ChevronRight, Scale } from 'lucide-react';
-
-import { useEffect } from 'react';
+import { useState, useMemo, useEffect } from 'react';
+import { Activity, Info, Copy, Check, Trash2, HelpCircle, BookOpen, ChevronRight, Scale, Download } from 'lucide-react';
 
 export function BMICalculator({ initialData, onStateChange }: { initialData?: any; onStateChange?: (state: any) => void }) {
   const [weight, setWeight] = useState(initialData?.weight || '70');
@@ -91,6 +89,24 @@ export function BMICalculator({ initialData, onStateChange }: { initialData?: an
     setTimeout(() => setCopiedIdeal(false), 2000);
   };
 
+  const handleDownload = () => {
+    if (bmi === 0) return;
+    const content = `Rapport IMC :
+- Poids : ${weight} ${unit === 'metric' ? 'kg' : 'lb'}
+- Taille : ${height} ${unit === 'metric' ? 'cm' : 'in'}
+- IMC : ${bmi.toFixed(1)}
+- Catégorie : ${category.label}
+${idealWeightRange ? `- Poids idéal estimé : ${idealWeightRange.low.toFixed(1)} - ${idealWeightRange.high.toFixed(1)} ${idealWeightRange.unit}` : ''}`;
+
+    const blob = new Blob([content], { type: 'text/plain' });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    link.href = url;
+    link.download = `rapport-imc-${Date.now()}.txt`;
+    link.click();
+    URL.revokeObjectURL(url);
+  };
+
   const handleClear = () => {
     setWeight('');
     setHeight('');
@@ -115,13 +131,22 @@ export function BMICalculator({ initialData, onStateChange }: { initialData?: an
                 Impérial
               </button>
             </div>
-            <button
-              onClick={handleClear}
-              disabled={!weight && !height}
-              className="text-xs font-bold text-rose-500 bg-rose-50 dark:bg-rose-500/10 hover:bg-rose-100 dark:hover:bg-rose-500/20 px-3 py-1.5 rounded-xl flex items-center gap-1 transition-all disabled:opacity-50 disabled:cursor-not-allowed"
-            >
-              <Trash2 className="w-3 h-3" /> Effacer
-            </button>
+            <div className="flex gap-2">
+              <button
+                onClick={handleDownload}
+                disabled={bmi === 0}
+                className="text-xs font-bold text-indigo-600 bg-indigo-50 dark:bg-indigo-500/10 hover:bg-indigo-100 dark:hover:bg-indigo-500/20 px-3 py-1.5 rounded-xl flex items-center gap-1 transition-all disabled:opacity-50 disabled:cursor-not-allowed focus-visible:ring-2 focus-visible:ring-indigo-500 focus-visible:outline-none"
+              >
+                <Download className="w-3 h-3" /> Télécharger
+              </button>
+              <button
+                onClick={handleClear}
+                disabled={!weight && !height}
+                className="text-xs font-bold text-rose-500 bg-rose-50 dark:bg-rose-500/10 hover:bg-rose-100 dark:hover:bg-rose-500/20 px-3 py-1.5 rounded-xl flex items-center gap-1 transition-all disabled:opacity-50 disabled:cursor-not-allowed focus-visible:ring-2 focus-visible:ring-rose-500 focus-visible:outline-none"
+              >
+                <Trash2 className="w-3 h-3" /> Effacer
+              </button>
+            </div>
           </div>
 
           <div className="space-y-6">

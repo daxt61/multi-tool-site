@@ -43,7 +43,7 @@ export function TipCalculator({ initialData, onStateChange }: { initialData?: an
             <button
               onClick={handleClear}
               disabled={!billAmount && tipPercent === 15 && numberOfPeople === "1"}
-              className="text-xs font-bold text-rose-500 bg-rose-50 dark:bg-rose-500/10 hover:bg-rose-100 dark:hover:bg-rose-500/20 px-3 py-1.5 rounded-xl flex items-center gap-1 transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+              className="text-xs font-bold text-rose-500 bg-rose-50 dark:bg-rose-500/10 hover:bg-rose-100 dark:hover:bg-rose-500/20 px-3 py-1.5 rounded-xl flex items-center gap-1 transition-all disabled:opacity-50 disabled:cursor-not-allowed focus-visible:ring-2 focus-visible:ring-rose-500 focus-visible:outline-none"
               aria-label="Effacer tout"
             >
               <Trash2 className="w-3 h-3" /> Effacer
@@ -73,7 +73,8 @@ export function TipCalculator({ initialData, onStateChange }: { initialData?: an
                   <button
                     key={percent}
                     onClick={() => setTipPercent(percent)}
-                    className={`py-3 rounded-xl font-bold text-sm transition-all border ${
+                    aria-pressed={tipPercent === percent}
+                    className={`py-3 rounded-xl font-bold text-sm transition-all border focus-visible:ring-2 focus-visible:ring-indigo-500 focus-visible:outline-none ${
                       tipPercent === percent
                         ? "bg-indigo-600 text-white border-indigo-600 shadow-lg shadow-indigo-600/20"
                         : "bg-white dark:bg-slate-800 text-slate-500 border-slate-200 dark:border-slate-700 hover:border-slate-300"
@@ -90,7 +91,7 @@ export function TipCalculator({ initialData, onStateChange }: { initialData?: an
                 max="50"
                 value={tipPercent}
                 onChange={(e) => setTipPercent(Number(e.target.value))}
-                className="w-full h-2 bg-slate-100 dark:bg-slate-800 rounded-lg appearance-none cursor-pointer accent-indigo-600 mt-4"
+                className="w-full h-2 bg-slate-100 dark:bg-slate-800 rounded-lg appearance-none cursor-pointer accent-indigo-600 mt-4 focus-visible:ring-2 focus-visible:ring-indigo-500 focus-visible:outline-none"
               />
           </div>
 
@@ -101,7 +102,7 @@ export function TipCalculator({ initialData, onStateChange }: { initialData?: an
             <div className="flex items-center gap-4">
               <button
                 onClick={() => setNumberOfPeople(String(Math.max(1, people - 1)))}
-                className="w-14 h-14 bg-slate-100 dark:bg-slate-800 rounded-2xl flex items-center justify-center text-2xl font-black hover:bg-slate-200 dark:hover:bg-slate-700 transition-colors"
+                className="w-14 h-14 bg-slate-100 dark:bg-slate-800 rounded-2xl flex items-center justify-center text-2xl font-black hover:bg-slate-200 dark:hover:bg-slate-700 transition-colors focus-visible:ring-2 focus-visible:ring-indigo-500 focus-visible:outline-none"
                 aria-label="Diminuer le nombre de personnes"
               >
                 -
@@ -116,7 +117,7 @@ export function TipCalculator({ initialData, onStateChange }: { initialData?: an
               />
               <button
                 onClick={() => setNumberOfPeople(String(people + 1))}
-                className="w-14 h-14 bg-slate-100 dark:bg-slate-800 rounded-2xl flex items-center justify-center text-2xl font-black hover:bg-slate-200 dark:hover:bg-slate-700 transition-colors"
+                className="w-14 h-14 bg-slate-100 dark:bg-slate-800 rounded-2xl flex items-center justify-center text-2xl font-black hover:bg-slate-200 dark:hover:bg-slate-700 transition-colors focus-visible:ring-2 focus-visible:ring-indigo-500 focus-visible:outline-none"
                 aria-label="Augmenter le nombre de personnes"
               >
                 +
@@ -129,10 +130,10 @@ export function TipCalculator({ initialData, onStateChange }: { initialData?: an
           <div className="bg-slate-900 dark:bg-black p-10 rounded-[2.5rem] shadow-xl shadow-indigo-500/10 space-y-8 relative group">
             <button
               onClick={handleCopy}
-              className={`absolute top-6 right-6 p-3 rounded-2xl transition-all border ${
+              className={`absolute top-6 right-6 p-3 rounded-2xl transition-all border focus-visible:ring-2 focus-visible:ring-indigo-500 focus-visible:outline-none z-20 ${
                 copied
                   ? "bg-emerald-50 dark:bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border-emerald-200 dark:border-emerald-500/20"
-                  : "bg-white/10 text-white/40 border-transparent hover:text-white hover:bg-white/20 md:opacity-0 md:group-hover:opacity-100"
+                  : "bg-white/10 text-white/40 border-transparent hover:text-white hover:bg-white/20 md:opacity-0 md:group-hover:opacity-100 md:focus-visible:opacity-100"
               }`}
               title="Copier le résumé"
               aria-label="Copier le résumé"

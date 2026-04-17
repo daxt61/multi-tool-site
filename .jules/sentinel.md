@@ -66,3 +66,8 @@
 **Vulnerability:** The MorseCodeConverter component was vulnerable to Prototype Pollution by using a plain object literal for reverse mapping of Morse codes to characters. User-provided strings like "toString" could collide with object prototype properties during decoding.
 **Learning:** Any mapping of user-controlled keys to an object is a potential vector for Prototype Pollution or logic bypass if the object is initialized with the standard Object prototype. This is especially risky in decoders where user input is split and used as keys.
 **Prevention:** Always use `Object.create(null)` for objects that will store arbitrary user-controlled keys, and implement strict input length limits to prevent resource exhaustion attacks.
+
+## 2026-04-17 - [DoS via Large Input in SQL Formatter]
+**Vulnerability:** The SQLFormatter component was vulnerable to client-side Denial of Service (DoS) by attempting to format excessively large SQL strings, which could hang the browser's UI thread.
+**Learning:** Even well-established formatting libraries can become an attack vector for resource exhaustion if they are not guarded by input length limits. In a client-side environment, protecting the main thread is critical for application availability.
+**Prevention:** Enforce a strict `MAX_LENGTH` limit (e.g., 100,000 characters) on any input that is passed to computationally expensive libraries or complex regular expressions. Provide immediate UI feedback when the limit is exceeded to guide the user.

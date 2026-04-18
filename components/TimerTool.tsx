@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef } from 'react';
-import { Play, Pause, RotateCcw, Timer, StopCircle, Flag, Bell, BellOff, Coffee, Brain, ChevronRight } from 'lucide-react';
+import { Play, Pause, RotateCcw, Timer, StopCircle, Flag, Bell, BellOff, Coffee, Brain, ChevronRight, Copy, Check } from 'lucide-react';
 
 type PomodoroState = 'work' | 'shortBreak' | 'longBreak';
 
@@ -14,6 +14,7 @@ export function TimerTool({ initialData, onStateChange }: { initialData?: any; o
   const [stopwatchTime, setStopwatchTime] = useState(0);
   const [stopwatchRunning, setStopwatchRunning] = useState(false);
   const [laps, setLaps] = useState<number[]>([]);
+  const [lapsCopied, setLapsCopied] = useState(false);
 
   // Pomodoro state
   const [pomodoroState, setPomodoroState] = useState<PomodoroState>(initialData?.pomodoroState || 'work');
@@ -137,6 +138,7 @@ export function TimerTool({ initialData, onStateChange }: { initialData?: any; o
     setStopwatchRunning(false);
     setStopwatchTime(0);
     setLaps([]);
+    setLapsCopied(false);
   };
 
   const resetPomodoro = () => {
@@ -151,6 +153,14 @@ export function TimerTool({ initialData, onStateChange }: { initialData?: any; o
     const minutes = Math.floor((totalSeconds % 3600) / 60);
     const seconds = totalSeconds % 60;
     return `${hours > 0 ? hours.toString().padStart(2, '0') + ':' : ''}${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+  };
+
+  const copyLaps = () => {
+    if (laps.length === 0) return;
+    const text = laps.map((lap, i) => `Tour ${laps.length - i} : ${formatStopwatchTime(lap)}`).join('\n');
+    navigator.clipboard.writeText(text);
+    setLapsCopied(true);
+    setTimeout(() => setLapsCopied(false), 2000);
   };
 
   const formatStopwatchTime = (time: number) => {
@@ -339,7 +349,20 @@ export function TimerTool({ initialData, onStateChange }: { initialData?: any; o
 
           {laps.length > 0 && (
             <div className="max-w-md mx-auto space-y-3">
-              <h4 className="text-xs font-black uppercase tracking-widest text-slate-400 px-1">Tours</h4>
+              <div className="flex justify-between items-center px-1">
+                <h4 className="text-xs font-black uppercase tracking-widest text-slate-400">Tours</h4>
+                <button
+                  onClick={copyLaps}
+                  className={`text-[10px] font-black uppercase tracking-widest px-3 py-1 rounded-lg transition-all flex items-center gap-1.5 border ${
+                    lapsCopied
+                      ? 'bg-emerald-50 dark:bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border-emerald-200 dark:border-emerald-500/20'
+                      : 'text-indigo-600 dark:text-indigo-400 border-transparent hover:bg-indigo-50 dark:hover:bg-indigo-900/20'
+                  }`}
+                >
+                  {lapsCopied ? <Check className="w-3 h-3" /> : <Copy className="w-3 h-3" />}
+                  {lapsCopied ? 'Copié' : 'Copier les tours'}
+                </button>
+              </div>
               <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-3xl overflow-hidden divide-y divide-slate-100 dark:divide-slate-800">
                 {laps.map((lap, i) => (
                   <div key={i} className="flex justify-between items-center p-4">

@@ -1,11 +1,11 @@
 import { useState, useEffect } from 'react';
 import { History as HistoryIcon, Trash2, Delete, Calculator as CalcIcon, Copy, Check } from 'lucide-react';
 
-export function Calculator() {
-  const [display, setDisplay] = useState('0');
-  const [previousValue, setPreviousValue] = useState<number | null>(null);
-  const [operation, setOperation] = useState<string | null>(null);
-  const [newNumber, setNewNumber] = useState(true);
+export function Calculator({ initialData, onStateChange }: { initialData?: any; onStateChange?: (state: any) => void }) {
+  const [display, setDisplay] = useState(initialData?.display || '0');
+  const [previousValue, setPreviousValue] = useState<number | null>(initialData?.previousValue ?? null);
+  const [operation, setOperation] = useState<string | null>(initialData?.operation ?? null);
+  const [newNumber, setNewNumber] = useState(initialData?.newNumber ?? true);
   const [isScientific, setIsScientific] = useState(false);
   const [isRadians, setIsRadians] = useState(false);
   const [copied, setCopied] = useState(false);
@@ -30,6 +30,10 @@ export function Calculator() {
       return [];
     }
   });
+
+  useEffect(() => {
+    onStateChange?.({ display, previousValue, operation, newNumber });
+  }, [display, previousValue, operation, newNumber, onStateChange]);
 
   const [memory, setMemory] = useState<number>(() => {
     try {

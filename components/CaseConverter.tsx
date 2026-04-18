@@ -1,5 +1,5 @@
-import { useState, useEffect } from 'react';
-import { Copy, Check, Type, FileText, Trash2, AlertCircle } from 'lucide-react';
+import { useState, useEffect, useCallback } from 'react';
+import { Copy, Check, Type, FileText, Trash2, AlertCircle, Download } from 'lucide-react';
 
 const MAX_LENGTH = 100000;
 
@@ -27,8 +27,8 @@ export function CaseConverter({ initialData, onStateChange }: { initialData?: an
     'SCREAMING-KEBAB-CASE': (t: string) => t.toUpperCase().replace(/[\s_]+/g, '-'),
     'dot.case': (t: string) => t.toLowerCase().replace(/[\s_-]+/g, '.'),
     'path/case': (t: string) => t.toLowerCase().replace(/[\s_-]+/g, '/'),
-    'Title Case': (t: string) => t.toLowerCase().split(' ').map(w => w.charAt(0).toUpperCase() + w.slice(1)).join(' '),
-    'Sentence case': (t: string) => t.toLowerCase().replace(/(^\s*\w|[.!?]\s+\w)/g, s => s.toUpperCase()),
+    'Title Case': (t: string) => t.toLowerCase().replace(/(^\s*\p{L}|[^\p{L}]\p{L})/gu, s => s.toUpperCase()),
+    'Sentence case': (t: string) => t.toLowerCase().replace(/(^\s*\p{L}|[.!?]\s+\p{L})/gu, s => s.toUpperCase()),
     'UPPERCASE': (t: string) => t.toUpperCase(),
     'lowercase': (t: string) => t.toLowerCase(),
     'aLtErNaTiNg CaSe': (t: string) => t.split('').map((c, i) => i % 2 === 0 ? c.toLowerCase() : c.toUpperCase()).join(''),
@@ -55,6 +55,17 @@ export function CaseConverter({ initialData, onStateChange }: { initialData?: an
     setError(null);
   };
 
+  const handleDownload = useCallback(() => {
+    if (!text || error) return;
+    const blob = new Blob([text], { type: 'text/plain' });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    link.href = url;
+    link.download = `texte-converti-${Date.now()}.txt`;
+    link.click();
+    URL.revokeObjectURL(url);
+  }, [text, error]);
+
   return (
     <div className="max-w-5xl mx-auto space-y-8">
       {error && (
@@ -69,14 +80,23 @@ export function CaseConverter({ initialData, onStateChange }: { initialData?: an
           <label htmlFor="case-text" className="text-xs font-black uppercase tracking-widest text-slate-400 flex items-center gap-2">
             <Type className="w-4 h-4 text-indigo-500" /> Votre Texte
           </label>
-          <button
-            onClick={handleClear}
-            disabled={!text}
-            className="text-xs font-bold px-3 py-1 rounded-full text-rose-500 bg-rose-50 dark:bg-rose-500/10 hover:bg-rose-100 dark:hover:bg-rose-500/20 transition-all flex items-center gap-1 disabled:opacity-50 disabled:cursor-not-allowed"
-            aria-label="Effacer le texte"
-          >
-            <Trash2 className="w-3 h-3" /> Effacer
-          </button>
+          <div className="flex gap-2">
+            <button
+              onClick={handleDownload}
+              disabled={!text || !!error}
+              className="text-xs font-bold px-3 py-1 rounded-full text-indigo-600 bg-indigo-50 dark:bg-indigo-500/10 hover:bg-indigo-100 dark:hover:bg-indigo-500/20 transition-all flex items-center gap-1 disabled:opacity-50 disabled:cursor-not-allowed"
+            >
+              <Download className="w-3 h-3" /> Télécharger
+            </button>
+            <button
+              onClick={handleClear}
+              disabled={!text}
+              className="text-xs font-bold px-3 py-1 rounded-full text-rose-500 bg-rose-50 dark:bg-rose-500/10 hover:bg-rose-100 dark:hover:bg-rose-500/20 transition-all flex items-center gap-1 disabled:opacity-50 disabled:cursor-not-allowed"
+              aria-label="Effacer le texte"
+            >
+              <Trash2 className="w-3 h-3" /> Effacer
+            </button>
+          </div>
         </div>
         <textarea
           id="case-text"

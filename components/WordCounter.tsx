@@ -1,13 +1,18 @@
-import { useState, useMemo, useDeferredValue } from 'react';
+import { useState, useMemo, useDeferredValue, useEffect } from 'react';
 import { Copy, Check, Trash2, Hash, Type, FileText, AlignLeft, Clock, MessageSquare, BarChart3, Info, Star, AlertCircle } from 'lucide-react';
 
 const MAX_LENGTH = 100000;
 
-export function WordCounter() {
-  const [text, setText] = useState('');
+export function WordCounter({ initialData, onStateChange }: { initialData?: any; onStateChange?: (state: any) => void }) {
+  const [text, setText] = useState(initialData?.text || '');
   const [copied, setCopied] = useState(false);
   const [copiedStats, setCopiedStats] = useState(false);
+  const [copiedCharFreq, setCopiedCharFreq] = useState(false);
   const [error, setError] = useState<string | null>(null);
+
+  useEffect(() => {
+    onStateChange?.({ text });
+  }, [text, onStateChange]);
 
   // ⚡ Bolt Optimization: useDeferredValue for text analysis
   // This allows the input to remain responsive even with large texts by offloading the
@@ -28,7 +33,8 @@ export function WordCounter() {
         speakingTime: 0,
         ari: 0,
         ariGrade: 'N/A',
-        topWords: []
+        topWords: [],
+        charFreq: [] as [string, number][]
       };
     }
     const trimmed = deferredText.trim();
@@ -38,7 +44,7 @@ export function WordCounter() {
     // Sentinel: Use Object.create(null) to prevent Prototype Pollution
     // from user-provided words (e.g., "constructor", "toString").
     const wordFreq: Record<string, number> = Object.create(null);
-    words.forEach(w => {
+    words.forEach((w: string) => {
       const clean = w.toLowerCase().replace(/[.,/#!$%^&*;:{}=\-_`~()]/g, "");
       if (clean && clean.length > 1) {
         wordFreq[clean] = (wordFreq[clean] || 0) + 1;
@@ -49,7 +55,7 @@ export function WordCounter() {
       .sort((a, b) => b[1] - a[1])
       .slice(0, 10);
 
-    const sentenceCount = trimmed === '' ? 0 : deferredText.split(/[.!?]+(?:\s|$)/).filter(s => s.trim().length > 0).length;
+    const sentenceCount = trimmed === '' ? 0 : deferredText.split(/[.!?]+(?:\s|$)/).filter((s: string) => s.trim().length > 0).length;
     const charCount = deferredText.replace(/\s/g, '').length;
 
     // Automated Readability Index (ARI)
@@ -89,7 +95,7 @@ export function WordCounter() {
     };
 
     let totalSyllables = 0;
-    words.forEach(w => {
+    words.forEach((w: string) => {
       totalSyllables += countSyllables(w);
     });
 
@@ -110,6 +116,11 @@ export function WordCounter() {
       return "Très difficile";
     };
 
+    const charFreq = Object.entries(deferredText.replace(/\s/g, '').split('').reduce((acc: Record<string, number>, char: string) => {
+      acc[char] = (acc[char] || 0) + 1;
+      return acc;
+    }, Object.create(null))).sort((a: any, b: any) => b[1] - a[1]).slice(0, 10) as [string, number][];
+
     return {
       characters: deferredText.length,
       charactersNoSpaces: charCount,
@@ -122,7 +133,8 @@ export function WordCounter() {
       ariGrade: getAriGrade(ari),
       flesch: flesch.toFixed(1),
       fleschLevel: getFleschLevel(flesch),
-      topWords
+      topWords,
+      charFreq
     };
   }, [deferredText]);
 
@@ -143,6 +155,14 @@ export function WordCounter() {
     navigator.clipboard.writeText(text);
     setCopied(true);
     setTimeout(() => setCopied(false), 2000);
+  };
+
+  const handleCopyCharFreq = () => {
+    if (stats.charFreq.length === 0) return;
+    const report = `Fréquence des caractères :\n` + stats.charFreq.map(([char, count]) => `- ${char} : ${count} (${((count / stats.charactersNoSpaces) * 100).toFixed(1)}%)`).join('\n');
+    navigator.clipboard.writeText(report);
+    setCopiedCharFreq(true);
+    setTimeout(() => setCopiedCharFreq(false), 2000);
   };
 
   const handleCopyStats = () => {
@@ -259,13 +279,13 @@ export function WordCounter() {
           minuscules
         </button>
         <button
-          onClick={() => setText(text.replace(/\b\w+/g, w => w.charAt(0).toUpperCase() + w.slice(1).toLowerCase()))}
+          onClick={() => setText(text.replace(/\b\w+/g, (w: string) => w.charAt(0).toUpperCase() + w.slice(1).toLowerCase()))}
           className="px-6 py-3 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-sm font-bold hover:bg-slate-50 dark:hover:bg-slate-700 transition-all"
         >
           Capitaliser
         </button>
         <button
-          onClick={() => setText(text.toLowerCase().replace(/(^\w|[.!?]\s+\w)/gm, s => s.toUpperCase()))}
+          onClick={() => setText(text.toLowerCase().replace(/(^\w|[.!?]\s+\w)/gm, (s: string) => s.toUpperCase()))}
           className="px-6 py-3 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-sm font-bold hover:bg-slate-50 dark:hover:bg-slate-700 transition-all"
         >
           Mode phrase
@@ -273,27 +293,56 @@ export function WordCounter() {
       </div>
 
       {stats.topWords.length > 0 && (
-        <div className="pt-8 border-t border-slate-100 dark:border-slate-800">
-          <h3 className="text-xs font-black uppercase tracking-widest text-slate-400 mb-6 flex items-center gap-2">
-            <BarChart3 className="w-4 h-4" /> Mots les plus fréquents (Densité)
-          </h3>
-          <div className="flex flex-wrap gap-3">
-            {stats.topWords.map(([word, count]) => (
-              <div
-                key={word}
-                className="px-4 py-2 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl flex items-center gap-3 group transition-all hover:border-indigo-500/30"
-              >
-                <span className="font-bold text-slate-700 dark:text-slate-300">{word}</span>
-                <div className="flex items-center gap-1.5">
-                   <span className="px-2 py-0.5 bg-indigo-100 dark:bg-indigo-900/30 text-indigo-600 dark:text-indigo-400 text-[10px] font-black rounded-md group-hover:bg-indigo-600 group-hover:text-white transition-colors">
-                     {count}
-                   </span>
-                   <span className="text-[10px] font-bold text-slate-400">
-                     ({((count / stats.words) * 100).toFixed(1)}%)
-                   </span>
+        <div className="pt-8 border-t border-slate-100 dark:border-slate-800 grid grid-cols-1 md:grid-cols-2 gap-12">
+          <div className="space-y-6">
+            <h3 className="text-xs font-black uppercase tracking-widest text-slate-400 mb-6 flex items-center gap-2">
+              <BarChart3 className="w-4 h-4" /> Mots les plus fréquents (Densité)
+            </h3>
+            <div className="flex flex-wrap gap-3">
+              {stats.topWords.map(([word, count]) => (
+                <div
+                  key={word}
+                  className="px-4 py-2 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl flex items-center gap-3 group transition-all hover:border-indigo-500/30"
+                >
+                  <span className="font-bold text-slate-700 dark:text-slate-300">{word}</span>
+                  <div className="flex items-center gap-1.5">
+                    <span className="px-2 py-0.5 bg-indigo-100 dark:bg-indigo-900/30 text-indigo-600 dark:text-indigo-400 text-[10px] font-black rounded-md group-hover:bg-indigo-600 group-hover:text-white transition-colors">
+                      {count}
+                    </span>
+                    <span className="text-[10px] font-bold text-slate-400">
+                      ({((count as number / stats.words) * 100).toFixed(1)}%)
+                    </span>
+                  </div>
                 </div>
-              </div>
-            ))}
+              ))}
+            </div>
+          </div>
+
+          <div className="space-y-6">
+            <div className="flex justify-between items-center px-1">
+              <h3 className="text-xs font-black uppercase tracking-widest text-slate-400 flex items-center gap-2">
+                <Hash className="w-4 h-4" /> Fréquence des caractères
+              </h3>
+              <button
+                onClick={handleCopyCharFreq}
+                className={`text-[10px] font-black uppercase tracking-widest px-3 py-1 rounded-lg transition-all flex items-center gap-1.5 border ${
+                  copiedCharFreq
+                    ? 'bg-emerald-50 dark:bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border-emerald-200 dark:border-emerald-500/20'
+                    : 'text-indigo-600 dark:text-indigo-400 border-transparent hover:bg-indigo-50 dark:hover:bg-indigo-900/20'
+                }`}
+              >
+                {copiedCharFreq ? <Check className="w-3 h-3" /> : <Copy className="w-3 h-3" />}
+                {copiedCharFreq ? 'Copié' : 'Copier'}
+              </button>
+            </div>
+            <div className="grid grid-cols-2 sm:grid-cols-5 gap-2">
+              {stats.charFreq.map(([char, count]) => (
+                <div key={char} className="p-3 bg-white dark:bg-slate-900 border border-slate-100 dark:border-slate-800 rounded-xl flex flex-col items-center gap-1 group hover:border-indigo-500/30 transition-all">
+                  <span className="text-lg font-black dark:text-white">{char}</span>
+                  <span className="text-[10px] font-bold text-indigo-600 dark:text-indigo-400">{count} ({((count as number / stats.charactersNoSpaces) * 100).toFixed(1)}%)</span>
+                </div>
+              ))}
+            </div>
           </div>
         </div>
       )}

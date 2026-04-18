@@ -185,6 +185,8 @@ const ChartGenerator = lazy(() => import("./components/ChartGenerator").then(m =
 const NatoPhoneticTranslator = lazy(() => import("./components/NatoPhoneticTranslator").then(m => ({ default: m.NatoPhoneticTranslator })));
 const CreditCardValidator = lazy(() => import("./components/CreditCardValidator").then(m => ({ default: m.CreditCardValidator })));
 const BrailleTranslator = lazy(() => import("./components/BrailleTranslator").then(m => ({ default: m.BrailleTranslator })));
+const UrlParser = lazy(() => import("./components/UrlParser").then(m => ({ default: m.UrlParser })));
+const JsonXmlConverter = lazy(() => import("./components/JsonXmlConverter").then(m => ({ default: m.JsonXmlConverter })));
 
 // ⚡ Bolt Optimization: Pre-calculating tool map and search index for O(1) lookups and faster filtering
 const toolsMap: Record<string, Tool> = {};
@@ -809,6 +811,14 @@ const tools: Tool[] = [
     category: "dev",
   },
   {
+    id: "url-parser",
+    name: "Analyseur d'URL",
+    icon: Search,
+    description: "Décortiquer une URL (protocole, hôte, paramètres)",
+    Component: UrlParser,
+    category: "dev",
+  },
+  {
     id: "file-to-base64",
     name: "Fichier en Base64",
     icon: FileCode,
@@ -838,6 +848,14 @@ const tools: Tool[] = [
     icon: Binary,
     description: "Convertisseur bidirectionnel texte et binaire",
     Component: BinaryTextConverter,
+    category: "dev",
+  },
+  {
+    id: "json-xml",
+    name: "JSON <> XML",
+    icon: FileCode,
+    description: "Convertisseur bidirectionnel JSON et XML",
+    Component: JsonXmlConverter,
     category: "dev",
   },
   // Other Tools

@@ -1,15 +1,19 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import {
   Copy, Check, Trash2, Search, Replace, CaseSensitive,
   Type, AlignLeft, Hash, Clock, Sliders, Download
 } from 'lucide-react';
 
-export function TextFormatter() {
-  const [text, setText] = useState('');
+export function TextFormatter({ initialData, onStateChange }: { initialData?: any; onStateChange?: (state: any) => void }) {
+  const [text, setText] = useState(initialData?.text || '');
   const [copied, setCopied] = useState(false);
-  const [findText, setFindText] = useState('');
-  const [replaceText, setReplaceText] = useState('');
-  const [isCaseSensitive, setIsCaseSensitive] = useState(false);
+  const [findText, setFindText] = useState(initialData?.findText || '');
+  const [replaceText, setReplaceText] = useState(initialData?.replaceText || '');
+  const [isCaseSensitive, setIsCaseSensitive] = useState(initialData?.isCaseSensitive ?? false);
+
+  useEffect(() => {
+    onStateChange?.({ text, findText, replaceText, isCaseSensitive });
+  }, [text, findText, replaceText, isCaseSensitive, onStateChange]);
 
   const stats = {
     characters: text.length,
@@ -23,7 +27,7 @@ export function TextFormatter() {
     { name: 'minuscules', action: (t: string) => t.toLowerCase() },
     {
       name: 'Capitaliser Chaque Mot',
-      action: (t: string) => t.replace(/\b\p{L}/gu, (s) => s.toUpperCase())
+      action: (t: string) => t.toLowerCase().replace(/(^\s*\p{L}|[^\p{L}]\p{L})/gu, s => s.toUpperCase())
     },
     {
       name: 'Phrase',

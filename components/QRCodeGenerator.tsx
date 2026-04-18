@@ -1,12 +1,16 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Download, Trash2, QrCode, Info, Palette, ShieldCheck } from 'lucide-react';
 
-export function QRCodeGenerator() {
-  const [text, setText] = useState('');
-  const [size, setSize] = useState(256);
-  const [fgColor, setFgColor] = useState('#000000');
-  const [bgColor, setBgColor] = useState('#FFFFFF');
-  const [ecc, setEcc] = useState<'L' | 'M' | 'Q' | 'H'>('L');
+export function QRCodeGenerator({ initialData, onStateChange }: { initialData?: any; onStateChange?: (state: any) => void }) {
+  const [text, setText] = useState(initialData?.text || '');
+  const [size, setSize] = useState(initialData?.size ?? 256);
+  const [fgColor, setFgColor] = useState(initialData?.fgColor || '#000000');
+  const [bgColor, setBgColor] = useState(initialData?.bgColor || '#FFFFFF');
+  const [ecc, setEcc] = useState<'L' | 'M' | 'Q' | 'H'>(initialData?.ecc || 'L');
+
+  useEffect(() => {
+    onStateChange?.({ text, size, fgColor, bgColor, ecc });
+  }, [text, size, fgColor, bgColor, ecc, onStateChange]);
 
   // Clean hex colors for API (remove #)
   const cleanFg = fgColor.replace('#', '');

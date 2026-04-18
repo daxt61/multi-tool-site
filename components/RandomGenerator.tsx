@@ -23,6 +23,8 @@ export function RandomGenerator({ initialData, onStateChange }: { initialData?: 
   const [winner, setWinner] = useState<string | null>(null);
 
   const [copied, setCopied] = useState('');
+  const [diceResult, setDiceResult] = useState<{ value: number, type: number } | null>(null);
+  const [coinResult, setCoinResult] = useState<'pile' | 'face' | null>(null);
 
   // Secure random generator using crypto.getRandomValues with rejection sampling
   const getSecureRandom = (range: number): number => {
@@ -118,6 +120,16 @@ export function RandomGenerator({ initialData, onStateChange }: { initialData?: 
     setTeams(newTeams);
     setShuffledList([]);
     setWinner(null);
+  };
+
+  const rollDice = (sides: number) => {
+    const val = getSecureRandom(sides) + 1;
+    setDiceResult({ value: val, type: sides });
+  };
+
+  const flipCoin = () => {
+    const val = getSecureRandom(2);
+    setCoinResult(val === 0 ? 'pile' : 'face');
   };
 
   const copyToClipboard = (text: string, id: string) => {
@@ -297,6 +309,58 @@ export function RandomGenerator({ initialData, onStateChange }: { initialData?: 
           </div>
         </div>
       </section>
+
+      {/* Dice & Coin Section */}
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+         <section className="bg-white dark:bg-slate-900/40 p-8 rounded-[2.5rem] border border-slate-200 dark:border-slate-800 space-y-8 shadow-sm">
+            <div className="flex items-center gap-2 px-1">
+              <Shuffle className="w-4 h-4 text-indigo-500" />
+              <h3 className="text-xs font-black uppercase tracking-widest text-slate-400">Lancer de Dés</h3>
+            </div>
+            <div className="grid grid-cols-3 sm:grid-cols-6 gap-2">
+               {[4, 6, 8, 10, 12, 20].map(sides => (
+                 <button
+                   key={sides}
+                   onClick={() => rollDice(sides)}
+                   className="flex flex-col items-center justify-center p-3 bg-slate-50 dark:bg-slate-800 border border-slate-100 dark:border-slate-700 rounded-xl hover:border-indigo-500 transition-all group"
+                 >
+                   <span className="text-lg font-black dark:text-white group-hover:text-indigo-600">D{sides}</span>
+                 </button>
+               ))}
+            </div>
+            {diceResult && (
+               <div className="flex items-center justify-center p-8 bg-indigo-50 dark:bg-indigo-500/10 rounded-3xl border-2 border-indigo-200 dark:border-indigo-500/20 animate-in zoom-in-95">
+                  <div className="text-center space-y-2">
+                     <div className="text-5xl font-black text-indigo-600 dark:text-indigo-400 font-mono">{diceResult.value}</div>
+                     <div className="text-[10px] font-black uppercase tracking-widest text-slate-400">Résultat D{diceResult.type}</div>
+                  </div>
+               </div>
+            )}
+         </section>
+
+         <section className="bg-white dark:bg-slate-900/40 p-8 rounded-[2.5rem] border border-slate-200 dark:border-slate-800 space-y-8 shadow-sm">
+            <div className="flex items-center gap-2 px-1">
+              <Shuffle className="w-4 h-4 text-indigo-500" />
+              <h3 className="text-xs font-black uppercase tracking-widest text-slate-400">Pile ou Face</h3>
+            </div>
+            <div className="flex justify-center">
+               <button
+                 onClick={flipCoin}
+                 className="w-32 h-32 rounded-full bg-slate-900 dark:bg-white text-white dark:text-slate-900 font-black text-xl hover:scale-105 active:scale-95 transition-all shadow-xl shadow-slate-900/20 dark:shadow-white/10"
+               >
+                 LANCER
+               </button>
+            </div>
+            {coinResult && (
+               <div className="flex items-center justify-center p-8 bg-amber-50 dark:bg-amber-500/10 rounded-3xl border-2 border-amber-200 dark:border-amber-500/20 animate-in zoom-in-95">
+                  <div className="text-center space-y-2">
+                     <div className="text-4xl font-black text-amber-600 dark:text-amber-400 uppercase tracking-tight">{coinResult}</div>
+                     <div className="text-[10px] font-black uppercase tracking-widest text-slate-400">Résultat du tirage</div>
+                  </div>
+               </div>
+            )}
+         </section>
+      </div>
 
       {/* List Shuffle */}
       <section className="bg-slate-50 dark:bg-slate-900/50 p-8 rounded-[2.5rem] border border-slate-200 dark:border-slate-800 space-y-8">

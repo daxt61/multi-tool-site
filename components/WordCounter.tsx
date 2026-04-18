@@ -77,6 +77,39 @@ export function WordCounter() {
       return "Expert / Académique";
     };
 
+    // Flesch Reading Ease (French Formula)
+    // Score = 206.835 - (1.015 * ASL) - (84.6 * ASW)
+    const countSyllables = (word: string) => {
+      word = word.toLowerCase().replace(/[^a-zàâäéèêëîïôöùûüÿç]/g, '');
+      if (word.length <= 3) return 1;
+      word = word.replace(/(?:[^laeiouy]|ed|es|e)$/, '');
+      word = word.replace(/^y/, '');
+      const matched = word.match(/[aeiouyàâäéèêëîïôöùûüÿ]{1,2}/g);
+      return matched ? matched.length : 1;
+    };
+
+    let totalSyllables = 0;
+    words.forEach(w => {
+      totalSyllables += countSyllables(w);
+    });
+
+    let flesch = 0;
+    if (wordCount > 0 && sentenceCount > 0) {
+      const asl = wordCount / sentenceCount;
+      const asw = totalSyllables / wordCount;
+      flesch = 206.835 - (1.015 * asl) - (84.6 * asw);
+    }
+
+    const getFleschLevel = (score: number) => {
+      if (score >= 90) return "Très facile";
+      if (score >= 80) return "Facile";
+      if (score >= 70) return "Assez facile";
+      if (score >= 60) return "Standard";
+      if (score >= 50) return "Assez difficile";
+      if (score >= 30) return "Difficile";
+      return "Très difficile";
+    };
+
     return {
       characters: deferredText.length,
       charactersNoSpaces: charCount,
@@ -87,6 +120,8 @@ export function WordCounter() {
       speakingTime: wordCount / 130,
       ari: ari > 0 ? ari.toFixed(1) : 0,
       ariGrade: getAriGrade(ari),
+      flesch: flesch.toFixed(1),
+      fleschLevel: getFleschLevel(flesch),
       topWords
     };
   }, [deferredText]);
@@ -117,6 +152,7 @@ export function WordCounter() {
 - Lignes : ${stats.lines}
 - Phrases : ${stats.sentences}
 - Lisibilité (ARI) : ${stats.ari} (${stats.ariGrade})
+- Score Flesch : ${stats.flesch} (${stats.fleschLevel})
 - Temps de lecture : ~${stats.readingTime} min
 - Temps de parole : ~${stats.speakingTime} min`;
 
@@ -239,7 +275,7 @@ export function WordCounter() {
       {stats.topWords.length > 0 && (
         <div className="pt-8 border-t border-slate-100 dark:border-slate-800">
           <h3 className="text-xs font-black uppercase tracking-widest text-slate-400 mb-6 flex items-center gap-2">
-            <BarChart3 className="w-4 h-4" /> Mots les plus fréquents
+            <BarChart3 className="w-4 h-4" /> Mots les plus fréquents (Densité)
           </h3>
           <div className="flex flex-wrap gap-3">
             {stats.topWords.map(([word, count]) => (
@@ -248,14 +284,48 @@ export function WordCounter() {
                 className="px-4 py-2 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl flex items-center gap-3 group transition-all hover:border-indigo-500/30"
               >
                 <span className="font-bold text-slate-700 dark:text-slate-300">{word}</span>
-                <span className="px-2 py-0.5 bg-indigo-100 dark:bg-indigo-900/30 text-indigo-600 dark:text-indigo-400 text-[10px] font-black rounded-md group-hover:bg-indigo-600 group-hover:text-white transition-colors">
-                  {count}
-                </span>
+                <div className="flex items-center gap-1.5">
+                   <span className="px-2 py-0.5 bg-indigo-100 dark:bg-indigo-900/30 text-indigo-600 dark:text-indigo-400 text-[10px] font-black rounded-md group-hover:bg-indigo-600 group-hover:text-white transition-colors">
+                     {count}
+                   </span>
+                   <span className="text-[10px] font-bold text-slate-400">
+                     ({((count / stats.words) * 100).toFixed(1)}%)
+                   </span>
+                </div>
               </div>
             ))}
           </div>
         </div>
       )}
+
+      {/* Readability Score Display */}
+      <div className="bg-indigo-50 dark:bg-indigo-900/10 p-8 rounded-[2.5rem] border border-indigo-100 dark:border-indigo-900/20 grid grid-cols-1 md:grid-cols-2 gap-8">
+         <div className="space-y-4">
+            <h4 className="font-bold dark:text-white flex items-center gap-2">
+               <Star className="w-4 h-4 text-indigo-500" /> Score de lisibilité Flesch
+            </h4>
+            <div className="flex items-center gap-4">
+               <div className="text-4xl font-black text-indigo-600 dark:text-indigo-400 font-mono">
+                  {stats.flesch}
+               </div>
+               <div>
+                  <div className="text-sm font-bold dark:text-white">{stats.fleschLevel}</div>
+                  <div className="text-xs text-slate-500 dark:text-slate-400">Basé sur la formule adaptée au français</div>
+               </div>
+            </div>
+            <p className="text-xs text-slate-500 dark:text-slate-400 leading-relaxed">
+               Un score élevé (90-100) indique un texte très facile à lire, tandis qu'un score bas (0-30) correspond à un texte académique ou technique complexe.
+            </p>
+         </div>
+         <div className="space-y-4">
+            <h4 className="font-bold dark:text-white flex items-center gap-2">
+               <BarChart3 className="w-4 h-4 text-indigo-500" /> Densité de mots
+            </h4>
+            <p className="text-sm text-slate-500 dark:text-slate-400 leading-relaxed">
+               La densité de mots vous aide à identifier les termes répétitifs. C'est un indicateur clé pour l'optimisation SEO et la qualité rédactionnelle afin d'éviter les répétitions excessives.
+            </p>
+         </div>
+      </div>
 
       {/* Educational Content */}
       <div className="mt-16 grid grid-cols-1 md:grid-cols-3 gap-8 pt-16 border-t border-slate-100 dark:border-slate-800">

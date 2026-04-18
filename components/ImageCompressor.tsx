@@ -8,6 +8,7 @@ export function ImageCompressor() {
   const [originalSize, setOriginalSize] = useState(0);
   const [compressedSize, setCompressedSize] = useState(0);
   const [isCompressing, setIsCompressing] = useState(false);
+  const [isDragging, setIsDragging] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const imgRef = useRef<HTMLImageElement | null>(null);
 
@@ -40,9 +41,8 @@ export function ImageCompressor() {
     );
   }, [compressedImage]);
 
-  const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (!file) return;
+  const handleFile = useCallback((file: File) => {
+    if (!file || !file.type.startsWith('image/')) return;
 
     setOriginalSize(file.size);
 
@@ -57,6 +57,28 @@ export function ImageCompressor() {
       img.src = event.target?.result as string;
     };
     reader.readAsDataURL(file);
+  }, [compressImage, quality]);
+
+  const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) handleFile(file);
+  };
+
+  const handleDragOver = (e: React.DragEvent) => {
+    e.preventDefault();
+    setIsDragging(true);
+  };
+
+  const handleDragLeave = (e: React.DragEvent) => {
+    e.preventDefault();
+    setIsDragging(false);
+  };
+
+  const handleDrop = (e: React.DragEvent) => {
+    e.preventDefault();
+    setIsDragging(false);
+    const file = e.dataTransfer.files?.[0];
+    if (file) handleFile(file);
   };
 
   const handleQualityChange = (newQuality: number) => {
@@ -114,9 +136,20 @@ export function ImageCompressor() {
       {!originalImage ? (
         <div
           onClick={() => fileInputRef.current?.click()}
-          className="group relative flex flex-col items-center justify-center p-20 border-2 border-dashed border-slate-200 dark:border-slate-800 rounded-[3rem] bg-slate-50 dark:bg-slate-900/50 hover:border-indigo-500/50 hover:bg-indigo-50/10 transition-all cursor-pointer overflow-hidden"
+          onDragOver={handleDragOver}
+          onDragLeave={handleDragLeave}
+          onDrop={handleDrop}
+          className={`group relative flex flex-col items-center justify-center p-20 border-2 border-dashed rounded-[3rem] transition-all cursor-pointer overflow-hidden ${
+            isDragging
+              ? 'border-indigo-500 bg-indigo-50/20 dark:bg-indigo-500/10'
+              : 'border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-900/50 hover:border-indigo-500/50 hover:bg-indigo-50/10'
+          }`}
         >
-          <div className="w-20 h-20 bg-white dark:bg-slate-800 rounded-3xl flex items-center justify-center text-slate-400 group-hover:text-indigo-500 group-hover:scale-110 transition-all shadow-sm">
+          <div className={`w-20 h-20 rounded-3xl flex items-center justify-center transition-all shadow-sm ${
+            isDragging
+              ? 'bg-indigo-500 text-white scale-110'
+              : 'bg-white dark:bg-slate-800 text-slate-400 group-hover:text-indigo-500 group-hover:scale-110'
+          }`}>
             <Upload className="w-10 h-10" />
           </div>
           <p className="mt-8 text-2xl font-black tracking-tight dark:text-white text-center">
@@ -147,8 +180,9 @@ export function ImageCompressor() {
             <div className="flex gap-3">
               <button
                 onClick={handleClear}
-                className="p-4 text-rose-500 bg-rose-50 dark:bg-rose-500/10 rounded-2xl hover:bg-rose-100 transition-all"
+                className="p-4 text-rose-500 bg-rose-50 dark:bg-rose-500/10 rounded-2xl hover:bg-rose-100 transition-all focus-visible:ring-2 focus-visible:ring-rose-500 focus-visible:outline-none"
                 title="Effacer"
+                aria-label="Effacer le formulaire"
               >
                 <Trash2 className="w-6 h-6" />
               </button>

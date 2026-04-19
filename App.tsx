@@ -36,6 +36,7 @@ import {
   Columns,
   Monitor,
   Maximize,
+  GraduationCap,
   Activity,
   Signal,
   Info,
@@ -187,6 +188,9 @@ const CreditCardValidator = lazy(() => import("./components/CreditCardValidator"
 const BrailleTranslator = lazy(() => import("./components/BrailleTranslator").then(m => ({ default: m.BrailleTranslator })));
 const UrlParser = lazy(() => import("./components/UrlParser").then(m => ({ default: m.UrlParser })));
 const JsonXmlConverter = lazy(() => import("./components/JsonXmlConverter").then(m => ({ default: m.JsonXmlConverter })));
+const DPICalculator = lazy(() => import("./components/DPICalculator").then(m => ({ default: m.DPICalculator })));
+const GPAConverter = lazy(() => import("./components/GPAConverter").then(m => ({ default: m.GPAConverter })));
+const GradientGenerator = lazy(() => import("./components/GradientGenerator").then(m => ({ default: m.GradientGenerator })));
 
 // ⚡ Bolt Optimization: Pre-calculating tool map and search index for O(1) lookups and faster filtering
 const toolsMap: Record<string, Tool> = {};
@@ -359,6 +363,14 @@ const tools: Tool[] = [
     category: "calculators",
   },
   {
+    id: "gpa-converter",
+    name: "GPA",
+    icon: GraduationCap,
+    description: "Convertisseur de notes en GPA (4.0/5.0)",
+    Component: GPAConverter,
+    category: "calculators",
+  },
+  {
     id: "breakeven-calculator",
     name: "Seuil de Rentabilité",
     icon: Target,
@@ -486,6 +498,14 @@ const tools: Tool[] = [
     icon: Hash,
     description: "Binaire, Décimal, Hexadécimal",
     Component: NumberConverter,
+    category: "converters",
+  },
+  {
+    id: "dpi-calculator",
+    name: "DPI / PPI",
+    icon: Monitor,
+    description: "Calculer la densité de pixels d'un écran",
+    Component: DPICalculator,
     category: "converters",
   },
   {
@@ -720,6 +740,14 @@ const tools: Tool[] = [
     icon: Layers,
     description: "Générateur visuel d'ombres CSS",
     Component: BoxShadowGenerator,
+    category: "dev",
+  },
+  {
+    id: "gradient-generator",
+    name: "Dégradés CSS",
+    icon: Palette,
+    description: "Générateur visuel de dégradés CSS",
+    Component: GradientGenerator,
     category: "dev",
   },
   {

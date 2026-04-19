@@ -1,5 +1,5 @@
 import { useState, useCallback } from 'react';
-import { Copy, Check, Trash2, SortAsc, SortDesc, ListChecks, Type, FileDown, Scissors } from 'lucide-react';
+import { Copy, Check, Trash2, SortAsc, SortDesc, ListChecks, Type, FileDown, Scissors, RefreshCcw } from 'lucide-react';
 
 export function ListCleaner() {
   const [text, setText] = useState('');
@@ -53,6 +53,27 @@ export function ListCleaner() {
 
   const sortLength = () => {
     processList(lines => [...lines].sort((a, b) => a.length - b.length));
+  };
+
+  const shuffleList = () => {
+    processList(lines => {
+      const shuffled = [...lines];
+      for (let i = shuffled.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
+      }
+      return shuffled;
+    });
+  };
+
+  const limitList = () => {
+    const count = prompt("Combien d'éléments voulez-vous garder ?", "10");
+    if (count !== null) {
+      const n = parseInt(count);
+      if (!isNaN(n) && n > 0) {
+        processList(lines => lines.slice(0, n));
+      }
+    }
   };
 
   const itemCount = text.split('\n').filter(l => l.trim().length > 0).length;
@@ -117,6 +138,8 @@ export function ListCleaner() {
               { label: 'Supprimer les doublons', icon: ListChecks, action: removeDuplicates },
               { label: 'Supprimer les lignes vides', icon: Trash2, action: removeEmptyLines },
               { label: 'Tronquer les espaces', icon: Scissors, action: trimLines },
+              { label: 'Mélanger la liste', icon: RefreshCcw, action: shuffleList },
+              { label: 'Limiter à N éléments', icon: Scissors, action: limitList },
             ].map((btn) => (
               <button
                 key={btn.label}

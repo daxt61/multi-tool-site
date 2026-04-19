@@ -31,6 +31,7 @@ export function WordCounter({ initialData, onStateChange }: { initialData?: any;
         sentences: 0,
         readingTime: 0,
         speakingTime: 0,
+        writingTime: 0,
         ari: 0,
         ariGrade: 'N/A',
         topWords: [],
@@ -129,6 +130,7 @@ export function WordCounter({ initialData, onStateChange }: { initialData?: any;
       sentences: sentenceCount,
       readingTime: wordCount / 200,
       speakingTime: wordCount / 130,
+      writingTime: wordCount / 40,
       ari: ari > 0 ? ari.toFixed(1) : 0,
       ariGrade: getAriGrade(ari),
       flesch: flesch.toFixed(1),
@@ -256,6 +258,7 @@ export function WordCounter({ initialData, onStateChange }: { initialData?: any;
           { icon: <Star className="w-4 h-4" />, label: 'Lisibilité', value: stats.ariGrade },
           { icon: <Clock className="w-4 h-4" />, label: 'Lecture', value: formatTime(stats.readingTime) },
           { icon: <MessageSquare className="w-4 h-4" />, label: 'Parole', value: formatTime(stats.speakingTime) },
+          { icon: <FileText className="w-4 h-4" />, label: 'Écriture', value: formatTime(stats.writingTime) },
         ].map((stat) => (
           <div key={stat.label} className="p-6 bg-white dark:bg-slate-900 border border-slate-100 dark:border-slate-800 rounded-2xl space-y-2">
             <div className="text-indigo-500 dark:text-indigo-400">{stat.icon}</div>

@@ -1,11 +1,16 @@
 import { useState, useRef } from 'react';
-import { Upload, Image as ImageIcon, Copy, Check, Trash2, FileCode } from 'lucide-react';
+import { Upload, Image as ImageIcon, Copy, Check, Trash2, FileCode, AlertCircle } from 'lucide-react';
+
+// Sentinel: Enforce file size limit to mitigate client-side Denial of Service (DoS)
+// and prevent browser memory exhaustion or crashes.
+const MAX_SIZE = 5 * 1024 * 1024; // 5MB
 
 export function FileToBase64() {
   const [base64, setBase64] = useState('');
   const [isImage, setIsImage] = useState(false);
   const [hasFile, setHasFile] = useState(false);
   const [copied, setCopied] = useState(false);
+  const [error, setError] = useState<string | null>(null);
   const [fileInfo, setFileInfo] = useState<{ name: string; size: string; type: string } | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
@@ -17,6 +22,11 @@ export function FileToBase64() {
   };
 
   const processFile = (file: File) => {
+    if (file.size > MAX_SIZE) {
+      setError(`Le fichier est trop volumineux. La limite est de 5 Mo.`);
+      return;
+    }
+    setError(null);
     const reader = new FileReader();
     reader.onloadend = () => {
       const result = reader.result as string;
@@ -43,6 +53,7 @@ export function FileToBase64() {
     setIsImage(false);
     setHasFile(false);
     setFileInfo(null);
+    setError(null);
     if (fileInputRef.current) fileInputRef.current.value = '';
   };
 
@@ -60,6 +71,13 @@ export function FileToBase64() {
 
   return (
     <div className="max-w-5xl mx-auto space-y-8">
+      {error && (
+        <div className="bg-rose-50 dark:bg-rose-500/10 border border-rose-200 dark:border-rose-800 p-4 rounded-2xl flex items-center gap-3 text-rose-600 dark:text-rose-400 font-bold animate-in fade-in slide-in-from-top-2">
+          <AlertCircle className="w-5 h-5" />
+          {error}
+        </div>
+      )}
+
       {!hasFile ? (
         <div
           onDragOver={handleDragOver}

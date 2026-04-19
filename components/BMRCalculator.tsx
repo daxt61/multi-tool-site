@@ -94,7 +94,8 @@ export function BMRCalculator() {
                 <div className="grid grid-cols-2 gap-3">
                   <button
                     onClick={() => setGender('male')}
-                    className={`py-4 rounded-2xl font-bold text-sm transition-all border ${
+                    aria-pressed={gender === 'male'}
+                    className={`py-4 rounded-2xl font-bold text-sm transition-all border focus-visible:ring-2 focus-visible:ring-indigo-500 focus-visible:outline-none ${
                       gender === 'male'
                         ? 'bg-indigo-600 text-white border-indigo-600 shadow-lg shadow-indigo-600/20'
                         : 'bg-white dark:bg-slate-800 text-slate-500 border-slate-200 dark:border-slate-700 hover:border-slate-300'
@@ -104,7 +105,8 @@ export function BMRCalculator() {
                   </button>
                   <button
                     onClick={() => setGender('female')}
-                    className={`py-4 rounded-2xl font-bold text-sm transition-all border ${
+                    aria-pressed={gender === 'female'}
+                    className={`py-4 rounded-2xl font-bold text-sm transition-all border focus-visible:ring-2 focus-visible:ring-indigo-500 focus-visible:outline-none ${
                       gender === 'female'
                         ? 'bg-indigo-600 text-white border-indigo-600 shadow-lg shadow-indigo-600/20'
                         : 'bg-white dark:bg-slate-800 text-slate-500 border-slate-200 dark:border-slate-700 hover:border-slate-300'
@@ -166,7 +168,8 @@ export function BMRCalculator() {
                     <button
                       key={level}
                       onClick={() => setActivity(level)}
-                      className={`flex items-start gap-4 p-4 rounded-2xl border transition-all text-left ${
+                      aria-pressed={activity === level}
+                      className={`flex items-start gap-4 p-4 rounded-2xl border transition-all text-left focus-visible:ring-2 focus-visible:ring-indigo-500 focus-visible:outline-none ${
                         activity === level
                           ? 'bg-indigo-50 dark:bg-indigo-900/20 border-indigo-200 dark:border-indigo-800 shadow-sm'
                           : 'bg-white dark:bg-slate-800 border-slate-200 dark:border-slate-700 hover:border-slate-300'
@@ -199,11 +202,12 @@ export function BMRCalculator() {
             {results && (
               <button
                 onClick={() => handleCopy(results.tdee, 'tdee')}
-                className={`absolute top-6 right-6 p-3 rounded-2xl transition-all ${
+                className={`absolute top-6 right-6 p-3 rounded-2xl transition-all z-20 focus-visible:ring-2 focus-visible:ring-indigo-500 focus-visible:outline-none ${
                   copied === 'tdee'
                     ? 'bg-emerald-500 text-white'
-                    : 'bg-white/10 text-white/40 hover:text-white hover:bg-white/20 md:opacity-0 md:group-hover:opacity-100'
+                    : 'bg-white/10 text-white/40 hover:text-white hover:bg-white/20 md:opacity-0 md:group-hover:opacity-100 md:focus-visible:opacity-100'
                 }`}
+                aria-label="Copier le TDEE"
                 title="Copier le TDEE"
               >
                 {copied === 'tdee' ? <Check className="w-5 h-5" /> : <Copy className="w-5 h-5" />}
@@ -233,11 +237,12 @@ export function BMRCalculator() {
                     {results && (
                       <button
                         onClick={() => handleCopy(results.bmr, 'bmr')}
-                        className={`p-1.5 rounded-lg transition-all ${
+                        className={`p-1.5 rounded-lg transition-all focus-visible:ring-2 focus-visible:ring-indigo-500 focus-visible:outline-none ${
                           copied === 'bmr'
                             ? 'bg-emerald-50 dark:bg-emerald-500/10 text-emerald-600 dark:text-emerald-400'
-                            : 'text-slate-400 hover:text-indigo-500 hover:bg-indigo-50 dark:hover:bg-indigo-500/10 opacity-0 group-hover/bmr:opacity-100'
+                            : 'text-slate-400 hover:text-indigo-500 hover:bg-indigo-50 dark:hover:bg-indigo-500/10 opacity-0 focus-visible:opacity-100 group-hover/bmr:opacity-100'
                         }`}
+                        aria-label="Copier le BMR"
                       >
                         {copied === 'bmr' ? <Check className="w-3.5 h-3.5" /> : <Copy className="w-3.5 h-3.5" />}
                       </button>
@@ -251,11 +256,12 @@ export function BMRCalculator() {
                     {results && (
                       <button
                         onClick={() => handleCopy(results.lose, 'lose')}
-                        className={`p-1.5 rounded-lg transition-all ${
+                        className={`p-1.5 rounded-lg transition-all focus-visible:ring-2 focus-visible:ring-rose-500 focus-visible:outline-none ${
                           copied === 'lose'
                             ? 'bg-emerald-50 dark:bg-emerald-500/10 text-emerald-600 dark:text-emerald-400'
-                            : 'text-rose-400 hover:text-rose-600 hover:bg-rose-50 dark:hover:bg-rose-500/10 opacity-0 group-hover/lose:opacity-100'
+                            : 'text-rose-400 hover:text-rose-600 hover:bg-rose-50 dark:hover:bg-rose-500/10 opacity-0 focus-visible:opacity-100 group-hover/lose:opacity-100'
                         }`}
+                        aria-label="Copier les calories pour la perte de poids"
                       >
                         {copied === 'lose' ? <Check className="w-3.5 h-3.5" /> : <Copy className="w-3.5 h-3.5" />}
                       </button>
@@ -269,11 +275,12 @@ export function BMRCalculator() {
                     {results && (
                       <button
                         onClick={() => handleCopy(results.gain, 'gain')}
-                        className={`p-1.5 rounded-lg transition-all ${
+                        className={`p-1.5 rounded-lg transition-all focus-visible:ring-2 focus-visible:ring-emerald-500 focus-visible:outline-none ${
                           copied === 'gain'
                             ? 'bg-emerald-50 dark:bg-emerald-500/10 text-emerald-600 dark:text-emerald-400'
-                            : 'text-emerald-400 hover:text-emerald-600 hover:bg-emerald-50 dark:hover:bg-emerald-500/10 opacity-0 group-hover/gain:opacity-100'
+                            : 'text-emerald-400 hover:text-emerald-600 hover:bg-emerald-50 dark:hover:bg-emerald-500/10 opacity-0 focus-visible:opacity-100 group-hover/gain:opacity-100'
                         }`}
+                        aria-label="Copier les calories pour la prise de masse"
                       >
                         {copied === 'gain' ? <Check className="w-3.5 h-3.5" /> : <Copy className="w-3.5 h-3.5" />}
                       </button>

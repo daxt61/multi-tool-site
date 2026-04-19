@@ -1,5 +1,5 @@
-import { useState, useMemo } from 'react';
-import { Plus, Trash2, Calculator, GraduationCap, Target, Info, Check, Copy, RotateCcw } from 'lucide-react';
+import { useState, useMemo, useEffect } from 'react';
+import { Plus, Trash2, Calculator, GraduationCap, Target, Info, Check, Copy, RotateCcw, Download } from 'lucide-react';
 
 interface GradeEntry {
   id: string;
@@ -7,13 +7,17 @@ interface GradeEntry {
   weight: string;
 }
 
-export function GradeCalculator() {
-  const [grades, setGrades] = useState<GradeEntry[]>([
+export function GradeCalculator({ initialData, onStateChange }: { initialData?: any; onStateChange?: (state: any) => void }) {
+  const [grades, setGrades] = useState<GradeEntry[]>(initialData?.grades || [
     { id: '1', grade: '', weight: '1' }
   ]);
-  const [targetAverage, setTargetAverage] = useState<string>('10');
-  const [finalWeight, setFinalWeight] = useState<string>('1');
+  const [targetAverage, setTargetAverage] = useState<string>(initialData?.targetAverage || '10');
+  const [finalWeight, setFinalWeight] = useState<string>(initialData?.finalWeight || '1');
   const [copied, setCopied] = useState(false);
+
+  useEffect(() => {
+    onStateChange?.({ grades, targetAverage, finalWeight });
+  }, [grades, targetAverage, finalWeight, onStateChange]);
 
   const stats = useMemo(() => {
     let totalWeightedGrade = 0;
@@ -79,6 +83,27 @@ export function GradeCalculator() {
     setFinalWeight('1');
   };
 
+  const handleDownload = () => {
+    const content = `Calculateur de Notes :
+Moyenne Actuelle : ${stats.currentAverage.toFixed(2)} / 20
+
+Notes :
+${grades.map((g, i) => `${i + 1}. Note: ${g.grade || '0'}/20, Coef: ${g.weight || '1'}`).join('\n')}
+
+Objectif :
+Moyenne visée : ${targetAverage}/20
+Coefficient du prochain examen : ${finalWeight}
+Note nécessaire : ${stats.needed !== null ? stats.needed.toFixed(2) : 'N/A'}`;
+
+    const blob = new Blob([content], { type: 'text/plain' });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    link.href = url;
+    link.download = `notes-${Date.now()}.txt`;
+    link.click();
+    URL.revokeObjectURL(url);
+  };
+
   return (
     <div className="max-w-5xl mx-auto space-y-12">
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
@@ -89,12 +114,21 @@ export function GradeCalculator() {
               <h3 className="text-xs font-black uppercase tracking-widest text-slate-400 flex items-center gap-2">
                 <GraduationCap className="w-4 h-4 text-indigo-500" /> Vos Notes
               </h3>
-              <button
-                onClick={handleReset}
-                className="text-xs font-bold text-rose-500 bg-rose-50 dark:bg-rose-500/10 hover:bg-rose-100 dark:hover:bg-rose-500/20 px-3 py-1.5 rounded-xl flex items-center gap-1 transition-all"
-              >
-                <RotateCcw className="w-3 h-3" /> Réinitialiser
-              </button>
+              <div className="flex gap-2">
+                <button
+                  onClick={handleDownload}
+                  disabled={stats.validGradesCount === 0}
+                  className="text-xs font-bold text-indigo-600 bg-indigo-50 dark:bg-indigo-500/10 hover:bg-indigo-100 dark:hover:bg-indigo-500/20 px-3 py-1.5 rounded-xl flex items-center gap-1 transition-all disabled:opacity-50 disabled:cursor-not-allowed focus-visible:ring-2 focus-visible:ring-indigo-500 focus-visible:outline-none"
+                >
+                  <Download className="w-3 h-3" /> Télécharger
+                </button>
+                <button
+                  onClick={handleReset}
+                  className="text-xs font-bold text-rose-500 bg-rose-50 dark:bg-rose-500/10 hover:bg-rose-100 dark:hover:bg-rose-500/20 px-3 py-1.5 rounded-xl flex items-center gap-1 transition-all focus-visible:ring-2 focus-visible:ring-rose-500 focus-visible:outline-none"
+                >
+                  <Trash2 className="w-3 h-3" /> Effacer
+                </button>
+              </div>
             </div>
 
             <div className="space-y-4">

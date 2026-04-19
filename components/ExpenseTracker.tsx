@@ -1,5 +1,5 @@
 import { useState, useEffect, useMemo } from "react";
-import { Trash2, Plus, Receipt, TrendingDown, PieChart, History, Calendar as CalendarIcon } from "lucide-react";
+import { Trash2, Plus, Receipt, TrendingDown, PieChart, History, Calendar as CalendarIcon, Download } from "lucide-react";
 
 interface Expense {
   id: string;
@@ -31,8 +31,9 @@ const CATEGORY_COLORS: Record<string, string> = {
   Autre: "bg-slate-500",
 };
 
-export function ExpenseTracker() {
+export function ExpenseTracker({ initialData, onStateChange }: { initialData?: any; onStateChange?: (state: any) => void }) {
   const [expenses, setExpenses] = useState<Expense[]>(() => {
+    if (initialData?.expenses) return initialData.expenses;
     try {
       // Sentinel: Securely parse localStorage data to prevent app crashes (Local DoS).
       const saved = localStorage.getItem("expenses");
@@ -62,7 +63,8 @@ export function ExpenseTracker() {
 
   useEffect(() => {
     localStorage.setItem("expenses", JSON.stringify(expenses));
-  }, [expenses]);
+    onStateChange?.({ expenses });
+  }, [expenses, onStateChange]);
 
   const addExpense = () => {
     if (description && amount) {
@@ -86,6 +88,33 @@ export function ExpenseTracker() {
     setExpenses(expenses.filter((e) => e.id !== id));
   };
 
+  const handleClear = () => {
+    if (window.confirm("Voulez-vous vraiment supprimer toutes les dépenses ?")) {
+      setExpenses([]);
+    }
+  };
+
+  const handleDownload = () => {
+    if (expenses.length === 0) return;
+    const headers = ["Description", "Montant", "Catégorie", "Date"];
+    const rows = expenses.map(e => [
+      e.description,
+      e.amount.toString(),
+      e.category,
+      e.date
+    ].map(val => `"${val.replace(/"/g, '""')}"`).join(","));
+
+    const csvContent = [headers.join(","), ...rows].join("\n");
+    const blob = new Blob([csvContent], { type: "text/csv;charset=utf-8;" });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement("a");
+    link.href = url;
+    link.setAttribute("download", `depenses-${new Date().toISOString().split('T')[0]}.csv`);
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+  };
+
   const { totalExpenses, expensesByCategory } = useMemo(() => {
     let total = 0;
     const totals: Record<string, number> = {};
@@ -107,6 +136,23 @@ export function ExpenseTracker() {
 
   return (
     <div className="max-w-6xl mx-auto space-y-8">
+      <div className="flex justify-end gap-2 px-1">
+        <button
+          onClick={handleDownload}
+          disabled={expenses.length === 0}
+          className="text-xs font-bold text-indigo-600 bg-indigo-50 dark:bg-indigo-500/10 hover:bg-indigo-100 dark:hover:bg-indigo-500/20 px-3 py-1.5 rounded-xl flex items-center gap-1 transition-all disabled:opacity-50 disabled:cursor-not-allowed focus-visible:ring-2 focus-visible:ring-indigo-500 focus-visible:outline-none"
+        >
+          <Download className="w-3 h-3" /> Télécharger CSV
+        </button>
+        <button
+          onClick={handleClear}
+          disabled={expenses.length === 0}
+          className="text-xs font-bold text-rose-500 bg-rose-50 dark:bg-rose-500/10 hover:bg-rose-100 dark:hover:bg-rose-500/20 px-3 py-1.5 rounded-xl flex items-center gap-1 transition-all disabled:opacity-50 disabled:cursor-not-allowed focus-visible:ring-2 focus-visible:ring-rose-500 focus-visible:outline-none"
+        >
+          <Trash2 className="w-3 h-3" /> Effacer tout
+        </button>
+      </div>
+
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
         {/* Input Form */}
         <div className="lg:col-span-5 space-y-6">

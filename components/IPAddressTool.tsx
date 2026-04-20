@@ -57,10 +57,10 @@ export function IPAddressTool() {
         {!loading && !error && (
           <button
             onClick={handleCopy}
-            className={`absolute top-6 right-6 p-3 rounded-2xl transition-all border focus-visible:ring-2 focus-visible:ring-white focus-visible:outline-none ${
+            className={`absolute top-6 right-6 p-3 rounded-2xl transition-all border z-20 focus-visible:ring-2 focus-visible:ring-white focus-visible:outline-none ${
               copied
                 ? 'bg-emerald-500 text-white border-emerald-400 shadow-lg shadow-emerald-500/20'
-                : 'bg-white/10 text-white/70 border-white/10 hover:bg-white/20 hover:text-white md:opacity-0 md:group-hover:opacity-100 md:group-focus-within:opacity-100'
+                : 'bg-white/10 text-white/70 border-white/10 hover:bg-white/20 hover:text-white md:opacity-0 md:group-hover:opacity-100 md:group-focus-within:opacity-100 md:focus-visible:opacity-100'
             }`}
             title="Copier l'adresse IP"
             aria-label="Copier l'adresse IP"

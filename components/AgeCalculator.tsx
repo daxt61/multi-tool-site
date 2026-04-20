@@ -194,10 +194,10 @@ Statistiques de vie :
              <button
                onClick={handleCopy}
                disabled={!ageData}
-               className={`absolute top-6 right-6 p-3 rounded-2xl transition-all ${
+               className={`absolute top-6 right-6 p-3 rounded-2xl transition-all z-20 focus-visible:ring-2 focus-visible:ring-indigo-500 focus-visible:outline-none ${
                  copied
                    ? 'bg-emerald-500 text-white'
-                   : 'bg-slate-100 dark:bg-slate-800 text-slate-400 hover:text-indigo-500 md:opacity-0 md:group-hover:opacity-100'
+                   : 'bg-slate-100 dark:bg-slate-800 text-slate-400 hover:text-indigo-500 md:opacity-0 md:group-hover:opacity-100 md:focus-visible:opacity-100'
                } disabled:opacity-0`}
                aria-label="Copier l'âge actuel"
              >

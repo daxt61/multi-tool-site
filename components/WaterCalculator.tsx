@@ -79,6 +79,7 @@ export function WaterCalculator() {
                     <button
                       key={level}
                       onClick={() => setActivity(level)}
+                      aria-pressed={activity === level}
                       className={`flex items-center gap-4 p-4 rounded-2xl border transition-all text-left ${
                         activity === level
                           ? 'bg-indigo-50 dark:bg-indigo-900/20 border-indigo-200 dark:border-indigo-800 shadow-sm'
@@ -112,12 +113,13 @@ export function WaterCalculator() {
             {waterNeeds > 0 && (
               <button
                 onClick={handleCopy}
-                className={`absolute top-6 right-6 p-3 rounded-2xl transition-all ${
+                className={`absolute top-6 right-6 p-3 rounded-2xl transition-all z-20 focus-visible:ring-2 focus-visible:ring-white focus-visible:outline-none ${
                   copied
                     ? 'bg-emerald-500 text-white'
-                    : 'bg-white/10 text-white/40 hover:text-white hover:bg-white/20 md:opacity-0 md:group-hover:opacity-100'
+                    : 'bg-white/10 text-white/40 hover:text-white hover:bg-white/20 md:opacity-0 md:group-hover:opacity-100 md:focus-visible:opacity-100'
                 }`}
                 title="Copier le résultat"
+                aria-label="Copier le résultat"
               >
                 {copied ? <Check className="w-5 h-5" /> : <Copy className="w-5 h-5" />}
               </button>

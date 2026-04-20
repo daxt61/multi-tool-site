@@ -99,6 +99,7 @@ export function QRCodeGenerator({ initialData, onStateChange }: { initialData?: 
                     <button
                       key={level}
                       onClick={() => setEcc(level)}
+                      aria-pressed={ecc === level}
                       className={`py-3 rounded-xl font-bold text-sm transition-all border ${
                         ecc === level
                           ? 'bg-indigo-600 text-white border-indigo-600 shadow-md shadow-indigo-600/10'

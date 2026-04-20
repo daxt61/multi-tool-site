@@ -268,6 +268,7 @@ export function UnitConverter({ initialData, onStateChange }: { initialData?: an
             <button
               key={cat.id}
               onClick={() => handleCategoryChange(cat.id as ConversionCategory)}
+              aria-pressed={category === cat.id}
               className={`px-5 py-2.5 rounded-xl font-bold text-sm transition-all border whitespace-nowrap ${
                 category === cat.id
                   ? 'bg-slate-900 text-white border-slate-900 dark:bg-white dark:text-slate-950 dark:border-white shadow-lg shadow-indigo-500/10'

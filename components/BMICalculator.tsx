@@ -120,12 +120,14 @@ ${idealWeightRange ? `- Poids idéal estimé : ${idealWeightRange.low.toFixed(1)
              <div className="flex bg-slate-100 dark:bg-slate-800 p-1 rounded-xl w-48">
               <button
                 onClick={() => setUnit('metric')}
+                aria-pressed={unit === 'metric'}
                 className={`flex-1 py-1.5 rounded-lg text-xs font-bold transition-all ${unit === 'metric' ? 'bg-white dark:bg-slate-700 text-indigo-600 shadow-sm' : 'text-slate-500'}`}
               >
                 Métrique
               </button>
               <button
                 onClick={() => setUnit('imperial')}
+                aria-pressed={unit === 'imperial'}
                 className={`flex-1 py-1.5 rounded-lg text-xs font-bold transition-all ${unit === 'imperial' ? 'bg-white dark:bg-slate-700 text-indigo-600 shadow-sm' : 'text-slate-500'}`}
               >
                 Impérial
@@ -218,12 +220,13 @@ ${idealWeightRange ? `- Poids idéal estimé : ${idealWeightRange.low.toFixed(1)
             <button
               onClick={handleCopy}
               disabled={bmi === 0}
-              className={`absolute top-6 right-6 p-3 rounded-2xl transition-all border ${
+              className={`absolute top-6 right-6 p-3 rounded-2xl transition-all border z-20 focus-visible:ring-2 focus-visible:ring-white focus-visible:outline-none ${
                 copied
                   ? "bg-emerald-50 dark:bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border-emerald-200 dark:border-emerald-500/20"
-                  : "bg-white/10 text-white/40 border-transparent hover:text-white hover:bg-white/20 md:opacity-0 md:group-hover:opacity-100"
+                  : "bg-white/10 text-white/40 border-transparent hover:text-white hover:bg-white/20 md:opacity-0 md:group-hover:opacity-100 md:focus-visible:opacity-100"
               } disabled:opacity-0`}
               title="Copier le résultat"
+              aria-label="Copier le résultat"
             >
               {copied ? <Check className="w-5 h-5" /> : <Copy className="w-5 h-5" />}
             </button>

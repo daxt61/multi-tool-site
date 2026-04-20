@@ -1,10 +1,15 @@
-import { useState } from "react";
-import { Info } from "lucide-react";
+import { useState, useEffect } from "react";
+import { Info, Trash2, Copy, Check, BadgeEuro } from "lucide-react";
 
-export function VATCalculator() {
-  const [amount, setAmount] = useState<string>("");
-  const [vatRate, setVatRate] = useState<string>("20");
-  const [mode, setMode] = useState<"ht-to-ttc" | "ttc-to-ht">("ht-to-ttc");
+export function VATCalculator({ initialData, onStateChange }: { initialData?: any; onStateChange?: (state: any) => void }) {
+  const [amount, setAmount] = useState<string>(initialData?.amount || "");
+  const [vatRate, setVatRate] = useState<string>(initialData?.vatRate || "20");
+  const [mode, setMode] = useState<"ht-to-ttc" | "ttc-to-ht">(initialData?.mode || "ht-to-ttc");
+  const [copied, setCopied] = useState(false);
+
+  useEffect(() => {
+    onStateChange?.({ amount, vatRate, mode });
+  }, [amount, vatRate, mode, onStateChange]);
 
   const amountValue = parseFloat(amount) || 0;
   const rateValue = parseFloat(vatRate) || 0;
@@ -28,6 +33,18 @@ export function VATCalculator() {
     { label: "2.1% (Super)", value: "2.1" },
   ];
 
+  const handleClear = () => {
+    setAmount("");
+  };
+
+  const handleCopy = () => {
+    if (!amount) return;
+    const text = `Montant HT: ${ht.toFixed(2)}€ | TVA (${vatRate}%): ${tva.toFixed(2)}€ | Montant TTC: ${ttc.toFixed(2)}€`;
+    navigator.clipboard.writeText(text);
+    setCopied(true);
+    setTimeout(() => setCopied(false), 2000);
+  };
+
   return (
     <div className="max-w-4xl mx-auto space-y-8">
       <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
@@ -35,12 +52,14 @@ export function VATCalculator() {
           <div className="flex bg-slate-100 dark:bg-slate-800 p-1 rounded-2xl">
             <button
               onClick={() => setMode("ht-to-ttc")}
+              aria-pressed={mode === "ht-to-ttc"}
               className={`flex-1 py-3 rounded-xl text-sm font-bold transition-all ${mode === "ht-to-ttc" ? "bg-white dark:bg-slate-700 text-indigo-600 shadow-sm" : "text-slate-500"}`}
             >
               HT → TTC
             </button>
             <button
               onClick={() => setMode("ttc-to-ht")}
+              aria-pressed={mode === "ttc-to-ht"}
               className={`flex-1 py-3 rounded-xl text-sm font-bold transition-all ${mode === "ttc-to-ht" ? "bg-white dark:bg-slate-700 text-indigo-600 shadow-sm" : "text-slate-500"}`}
             >
               TTC → HT
@@ -48,11 +67,21 @@ export function VATCalculator() {
           </div>
 
           <div className="space-y-3">
-            <label className="text-xs font-black uppercase tracking-widest text-slate-400 px-1">
-              Montant {mode === "ht-to-ttc" ? "HT" : "TTC"}
-            </label>
+            <div className="flex justify-between items-center px-1">
+              <label htmlFor="amount" className="text-xs font-black uppercase tracking-widest text-slate-400">
+                Montant {mode === "ht-to-ttc" ? "HT" : "TTC"}
+              </label>
+              <button
+                onClick={handleClear}
+                disabled={!amount}
+                className="text-xs font-bold text-rose-500 bg-rose-50 dark:bg-rose-500/10 hover:bg-rose-100 dark:hover:bg-rose-500/20 px-3 py-1.5 rounded-xl flex items-center gap-1 transition-all disabled:opacity-50 disabled:cursor-not-allowed focus-visible:ring-2 focus-visible:ring-rose-500 focus-visible:outline-none"
+              >
+                <Trash2 className="w-3 h-3" /> Effacer
+              </button>
+            </div>
             <div className="relative">
                <input
+                id="amount"
                 type="number"
                 value={amount}
                 onChange={(e) => setAmount(e.target.value)}
@@ -65,12 +94,13 @@ export function VATCalculator() {
           </div>
 
           <div className="space-y-3">
-             <label className="text-xs font-black uppercase tracking-widest text-slate-400 px-1">Taux de TVA</label>
+             <label htmlFor="vatRate" className="text-xs font-black uppercase tracking-widest text-slate-400 px-1">Taux de TVA</label>
              <div className="grid grid-cols-2 gap-2">
                 {commonRates.map((rate) => (
                   <button
                     key={rate.value}
                     onClick={() => setVatRate(rate.value)}
+                    aria-pressed={vatRate === rate.value}
                     className={`py-3 rounded-xl font-bold text-sm transition-all border ${
                       vatRate === rate.value
                         ? "bg-indigo-600 text-white border-indigo-600 shadow-lg shadow-indigo-600/20"
@@ -83,6 +113,7 @@ export function VATCalculator() {
              </div>
              <div className="relative mt-2">
                 <input
+                  id="vatRate"
                   type="number"
                   value={vatRate}
                   onChange={(e) => setVatRate(e.target.value)}
@@ -96,7 +127,20 @@ export function VATCalculator() {
         </div>
 
         <div className="space-y-6">
-          <div className="bg-slate-900 dark:bg-black p-10 rounded-[2.5rem] shadow-xl shadow-indigo-500/10 space-y-8">
+          <div className="bg-slate-900 dark:bg-black p-10 rounded-[2.5rem] shadow-xl shadow-indigo-500/10 space-y-8 relative group">
+             <button
+                onClick={handleCopy}
+                disabled={!amount}
+                className={`absolute top-6 right-6 p-3 rounded-2xl transition-all border z-20 focus-visible:ring-2 focus-visible:ring-white focus-visible:outline-none ${
+                  copied
+                    ? "bg-emerald-50 dark:bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border-emerald-200 dark:border-emerald-500/20"
+                    : "bg-white/10 text-white/40 border-transparent hover:text-white hover:bg-white/20 md:opacity-0 md:group-hover:opacity-100 md:focus-visible:opacity-100"
+                } disabled:opacity-0`}
+                title="Copier le résultat"
+              >
+                {copied ? <Check className="w-5 h-5" /> : <Copy className="w-5 h-5" />}
+              </button>
+
              <div className="text-center pb-4">
                 <div className="text-slate-400 font-bold uppercase tracking-widest text-xs mb-2">Montant TTC</div>
                 <div className="text-6xl font-black text-white font-mono tracking-tighter">

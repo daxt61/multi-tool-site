@@ -23,6 +23,7 @@ import {
   QrCode,
   Percent,
   FileType,
+  Fuel,
   DollarSign,
   Heart,
   Fingerprint,
@@ -132,6 +133,7 @@ const VATCalculator = lazy(() => import("./components/VATCalculator").then(m => 
 const TipCalculator = lazy(() => import("./components/TipCalculator").then(m => ({ default: m.TipCalculator })));
 const SalaryCalculator = lazy(() => import("./components/SalaryCalculator").then(m => ({ default: m.SalaryCalculator })));
 const ROICalculator = lazy(() => import("./components/ROICalculator").then(m => ({ default: m.ROICalculator })));
+const FuelCostCalculator = lazy(() => import("./components/FuelCostCalculator").then(m => ({ default: m.FuelCostCalculator })));
 const ExpenseTracker = lazy(() => import("./components/ExpenseTracker").then(m => ({ default: m.ExpenseTracker })));
 const BPMCounter = lazy(() => import("./components/BPMCounter").then(m => ({ default: m.BPMCounter })));
 const HashGenerator = lazy(() => import("./components/HashGenerator").then(m => ({ default: m.HashGenerator })));
@@ -257,6 +259,14 @@ const tools: Tool[] = [
     icon: LineChart,
     description: "Calcul du retour sur investissement",
     Component: ROICalculator,
+    category: "business",
+  },
+  {
+    id: "fuel-cost",
+    name: "Coût Trajet",
+    icon: Fuel,
+    description: "Calculer le coût en carburant d'un trajet",
+    Component: FuelCostCalculator,
     category: "business",
   },
   {

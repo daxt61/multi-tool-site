@@ -1,10 +1,13 @@
 import { useState, useEffect, useCallback } from 'react';
-import { Shield, Lock, Unlock, Copy, Check, Trash2, RefreshCw, Info, ArrowRight } from 'lucide-react';
+import { Shield, Lock, Unlock, Copy, Check, Trash2, RefreshCw, Info, ArrowRight, AlertCircle } from 'lucide-react';
+
+const MAX_LENGTH = 100000;
 
 export function CesarCipher({ initialData, onStateChange }: { initialData?: any; onStateChange?: (state: any) => void }) {
   const [text, setText] = useState(initialData?.text || '');
   const [shift, setShift] = useState(initialData?.shift ?? 3);
   const [isEncrypt, setIsEncrypt] = useState(initialData?.isEncrypt ?? true);
+  const [error, setError] = useState<string | null>(null);
   const [copied, setCopied] = useState(false);
 
   const processText = useCallback((str: string, s: number, encrypt: boolean) => {
@@ -16,13 +19,14 @@ export function CesarCipher({ initialData, onStateChange }: { initialData?: any;
     });
   }, []);
 
-  const result = processText(text, shift, isEncrypt);
+  const result = text.length <= MAX_LENGTH ? processText(text, shift, isEncrypt) : '';
 
   useEffect(() => {
     onStateChange?.({ text, shift, isEncrypt });
   }, [text, shift, isEncrypt, onStateChange]);
 
   const handleCopy = () => {
+    if (!result) return;
     navigator.clipboard.writeText(result);
     setCopied(true);
     setTimeout(() => setCopied(false), 2000);
@@ -30,10 +34,27 @@ export function CesarCipher({ initialData, onStateChange }: { initialData?: any;
 
   const handleClear = () => {
     setText('');
+    setError(null);
+  };
+
+  const handleTextChange = (val: string) => {
+    setText(val);
+    if (val.length > MAX_LENGTH) {
+      setError(`L'entrée est trop longue. Limite de ${MAX_LENGTH.toLocaleString()} caractères.`);
+    } else {
+      setError(null);
+    }
   };
 
   return (
     <div className="max-w-5xl mx-auto space-y-8">
+      {error && (
+        <div className="bg-rose-50 dark:bg-rose-500/10 border border-rose-200 dark:border-rose-800 p-4 rounded-2xl flex items-center gap-3 text-rose-600 dark:text-rose-400 font-bold animate-in fade-in slide-in-from-top-2">
+          <AlertCircle className="w-5 h-5" />
+          {error}
+        </div>
+      )}
+
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
         {/* Configuration */}
         <div className="space-y-6">
@@ -98,9 +119,9 @@ export function CesarCipher({ initialData, onStateChange }: { initialData?: any;
               <textarea
                 id="input-text"
                 value={text}
-                onChange={(e) => setText(e.target.value)}
+                onChange={(e) => handleTextChange(e.target.value)}
                 placeholder={isEncrypt ? "Entrez le texte à chiffrer..." : "Entrez le texte à déchiffrer..."}
-                className="w-full h-48 p-6 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-3xl outline-none focus:ring-2 focus:ring-indigo-500/20 transition-all text-lg leading-relaxed dark:text-slate-300 resize-none font-medium"
+                className={`w-full h-48 p-6 bg-white dark:bg-slate-800 border ${error ? 'border-rose-500 ring-rose-500/20' : 'border-slate-200 dark:border-slate-700'} rounded-3xl outline-none focus:ring-2 ${error ? 'focus:ring-rose-500/20' : 'focus:ring-indigo-500/20'} transition-all text-lg leading-relaxed dark:text-slate-300 resize-none font-medium`}
               />
             </div>
           </div>

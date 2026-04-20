@@ -191,6 +191,8 @@ const JsonXmlConverter = lazy(() => import("./components/JsonXmlConverter").then
 const DPICalculator = lazy(() => import("./components/DPICalculator").then(m => ({ default: m.DPICalculator })));
 const GPAConverter = lazy(() => import("./components/GPAConverter").then(m => ({ default: m.GPAConverter })));
 const GradientGenerator = lazy(() => import("./components/GradientGenerator").then(m => ({ default: m.GradientGenerator })));
+const CesarCipher = lazy(() => import("./components/CesarCipher").then(m => ({ default: m.CesarCipher })));
+const DurationCalculator = lazy(() => import("./components/DurationCalculator").then(m => ({ default: m.DurationCalculator })));
 
 // ⚡ Bolt Optimization: Pre-calculating tool map and search index for O(1) lookups and faster filtering
 const toolsMap: Record<string, Tool> = {};
@@ -360,6 +362,14 @@ const tools: Tool[] = [
     icon: ListChecks,
     description: "Calculer sa moyenne et note nécessaire",
     Component: GradeCalculator,
+    category: "calculators",
+  },
+  {
+    id: "duration-calculator",
+    name: "Durées",
+    icon: Clock,
+    description: "Additionner ou soustraire des intervalles de temps",
+    Component: DurationCalculator,
     category: "calculators",
   },
   {
@@ -563,6 +573,14 @@ const tools: Tool[] = [
     icon: CaseSensitive,
     description: "camelCase, snake_case, kebab-case",
     Component: CaseConverter,
+    category: "text",
+  },
+  {
+    id: "cesar-cipher",
+    name: "César",
+    icon: Shield,
+    description: "Chiffre de César pour crypter/décrypter du texte",
+    Component: CesarCipher,
     category: "text",
   },
   {

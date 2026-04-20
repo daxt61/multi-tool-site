@@ -71,6 +71,8 @@ const CONVERSIONS: Record<ConversionCategory, Record<string, ConversionUnit>> = 
   torque: {
     'Nm': { name: 'Newton-mètre (Nm)', toBase: (v) => v, fromBase: (v) => v },
     'lb-ft': { name: 'Livre-force pied (lb-ft)', toBase: (v) => v * 1.355818, fromBase: (v) => v / 1.355818 },
+    'lb-in': { name: 'Livre-force pouce (lb-in)', toBase: (v) => v * 0.112985, fromBase: (v) => v / 0.112985 },
+    'oz-in': { name: 'Once-force pouce (oz-in)', toBase: (v) => v * 0.00706155, fromBase: (v) => v / 0.00706155 },
     'kgm': { name: 'Kilogramme-mètre (kgm)', toBase: (v) => v * 9.80665, fromBase: (v) => v / 9.80665 }
   },
   speed: {
@@ -133,7 +135,9 @@ const CONVERSIONS: Record<ConversionCategory, Record<string, ConversionUnit>> = 
     'kN': { name: 'Kilonewton (kN)', toBase: (v) => v * 1000, fromBase: (v) => v / 1000 },
     'gf': { name: 'Gramme-force (gf)', toBase: (v) => v * 0.00980665, fromBase: (v) => v / 0.00980665 },
     'kgf': { name: 'Kilogramme-force (kgf)', toBase: (v) => v * 9.80665, fromBase: (v) => v / 9.80665 },
-    'lbf': { name: 'Pound-force (lbf)', toBase: (v) => v * 4.448222, fromBase: (v) => v / 4.448222 }
+    'lbf': { name: 'Pound-force (lbf)', toBase: (v) => v * 4.448222, fromBase: (v) => v / 4.448222 },
+    'dyne': { name: 'Dyne (dyn)', toBase: (v) => v / 100000, fromBase: (v) => v * 100000 },
+    'pdl': { name: 'Poundal (pdl)', toBase: (v) => v * 0.138255, fromBase: (v) => v / 0.138255 }
   },
   datarate: {
     'bps': { name: 'bps (bit/s)', toBase: (v) => v, fromBase: (v) => v },

@@ -25,6 +25,8 @@ import {
   FileType,
   Fuel,
   DollarSign,
+  Blend,
+  PieChart,
   Heart,
   Fingerprint,
   Code,
@@ -195,6 +197,8 @@ const GPAConverter = lazy(() => import("./components/GPAConverter").then(m => ({
 const GradientGenerator = lazy(() => import("./components/GradientGenerator").then(m => ({ default: m.GradientGenerator })));
 const CesarCipher = lazy(() => import("./components/CesarCipher").then(m => ({ default: m.CesarCipher })));
 const DurationCalculator = lazy(() => import("./components/DurationCalculator").then(m => ({ default: m.DurationCalculator })));
+const FinancialRatios = lazy(() => import("./components/FinancialRatios").then(m => ({ default: m.FinancialRatios })));
+const ColorMixer = lazy(() => import("./components/ColorMixer").then(m => ({ default: m.ColorMixer })));
 
 // ⚡ Bolt Optimization: Pre-calculating tool map and search index for O(1) lookups and faster filtering
 const toolsMap: Record<string, Tool> = {};
@@ -267,6 +271,14 @@ const tools: Tool[] = [
     icon: Fuel,
     description: "Calculer le coût en carburant d'un trajet",
     Component: FuelCostCalculator,
+    category: "business",
+  },
+  {
+    id: "financial-ratios",
+    name: "Ratios Financiers",
+    icon: PieChart,
+    description: "Calculer les ratios de liquidité, rentabilité et endettement",
+    Component: FinancialRatios,
     category: "business",
   },
   {
@@ -550,6 +562,14 @@ const tools: Tool[] = [
     icon: Eye,
     description: "Vérifier le contraste de couleurs (WCAG)",
     Component: ColorContrastChecker,
+    category: "converters",
+  },
+  {
+    id: "color-mixer",
+    name: "Mélangeur de Couleurs",
+    icon: Blend,
+    description: "Mélanger deux couleurs pour en créer une nouvelle",
+    Component: ColorMixer,
     category: "converters",
   },
   // Text Tools

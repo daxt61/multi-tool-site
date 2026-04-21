@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { Copy, Check, Trash2, ArrowUpDown, Info, Ruler, Download } from 'lucide-react';
 
-type ConversionCategory = 'length' | 'weight' | 'temperature' | 'area' | 'volume' | 'digital' | 'pressure' | 'energy' | 'speed' | 'time' | 'power' | 'frequency' | 'consumption' | 'angle' | 'torque' | 'force' | 'datarate' | 'illuminance' | 'luminance' | 'radiation' | 'magnetic';
+type ConversionCategory = 'length' | 'weight' | 'temperature' | 'area' | 'volume' | 'digital' | 'pressure' | 'energy' | 'speed' | 'time' | 'power' | 'frequency' | 'consumption' | 'angle' | 'torque' | 'force' | 'datarate' | 'illuminance' | 'luminance' | 'radiation' | 'magnetic' | 'acceleration' | 'density';
 
 interface ConversionUnit {
   name: string;
@@ -165,6 +165,16 @@ const CONVERSIONS: Record<ConversionCategory, Record<string, ConversionUnit>> = 
   magnetic: {
     'T': { name: 'Tesla (T)', toBase: (v) => v, fromBase: (v) => v },
     'G': { name: 'Gauss (G)', toBase: (v) => v / 10000, fromBase: (v) => v * 10000 }
+  },
+  acceleration: {
+    'm/s2': { name: 'Mètres par seconde² (m/s²)', toBase: (v) => v, fromBase: (v) => v },
+    'g': { name: 'Gravité terrestre (g)', toBase: (v) => v * 9.80665, fromBase: (v) => v / 9.80665 },
+    'ft/s2': { name: 'Pieds par seconde² (ft/s²)', toBase: (v) => v * 0.3048, fromBase: (v) => v / 0.3048 }
+  },
+  density: {
+    'kg/m3': { name: 'Kilogrammes par m³', toBase: (v) => v, fromBase: (v) => v },
+    'g/cm3': { name: 'Grammes par cm³', toBase: (v) => v * 1000, fromBase: (v) => v / 1000 },
+    'lb/ft3': { name: 'Livres par pied³', toBase: (v) => v * 16.0185, fromBase: (v) => v / 16.0185 }
   }
 };
 
@@ -189,7 +199,9 @@ const CATEGORIES_MAP = [
   { id: 'illuminance', name: 'Éclairement' },
   { id: 'luminance', name: 'Luminance' },
   { id: 'radiation', name: 'Radiation' },
-  { id: 'magnetic', name: 'Champ Magnétique' }
+  { id: 'magnetic', name: 'Champ Magnétique' },
+  { id: 'acceleration', name: 'Accélération' },
+  { id: 'density', name: 'Densité' }
 ];
 
 const formatter = new Intl.NumberFormat('fr-FR', {

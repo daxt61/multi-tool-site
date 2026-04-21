@@ -292,13 +292,15 @@ export function Calculator({ initialData, onStateChange }: { initialData?: any; 
         <div className="flex bg-slate-100 dark:bg-slate-800 p-1 rounded-xl">
           <button
             onClick={() => setIsScientific(false)}
-            className={`px-4 py-2 rounded-lg text-sm font-bold transition-all ${!isScientific ? 'bg-white dark:bg-slate-700 text-indigo-600 dark:text-indigo-400 shadow-sm' : 'text-slate-500 hover:text-slate-900 dark:hover:text-slate-300'}`}
+            aria-pressed={!isScientific}
+            className={`px-4 py-2 rounded-lg text-sm font-bold transition-all focus-visible:ring-2 focus-visible:ring-indigo-500 focus-visible:outline-none ${!isScientific ? 'bg-white dark:bg-slate-700 text-indigo-600 dark:text-indigo-400 shadow-sm' : 'text-slate-500 hover:text-slate-900 dark:hover:text-slate-300'}`}
           >
             Standard
           </button>
           <button
             onClick={() => setIsScientific(true)}
-            className={`px-4 py-2 rounded-lg text-sm font-bold transition-all ${isScientific ? 'bg-white dark:bg-slate-700 text-indigo-600 dark:text-indigo-400 shadow-sm' : 'text-slate-500 hover:text-slate-900 dark:hover:text-slate-300'}`}
+            aria-pressed={isScientific}
+            className={`px-4 py-2 rounded-lg text-sm font-bold transition-all focus-visible:ring-2 focus-visible:ring-indigo-500 focus-visible:outline-none ${isScientific ? 'bg-white dark:bg-slate-700 text-indigo-600 dark:text-indigo-400 shadow-sm' : 'text-slate-500 hover:text-slate-900 dark:hover:text-slate-300'}`}
           >
             Scientifique
           </button>
@@ -309,7 +311,7 @@ export function Calculator({ initialData, onStateChange }: { initialData?: any; 
             <button
               key={m}
               onClick={() => handleMemory(m)}
-              className="px-3 py-1.5 rounded-lg text-xs font-black text-slate-500 hover:text-indigo-600 hover:bg-white dark:hover:bg-slate-700 transition-all"
+              className="px-3 py-1.5 rounded-lg text-xs font-black text-slate-500 hover:text-indigo-600 hover:bg-white dark:hover:bg-slate-700 transition-all focus-visible:ring-2 focus-visible:ring-indigo-500 focus-visible:outline-none"
             >
               {m}
             </button>
@@ -320,13 +322,15 @@ export function Calculator({ initialData, onStateChange }: { initialData?: any; 
           <div className="flex bg-slate-100 dark:bg-slate-800 p-1 rounded-xl">
             <button
               onClick={() => setIsRadians(false)}
-              className={`px-4 py-1.5 rounded-lg text-xs font-bold transition-all ${!isRadians ? 'bg-white dark:bg-slate-700 text-indigo-600 dark:text-indigo-400 shadow-sm' : 'text-slate-500'}`}
+              aria-pressed={!isRadians}
+              className={`px-4 py-1.5 rounded-lg text-xs font-bold transition-all focus-visible:ring-2 focus-visible:ring-indigo-500 focus-visible:outline-none ${!isRadians ? 'bg-white dark:bg-slate-700 text-indigo-600 dark:text-indigo-400 shadow-sm' : 'text-slate-500'}`}
             >
               DEG
             </button>
             <button
               onClick={() => setIsRadians(true)}
-              className={`px-4 py-1.5 rounded-lg text-xs font-bold transition-all ${isRadians ? 'bg-white dark:bg-slate-700 text-indigo-600 dark:text-indigo-400 shadow-sm' : 'text-slate-500'}`}
+              aria-pressed={isRadians}
+              className={`px-4 py-1.5 rounded-lg text-xs font-bold transition-all focus-visible:ring-2 focus-visible:ring-indigo-500 focus-visible:outline-none ${isRadians ? 'bg-white dark:bg-slate-700 text-indigo-600 dark:text-indigo-400 shadow-sm' : 'text-slate-500'}`}
             >
               RAD
             </button>
@@ -395,7 +399,7 @@ export function Calculator({ initialData, onStateChange }: { initialData?: any; 
                       else if (btn === '.') handleDecimal();
                       else handleNumber(btn);
                     }}
-                    className={`h-16 md:h-20 rounded-2xl text-xl font-bold transition-all active:scale-95 flex items-center justify-center ${
+                    className={`h-16 md:h-20 rounded-2xl text-xl font-bold transition-all active:scale-95 flex items-center justify-center focus-visible:ring-2 focus-visible:ring-indigo-500 focus-visible:outline-none ${
                       btn === 'C'
                         ? 'bg-rose-50 text-rose-500 dark:bg-rose-500/10 dark:text-rose-400 hover:bg-rose-100 dark:hover:bg-rose-500/20'
                         : btn === '←'

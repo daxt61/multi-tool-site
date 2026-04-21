@@ -180,7 +180,7 @@ export function Metronome({ initialData, onStateChange }: { initialData?: any; o
           <div className="flex items-center gap-6 w-full">
             <button
               onClick={() => handleBpmChange(bpm - 1)}
-              className="p-4 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-2xl hover:bg-slate-50 transition-all active:scale-90"
+              className="p-4 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-2xl hover:bg-slate-50 transition-all active:scale-90 focus-visible:ring-2 focus-visible:ring-indigo-500 focus-visible:outline-none"
               aria-label="Diminuer le BPM"
               title="Diminuer le BPM (Flèche Bas)"
             >
@@ -197,7 +197,7 @@ export function Metronome({ initialData, onStateChange }: { initialData?: any; o
             />
             <button
               onClick={() => handleBpmChange(bpm + 1)}
-              className="p-4 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-2xl hover:bg-slate-50 transition-all active:scale-90"
+              className="p-4 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-2xl hover:bg-slate-50 transition-all active:scale-90 focus-visible:ring-2 focus-visible:ring-indigo-500 focus-visible:outline-none"
               aria-label="Augmenter le BPM"
               title="Augmenter le BPM (Flèche Haut)"
             >
@@ -208,17 +208,18 @@ export function Metronome({ initialData, onStateChange }: { initialData?: any; o
           <div className="flex items-center gap-4 w-full">
             <button
               onClick={handleTapTempo}
-              className="flex-1 py-4 bg-white dark:bg-slate-800 border-2 border-slate-200 dark:border-slate-700 rounded-2xl font-bold text-slate-600 dark:text-slate-300 hover:border-indigo-500/50 transition-all active:scale-95 flex items-center justify-center gap-2"
+              className="flex-1 py-4 bg-white dark:bg-slate-800 border-2 border-slate-200 dark:border-slate-700 rounded-2xl font-bold text-slate-600 dark:text-slate-300 hover:border-indigo-500/50 transition-all active:scale-95 flex items-center justify-center gap-2 focus-visible:ring-2 focus-visible:ring-indigo-500 focus-visible:outline-none"
               title="Taper le tempo"
+              aria-label="Taper le tempo pour calculer le BPM"
             >
-              <Fingerprint className="w-5 h-5" /> TAP TEMPO
+              <Fingerprint className="w-5 h-5" /> TAP TEMPO {taps.length > 0 && `(${taps.length})`}
             </button>
           </div>
 
           <div className="flex items-center gap-4 w-full">
             <button
               onClick={togglePlay}
-              className={`flex-1 py-6 rounded-[2rem] font-black text-2xl transition-all active:scale-95 flex items-center justify-center gap-3 shadow-xl ${
+              className={`flex-1 py-6 rounded-[2rem] font-black text-2xl transition-all active:scale-95 flex items-center justify-center gap-3 shadow-xl focus-visible:ring-2 focus-visible:ring-indigo-500 focus-visible:outline-none ${
                 isPlaying
                   ? 'bg-rose-500 text-white shadow-rose-500/20'
                   : 'bg-indigo-600 text-white shadow-indigo-600/20'
@@ -230,7 +231,7 @@ export function Metronome({ initialData, onStateChange }: { initialData?: any; o
             </button>
             <button
               onClick={() => setIsMuted(!isMuted)}
-              className={`p-6 rounded-[2rem] border-2 transition-all ${
+              className={`p-6 rounded-[2rem] border-2 transition-all focus-visible:ring-2 focus-visible:ring-indigo-500 focus-visible:outline-none ${
                 isMuted
                   ? 'bg-rose-50 border-rose-200 text-rose-500 dark:bg-rose-500/10 dark:border-rose-500/20'
                   : 'bg-white border-slate-200 text-slate-400 dark:bg-slate-800 dark:border-slate-700'
@@ -254,7 +255,8 @@ export function Metronome({ initialData, onStateChange }: { initialData?: any; o
                 beatRef.current = 0;
                 setCurrentBeat(0);
               }}
-              className={`px-6 py-2 rounded-xl text-sm font-bold transition-all ${
+              aria-pressed={beatsPerMeasure === num}
+              className={`px-6 py-2 rounded-xl text-sm font-bold transition-all focus-visible:ring-2 focus-visible:ring-indigo-500 focus-visible:outline-none ${
                 beatsPerMeasure === num
                   ? 'bg-white dark:bg-slate-700 text-indigo-600 shadow-sm'
                   : 'text-slate-500 hover:text-slate-900'
@@ -267,6 +269,7 @@ export function Metronome({ initialData, onStateChange }: { initialData?: any; o
         <button
           onClick={handleReset}
           className="px-6 py-2 text-rose-500 bg-rose-50 dark:bg-rose-500/10 hover:bg-rose-100 dark:hover:bg-rose-500/20 rounded-xl font-bold text-sm transition-all flex items-center gap-2 focus-visible:ring-2 focus-visible:ring-indigo-500 focus-visible:outline-none"
+          aria-label="Réinitialiser le métronome"
         >
           <RotateCcw className="w-4 h-4" /> Reset
         </button>

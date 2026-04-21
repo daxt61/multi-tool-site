@@ -92,7 +92,7 @@ export function NumberToWords() {
             </label>
             <button
               onClick={handleClear}
-              className="text-xs font-bold text-indigo-500 hover:text-indigo-600 flex items-center gap-1 transition-colors"
+              className="text-xs font-bold text-indigo-500 hover:text-indigo-600 flex items-center gap-1 transition-colors focus-visible:ring-2 focus-visible:ring-indigo-500 focus-visible:outline-none"
             >
               <RotateCcw className="w-3 h-3" /> Effacer
             </button>
@@ -115,7 +115,8 @@ export function NumberToWords() {
             <div className="grid grid-cols-2 gap-3">
               <button
                 onClick={() => setLang('fr')}
-                className={`py-4 rounded-2xl font-bold text-sm transition-all border ${
+                aria-pressed={lang === 'fr'}
+                className={`py-4 rounded-2xl font-bold text-sm transition-all border focus-visible:ring-2 focus-visible:ring-indigo-500 focus-visible:outline-none ${
                   lang === 'fr'
                     ? 'bg-indigo-600 text-white border-indigo-600 shadow-lg shadow-indigo-600/20'
                     : 'bg-white dark:bg-slate-800 text-slate-500 border-slate-200 dark:border-slate-700 hover:border-slate-300'
@@ -125,7 +126,8 @@ export function NumberToWords() {
               </button>
               <button
                 onClick={() => setLang('en')}
-                className={`py-4 rounded-2xl font-bold text-sm transition-all border ${
+                aria-pressed={lang === 'en'}
+                className={`py-4 rounded-2xl font-bold text-sm transition-all border focus-visible:ring-2 focus-visible:ring-indigo-500 focus-visible:outline-none ${
                   lang === 'en'
                     ? 'bg-indigo-600 text-white border-indigo-600 shadow-lg shadow-indigo-600/20'
                     : 'bg-white dark:bg-slate-800 text-slate-500 border-slate-200 dark:border-slate-700 hover:border-slate-300'

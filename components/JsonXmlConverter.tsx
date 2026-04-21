@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { FileCode, ArrowLeftRight, Copy, Check, Trash2, Download, Info, AlertCircle } from 'lucide-react';
 
 const MAX_LENGTH = 100000;
+const MAX_DEPTH = 20;
 
 export function JsonXmlConverter({ initialData, onStateChange }: { initialData?: any; onStateChange?: (state: any) => void }) {
   const [input, setInput] = useState(initialData?.input || '');
@@ -31,7 +32,12 @@ export function JsonXmlConverter({ initialData, onStateChange }: { initialData?:
   const jsonToXml = (jsonStr: string) => {
     try {
       const obj = JSON.parse(jsonStr);
-      const toXml = (o: any, tab: string = ''): string => {
+      const toXml = (o: any, tab: string = '', depth: number = 0): string => {
+        // Sentinel: Enforce recursion depth limit to prevent Stack Overflow DoS.
+        if (depth > MAX_DEPTH) {
+          return `${tab}<!-- Max depth reached -->\n`;
+        }
+
         let xml = '';
         for (const key in o) {
           if (Object.prototype.hasOwnProperty.call(o, key)) {
@@ -40,13 +46,13 @@ export function JsonXmlConverter({ initialData, onStateChange }: { initialData?:
             if (Array.isArray(val)) {
               for (const item of val) {
                 if (typeof item === 'object' && item !== null) {
-                  xml += `${tab}<${cleanKey}>\n${toXml(item, tab + '  ')}${tab}</${cleanKey}>\n`;
+                  xml += `${tab}<${cleanKey}>\n${toXml(item, tab + '  ', depth + 1)}${tab}</${cleanKey}>\n`;
                 } else {
                   xml += `${tab}<${cleanKey}>${escapeXml(item)}</${cleanKey}>\n`;
                 }
               }
             } else if (typeof val === 'object' && val !== null) {
-              xml += `${tab}<${cleanKey}>\n${toXml(val, tab + '  ')}${tab}</${cleanKey}>\n`;
+              xml += `${tab}<${cleanKey}>\n${toXml(val, tab + '  ', depth + 1)}${tab}</${cleanKey}>\n`;
             } else {
               xml += `${tab}<${cleanKey}>${escapeXml(val)}</${cleanKey}>\n`;
             }
@@ -54,7 +60,7 @@ export function JsonXmlConverter({ initialData, onStateChange }: { initialData?:
         }
         return xml;
       };
-      return `<?xml version="1.0" encoding="UTF-8"?>\n<root>\n${toXml(obj, '  ')}</root>`;
+      return `<?xml version="1.0" encoding="UTF-8"?>\n<root>\n${toXml(obj, '  ', 0)}</root>`;
     } catch (e: any) {
       throw new Error('JSON invalide : ' + e.message);
     }
@@ -69,7 +75,12 @@ export function JsonXmlConverter({ initialData, onStateChange }: { initialData?:
         throw new Error(parseError[0].textContent || 'Erreur de parsing XML');
       }
 
-      const toJson = (node: Node): any => {
+      const toJson = (node: Node, depth: number = 0): any => {
+        // Sentinel: Enforce recursion depth limit to prevent Stack Overflow DoS.
+        if (depth > MAX_DEPTH) {
+          return null;
+        }
+
         if (node.nodeType === Node.TEXT_NODE) {
           return node.textContent?.trim();
         }
@@ -94,7 +105,7 @@ export function JsonXmlConverter({ initialData, onStateChange }: { initialData?:
           if (child.nodeType === Node.ELEMENT_NODE) {
             hasChildElements = true;
             const name = (child as Element).tagName;
-            const value = toJson(child);
+            const value = toJson(child, depth + 1);
             if (value !== null) {
               if (obj[name]) {
                 if (!Array.isArray(obj[name])) {
@@ -118,7 +129,7 @@ export function JsonXmlConverter({ initialData, onStateChange }: { initialData?:
         return obj;
       };
 
-      return JSON.stringify(toJson(xmlDoc.documentElement), null, 2);
+      return JSON.stringify(toJson(xmlDoc.documentElement, 0), null, 2);
     } catch (e: any) {
       throw new Error('XML invalide : ' + e.message);
     }

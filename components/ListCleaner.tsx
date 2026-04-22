@@ -1,19 +1,40 @@
 import { useState, useCallback } from 'react';
-import { Copy, Check, Trash2, SortAsc, SortDesc, ListChecks, Type, FileDown, Scissors, RefreshCcw } from 'lucide-react';
+import { Copy, Check, Trash2, SortAsc, SortDesc, ListChecks, Type, FileDown, Scissors, RefreshCcw, AlertCircle } from 'lucide-react';
+
+const MAX_LENGTH = 100000;
 
 export function ListCleaner() {
   const [text, setText] = useState('');
   const [copied, setCopied] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+
+  // Sentinel: Use cryptographically secure random values instead of Math.random()
+  const getSecureRandom = useCallback((range: number): number => {
+    if (range <= 0) return 0;
+    const array = new Uint32Array(1);
+    if (range >= 0x100000000) {
+      window.crypto.getRandomValues(array);
+      return array[0];
+    }
+    const maxUint32 = 0xffffffff;
+    const limit = maxUint32 - (maxUint32 % range);
+    let randomVal;
+    do {
+      window.crypto.getRandomValues(array);
+      randomVal = array[0];
+    } while (randomVal >= limit);
+    return randomVal % range;
+  }, []);
 
   const handleCopy = useCallback(() => {
-    if (!text) return;
+    if (!text || text.length > MAX_LENGTH) return;
     navigator.clipboard.writeText(text);
     setCopied(true);
     setTimeout(() => setCopied(false), 2000);
   }, [text]);
 
   const handleDownload = useCallback(() => {
-    if (!text) return;
+    if (!text || text.length > MAX_LENGTH) return;
     const blob = new Blob([text], { type: 'text/plain' });
     const url = URL.createObjectURL(blob);
     const a = document.createElement('a');
@@ -25,7 +46,17 @@ export function ListCleaner() {
     URL.revokeObjectURL(url);
   }, [text]);
 
+  const handleTextChange = (val: string) => {
+    setText(val);
+    if (val.length > MAX_LENGTH) {
+      setError(`L'entrée est trop longue. Limite de ${MAX_LENGTH.toLocaleString()} caractères.`);
+    } else {
+      setError(null);
+    }
+  };
+
   const processList = (fn: (lines: string[]) => string[]) => {
+    if (text.length > MAX_LENGTH) return;
     const lines = text.split('\n');
     const processed = fn(lines);
     setText(processed.join('\n'));
@@ -59,7 +90,7 @@ export function ListCleaner() {
     processList(lines => {
       const shuffled = [...lines];
       for (let i = shuffled.length - 1; i > 0; i--) {
-        const j = Math.floor(Math.random() * (i + 1));
+        const j = getSecureRandom(i + 1);
         [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
       }
       return shuffled;
@@ -80,13 +111,19 @@ export function ListCleaner() {
 
   return (
     <div className="max-w-5xl mx-auto space-y-8">
+      {error && (
+        <div className="bg-rose-50 dark:bg-rose-500/10 border border-rose-200 dark:border-rose-800 p-4 rounded-2xl flex items-center gap-3 text-rose-600 dark:text-rose-400 font-bold animate-in fade-in slide-in-from-top-2">
+          <AlertCircle className="w-5 h-5" />
+          {error}
+        </div>
+      )}
       <div className="space-y-4">
         <div className="flex justify-between items-center px-1">
           <label htmlFor="list-input" className="text-xs font-black uppercase tracking-widest text-slate-400">Votre Liste</label>
           <div className="flex gap-2">
             <button
               onClick={handleCopy}
-              disabled={!text}
+              disabled={!text || text.length > MAX_LENGTH}
               className={`text-xs font-bold px-3 py-1.5 rounded-full transition-all flex items-center gap-1 border ${
                 copied
                   ? 'bg-emerald-50 dark:bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border-emerald-200 dark:border-emerald-500/20'
@@ -98,14 +135,17 @@ export function ListCleaner() {
             </button>
             <button
               onClick={handleDownload}
-              disabled={!text}
+              disabled={!text || text.length > MAX_LENGTH}
               className="text-xs font-bold px-3 py-1.5 rounded-full text-indigo-500 bg-indigo-50 dark:bg-indigo-500/10 hover:bg-indigo-100 dark:hover:bg-indigo-500/20 transition-all flex items-center gap-1 disabled:opacity-50 disabled:cursor-not-allowed"
               aria-label="Télécharger la liste"
             >
               <FileDown className="w-3 h-3" /> Télécharger
             </button>
             <button
-              onClick={() => setText('')}
+              onClick={() => {
+                setText('');
+                setError(null);
+              }}
               disabled={!text}
               className="text-xs font-bold text-rose-500 bg-rose-50 dark:bg-rose-500/10 hover:bg-rose-100 dark:hover:bg-rose-500/20 px-3 py-1.5 rounded-xl flex items-center gap-1 transition-all disabled:opacity-50 disabled:cursor-not-allowed"
               aria-label="Effacer tout"
@@ -117,9 +157,9 @@ export function ListCleaner() {
         <textarea
           id="list-input"
           value={text}
-          onChange={(e) => setText(e.target.value)}
+          onChange={(e) => handleTextChange(e.target.value)}
           placeholder="Entrez vos éléments ici, un par ligne..."
-          className="w-full h-80 p-8 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-[2.5rem] outline-none focus:ring-2 focus:ring-indigo-500/20 transition-all text-lg leading-relaxed dark:text-slate-300 font-mono"
+          className={`w-full h-80 p-8 bg-slate-50 dark:bg-slate-900 border ${error ? 'border-rose-500 focus:ring-rose-500/20' : 'border-slate-200 dark:border-slate-800 focus:ring-indigo-500/20'} rounded-[2.5rem] outline-none focus:ring-2 transition-all text-lg leading-relaxed dark:text-slate-300 font-mono`}
         />
         <div className="flex justify-end text-xs font-bold text-slate-400 uppercase tracking-widest px-4">
           {itemCount} {itemCount > 1 ? 'éléments' : 'élément'}
@@ -144,7 +184,7 @@ export function ListCleaner() {
               <button
                 key={btn.label}
                 onClick={btn.action}
-                disabled={!text}
+                disabled={!text || text.length > MAX_LENGTH}
                 className="w-full flex items-center justify-between p-4 bg-slate-50 dark:bg-slate-800/50 hover:bg-indigo-50 dark:hover:bg-indigo-900/20 rounded-2xl transition-all group disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 <span className="font-bold text-sm">{btn.label}</span>
@@ -169,7 +209,7 @@ export function ListCleaner() {
               <button
                 key={btn.label}
                 onClick={btn.action}
-                disabled={!text}
+                disabled={!text || text.length > MAX_LENGTH}
                 className="w-full flex items-center justify-between p-4 bg-slate-50 dark:bg-slate-800/50 hover:bg-indigo-50 dark:hover:bg-indigo-900/20 rounded-2xl transition-all group disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 <span className="font-bold text-sm">{btn.label}</span>
@@ -194,7 +234,7 @@ export function ListCleaner() {
               <button
                 key={btn.label}
                 onClick={btn.action}
-                disabled={!text}
+                disabled={!text || text.length > MAX_LENGTH}
                 className="w-full flex items-center justify-between p-4 bg-slate-50 dark:bg-slate-800/50 hover:bg-indigo-50 dark:hover:bg-indigo-900/20 rounded-2xl transition-all group disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 <span className="font-bold text-sm">{btn.label}</span>

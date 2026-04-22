@@ -71,3 +71,8 @@
 **Vulnerability:** The SQLFormatter component was vulnerable to client-side Denial of Service (DoS) by attempting to format excessively large SQL strings, which could hang the browser's UI thread.
 **Learning:** Even well-established formatting libraries can become an attack vector for resource exhaustion if they are not guarded by input length limits. In a client-side environment, protecting the main thread is critical for application availability.
 **Prevention:** Enforce a strict `MAX_LENGTH` limit (e.g., 100,000 characters) on any input that is passed to computationally expensive libraries or complex regular expressions. Provide immediate UI feedback when the limit is exceeded to guide the user.
+
+## 2025-06-25 - [DoS and Insecure Randomness in List Cleaner]
+**Vulnerability:** The ListCleaner component lacked input length validation and used `Math.random()` for its shuffle functionality.
+**Learning:** Utility tools that perform array operations (like splitting, sorting, or shuffling) are vulnerable to client-side DoS if users provide extremely large inputs. Furthermore, even "non-security" tools should avoid predictable randomness to prevent exploitation in unforeseen use cases.
+**Prevention:** Standardize `MAX_LENGTH = 100000` across all text-processing tools and utilize the project's secure random generation pattern (CSPRNG with rejection sampling) for all randomized features.

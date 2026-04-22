@@ -1,11 +1,15 @@
-import { useState, useEffect, useCallback, useRef } from 'react';
+import { useState, useEffect, useCallback, useMemo } from 'react';
 import { Music, RotateCcw, Copy, Check } from 'lucide-react';
 
-export function BPMCounter() {
+export function BPMCounter({ initialData, onStateChange }: { initialData?: any; onStateChange?: (state: any) => void }) {
   const [taps, setTaps] = useState<number[]>([]);
-  const [bpm, setBpm] = useState<number | null>(null);
+  const [bpm, setBpm] = useState<number | null>(initialData?.bpm || null);
   const [isAnimate, setIsAnimate] = useState(false);
   const [copied, setCopied] = useState(false);
+
+  useEffect(() => {
+    onStateChange?.({ bpm });
+  }, [bpm, onStateChange]);
 
   const handleTap = useCallback(() => {
     const now = Date.now();
@@ -44,6 +48,10 @@ export function BPMCounter() {
 
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
+      if (document.activeElement?.tagName === "INPUT" || document.activeElement?.tagName === "TEXTAREA") {
+        return;
+      }
+
       if (e.key === ' ' || e.key === 'Enter') {
         e.preventDefault();
         handleTap();
@@ -56,7 +64,7 @@ export function BPMCounter() {
   return (
     <div className="max-w-md mx-auto text-center">
       <button
-        className={`mb-8 p-12 rounded-full border-4 transition-all duration-100 flex flex-col items-center justify-center aspect-square mx-auto w-full max-w-[300px] cursor-pointer select-none focus:outline-none focus:ring-4 focus:ring-indigo-500/20 ${
+        className={`mb-8 p-12 rounded-full border-4 transition-all duration-100 flex flex-col items-center justify-center aspect-square mx-auto w-full max-w-[300px] cursor-pointer select-none outline-none focus-visible:ring-2 focus-visible:ring-indigo-500/50 ${
           isAnimate
             ? 'bg-indigo-600 border-indigo-400 scale-95 text-white'
             : 'bg-white dark:bg-slate-800 border-indigo-100 dark:border-slate-700 text-slate-800 dark:text-white hover:border-indigo-200'
@@ -65,11 +73,14 @@ export function BPMCounter() {
         aria-label="Taper pour calculer le BPM"
       >
         <Music className={`w-12 h-12 mb-4 ${isAnimate ? 'text-white' : 'text-indigo-600'}`} />
-        <div className="text-6xl font-black font-mono">
+        <div className="text-6xl font-black font-mono" aria-live="polite">
           {bpm || '--'}
         </div>
         <div className="text-sm font-bold uppercase tracking-widest mt-2 opacity-60">
           BPM
+        </div>
+        <div className="text-[10px] font-bold uppercase tracking-tighter mt-2 opacity-40">
+          (Espace / Entrée)
         </div>
       </button>
 
@@ -82,10 +93,10 @@ export function BPMCounter() {
           {bpm !== null && (
             <button
               onClick={handleCopy}
-              className={`flex items-center gap-2 px-6 py-3 rounded-xl font-bold transition-all ${
+              className={`flex items-center gap-2 px-6 py-3 rounded-xl font-bold border transition-all focus-visible:ring-2 focus-visible:ring-indigo-500 focus-visible:outline-none ${
                 copied
-                  ? 'bg-emerald-50 dark:bg-emerald-500/10 text-emerald-600 dark:text-emerald-400'
-                  : 'bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-200 hover:bg-slate-200 dark:hover:bg-slate-700'
+                  ? 'bg-emerald-50 dark:bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border-emerald-200 dark:border-emerald-500/20'
+                  : 'bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-200 border-transparent hover:bg-slate-200 dark:hover:bg-slate-700'
               }`}
             >
               {copied ? <Check className="w-5 h-5" /> : <Copy className="w-5 h-5" />}
@@ -94,7 +105,7 @@ export function BPMCounter() {
           )}
           <button
             onClick={reset}
-            className="flex items-center gap-2 px-6 py-3 bg-slate-100 dark:bg-slate-700 hover:bg-slate-200 dark:hover:bg-slate-600 rounded-xl font-bold text-slate-700 dark:text-slate-200 transition-colors"
+            className="flex items-center gap-2 px-6 py-3 text-rose-500 bg-rose-50 dark:bg-rose-500/10 hover:bg-rose-100 dark:hover:bg-rose-500/20 rounded-xl font-bold border border-transparent hover:border-rose-200 transition-all focus-visible:ring-2 focus-visible:ring-rose-500 focus-visible:outline-none"
           >
             <RotateCcw className="w-5 h-5" />
             Réinitialiser

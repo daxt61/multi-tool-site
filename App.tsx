@@ -199,6 +199,8 @@ const CesarCipher = lazy(() => import("./components/CesarCipher").then(m => ({ d
 const DurationCalculator = lazy(() => import("./components/DurationCalculator").then(m => ({ default: m.DurationCalculator })));
 const FinancialRatios = lazy(() => import("./components/FinancialRatios").then(m => ({ default: m.FinancialRatios })));
 const ColorMixer = lazy(() => import("./components/ColorMixer").then(m => ({ default: m.ColorMixer })));
+const LeetspeakConverter = lazy(() => import("./components/LeetspeakConverter").then(m => ({ default: m.LeetspeakConverter })));
+const JsonTreeViewer = lazy(() => import("./components/JsonTreeViewer").then(m => ({ default: m.JsonTreeViewer })));
 
 // ⚡ Bolt Optimization: Pre-calculating tool map and search index for O(1) lookups and faster filtering
 const toolsMap: Record<string, Tool> = {};
@@ -685,6 +687,14 @@ const tools: Tool[] = [
     Component: BrailleTranslator,
     category: "text",
   },
+  {
+    id: "leetspeak-converter",
+    name: "Leetspeak",
+    icon: Type,
+    description: "Convertir du texte en l3375p34|<",
+    Component: LeetspeakConverter,
+    category: "text",
+  },
   // Dev Tools
   {
     id: "password-generator",
@@ -708,6 +718,14 @@ const tools: Tool[] = [
     icon: Braces,
     description: "Générer un JSON Schema à partir d'un JSON",
     Component: JSONSchemaGenerator,
+    category: "dev",
+  },
+  {
+    id: "json-tree-viewer",
+    name: "JSON Tree Viewer",
+    icon: Braces,
+    description: "Visualiser et filtrer une structure JSON en arbre",
+    Component: JsonTreeViewer,
     category: "dev",
   },
   {

@@ -1,5 +1,5 @@
-import { useState, useEffect } from 'react';
-import { Copy, Check, Trash2, ArrowUpDown, Info, Ruler, Download } from 'lucide-react';
+import { useState, useEffect, useMemo } from 'react';
+import { Copy, Check, Trash2, ArrowUpDown, Info, Ruler, Download, Search, X } from 'lucide-react';
 
 type ConversionCategory = 'length' | 'weight' | 'temperature' | 'area' | 'volume' | 'digital' | 'pressure' | 'energy' | 'speed' | 'time' | 'power' | 'frequency' | 'consumption' | 'angle' | 'torque' | 'force' | 'datarate' | 'illuminance' | 'luminance' | 'radiation' | 'magnetic' | 'acceleration' | 'density';
 
@@ -223,7 +223,14 @@ export function UnitConverter({ initialData, onStateChange }: { initialData?: an
   const [toUnit, setToUnit] = useState(initialData?.toUnit || 'km');
   const [fromValue, setFromValue] = useState(initialData?.fromValue || '1');
   const [toValue, setToValue] = useState(initialData?.toValue || 0.001);
+  const [categorySearch, setCategorySearch] = useState('');
   const [copied, setCopied] = useState(false);
+
+  const filteredCategories = useMemo(() => {
+    if (!categorySearch.trim()) return CATEGORIES_MAP;
+    const query = categorySearch.toLowerCase().trim();
+    return CATEGORIES_MAP.filter(cat => cat.name.toLowerCase().includes(query));
+  }, [categorySearch]);
 
   useEffect(() => {
     onStateChange?.({ category, fromUnit, toUnit, fromValue, toValue });
@@ -273,23 +280,49 @@ export function UnitConverter({ initialData, onStateChange }: { initialData?: an
 
   return (
     <div className="max-w-4xl mx-auto space-y-12">
-      {/* Category Nav - Scrollable on mobile */}
-      <div className="sticky top-0 z-50 bg-white dark:bg-slate-950/80 backdrop-blur-sm py-2 md:py-4 -mx-8 md:-mx-12 px-10 md:px-14 border-b border-slate-100 dark:border-slate-800 md:border-none md:bg-transparent md:static">
-        <div className="flex gap-2 overflow-x-auto no-scrollbar justify-start md:justify-center">
-          {CATEGORIES_MAP.map((cat) => (
+      {/* Category Search and Nav */}
+      <div className="space-y-6">
+        <div className="relative group max-w-md mx-auto">
+          <label htmlFor="category-search" className="sr-only">Rechercher une catégorie</label>
+          <div className="absolute inset-y-0 left-4 flex items-center pointer-events-none">
+            <Search className="h-4 w-4 text-slate-400" />
+          </div>
+          <input
+            id="category-search"
+            type="text"
+            placeholder="Rechercher une catégorie..."
+            value={categorySearch}
+            onChange={(e) => setCategorySearch(e.target.value)}
+            className="block w-full pl-11 pr-11 py-2.5 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 outline-none transition-all placeholder:text-slate-400 text-sm"
+          />
+          {categorySearch && (
             <button
-              key={cat.id}
-              onClick={() => handleCategoryChange(cat.id as ConversionCategory)}
-              aria-pressed={category === cat.id}
-              className={`px-5 py-2.5 rounded-xl font-bold text-sm transition-all border whitespace-nowrap ${
-                category === cat.id
-                  ? 'bg-slate-900 text-white border-slate-900 dark:bg-white dark:text-slate-950 dark:border-white shadow-lg shadow-indigo-500/10'
-                  : 'bg-white dark:bg-slate-800 text-slate-500 border-slate-200 dark:border-slate-700 hover:border-slate-300'
-              }`}
+              onClick={() => setCategorySearch('')}
+              className="absolute inset-y-0 right-4 flex items-center text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 transition-colors"
+              aria-label="Effacer la recherche"
             >
-              {cat.name}
+              <X className="h-4 w-4" />
             </button>
-          ))}
+          )}
+        </div>
+
+        <div className="sticky top-0 z-50 bg-white dark:bg-slate-950/80 backdrop-blur-sm py-2 md:py-4 -mx-8 md:-mx-12 px-10 md:px-14 border-b border-slate-100 dark:border-slate-800 md:border-none md:bg-transparent md:static">
+          <div className="flex gap-2 overflow-x-auto no-scrollbar justify-start md:justify-center">
+            {filteredCategories.map((cat) => (
+              <button
+                key={cat.id}
+                onClick={() => handleCategoryChange(cat.id as ConversionCategory)}
+                aria-pressed={category === cat.id}
+                className={`px-5 py-2.5 rounded-xl font-bold text-sm transition-all border whitespace-nowrap ${
+                  category === cat.id
+                    ? 'bg-slate-900 text-white border-slate-900 dark:bg-white dark:text-slate-950 dark:border-white shadow-lg shadow-indigo-500/10'
+                    : 'bg-white dark:bg-slate-800 text-slate-500 border-slate-200 dark:border-slate-700 hover:border-slate-300'
+                }`}
+              >
+                {cat.name}
+              </button>
+            ))}
+          </div>
         </div>
       </div>
 

@@ -1,16 +1,20 @@
-import { useState, useMemo } from 'react';
+import { useState, useMemo, useEffect } from 'react';
 import { User, Ruler, Info, Check, Trash2, Heart, Activity, RotateCcw, Scale } from 'lucide-react';
 
 type Gender = 'male' | 'female';
 
-export function BodyFatCalculator() {
-  const [gender, setGender] = useState<Gender>('male');
-  const [weight, setWeight] = useState<string>('75');
-  const [height, setHeight] = useState<string>('180');
-  const [neck, setNeck] = useState<string>('38');
-  const [waist, setWaist] = useState<string>('85');
-  const [hip, setHip] = useState<string>('95');
-  const [unit, setUnit] = useState<'metric' | 'imperial'>('metric');
+export function BodyFatCalculator({ initialData, onStateChange }: { initialData?: any; onStateChange?: (state: any) => void }) {
+  const [gender, setGender] = useState<Gender>(initialData?.gender || 'male');
+  const [weight, setWeight] = useState<string>(initialData?.weight || '75');
+  const [height, setHeight] = useState<string>(initialData?.height || '180');
+  const [neck, setNeck] = useState<string>(initialData?.neck || '38');
+  const [waist, setWaist] = useState<string>(initialData?.waist || '85');
+  const [hip, setHip] = useState<string>(initialData?.hip || '95');
+  const [unit, setUnit] = useState<'metric' | 'imperial'>(initialData?.unit || 'metric');
+
+  useEffect(() => {
+    onStateChange?.({ gender, weight, height, neck, waist, hip, unit });
+  }, [gender, weight, height, neck, waist, hip, unit, onStateChange]);
 
   const stats = useMemo(() => {
     let w = parseFloat(weight);

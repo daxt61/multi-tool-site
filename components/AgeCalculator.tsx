@@ -1,10 +1,15 @@
 import { useState, useMemo, useEffect } from 'react';
 import { Calendar, Clock, Heart, Baby, Gift, Info, Star, Trash2, Copy, Check, Download } from 'lucide-react';
 
-export function AgeCalculator() {
-  const [birthDate, setBirthDate] = useState<string>('1990-01-01');
+export function AgeCalculator({ initialData, onStateChange }: { initialData?: any; onStateChange?: (state: any) => void }) {
+  const [birthDate, setBirthDate] = useState<string>(initialData?.birthDate || '1990-01-01');
   const [copied, setCopied] = useState(false);
+  const [copiedReport, setCopiedReport] = useState(false);
   const [currentTime, setCurrentTime] = useState(new Date());
+
+  useEffect(() => {
+    onStateChange?.({ birthDate });
+  }, [birthDate, onStateChange]);
 
   useEffect(() => {
     const timer = setInterval(() => setCurrentTime(new Date()), 1000);
@@ -92,9 +97,9 @@ export function AgeCalculator() {
     setTimeout(() => setCopied(false), 2000);
   };
 
-  const handleDownload = () => {
-    if (!ageData) return;
-    const content = `Rapport d'âge :
+  const getReportContent = () => {
+    if (!ageData) return "";
+    return `Rapport d'âge :
 - Date de naissance : ${birthDate}
 - Âge actuel : ${ageData.years} ans, ${ageData.months} mois, ${ageData.days} jours
 - Signe : ${ageData.zodiac.name} ${ageData.zodiac.icon}
@@ -105,7 +110,11 @@ Statistiques de vie :
 - Total semaines : ${ageData.totalWeeks.toLocaleString()}
 - Total jours : ${ageData.totalDays.toLocaleString()}
 - Total heures : ${ageData.totalHours.toLocaleString()}`;
+  };
 
+  const handleDownload = () => {
+    const content = getReportContent();
+    if (!content) return;
     const blob = new Blob([content], { type: 'text/plain' });
     const url = URL.createObjectURL(blob);
     const link = document.createElement('a');
@@ -113,6 +122,14 @@ Statistiques de vie :
     link.download = `rapport-age-${Date.now()}.txt`;
     link.click();
     URL.revokeObjectURL(url);
+  };
+
+  const handleCopyReport = () => {
+    const content = getReportContent();
+    if (!content) return;
+    navigator.clipboard.writeText(content);
+    setCopiedReport(true);
+    setTimeout(() => setCopiedReport(false), 2000);
   };
 
   return (
@@ -126,6 +143,18 @@ Statistiques de vie :
                 <Baby className="w-4 h-4" /> Date de naissance
               </label>
               <div className="flex gap-2">
+                <button
+                  onClick={handleCopyReport}
+                  disabled={!ageData}
+                  className={`text-xs font-bold px-3 py-1.5 rounded-xl flex items-center gap-1 transition-all disabled:opacity-50 disabled:cursor-not-allowed focus-visible:ring-2 focus-visible:ring-indigo-500 focus-visible:outline-none ${
+                    copiedReport
+                      ? 'bg-emerald-50 dark:bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border border-emerald-200 dark:border-emerald-500/20'
+                      : 'text-indigo-600 bg-indigo-50 dark:bg-indigo-900/20 hover:bg-indigo-100 dark:hover:bg-indigo-900/30'
+                  }`}
+                >
+                  {copiedReport ? <Check className="w-3 h-3" /> : <Copy className="w-3 h-3" />}
+                  {copiedReport ? 'Copié' : 'Copier'}
+                </button>
                 <button
                   onClick={handleDownload}
                   disabled={!ageData}

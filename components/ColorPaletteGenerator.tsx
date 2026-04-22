@@ -1,9 +1,13 @@
-import { useState, useMemo } from 'react';
+import { useState, useMemo, useEffect } from 'react';
 import { Copy, Check, RefreshCw, Palette, Layers, Grid, Info, Download } from 'lucide-react';
 
-export function ColorPaletteGenerator() {
-  const [baseColor, setBaseColor] = useState('#6366f1');
+export function ColorPaletteGenerator({ initialData, onStateChange }: { initialData?: any; onStateChange?: (state: any) => void }) {
+  const [baseColor, setBaseColor] = useState(initialData?.baseColor || '#6366f1');
   const [copied, setCopied] = useState<string | null>(null);
+
+  useEffect(() => {
+    onStateChange?.({ baseColor });
+  }, [baseColor, onStateChange]);
 
   const hexToHsl = (hex: string) => {
     let r = 0, g = 0, b = 0;

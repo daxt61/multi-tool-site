@@ -1,11 +1,15 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Calendar, History, Info, Trash2, Copy, Check, Download } from 'lucide-react';
 
-export function DateCalculator() {
+export function DateCalculator({ initialData, onStateChange }: { initialData?: any; onStateChange?: (state: any) => void }) {
   const today = new Date().toISOString().split('T')[0];
-  const [date1, setDate1] = useState(today);
-  const [date2, setDate2] = useState(today);
-  const [daysToAdd, setDaysToAdd] = useState('30');
+  const [date1, setDate1] = useState(initialData?.date1 || today);
+  const [date2, setDate2] = useState(initialData?.date2 || today);
+  const [daysToAdd, setDaysToAdd] = useState(initialData?.daysToAdd || '30');
+
+  useEffect(() => {
+    onStateChange?.({ date1, date2, daysToAdd });
+  }, [date1, date2, daysToAdd, onStateChange]);
 
   const calculateDifference = () => {
     const d1 = new Date(date1);

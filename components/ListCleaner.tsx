@@ -1,12 +1,16 @@
-import { useState, useCallback } from 'react';
+import { useState, useCallback, useEffect } from 'react';
 import { Copy, Check, Trash2, SortAsc, SortDesc, ListChecks, Type, FileDown, Scissors, RefreshCcw, AlertCircle } from 'lucide-react';
 
 const MAX_LENGTH = 100000;
 
-export function ListCleaner() {
-  const [text, setText] = useState('');
+export function ListCleaner({ initialData, onStateChange }: { initialData?: any; onStateChange?: (state: any) => void }) {
+  const [text, setText] = useState(initialData?.text || '');
   const [copied, setCopied] = useState(false);
   const [error, setError] = useState<string | null>(null);
+
+  useEffect(() => {
+    onStateChange?.({ text });
+  }, [text, onStateChange]);
 
   // Sentinel: Use cryptographically secure random values instead of Math.random()
   const getSecureRandom = useCallback((range: number): number => {
@@ -107,7 +111,7 @@ export function ListCleaner() {
     }
   };
 
-  const itemCount = text.split('\n').filter(l => l.trim().length > 0).length;
+  const itemCount = text.split('\n').filter((l: string) => l.trim().length > 0).length;
 
   return (
     <div className="max-w-5xl mx-auto space-y-8">

@@ -33,10 +33,10 @@ const WORKER_CODE = `
   };
 `;
 
-export function RegExTester() {
-  const [regex, setRegex] = useState('([a-zA-Z0-9._%+-]+)@([a-zA-Z0-9.-]+)\\.([a-zA-Z]{2,})');
-  const [flags, setFlags] = useState('g');
-  const [testText, setTestText] = useState('Contactez-nous à support@example.com ou sales@test.org pour plus d\'informations.');
+export function RegExTester({ initialData, onStateChange }: { initialData?: any; onStateChange?: (state: any) => void }) {
+  const [regex, setRegex] = useState(initialData?.regex || '([a-zA-Z0-9._%+-]+)@([a-zA-Z0-9.-]+)\\.([a-zA-Z]{2,})');
+  const [flags, setFlags] = useState(initialData?.flags || 'g');
+  const [testText, setTestText] = useState(initialData?.testText || 'Contactez-nous à support@example.com ou sales@test.org pour plus d\'informations.');
   const [matches, setMatches] = useState<MatchResult[]>([]);
   const [error, setError] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(false);
@@ -64,6 +64,10 @@ export function RegExTester() {
       }
     };
   }, []);
+
+  useEffect(() => {
+    onStateChange?.({ regex, flags, testText });
+  }, [regex, flags, testText, onStateChange]);
 
   useEffect(() => {
     if (!regex) {
@@ -181,7 +185,7 @@ export function RegExTester() {
   ];
 
   const toggleFlag = (flag: string) => {
-    setFlags(prev => prev.includes(flag) ? prev.replace(flag, '') : prev + flag);
+    setFlags((prev: string) => prev.includes(flag) ? prev.replace(flag, '') : prev + flag);
   };
 
   return (

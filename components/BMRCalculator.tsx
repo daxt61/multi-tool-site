@@ -1,4 +1,4 @@
-import { useState, useMemo } from 'react';
+import { useState, useMemo, useEffect } from 'react';
 import { Heart, Activity, User, Ruler, Weight, RotateCcw, Info, Check, Zap, Trash2, Copy } from 'lucide-react';
 
 type Gender = 'male' | 'female';
@@ -20,13 +20,17 @@ const ACTIVITY_LABELS: Record<ActivityLevel, { label: string; desc: string }> = 
   very_active: { label: 'Extrêmement actif', desc: 'Travail physique ou entraînement intensif' },
 };
 
-export function BMRCalculator() {
-  const [age, setAge] = useState<string>('');
-  const [weight, setWeight] = useState<string>('');
-  const [height, setHeight] = useState<string>('');
-  const [gender, setGender] = useState<Gender>('male');
-  const [activity, setActivity] = useState<ActivityLevel>('sedentary');
+export function BMRCalculator({ initialData, onStateChange }: { initialData?: any; onStateChange?: (state: any) => void }) {
+  const [age, setAge] = useState<string>(initialData?.age || '');
+  const [weight, setWeight] = useState<string>(initialData?.weight || '');
+  const [height, setHeight] = useState<string>(initialData?.height || '');
+  const [gender, setGender] = useState<Gender>(initialData?.gender || 'male');
+  const [activity, setActivity] = useState<ActivityLevel>(initialData?.activity || 'sedentary');
   const [copied, setCopied] = useState<string | null>(null);
+
+  useEffect(() => {
+    onStateChange?.({ age, weight, height, gender, activity });
+  }, [age, weight, height, gender, activity, onStateChange]);
 
   const results = useMemo(() => {
     const a = parseFloat(age);

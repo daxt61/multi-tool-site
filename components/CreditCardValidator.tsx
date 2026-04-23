@@ -1,10 +1,14 @@
-import { useState, useMemo } from 'react';
+import { useState, useMemo, useEffect } from 'react';
 import { CreditCard, CheckCircle2, AlertCircle, Copy, Trash2, ShieldCheck, Info } from 'lucide-react';
 
 type CardNetwork = 'visa' | 'mastercard' | 'amex' | 'discover' | 'jcb' | 'diners' | 'maestro' | 'unknown';
 
-export function CreditCardValidator() {
-  const [cardNumber, setCardNumber] = useState('');
+export function CreditCardValidator({ initialData, onStateChange }: { initialData?: any; onStateChange?: (state: any) => void }) {
+  const [cardNumber, setCardNumber] = useState(initialData?.cardNumber || '');
+
+  useEffect(() => {
+    onStateChange?.({ cardNumber });
+  }, [cardNumber, onStateChange]);
   const [copied, setCopied] = useState(false);
 
   const cleanNumber = cardNumber.replace(/\D/g, '');

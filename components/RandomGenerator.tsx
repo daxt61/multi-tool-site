@@ -1,5 +1,7 @@
 import { useState, useEffect } from 'react';
-import { Shuffle, Copy, Check, RefreshCw, Hash, Type, AlignLeft, Trash2, Download } from 'lucide-react';
+import { Shuffle, Copy, Check, RefreshCw, Hash, Type, AlignLeft, Trash2, Download, AlertCircle } from 'lucide-react';
+
+const MAX_LENGTH = 100000;
 
 export function RandomGenerator({ initialData, onStateChange }: { initialData?: any; onStateChange?: (state: any) => void }) {
   const [min, setMin] = useState(initialData?.min ?? 1);
@@ -13,10 +15,21 @@ export function RandomGenerator({ initialData, onStateChange }: { initialData?: 
   const [includeNumbers, setIncludeNumbers] = useState(initialData?.includeNumbers ?? true);
 
   const [list, setList] = useState(initialData?.list ?? '');
+  const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
     onStateChange?.({ min, max, strLength, includeUpper, includeLower, includeNumbers, list });
   }, [min, max, strLength, includeUpper, includeLower, includeNumbers, list, onStateChange]);
+
+  const handleListChange = (val: string) => {
+    setList(val);
+    if (val.length > MAX_LENGTH) {
+      setError(`La liste est trop longue. Limite de ${MAX_LENGTH.toLocaleString()} caractères.`);
+    } else {
+      setError(null);
+    }
+  };
+
   const [shuffledList, setShuffledList] = useState<string[]>([]);
   const [teams, setTeams] = useState<string[][]>([]);
   const [teamCount, setTeamCount] = useState(2);
@@ -79,6 +92,7 @@ export function RandomGenerator({ initialData, onStateChange }: { initialData?: 
   };
 
   const shuffleList = () => {
+    if (list.length > MAX_LENGTH) return;
     const items = list.split('\n').filter((i: string) => i.trim() !== '');
     if (items.length === 0) return;
     const shuffled = [...items];
@@ -92,6 +106,7 @@ export function RandomGenerator({ initialData, onStateChange }: { initialData?: 
   };
 
   const pickWinner = () => {
+    if (list.length > MAX_LENGTH) return;
     const items = list.split('\n').filter((i: string) => i.trim() !== '');
     if (items.length === 0) return;
     const randomIndex = getSecureRandom(items.length);
@@ -101,6 +116,7 @@ export function RandomGenerator({ initialData, onStateChange }: { initialData?: 
   };
 
   const generateTeams = () => {
+    if (list.length > MAX_LENGTH) return;
     const items = list.split('\n').filter((i: string) => i.trim() !== '');
     if (items.length === 0) return;
 
@@ -369,6 +385,13 @@ export function RandomGenerator({ initialData, onStateChange }: { initialData?: 
           <h3 className="text-xs font-black uppercase tracking-widest text-slate-400">Mélanger une Liste</h3>
         </div>
 
+        {error && (
+          <div className="bg-rose-50 dark:bg-rose-500/10 border border-rose-200 dark:border-rose-800 p-4 rounded-2xl flex items-center gap-3 text-rose-600 dark:text-rose-400 font-bold animate-in fade-in slide-in-from-top-2">
+            <AlertCircle className="w-5 h-5" />
+            {error}
+          </div>
+        )}
+
         <div className="flex justify-end gap-2 px-1">
           {(shuffledList.length > 0 || winner || teams.length > 0) && (
             <button
@@ -382,7 +405,7 @@ export function RandomGenerator({ initialData, onStateChange }: { initialData?: 
             </button>
           )}
           <button
-            onClick={() => {setList(''); setShuffledList([]); setWinner(null); setTeams([]);}}
+            onClick={() => {setList(''); setShuffledList([]); setWinner(null); setTeams([]); setError(null);}}
             disabled={!list && shuffledList.length === 0 && !winner && teams.length === 0}
             className="text-xs font-bold text-rose-500 bg-rose-50 dark:bg-rose-500/10 hover:bg-rose-100 dark:hover:bg-rose-500/20 px-3 py-1.5 rounded-xl flex items-center gap-1 transition-all disabled:opacity-50 disabled:cursor-not-allowed focus-visible:ring-2 focus-visible:ring-indigo-500 focus-visible:outline-none"
           >
@@ -396,8 +419,8 @@ export function RandomGenerator({ initialData, onStateChange }: { initialData?: 
             <textarea
               id="list-input"
               value={list}
-              onChange={(e) => setList(e.target.value)}
-              className="w-full h-64 p-6 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-3xl outline-none focus:ring-2 focus:ring-indigo-500/20 transition-all resize-none font-medium dark:text-slate-300"
+              onChange={(e) => handleListChange(e.target.value)}
+              className={`w-full h-64 p-6 bg-white dark:bg-slate-900 border ${error ? 'border-rose-500 ring-rose-500/20' : 'border-slate-200 dark:border-slate-800 focus:ring-indigo-500/20'} rounded-3xl outline-none focus:ring-2 transition-all resize-none font-medium dark:text-slate-300`}
               placeholder="Élément 1&#10;Élément 2&#10;Élément 3..."
             />
             <div className="space-y-3">

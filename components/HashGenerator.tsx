@@ -1,14 +1,18 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Shield, Copy, Check, Trash2, AlertCircle } from 'lucide-react';
 
 const MAX_LENGTH = 100000;
 
-export function HashGenerator() {
-  const [inputText, setInputText] = useState('');
-  const [hashes, setHashes] = useState<{ [key: string]: string }>({
+export function HashGenerator({ initialData, onStateChange }: { initialData?: any; onStateChange?: (state: any) => void }) {
+  const [inputText, setInputText] = useState(initialData?.inputText || '');
+  const [hashes, setHashes] = useState<{ [key: string]: string }>(initialData?.hashes || {
     'SHA-256': '',
     'SHA-512': '',
   });
+
+  useEffect(() => {
+    onStateChange?.({ inputText, hashes });
+  }, [inputText, hashes, onStateChange]);
   const [copied, setCopied] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
 

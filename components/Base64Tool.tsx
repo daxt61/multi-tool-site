@@ -1,11 +1,15 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Copy, Check, Trash2, ArrowRightLeft, FileCode, Type, Download, AlertCircle } from 'lucide-react';
 
 const MAX_LENGTH = 100000;
 
-export function Base64Tool() {
-  const [text, setText] = useState('');
-  const [base64, setBase64] = useState('');
+export function Base64Tool({ initialData, onStateChange }: { initialData?: any; onStateChange?: (state: any) => void }) {
+  const [text, setText] = useState(initialData?.text || '');
+  const [base64, setBase64] = useState(initialData?.base64 || '');
+
+  useEffect(() => {
+    onStateChange?.({ text, base64 });
+  }, [text, base64, onStateChange]);
   const [copied, setCopied] = useState<'text' | 'base64' | null>(null);
   const [error, setError] = useState<string | null>(null);
 
@@ -101,13 +105,17 @@ export function Base64Tool() {
           <div className="flex justify-between items-center px-1">
             <div className="flex items-center gap-2">
               <Type className="w-4 h-4 text-indigo-500" />
-              <label className="text-xs font-black uppercase tracking-widest text-slate-400">Texte Clair</label>
+              <label htmlFor="text-input" className="text-xs font-black uppercase tracking-widest text-slate-400 cursor-pointer">Texte Clair</label>
             </div>
             <div className="flex gap-2">
               <button
                 onClick={() => copyToClipboard(text, 'text')}
                 disabled={!text}
-                className={`text-xs font-bold px-3 py-1 rounded-full transition-all flex items-center gap-1 ${copied === 'text' ? 'bg-emerald-50 dark:bg-emerald-500/10 text-emerald-600 dark:text-emerald-400' : 'text-slate-500 bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700'} disabled:opacity-50 disabled:cursor-not-allowed`}
+                className={`text-xs font-bold px-3 py-1.5 rounded-full transition-all flex items-center gap-1 border ${
+                  copied === 'text'
+                    ? 'bg-emerald-50 dark:bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border-emerald-200 dark:border-emerald-500/20'
+                    : 'text-slate-500 bg-slate-100 dark:bg-slate-800 border-transparent hover:bg-slate-200 dark:hover:bg-slate-700'
+                } disabled:opacity-50 disabled:cursor-not-allowed`}
               >
                 {copied === 'text' ? <Check className="w-3 h-3" /> : <Copy className="w-3 h-3" />} {copied === 'text' ? 'Copié' : 'Copier'}
               </button>
@@ -121,6 +129,7 @@ export function Base64Tool() {
             </div>
           </div>
           <textarea
+            id="text-input"
             value={text}
             onChange={(e) => handleTextChange(e.target.value)}
             placeholder="Entrez votre texte ici..."
@@ -133,7 +142,7 @@ export function Base64Tool() {
           <div className="flex justify-between items-center px-1">
             <div className="flex items-center gap-2">
               <FileCode className="w-4 h-4 text-indigo-500" />
-              <label className="text-xs font-black uppercase tracking-widest text-slate-400">Base64</label>
+              <label htmlFor="base64-input" className="text-xs font-black uppercase tracking-widest text-slate-400 cursor-pointer">Base64</label>
             </div>
             <div className="flex gap-2">
               <button
@@ -147,13 +156,18 @@ export function Base64Tool() {
               <button
                 onClick={() => copyToClipboard(base64, 'base64')}
                 disabled={!base64}
-                className={`text-xs font-bold px-3 py-1 rounded-full transition-all flex items-center gap-1 ${copied === 'base64' ? 'bg-emerald-50 dark:bg-emerald-500/10 text-emerald-600 dark:text-emerald-400' : 'text-slate-500 bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700'} disabled:opacity-50 disabled:cursor-not-allowed`}
+                className={`text-xs font-bold px-3 py-1.5 rounded-full transition-all flex items-center gap-1 border ${
+                  copied === 'base64'
+                    ? 'bg-emerald-50 dark:bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border-emerald-200 dark:border-emerald-500/20'
+                    : 'text-slate-500 bg-slate-100 dark:bg-slate-800 border-transparent hover:bg-slate-200 dark:hover:bg-slate-700'
+                } disabled:opacity-50 disabled:cursor-not-allowed`}
               >
                 {copied === 'base64' ? <Check className="w-3 h-3" /> : <Copy className="w-3 h-3" />} {copied === 'base64' ? 'Copié' : 'Copier'}
               </button>
             </div>
           </div>
           <textarea
+            id="base64-input"
             value={base64}
             onChange={(e) => handleBase64Change(e.target.value)}
             placeholder="Le résultat Base64 apparaîtra ici..."

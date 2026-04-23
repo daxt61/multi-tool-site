@@ -1,4 +1,4 @@
-import { useState, useMemo } from 'react';
+import { useState, useMemo, useEffect } from 'react';
 import { Type, Copy, Check, RotateCcw, Languages, Info, FileText, Hash } from 'lucide-react';
 
 type Language = 'fr' | 'en';
@@ -59,9 +59,13 @@ const convertToWords = (n: number, l: Language): string => {
   return helper(n, l);
 };
 
-export function NumberToWords() {
-  const [number, setNumber] = useState<string>('123');
-  const [lang, setLang] = useState<Language>('fr');
+export function NumberToWords({ initialData, onStateChange }: { initialData?: any; onStateChange?: (state: any) => void }) {
+  const [number, setNumber] = useState<string>(initialData?.number || '123');
+  const [lang, setLang] = useState<Language>(initialData?.lang || 'fr');
+
+  useEffect(() => {
+    onStateChange?.({ number, lang });
+  }, [number, lang, onStateChange]);
   const [copied, setCopied] = useState(false);
 
   const words = useMemo(() => {

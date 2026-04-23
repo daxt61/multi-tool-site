@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Signal, Copy, Check, Trash2, Info, AlertCircle } from 'lucide-react';
 
 const MAX_LENGTH = 100000;
@@ -24,9 +24,13 @@ const REVERSE_MORSE: Record<string, string> = Object.entries(MORSE_CODE).reduce(
   Object.create(null)
 );
 
-export function MorseCodeConverter() {
-  const [text, setText] = useState('');
-  const [morse, setMorse] = useState('');
+export function MorseCodeConverter({ initialData, onStateChange }: { initialData?: any; onStateChange?: (state: any) => void }) {
+  const [text, setText] = useState(initialData?.text || '');
+  const [morse, setMorse] = useState(initialData?.morse || '');
+
+  useEffect(() => {
+    onStateChange?.({ text, morse });
+  }, [text, morse, onStateChange]);
   const [copied, setCopied] = useState(false);
   const [error, setError] = useState<string | null>(null);
 

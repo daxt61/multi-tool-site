@@ -5,3 +5,7 @@
 ## 2025-05-15 - [State Communication for Preset Buttons]
 **Learning:** Visual-only active states for preset buttons (like tip percentages) do not communicate selection to assistive technologies.
 **Action:** Implement `aria-pressed={isActive}` on all mutually exclusive selection buttons to ensure standard-compliant screen reader feedback.
+
+## 2025-05-30 - [Search Keyboard Shortcuts & Navigation]
+**Learning:** Adding standard keyboard shortcuts (Escape to clear, Enter to select first result) to a global search input significantly improves the speed and accessibility for power users. It reduces reliance on mouse interaction for the primary navigation entry point.
+**Action:** Prioritize standard keyboard interaction patterns (Escape/Enter) for search and filter inputs in future tools.

@@ -1,8 +1,13 @@
 import { useState, useRef, useCallback, useEffect } from 'react';
-import { Upload, Download, Trash2, Image as ImageIcon, Info, Zap, ShieldCheck } from 'lucide-react';
+import { Upload, Download, Trash2, Image as ImageIcon, Info, Zap, ShieldCheck, AlertCircle } from 'lucide-react';
+
+// Sentinel: Enforce file size limit to mitigate client-side Denial of Service (DoS)
+// and prevent browser memory exhaustion or crashes.
+const MAX_SIZE = 5 * 1024 * 1024; // 5MB
 
 export function ImageCompressor() {
   const [originalImage, setOriginalImage] = useState<string | null>(null);
+  const [error, setError] = useState<string | null>(null);
   const [compressedImage, setCompressedImage] = useState<string | null>(null);
   const [quality, setQuality] = useState(80);
   const [originalSize, setOriginalSize] = useState(0);
@@ -43,6 +48,12 @@ export function ImageCompressor() {
 
   const handleFile = useCallback((file: File) => {
     if (!file || !file.type.startsWith('image/')) return;
+
+    if (file.size > MAX_SIZE) {
+      setError(`L'image est trop volumineuse. La limite est de 5 Mo.`);
+      return;
+    }
+    setError(null);
 
     setOriginalSize(file.size);
 
@@ -103,6 +114,7 @@ export function ImageCompressor() {
     setOriginalSize(0);
     setCompressedSize(0);
     imgRef.current = null;
+    setError(null);
     if (fileInputRef.current) fileInputRef.current.value = '';
   };
 
@@ -124,6 +136,12 @@ export function ImageCompressor() {
 
   return (
     <div className="max-w-5xl mx-auto space-y-12">
+      {error && (
+        <div className="bg-rose-50 dark:bg-rose-500/10 border border-rose-200 dark:border-rose-800 p-4 rounded-2xl flex items-center gap-3 text-rose-600 dark:text-rose-400 font-bold animate-in fade-in slide-in-from-top-2">
+          <AlertCircle className="w-5 h-5" />
+          {error}
+        </div>
+      )}
       <input
         ref={fileInputRef}
         id="image-upload"

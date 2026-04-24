@@ -293,12 +293,19 @@ export function UnitConverter({ initialData, onStateChange }: { initialData?: an
             placeholder="Rechercher une catégorie..."
             value={categorySearch}
             onChange={(e) => setCategorySearch(e.target.value)}
-            className="block w-full pl-11 pr-11 py-2.5 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 outline-none transition-all placeholder:text-slate-400 text-sm"
+            onKeyDown={(e) => {
+              if (e.key === 'Escape') {
+                setCategorySearch('');
+              } else if (e.key === 'Enter' && filteredCategories.length > 0) {
+                handleCategoryChange(filteredCategories[0].id as ConversionCategory);
+              }
+            }}
+            className="block w-full pl-11 pr-11 py-2.5 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl focus-visible:ring-2 focus-visible:ring-indigo-500 focus-visible:outline-none focus:border-indigo-500 transition-all placeholder:text-slate-400 text-sm"
           />
           {categorySearch && (
             <button
               onClick={() => setCategorySearch('')}
-              className="absolute inset-y-0 right-4 flex items-center text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 transition-colors"
+              className="absolute inset-y-0 right-4 flex items-center text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 transition-colors focus-visible:ring-2 focus-visible:ring-indigo-500 focus-visible:outline-none rounded-lg"
               aria-label="Effacer la recherche"
             >
               <X className="h-4 w-4" />
@@ -313,7 +320,7 @@ export function UnitConverter({ initialData, onStateChange }: { initialData?: an
                 key={cat.id}
                 onClick={() => handleCategoryChange(cat.id as ConversionCategory)}
                 aria-pressed={category === cat.id}
-                className={`px-5 py-2.5 rounded-xl font-bold text-sm transition-all border whitespace-nowrap ${
+                className={`px-5 py-2.5 rounded-xl font-bold text-sm transition-all border whitespace-nowrap focus-visible:ring-2 focus-visible:ring-indigo-500 focus-visible:outline-none ${
                   category === cat.id
                     ? 'bg-slate-900 text-white border-slate-900 dark:bg-white dark:text-slate-950 dark:border-white shadow-lg shadow-indigo-500/10'
                     : 'bg-white dark:bg-slate-800 text-slate-500 border-slate-200 dark:border-slate-700 hover:border-slate-300'
@@ -334,12 +341,12 @@ export function UnitConverter({ initialData, onStateChange }: { initialData?: an
             <button
               onClick={handleClear}
               disabled={!fromValue}
-              className="text-xs font-bold text-rose-500 bg-rose-50 dark:bg-rose-500/10 hover:bg-rose-100 dark:hover:bg-rose-500/20 px-3 py-1.5 rounded-xl flex items-center gap-1 transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+              className="text-xs font-bold text-rose-500 bg-rose-50 dark:bg-rose-500/10 hover:bg-rose-100 dark:hover:bg-rose-500/20 px-3 py-1.5 rounded-xl flex items-center gap-1 transition-all disabled:opacity-50 disabled:cursor-not-allowed focus-visible:ring-2 focus-visible:ring-rose-500 focus-visible:outline-none"
             >
               <Trash2 className="w-3 h-3" /> Effacer
             </button>
           </div>
-          <div className="flex flex-col gap-3 p-6 bg-slate-50 dark:bg-slate-900/50 rounded-3xl border border-slate-200 dark:border-slate-800 focus-within:ring-2 focus-within:ring-indigo-500/20 transition-all">
+          <div className="flex flex-col gap-3 p-6 bg-slate-50 dark:bg-slate-900/50 rounded-3xl border border-slate-200 dark:border-slate-800 focus-within:ring-2 focus-within:ring-indigo-500 transition-all">
             <input
               id="fromValue"
               type="number"
@@ -359,7 +366,7 @@ export function UnitConverter({ initialData, onStateChange }: { initialData?: an
                 setFromUnit(e.target.value);
                 setToValue(convert(fromValue, e.target.value, toUnit, category));
               }}
-              className="bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl px-4 py-2 font-bold text-sm outline-none cursor-pointer"
+              className="bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl px-4 py-2 font-bold text-sm outline-none cursor-pointer focus-visible:ring-2 focus-visible:ring-indigo-500"
               aria-label="Unité de départ"
             >
               {Object.entries(CONVERSIONS[category]).map(([key, unit]) => (
@@ -372,7 +379,7 @@ export function UnitConverter({ initialData, onStateChange }: { initialData?: an
         <div className="flex justify-center md:pt-8">
           <button
             onClick={handleSwap}
-            className="w-10 h-10 md:w-12 md:h-12 bg-indigo-600 text-white rounded-full flex items-center justify-center shadow-lg shadow-indigo-600/20 transition-all hover:scale-110 active:scale-95 group"
+            className="w-10 h-10 md:w-12 md:h-12 bg-indigo-600 text-white rounded-full flex items-center justify-center shadow-lg shadow-indigo-600/20 transition-all hover:scale-110 active:scale-95 group focus-visible:ring-2 focus-visible:ring-indigo-500 focus-visible:outline-none"
             aria-label="Inverser les unités"
           >
             <ArrowUpDown className="w-5 h-5 md:w-6 md:h-6 transition-transform group-hover:rotate-180 duration-500" />
@@ -387,14 +394,14 @@ export function UnitConverter({ initialData, onStateChange }: { initialData?: an
               <button
                 onClick={handleDownload}
                 disabled={!fromValue}
-                className="text-xs font-bold text-indigo-500 bg-indigo-50 dark:bg-indigo-500/10 hover:bg-indigo-100 px-2 py-1 rounded-lg flex items-center gap-1 transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+                className="text-xs font-bold text-indigo-500 bg-indigo-50 dark:bg-indigo-500/10 hover:bg-indigo-100 px-2 py-1 rounded-lg flex items-center gap-1 transition-all disabled:opacity-50 disabled:cursor-not-allowed focus-visible:ring-2 focus-visible:ring-indigo-500 focus-visible:outline-none"
               >
                 <Download className="w-3 h-3" /> Télécharger
               </button>
               <button
                 onClick={handleCopy}
                 disabled={!fromValue}
-                className={`text-xs font-bold flex items-center gap-1 px-2 py-1 rounded-lg transition-all ${copied ? 'bg-emerald-50 dark:bg-emerald-500/10 text-emerald-600 dark:text-emerald-400' : 'text-indigo-500 bg-indigo-50 dark:bg-indigo-500/10 hover:bg-indigo-100'} disabled:opacity-50 disabled:cursor-not-allowed`}
+                className={`text-xs font-bold flex items-center gap-1 px-2 py-1 rounded-lg transition-all focus-visible:ring-2 focus-visible:ring-indigo-500 focus-visible:outline-none ${copied ? 'bg-emerald-50 dark:bg-emerald-500/10 text-emerald-600 dark:text-emerald-400' : 'text-indigo-500 bg-indigo-50 dark:bg-indigo-500/10 hover:bg-indigo-100'} disabled:opacity-50 disabled:cursor-not-allowed`}
               >
                 {copied ? <Check className="w-3 h-3" /> : <Copy className="w-3 h-3" />}
                 {copied ? 'Copié' : 'Copier'}
@@ -412,7 +419,7 @@ export function UnitConverter({ initialData, onStateChange }: { initialData?: an
                 setToUnit(e.target.value);
                 setToValue(convert(fromValue, fromUnit, e.target.value, category));
               }}
-              className="bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl px-4 py-2 font-bold text-sm outline-none cursor-pointer"
+              className="bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl px-4 py-2 font-bold text-sm outline-none cursor-pointer focus-visible:ring-2 focus-visible:ring-indigo-500"
               aria-label="Unité de destination"
             >
               {Object.entries(CONVERSIONS[category]).map(([key, unit]) => (

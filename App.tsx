@@ -1091,11 +1091,10 @@ tools.forEach(tool => {
 
 // ⚡ Bolt Optimization: Memoized Tool Card component
 // Prevents unnecessary re-renders of all tool items when search or category changes.
-const ToolCard = React.memo(({ tool, isFavorite, onToggleFavorite, onClick }: {
+const ToolCard = React.memo(({ tool, isFavorite, onToggleFavorite }: {
   tool: Tool;
   isFavorite: boolean;
   onToggleFavorite: (e: React.MouseEvent, id: string) => void;
-  onClick: (id: string) => void;
 }) => {
   const titleId = `tool-title-${tool.id}`;
   const descId = `tool-desc-${tool.id}`;
@@ -1106,7 +1105,7 @@ const ToolCard = React.memo(({ tool, isFavorite, onToggleFavorite, onClick }: {
     >
       <div className="flex justify-between items-start mb-4 relative z-20">
         <div className="w-10 h-10 rounded-xl bg-slate-50 dark:bg-slate-800 flex items-center justify-center text-slate-400 group-hover:text-indigo-500 group-hover:bg-indigo-50 dark:group-hover:bg-indigo-900/20 transition-all">
-          <tool.icon className="w-5 h-5" />
+          <tool.icon className="w-5 h-5 transition-transform duration-300 group-hover:scale-110" />
         </div>
         <button
           onClick={(e) => onToggleFavorite(e, tool.id)}
@@ -1117,8 +1116,8 @@ const ToolCard = React.memo(({ tool, isFavorite, onToggleFavorite, onClick }: {
         </button>
       </div>
 
-      <button
-        onClick={() => onClick(tool.id)}
+      <Link
+        to={`/outil/${tool.id}`}
         className="absolute inset-0 z-10 rounded-2xl focus-visible:ring-2 focus-visible:ring-indigo-500 focus-visible:outline-none transition-all"
         aria-labelledby={titleId}
         aria-describedby={descId}
@@ -1170,6 +1169,17 @@ function ThemeToggle() {
 function MainApp() {
   const navigate = useNavigate();
   const location = useLocation();
+
+  const handleToolVisit = useCallback((id: string) => {
+    // Sentinel: Validate tool ID before adding to recent history.
+    if (!Object.prototype.hasOwnProperty.call(toolsMap, id)) return;
+
+    setRecents(prev => {
+      const newRecents = [id, ...prev.filter(r => r !== id)].slice(0, 4);
+      localStorage.setItem("recents", JSON.stringify(newRecents));
+      return newRecents;
+    });
+  }, []);
   const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
   const [searchQuery, setSearchQuery] = useState("");
   const [favorites, setFavorites] = useState<string[]>(() => {
@@ -1286,16 +1296,7 @@ function MainApp() {
   }, []);
 
   const handleToolSelect = useCallback((id: string) => {
-    // Sentinel: Validate tool ID before adding to recent history.
-    if (!Object.prototype.hasOwnProperty.call(toolsMap, id)) return;
-
-    setRecents(prev => {
-      const newRecents = [id, ...prev.filter(r => r !== id)].slice(0, 4);
-      localStorage.setItem("recents", JSON.stringify(newRecents));
-      return newRecents;
-    });
     navigate(`/outil/${id}`);
-    window.scrollTo({ top: 0, behavior: 'smooth' });
   }, [navigate]);
 
   const isHome = location.pathname === "/";
@@ -1429,10 +1430,10 @@ function MainApp() {
                       const randomTool = tools[Math.floor(Math.random() * tools.length)];
                       handleToolSelect(randomTool.id);
                     }}
-                    className="flex items-center gap-2 px-6 py-3 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl text-sm font-bold text-slate-600 dark:text-slate-400 hover:border-indigo-500 dark:hover:border-indigo-500 hover:text-indigo-600 dark:hover:text-indigo-400 transition-all shadow-sm focus-visible:ring-2 focus-visible:ring-indigo-500 focus-visible:outline-none"
+                    className="flex items-center gap-2 px-6 py-3 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl text-sm font-bold text-slate-600 dark:text-slate-400 hover:border-indigo-500 dark:hover:border-indigo-500 hover:text-indigo-600 dark:hover:text-indigo-400 transition-all shadow-sm focus-visible:ring-2 focus-visible:ring-indigo-500 focus-visible:outline-none group/random"
                     aria-label="Ouvrir un outil au hasard"
                   >
-                    <Shuffle className="w-4 h-4" /> J'ai de la chance
+                    <Shuffle className="w-4 h-4 transition-transform duration-500 group-hover/random:rotate-180" /> J'ai de la chance
                   </button>
                 </div>
               </div>
@@ -1443,16 +1444,16 @@ function MainApp() {
                   <h3 className="text-xs font-bold uppercase tracking-widest text-slate-400 dark:text-slate-500 mb-6 px-1">Récent</h3>
                   <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
                     {recentTools.map(tool => (
-                      <button
+                      <Link
                         key={tool.id}
-                        onClick={() => handleToolSelect(tool.id)}
-                        className="flex items-center gap-3 p-4 bg-slate-50 dark:bg-slate-900/50 rounded-xl border border-slate-200 dark:border-slate-800 hover:border-slate-300 dark:hover:border-slate-700 transition-all group"
+                        to={`/outil/${tool.id}`}
+                        className="flex items-center gap-3 p-4 bg-slate-50 dark:bg-slate-900/50 rounded-xl border border-slate-200 dark:border-slate-800 hover:border-slate-300 dark:hover:border-slate-700 transition-all group focus-visible:ring-2 focus-visible:ring-indigo-500 focus-visible:outline-none"
                       >
                         <div className="w-8 h-8 rounded-lg bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 flex items-center justify-center text-slate-400 group-hover:text-indigo-500 transition-colors">
-                          <tool.icon className="w-4 h-4" />
+                          <tool.icon className="w-4 h-4 transition-transform group-hover:scale-110" />
                         </div>
                         <span className="font-semibold text-sm truncate">{tool.name}</span>
-                      </button>
+                      </Link>
                     ))}
                   </div>
                 </section>
@@ -1489,7 +1490,17 @@ function MainApp() {
                             <Download className="w-4 h-4" /> Exporter
                           </button>
                         )}
-                        <label className="flex items-center gap-2 px-4 py-2 rounded-full text-sm font-bold text-slate-600 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-900 transition-all border border-slate-200 dark:border-slate-800 cursor-pointer">
+                        <label
+                          tabIndex={0}
+                          role="button"
+                          onKeyDown={(e) => {
+                            if (e.key === 'Enter' || e.key === ' ') {
+                              e.preventDefault();
+                              (e.currentTarget.querySelector('input[type="file"]') as HTMLInputElement)?.click();
+                            }
+                          }}
+                          className="flex items-center gap-2 px-4 py-2 rounded-full text-sm font-bold text-slate-600 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-900 transition-all border border-slate-200 dark:border-slate-800 cursor-pointer focus-visible:ring-2 focus-visible:ring-indigo-500 focus-visible:outline-none"
+                        >
                           <FileUp className="w-4 h-4" /> Importer
                           <input type="file" accept=".json" onChange={handleImportFavorites} className="hidden" />
                         </label>
@@ -1507,7 +1518,6 @@ function MainApp() {
                         tool={tool}
                         isFavorite={favoriteSet.has(tool.id)}
                         onToggleFavorite={toggleFavorite}
-                        onClick={handleToolSelect}
                       />
                     ))}
                   </div>
@@ -1560,7 +1570,7 @@ function MainApp() {
               </footer>
             </div>
           } />
-          <Route path="/outil/:toolId" element={<ToolView favorites={favorites} toggleFavorite={toggleFavorite} />} />
+          <Route path="/outil/:toolId" element={<ToolView favorites={favorites} toggleFavorite={toggleFavorite} onVisit={handleToolVisit} />} />
           <Route path="/a-propos" element={<InfoPage title="À propos" component={<About />} />} />
           <Route path="/contact" element={<InfoPage title="Contact" component={<Contact />} />} />
           <Route path="/confidentialite" element={<InfoPage title="Confidentialité" component={<PrivacyPolicy />} />} />
@@ -1571,7 +1581,11 @@ function MainApp() {
   );
 }
 
-function ToolView({ favorites, toggleFavorite }: { favorites: string[], toggleFavorite: (e: React.MouseEvent, id: string) => void }) {
+function ToolView({ favorites, toggleFavorite, onVisit }: {
+  favorites: string[],
+  toggleFavorite: (e: React.MouseEvent, id: string) => void,
+  onVisit: (id: string) => void
+}) {
   const { toolId } = useParams();
   const [searchParams] = useSearchParams();
   // ⚡ Bolt Optimization: Use toolsMap for O(1) lookup
@@ -1582,7 +1596,11 @@ function ToolView({ favorites, toggleFavorite }: { favorites: string[], toggleFa
 
   useEffect(() => {
     setToolState(null);
-  }, [toolId]);
+    if (toolId) {
+      onVisit(toolId);
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+  }, [toolId, onVisit]);
 
   const initialData = useMemo(() => {
     const data = searchParams.get('data');

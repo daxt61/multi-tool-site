@@ -76,3 +76,8 @@
 **Vulnerability:** The ListCleaner component lacked input length validation and used `Math.random()` for its shuffle functionality.
 **Learning:** Utility tools that perform array operations (like splitting, sorting, or shuffling) are vulnerable to client-side DoS if users provide extremely large inputs. Furthermore, even "non-security" tools should avoid predictable randomness to prevent exploitation in unforeseen use cases.
 **Prevention:** Standardize `MAX_LENGTH = 100000` across all text-processing tools and utilize the project's secure random generation pattern (CSPRNG with rejection sampling) for all randomized features.
+
+## 2025-06-30 - [XSS via Attribute Injection in SVG Generator]
+**Vulnerability:** The SVGPlaceholder component was vulnerable to XSS by injecting unvalidated user input into SVG attributes (width, height, fill, font-size) and text content rendered via `dangerouslySetInnerHTML`. Malicious URL state could break out of attributes.
+**Learning:** Even numeric or color attributes in an SVG string must be escaped when rendered via `dangerouslySetInnerHTML`. Initial state from URL parameters is an untrusted entry point that bypasses UI-level validation.
+**Prevention:** Always escape every variable injected into a raw HTML/SVG string. Enforce strict type checking and reasonable bounds (e.g., MAX_DIMENSION) for numeric values to prevent both XSS and DoS.

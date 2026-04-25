@@ -1,13 +1,17 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { FileCode, FileSpreadsheet, Copy, Check, Trash2, AlertCircle, Download } from 'lucide-react';
 
 const MAX_LENGTH = 100000;
 
-export function JSONCSVConverter() {
-  const [jsonInput, setJsonInput] = useState('');
-  const [csvInput, setCsvInput] = useState('');
+export function JSONCSVConverter({ initialData, onStateChange }: { initialData?: any; onStateChange?: (state: any) => void }) {
+  const [jsonInput, setJsonInput] = useState(initialData?.jsonInput || '');
+  const [csvInput, setCsvInput] = useState(initialData?.csvInput || '');
   const [error, setError] = useState('');
   const [copied, setCopied] = useState<'json' | 'csv' | null>(null);
+
+  useEffect(() => {
+    onStateChange?.({ jsonInput, csvInput });
+  }, [jsonInput, csvInput, onStateChange]);
 
   const formatValue = (val: any) => {
     if (val === null || val === undefined) return '';
@@ -152,7 +156,7 @@ export function JSONCSVConverter() {
           <div className="flex justify-between items-center px-1">
             <div className="flex items-center gap-2">
               <FileCode className="w-4 h-4 text-indigo-500" />
-              <label className="text-xs font-black uppercase tracking-widest text-slate-400">JSON</label>
+              <label htmlFor="json-input" className="text-xs font-black uppercase tracking-widest text-slate-400 cursor-pointer">JSON</label>
             </div>
             <div className="flex gap-2">
               <button
@@ -182,6 +186,7 @@ export function JSONCSVConverter() {
             </div>
           </div>
           <textarea
+            id="json-input"
             value={jsonInput}
             onChange={(e) => handleJsonChange(e.target.value)}
             placeholder='[{"id": 1, "name": "Test"}]'
@@ -194,7 +199,7 @@ export function JSONCSVConverter() {
           <div className="flex justify-between items-center px-1">
             <div className="flex items-center gap-2">
               <FileSpreadsheet className="w-4 h-4 text-indigo-500" />
-              <label className="text-xs font-black uppercase tracking-widest text-slate-400">CSV</label>
+              <label htmlFor="csv-input" className="text-xs font-black uppercase tracking-widest text-slate-400 cursor-pointer">CSV</label>
             </div>
             <div className="flex gap-2">
               <button
@@ -217,6 +222,7 @@ export function JSONCSVConverter() {
             </div>
           </div>
           <textarea
+            id="csv-input"
             value={csvInput}
             onChange={(e) => handleCsvChange(e.target.value)}
             placeholder='id,name\n1,Test'

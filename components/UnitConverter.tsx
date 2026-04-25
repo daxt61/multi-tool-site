@@ -430,6 +430,40 @@ export function UnitConverter({ initialData, onStateChange }: { initialData?: an
         </div>
       </div>
 
+      {/* Quick Conversions Grid */}
+      {fromValue && !isNaN(parseFloat(fromValue)) && (
+        <div className="space-y-6 animate-in fade-in slide-in-from-bottom-4 duration-500">
+          <div className="flex items-center gap-2 px-1">
+            <Ruler className="w-4 h-4 text-indigo-500" />
+            <h3 className="text-xs font-black uppercase tracking-widest text-slate-400">Toutes les conversions pour {fromValue} {CONVERSIONS[category][fromUnit].name}</h3>
+          </div>
+          <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4">
+            {Object.entries(CONVERSIONS[category]).map(([key, unit]) => {
+              if (key === fromUnit) return null;
+              const convertedValue = convert(fromValue, fromUnit, key, category);
+              return (
+                <button
+                  key={key}
+                  onClick={() => {
+                    setToUnit(key);
+                    setToValue(convertedValue);
+                    window.scrollTo({ top: 0, behavior: 'smooth' });
+                  }}
+                  className="p-4 bg-white dark:bg-slate-900 border border-slate-100 dark:border-slate-800 rounded-2xl text-left hover:border-indigo-500/50 hover:shadow-lg hover:shadow-indigo-500/5 transition-all group"
+                >
+                  <div className="text-lg font-black font-mono text-indigo-600 dark:text-indigo-400 truncate group-hover:scale-105 transition-transform origin-left">
+                    {formatter.format(convertedValue)}
+                  </div>
+                  <div className="text-[10px] font-bold text-slate-400 uppercase tracking-tight truncate">
+                    {unit.name}
+                  </div>
+                </button>
+              );
+            })}
+          </div>
+        </div>
+      )}
+
       {/* Educational Content */}
       <div className="mt-20 grid grid-cols-1 md:grid-cols-3 gap-12 pt-16 border-t border-slate-100 dark:border-slate-800">
         <div className="space-y-4">

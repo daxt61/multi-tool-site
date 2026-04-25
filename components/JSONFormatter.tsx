@@ -1,14 +1,18 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { FileCode, Copy, Check, Trash2, AlertCircle, Maximize2, Minimize2, Download } from 'lucide-react';
 
 const MAX_LENGTH = 100000;
 
-export function JSONFormatter() {
-  const [input, setInput] = useState('');
-  const [output, setOutput] = useState('');
-  const [indentSize, setIndentSize] = useState('2');
+export function JSONFormatter({ initialData, onStateChange }: { initialData?: any; onStateChange?: (state: any) => void }) {
+  const [input, setInput] = useState(initialData?.input || '');
+  const [output, setOutput] = useState(initialData?.output || '');
+  const [indentSize, setIndentSize] = useState(initialData?.indentSize || '2');
   const [error, setError] = useState('');
   const [copied, setCopied] = useState(false);
+
+  useEffect(() => {
+    onStateChange?.({ input, output, indentSize });
+  }, [input, output, indentSize, onStateChange]);
 
   const handlePrettify = () => {
     try {

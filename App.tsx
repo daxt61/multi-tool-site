@@ -230,6 +230,7 @@ const categories: Category[] = [
   { id: "favorites", name: "Favoris", icon: Star },
   { id: "business", name: "Business", icon: Briefcase },
   { id: "budget", name: "Finance", icon: Wallet },
+  { id: "health", name: "Santé", icon: Heart },
   { id: "calculators", name: "Calculatrices", icon: CalcIcon },
   { id: "converters", name: "Conversion", icon: Ruler },
   { id: "text", name: "Texte", icon: Type },
@@ -455,7 +456,7 @@ const tools: Tool[] = [
     icon: Heart,
     description: "Calcul de l'Indice de Masse Corporelle",
     Component: BMICalculator,
-    category: "calculators",
+    category: "health",
   },
   {
     id: "body-fat-calculator",
@@ -463,7 +464,7 @@ const tools: Tool[] = [
     icon: Activity,
     description: "Estimer son taux de graisse corporelle",
     Component: BodyFatCalculator,
-    category: "calculators",
+    category: "health",
   },
   {
     id: "bmr-calculator",
@@ -471,7 +472,7 @@ const tools: Tool[] = [
     icon: Activity,
     description: "Métabolisme de base et besoins caloriques",
     Component: BMRCalculator,
-    category: "calculators",
+    category: "health",
   },
   {
     id: "date-calculator",
@@ -495,7 +496,7 @@ const tools: Tool[] = [
     icon: Moon,
     description: "Calculer les cycles de sommeil et réveils idéaux",
     Component: SleepCalculator,
-    category: "calculators",
+    category: "health",
   },
   {
     id: "water-calculator",
@@ -503,7 +504,7 @@ const tools: Tool[] = [
     icon: Droplets,
     description: "Estimer vos besoins en hydratation quotidienne",
     Component: WaterCalculator,
-    category: "calculators",
+    category: "health",
   },
   // Converters
   {

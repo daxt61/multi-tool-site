@@ -64,6 +64,7 @@ import {
   X,
   Share2,
   Sun,
+  Terminal,
   Music,
   Star,
   Check,
@@ -87,6 +88,7 @@ import {
   Download,
   FileUp,
   Target,
+  ImagePlus,
   SunDim,
 } from "lucide-react";
 const AdPlaceholder = lazy(() => import("./components/AdPlaceholder").then(m => ({ default: m.AdPlaceholder })));
@@ -201,6 +203,8 @@ const FinancialRatios = lazy(() => import("./components/FinancialRatios").then(m
 const ColorMixer = lazy(() => import("./components/ColorMixer").then(m => ({ default: m.ColorMixer })));
 const LeetspeakConverter = lazy(() => import("./components/LeetspeakConverter").then(m => ({ default: m.LeetspeakConverter })));
 const JsonTreeViewer = lazy(() => import("./components/JsonTreeViewer").then(m => ({ default: m.JsonTreeViewer })));
+const CURLConverter = lazy(() => import("./components/CURLConverter").then(m => ({ default: m.CURLConverter })));
+const SVGPlaceholder = lazy(() => import("./components/SVGPlaceholder").then(m => ({ default: m.SVGPlaceholder })));
 
 // ⚡ Bolt Optimization: Pre-calculating tool map and search index for O(1) lookups and faster filtering
 const toolsMap: Record<string, Tool> = {};
@@ -950,6 +954,22 @@ const tools: Tool[] = [
     icon: FileCode,
     description: "Convertisseur bidirectionnel JSON et XML",
     Component: JsonXmlConverter,
+    category: "dev",
+  },
+  {
+    id: "curl-converter",
+    name: "cURL Converter",
+    icon: Terminal,
+    description: "Transformer des commandes cURL en fetch JavaScript",
+    Component: CURLConverter,
+    category: "dev",
+  },
+  {
+    id: "svg-placeholder",
+    name: "Placeholder SVG",
+    icon: ImagePlus,
+    description: "Générer des images de remplacement en SVG",
+    Component: SVGPlaceholder,
     category: "dev",
   },
   // Other Tools

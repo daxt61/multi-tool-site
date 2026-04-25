@@ -184,12 +184,39 @@ export function RegExTester({ initialData, onStateChange }: { initialData?: any;
     { char: 'u', name: 'Unicode' },
   ];
 
+  const PATTERN_LIBRARY = [
+    { name: 'Email', regex: '([a-zA-Z0-9._%+-]+)@([a-zA-Z0-9.-]+)\\.([a-zA-Z]{2,})', flags: 'g' },
+    { name: 'URL', regex: 'https?:\\/\\/(www\\.)?[-a-zA-Z0-9@:%._\\+~#=]{1,256}\\.[a-zA-Z0-9()]{1,6}\\b([-a-zA-Z0-9()@:%_\\+.~#?&//=]*)', flags: 'g' },
+    { name: 'IPv4', regex: '(?:(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\\.){3}(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)', flags: 'g' },
+    { name: 'Date (YYYY-MM-DD)', regex: '\\d{4}-(0[1-9]|1[0-2])-(0[1-9]|[12][0-9]|3[01])', flags: 'g' },
+    { name: 'Téléphone (FR)', regex: '(?:(?:\\+|00)33|0)\\s*[1-9](?:[\\s.-]*\\d{2}){4}', flags: 'g' },
+  ];
+
   const toggleFlag = (flag: string) => {
     setFlags((prev: string) => prev.includes(flag) ? prev.replace(flag, '') : prev + flag);
   };
 
   return (
     <div className="max-w-5xl mx-auto space-y-8">
+      {/* Pattern Library */}
+      <div className="bg-white dark:bg-slate-900/40 p-6 rounded-[2.5rem] border border-slate-200 dark:border-slate-800 space-y-4">
+        <h3 className="text-xs font-black uppercase tracking-widest text-slate-400 px-1">Bibliothèque de modèles</h3>
+        <div className="flex flex-wrap gap-2">
+          {PATTERN_LIBRARY.map((pattern) => (
+            <button
+              key={pattern.name}
+              onClick={() => {
+                setRegex(pattern.regex);
+                setFlags(pattern.flags);
+              }}
+              className="px-4 py-2 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-xs font-bold hover:border-indigo-500/50 hover:text-indigo-600 transition-all dark:text-slate-300"
+            >
+              {pattern.name}
+            </button>
+          ))}
+        </div>
+      </div>
+
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
         {/* Left Column: Editor */}
         <div className="lg:col-span-7 space-y-6">

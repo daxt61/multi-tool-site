@@ -1,12 +1,12 @@
 import { useState, useEffect, useMemo } from 'react';
-import { Clock, Copy, Check, Info, AlertCircle } from 'lucide-react';
+import { Clock, Copy, Check, Info, Trash2 } from 'lucide-react';
 
-export function CronGenerator() {
-  const [minutes, setMinutes] = useState('*');
-  const [hours, setHours] = useState('*');
-  const [dayOfMonth, setDayOfMonth] = useState('*');
-  const [month, setMonth] = useState('*');
-  const [dayOfWeek, setDayOfWeek] = useState('*');
+export function CronGenerator({ initialData, onStateChange }: { initialData?: any; onStateChange?: (state: any) => void }) {
+  const [minutes, setMinutes] = useState(initialData?.minutes || '*');
+  const [hours, setHours] = useState(initialData?.hours || '*');
+  const [dayOfMonth, setDayOfMonth] = useState(initialData?.dayOfMonth || '*');
+  const [month, setMonth] = useState(initialData?.month || '*');
+  const [dayOfWeek, setDayOfWeek] = useState(initialData?.dayOfWeek || '*');
   const [cron, setCron] = useState('* * * * *');
   const [copied, setCopied] = useState(false);
 
@@ -50,8 +50,10 @@ export function CronGenerator() {
   }, [cron, minutes, hours, dayOfMonth, month, dayOfWeek]);
 
   useEffect(() => {
-    setCron(`${minutes} ${hours} ${dayOfMonth} ${month} ${dayOfWeek}`);
-  }, [minutes, hours, dayOfMonth, month, dayOfWeek]);
+    const newCron = `${minutes} ${hours} ${dayOfMonth} ${month} ${dayOfWeek}`;
+    setCron(newCron);
+    onStateChange?.({ minutes, hours, dayOfMonth, month, dayOfWeek, cron: newCron });
+  }, [minutes, hours, dayOfMonth, month, dayOfWeek, onStateChange]);
 
   const handleCopy = () => {
     navigator.clipboard.writeText(cron);
@@ -77,8 +79,26 @@ export function CronGenerator() {
     setDayOfWeek(parts[4]);
   };
 
+  const handleClear = () => {
+    setMinutes('*');
+    setHours('*');
+    setDayOfMonth('*');
+    setMonth('*');
+    setDayOfWeek('*');
+  };
+
   return (
     <div className="max-w-4xl mx-auto space-y-10">
+      <div className="flex justify-end px-1">
+        <button
+          onClick={handleClear}
+          disabled={cron === '* * * * *'}
+          className="text-xs font-bold text-rose-500 bg-rose-50 dark:bg-rose-500/10 hover:bg-rose-100 dark:hover:bg-rose-500/20 px-3 py-1.5 rounded-xl flex items-center gap-1 transition-all disabled:opacity-50 disabled:cursor-not-allowed focus-visible:ring-2 focus-visible:ring-rose-500 focus-visible:outline-none"
+        >
+          <Trash2 className="w-3 h-3" /> Effacer
+        </button>
+      </div>
+
       <div className="bg-slate-900 dark:bg-black p-10 rounded-[2.5rem] shadow-xl shadow-indigo-500/10 text-center space-y-6">
         <div className="inline-flex items-center gap-2 px-4 py-1.5 bg-indigo-500/10 text-indigo-400 rounded-full text-xs font-black uppercase tracking-widest border border-indigo-500/20">
           <Clock className="w-3 h-3" /> Expression Cron
@@ -104,15 +124,18 @@ export function CronGenerator() {
 
       <div className="grid grid-cols-1 md:grid-cols-5 gap-4">
         {[
-          { label: 'Minute', value: minutes, setter: setMinutes, hint: '0-59, *, */n' },
-          { label: 'Heure', value: hours, setter: setHours, hint: '0-23, *, */n' },
-          { label: 'Jour (Mois)', value: dayOfMonth, setter: setDayOfMonth, hint: '1-31, *, L' },
-          { label: 'Mois', value: month, setter: setMonth, hint: '1-12, *, JAN-DEC' },
-          { label: 'Jour (Semaine)', value: dayOfWeek, setter: setDayOfWeek, hint: '0-6, *, SUN-SAT' },
+          { id: 'cron-minute', label: 'Minute', value: minutes, setter: setMinutes, hint: '0-59, *, */n' },
+          { id: 'cron-hour', label: 'Heure', value: hours, setter: setHours, hint: '0-23, *, */n' },
+          { id: 'cron-dom', label: 'Jour (Mois)', value: dayOfMonth, setter: setDayOfMonth, hint: '1-31, *, L' },
+          { id: 'cron-month', label: 'Mois', value: month, setter: setMonth, hint: '1-12, *, JAN-DEC' },
+          { id: 'cron-dow', label: 'Jour (Semaine)', value: dayOfWeek, setter: setDayOfWeek, hint: '0-6, *, SUN-SAT' },
         ].map((field) => (
-          <div key={field.label} className="space-y-2">
-            <label className="text-xs font-black uppercase tracking-widest text-slate-400 px-1">{field.label}</label>
+          <div key={field.id} className="space-y-2">
+            <label htmlFor={field.id} className="text-xs font-black uppercase tracking-widest text-slate-400 px-1 cursor-pointer">
+              {field.label}
+            </label>
             <input
+              id={field.id}
               type="text"
               value={field.value}
               onChange={(e) => field.setter(e.target.value)}

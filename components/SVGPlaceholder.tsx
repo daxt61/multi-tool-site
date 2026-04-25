@@ -1,14 +1,19 @@
 import React, { useState, useEffect, useMemo } from 'react';
-import { ImageIcon, Copy, Check, Trash2, Download, Palette, Type, Maximize } from 'lucide-react';
+import { ImageIcon, Copy, Check, Trash2, Download, Palette, Type, Maximize, AlertCircle } from 'lucide-react';
+
+const MAX_LENGTH = 1000;
+const MAX_DIMENSION = 5000;
+const MAX_FONT_SIZE = 500;
 
 export function SVGPlaceholder({ initialData, onStateChange }: { initialData?: any; onStateChange?: (state: any) => void }) {
-  const [width, setWidth] = useState(initialData?.width ?? 800);
-  const [height, setHeight] = useState(initialData?.height ?? 450);
-  const [text, setText] = useState(initialData?.text || '');
+  const [width, setWidth] = useState(Math.min(initialData?.width ?? 800, MAX_DIMENSION));
+  const [height, setHeight] = useState(Math.min(initialData?.height ?? 450, MAX_DIMENSION));
+  const [text, setText] = useState((initialData?.text || '').slice(0, MAX_LENGTH));
   const [bgColor, setBgColor] = useState(initialData?.bgColor || '#f1f5f9');
   const [textColor, setTextColor] = useState(initialData?.textColor || '#64748b');
-  const [fontSize, setFontSize] = useState(initialData?.fontSize ?? 24);
+  const [fontSize, setFontSize] = useState(Math.min(initialData?.fontSize ?? 24, MAX_FONT_SIZE));
   const [copied, setCopied] = useState<'svg' | 'uri' | null>(null);
+  const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
     onStateChange?.({ width, height, text, bgColor, textColor, fontSize });
@@ -16,7 +21,7 @@ export function SVGPlaceholder({ initialData, onStateChange }: { initialData?: a
 
   const svgContent = useMemo(() => {
     const escapeHtml = (str: string) => {
-      return str.replace(/[&<>"']/g, (m) => ({
+      return String(str).replace(/[&<>"']/g, (m) => ({
         '&': '&amp;',
         '<': '&lt;',
         '>': '&gt;',
@@ -24,10 +29,18 @@ export function SVGPlaceholder({ initialData, onStateChange }: { initialData?: a
         "'": '&#39;'
       }[m] || m));
     };
+
+    // Sentinel: Escape all variables injected into SVG attributes or content to prevent XSS.
+    const eWidth = escapeHtml(String(width));
+    const eHeight = escapeHtml(String(height));
+    const eBgColor = escapeHtml(bgColor);
+    const eTextColor = escapeHtml(textColor);
+    const eFontSize = escapeHtml(String(fontSize));
     const displayText = escapeHtml(text || `${width} x ${height}`);
-    return `<svg width="${width}" height="${height}" viewBox="0 0 ${width} ${height}" xmlns="http://www.w3.org/2000/svg">
-  <rect width="100%" height="100%" fill="${bgColor}"/>
-  <text x="50%" y="50%" font-family="sans-serif" font-size="${fontSize}" fill="${textColor}" text-anchor="middle" dominant-baseline="middle">${displayText}</text>
+
+    return `<svg width="${eWidth}" height="${eHeight}" viewBox="0 0 ${eWidth} ${eHeight}" xmlns="http://www.w3.org/2000/svg">
+  <rect width="100%" height="100%" fill="${eBgColor}"/>
+  <text x="50%" y="50%" font-family="sans-serif" font-size="${eFontSize}" fill="${eTextColor}" text-anchor="middle" dominant-baseline="middle">${displayText}</text>
 </svg>`;
   }, [width, height, text, bgColor, textColor, fontSize]);
 
@@ -59,10 +72,56 @@ export function SVGPlaceholder({ initialData, onStateChange }: { initialData?: a
     setBgColor('#f1f5f9');
     setTextColor('#64748b');
     setFontSize(24);
+    setError(null);
+  };
+
+  const handleWidthChange = (val: number) => {
+    const v = Math.max(1, val);
+    if (v > MAX_DIMENSION) {
+      setError(`La largeur maximale est de ${MAX_DIMENSION}px`);
+      return;
+    }
+    setError(null);
+    setWidth(v);
+  };
+
+  const handleHeightChange = (val: number) => {
+    const v = Math.max(1, val);
+    if (v > MAX_DIMENSION) {
+      setError(`La hauteur maximale est de ${MAX_DIMENSION}px`);
+      return;
+    }
+    setError(null);
+    setHeight(v);
+  };
+
+  const handleTextChange = (val: string) => {
+    if (val.length > MAX_LENGTH) {
+      setError(`Le texte est trop long (max ${MAX_LENGTH} caractères)`);
+      return;
+    }
+    setError(null);
+    setText(val);
+  };
+
+  const handleFontSizeChange = (val: number) => {
+    const v = Math.max(1, val);
+    if (v > MAX_FONT_SIZE) {
+      setError(`La taille de police maximale est de ${MAX_FONT_SIZE}px`);
+      return;
+    }
+    setError(null);
+    setFontSize(v);
   };
 
   return (
     <div className="max-w-5xl mx-auto space-y-12">
+      {error && (
+        <div className="bg-rose-50 dark:bg-rose-500/10 border border-rose-200 dark:border-rose-800 p-4 rounded-2xl flex items-center gap-3 text-rose-600 dark:text-rose-400 font-bold animate-in fade-in slide-in-from-top-2">
+          <AlertCircle className="w-5 h-5" />
+          {error}
+        </div>
+      )}
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-12">
         {/* Controls */}
         <div className="lg:col-span-7 space-y-8">
@@ -74,7 +133,7 @@ export function SVGPlaceholder({ initialData, onStateChange }: { initialData?: a
                   id="svg-width"
                   type="number"
                   value={width}
-                  onChange={(e) => setWidth(Math.max(1, Number(e.target.value)))}
+                  onChange={(e) => handleWidthChange(Number(e.target.value))}
                   className="w-full p-4 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-2xl font-bold outline-none focus:ring-2 focus:ring-indigo-500/20 transition-all dark:text-white"
                 />
               </div>
@@ -84,7 +143,7 @@ export function SVGPlaceholder({ initialData, onStateChange }: { initialData?: a
                   id="svg-height"
                   type="number"
                   value={height}
-                  onChange={(e) => setHeight(Math.max(1, Number(e.target.value)))}
+                  onChange={(e) => handleHeightChange(Number(e.target.value))}
                   className="w-full p-4 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-2xl font-bold outline-none focus:ring-2 focus:ring-indigo-500/20 transition-all dark:text-white"
                 />
               </div>
@@ -104,7 +163,7 @@ export function SVGPlaceholder({ initialData, onStateChange }: { initialData?: a
                 id="svg-text"
                 type="text"
                 value={text}
-                onChange={(e) => setText(e.target.value)}
+                onChange={(e) => handleTextChange(e.target.value)}
                 placeholder={`${width} x ${height}`}
                 className="w-full p-4 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-2xl font-bold outline-none focus:ring-2 focus:ring-indigo-500/20 transition-all dark:text-white"
               />
@@ -145,7 +204,7 @@ export function SVGPlaceholder({ initialData, onStateChange }: { initialData?: a
                   id="font-size"
                   type="number"
                   value={fontSize}
-                  onChange={(e) => setFontSize(Math.max(1, Number(e.target.value)))}
+                  onChange={(e) => handleFontSizeChange(Number(e.target.value))}
                   className="w-full p-4 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-2xl font-bold outline-none focus:ring-2 focus:ring-indigo-500/20 transition-all dark:text-white"
                 />
               </div>

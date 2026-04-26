@@ -30,6 +30,7 @@ export function PasswordGenerator({ initialData, onStateChange }: { initialData?
   const [includeSymbols, setIncludeSymbols] = useState(initialData?.includeSymbols ?? true);
   const [excludeSimilar, setExcludeSimilar] = useState(initialData?.excludeSimilar ?? false);
   const [copied, setCopied] = useState(false);
+  const [copiedHistoryIndex, setCopiedHistoryIndex] = useState<number | null>(null);
   const [history, setHistory] = useState<string[]>([]);
 
   const getSecureRandomIndex = useCallback((range: number) => {
@@ -142,8 +143,10 @@ export function PasswordGenerator({ initialData, onStateChange }: { initialData?
     setHistory([]);
   };
 
-  const copyHistoryItem = (item: string) => {
+  const copyHistoryItem = (item: string, index: number) => {
     navigator.clipboard.writeText(item);
+    setCopiedHistoryIndex(index);
+    setTimeout(() => setCopiedHistoryIndex(null), 2000);
   };
 
   const handleDownload = () => {
@@ -240,11 +243,11 @@ export function PasswordGenerator({ initialData, onStateChange }: { initialData?
           <div className="flex gap-3">
             <button
               onClick={generatePassword}
-              className="p-4 bg-white/10 hover:bg-white/20 text-white rounded-2xl transition-all active:scale-95 focus-visible:ring-2 focus-visible:ring-indigo-500 focus-visible:outline-none"
+              className="p-4 bg-white/10 hover:bg-white/20 text-white rounded-2xl transition-all active:scale-95 focus-visible:ring-2 focus-visible:ring-indigo-500 focus-visible:outline-none group/regen"
               title="Régénérer (R)"
               aria-label="Régénérer le mot de passe"
             >
-              <RefreshCw className="w-6 h-6" />
+              <RefreshCw className="w-6 h-6 transition-transform duration-500 group-hover/regen:rotate-180" />
             </button>
             <button
               onClick={copyToClipboard}
@@ -292,11 +295,21 @@ export function PasswordGenerator({ initialData, onStateChange }: { initialData?
             {history.slice(1).map((item, idx) => (
               <button
                 key={idx}
-                onClick={() => copyHistoryItem(item)}
-                className="group flex items-center gap-3 px-4 py-2 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl hover:border-indigo-500/50 transition-all text-sm font-mono dark:text-slate-300"
+                type="button"
+                onClick={() => copyHistoryItem(item, idx)}
+                aria-label="Copier ce mot de passe"
+                className={`group flex items-center gap-3 px-4 py-2 border rounded-xl transition-all text-sm font-mono focus-visible:ring-2 focus-visible:ring-indigo-500 focus-visible:outline-none ${
+                  copiedHistoryIndex === idx
+                    ? 'bg-emerald-50 dark:bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border-emerald-200 dark:border-emerald-500/20'
+                    : 'bg-white dark:bg-slate-800 border-slate-200 dark:border-slate-700 text-slate-500 dark:text-slate-300 hover:border-indigo-500/50'
+                }`}
               >
                 <span className="truncate max-w-[150px]">{item}</span>
-                <Copy className="w-3.5 h-3.5 text-slate-400 group-hover:text-indigo-500 transition-colors" />
+                {copiedHistoryIndex === idx ? (
+                  <Check className="w-3.5 h-3.5" />
+                ) : (
+                  <Copy className="w-3.5 h-3.5 text-slate-400 group-hover:text-indigo-500 transition-colors" />
+                )}
               </button>
             ))}
           </div>

@@ -239,6 +239,32 @@ export function ColorConverter() {
     setCmyk(rgbToCmyk(rgbValue.r, rgbValue.g, rgbValue.b));
   };
 
+  const getLuminance = (r: number, g: number, b: number) => {
+    const a = [r, g, b].map(v => {
+      v /= 255;
+      return v <= 0.03928 ? v / 12.92 : Math.pow((v + 0.055) / 1.055, 2.4);
+    });
+    return a[0] * 0.2126 + a[1] * 0.7152 + a[2] * 0.0722;
+  };
+
+  const getContrast = (rgb1: { r: number, g: number, b: number }, rgb2: { r: number, g: number, b: number }) => {
+    const lum1 = getLuminance(rgb1.r, rgb1.g, rgb1.b);
+    const lum2 = getLuminance(rgb2.r, rgb2.g, rgb2.b);
+    const brightest = Math.max(lum1, lum2);
+    const darkest = Math.min(lum1, lum2);
+    return (brightest + 0.05) / (darkest + 0.05);
+  };
+
+  const contrastWhite = getContrast(rgb, { r: 255, g: 255, b: 255 });
+  const contrastBlack = getContrast(rgb, { r: 0, g: 0, b: 0 });
+
+  const getWCAGRating = (contrast: number) => {
+    if (contrast >= 7) return 'AAA';
+    if (contrast >= 4.5) return 'AA';
+    if (contrast >= 3) return 'Large';
+    return 'Fail';
+  };
+
   const copyToClipboard = (text: string, id: string) => {
     navigator.clipboard.writeText(text);
     setCopied(id);
@@ -461,6 +487,40 @@ export function ColorConverter() {
                 className="w-full h-1.5 rounded-lg appearance-none cursor-pointer bg-slate-100 dark:bg-slate-800 accent-indigo-600"
               />
             </div>
+          </div>
+        </div>
+      </div>
+
+      {/* Contrast Check Area */}
+      <div className="bg-slate-50 dark:bg-slate-900/50 p-8 rounded-[2.5rem] border border-slate-200 dark:border-slate-800 space-y-8">
+        <h4 className="text-xs font-black uppercase tracking-widest text-slate-400 flex items-center gap-2 px-1">
+          <Check className="w-4 h-4 text-indigo-500" /> Accessibilité (WCAG 2.1)
+        </h4>
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+          <div className="p-6 rounded-3xl space-y-4" style={{ backgroundColor: hex, color: '#FFFFFF' }}>
+             <div className="flex justify-between items-center">
+                <span className="text-xs font-bold uppercase tracking-widest opacity-80">Sur Fond Blanc</span>
+                <span className={`px-2 py-1 rounded-lg text-[10px] font-black uppercase tracking-widest ${contrastWhite >= 4.5 ? 'bg-emerald-500' : 'bg-rose-500'} text-white shadow-lg`}>
+                   {getWCAGRating(contrastWhite)}
+                </span>
+             </div>
+             <div className="text-3xl font-black">{contrastWhite.toFixed(2)} : 1</div>
+             <p className="text-sm font-medium opacity-90 leading-relaxed">
+               L'herbe est plus verte ailleurs. Le soleil brille pour tout le monde.
+             </p>
+          </div>
+
+          <div className="p-6 rounded-3xl space-y-4" style={{ backgroundColor: hex, color: '#000000' }}>
+             <div className="flex justify-between items-center">
+                <span className="text-xs font-bold uppercase tracking-widest opacity-80">Sur Fond Noir</span>
+                <span className={`px-2 py-1 rounded-lg text-[10px] font-black uppercase tracking-widest ${contrastBlack >= 4.5 ? 'bg-emerald-500' : 'bg-rose-500'} text-white shadow-lg`}>
+                   {getWCAGRating(contrastBlack)}
+                </span>
+             </div>
+             <div className="text-3xl font-black">{contrastBlack.toFixed(2)} : 1</div>
+             <p className="text-sm font-medium opacity-90 leading-relaxed">
+               La nuit, tous les chats sont gris. Le silence est d'or.
+             </p>
           </div>
         </div>
       </div>

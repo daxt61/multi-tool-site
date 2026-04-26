@@ -37,11 +37,13 @@ export function NumberConverter({ initialData, onStateChange }: { initialData?: 
       setHexadecimal('');
       return;
     }
-    const num = parseInt(value, 10);
-    if (!isNaN(num)) {
+    try {
+      const num = BigInt(value);
       setBinary(num.toString(2));
       setOctal(num.toString(8));
       setHexadecimal(num.toString(16).toUpperCase());
+    } catch (e) {
+      console.error(e);
     }
   };
 
@@ -53,10 +55,14 @@ export function NumberConverter({ initialData, onStateChange }: { initialData?: 
       setHexadecimal('');
       return;
     }
-    const num = parseInt(value, 2);
-    setDecimal(num.toString(10));
-    setOctal(num.toString(8));
-    setHexadecimal(num.toString(16).toUpperCase());
+    try {
+      const num = BigInt('0b' + value);
+      setDecimal(num.toString(10));
+      setOctal(num.toString(8));
+      setHexadecimal(num.toString(16).toUpperCase());
+    } catch (e) {
+      console.error(e);
+    }
   };
 
   const updateFromOctal = (value: string) => {
@@ -67,10 +73,14 @@ export function NumberConverter({ initialData, onStateChange }: { initialData?: 
       setHexadecimal('');
       return;
     }
-    const num = parseInt(value, 8);
-    setDecimal(num.toString(10));
-    setBinary(num.toString(2));
-    setHexadecimal(num.toString(16).toUpperCase());
+    try {
+      const num = BigInt('0o' + value);
+      setDecimal(num.toString(10));
+      setBinary(num.toString(2));
+      setHexadecimal(num.toString(16).toUpperCase());
+    } catch (e) {
+      console.error(e);
+    }
   };
 
   const updateFromHexadecimal = (value: string) => {
@@ -81,10 +91,14 @@ export function NumberConverter({ initialData, onStateChange }: { initialData?: 
       setOctal('');
       return;
     }
-    const num = parseInt(value, 16);
-    setDecimal(num.toString(10));
-    setBinary(num.toString(2));
-    setOctal(num.toString(8));
+    try {
+      const num = BigInt('0x' + value);
+      setDecimal(num.toString(10));
+      setBinary(num.toString(2));
+      setOctal(num.toString(8));
+    } catch (e) {
+      console.error(e);
+    }
   };
 
   const copyToClipboard = (val: string, id: string) => {
@@ -160,6 +174,9 @@ export function NumberConverter({ initialData, onStateChange }: { initialData?: 
         </div>
         <div className="space-y-4">
           <h4 className="font-bold dark:text-white">À propos des bases numériques</h4>
+          <p className="text-sm text-slate-500 dark:text-slate-400">
+            Cet outil supporte désormais les nombres arbitrairement grands (BigInt), évitant toute perte de précision lors des conversions.
+          </p>
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <ul className="text-sm text-slate-500 dark:text-slate-400 space-y-2">
               <li className="flex gap-2">

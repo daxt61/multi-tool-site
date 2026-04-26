@@ -1,7 +1,9 @@
-import { useState, useEffect, useCallback } from 'react';
-import { Copy, Check, Trash2, Type, Download, Zap } from 'lucide-react';
+import { useState, useEffect, useCallback, useDeferredValue, useMemo } from 'react';
+import { Copy, Check, Trash2, Type, Download, Zap, AlertCircle } from 'lucide-react';
 
 type LeetLevel = 'basic' | 'medium' | 'ultra';
+
+const MAX_LENGTH = 100000;
 
 const LEET_MAPS: Record<LeetLevel, Record<string, string>> = {
   basic: {
@@ -19,23 +21,47 @@ export function LeetspeakConverter({ initialData, onStateChange }: { initialData
   const [text, setText] = useState(initialData?.text || '');
   const [level, setLevel] = useState<LeetLevel>(initialData?.level || 'basic');
   const [copied, setCopied] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
-  const convertToLeet = useCallback((input: string, leetLevel: LeetLevel) => {
-    const map = LEET_MAPS[leetLevel];
-    return input.toLowerCase().split('').map(char => map[char] || char).join('');
-  }, []);
-
-  const leetText = convertToLeet(text, level);
+  // Sentinel: Use useDeferredValue to keep the UI responsive during expensive
+  // string transformations on large inputs.
+  const deferredText = useDeferredValue(text);
 
   useEffect(() => {
     onStateChange?.({ text, level });
   }, [text, level, onStateChange]);
+
+  const leetText = useMemo(() => {
+    // Sentinel: Implement input length limit to mitigate client-side Denial of Service (DoS)
+    // by preventing expensive string operations on excessively large inputs.
+    if (deferredText.length > MAX_LENGTH) {
+      return '';
+    }
+
+    const map = LEET_MAPS[level];
+    return deferredText.toLowerCase().split('').map((char: string) => map[char] || char).join('');
+  }, [deferredText, level]);
+
+  const handleTextChange = (val: string) => {
+    setText(val);
+    if (val.length > MAX_LENGTH) {
+      setError(`L'entrée est trop longue. Limite de ${MAX_LENGTH.toLocaleString()} caractères.`);
+    } else {
+      setError(null);
+    }
+  };
 
   const handleCopy = () => {
     if (!leetText) return;
     navigator.clipboard.writeText(leetText);
     setCopied(true);
     setTimeout(() => setCopied(false), 2000);
+  };
+
+  const handleClear = () => {
+    setText('');
+    setError(null);
+    setCopied(false);
   };
 
   const handleDownload = () => {
@@ -51,6 +77,13 @@ export function LeetspeakConverter({ initialData, onStateChange }: { initialData
 
   return (
     <div className="max-w-4xl mx-auto space-y-8">
+      {error && (
+        <div className="bg-rose-50 dark:bg-rose-500/10 border border-rose-200 dark:border-rose-800 p-4 rounded-2xl flex items-center gap-3 text-rose-600 dark:text-rose-400 font-bold animate-in fade-in slide-in-from-top-2">
+          <AlertCircle className="w-5 h-5" />
+          {error}
+        </div>
+      )}
+
       {/* Level Selector */}
       <div className="flex justify-center">
         <div className="inline-flex bg-slate-100 dark:bg-slate-800 p-1 rounded-2xl border border-slate-200 dark:border-slate-700">
@@ -78,7 +111,7 @@ export function LeetspeakConverter({ initialData, onStateChange }: { initialData
           <div className="flex justify-between items-center px-1">
             <label htmlFor="leet-input" className="text-xs font-black uppercase tracking-widest text-slate-400 cursor-pointer">Texte Normal</label>
             <button
-              onClick={() => setText('')}
+              onClick={handleClear}
               disabled={!text}
               className="text-xs font-bold text-rose-500 bg-rose-50 dark:bg-rose-500/10 hover:bg-rose-100 dark:hover:bg-rose-500/20 px-3 py-1.5 rounded-xl flex items-center gap-1 transition-all disabled:opacity-50 disabled:cursor-not-allowed"
             >
@@ -88,9 +121,9 @@ export function LeetspeakConverter({ initialData, onStateChange }: { initialData
           <textarea
             id="leet-input"
             value={text}
-            onChange={(e) => setText(e.target.value)}
+            onChange={(e) => handleTextChange(e.target.value)}
             placeholder="Tapez votre texte ici..."
-            className="w-full h-64 p-6 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-3xl outline-none focus:ring-2 focus:ring-indigo-500/20 transition-all text-lg dark:text-slate-300 resize-none"
+            className={`w-full h-64 p-6 bg-slate-50 dark:bg-slate-900 border ${error ? 'border-rose-500 focus:ring-rose-500/20' : 'border-slate-200 dark:border-slate-800 focus:ring-indigo-500/20'} rounded-3xl outline-none focus:ring-2 transition-all text-lg dark:text-slate-300 resize-none`}
           />
         </div>
 
@@ -124,7 +157,7 @@ export function LeetspeakConverter({ initialData, onStateChange }: { initialData
             id="leet-output"
             className="w-full h-64 p-6 bg-white dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-3xl text-lg dark:text-white font-mono break-all overflow-y-auto"
           >
-            {leetText || <span className="text-slate-400 italic">Le résultat apparaîtra ici...</span>}
+            {leetText || <span className="text-slate-400 italic">{error ? 'Entrée trop longue' : 'Le résultat apparaîtra ici...'}</span>}
           </div>
         </div>
       </div>

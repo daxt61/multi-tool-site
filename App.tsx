@@ -219,6 +219,7 @@ interface Tool {
   description: string;
   Component: React.ElementType<{ initialData?: any; onStateChange?: (state: any) => void }>;
   category: string;
+  keywords?: string[];
 }
 
 interface Category {
@@ -322,6 +323,7 @@ const tools: Tool[] = [
     description: "Simulateur de mensualités de crédit",
     Component: LoanCalculator,
     category: "budget",
+    keywords: ["crédit", "immobilier", "taux", "mensualité", "banque"],
   },
   {
     id: "savings-calculator",
@@ -330,6 +332,7 @@ const tools: Tool[] = [
     description: "Simulation de croissance d'épargne",
     Component: SavingsCalculator,
     category: "budget",
+    keywords: ["argent", "capital", "intérêts", "placement", "retraite"],
   },
   {
     id: "compound-interest",
@@ -362,6 +365,7 @@ const tools: Tool[] = [
     description: "Convertisseur de devises en temps réel",
     Component: CurrencyConverter,
     category: "budget",
+    keywords: ["argent", "change", "taux", "dollar", "euro", "voyage"],
   },
   {
     id: "unit-price-calculator",
@@ -370,6 +374,7 @@ const tools: Tool[] = [
     description: "Comparer le prix au kilo ou à l'unité",
     Component: UnitPriceCalculator,
     category: "budget",
+    keywords: ["achat", "comparaison", "kilo", "unité", "prix", "économies"],
   },
   {
     id: "discount-calculator",
@@ -451,6 +456,7 @@ const tools: Tool[] = [
     description: "Calculatrice simple et scientifique",
     Component: Calculator,
     category: "calculators",
+    keywords: ["math", "calcul", "scientifique", "sin", "cos", "tan"],
   },
   {
     id: "percentage",
@@ -467,6 +473,7 @@ const tools: Tool[] = [
     description: "Calcul de l'Indice de Masse Corporelle",
     Component: BMICalculator,
     category: "health",
+    keywords: ["imc", "bmi", "poids", "santé", "corps"],
   },
   {
     id: "body-fat-calculator",
@@ -524,6 +531,7 @@ const tools: Tool[] = [
     description: "Longueurs, poids, températures",
     Component: UnitConverter,
     category: "converters",
+    keywords: ["conversion", "mètres", "kilos", "température", "pression", "vitesse"],
   },
   {
     id: "css-unit-converter",
@@ -540,6 +548,7 @@ const tools: Tool[] = [
     description: "HEX, RGB, HSL Converter",
     Component: ColorConverter,
     category: "converters",
+    keywords: ["hex", "rgb", "hsl", "cmyk", "oklch", "contraste", "accessibilité", "wcag"],
   },
   {
     id: "number-converter",
@@ -548,6 +557,7 @@ const tools: Tool[] = [
     description: "Binaire, Décimal, Hexadécimal",
     Component: NumberConverter,
     category: "converters",
+    keywords: ["binaire", "hex", "décimal", "octal", "bigint", "base"],
   },
   {
     id: "dpi-calculator",
@@ -597,6 +607,7 @@ const tools: Tool[] = [
     description: "Compteur de mots et caractères",
     Component: WordCounter,
     category: "text",
+    keywords: ["texte", "lettres", "lignes", "lisibilité", "seo"],
   },
   {
     id: "text-transformer",
@@ -726,6 +737,7 @@ const tools: Tool[] = [
     description: "Générateur de clés sécurisées",
     Component: PasswordGenerator,
     category: "dev",
+    keywords: ["sécurité", "passphrase", "crypto", "robuste"],
   },
   {
     id: "credit-card-validator",
@@ -774,6 +786,7 @@ const tools: Tool[] = [
     description: "Générateur de codes QR",
     Component: QRCodeGenerator,
     category: "dev",
+    keywords: ["code", "image", "url", "lien", "scanner"],
   },
   {
     id: "uuid-generator",
@@ -1103,7 +1116,7 @@ tools.forEach(tool => {
   toolsMap[tool.id] = tool;
   const category = categories.find(c => c.id === tool.category);
   TOOL_SEARCH_INDEX.set(tool.id, {
-    name: `${tool.name} ${category?.name || ''}`.toLowerCase(),
+    name: `${tool.name} ${category?.name || ''} ${tool.keywords?.join(' ') || ''}`.toLowerCase(),
     description: tool.description.toLowerCase(),
   });
 });

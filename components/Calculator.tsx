@@ -286,6 +286,16 @@ export function Calculator({ initialData, onStateChange }: { initialData?: any; 
     ['0', '=']
   ];
 
+  const getColSpan = (btn: string, isScientific: boolean) => {
+    if (isScientific) {
+      if (btn === '0') return 'col-span-3';
+      if (btn === '=') return 'col-span-2';
+    } else {
+      if (btn === '0') return 'col-span-2';
+    }
+    return '';
+  };
+
   return (
     <div className="max-w-5xl mx-auto space-y-8">
       <div className="flex flex-wrap items-center justify-between gap-4">
@@ -383,7 +393,7 @@ export function Calculator({ initialData, onStateChange }: { initialData?: any; 
                 key={i}
                 className="grid gap-2"
                 style={{
-                  gridTemplateColumns: `repeat(${row.length === 1 ? (isScientific ? 5 : 4) : row.length}, minmax(0, 1fr))`
+                  gridTemplateColumns: `repeat(${isScientific ? 5 : 4}, minmax(0, 1fr))`
                 }}
               >
                 {row.map((btn) => (
@@ -409,7 +419,7 @@ export function Calculator({ initialData, onStateChange }: { initialData?: any; 
                         : ['+', '-', '×', '÷', 'x^y'].includes(btn)
                         ? 'bg-indigo-50 text-indigo-600 dark:bg-indigo-500/10 dark:text-indigo-400 hover:bg-indigo-100'
                         : 'bg-white dark:bg-slate-800 text-slate-900 dark:text-white border border-slate-100 dark:border-slate-700 hover:border-slate-300 dark:hover:border-slate-600 shadow-sm'
-                    } ${row.length === 1 ? 'col-span-full' : ''}`}
+                    } ${getColSpan(btn, isScientific)}`}
                   >
                     {btn === '←' ? <Delete className="w-6 h-6" /> : btn}
                   </button>

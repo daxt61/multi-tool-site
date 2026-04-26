@@ -73,3 +73,7 @@
 ## 2026-04-16 - [Browser Shortcut Integrity & Character Key A11y]
 **Learning:** Hijacking standard browser shortcuts (like 'C' for copy) with global event listeners breaks expected user behavior and accessibility (WCAG 2.1.4). Even if restricted to the `body`, single-character shortcuts without modifiers can be triggered accidentally. A "micro-UX" mission should remain focused on a single, high-impact improvement to maintain code leaness and avoid regressions in standard browser functionality.
 **Action:** Avoid overriding standard browser shortcuts (Ctrl+C, etc.) and prioritize single, focused micro-UX improvements that enhance rather than replace native behaviors.
+
+## 2026-04-26 - [History Feedback & Interaction Polish]
+**Learning:** For tools with a history feature, users expect immediate visual feedback when interacting with historical items, similar to the primary output. Implementing a localized "Copied" state for each history item using index-based state management ensures clarity and reduces cognitive load. Additionally, adding hover animations (like rotation) to repetitive action buttons (like Regenerate) adds a touch of delight that makes the tool feel more responsive.
+**Action:** Prioritize feedback states for secondary interaction points (like history lists) and use group-based animations for delightful interactions.

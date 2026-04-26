@@ -30,6 +30,7 @@ export function PasswordGenerator({ initialData, onStateChange }: { initialData?
   const [includeSymbols, setIncludeSymbols] = useState(initialData?.includeSymbols ?? true);
   const [excludeSimilar, setExcludeSimilar] = useState(initialData?.excludeSimilar ?? false);
   const [copied, setCopied] = useState(false);
+  const [history, setHistory] = useState<string[]>([]);
 
   const getSecureRandomIndex = useCallback((range: number) => {
     const array = new Uint32Array(1);
@@ -69,6 +70,7 @@ export function PasswordGenerator({ initialData, onStateChange }: { initialData?
         newPassword += charset.charAt(getSecureRandomIndex(charset.length));
       }
       setPassword(newPassword);
+      setHistory(prev => [newPassword, ...prev].slice(0, 5));
     } else {
       const selectedWords = [];
       for (let i = 0; i < wordCount; i++) {
@@ -88,6 +90,7 @@ export function PasswordGenerator({ initialData, onStateChange }: { initialData?
         res += symbols.charAt(getSecureRandomIndex(symbols.length));
       }
       setPassword(res);
+      setHistory(prev => [res, ...prev].slice(0, 5));
     }
     setCopied(false);
   }, [mode, includeUppercase, includeLowercase, includeNumbers, includeSymbols, excludeSimilar, length, wordCount, capitalizeWords, addNumber, addSymbol, getSecureRandomIndex]);
@@ -136,6 +139,11 @@ export function PasswordGenerator({ initialData, onStateChange }: { initialData?
 
   const handleClear = () => {
     setPassword('');
+    setHistory([]);
+  };
+
+  const copyHistoryItem = (item: string) => {
+    navigator.clipboard.writeText(item);
   };
 
   const handleDownload = () => {
@@ -272,6 +280,28 @@ export function PasswordGenerator({ initialData, onStateChange }: { initialData?
           </div>
         )}
       </div>
+
+      {history.length > 1 && (
+        <div className="bg-slate-50 dark:bg-slate-900/50 p-6 rounded-[2rem] border border-slate-200 dark:border-slate-800 animate-in fade-in slide-in-from-top-2">
+          <div className="flex items-center justify-between mb-4 px-2">
+            <h3 className="text-[10px] font-black uppercase tracking-widest text-slate-400 flex items-center gap-2">
+              <RefreshCw className="w-3 h-3" /> Historique récent
+            </h3>
+          </div>
+          <div className="flex flex-wrap gap-2">
+            {history.slice(1).map((item, idx) => (
+              <button
+                key={idx}
+                onClick={() => copyHistoryItem(item)}
+                className="group flex items-center gap-3 px-4 py-2 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl hover:border-indigo-500/50 transition-all text-sm font-mono dark:text-slate-300"
+              >
+                <span className="truncate max-w-[150px]">{item}</span>
+                <Copy className="w-3.5 h-3.5 text-slate-400 group-hover:text-indigo-500 transition-colors" />
+              </button>
+            ))}
+          </div>
+        </div>
+      )}
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
         {/* Settings */}

@@ -205,6 +205,8 @@ const LeetspeakConverter = lazy(() => import("./components/LeetspeakConverter").
 const JsonTreeViewer = lazy(() => import("./components/JsonTreeViewer").then(m => ({ default: m.JsonTreeViewer })));
 const CURLConverter = lazy(() => import("./components/CURLConverter").then(m => ({ default: m.CURLConverter })));
 const SVGPlaceholder = lazy(() => import("./components/SVGPlaceholder").then(m => ({ default: m.SVGPlaceholder })));
+const TextTransformer = lazy(() => import("./components/TextTransformer").then(m => ({ default: m.TextTransformer })));
+const FinancialCalculator = lazy(() => import("./components/FinancialCalculator").then(m => ({ default: m.FinancialCalculator })));
 
 // ⚡ Bolt Optimization: Pre-calculating tool map and search index for O(1) lookups and faster filtering
 const toolsMap: Record<string, Tool> = {};
@@ -327,6 +329,14 @@ const tools: Tool[] = [
     icon: PiggyBank,
     description: "Simulation de croissance d'épargne",
     Component: SavingsCalculator,
+    category: "budget",
+  },
+  {
+    id: "compound-interest",
+    name: "Intérêts Composés",
+    icon: TrendingUp,
+    description: "Calculateur de croissance d'investissement avec intérêts composés et tableau détaillé",
+    Component: FinancialCalculator,
     category: "budget",
   },
   {
@@ -586,6 +596,14 @@ const tools: Tool[] = [
     icon: Type,
     description: "Compteur de mots et caractères",
     Component: WordCounter,
+    category: "text",
+  },
+  {
+    id: "text-transformer",
+    name: "Transformateur",
+    icon: Type,
+    description: "Inverser, mettre à l'envers ou formater votre texte avec des styles Unicode",
+    Component: TextTransformer,
     category: "text",
   },
   {

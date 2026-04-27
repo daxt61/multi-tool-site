@@ -1,4 +1,4 @@
-import { useState, useMemo, useCallback } from 'react';
+import { useState, useMemo, useCallback, useEffect } from 'react';
 import { Copy, Check, RefreshCw, Trash2, Type, Hash } from 'lucide-react';
 
 export function LoremIpsumGenerator() {
@@ -87,11 +87,42 @@ export function LoremIpsumGenerator() {
     };
   }, [text]);
 
-  const copyToClipboard = () => {
+  const copyToClipboard = useCallback(() => {
+    if (!text) return;
     navigator.clipboard.writeText(text);
     setCopied(true);
     setTimeout(() => setCopied(false), 2000);
-  };
+  }, [text]);
+
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      const target = e.target as HTMLElement;
+      if (
+        target.tagName === "INPUT" ||
+        target.tagName === "TEXTAREA" ||
+        target.tagName === "SELECT" ||
+        target.isContentEditable
+      ) {
+        return;
+      }
+
+      // Avoid hijacking browser/OS shortcuts (Ctrl/Cmd/Alt/Shift)
+      if (e.ctrlKey || e.metaKey || e.altKey || e.shiftKey) {
+        return;
+      }
+
+      if (e.key.toLowerCase() === 'r') {
+        e.preventDefault();
+        handleRegenerate();
+      } else if (e.key.toLowerCase() === 'c') {
+        e.preventDefault();
+        copyToClipboard();
+      }
+    };
+
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [handleRegenerate, copyToClipboard]);
 
   return (
     <div className="max-w-4xl mx-auto space-y-8">
@@ -131,18 +162,20 @@ export function LoremIpsumGenerator() {
         <div className="flex flex-col sm:flex-row gap-4">
           <button
             onClick={handleRegenerate}
-            className="flex-1 py-4 bg-white dark:bg-slate-800 text-slate-600 dark:text-slate-300 border border-slate-200 dark:border-slate-700 rounded-2xl hover:bg-slate-50 dark:hover:bg-slate-700 transition-all flex items-center justify-center gap-2 font-black active:scale-95"
+            title="Régénérer (R)"
+            className="flex-1 py-4 bg-white dark:bg-slate-800 text-slate-600 dark:text-slate-300 border border-slate-200 dark:border-slate-700 rounded-2xl hover:bg-slate-50 dark:hover:bg-slate-700 transition-all flex items-center justify-center gap-2 font-black active:scale-95 focus-visible:ring-2 focus-visible:ring-indigo-500 focus-visible:outline-none group/regen"
           >
-            <RefreshCw className="w-5 h-5" />
+            <RefreshCw className="w-5 h-5 transition-transform duration-500 group-hover/regen:rotate-180" />
             Régénérer
           </button>
           <button
             onClick={copyToClipboard}
             disabled={!text}
-            className={`flex-[2] py-4 rounded-2xl transition-all flex items-center justify-center gap-2 font-black active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed ${
+            title="Copier le texte (C)"
+            className={`flex-[2] py-4 rounded-2xl transition-all flex items-center justify-center gap-2 font-black active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed border focus-visible:ring-2 focus-visible:ring-indigo-500 focus-visible:outline-none ${
               copied
-                ? 'bg-emerald-500 text-white shadow-lg shadow-emerald-500/20'
-                : 'bg-indigo-600 text-white shadow-lg shadow-indigo-600/20 hover:bg-indigo-700'
+                ? 'bg-emerald-50 dark:bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border-emerald-200 dark:border-emerald-500/20'
+                : 'bg-indigo-600 text-white border-transparent shadow-lg shadow-indigo-600/20 hover:bg-indigo-700'
             }`}
           >
             {copied ? <Check className="w-5 h-5" /> : <Copy className="w-5 h-5" />}
@@ -152,7 +185,7 @@ export function LoremIpsumGenerator() {
             onClick={() => {setCount(0); setRefreshTrigger(prev => prev + 1);}}
             disabled={!text}
             aria-label="Effacer le texte"
-            className="p-4 bg-rose-50 dark:bg-rose-500/10 text-rose-500 border border-rose-200 dark:border-rose-800 rounded-2xl hover:bg-rose-100 dark:hover:bg-rose-500/20 transition-all active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed"
+            className="p-4 bg-rose-50 dark:bg-rose-500/10 text-rose-500 border border-rose-200 dark:border-rose-800 rounded-2xl hover:bg-rose-100 dark:hover:bg-rose-500/20 transition-all active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed focus-visible:ring-2 focus-visible:ring-rose-500 focus-visible:outline-none"
           >
             <Trash2 className="w-5 h-5" />
           </button>

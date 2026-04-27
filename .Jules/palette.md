@@ -77,3 +77,7 @@
 ## 2026-04-26 - [History Feedback & Interaction Polish]
 **Learning:** For tools with a history feature, users expect immediate visual feedback when interacting with historical items, similar to the primary output. Implementing a localized "Copied" state for each history item using index-based state management ensures clarity and reduces cognitive load. Additionally, adding hover animations (like rotation) to repetitive action buttons (like Regenerate) adds a touch of delight that makes the tool feel more responsive.
 **Action:** Prioritize feedback states for secondary interaction points (like history lists) and use group-based animations for delightful interactions.
+
+## 2026-04-27 - [Safe Global Keyboard Shortcuts & Browser Integrity]
+**Learning:** Implementing global keyboard shortcuts (like 'R' for regenerate) without checking for modifier keys (Ctrl/Cmd) hijacks standard browser behaviors like Page Refresh or Copy selection, causing a major UX regression. Additionally, global listeners must exclude all interactive elements including `SELECT` to avoid collisions during keyboard navigation of dropdowns.
+**Action:** Always verify `!e.ctrlKey && !e.metaKey && !e.altKey && !e.shiftKey` and exclude `INPUT`, `TEXTAREA`, and `SELECT` before preventing default on common keys in global listeners.

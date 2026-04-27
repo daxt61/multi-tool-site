@@ -1,7 +1,7 @@
 import { useState, useEffect, useMemo } from 'react';
 import { Copy, Check, Trash2, ArrowUpDown, Info, Ruler, Download, Search, X } from 'lucide-react';
 
-type ConversionCategory = 'length' | 'weight' | 'temperature' | 'area' | 'volume' | 'digital' | 'pressure' | 'energy' | 'speed' | 'time' | 'power' | 'frequency' | 'consumption' | 'angle' | 'torque' | 'force' | 'datarate' | 'illuminance' | 'luminance' | 'radiation' | 'magnetic' | 'acceleration' | 'density';
+type ConversionCategory = 'length' | 'weight' | 'temperature' | 'area' | 'volume' | 'digital' | 'pressure' | 'energy' | 'speed' | 'time' | 'power' | 'frequency' | 'consumption' | 'angle' | 'torque' | 'force' | 'datarate' | 'illuminance' | 'luminance' | 'radiation' | 'magnetic' | 'acceleration' | 'density' | 'voltage' | 'current' | 'resistance' | 'capacitance';
 
 interface ConversionUnit {
   name: string;
@@ -175,6 +175,31 @@ const CONVERSIONS: Record<ConversionCategory, Record<string, ConversionUnit>> = 
     'kg/m3': { name: 'Kilogrammes par m³', toBase: (v) => v, fromBase: (v) => v },
     'g/cm3': { name: 'Grammes par cm³', toBase: (v) => v * 1000, fromBase: (v) => v / 1000 },
     'lb/ft3': { name: 'Livres par pied³', toBase: (v) => v * 16.0185, fromBase: (v) => v / 16.0185 }
+  },
+  voltage: {
+    'V': { name: 'Volt (V)', toBase: (v) => v, fromBase: (v) => v },
+    'mV': { name: 'Millivolt (mV)', toBase: (v) => v / 1000, fromBase: (v) => v * 1000 },
+    'kV': { name: 'Kilovolt (kV)', toBase: (v) => v * 1000, fromBase: (v) => v / 1000 },
+    'MV': { name: 'Mégavolt (MV)', toBase: (v) => v * 1000000, fromBase: (v) => v / 1000000 }
+  },
+  current: {
+    'A': { name: 'Ampère (A)', toBase: (v) => v, fromBase: (v) => v },
+    'mA': { name: 'Milliampère (mA)', toBase: (v) => v / 1000, fromBase: (v) => v * 1000 },
+    'kA': { name: 'Kiloampère (kA)', toBase: (v) => v * 1000, fromBase: (v) => v / 1000 },
+    'uA': { name: 'Microampère (µA)', toBase: (v) => v / 1000000, fromBase: (v) => v * 1000000 }
+  },
+  resistance: {
+    'ohm': { name: 'Ohm (Ω)', toBase: (v) => v, fromBase: (v) => v },
+    'mohm': { name: 'Milliohm (mΩ)', toBase: (v) => v / 1000, fromBase: (v) => v * 1000 },
+    'kohm': { name: 'Kilohm (kΩ)', toBase: (v) => v * 1000, fromBase: (v) => v / 1000 },
+    'Mohm': { name: 'Mégohm (MΩ)', toBase: (v) => v * 1000000, fromBase: (v) => v / 1000000 }
+  },
+  capacitance: {
+    'F': { name: 'Farad (F)', toBase: (v) => v, fromBase: (v) => v },
+    'mF': { name: 'Millifarad (mF)', toBase: (v) => v / 1000, fromBase: (v) => v * 1000 },
+    'uF': { name: 'Microfarad (µF)', toBase: (v) => v / 1000000, fromBase: (v) => v * 1000000 },
+    'nF': { name: 'Nanofarad (nF)', toBase: (v) => v / 1000000000, fromBase: (v) => v * 1000000000 },
+    'pF': { name: 'Picofarad (pF)', toBase: (v) => v / 1000000000000, fromBase: (v) => v * 1000000000000 }
   }
 };
 
@@ -201,7 +226,11 @@ const CATEGORIES_MAP = [
   { id: 'radiation', name: 'Radiation' },
   { id: 'magnetic', name: 'Champ Magnétique' },
   { id: 'acceleration', name: 'Accélération' },
-  { id: 'density', name: 'Densité' }
+  { id: 'density', name: 'Densité' },
+  { id: 'voltage', name: 'Tension (Volt)' },
+  { id: 'current', name: 'Courant (Ampère)' },
+  { id: 'resistance', name: 'Résistance (Ohm)' },
+  { id: 'capacitance', name: 'Capacité (Farad)' }
 ];
 
 const formatter = new Intl.NumberFormat('fr-FR', {

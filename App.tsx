@@ -207,6 +207,9 @@ const CURLConverter = lazy(() => import("./components/CURLConverter").then(m => 
 const SVGPlaceholder = lazy(() => import("./components/SVGPlaceholder").then(m => ({ default: m.SVGPlaceholder })));
 const TextTransformer = lazy(() => import("./components/TextTransformer").then(m => ({ default: m.TextTransformer })));
 const FinancialCalculator = lazy(() => import("./components/FinancialCalculator").then(m => ({ default: m.FinancialCalculator })));
+const HTTPStatusCodes = lazy(() => import("./components/HTTPStatusCodes").then(m => ({ default: m.HTTPStatusCodes })));
+const IBANValidator = lazy(() => import("./components/IBANValidator").then(m => ({ default: m.IBANValidator })));
+const VigenereCipher = lazy(() => import("./components/VigenereCipher").then(m => ({ default: m.VigenereCipher })));
 
 // ⚡ Bolt Optimization: Pre-calculating tool map and search index for O(1) lookups and faster filtering
 const toolsMap: Record<string, Tool> = {};
@@ -340,6 +343,14 @@ const tools: Tool[] = [
     icon: TrendingUp,
     description: "Calculateur de croissance d'investissement avec intérêts composés et tableau détaillé",
     Component: FinancialCalculator,
+    category: "budget",
+  },
+  {
+    id: "iban-validator",
+    name: "Validateur IBAN",
+    icon: CreditCard,
+    description: "Vérifier la validité structurelle d'un IBAN (MOD-97)",
+    Component: IBANValidator,
     category: "budget",
   },
   {
@@ -647,6 +658,14 @@ const tools: Tool[] = [
     icon: Shield,
     description: "Chiffre de César pour crypter/décrypter du texte",
     Component: CesarCipher,
+    category: "text",
+  },
+  {
+    id: "vigenere-cipher",
+    name: "Vigenère",
+    icon: Key,
+    description: "Chiffrer ou déchiffrer du texte avec le chiffre de Vigenère",
+    Component: VigenereCipher,
     category: "text",
   },
   {
@@ -1002,6 +1021,14 @@ const tools: Tool[] = [
     icon: ImagePlus,
     description: "Générer des images de remplacement en SVG",
     Component: SVGPlaceholder,
+    category: "dev",
+  },
+  {
+    id: "http-status",
+    name: "Codes HTTP",
+    icon: Globe,
+    description: "Référence complète des codes d'état HTTP",
+    Component: HTTPStatusCodes,
     category: "dev",
   },
   // Other Tools

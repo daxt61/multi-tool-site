@@ -1,5 +1,8 @@
 import { useState, useMemo, useEffect, useCallback } from 'react';
-import { ChevronRight, ChevronDown, Search, X, Copy, Check, Trash2, FolderOpen, FileCode, Braces } from 'lucide-react';
+import { ChevronRight, ChevronDown, Search, X, Copy, Check, Trash2, FolderOpen, FileCode, Braces, AlertCircle } from 'lucide-react';
+
+const MAX_LENGTH = 100000;
+const MAX_DEPTH = 20;
 
 interface TreeNodeProps {
   label: string;
@@ -40,6 +43,14 @@ const TreeNode = ({ label, value, depth, searchQuery, isInitiallyExpanded = fals
   };
 
   const children = isObject ? Object.entries(value) : [];
+
+  if (depth > MAX_DEPTH) {
+    return (
+      <div className="flex items-center gap-2 py-1 px-2 text-rose-500 text-xs italic" style={{ paddingLeft: `${depth * 1.5 + 0.5}rem` }}>
+        <AlertCircle className="w-3 h-3" /> Profondeur maximale atteinte
+      </div>
+    );
+  }
 
   return (
     <div className="select-none">
@@ -99,6 +110,12 @@ export function JsonTreeViewer({ initialData, onStateChange }: { initialData?: a
       setError(null);
       return null;
     }
+
+    if (jsonInput.length > MAX_LENGTH) {
+      setError(`L'entrée est trop longue. Limite de ${MAX_LENGTH.toLocaleString()} caractères.`);
+      return null;
+    }
+
     try {
       const parsed = JSON.parse(jsonInput);
       setError(null);

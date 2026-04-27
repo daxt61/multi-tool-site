@@ -107,6 +107,26 @@ ${idealWeightRange ? `- Poids idéal estimé : ${idealWeightRange.low.toFixed(1)
     URL.revokeObjectURL(url);
   };
 
+  const handleUnitChange = (newUnit: 'metric' | 'imperial') => {
+    if (newUnit === unit) return;
+
+    const w = parseFloat(weight);
+    const h = parseFloat(height);
+
+    if (!isNaN(w) && !isNaN(h)) {
+      if (newUnit === 'imperial') {
+        // Metric to Imperial
+        setWeight((w * 2.20462).toFixed(1));
+        setHeight((h / 2.54).toFixed(1));
+      } else {
+        // Imperial to Metric
+        setWeight((w / 2.20462).toFixed(1));
+        setHeight((h * 2.54).toFixed(1));
+      }
+    }
+    setUnit(newUnit);
+  };
+
   const handleClear = () => {
     setWeight('');
     setHeight('');
@@ -119,14 +139,14 @@ ${idealWeightRange ? `- Poids idéal estimé : ${idealWeightRange.low.toFixed(1)
           <div className="flex justify-between items-center px-1">
              <div className="flex bg-slate-100 dark:bg-slate-800 p-1 rounded-xl w-48">
               <button
-                onClick={() => setUnit('metric')}
+                onClick={() => handleUnitChange('metric')}
                 aria-pressed={unit === 'metric'}
                 className={`flex-1 py-1.5 rounded-lg text-xs font-bold transition-all ${unit === 'metric' ? 'bg-white dark:bg-slate-700 text-indigo-600 shadow-sm' : 'text-slate-500'}`}
               >
                 Métrique
               </button>
               <button
-                onClick={() => setUnit('imperial')}
+                onClick={() => handleUnitChange('imperial')}
                 aria-pressed={unit === 'imperial'}
                 className={`flex-1 py-1.5 rounded-lg text-xs font-bold transition-all ${unit === 'imperial' ? 'bg-white dark:bg-slate-700 text-indigo-600 shadow-sm' : 'text-slate-500'}`}
               >

@@ -201,6 +201,7 @@ const CesarCipher = lazy(() => import("./components/CesarCipher").then(m => ({ d
 const DurationCalculator = lazy(() => import("./components/DurationCalculator").then(m => ({ default: m.DurationCalculator })));
 const FinancialRatios = lazy(() => import("./components/FinancialRatios").then(m => ({ default: m.FinancialRatios })));
 const ColorMixer = lazy(() => import("./components/ColorMixer").then(m => ({ default: m.ColorMixer })));
+const ChmodCalculator = lazy(() => import("./components/ChmodCalculator").then(m => ({ default: m.ChmodCalculator })));
 const LeetspeakConverter = lazy(() => import("./components/LeetspeakConverter").then(m => ({ default: m.LeetspeakConverter })));
 const JsonTreeViewer = lazy(() => import("./components/JsonTreeViewer").then(m => ({ default: m.JsonTreeViewer })));
 const CURLConverter = lazy(() => import("./components/CURLConverter").then(m => ({ default: m.CURLConverter })));
@@ -781,6 +782,15 @@ const tools: Tool[] = [
     description: "Visualiser et filtrer une structure JSON en arbre",
     Component: JsonTreeViewer,
     category: "dev",
+  },
+  {
+    id: "chmod",
+    name: "Chmod",
+    icon: Terminal,
+    description: "Calculateur de permissions Unix (Octal et Symbolique)",
+    Component: ChmodCalculator,
+    category: "dev",
+    keywords: ["linux", "unix", "permissions", "chmod", "serveur", "sécurité"],
   },
   {
     id: "subnet-calculator",

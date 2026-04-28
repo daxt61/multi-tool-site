@@ -9,7 +9,7 @@ export function BPMCounter({ initialData, onStateChange }: { initialData?: any; 
 
   useEffect(() => {
     onStateChange?.({ bpm });
-  }, [bpm, onStateChange]);
+  }, [bpm]);
 
   const handleTap = useCallback(() => {
     const now = Date.now();

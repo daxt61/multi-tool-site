@@ -10,7 +10,7 @@ export function FuelCostCalculator({ initialData, onStateChange }: { initialData
 
   useEffect(() => {
     onStateChange?.({ distance, consumption, fuelPrice, people });
-  }, [distance, consumption, fuelPrice, people, onStateChange]);
+  }, [distance, consumption, fuelPrice, people]);
 
   const stats = useMemo(() => {
     const d = parseFloat(distance) || 0;

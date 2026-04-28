@@ -9,7 +9,7 @@ export function AspectRatioCalculator({ initialData, onStateChange }: { initialD
 
   useEffect(() => {
     onStateChange?.({ width, height, ratioW, ratioH });
-  }, [width, height, ratioW, ratioH, onStateChange]);
+  }, [width, height, ratioW, ratioH]);
 
   const commonRatios = [
     { name: '16:9', w: 16, h: 9, icon: <Monitor className="w-4 h-4" />, desc: 'Vidéo HD, Écrans' },

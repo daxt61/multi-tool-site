@@ -12,7 +12,7 @@ export function WordCounter({ initialData, onStateChange }: { initialData?: any;
 
   useEffect(() => {
     onStateChange?.({ text });
-  }, [text, onStateChange]);
+  }, [text]);
 
   // ⚡ Bolt Optimization: useDeferredValue for text analysis
   // This allows the input to remain responsive even with large texts by offloading the

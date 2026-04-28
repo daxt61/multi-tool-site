@@ -1,10 +1,16 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Copy, Check, Trash2, ArrowRightLeft, Type, Binary } from 'lucide-react';
 
-export function BinaryTextConverter() {
-  const [text, setText] = useState('');
-  const [binary, setBinary] = useState('');
+const MAX_LENGTH = 100000;
+
+export function BinaryTextConverter({ initialData, onStateChange }: { initialData?: any; onStateChange?: (state: any) => void }) {
+  const [text, setText] = useState(initialData?.text || '');
+  const [binary, setBinary] = useState(initialData?.binary || '');
   const [copied, setCopied] = useState<'text' | 'binary' | null>(null);
+
+  useEffect(() => {
+    onStateChange?.({ text, binary });
+  }, [text, binary]);
 
   const textToBinary = (input: string) => {
     return [...input]
@@ -28,6 +34,7 @@ export function BinaryTextConverter() {
   };
 
   const handleTextChange = (value: string) => {
+    if (value.length > MAX_LENGTH) return;
     setText(value);
     if (!value) {
       setBinary('');
@@ -37,6 +44,7 @@ export function BinaryTextConverter() {
   };
 
   const handleBinaryChange = (value: string) => {
+    if (value.length > MAX_LENGTH * 9) return; // Binary is ~9x longer
     setBinary(value);
     if (!value) {
       setText('');
@@ -61,7 +69,7 @@ export function BinaryTextConverter() {
             setBinary('');
           }}
           disabled={!text && !binary}
-          className="text-xs font-bold text-rose-500 bg-rose-50 dark:bg-rose-500/10 hover:bg-rose-100 dark:hover:bg-rose-500/20 px-3 py-1.5 rounded-xl flex items-center gap-2 transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+          className="text-xs font-bold text-rose-500 bg-rose-50 dark:bg-rose-500/10 hover:bg-rose-100 dark:hover:bg-rose-500/20 px-3 py-1.5 rounded-xl flex items-center gap-2 transition-all disabled:opacity-50 disabled:cursor-not-allowed focus-visible:ring-2 focus-visible:ring-rose-500 focus-visible:outline-none"
         >
           <Trash2 className="w-3.5 h-3.5" /> Effacer tout
         </button>
@@ -84,9 +92,9 @@ export function BinaryTextConverter() {
               <button
                 onClick={() => copyToClipboard(text, 'text')}
                 disabled={!text}
-                className={`text-xs font-bold px-3 py-1 rounded-full transition-all flex items-center gap-1 ${
+                className={`text-xs font-bold px-3 py-1 rounded-full transition-all flex items-center gap-1 focus-visible:ring-2 focus-visible:ring-indigo-500 focus-visible:outline-none ${
                   copied === 'text'
-                    ? 'bg-emerald-50 dark:bg-emerald-500/10 text-emerald-600 dark:text-emerald-400'
+                    ? 'bg-emerald-50 dark:bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border border-emerald-200 dark:border-emerald-500/20'
                     : 'text-slate-500 bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700'
                 } disabled:opacity-50 disabled:cursor-not-allowed`}
               >
@@ -115,9 +123,9 @@ export function BinaryTextConverter() {
               <button
                 onClick={() => copyToClipboard(binary, 'binary')}
                 disabled={!binary}
-                className={`text-xs font-bold px-3 py-1 rounded-full transition-all flex items-center gap-1 ${
+                className={`text-xs font-bold px-3 py-1 rounded-full transition-all flex items-center gap-1 focus-visible:ring-2 focus-visible:ring-indigo-500 focus-visible:outline-none ${
                   copied === 'binary'
-                    ? 'bg-emerald-50 dark:bg-emerald-500/10 text-emerald-600 dark:text-emerald-400'
+                    ? 'bg-emerald-50 dark:bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border border-emerald-200 dark:border-emerald-500/20'
                     : 'text-slate-500 bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700'
                 } disabled:opacity-50 disabled:cursor-not-allowed`}
               >

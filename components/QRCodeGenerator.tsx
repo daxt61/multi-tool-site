@@ -10,7 +10,7 @@ export function QRCodeGenerator({ initialData, onStateChange }: { initialData?: 
 
   useEffect(() => {
     onStateChange?.({ text, size, fgColor, bgColor, ecc });
-  }, [text, size, fgColor, bgColor, ecc, onStateChange]);
+  }, [text, size, fgColor, bgColor, ecc]);
 
   // Clean hex colors for API (remove #)
   const cleanFg = fgColor.replace('#', '');

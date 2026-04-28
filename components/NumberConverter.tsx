@@ -16,7 +16,7 @@ export function NumberConverter({ initialData, onStateChange }: { initialData?: 
 
   useEffect(() => {
     onStateChange?.({ decimal, binary, octal, hexadecimal });
-  }, [decimal, binary, octal, hexadecimal, onStateChange]);
+  }, [decimal, binary, octal, hexadecimal]);
   const [copied, setCopied] = useState<string | null>(null);
 
   const isValidForBase = (value: string, base: number): boolean => {

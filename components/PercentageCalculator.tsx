@@ -14,7 +14,7 @@ export function PercentageCalculator({ initialData, onStateChange }: { initialDa
 
   useEffect(() => {
     onStateChange?.({ value1, value2, value3, value4, initialVal, finalVal, valAfter, percentAfter });
-  }, [value1, value2, value3, value4, initialVal, finalVal, valAfter, percentAfter, onStateChange]);
+  }, [value1, value2, value3, value4, initialVal, finalVal, valAfter, percentAfter]);
 
   const percentageOf = (Number(value2) / 100) * Number(value1);
   const whatPercent = Number(value4) !== 0 ? (Number(value3) / Number(value4)) * 100 : 0;

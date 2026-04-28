@@ -7,7 +7,7 @@ export function IBANValidator({ initialData, onStateChange }: { initialData?: an
 
   useEffect(() => {
     onStateChange?.({ iban });
-  }, [iban, onStateChange]);
+  }, [iban]);
 
   const validation = useMemo(() => {
     if (!iban.trim()) return null;

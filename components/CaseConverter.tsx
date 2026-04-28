@@ -10,7 +10,7 @@ export function CaseConverter({ initialData, onStateChange }: { initialData?: an
 
   useEffect(() => {
     onStateChange?.({ text });
-  }, [text, onStateChange]);
+  }, [text]);
 
   const conversions = {
     'camelCase': (t: string) => {

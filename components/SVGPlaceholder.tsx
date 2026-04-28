@@ -17,7 +17,7 @@ export function SVGPlaceholder({ initialData, onStateChange }: { initialData?: a
 
   useEffect(() => {
     onStateChange?.({ width, height, text, bgColor, textColor, fontSize });
-  }, [width, height, text, bgColor, textColor, fontSize, onStateChange]);
+  }, [width, height, text, bgColor, textColor, fontSize]);
 
   const svgContent = useMemo(() => {
     const escapeHtml = (str: string) => {

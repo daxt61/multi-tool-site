@@ -1,11 +1,15 @@
-import { useState, useMemo } from 'react';
+import { useState, useMemo, useEffect } from 'react';
 import { Link as LinkIcon, Copy, Check, Info, Settings, Trash2 } from 'lucide-react';
 
-export function SlugGenerator() {
-  const [text, setText] = useState('');
-  const [lowercase, setLowercase] = useState(true);
-  const [removeAccents, setRemoveAccents] = useState(true);
+export function SlugGenerator({ initialData, onStateChange }: { initialData?: any; onStateChange?: (state: any) => void }) {
+  const [text, setText] = useState(initialData?.text || '');
+  const [lowercase, setLowercase] = useState(initialData?.lowercase ?? true);
+  const [removeAccents, setRemoveAccents] = useState(initialData?.removeAccents ?? true);
   const [copied, setCopied] = useState(false);
+
+  useEffect(() => {
+    onStateChange?.({ text, lowercase, removeAccents });
+  }, [text, lowercase, removeAccents]);
 
   const slug = useMemo(() => {
     if (!text) return '';
@@ -56,7 +60,7 @@ export function SlugGenerator() {
             <button
               onClick={handleCopy}
               disabled={!slug}
-              className={`px-8 py-4 rounded-2xl transition-all active:scale-95 flex items-center gap-2 font-black text-lg disabled:opacity-50 disabled:scale-100 ${
+              className={`px-8 py-4 rounded-2xl transition-all active:scale-95 flex items-center gap-2 font-black text-lg disabled:opacity-50 disabled:scale-100 focus-visible:ring-2 focus-visible:ring-indigo-500 focus-visible:outline-none ${
                 copied ? 'bg-emerald-50 dark:bg-emerald-500/10 text-emerald-600 dark:text-emerald-400' : 'bg-white text-slate-900 hover:bg-slate-100'
               }`}
             >
@@ -78,7 +82,7 @@ export function SlugGenerator() {
             <button
               onClick={handleClear}
               disabled={!text}
-              className="text-xs font-bold text-rose-500 bg-rose-50 dark:bg-rose-500/10 hover:bg-rose-100 dark:hover:bg-rose-500/20 px-3 py-1.5 rounded-xl flex items-center gap-1 transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+              className="text-xs font-bold text-rose-500 bg-rose-50 dark:bg-rose-500/10 hover:bg-rose-100 dark:hover:bg-rose-500/20 px-3 py-1.5 rounded-xl flex items-center gap-1 transition-all disabled:opacity-50 disabled:cursor-not-allowed focus-visible:ring-2 focus-visible:ring-rose-500 focus-visible:outline-none"
             >
               <Trash2 className="w-3 h-3" /> Effacer
             </button>

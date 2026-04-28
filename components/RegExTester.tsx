@@ -67,7 +67,7 @@ export function RegExTester({ initialData, onStateChange }: { initialData?: any;
 
   useEffect(() => {
     onStateChange?.({ regex, flags, testText });
-  }, [regex, flags, testText, onStateChange]);
+  }, [regex, flags, testText]);
 
   useEffect(() => {
     if (!regex) {

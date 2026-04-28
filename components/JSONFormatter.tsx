@@ -12,7 +12,7 @@ export function JSONFormatter({ initialData, onStateChange }: { initialData?: an
 
   useEffect(() => {
     onStateChange?.({ input, output, indentSize });
-  }, [input, output, indentSize, onStateChange]);
+  }, [input, output, indentSize]);
 
   const handlePrettify = () => {
     try {

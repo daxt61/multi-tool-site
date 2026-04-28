@@ -13,7 +13,7 @@ export function FinancialRatios({ initialData, onStateChange }: { initialData?: 
 
   useEffect(() => {
     onStateChange?.(data);
-  }, [data, onStateChange]);
+  }, [data]);
 
   const ratios = useMemo(() => {
     const assets = parseFloat(data.assets) || 0;

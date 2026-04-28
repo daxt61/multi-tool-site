@@ -47,7 +47,7 @@ export function BudgetPlanner({ initialData, onStateChange }: { initialData?: an
   useEffect(() => {
     localStorage.setItem("budget_income", income);
     onStateChange?.({ income, categories });
-  }, [income, categories, onStateChange]);
+  }, [income, categories]);
 
   useEffect(() => {
     localStorage.setItem("budget_categories", JSON.stringify(categories));

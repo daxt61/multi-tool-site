@@ -12,7 +12,7 @@ export function HashGenerator({ initialData, onStateChange }: { initialData?: an
 
   useEffect(() => {
     onStateChange?.({ inputText, hashes });
-  }, [inputText, hashes, onStateChange]);
+  }, [inputText, hashes]);
   const [copied, setCopied] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
 

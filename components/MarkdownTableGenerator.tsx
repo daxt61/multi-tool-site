@@ -11,7 +11,7 @@ export function MarkdownTableGenerator({ initialData, onStateChange }: { initial
 
   useEffect(() => {
     onStateChange?.({ data });
-  }, [data, onStateChange]);
+  }, [data]);
 
   const updateCell = (r: number, c: number, val: string) => {
     const newData = data.map((row, rowIndex) =>

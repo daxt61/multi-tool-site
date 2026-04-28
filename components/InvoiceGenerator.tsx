@@ -24,7 +24,7 @@ export function InvoiceGenerator({ initialData, onStateChange }: { initialData?:
 
   useEffect(() => {
     onStateChange?.({ companyName, clientName, invoiceNumber, items, taxRate, currency, issueDate, dueDate });
-  }, [companyName, clientName, invoiceNumber, items, taxRate, currency, issueDate, dueDate, onStateChange]);
+  }, [companyName, clientName, invoiceNumber, items, taxRate, currency, issueDate, dueDate]);
 
   const handleTextChange = (setter: (val: string) => void, val: string) => {
     setter(val);

@@ -14,7 +14,7 @@ export function BodyFatCalculator({ initialData, onStateChange }: { initialData?
 
   useEffect(() => {
     onStateChange?.({ gender, weight, height, neck, waist, hip, unit });
-  }, [gender, weight, height, neck, waist, hip, unit, onStateChange]);
+  }, [gender, weight, height, neck, waist, hip, unit]);
 
   const stats = useMemo(() => {
     let w = parseFloat(weight);

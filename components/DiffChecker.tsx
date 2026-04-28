@@ -10,7 +10,7 @@ export function DiffChecker({ initialData, onStateChange }: { initialData?: any;
 
   useEffect(() => {
     onStateChange?.({ text1, text2 });
-  }, [text1, text2, onStateChange]);
+  }, [text1, text2]);
   const MAX_LENGTH = 50000; // 50KB safety limit
 
   const handleSwap = () => {

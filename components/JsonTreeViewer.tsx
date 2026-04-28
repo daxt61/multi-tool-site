@@ -128,7 +128,7 @@ export function JsonTreeViewer({ initialData, onStateChange }: { initialData?: a
 
   useEffect(() => {
     onStateChange?.({ jsonInput });
-  }, [jsonInput, onStateChange]);
+  }, [jsonInput]);
 
   const handleCopy = () => {
     if (!jsonInput) return;

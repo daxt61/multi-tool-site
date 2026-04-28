@@ -9,7 +9,7 @@ export function TipCalculator({ initialData, onStateChange }: { initialData?: an
 
   useEffect(() => {
     onStateChange?.({ billAmount, tipPercent, numberOfPeople });
-  }, [billAmount, tipPercent, numberOfPeople, onStateChange]);
+  }, [billAmount, tipPercent, numberOfPeople]);
 
   const bill = parseFloat(billAmount) || 0;
   const people = parseInt(numberOfPeople) || 1;

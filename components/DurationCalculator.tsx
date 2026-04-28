@@ -17,7 +17,7 @@ export function DurationCalculator({ initialData, onStateChange }: { initialData
 
   useEffect(() => {
     onStateChange?.({ entries });
-  }, [entries, onStateChange]);
+  }, [entries]);
 
   const addEntry = () => {
     setEntries([...entries, { id: Date.now().toString(), hours: '', minutes: '', seconds: '', operator: 'add' }]);

@@ -8,7 +8,7 @@ export function CreditCardValidator({ initialData, onStateChange }: { initialDat
 
   useEffect(() => {
     onStateChange?.({ cardNumber });
-  }, [cardNumber, onStateChange]);
+  }, [cardNumber]);
   const [copied, setCopied] = useState(false);
 
   const cleanNumber = cardNumber.replace(/\D/g, '');

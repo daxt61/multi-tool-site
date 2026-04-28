@@ -1,13 +1,17 @@
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, useEffect } from 'react';
 import { Copy, Check, Trash2, Zap, FileCode, Scissors, Download, AlertCircle } from 'lucide-react';
 
 const MAX_LENGTH = 100000;
 
-export function CodeMinifier() {
-  const [input, setInput] = useState('');
-  const [mode, setMode] = useState<'js' | 'css' | 'html'>('js');
+export function CodeMinifier({ initialData, onStateChange }: { initialData?: any; onStateChange?: (state: any) => void }) {
+  const [input, setInput] = useState(initialData?.input || '');
+  const [mode, setMode] = useState<'js' | 'css' | 'html'>(initialData?.mode || 'js');
   const [error, setError] = useState<string | null>(null);
   const [copied, setCopied] = useState(false);
+
+  useEffect(() => {
+    onStateChange?.({ input, mode });
+  }, [input, mode]);
 
   const minify = (code: string, type: 'js' | 'css' | 'html') => {
     if (!code) return '';
@@ -142,7 +146,8 @@ export function CodeMinifier() {
                 setInput('');
                 setError(null);
               }}
-              className="text-xs font-bold text-rose-500 hover:text-rose-600 flex items-center gap-1 transition-colors"
+              disabled={!input}
+              className="text-xs font-bold text-rose-500 bg-rose-50 dark:bg-rose-500/10 hover:bg-rose-100 dark:hover:bg-rose-500/20 px-3 py-1 rounded-full flex items-center gap-1 transition-all disabled:opacity-50 disabled:cursor-not-allowed focus-visible:ring-2 focus-visible:ring-rose-500 focus-visible:outline-none"
             >
               <Trash2 className="w-3 h-3" /> Effacer
             </button>
@@ -179,9 +184,11 @@ export function CodeMinifier() {
               <button
                 onClick={handleCopy}
                 disabled={!output}
-                className={`text-xs font-bold px-4 py-1.5 rounded-full transition-all flex items-center gap-2 ${
-                  copied ? 'bg-emerald-500 text-white' : 'bg-indigo-600 text-white hover:bg-indigo-700 disabled:opacity-50'
-                }`}
+                className={`text-xs font-bold px-4 py-1.5 rounded-full transition-all flex items-center gap-2 focus-visible:ring-2 focus-visible:ring-indigo-500 focus-visible:outline-none ${
+                  copied
+                    ? 'bg-emerald-50 dark:bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border border-emerald-200 dark:border-emerald-500/20'
+                    : 'text-indigo-600 bg-indigo-50 dark:bg-indigo-500/10 hover:bg-indigo-100 dark:hover:bg-indigo-500/20'
+                } disabled:opacity-50 disabled:cursor-not-allowed`}
               >
                 {copied ? <Check className="w-3 h-3" /> : <Copy className="w-3 h-3" />}
                 {copied ? 'Copié !' : 'Copier'}

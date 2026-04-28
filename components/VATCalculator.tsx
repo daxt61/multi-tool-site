@@ -9,7 +9,7 @@ export function VATCalculator({ initialData, onStateChange }: { initialData?: an
 
   useEffect(() => {
     onStateChange?.({ amount, vatRate, mode });
-  }, [amount, vatRate, mode, onStateChange]);
+  }, [amount, vatRate, mode]);
 
   const amountValue = parseFloat(amount) || 0;
   const rateValue = parseFloat(vatRate) || 0;

@@ -31,7 +31,7 @@ export function TimerTool({ initialData, onStateChange }: { initialData?: any; o
       pomodoroTime,
       pomodoroCycles
     });
-  }, [mode, timerMinutes, timerSeconds, pomodoroState, pomodoroTime, pomodoroCycles, onStateChange]);
+  }, [mode, timerMinutes, timerSeconds, pomodoroState, pomodoroTime, pomodoroCycles]);
   const [timerRunning, setTimerRunning] = useState(false);
   const [timerTime, setTimerTime] = useState(timerMinutes * 60 + timerSeconds);
   const [timerDone, setTimerDone] = useState(false);

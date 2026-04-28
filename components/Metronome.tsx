@@ -9,7 +9,7 @@ export function Metronome({ initialData, onStateChange }: { initialData?: any; o
 
   useEffect(() => {
     onStateChange?.({ bpm, isMuted, beatsPerMeasure });
-  }, [bpm, isMuted, beatsPerMeasure, onStateChange]);
+  }, [bpm, isMuted, beatsPerMeasure]);
   const [currentBeat, setCurrentBeat] = useState(0);
   const [taps, setTaps] = useState<number[]>([]);
 

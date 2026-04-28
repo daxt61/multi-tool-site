@@ -7,7 +7,7 @@ export function Base64ToImage({ initialData, onStateChange }: { initialData?: an
 
   useEffect(() => {
     onStateChange?.({ base64 });
-  }, [base64, onStateChange]);
+  }, [base64]);
   const [error, setError] = useState<string | null>(null);
 
 const MAX_LENGTH = 1000000; // 1MB for images in base64 is reasonable

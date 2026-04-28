@@ -23,7 +23,7 @@ export function CesarCipher({ initialData, onStateChange }: { initialData?: any;
 
   useEffect(() => {
     onStateChange?.({ text, shift, isEncrypt });
-  }, [text, shift, isEncrypt, onStateChange]);
+  }, [text, shift, isEncrypt]);
 
   const handleCopy = () => {
     if (!result) return;

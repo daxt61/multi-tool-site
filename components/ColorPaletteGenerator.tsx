@@ -7,7 +7,7 @@ export function ColorPaletteGenerator({ initialData, onStateChange }: { initialD
 
   useEffect(() => {
     onStateChange?.({ baseColor });
-  }, [baseColor, onStateChange]);
+  }, [baseColor]);
 
   const hexToHsl = (hex: string) => {
     let r = 0, g = 0, b = 0;

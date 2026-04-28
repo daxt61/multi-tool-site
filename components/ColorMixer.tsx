@@ -9,7 +9,7 @@ export function ColorMixer({ initialData, onStateChange }: { initialData?: any; 
 
   useEffect(() => {
     onStateChange?.({ color1, color2, ratio });
-  }, [color1, color2, ratio, onStateChange]);
+  }, [color1, color2, ratio]);
 
   const mixedColor = useMemo(() => {
     const hexToRgb = (hex: string) => {

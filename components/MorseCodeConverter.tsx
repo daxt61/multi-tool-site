@@ -30,7 +30,7 @@ export function MorseCodeConverter({ initialData, onStateChange }: { initialData
 
   useEffect(() => {
     onStateChange?.({ text, morse });
-  }, [text, morse, onStateChange]);
+  }, [text, morse]);
   const [copied, setCopied] = useState(false);
   const [error, setError] = useState<string | null>(null);
 

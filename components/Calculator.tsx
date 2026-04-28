@@ -33,7 +33,7 @@ export function Calculator({ initialData, onStateChange }: { initialData?: any; 
 
   useEffect(() => {
     onStateChange?.({ display, previousValue, operation, newNumber });
-  }, [display, previousValue, operation, newNumber, onStateChange]);
+  }, [display, previousValue, operation, newNumber]);
 
   const [memory, setMemory] = useState<number>(() => {
     try {

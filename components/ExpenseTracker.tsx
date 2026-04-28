@@ -64,7 +64,7 @@ export function ExpenseTracker({ initialData, onStateChange }: { initialData?: a
   useEffect(() => {
     localStorage.setItem("expenses", JSON.stringify(expenses));
     onStateChange?.({ expenses });
-  }, [expenses, onStateChange]);
+  }, [expenses]);
 
   const addExpense = () => {
     if (description && amount) {

@@ -29,7 +29,7 @@ export function LeetspeakConverter({ initialData, onStateChange }: { initialData
 
   useEffect(() => {
     onStateChange?.({ text, level });
-  }, [text, level, onStateChange]);
+  }, [text, level]);
 
   const leetText = useMemo(() => {
     // Sentinel: Implement input length limit to mitigate client-side Denial of Service (DoS)

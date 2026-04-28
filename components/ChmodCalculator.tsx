@@ -21,7 +21,7 @@ export function ChmodCalculator({ initialData, onStateChange }: { initialData?: 
 
   useEffect(() => {
     onStateChange?.({ permissions });
-  }, [permissions, onStateChange]);
+  }, [permissions]);
 
   const { octal, symbolic } = useMemo(() => {
     const calculateRoleValue = (role: PermissionState) => {

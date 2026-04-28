@@ -12,7 +12,7 @@ export function LoanCalculator({ initialData, onStateChange }: { initialData?: a
 
   useEffect(() => {
     onStateChange?.({ principal, annualRate, years });
-  }, [principal, annualRate, years, onStateChange]);
+  }, [principal, annualRate, years]);
   const [showSchedule, setShowSchedule] = useState(false);
 
   const result = useMemo(() => {

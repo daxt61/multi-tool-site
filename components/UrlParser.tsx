@@ -7,7 +7,7 @@ export function UrlParser({ initialData, onStateChange }: { initialData?: any; o
 
   useEffect(() => {
     onStateChange?.({ url });
-  }, [url, onStateChange]);
+  }, [url]);
 
   const parsed = useMemo(() => {
     if (!url.trim()) return null;

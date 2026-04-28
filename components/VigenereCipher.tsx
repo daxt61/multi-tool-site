@@ -53,7 +53,7 @@ export function VigenereCipher({ initialData, onStateChange }: { initialData?: a
     setError(null);
     setResult(processText(text, key, mode === 'encrypt'));
     onStateChange?.({ text, key, mode });
-  }, [text, key, mode, processText, onStateChange]);
+  }, [text, key, mode, processText]);
 
   const handleCopy = () => {
     if (!result) return;

@@ -31,7 +31,7 @@ export function ColorConverter({ initialData, onStateChange }: {
   useEffect(() => {
     const state: ColorState = { hex, rgb, hsl, cmyk, oklch };
     onStateChange?.(state);
-  }, [hex, rgb, hsl, cmyk, oklch, onStateChange]);
+  }, [hex, rgb, hsl, cmyk, oklch]);
 
   // ⚡ Bolt Optimization: Helper for OKLCH string formatting
   const formatOklch = (l: number, c: number, h: number) =>

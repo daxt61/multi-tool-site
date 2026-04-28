@@ -13,7 +13,7 @@ export function TextFormatter({ initialData, onStateChange }: { initialData?: an
 
   useEffect(() => {
     onStateChange?.({ text, findText, replaceText, isCaseSensitive });
-  }, [text, findText, replaceText, isCaseSensitive, onStateChange]);
+  }, [text, findText, replaceText, isCaseSensitive]);
 
   const stats = {
     characters: text.length,

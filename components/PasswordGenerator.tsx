@@ -105,7 +105,7 @@ export function PasswordGenerator({ initialData, onStateChange }: { initialData?
       mode, length, wordCount, capitalizeWords, addNumber, addSymbol,
       includeUppercase, includeLowercase, includeNumbers, includeSymbols, excludeSimilar
     });
-  }, [mode, length, wordCount, capitalizeWords, addNumber, addSymbol, includeUppercase, includeLowercase, includeNumbers, includeSymbols, excludeSimilar, onStateChange]);
+  }, [mode, length, wordCount, capitalizeWords, addNumber, addSymbol, includeUppercase, includeLowercase, includeNumbers, includeSymbols, excludeSimilar]);
 
   const copyToClipboard = useCallback(() => {
     if (!password) return;

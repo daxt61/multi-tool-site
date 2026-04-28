@@ -9,7 +9,7 @@ export function AgeCalculator({ initialData, onStateChange }: { initialData?: an
 
   useEffect(() => {
     onStateChange?.({ birthDate });
-  }, [birthDate, onStateChange]);
+  }, [birthDate]);
 
   useEffect(() => {
     const timer = setInterval(() => setCurrentTime(new Date()), 1000);

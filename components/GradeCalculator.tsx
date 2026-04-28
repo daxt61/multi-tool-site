@@ -17,7 +17,7 @@ export function GradeCalculator({ initialData, onStateChange }: { initialData?: 
 
   useEffect(() => {
     onStateChange?.({ grades, targetAverage, finalWeight });
-  }, [grades, targetAverage, finalWeight, onStateChange]);
+  }, [grades, targetAverage, finalWeight]);
 
   const stats = useMemo(() => {
     let totalWeightedGrade = 0;

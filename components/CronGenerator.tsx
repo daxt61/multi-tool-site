@@ -53,7 +53,7 @@ export function CronGenerator({ initialData, onStateChange }: { initialData?: an
     const newCron = `${minutes} ${hours} ${dayOfMonth} ${month} ${dayOfWeek}`;
     setCron(newCron);
     onStateChange?.({ minutes, hours, dayOfMonth, month, dayOfWeek, cron: newCron });
-  }, [minutes, hours, dayOfMonth, month, dayOfWeek, onStateChange]);
+  }, [minutes, hours, dayOfMonth, month, dayOfWeek]);
 
   const handleCopy = () => {
     navigator.clipboard.writeText(cron);

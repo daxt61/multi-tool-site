@@ -30,7 +30,7 @@ export function BMRCalculator({ initialData, onStateChange }: { initialData?: an
 
   useEffect(() => {
     onStateChange?.({ age, weight, height, gender, activity });
-  }, [age, weight, height, gender, activity, onStateChange]);
+  }, [age, weight, height, gender, activity]);
 
   const results = useMemo(() => {
     const a = parseFloat(age);

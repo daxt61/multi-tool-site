@@ -9,7 +9,7 @@ export function MarginCalculator({ initialData, onStateChange }: { initialData?:
 
   useEffect(() => {
     onStateChange?.({ costPrice, sellingPrice, marginPercent, markupPercent });
-  }, [costPrice, sellingPrice, marginPercent, markupPercent, onStateChange]);
+  }, [costPrice, sellingPrice, marginPercent, markupPercent]);
 
   const handleClear = () => {
     setCostPrice("");

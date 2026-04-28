@@ -16,7 +16,7 @@ export function MockDataGenerator({ initialData, onStateChange }: { initialData?
 
   useEffect(() => {
     onStateChange?.({ count, format });
-  }, [count, format, onStateChange]);
+  }, [count, format]);
 
   // Sentinel: Use cryptographically secure random values instead of Math.random()
   const secureRandomInt = useCallback((max: number) => {

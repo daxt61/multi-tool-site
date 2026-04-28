@@ -9,7 +9,7 @@ export function ROICalculator({ initialData, onStateChange }: { initialData?: an
 
   useEffect(() => {
     onStateChange?.({ initialInvestment, finalValue, duration });
-  }, [initialInvestment, finalValue, duration, onStateChange]);
+  }, [initialInvestment, finalValue, duration]);
 
   const stats = useMemo(() => {
     const initial = parseFloat(initialInvestment) || 0;

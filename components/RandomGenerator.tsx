@@ -19,7 +19,7 @@ export function RandomGenerator({ initialData, onStateChange }: { initialData?: 
 
   useEffect(() => {
     onStateChange?.({ min, max, strLength, includeUpper, includeLower, includeNumbers, list });
-  }, [min, max, strLength, includeUpper, includeLower, includeNumbers, list, onStateChange]);
+  }, [min, max, strLength, includeUpper, includeLower, includeNumbers, list]);
 
   const handleListChange = (val: string) => {
     setList(val);

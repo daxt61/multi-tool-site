@@ -11,7 +11,7 @@ export function JSONCSVConverter({ initialData, onStateChange }: { initialData?:
 
   useEffect(() => {
     onStateChange?.({ jsonInput, csvInput });
-  }, [jsonInput, csvInput, onStateChange]);
+  }, [jsonInput, csvInput]);
 
   const formatValue = (val: any) => {
     if (val === null || val === undefined) return '';

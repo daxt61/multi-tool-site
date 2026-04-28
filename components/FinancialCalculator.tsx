@@ -11,7 +11,7 @@ export function FinancialCalculator({ initialData, onStateChange }: { initialDat
 
   useEffect(() => {
     onStateChange?.({ principal, contribution, frequency, rate, years, compounding });
-  }, [principal, contribution, frequency, rate, years, compounding, onStateChange]);
+  }, [principal, contribution, frequency, rate, years, compounding]);
 
   const results = useMemo(() => {
     const P = parseFloat(principal) || 0;

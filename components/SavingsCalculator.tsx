@@ -13,7 +13,7 @@ export function SavingsCalculator({ initialData, onStateChange }: { initialData?
 
   useEffect(() => {
     onStateChange?.({ initialAmount, monthlyDeposit, annualRate, years });
-  }, [initialAmount, monthlyDeposit, annualRate, years, onStateChange]);
+  }, [initialAmount, monthlyDeposit, annualRate, years]);
 
   const calculation = useMemo(() => {
     const p = parseFloat(initialAmount) || 0;

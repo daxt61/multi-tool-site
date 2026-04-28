@@ -10,7 +10,7 @@ export function ListCleaner({ initialData, onStateChange }: { initialData?: any;
 
   useEffect(() => {
     onStateChange?.({ text });
-  }, [text, onStateChange]);
+  }, [text]);
 
   // Sentinel: Use cryptographically secure random values instead of Math.random()
   const getSecureRandom = useCallback((range: number): number => {

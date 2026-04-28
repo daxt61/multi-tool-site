@@ -1,12 +1,17 @@
-import { useState, useMemo } from 'react';
+import { useState, useMemo, useEffect } from 'react';
 import { Copy, Check, Trash2, Braces, FileCode, Info, AlertCircle } from 'lucide-react';
 
+const MAX_LENGTH = 100000;
 const MAX_DEPTH = 20;
 
-export function JSONSchemaGenerator() {
-  const [jsonInput, setJsonInput] = useState('');
+export function JSONSchemaGenerator({ initialData, onStateChange }: { initialData?: any; onStateChange?: (state: any) => void }) {
+  const [jsonInput, setJsonInput] = useState(initialData?.jsonInput || '');
   const [copied, setCopied] = useState(false);
   const [error, setError] = useState<string | null>(null);
+
+  useEffect(() => {
+    onStateChange?.({ jsonInput });
+  }, [jsonInput]);
 
   const generateSchema = (obj: any, depth: number = 0): any => {
     // Sentinel: Enforce recursion depth limit to prevent Stack Overflow DoS.
@@ -101,7 +106,15 @@ export function JSONSchemaGenerator() {
             <textarea
               id="json-input"
               value={jsonInput}
-              onChange={(e) => setJsonInput(e.target.value)}
+              onChange={(e) => {
+                const val = e.target.value;
+                setJsonInput(val);
+                if (val.length > MAX_LENGTH) {
+                  setError(`L'entrée est trop longue. Limite de ${MAX_LENGTH.toLocaleString()} caractères.`);
+                } else if (error?.startsWith("L'entrée est trop longue")) {
+                  setError(null);
+                }
+              }}
               placeholder='{ "nom": "Jean", "age": 30 }'
               className={`w-full h-[500px] p-6 bg-slate-50 dark:bg-slate-900 border ${error ? 'border-rose-500' : 'border-slate-200 dark:border-slate-800'} rounded-[2rem] outline-none focus:ring-2 ${error ? 'focus:ring-rose-500/20' : 'focus:ring-indigo-500/20'} transition-all font-mono text-sm dark:text-slate-300 resize-none`}
             />

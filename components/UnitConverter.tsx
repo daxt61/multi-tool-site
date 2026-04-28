@@ -263,7 +263,7 @@ export function UnitConverter({ initialData, onStateChange }: { initialData?: an
 
   useEffect(() => {
     onStateChange?.({ category, fromUnit, toUnit, fromValue, toValue });
-  }, [category, fromUnit, toUnit, fromValue, toValue, onStateChange]);
+  }, [category, fromUnit, toUnit, fromValue, toValue]);
 
   const handleDownload = () => {
     if (!fromValue) return;

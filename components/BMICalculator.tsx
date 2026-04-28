@@ -9,7 +9,7 @@ export function BMICalculator({ initialData, onStateChange }: { initialData?: an
 
   useEffect(() => {
     onStateChange?.({ weight, height, unit, useNewFormula });
-  }, [weight, height, unit, useNewFormula, onStateChange]);
+  }, [weight, height, unit, useNewFormula]);
   const [copied, setCopied] = useState(false);
   const [copiedIdeal, setCopiedIdeal] = useState(false);
 

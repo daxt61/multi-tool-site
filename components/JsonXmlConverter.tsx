@@ -13,7 +13,7 @@ export function JsonXmlConverter({ initialData, onStateChange }: { initialData?:
 
   useEffect(() => {
     onStateChange?.({ input, output, direction });
-  }, [input, output, direction, onStateChange]);
+  }, [input, output, direction]);
 
   const escapeXml = (unsafe: any) => {
     if (typeof unsafe !== 'string') return String(unsafe);

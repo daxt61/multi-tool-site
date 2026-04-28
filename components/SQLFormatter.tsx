@@ -1,15 +1,19 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Database, Copy, Check, Trash2, AlertCircle, FileCode, Download } from 'lucide-react';
 import { format } from 'sql-formatter';
 
 const MAX_LENGTH = 100000;
 
-export function SQLFormatter() {
-  const [input, setInput] = useState('');
-  const [output, setOutput] = useState('');
-  const [language, setLanguage] = useState('sql');
+export function SQLFormatter({ initialData, onStateChange }: { initialData?: any; onStateChange?: (state: any) => void }) {
+  const [input, setInput] = useState(initialData?.input || '');
+  const [output, setOutput] = useState(initialData?.output || '');
+  const [language, setLanguage] = useState(initialData?.language || 'sql');
   const [error, setError] = useState('');
   const [copied, setCopied] = useState(false);
+
+  useEffect(() => {
+    onStateChange?.({ input, output, language });
+  }, [input, output, language]);
 
   const languages = [
     { id: 'sql', name: 'Standard SQL' },

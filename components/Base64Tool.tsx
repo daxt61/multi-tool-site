@@ -9,7 +9,7 @@ export function Base64Tool({ initialData, onStateChange }: { initialData?: any; 
 
   useEffect(() => {
     onStateChange?.({ text, base64 });
-  }, [text, base64, onStateChange]);
+  }, [text, base64]);
   const [copied, setCopied] = useState<'text' | 'base64' | null>(null);
   const [error, setError] = useState<string | null>(null);
 

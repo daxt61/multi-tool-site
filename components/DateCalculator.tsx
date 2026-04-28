@@ -9,7 +9,7 @@ export function DateCalculator({ initialData, onStateChange }: { initialData?: a
 
   useEffect(() => {
     onStateChange?.({ date1, date2, daysToAdd });
-  }, [date1, date2, daysToAdd, onStateChange]);
+  }, [date1, date2, daysToAdd]);
 
   const calculateDifference = () => {
     const d1 = new Date(date1);

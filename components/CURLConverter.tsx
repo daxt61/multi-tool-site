@@ -11,7 +11,7 @@ export function CURLConverter({ initialData, onStateChange }: { initialData?: an
 
   useEffect(() => {
     onStateChange?.({ input });
-  }, [input, onStateChange]);
+  }, [input]);
 
   const parseCURL = useCallback((curl: string) => {
     if (!curl.trim()) {

@@ -13,7 +13,7 @@ export function ListComparator({ initialData, onStateChange }: { initialData?: a
 
   useEffect(() => {
     onStateChange?.({ listA, listB, caseSensitive, trimItems });
-  }, [listA, listB, caseSensitive, trimItems, onStateChange]);
+  }, [listA, listB, caseSensitive, trimItems]);
 
   const processList = (text: string) => {
     let items = text.split('\n').filter(line => line.length > 0);

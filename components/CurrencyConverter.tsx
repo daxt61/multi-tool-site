@@ -66,7 +66,7 @@ export function CurrencyConverter({ initialData, onStateChange }: { initialData?
 
   useEffect(() => {
     onStateChange?.({ amount, fromCurrency, toCurrency });
-  }, [amount, fromCurrency, toCurrency, onStateChange]);
+  }, [amount, fromCurrency, toCurrency]);
 
   const fetchRates = async () => {
     setLoading(true);

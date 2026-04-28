@@ -65,7 +65,7 @@ export function NumberToWords({ initialData, onStateChange }: { initialData?: an
 
   useEffect(() => {
     onStateChange?.({ number, lang });
-  }, [number, lang, onStateChange]);
+  }, [number, lang]);
   const [copied, setCopied] = useState(false);
 
   const words = useMemo(() => {

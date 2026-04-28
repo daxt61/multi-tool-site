@@ -39,7 +39,7 @@ export function TextTransformer({ initialData, onStateChange }: { initialData?: 
 
   useEffect(() => {
     onStateChange?.({ input, transform });
-  }, [input, transform, onStateChange]);
+  }, [input, transform]);
 
   const applyTransform = useCallback((text: string, type: TransformType) => {
     switch (type) {

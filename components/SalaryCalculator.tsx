@@ -13,7 +13,7 @@ export function SalaryCalculator({ initialData, onStateChange }: { initialData?:
 
   useEffect(() => {
     onStateChange?.({ grossAnnual, status, is13thMonth, mealVoucherValue, mealVoucherDays, employerShare, benefitsInKind });
-  }, [grossAnnual, status, is13thMonth, mealVoucherValue, mealVoucherDays, employerShare, benefitsInKind, onStateChange]);
+  }, [grossAnnual, status, is13thMonth, mealVoucherValue, mealVoucherDays, employerShare, benefitsInKind]);
 
   const results = useMemo(() => {
     const gross = parseFloat(grossAnnual) || 0;

@@ -1,13 +1,37 @@
-import { useState } from 'react';
-import { Copy, Check, Palette, Hash, Sliders } from 'lucide-react';
+import { useState, useEffect } from 'react';
+import { Copy, Check, Palette, Hash, Sliders, RotateCcw } from 'lucide-react';
 
-export function ColorConverter() {
-  const [hex, setHex] = useState('#6366f1');
-  const [rgb, setRgb] = useState({ r: 99, g: 102, b: 241 });
-  const [hsl, setHsl] = useState({ h: 239, s: 84, l: 67 });
-  const [cmyk, setCmyk] = useState({ c: 59, m: 58, y: 0, k: 5 });
-  const [oklch, setOklch] = useState({ l: 0.58, c: 0.19, h: 260 });
+interface ColorState {
+  hex: string;
+  rgb: { r: number; g: number; b: number };
+  hsl: { h: number; s: number; l: number };
+  cmyk: { c: number; m: number; y: number; k: number };
+  oklch: { l: number; c: number; h: number };
+}
+
+const DEFAULT_COLORS: ColorState = {
+  hex: '#6366f1',
+  rgb: { r: 99, g: 102, b: 241 },
+  hsl: { h: 239, s: 84, l: 67 },
+  cmyk: { c: 59, m: 58, y: 0, k: 5 },
+  oklch: { l: 0.58, c: 0.19, h: 260 }
+};
+
+export function ColorConverter({ initialData, onStateChange }: {
+  initialData?: Partial<ColorState>;
+  onStateChange?: (state: ColorState) => void
+}) {
+  const [hex, setHex] = useState(initialData?.hex || DEFAULT_COLORS.hex);
+  const [rgb, setRgb] = useState(initialData?.rgb || DEFAULT_COLORS.rgb);
+  const [hsl, setHsl] = useState(initialData?.hsl || DEFAULT_COLORS.hsl);
+  const [cmyk, setCmyk] = useState(initialData?.cmyk || DEFAULT_COLORS.cmyk);
+  const [oklch, setOklch] = useState(initialData?.oklch || DEFAULT_COLORS.oklch);
   const [copied, setCopied] = useState('');
+
+  useEffect(() => {
+    const state: ColorState = { hex, rgb, hsl, cmyk, oklch };
+    onStateChange?.(state);
+  }, [hex, rgb, hsl, cmyk, oklch, onStateChange]);
 
   // ⚡ Bolt Optimization: Helper for OKLCH string formatting
   const formatOklch = (l: number, c: number, h: number) =>
@@ -265,14 +289,34 @@ export function ColorConverter() {
     return 'Fail';
   };
 
+  const handleReset = () => {
+    setHex(DEFAULT_COLORS.hex);
+    setRgb(DEFAULT_COLORS.rgb);
+    setHsl(DEFAULT_COLORS.hsl);
+    setCmyk(DEFAULT_COLORS.cmyk);
+    setOklch(DEFAULT_COLORS.oklch);
+  };
+
   const copyToClipboard = (text: string, id: string) => {
     navigator.clipboard.writeText(text);
     setCopied(id);
     setTimeout(() => setCopied(''), 2000);
   };
 
+  const isDefault = hex === DEFAULT_COLORS.hex;
+
   return (
     <div className="max-w-5xl mx-auto space-y-12">
+      <div className="flex justify-end items-center px-1">
+        <button
+          onClick={handleReset}
+          disabled={isDefault}
+          className="text-xs font-bold text-rose-500 bg-rose-50 dark:bg-rose-500/10 hover:bg-rose-100 dark:hover:bg-rose-500/20 px-3 py-1.5 rounded-xl flex items-center gap-1 transition-all disabled:opacity-50 disabled:cursor-not-allowed focus-visible:ring-2 focus-visible:ring-rose-500 focus-visible:outline-none"
+        >
+          <RotateCcw className="w-3 h-3" /> Réinitialiser
+        </button>
+      </div>
+
       {/* Visual Preview Area */}
       <div className="relative group">
         <div

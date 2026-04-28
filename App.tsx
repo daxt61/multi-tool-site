@@ -58,6 +58,7 @@ import {
   Briefcase,
   Search,
   Shuffle,
+  MousePointer2,
   ArrowLeft,
   Database,
   ArrowLeftRight,
@@ -211,6 +212,8 @@ const FinancialCalculator = lazy(() => import("./components/FinancialCalculator"
 const HTTPStatusCodes = lazy(() => import("./components/HTTPStatusCodes").then(m => ({ default: m.HTTPStatusCodes })));
 const IBANValidator = lazy(() => import("./components/IBANValidator").then(m => ({ default: m.IBANValidator })));
 const VigenereCipher = lazy(() => import("./components/VigenereCipher").then(m => ({ default: m.VigenereCipher })));
+const ListComparator = lazy(() => import("./components/ListComparator").then(m => ({ default: m.ListComparator })));
+const CursorReference = lazy(() => import("./components/CursorReference").then(m => ({ default: m.CursorReference })));
 
 // ⚡ Bolt Optimization: Pre-calculating tool map and search index for O(1) lookups and faster filtering
 const toolsMap: Record<string, Tool> = {};
@@ -1145,6 +1148,24 @@ const tools: Tool[] = [
     description: "Estimer le temps de transfert de fichiers",
     Component: DownloadTimeCalculator,
     category: "other",
+  },
+  {
+    id: "list-comparator",
+    name: "Comparateur de Listes",
+    icon: Columns,
+    description: "Comparer deux listes pour trouver les éléments communs ou uniques",
+    Component: ListComparator,
+    category: "text",
+    keywords: ["liste", "comparaison", "doublons", "intersection", "différence"],
+  },
+  {
+    id: "cursor-reference",
+    name: "Curseurs CSS",
+    icon: MousePointer2,
+    description: "Référence visuelle et codes CSS pour tous les types de curseurs",
+    Component: CursorReference,
+    category: "dev",
+    keywords: ["css", "cursor", "design", "ui", "ux", "souris"],
   },
 ];
 

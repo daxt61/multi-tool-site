@@ -81,3 +81,8 @@
 **Vulnerability:** The SVGPlaceholder component was vulnerable to XSS by injecting unvalidated user input into SVG attributes (width, height, fill, font-size) and text content rendered via `dangerouslySetInnerHTML`. Malicious URL state could break out of attributes.
 **Learning:** Even numeric or color attributes in an SVG string must be escaped when rendered via `dangerouslySetInnerHTML`. Initial state from URL parameters is an untrusted entry point that bypasses UI-level validation.
 **Prevention:** Always escape every variable injected into a raw HTML/SVG string. Enforce strict type checking and reasonable bounds (e.g., MAX_DIMENSION) for numeric values to prevent both XSS and DoS.
+
+## 2025-07-05 - [Snippet Injection in cURL Converter]
+**Vulnerability:** The CURLConverter component used manual string concatenation with double quotes to generate JavaScript `fetch` snippets. User-provided values like URLs or header contents containing quotes or backslashes could "break out" of the string literals, leading to broken code or potential execution of arbitrary logic in the environment where the snippet was run.
+**Learning:** Tools that generate code snippets from user input must treat all injected values as potentially malicious. Relying on simple regular expressions to "sanitize" or "validate" these inputs is insufficient if the output format (like JavaScript) has complex escaping rules.
+**Prevention:** Always use a safe serialization method like `JSON.stringify()` for every user-controlled variable being injected into a code template. This ensures that the generated snippet is syntactically valid and all characters are properly escaped according to the language's literal rules.

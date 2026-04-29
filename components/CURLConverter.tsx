@@ -41,19 +41,21 @@ export function CURLConverter({ initialData, onStateChange }: { initialData?: an
       const dataMatch = curl.match(/(?:-d|--data|--data-raw)\s+['"]?([\s\S]+?)['"]?(?:\s+-[A-Z]|$)/);
       const data = dataMatch ? dataMatch[1] : null;
 
-      let fetchCode = `fetch("${url}", {\n`;
-      fetchCode += `  method: "${method}",\n`;
+      // Sentinel: Use JSON.stringify to safely escape all user-provided strings in the generated code.
+      let fetchCode = `fetch(${JSON.stringify(url)}, {\n`;
+      fetchCode += `  method: ${JSON.stringify(method)},\n`;
 
       if (Object.keys(headers).length > 0) {
         fetchCode += `  headers: {\n`;
         Object.entries(headers).forEach(([k, v]) => {
-          fetchCode += `    "${k}": "${v}",\n`;
+          fetchCode += `    ${JSON.stringify(k)}: ${JSON.stringify(v)},\n`;
         });
         fetchCode += `  },\n`;
       }
 
       if (data) {
-        fetchCode += `  body: JSON.stringify(${data}),\n`;
+        // Sentinel: Treat body data as a literal string to prevent code injection.
+        fetchCode += `  body: ${JSON.stringify(data)},\n`;
       }
 
       fetchCode += `})\n.then(response => response.json())\n.then(data => console.log(data))\n.catch(error => console.error('Erreur:', error));`;
@@ -61,7 +63,9 @@ export function CURLConverter({ initialData, onStateChange }: { initialData?: an
       setOutput(fetchCode);
       setError(null);
     } catch (e: any) {
-      setError(e.message || "Erreur lors de la conversion.");
+      // Sentinel: Enforce 'Fail-Secure' behavior by using a generic, safe error message
+      // that avoids potential leakage of internal error details or stack traces.
+      setError("Erreur lors de la conversion : Commande cURL invalide ou malformée.");
       setOutput('');
     }
   }, []);

@@ -174,6 +174,7 @@ const RomanNumeralConverter = lazy(() => import("./components/RomanNumeralConver
 const XMLFormatter = lazy(() => import("./components/XMLFormatter").then(m => ({ default: m.XMLFormatter })));
 const ColorContrastChecker = lazy(() => import("./components/ColorContrastChecker").then(m => ({ default: m.ColorContrastChecker })));
 const JSONSchemaGenerator = lazy(() => import("./components/JSONSchemaGenerator").then(m => ({ default: m.JSONSchemaGenerator })));
+const ZodSchemaGenerator = lazy(() => import("./components/ZodSchemaGenerator").then(m => ({ default: m.ZodSchemaGenerator })));
 const SubnetCalculator = lazy(() => import("./components/SubnetCalculator").then(m => ({ default: m.SubnetCalculator })));
 const TimezoneConverter = lazy(() => import("./components/TimezoneConverter").then(m => ({ default: m.TimezoneConverter })));
 const DownloadTimeCalculator = lazy(() => import("./components/DownloadTimeCalculator").then(m => ({ default: m.DownloadTimeCalculator })));
@@ -777,6 +778,15 @@ const tools: Tool[] = [
     description: "Générer un JSON Schema à partir d'un JSON",
     Component: JSONSchemaGenerator,
     category: "dev",
+  },
+  {
+    id: "zod-schema",
+    name: "Schéma Zod",
+    icon: ShieldCheck,
+    description: "Générer un schéma Zod à partir d'un JSON",
+    Component: ZodSchemaGenerator,
+    category: "dev",
+    keywords: ["typescript", "validation", "zod", "schema", "json"],
   },
   {
     id: "json-tree-viewer",

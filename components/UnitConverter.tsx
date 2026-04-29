@@ -1,7 +1,7 @@
 import { useState, useEffect, useMemo } from 'react';
 import { Copy, Check, Trash2, ArrowUpDown, Info, Ruler, Download, Search, X } from 'lucide-react';
 
-type ConversionCategory = 'length' | 'weight' | 'temperature' | 'area' | 'volume' | 'digital' | 'pressure' | 'energy' | 'speed' | 'time' | 'power' | 'frequency' | 'consumption' | 'angle' | 'torque' | 'force' | 'datarate' | 'illuminance' | 'luminance' | 'radiation' | 'magnetic' | 'acceleration' | 'density' | 'voltage' | 'current' | 'resistance' | 'capacitance';
+type ConversionCategory = 'length' | 'weight' | 'temperature' | 'area' | 'volume' | 'digital' | 'digital_si' | 'pressure' | 'energy' | 'speed' | 'time' | 'power' | 'frequency' | 'consumption' | 'angle' | 'torque' | 'force' | 'datarate' | 'illuminance' | 'luminance' | 'radiation' | 'magnetic' | 'acceleration' | 'density' | 'voltage' | 'current' | 'resistance' | 'capacitance' | 'typography';
 
 interface ConversionUnit {
   name: string;
@@ -200,6 +200,25 @@ const CONVERSIONS: Record<ConversionCategory, Record<string, ConversionUnit>> = 
     'uF': { name: 'Microfarad (µF)', toBase: (v) => v / 1000000, fromBase: (v) => v * 1000000 },
     'nF': { name: 'Nanofarad (nF)', toBase: (v) => v / 1000000000, fromBase: (v) => v * 1000000000 },
     'pF': { name: 'Picofarad (pF)', toBase: (v) => v / 1000000000000, fromBase: (v) => v * 1000000000000 }
+  },
+  digital_si: {
+    'bit': { name: 'Bits (bit)', toBase: (v) => v / 8, fromBase: (v) => v * 8 },
+    'kb': { name: 'Kilobits (kb)', toBase: (v) => (v * 1000) / 8, fromBase: (v) => (v * 8) / 1000 },
+    'Mb': { name: 'Mégabits (Mb)', toBase: (v) => (v * 1000000) / 8, fromBase: (v) => (v * 8) / 1000000 },
+    'Gb': { name: 'Gigabits (Gb)', toBase: (v) => (v * 1000000000) / 8, fromBase: (v) => (v * 8) / 1000000000 },
+    'B': { name: 'Octets (B)', toBase: (v) => v, fromBase: (v) => v },
+    'KB': { name: 'Kilooctets (KB)', toBase: (v) => v * 1000, fromBase: (v) => v / 1000 },
+    'MB': { name: 'Megaoctets (MB)', toBase: (v) => v * 1000000, fromBase: (v) => v / 1000000 },
+    'GB': { name: 'Gigaoctets (GB)', toBase: (v) => v * 1000000000, fromBase: (v) => v / 1000000000 },
+    'TB': { name: 'Teraoctets (TB)', toBase: (v) => v * 1000000000000, fromBase: (v) => v / 1000000000000 }
+  },
+  typography: {
+    'pt': { name: 'Point (pt)', toBase: (v) => v, fromBase: (v) => v },
+    'pc': { name: 'Pica (pc)', toBase: (v) => v * 12, fromBase: (v) => v / 12 },
+    'in': { name: 'Pouce (in)', toBase: (v) => v * 72, fromBase: (v) => v / 72 },
+    'cm': { name: 'Centimètre (cm)', toBase: (v) => v * 28.3465, fromBase: (v) => v / 28.3465 },
+    'mm': { name: 'Millimètre (mm)', toBase: (v) => v * 2.83465, fromBase: (v) => v / 2.83465 },
+    'px': { name: 'Pixel (px)', toBase: (v) => v * 0.75, fromBase: (v) => v / 0.75 }
   }
 };
 
@@ -209,7 +228,8 @@ const CATEGORIES_MAP = [
   { id: 'temperature', name: 'Température' },
   { id: 'area', name: 'Surface' },
   { id: 'volume', name: 'Volume' },
-  { id: 'digital', name: 'Digital' },
+  { id: 'digital', name: 'Digital (Base 1024)' },
+  { id: 'digital_si', name: 'Digital (Base 1000)' },
   { id: 'speed', name: 'Vitesse' },
   { id: 'time', name: 'Temps' },
   { id: 'pressure', name: 'Pression' },
@@ -230,7 +250,8 @@ const CATEGORIES_MAP = [
   { id: 'voltage', name: 'Tension (Volt)' },
   { id: 'current', name: 'Courant (Ampère)' },
   { id: 'resistance', name: 'Résistance (Ohm)' },
-  { id: 'capacitance', name: 'Capacité (Farad)' }
+  { id: 'capacitance', name: 'Capacité (Farad)' },
+  { id: 'typography', name: 'Typographie' }
 ];
 
 const formatter = new Intl.NumberFormat('fr-FR', {

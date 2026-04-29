@@ -35,6 +35,7 @@ export function WordCounter({ initialData, onStateChange }: { initialData?: any;
         ari: 0,
         ariGrade: 'N/A',
         topWords: [],
+        topBigrams: [],
         charFreq: [] as [string, number][]
       };
     }
@@ -53,6 +54,20 @@ export function WordCounter({ initialData, onStateChange }: { initialData?: any;
     });
 
     const topWords = Object.entries(wordFreq)
+      .sort((a, b) => b[1] - a[1])
+      .slice(0, 10);
+
+    // Bigram frequency
+    const bigramFreq: Record<string, number> = Object.create(null);
+    for (let i = 0; i < words.length - 1; i++) {
+      const w1 = words[i].toLowerCase().replace(/[.,/#!$%^&*;:{}=\-_`~()]/g, "");
+      const w2 = words[i+1].toLowerCase().replace(/[.,/#!$%^&*;:{}=\-_`~()]/g, "");
+      if (w1 && w2 && w1.length > 1 && w2.length > 1) {
+        const bigram = `${w1} ${w2}`;
+        bigramFreq[bigram] = (bigramFreq[bigram] || 0) + 1;
+      }
+    }
+    const topBigrams = Object.entries(bigramFreq)
       .sort((a, b) => b[1] - a[1])
       .slice(0, 10);
 
@@ -136,6 +151,7 @@ export function WordCounter({ initialData, onStateChange }: { initialData?: any;
       flesch: flesch.toFixed(1),
       fleschLevel: getFleschLevel(flesch),
       topWords,
+      topBigrams,
       charFreq
     };
   }, [deferredText]);
@@ -321,7 +337,29 @@ export function WordCounter({ initialData, onStateChange }: { initialData?: any;
             </div>
           </div>
 
-          <div className="space-y-6">
+          <div className="space-y-12">
+            {stats.topBigrams.length > 0 && (
+              <div className="space-y-6">
+                <h3 className="text-xs font-black uppercase tracking-widest text-slate-400 flex items-center gap-2">
+                  <BarChart3 className="w-4 h-4" /> Groupes de 2 mots (Bigrammes)
+                </h3>
+                <div className="flex flex-wrap gap-3">
+                  {stats.topBigrams.map(([bigram, count]) => (
+                    <div
+                      key={bigram}
+                      className="px-4 py-2 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl flex items-center gap-3 group transition-all hover:border-indigo-500/30"
+                    >
+                      <span className="font-bold text-slate-700 dark:text-slate-300">{bigram}</span>
+                      <span className="px-2 py-0.5 bg-indigo-100 dark:bg-indigo-900/30 text-indigo-600 dark:text-indigo-400 text-[10px] font-black rounded-md group-hover:bg-indigo-600 group-hover:text-white transition-colors">
+                        {count}
+                      </span>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+
+            <div className="space-y-6">
             <div className="flex justify-between items-center px-1">
               <h3 className="text-xs font-black uppercase tracking-widest text-slate-400 flex items-center gap-2">
                 <Hash className="w-4 h-4" /> Fréquence des caractères
@@ -348,7 +386,8 @@ export function WordCounter({ initialData, onStateChange }: { initialData?: any;
             </div>
           </div>
         </div>
-      )}
+      </div>
+    )}
 
       {/* Readability Score Display */}
       <div className="bg-indigo-50 dark:bg-indigo-900/10 p-8 rounded-[2.5rem] border border-indigo-100 dark:border-indigo-900/20 grid grid-cols-1 md:grid-cols-2 gap-8">

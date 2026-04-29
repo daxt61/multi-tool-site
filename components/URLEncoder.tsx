@@ -1,11 +1,15 @@
-import { useState, useCallback } from 'react';
+import { useState, useCallback, useEffect } from 'react';
 import { ArrowRight, ArrowLeft, Trash2, Copy, Check, Info, LinkIcon, Code } from 'lucide-react';
 
-export function URLEncoder() {
-  const [decoded, setDecoded] = useState('');
-  const [encoded, setEncoded] = useState('');
+export function URLEncoder({ initialData, onStateChange }: { initialData?: any; onStateChange?: (state: any) => void }) {
+  const [decoded, setDecoded] = useState(initialData?.decoded || '');
+  const [encoded, setEncoded] = useState(initialData?.encoded || '');
   const [copiedDecoded, setCopiedDecoded] = useState(false);
   const [copiedEncoded, setCopiedEncoded] = useState(false);
+
+  useEffect(() => {
+    onStateChange?.({ decoded, encoded });
+  }, [decoded, encoded]);
 
   const encode = (text: string) => {
     try {
@@ -34,12 +38,14 @@ export function URLEncoder() {
   };
 
   const handleCopyDecoded = useCallback(() => {
+    if (!decoded) return;
     navigator.clipboard.writeText(decoded);
     setCopiedDecoded(true);
     setTimeout(() => setCopiedDecoded(false), 2000);
   }, [decoded]);
 
   const handleCopyEncoded = useCallback(() => {
+    if (!encoded) return;
     navigator.clipboard.writeText(encoded);
     setCopiedEncoded(true);
     setTimeout(() => setCopiedEncoded(false), 2000);
@@ -56,21 +62,26 @@ export function URLEncoder() {
         {/* Décodé */}
         <div className="space-y-4">
           <div className="flex justify-between items-center px-1">
-            <label htmlFor="url-decoded" className="text-xs font-black uppercase tracking-widest text-slate-400 flex items-center gap-2">
-              <LinkIcon className="w-3 h-3 text-indigo-500" /> URL/Texte décodé
+            <label htmlFor="url-decoded" className="text-xs font-black uppercase tracking-widest text-slate-400 flex items-center gap-2 cursor-pointer">
+              <LinkIcon className="w-3 h-3 text-indigo-500 transition-transform group-hover:scale-110" /> URL/Texte décodé
             </label>
             <div className="flex gap-2">
               <button
                 onClick={handleCopyDecoded}
                 disabled={!decoded}
-                className={`text-xs font-bold px-3 py-1 rounded-full transition-all flex items-center gap-1 ${copiedDecoded ? 'bg-emerald-500 text-white' : 'text-slate-500 bg-slate-100 dark:bg-slate-800'} disabled:opacity-50 disabled:cursor-not-allowed`}
+                className={`text-xs font-bold px-3 py-1.5 rounded-full transition-all flex items-center gap-1 border focus-visible:ring-2 focus-visible:ring-indigo-500 focus-visible:outline-none ${
+                  copiedDecoded
+                    ? 'bg-emerald-50 dark:bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border-emerald-200 dark:border-emerald-500/20'
+                    : 'text-slate-500 bg-slate-100 dark:bg-slate-800 border-transparent hover:bg-slate-200'
+                } disabled:opacity-50 disabled:cursor-not-allowed`}
               >
                 {copiedDecoded ? <Check className="w-3 h-3" /> : <Copy className="w-3 h-3" />} {copiedDecoded ? 'Copié' : 'Copier'}
               </button>
               <button
                 onClick={handleClear}
                 disabled={!decoded && !encoded}
-                className="text-xs font-bold px-3 py-1 rounded-full text-rose-500 bg-rose-50 dark:bg-rose-500/10 hover:bg-rose-100 transition-all flex items-center gap-1 disabled:opacity-50 disabled:cursor-not-allowed"
+                aria-label="Effacer tout"
+                className="text-xs font-bold px-3 py-1.5 rounded-full text-rose-500 bg-rose-50 dark:bg-rose-500/10 hover:bg-rose-100 dark:hover:bg-rose-500/20 border border-transparent transition-all flex items-center gap-1 disabled:opacity-50 disabled:cursor-not-allowed focus-visible:ring-2 focus-visible:ring-rose-500 focus-visible:outline-none"
               >
                 <Trash2 className="w-3 h-3" /> Effacer
               </button>
@@ -88,14 +99,18 @@ export function URLEncoder() {
         {/* Encodé */}
         <div className="space-y-4">
           <div className="flex justify-between items-center px-1">
-            <label htmlFor="url-encoded" className="text-xs font-black uppercase tracking-widest text-slate-400 flex items-center gap-2">
-              <Code className="w-3 h-3 text-indigo-500" /> URL/Texte encodé
+            <label htmlFor="url-encoded" className="text-xs font-black uppercase tracking-widest text-slate-400 flex items-center gap-2 cursor-pointer">
+              <Code className="w-3 h-3 text-indigo-500 transition-transform group-hover:scale-110" /> URL/Texte encodé
             </label>
             <div className="flex gap-2">
               <button
                 onClick={handleCopyEncoded}
                 disabled={!encoded}
-                className={`text-xs font-bold px-3 py-1 rounded-full transition-all flex items-center gap-1 ${copiedEncoded ? 'bg-emerald-500 text-white' : 'text-slate-500 bg-slate-100 dark:bg-slate-800'} disabled:opacity-50 disabled:cursor-not-allowed`}
+                className={`text-xs font-bold px-3 py-1.5 rounded-full transition-all flex items-center gap-1 border focus-visible:ring-2 focus-visible:ring-indigo-500 focus-visible:outline-none ${
+                  copiedEncoded
+                    ? 'bg-emerald-50 dark:bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border-emerald-200 dark:border-emerald-500/20'
+                    : 'text-slate-500 bg-slate-100 dark:bg-slate-800 border-transparent hover:bg-slate-200'
+                } disabled:opacity-50 disabled:cursor-not-allowed`}
               >
                 {copiedEncoded ? <Check className="w-3 h-3" /> : <Copy className="w-3 h-3" />} {copiedEncoded ? 'Copié' : 'Copier'}
               </button>
@@ -114,8 +129,8 @@ export function URLEncoder() {
       <div className="flex justify-center gap-6">
         <div className="hidden md:flex flex-col items-center gap-2 text-slate-300">
           <div className="w-px h-12 bg-slate-200 dark:bg-slate-800" />
-          <ArrowRight className="w-6 h-6" />
-          <ArrowLeft className="w-6 h-6" />
+          <ArrowRight className="w-6 h-6 transition-transform hover:scale-110" />
+          <ArrowLeft className="w-6 h-6 transition-transform hover:scale-110" />
           <div className="w-px h-12 bg-slate-200 dark:bg-slate-800" />
         </div>
       </div>

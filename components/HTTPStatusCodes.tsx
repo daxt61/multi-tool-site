@@ -1,4 +1,4 @@
-import { useState, useMemo } from 'react';
+import { useState, useMemo, useEffect } from 'react';
 import { Search, Copy, Check, Info, Globe, AlertCircle, CheckCircle2, HelpCircle, Ban, X } from 'lucide-react';
 
 interface StatusCode {
@@ -99,9 +99,13 @@ const STATUS_CODES: StatusCategory[] = [
   }
 ];
 
-export function HTTPStatusCodes() {
-  const [searchQuery, setSearchQuery] = useState('');
+export function HTTPStatusCodes({ initialData, onStateChange }: { initialData?: any; onStateChange?: (state: any) => void }) {
+  const [searchQuery, setSearchQuery] = useState(initialData?.searchQuery || '');
   const [copiedCode, setCopiedCode] = useState<string | null>(null);
+
+  useEffect(() => {
+    onStateChange?.({ searchQuery });
+  }, [searchQuery]);
 
   const filteredCategories = useMemo(() => {
     const query = searchQuery.toLowerCase().trim();
@@ -138,12 +142,12 @@ export function HTTPStatusCodes() {
             placeholder="Rechercher par code, nom ou description..."
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
-            className="block w-full pl-12 pr-12 py-4 bg-slate-50 dark:bg-slate-900/50 border border-slate-200 dark:border-slate-800 rounded-2xl focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 outline-none transition-all placeholder:text-slate-400"
+            className="block w-full pl-12 pr-12 py-4 bg-slate-50 dark:bg-slate-900/50 border border-slate-200 dark:border-slate-800 rounded-2xl focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 outline-none transition-all placeholder:text-slate-400 dark:text-slate-200 focus-visible:ring-2 focus-visible:ring-indigo-500"
           />
           {searchQuery && (
             <button
               onClick={() => setSearchQuery('')}
-              className="absolute inset-y-0 right-4 flex items-center text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 transition-colors"
+              className="absolute inset-y-0 right-4 flex items-center text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 transition-colors focus-visible:ring-2 focus-visible:ring-indigo-500 focus-visible:outline-none rounded-lg p-1"
               aria-label="Effacer la recherche"
             >
               <X className="h-5 w-5" />
@@ -157,9 +161,9 @@ export function HTTPStatusCodes() {
         {filteredCategories.length > 0 ? (
           filteredCategories.map((category) => (
             <section key={category.id} className="space-y-6">
-              <div className="flex items-center gap-4 px-2">
+              <div className="flex items-center gap-4 px-2 group">
                 <div className={`p-3 rounded-2xl ${category.bg} ${category.color}`}>
-                  <category.icon className="w-6 h-6" />
+                  <category.icon className="w-6 h-6 transition-transform group-hover:scale-110" />
                 </div>
                 <div>
                   <h2 className="text-xl font-black dark:text-white">{category.title}</h2>
@@ -180,11 +184,12 @@ export function HTTPStatusCodes() {
                         </span>
                         <button
                           onClick={() => handleCopy(item.code, item.code)}
-                          className={`p-2 rounded-xl transition-all ${
+                          className={`p-2 rounded-xl transition-all border focus-visible:ring-2 focus-visible:ring-indigo-500 focus-visible:outline-none ${
                             copiedCode === item.code
-                              ? 'bg-emerald-50 dark:bg-emerald-500/10 text-emerald-600 dark:text-emerald-400'
-                              : 'text-slate-300 hover:text-indigo-500 hover:bg-indigo-50 dark:hover:bg-indigo-900/20 opacity-0 group-hover:opacity-100'
+                              ? 'bg-emerald-50 dark:bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border-emerald-200 dark:border-emerald-500/20'
+                              : 'text-slate-300 hover:text-indigo-500 border-transparent hover:bg-indigo-50 dark:hover:bg-indigo-900/20 md:opacity-0 group-hover:opacity-100 focus-visible:opacity-100'
                           }`}
+                          aria-label={`Copier le code ${item.code}`}
                           title="Copier le code"
                         >
                           {copiedCode === item.code ? <Check className="w-4 h-4" /> : <Copy className="w-4 h-4" />}
@@ -211,7 +216,7 @@ export function HTTPStatusCodes() {
             </p>
             <button
               onClick={() => setSearchQuery('')}
-              className="px-6 py-2 bg-slate-900 dark:bg-white text-white dark:text-slate-900 rounded-xl font-bold transition-all"
+              className="px-6 py-2 bg-slate-900 dark:bg-white text-white dark:text-slate-900 rounded-xl font-bold transition-all focus-visible:ring-2 focus-visible:ring-indigo-500 focus-visible:outline-none"
             >
               Effacer la recherche
             </button>

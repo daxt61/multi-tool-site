@@ -58,10 +58,12 @@ export function CursorReference() {
   return (
     <div className="max-w-5xl mx-auto space-y-12">
       <div className="max-w-md mx-auto relative group">
+        <label htmlFor="cursor-search" className="sr-only">Rechercher un curseur</label>
         <div className="absolute inset-y-0 left-4 flex items-center pointer-events-none">
           <Search className="h-4 w-4 text-slate-400" />
         </div>
         <input
+          id="cursor-search"
           type="text"
           placeholder="Rechercher un curseur..."
           value={search}
@@ -91,12 +93,13 @@ export function CursorReference() {
               </div>
               <button
                 onClick={(e) => { e.stopPropagation(); handleCopy(cursor.name); }}
-                className={`p-2 rounded-xl transition-all border ${
+                className={`p-2 rounded-xl transition-all border z-20 ${
                   copied === cursor.name
                     ? 'bg-emerald-50 dark:bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border-emerald-200 dark:border-emerald-500/20'
-                    : 'bg-white dark:bg-slate-800 border-slate-200 dark:border-slate-700 text-slate-400 hover:text-indigo-500 md:opacity-0 group-hover:opacity-100'
+                    : 'bg-white dark:bg-slate-800 border-slate-200 dark:border-slate-700 text-slate-400 hover:text-indigo-500 md:opacity-0 group-hover:opacity-100 md:focus-visible:opacity-100'
                 }`}
                 title="Copier le CSS"
+                aria-label={`Copier le CSS pour ${cursor.name}`}
               >
                 {copied === cursor.name ? <Check className="w-4 h-4" /> : <Copy className="w-4 h-4" />}
               </button>

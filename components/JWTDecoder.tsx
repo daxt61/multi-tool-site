@@ -3,8 +3,8 @@ import { Copy, Check, Trash2, ShieldCheck, Clock, Eye, EyeOff, AlertCircle } fro
 
 const MAX_LENGTH = 100000;
 
-export function JWTDecoder() {
-  const [jwt, setJwt] = useState('');
+export function JWTDecoder({ initialData, onStateChange }: { initialData?: any; onStateChange?: (state: any) => void }) {
+  const [jwt, setJwt] = useState(initialData?.jwt || '');
   const [decoded, setDecoded] = useState<{
     header: any;
     payload: any;
@@ -17,7 +17,12 @@ export function JWTDecoder() {
     error: null,
   });
   const [showSignature, setShowSignature] = useState(false);
-  const [copied, setCopied] = useState(false);
+  const [copiedHeader, setCopiedHeader] = useState(false);
+  const [copiedPayload, setCopiedPayload] = useState(false);
+
+  useEffect(() => {
+    onStateChange?.({ jwt });
+  }, [jwt]);
 
   const decodeJWT = (token: string) => {
     if (!token.trim()) {
@@ -72,10 +77,15 @@ export function JWTDecoder() {
     decodeJWT(jwt);
   }, [jwt]);
 
-  const handleCopy = (text: string) => {
+  const handleCopy = (text: string, target: 'header' | 'payload') => {
     navigator.clipboard.writeText(JSON.stringify(text, null, 2));
-    setCopied(true);
-    setTimeout(() => setCopied(false), 2000);
+    if (target === 'header') {
+      setCopiedHeader(true);
+      setTimeout(() => setCopiedHeader(false), 2000);
+    } else {
+      setCopiedPayload(true);
+      setTimeout(() => setCopiedPayload(false), 2000);
+    }
   };
 
   const formatDate = (timestamp: number) => {
@@ -94,7 +104,9 @@ export function JWTDecoder() {
           <label htmlFor="jwt-input" className="text-xs font-black uppercase tracking-widest text-slate-400 cursor-pointer">Jeton JWT</label>
           <button
             onClick={() => setJwt('')}
-            className="text-xs font-bold px-3 py-1.5 rounded-full text-rose-500 bg-rose-50 dark:bg-rose-500/10 hover:bg-rose-100 dark:hover:bg-rose-500/20 transition-all flex items-center gap-1"
+            disabled={!jwt}
+            aria-label="Effacer tout"
+            className="text-xs font-bold px-3 py-1.5 rounded-full text-rose-500 bg-rose-50 dark:bg-rose-500/10 hover:bg-rose-100 dark:hover:bg-rose-500/20 border border-transparent transition-all flex items-center gap-1 disabled:opacity-50 disabled:cursor-not-allowed focus-visible:ring-2 focus-visible:ring-rose-500 focus-visible:outline-none"
           >
             <Trash2 className="w-3 h-3" /> Effacer
           </button>
@@ -104,7 +116,7 @@ export function JWTDecoder() {
           value={jwt}
           onChange={(e) => setJwt(e.target.value)}
           placeholder="Collez votre JWT ici (header.payload.signature)..."
-          className={`w-full h-32 p-6 bg-slate-50 dark:bg-slate-900 border ${decoded.error?.includes('trop longue') ? 'border-rose-500 ring-rose-500/20' : 'border-slate-200 dark:border-slate-800'} rounded-[2rem] outline-none focus:ring-2 ${decoded.error?.includes('trop longue') ? 'focus:ring-rose-500/20' : 'focus:ring-indigo-500/20'} transition-all text-sm font-mono break-all dark:text-slate-300`}
+          className={`w-full h-32 p-6 bg-slate-50 dark:bg-slate-900 border ${decoded.error?.includes('trop longue') ? 'border-rose-500 ring-rose-500/20' : 'border-slate-200 dark:border-slate-800 focus:ring-indigo-500/20'} rounded-[2rem] outline-none focus:ring-2 transition-all text-sm font-mono break-all dark:text-slate-300`}
         />
         {decoded.error && (
           <div className="flex items-center gap-2 text-rose-500 text-sm font-bold px-4 animate-in slide-in-from-top-1">
@@ -115,16 +127,24 @@ export function JWTDecoder() {
       </div>
 
       {decoded.header && (
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 animate-in fade-in slide-in-from-bottom-4 duration-500">
           {/* Header */}
-          <div className="p-8 bg-white dark:bg-slate-900/50 border border-slate-200 dark:border-slate-800 rounded-[2.5rem] space-y-6">
+          <div className="p-8 bg-white dark:bg-slate-900/50 border border-slate-200 dark:border-slate-800 rounded-[2.5rem] space-y-6 group">
             <div className="flex justify-between items-center">
               <div className="flex items-center gap-3 text-rose-500">
-                <ShieldCheck className="w-5 h-5" />
+                <ShieldCheck className="w-5 h-5 transition-transform group-hover:scale-110" />
                 <h3 className="font-black uppercase tracking-widest text-xs text-slate-400">En-tête (Header)</h3>
               </div>
-              <button onClick={() => handleCopy(decoded.header)} className="text-slate-400 hover:text-indigo-500 transition-colors">
-                <Copy className="w-4 h-4" />
+              <button
+                onClick={() => handleCopy(decoded.header, 'header')}
+                className={`p-2 rounded-xl transition-all border focus-visible:ring-2 focus-visible:ring-indigo-500 focus-visible:outline-none ${
+                  copiedHeader
+                    ? 'bg-emerald-50 dark:bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border-emerald-200 dark:border-emerald-500/20'
+                    : 'text-slate-400 hover:text-indigo-500 border-transparent hover:bg-indigo-50 dark:hover:bg-indigo-900/20'
+                }`}
+                aria-label="Copier l'en-tête"
+              >
+                {copiedHeader ? <Check className="w-4 h-4" /> : <Copy className="w-4 h-4" />}
               </button>
             </div>
             <pre className="p-6 bg-slate-50 dark:bg-slate-800 rounded-2xl text-xs font-mono overflow-auto max-h-60 text-rose-600 dark:text-rose-400">
@@ -133,14 +153,22 @@ export function JWTDecoder() {
           </div>
 
           {/* Payload */}
-          <div className="p-8 bg-white dark:bg-slate-900/50 border border-slate-200 dark:border-slate-800 rounded-[2.5rem] space-y-6">
+          <div className="p-8 bg-white dark:bg-slate-900/50 border border-slate-200 dark:border-slate-800 rounded-[2.5rem] space-y-6 group">
             <div className="flex justify-between items-center">
               <div className="flex items-center gap-3 text-indigo-500">
-                <Eye className="w-5 h-5" />
+                <Eye className="w-5 h-5 transition-transform group-hover:scale-110" />
                 <h3 className="font-black uppercase tracking-widest text-xs text-slate-400">Données (Payload)</h3>
               </div>
-              <button onClick={() => handleCopy(decoded.payload)} className="text-slate-400 hover:text-indigo-500 transition-colors">
-                <Copy className="w-4 h-4" />
+              <button
+                onClick={() => handleCopy(decoded.payload, 'payload')}
+                className={`p-2 rounded-xl transition-all border focus-visible:ring-2 focus-visible:ring-indigo-500 focus-visible:outline-none ${
+                  copiedPayload
+                    ? 'bg-emerald-50 dark:bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border-emerald-200 dark:border-emerald-500/20'
+                    : 'text-slate-400 hover:text-indigo-500 border-transparent hover:bg-indigo-50 dark:hover:bg-indigo-900/20'
+                }`}
+                aria-label="Copier les données"
+              >
+                {copiedPayload ? <Check className="w-4 h-4" /> : <Copy className="w-4 h-4" />}
               </button>
             </div>
             <pre className="p-6 bg-slate-50 dark:bg-slate-800 rounded-2xl text-xs font-mono overflow-auto max-h-60 text-indigo-600 dark:text-indigo-400">
@@ -149,9 +177,9 @@ export function JWTDecoder() {
           </div>
 
           {/* Key Claims Info */}
-          <div className="p-8 bg-white dark:bg-slate-900/50 border border-slate-200 dark:border-slate-800 rounded-[2.5rem] space-y-6 lg:col-span-2">
+          <div className="p-8 bg-white dark:bg-slate-900/50 border border-slate-200 dark:border-slate-800 rounded-[2.5rem] space-y-6 lg:col-span-2 group">
             <div className="flex items-center gap-3 text-amber-500">
-              <Clock className="w-5 h-5" />
+              <Clock className="w-5 h-5 transition-transform group-hover:scale-110" />
               <h3 className="font-black uppercase tracking-widest text-xs text-slate-400">Informations Clés</h3>
             </div>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -163,22 +191,22 @@ export function JWTDecoder() {
               ].map((claim) => (
                 <div key={claim.label} className="p-4 bg-slate-50 dark:bg-slate-800/50 rounded-2xl border border-slate-100 dark:border-slate-800">
                   <div className="text-[10px] font-black uppercase tracking-widest text-slate-400 mb-1">{claim.label}</div>
-                  <div className="font-bold text-sm truncate">{claim.value}</div>
+                  <div className="font-bold text-sm truncate dark:text-white">{claim.value}</div>
                 </div>
               ))}
             </div>
           </div>
 
           {/* Signature */}
-          <div className="p-8 bg-white dark:bg-slate-900/50 border border-slate-200 dark:border-slate-800 rounded-[2.5rem] space-y-6 lg:col-span-2">
+          <div className="p-8 bg-white dark:bg-slate-900/50 border border-slate-200 dark:border-slate-800 rounded-[2.5rem] space-y-6 lg:col-span-2 group">
              <div className="flex justify-between items-center">
                 <div className="flex items-center gap-3 text-emerald-500">
-                  <ShieldCheck className="w-5 h-5" />
+                  <ShieldCheck className="w-5 h-5 transition-transform group-hover:scale-110" />
                   <h3 className="font-black uppercase tracking-widest text-xs text-slate-400">Signature</h3>
                 </div>
                 <button
                   onClick={() => setShowSignature(!showSignature)}
-                  className="flex items-center gap-2 text-xs font-bold text-slate-500 hover:text-slate-900 dark:hover:text-white transition-colors"
+                  className="flex items-center gap-2 text-xs font-bold text-slate-500 hover:text-slate-900 dark:hover:text-white transition-colors focus-visible:ring-2 focus-visible:ring-indigo-500 focus-visible:outline-none rounded-lg p-1"
                 >
                   {showSignature ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
                   {showSignature ? 'Masquer' : 'Afficher'}

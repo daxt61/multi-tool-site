@@ -1,14 +1,18 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { FileCode, Copy, Check, Trash2, AlertCircle, ArrowLeftRight, Download } from 'lucide-react';
 import yaml from 'js-yaml';
 
 const MAX_LENGTH = 100000;
 
-export function YAMLJSONConverter() {
-  const [yamlInput, setYamlInput] = useState('');
-  const [jsonInput, setJsonInput] = useState('');
+export function YAMLJSONConverter({ initialData, onStateChange }: { initialData?: any; onStateChange?: (state: any) => void }) {
+  const [yamlInput, setYamlInput] = useState(initialData?.yamlInput || '');
+  const [jsonInput, setJsonInput] = useState(initialData?.jsonInput || '');
   const [error, setError] = useState('');
   const [copied, setCopied] = useState<'yaml' | 'json' | null>(null);
+
+  useEffect(() => {
+    onStateChange?.({ yamlInput, jsonInput });
+  }, [yamlInput, jsonInput]);
 
   const convertYamlToJson = (val: string) => {
     try {
@@ -98,24 +102,24 @@ export function YAMLJSONConverter() {
         <div className="space-y-4">
           <div className="flex justify-between items-center px-1">
             <div className="flex items-center gap-2">
-              <FileCode className="w-4 h-4 text-indigo-500" />
+              <FileCode className="w-4 h-4 text-indigo-500 transition-transform group-hover:scale-110" />
               <label htmlFor="yaml-input" className="text-xs font-black uppercase tracking-widest text-slate-400 cursor-pointer">YAML</label>
             </div>
             <div className="flex gap-2">
               <button
                 onClick={() => handleDownload(yamlInput, 'data.yaml')}
                 disabled={!yamlInput}
-                className="text-xs font-bold px-3 py-1 rounded-full text-indigo-500 bg-indigo-50 dark:bg-indigo-500/10 hover:bg-indigo-100 transition-all flex items-center gap-1 disabled:opacity-50"
+                className="text-xs font-bold px-3 py-1 rounded-full text-indigo-500 bg-indigo-50 dark:bg-indigo-500/10 hover:bg-indigo-100 transition-all flex items-center gap-1 disabled:opacity-50 disabled:cursor-not-allowed focus-visible:ring-2 focus-visible:ring-indigo-500 focus-visible:outline-none"
               >
                 <Download className="w-3 h-3" />
               </button>
               <button
                 onClick={() => copyToClipboard(yamlInput, 'yaml')}
                 disabled={!yamlInput}
-                className={`text-xs font-bold px-3 py-1 rounded-full transition-all flex items-center gap-1 focus-visible:ring-2 focus-visible:ring-indigo-500 focus-visible:outline-none ${
+                className={`text-xs font-bold px-3 py-1 rounded-full transition-all flex items-center gap-1 border focus-visible:ring-2 focus-visible:ring-indigo-500 focus-visible:outline-none ${
                   copied === 'yaml'
-                    ? 'bg-emerald-50 dark:bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border border-emerald-200 dark:border-emerald-500/20'
-                    : 'text-slate-500 bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 disabled:opacity-50 disabled:cursor-not-allowed'
+                    ? 'bg-emerald-50 dark:bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border-emerald-200 dark:border-emerald-500/20'
+                    : 'text-slate-500 bg-slate-100 dark:bg-slate-800 border-transparent hover:bg-slate-200 dark:hover:bg-slate-700 disabled:opacity-50 disabled:cursor-not-allowed'
                 }`}
               >
                 {copied === 'yaml' ? <Check className="w-3 h-3" /> : <Copy className="w-3 h-3" />} {copied === 'yaml' ? 'Copié' : 'Copier'}
@@ -123,7 +127,8 @@ export function YAMLJSONConverter() {
               <button
                 onClick={() => {setYamlInput(''); setJsonInput(''); setError('');}}
                 disabled={!yamlInput && !jsonInput}
-                className="text-xs font-bold px-3 py-1 rounded-full text-rose-500 bg-rose-50 dark:bg-rose-500/10 hover:bg-rose-100 transition-all flex items-center gap-1 disabled:opacity-50 disabled:cursor-not-allowed focus-visible:ring-2 focus-visible:ring-rose-500 focus-visible:outline-none"
+                aria-label="Effacer tout"
+                className="text-xs font-bold px-3 py-1 rounded-full text-rose-500 bg-rose-50 dark:bg-rose-500/10 hover:bg-rose-100 dark:hover:bg-rose-500/20 border border-transparent transition-all flex items-center gap-1 disabled:opacity-50 disabled:cursor-not-allowed focus-visible:ring-2 focus-visible:ring-rose-500 focus-visible:outline-none"
               >
                 <Trash2 className="w-3 h-3" />
               </button>
@@ -142,24 +147,24 @@ export function YAMLJSONConverter() {
         <div className="space-y-4">
           <div className="flex justify-between items-center px-1">
             <div className="flex items-center gap-2">
-              <FileCode className="w-4 h-4 text-indigo-500" />
+              <FileCode className="w-4 h-4 text-indigo-500 transition-transform group-hover:scale-110" />
               <label htmlFor="json-input" className="text-xs font-black uppercase tracking-widest text-slate-400 cursor-pointer">JSON</label>
             </div>
             <div className="flex gap-2">
               <button
                 onClick={() => handleDownload(jsonInput, 'data.json')}
                 disabled={!jsonInput}
-                className="text-xs font-bold px-3 py-1 rounded-full text-indigo-500 bg-indigo-50 dark:bg-indigo-500/10 hover:bg-indigo-100 transition-all flex items-center gap-1 disabled:opacity-50"
+                className="text-xs font-bold px-3 py-1 rounded-full text-indigo-500 bg-indigo-50 dark:bg-indigo-500/10 hover:bg-indigo-100 transition-all flex items-center gap-1 disabled:opacity-50 disabled:cursor-not-allowed focus-visible:ring-2 focus-visible:ring-indigo-500 focus-visible:outline-none"
               >
                 <Download className="w-3 h-3" />
               </button>
               <button
                 onClick={() => copyToClipboard(jsonInput, 'json')}
                 disabled={!jsonInput}
-                className={`text-xs font-bold px-3 py-1 rounded-full transition-all flex items-center gap-1 focus-visible:ring-2 focus-visible:ring-indigo-500 focus-visible:outline-none ${
+                className={`text-xs font-bold px-3 py-1 rounded-full transition-all flex items-center gap-1 border focus-visible:ring-2 focus-visible:ring-indigo-500 focus-visible:outline-none ${
                   copied === 'json'
-                    ? 'bg-emerald-50 dark:bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border border-emerald-200 dark:border-emerald-500/20'
-                    : 'text-slate-500 bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 disabled:opacity-50 disabled:cursor-not-allowed'
+                    ? 'bg-emerald-50 dark:bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border-emerald-200 dark:border-emerald-500/20'
+                    : 'text-slate-500 bg-slate-100 dark:bg-slate-800 border-transparent hover:bg-slate-200 dark:hover:bg-slate-700 disabled:opacity-50 disabled:cursor-not-allowed'
                 }`}
               >
                 {copied === 'json' ? <Check className="w-3 h-3" /> : <Copy className="w-3 h-3" />} {copied === 'json' ? 'Copié' : 'Copier'}

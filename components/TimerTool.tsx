@@ -19,7 +19,10 @@ export function TimerTool({ initialData, onStateChange }: { initialData?: any; o
   // Pomodoro state
   const [pomodoroState, setPomodoroState] = useState<PomodoroState>(initialData?.pomodoroState || 'work');
   const [pomodoroRunning, setPomodoroRunning] = useState(false);
-  const [pomodoroTime, setPomodoroTime] = useState(initialData?.pomodoroTime ?? 25 * 60);
+  const [workDuration, setWorkDuration] = useState(initialData?.workDuration ?? 25);
+  const [shortBreakDuration, setShortBreakDuration] = useState(initialData?.shortBreakDuration ?? 5);
+  const [longBreakDuration, setLongBreakDuration] = useState(initialData?.longBreakDuration ?? 15);
+  const [pomodoroTime, setPomodoroTime] = useState(initialData?.pomodoroTime ?? workDuration * 60);
   const [pomodoroCycles, setPomodoroCycles] = useState(initialData?.pomodoroCycles ?? 0);
 
   useEffect(() => {
@@ -29,9 +32,12 @@ export function TimerTool({ initialData, onStateChange }: { initialData?: any; o
       timerSeconds,
       pomodoroState,
       pomodoroTime,
-      pomodoroCycles
+      pomodoroCycles,
+      workDuration,
+      shortBreakDuration,
+      longBreakDuration
     });
-  }, [mode, timerMinutes, timerSeconds, pomodoroState, pomodoroTime, pomodoroCycles]);
+  }, [mode, timerMinutes, timerSeconds, pomodoroState, pomodoroTime, pomodoroCycles, workDuration, shortBreakDuration, longBreakDuration]);
   const [timerRunning, setTimerRunning] = useState(false);
   const [timerTime, setTimerTime] = useState(timerMinutes * 60 + timerSeconds);
   const [timerDone, setTimerDone] = useState(false);
@@ -44,9 +50,9 @@ export function TimerTool({ initialData, onStateChange }: { initialData?: any; o
   const audioContextRef = useRef<AudioContext | null>(null);
 
   const POMODORO_CONFIG = {
-    work: { duration: 25 * 60, label: 'Travail', icon: <Brain className="w-5 h-5" />, color: 'text-indigo-600', bg: 'bg-indigo-50 dark:bg-indigo-500/10' },
-    shortBreak: { duration: 5 * 60, label: 'Pause courte', icon: <Coffee className="w-5 h-5" />, color: 'text-emerald-600', bg: 'bg-emerald-50 dark:bg-emerald-500/10' },
-    longBreak: { duration: 15 * 60, label: 'Pause longue', icon: <Coffee className="w-5 h-5" />, color: 'text-blue-600', bg: 'bg-blue-50 dark:bg-blue-500/10' },
+    work: { duration: workDuration * 60, label: 'Travail', icon: <Brain className="w-5 h-5" />, color: 'text-indigo-600', bg: 'bg-indigo-50 dark:bg-indigo-500/10' },
+    shortBreak: { duration: shortBreakDuration * 60, label: 'Pause courte', icon: <Coffee className="w-5 h-5" />, color: 'text-emerald-600', bg: 'bg-emerald-50 dark:bg-emerald-500/10' },
+    longBreak: { duration: longBreakDuration * 60, label: 'Pause longue', icon: <Coffee className="w-5 h-5" />, color: 'text-blue-600', bg: 'bg-blue-50 dark:bg-blue-500/10' },
   };
 
   const playBeep = () => {
@@ -144,7 +150,7 @@ export function TimerTool({ initialData, onStateChange }: { initialData?: any; o
   const resetPomodoro = () => {
     setPomodoroRunning(false);
     setPomodoroState('work');
-    setPomodoroTime(POMODORO_CONFIG.work.duration);
+    setPomodoroTime(workDuration * 60);
     setPomodoroCycles(0);
   };
 
@@ -414,11 +420,68 @@ export function TimerTool({ initialData, onStateChange }: { initialData?: any; o
               Suivant <ChevronRight className="w-5 h-5" />
             </button>
             <button
+              onClick={() => setPomodoroCycles(0)}
+              className="px-8 py-4 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-2xl font-bold transition-all hover:bg-slate-50 dark:hover:bg-slate-700 flex items-center gap-2 dark:text-white"
+            >
+              <RotateCcw className="w-4 h-4" /> Reset Cycles
+            </button>
+            <button
               onClick={resetPomodoro}
               className="px-8 py-4 text-rose-500 bg-rose-50 dark:bg-rose-500/10 hover:bg-rose-100 dark:hover:bg-rose-500/20 border border-rose-100 dark:border-rose-500/20 rounded-2xl font-bold transition-all flex items-center gap-2"
             >
-              <RotateCcw className="w-5 h-5" /> Reset
+              <RotateCcw className="w-5 h-5" /> Reset Tout
             </button>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6 max-w-2xl mx-auto">
+            <div className="space-y-2">
+              <label htmlFor="work-duration" className="text-xs font-black uppercase tracking-widest text-slate-400 px-1">Travail (min)</label>
+              <input
+                id="work-duration"
+                type="number"
+                min="1"
+                max="60"
+                value={workDuration}
+                onChange={(e) => {
+                  const val = Math.max(1, Math.min(60, Number(e.target.value)));
+                  setWorkDuration(val);
+                  if (pomodoroState === 'work' && !pomodoroRunning) setPomodoroTime(val * 60);
+                }}
+                className="w-full p-4 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl text-center font-bold outline-none focus:border-indigo-500 transition-colors dark:text-white"
+              />
+            </div>
+            <div className="space-y-2">
+              <label htmlFor="short-break-duration" className="text-xs font-black uppercase tracking-widest text-slate-400 px-1">Pause Courte (min)</label>
+              <input
+                id="short-break-duration"
+                type="number"
+                min="1"
+                max="30"
+                value={shortBreakDuration}
+                onChange={(e) => {
+                  const val = Math.max(1, Math.min(30, Number(e.target.value)));
+                  setShortBreakDuration(val);
+                  if (pomodoroState === 'shortBreak' && !pomodoroRunning) setPomodoroTime(val * 60);
+                }}
+                className="w-full p-4 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl text-center font-bold outline-none focus:border-indigo-500 transition-colors dark:text-white"
+              />
+            </div>
+            <div className="space-y-2">
+              <label htmlFor="long-break-duration" className="text-xs font-black uppercase tracking-widest text-slate-400 px-1">Pause Longue (min)</label>
+              <input
+                id="long-break-duration"
+                type="number"
+                min="1"
+                max="60"
+                value={longBreakDuration}
+                onChange={(e) => {
+                  const val = Math.max(1, Math.min(60, Number(e.target.value)));
+                  setLongBreakDuration(val);
+                  if (pomodoroState === 'longBreak' && !pomodoroRunning) setPomodoroTime(val * 60);
+                }}
+                className="w-full p-4 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl text-center font-bold outline-none focus:border-indigo-500 transition-colors dark:text-white"
+              />
+            </div>
           </div>
 
           <div className="bg-indigo-50 dark:bg-indigo-900/10 p-8 rounded-[2.5rem] border border-indigo-100 dark:border-indigo-900/20 flex items-start gap-4 max-w-2xl mx-auto">

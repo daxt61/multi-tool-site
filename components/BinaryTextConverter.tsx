@@ -6,25 +6,40 @@ const MAX_LENGTH = 100000;
 export function BinaryTextConverter({ initialData, onStateChange }: { initialData?: any; onStateChange?: (state: any) => void }) {
   const [text, setText] = useState(initialData?.text || '');
   const [binary, setBinary] = useState(initialData?.binary || '');
+  const [usePrefix, setUsePrefix] = useState(initialData?.usePrefix || false);
   const [copied, setCopied] = useState<'text' | 'binary' | null>(null);
 
   useEffect(() => {
-    onStateChange?.({ text, binary });
-  }, [text, binary]);
+    onStateChange?.({ text, binary, usePrefix });
+  }, [text, binary, usePrefix]);
 
-  const textToBinary = (input: string) => {
+  const textToBinary = (input: string, prefix: boolean) => {
     return [...input]
       .map((char) => {
         const bin = char.codePointAt(0)?.toString(2) || '';
-        return bin.padStart(8, '0');
+        const padded = bin.padStart(8, '0');
+        return prefix ? `0b${padded}` : padded;
       })
       .join(' ');
   };
 
   const binaryToText = (input: string) => {
     try {
-      const cleanBinary = input.replace(/[^01]/g, ' ');
-      const binaries = cleanBinary.split(/\s+/).filter((b) => b.length > 0);
+      // Nettoyage : retire les préfixes 0b et normalise les séparateurs
+      const cleanBinary = input.replace(/0b/g, '').replace(/[^01]/g, ' ').trim();
+      if (!cleanBinary) return '';
+
+      let binaries = cleanBinary.split(/\s+/).filter((b) => b.length > 0);
+
+      // Smart Parsing : si c'est un bloc continu dont la longueur est un multiple de 8
+      if (binaries.length === 1 && binaries[0].length > 8 && binaries[0].length % 8 === 0) {
+        const chunked = [];
+        for (let i = 0; i < binaries[0].length; i += 8) {
+          chunked.push(binaries[0].substring(i, i + 8));
+        }
+        binaries = chunked;
+      }
+
       return binaries
         .map((bin) => String.fromCodePoint(parseInt(bin, 2)))
         .join('');
@@ -39,17 +54,25 @@ export function BinaryTextConverter({ initialData, onStateChange }: { initialDat
     if (!value) {
       setBinary('');
     } else {
-      setBinary(textToBinary(value));
+      setBinary(textToBinary(value, usePrefix));
     }
   };
 
   const handleBinaryChange = (value: string) => {
-    if (value.length > MAX_LENGTH * 9) return; // Binary is ~9x longer
+    if (value.length > MAX_LENGTH * 12) return; // Binary is longer, especially with prefix
     setBinary(value);
     if (!value) {
       setText('');
     } else {
       setText(binaryToText(value));
+    }
+  };
+
+  const togglePrefix = () => {
+    const newPrefix = !usePrefix;
+    setUsePrefix(newPrefix);
+    if (text) {
+      setBinary(textToBinary(text, newPrefix));
     }
   };
 
@@ -74,6 +97,22 @@ export function BinaryTextConverter({ initialData, onStateChange }: { initialDat
           <Trash2 className="w-3.5 h-3.5" /> Effacer tout
         </button>
       </div>
+      <div className="flex flex-wrap items-center justify-center gap-4 mb-4">
+        <button
+          onClick={togglePrefix}
+          className={`flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-bold transition-all border ${
+            usePrefix
+              ? 'bg-indigo-50 dark:bg-indigo-900/20 text-indigo-600 dark:text-indigo-400 border-indigo-100 dark:border-indigo-900/30'
+              : 'bg-slate-50 dark:bg-slate-800 text-slate-500 border-slate-200 dark:border-slate-700 hover:border-slate-300'
+          }`}
+        >
+          <div className={`w-4 h-4 rounded border flex items-center justify-center transition-colors ${usePrefix ? 'bg-indigo-600 border-indigo-600' : 'border-slate-300'}`}>
+            {usePrefix && <Check className="w-3 h-3 text-white" />}
+          </div>
+          Utiliser le préfixe 0b
+        </button>
+      </div>
+
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 relative">
         <div className="hidden lg:flex absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 z-10">
           <div className="bg-white dark:bg-slate-800 p-3 rounded-full shadow-xl border border-slate-200 dark:border-slate-700 text-indigo-600">

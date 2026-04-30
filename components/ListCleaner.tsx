@@ -86,8 +86,39 @@ export function ListCleaner({ initialData, onStateChange }: { initialData?: any;
     processList(lines => [...lines].sort((a, b) => b.localeCompare(a)));
   };
 
+  const sortNumeric = () => {
+    processList(lines => [...lines].sort((a, b) => a.localeCompare(b, undefined, { numeric: true })));
+  };
+
   const sortLength = () => {
     processList(lines => [...lines].sort((a, b) => a.length - b.length));
+  };
+
+  const addPrefixSuffix = () => {
+    const prefix = prompt("Préfixe à ajouter :", "") || "";
+    const suffix = prompt("Suffixe à ajouter :", "") || "";
+    if (prefix || suffix) {
+      processList(lines => lines.map(line => `${prefix}${line}${suffix}`));
+    }
+  };
+
+  const removePrefixSuffix = () => {
+    const prefix = prompt("Préfixe à supprimer :", "") || "";
+    const suffix = prompt("Suffixe à supprimer :", "") || "";
+    if (prefix || suffix) {
+      processList(lines => {
+        return lines.map(line => {
+          let newLine = line;
+          if (prefix && newLine.startsWith(prefix)) {
+            newLine = newLine.slice(prefix.length);
+          }
+          if (suffix && newLine.endsWith(suffix)) {
+            newLine = newLine.slice(0, newLine.length - suffix.length);
+          }
+          return newLine;
+        });
+      });
+    }
   };
 
   const shuffleList = () => {
@@ -208,6 +239,7 @@ export function ListCleaner({ initialData, onStateChange }: { initialData?: any;
             {[
               { label: 'Alphabétique (A-Z)', icon: SortAsc, action: sortAZ },
               { label: 'Alphabétique (Z-A)', icon: SortDesc, action: sortZA },
+              { label: 'Numérique (1, 2, 10)', icon: SortAsc, action: sortNumeric },
               { label: 'Par longueur', icon: SortAsc, action: sortLength },
             ].map((btn) => (
               <button
@@ -231,9 +263,11 @@ export function ListCleaner({ initialData, onStateChange }: { initialData?: any;
           </div>
           <div className="space-y-2">
             {[
-              { label: 'MAJUSCULES', action: () => processList(lines => lines.map(l => l.toUpperCase())) },
-              { label: 'minuscules', action: () => processList(lines => lines.map(l => l.toLowerCase())) },
-              { label: 'Capitaliser', action: () => processList(lines => lines.map(l => l.charAt(0).toUpperCase() + l.slice(1).toLowerCase())) },
+              { label: 'Ajouter Préfixe/Suffixe', icon: Type, action: addPrefixSuffix },
+              { label: 'Retirer Préfixe/Suffixe', icon: Scissors, action: removePrefixSuffix },
+              { label: 'MAJUSCULES', icon: Type, action: () => processList(lines => lines.map(l => l.toUpperCase())) },
+              { label: 'minuscules', icon: Type, action: () => processList(lines => lines.map(l => l.toLowerCase())) },
+              { label: 'Capitaliser', icon: Type, action: () => processList(lines => lines.map(l => l.charAt(0).toUpperCase() + l.slice(1).toLowerCase())) },
             ].map((btn) => (
               <button
                 key={btn.label}

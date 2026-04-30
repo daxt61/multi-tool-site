@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback } from 'react';
-import { Copy, RefreshCw, Check, Shield, ShieldAlert, ShieldCheck, Key, BookOpen, Trash2, Download } from 'lucide-react';
+import { Copy, RefreshCw, Check, Shield, ShieldAlert, ShieldCheck, Key, BookOpen, Trash2, Download, Eye, EyeOff, AlertCircle, Info } from 'lucide-react';
 
 const WORDS = [
   'bleu', 'rouge', 'vert', 'jaune', 'noir', 'blanc', 'orange', 'rose', 'gris', 'brun', 'violet', 'marron', 'argent', 'or', 'indigo', 'turquoise', 'beige', 'ocre', 'cyan', 'lime',
@@ -29,6 +29,7 @@ export function PasswordGenerator({ initialData, onStateChange }: { initialData?
   const [includeNumbers, setIncludeNumbers] = useState(initialData?.includeNumbers ?? true);
   const [includeSymbols, setIncludeSymbols] = useState(initialData?.includeSymbols ?? true);
   const [excludeSimilar, setExcludeSimilar] = useState(initialData?.excludeSimilar ?? false);
+  const [showPassword, setShowPassword] = useState(false);
   const [copied, setCopied] = useState(false);
   const [copiedHistoryIndex, setCopiedHistoryIndex] = useState<number | null>(null);
   const [history, setHistory] = useState<string[]>([]);
@@ -115,12 +116,12 @@ export function PasswordGenerator({ initialData, onStateChange }: { initialData?
   }, [password]);
 
   const getStrength = () => {
-    if (!password) return { label: '', color: 'bg-slate-200', icon: <ShieldAlert /> };
+    if (!password) return { label: '', color: 'bg-slate-200', icon: <ShieldAlert />, feedback: '' };
 
     if (mode === 'passphrase') {
-      if (wordCount < 3) return { label: 'Faible', color: 'bg-rose-500', icon: <ShieldAlert className="w-4 h-4" /> };
-      if (wordCount < 5) return { label: 'Moyen', color: 'bg-amber-500', icon: <Shield className="w-4 h-4" /> };
-      return { label: 'Fort', color: 'bg-emerald-500', icon: <ShieldCheck className="w-4 h-4" /> };
+      if (wordCount < 3) return { label: 'Faible', color: 'bg-rose-500', icon: <ShieldAlert className="w-4 h-4" />, feedback: 'Trop court pour être sécurisé.' };
+      if (wordCount < 5) return { label: 'Moyen', color: 'bg-amber-500', icon: <Shield className="w-4 h-4" />, feedback: 'Bonne sécurité pour un usage quotidien.' };
+      return { label: 'Fort', color: 'bg-emerald-500', icon: <ShieldCheck className="w-4 h-4" />, feedback: 'Excellente sécurité, très difficile à deviner.' };
     }
 
     let score = 0;
@@ -131,9 +132,9 @@ export function PasswordGenerator({ initialData, onStateChange }: { initialData?
     if (/[0-9]/.test(password)) score++;
     if (/[^a-zA-Z0-9]/.test(password)) score++;
 
-    if (score <= 3) return { label: 'Faible', color: 'bg-rose-500', icon: <ShieldAlert className="w-4 h-4" /> };
-    if (score <= 5) return { label: 'Moyen', color: 'bg-amber-500', icon: <Shield className="w-4 h-4" /> };
-    return { label: 'Fort', color: 'bg-emerald-500', icon: <ShieldCheck className="w-4 h-4" /> };
+    if (score <= 3) return { label: 'Faible', color: 'bg-rose-500', icon: <ShieldAlert className="w-4 h-4" />, feedback: 'Augmentez la longueur ou variez les caractères.' };
+    if (score <= 5) return { label: 'Moyen', color: 'bg-amber-500', icon: <Shield className="w-4 h-4" />, feedback: 'Sécurité correcte pour la plupart des sites.' };
+    return { label: 'Fort', color: 'bg-emerald-500', icon: <ShieldCheck className="w-4 h-4" />, feedback: 'Mot de passe très robuste et hautement sécurisé.' };
   };
 
   const strength = getStrength();
@@ -177,12 +178,15 @@ export function PasswordGenerator({ initialData, onStateChange }: { initialData?
       } else if (e.key.toLowerCase() === 'c') {
         e.preventDefault();
         copyToClipboard();
+      } else if (e.key.toLowerCase() === 'v') {
+        e.preventDefault();
+        setShowPassword(prev => !prev);
       }
     };
 
     window.addEventListener('keydown', handleKeyDown);
     return () => window.removeEventListener('keydown', handleKeyDown);
-  }, [generatePassword, copyToClipboard]);
+  }, [generatePassword, copyToClipboard, showPassword]);
 
   return (
     <div className="max-w-4xl mx-auto space-y-8">
@@ -232,15 +236,35 @@ export function PasswordGenerator({ initialData, onStateChange }: { initialData?
       {/* Display Area */}
       <div className="bg-slate-900 dark:bg-black p-8 md:p-12 rounded-[2.5rem] shadow-xl shadow-indigo-500/5 relative overflow-hidden group">
         <div className="flex flex-col md:flex-row items-center gap-8 relative z-10">
-          <input
-            type="text"
-            value={password}
-            readOnly
-            className={`flex-1 bg-transparent font-mono text-white outline-none tracking-tight w-full text-center md:text-left selection:bg-indigo-500/30 ${
-              password.length > 30 ? 'text-2xl md:text-3xl' : 'text-3xl md:text-5xl'
-            }`}
-          />
+          <div className="flex-1 relative w-full">
+            <input
+              type={showPassword ? "text" : "password"}
+              value={password}
+              readOnly
+              className={`w-full bg-transparent font-mono text-white outline-none tracking-tight text-center md:text-left selection:bg-indigo-500/30 ${
+                password.length > 30 ? 'text-2xl md:text-3xl' : 'text-3xl md:text-5xl'
+              } ${!showPassword ? 'text-transparent' : ''}`}
+            />
+            {!showPassword && password && (
+              <div className="absolute inset-y-0 left-0 right-0 pointer-events-none flex items-center justify-center md:justify-start">
+                 <div className="flex gap-1">
+                   {[...Array(Math.min(password.length, 12))].map((_, i) => (
+                     <div key={i} className="w-2 h-2 rounded-full bg-white/20" />
+                   ))}
+                   {password.length > 12 && <span className="text-white/20 font-mono text-xl leading-none">...</span>}
+                 </div>
+              </div>
+            )}
+          </div>
           <div className="flex gap-3">
+            <button
+              onClick={() => setShowPassword(!showPassword)}
+              className="p-4 bg-white/10 hover:bg-white/20 text-white rounded-2xl transition-all active:scale-95 focus-visible:ring-2 focus-visible:ring-indigo-500 focus-visible:outline-none"
+              title={showPassword ? "Masquer (V)" : "Afficher (V)"}
+              aria-label={showPassword ? "Masquer le mot de passe" : "Afficher le mot de passe"}
+            >
+              {showPassword ? <EyeOff className="w-6 h-6" /> : <Eye className="w-6 h-6" />}
+            </button>
             <button
               onClick={generatePassword}
               className="p-4 bg-white/10 hover:bg-white/20 text-white rounded-2xl transition-all active:scale-95 focus-visible:ring-2 focus-visible:ring-indigo-500 focus-visible:outline-none group/regen"
@@ -266,16 +290,19 @@ export function PasswordGenerator({ initialData, onStateChange }: { initialData?
 
         {password && (
           <div className="mt-10 pt-10 border-t border-white/10 flex flex-col md:flex-row md:items-center justify-between gap-6">
-            <div className="flex items-center gap-4">
-              <div className={`flex items-center gap-2 px-4 py-1.5 rounded-full font-black text-xs uppercase tracking-widest text-white ${strength.color}`}>
-                {strength.icon} {strength.label}
+            <div className="flex flex-col gap-2">
+              <div className="flex items-center gap-4">
+                <div className={`flex items-center gap-2 px-4 py-1.5 rounded-full font-black text-xs uppercase tracking-widest text-white ${strength.color}`}>
+                  {strength.icon} {strength.label}
+                </div>
+                <div className="h-1.5 w-32 bg-white/10 rounded-full overflow-hidden">
+                  <div
+                    className={`h-full transition-all duration-700 ${strength.color}`}
+                    style={{ width: strength.label === 'Faible' ? '33%' : strength.label === 'Moyen' ? '66%' : '100%' }}
+                  />
+                </div>
               </div>
-              <div className="h-1.5 w-32 bg-white/10 rounded-full overflow-hidden">
-                <div
-                  className={`h-full transition-all duration-700 ${strength.color}`}
-                  style={{ width: strength.label === 'Faible' ? '33%' : strength.label === 'Moyen' ? '66%' : '100%' }}
-                />
-              </div>
+              <p className="text-xs text-white/40 font-medium">{strength.feedback}</p>
             </div>
             <div className="text-white/40 font-bold text-sm tracking-widest uppercase">
               {mode === 'random' ? `${password.length} caractères` : `${wordCount} mots`}

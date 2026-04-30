@@ -55,6 +55,7 @@ import {
   Banknote,
   LineChart,
   CreditCard,
+  Send,
   Briefcase,
   Search,
   Shuffle,
@@ -215,6 +216,8 @@ const IBANValidator = lazy(() => import("./components/IBANValidator").then(m => 
 const VigenereCipher = lazy(() => import("./components/VigenereCipher").then(m => ({ default: m.VigenereCipher })));
 const ListComparator = lazy(() => import("./components/ListComparator").then(m => ({ default: m.ListComparator })));
 const CursorReference = lazy(() => import("./components/CursorReference").then(m => ({ default: m.CursorReference })));
+const WhatsAppLinkGenerator = lazy(() => import("./components/WhatsAppLinkGenerator").then(m => ({ default: m.WhatsAppLinkGenerator })));
+const SecurityHeadersGenerator = lazy(() => import("./components/SecurityHeadersGenerator").then(m => ({ default: m.SecurityHeadersGenerator })));
 
 // ⚡ Bolt Optimization: Pre-calculating tool map and search index for O(1) lookups and faster filtering
 const toolsMap: Record<string, Tool> = {};
@@ -1176,6 +1179,24 @@ const tools: Tool[] = [
     Component: CursorReference,
     category: "dev",
     keywords: ["css", "cursor", "design", "ui", "ux", "souris"],
+  },
+  {
+    id: "whatsapp-link",
+    name: "Lien WhatsApp",
+    icon: Send,
+    description: "Générer un lien wa.me avec un message pré-rempli",
+    Component: WhatsAppLinkGenerator,
+    category: "business",
+    keywords: ["contact", "message", "whatsapp", "link", "discussion"],
+  },
+  {
+    id: "security-headers",
+    name: "Headers Sécurité",
+    icon: Shield,
+    description: "Générer des en-têtes de sécurité HTTP (CSP, HSTS, etc.)",
+    Component: SecurityHeadersGenerator,
+    category: "dev",
+    keywords: ["sécurité", "http", "headers", "csp", "hsts", "protection", "security"],
   },
 ];
 

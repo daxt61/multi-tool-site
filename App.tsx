@@ -626,7 +626,7 @@ const tools: Tool[] = [
     description: "Compteur de mots et caractères",
     Component: WordCounter,
     category: "text",
-    keywords: ["texte", "lettres", "lignes", "lisibilité", "seo"],
+    keywords: ["texte", "lettres", "lignes", "lisibilité", "seo", "densité", "mots-clés"],
   },
   {
     id: "text-transformer",
@@ -731,6 +731,7 @@ const tools: Tool[] = [
     description: "Trier, dédoublonner et nettoyer vos listes",
     Component: ListCleaner,
     category: "text",
+    keywords: ["doublons", "tri", "préfixe", "suffixe", "nettoyage", "formatage"],
   },
   {
     id: "nato-translator",
@@ -1024,6 +1025,7 @@ const tools: Tool[] = [
     description: "Convertisseur bidirectionnel texte et binaire",
     Component: BinaryTextConverter,
     category: "dev",
+    keywords: ["0101", "ASCII", "codage", "décodage", "ordinateur", "base2"],
   },
   {
     id: "json-xml",
@@ -1065,6 +1067,7 @@ const tools: Tool[] = [
     description: "Minuteur et Chronomètre",
     Component: TimerTool,
     category: "other",
+    keywords: ["pomodoro", "chronomètre", "temps", "minuteur", "productivité"],
   },
   {
     id: "image-compressor",

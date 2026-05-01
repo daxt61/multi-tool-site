@@ -92,6 +92,8 @@ import {
   Target,
   ImagePlus,
   SunDim,
+  Wifi,
+  FileSearch,
 } from "lucide-react";
 const AdPlaceholder = lazy(() => import("./components/AdPlaceholder").then(m => ({ default: m.AdPlaceholder })));
 
@@ -218,6 +220,8 @@ const ListComparator = lazy(() => import("./components/ListComparator").then(m =
 const CursorReference = lazy(() => import("./components/CursorReference").then(m => ({ default: m.CursorReference })));
 const WhatsAppLinkGenerator = lazy(() => import("./components/WhatsAppLinkGenerator").then(m => ({ default: m.WhatsAppLinkGenerator })));
 const SecurityHeadersGenerator = lazy(() => import("./components/SecurityHeadersGenerator").then(m => ({ default: m.SecurityHeadersGenerator })));
+const WiFiGenerator = lazy(() => import("./components/WiFiGenerator").then(m => ({ default: m.WiFiGenerator })));
+const RobotsTxtGenerator = lazy(() => import("./components/RobotsTxtGenerator").then(m => ({ default: m.RobotsTxtGenerator })));
 
 // ⚡ Bolt Optimization: Pre-calculating tool map and search index for O(1) lookups and faster filtering
 const toolsMap: Record<string, Tool> = {};
@@ -1201,6 +1205,24 @@ const tools: Tool[] = [
     category: "dev",
     keywords: ["sécurité", "http", "headers", "csp", "hsts", "protection", "security"],
   },
+  {
+    id: "wifi-generator",
+    name: "WiFi QR Code",
+    icon: Wifi,
+    description: "Générer un QR Code pour partager votre connexion WiFi",
+    Component: WiFiGenerator,
+    category: "other",
+    keywords: ["wifi", "qr", "code", "réseau", "partage", "sécurité", "connexion"],
+  },
+  {
+    id: "robots-txt",
+    name: "Robots.txt",
+    icon: FileSearch,
+    description: "Générer un fichier robots.txt pour le SEO",
+    Component: RobotsTxtGenerator,
+    category: "dev",
+    keywords: ["seo", "robots", "txt", "google", "indexation", "sitemap", "webmaster"],
+  },
 ];
 
 // Initialize toolsMap and search index
@@ -1228,7 +1250,7 @@ const ToolCard = React.memo(({ tool, isFavorite, onToggleFavorite }: {
       className="group p-5 bg-white dark:bg-slate-900/40 rounded-2xl border border-slate-200 dark:border-slate-800 hover:border-indigo-500/50 dark:hover:border-indigo-500/50 hover:shadow-xl hover:shadow-indigo-500/5 transition-all text-left flex flex-col h-full relative"
     >
       <div className="flex justify-between items-start mb-4 relative z-20">
-        <div className="w-10 h-10 rounded-xl bg-slate-50 dark:bg-slate-800 flex items-center justify-center text-slate-400 group-hover:text-indigo-500 group-hover:bg-indigo-50 dark:group-hover:bg-indigo-900/20 transition-all">
+        <div className="w-10 h-10 rounded-xl bg-slate-50 dark:bg-slate-800 flex items-center justify-center text-slate-400 group-hover:text-indigo-500 group-hover:bg-indigo-50 dark:group-hover:bg-indigo-900/20 transition-all group-hover:rotate-3">
           <tool.icon className="w-5 h-5 transition-transform duration-300 group-hover:scale-110" />
         </div>
         <button

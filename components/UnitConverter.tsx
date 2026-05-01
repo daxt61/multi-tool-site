@@ -1,7 +1,7 @@
 import { useState, useEffect, useMemo } from 'react';
 import { Copy, Check, Trash2, ArrowUpDown, Info, Ruler, Download, Search, X } from 'lucide-react';
 
-type ConversionCategory = 'length' | 'weight' | 'temperature' | 'area' | 'volume' | 'digital' | 'digital_si' | 'pressure' | 'energy' | 'speed' | 'time' | 'power' | 'frequency' | 'consumption' | 'angle' | 'torque' | 'force' | 'datarate' | 'illuminance' | 'luminance' | 'radiation' | 'magnetic' | 'acceleration' | 'density' | 'voltage' | 'current' | 'resistance' | 'capacitance' | 'typography';
+type ConversionCategory = 'length' | 'weight' | 'temperature' | 'area' | 'volume' | 'digital' | 'digital_si' | 'pressure' | 'energy' | 'speed' | 'time' | 'power' | 'frequency' | 'consumption' | 'angle' | 'torque' | 'force' | 'datarate' | 'illuminance' | 'luminance' | 'radiation' | 'magnetic' | 'acceleration' | 'density' | 'voltage' | 'current' | 'resistance' | 'capacitance' | 'typography' | 'cooking';
 
 interface ConversionUnit {
   name: string;
@@ -219,6 +219,16 @@ const CONVERSIONS: Record<ConversionCategory, Record<string, ConversionUnit>> = 
     'cm': { name: 'Centimètre (cm)', toBase: (v) => v * 28.3465, fromBase: (v) => v / 28.3465 },
     'mm': { name: 'Millimètre (mm)', toBase: (v) => v * 2.83465, fromBase: (v) => v / 2.83465 },
     'px': { name: 'Pixel (px)', toBase: (v) => v * 0.75, fromBase: (v) => v / 0.75 }
+  },
+  cooking: {
+    'ml': { name: 'Millilitres', toBase: (v) => v, fromBase: (v) => v },
+    'l': { name: 'Litres', toBase: (v) => v * 1000, fromBase: (v) => v / 1000 },
+    'tsp': { name: 'Cuillère à café (5ml)', toBase: (v) => v * 5, fromBase: (v) => v / 5 },
+    'tbsp': { name: 'Cuillère à soupe (15ml)', toBase: (v) => v * 15, fromBase: (v) => v / 15 },
+    'cup': { name: 'Tasse (US - 236.5ml)', toBase: (v) => v * 236.588, fromBase: (v) => v / 236.588 },
+    'cup_fr': { name: 'Tasse (Métrique - 250ml)', toBase: (v) => v * 250, fromBase: (v) => v / 250 },
+    'glass': { name: 'Verre (200ml)', toBase: (v) => v * 200, fromBase: (v) => v / 200 },
+    'pinch': { name: 'Pincée (0.5ml)', toBase: (v) => v * 0.5, fromBase: (v) => v / 0.5 }
   }
 };
 
@@ -251,7 +261,8 @@ const CATEGORIES_MAP = [
   { id: 'current', name: 'Courant (Ampère)' },
   { id: 'resistance', name: 'Résistance (Ohm)' },
   { id: 'capacitance', name: 'Capacité (Farad)' },
-  { id: 'typography', name: 'Typographie' }
+  { id: 'typography', name: 'Typographie' },
+  { id: 'cooking', name: 'Cuisine' }
 ];
 
 const formatter = new Intl.NumberFormat('fr-FR', {

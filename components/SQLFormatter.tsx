@@ -125,6 +125,12 @@ export function SQLFormatter({ initialData, onStateChange }: { initialData?: any
                 setError('');
               }
             }}
+            onKeyDown={(e) => {
+              if ((e.ctrlKey || e.metaKey) && e.key === 'Enter') {
+                e.preventDefault();
+                handleFormat();
+              }
+            }}
             placeholder="SELECT * FROM users WHERE id = 1;"
             className={`w-full h-[400px] p-6 bg-slate-50 dark:bg-slate-900 border ${input.length > MAX_LENGTH ? 'border-rose-500 ring-rose-500/20' : 'border-slate-200 dark:border-slate-800'} rounded-3xl outline-none focus:ring-2 ${input.length > MAX_LENGTH ? 'focus:ring-rose-500/20' : 'focus:ring-indigo-500/20'} transition-all font-mono text-sm leading-relaxed dark:text-slate-300 resize-none`}
           />
@@ -174,6 +180,9 @@ export function SQLFormatter({ initialData, onStateChange }: { initialData?: any
           className="px-12 py-4 bg-indigo-600 text-white rounded-2xl font-black text-lg shadow-lg shadow-indigo-600/20 hover:bg-indigo-700 transition-all active:scale-95 flex items-center gap-2 focus-visible:ring-2 focus-visible:ring-indigo-500 focus-visible:outline-none"
         >
           <Database className="w-5 h-5" /> Formater le SQL
+          <kbd className="ml-2 hidden sm:inline-flex items-center gap-1 px-2 py-0.5 border border-white/20 rounded text-[10px] font-bold bg-white/10">
+            Ctrl + Enter
+          </kbd>
         </button>
       </div>
     </div>

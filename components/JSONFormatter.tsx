@@ -101,6 +101,12 @@ export function JSONFormatter({ initialData, onStateChange }: { initialData?: an
             id="json-input"
             value={input}
             onChange={(e) => handleInputChange(e.target.value)}
+            onKeyDown={(e) => {
+              if ((e.ctrlKey || e.metaKey) && e.key === 'Enter') {
+                e.preventDefault();
+                handlePrettify();
+              }
+            }}
             placeholder='{"key": "value"}'
             className={`w-full h-[450px] p-6 bg-slate-50 dark:bg-slate-900 border ${error.includes('trop longue') ? 'border-rose-500 ring-rose-500/20' : 'border-slate-200 dark:border-slate-800'} rounded-3xl outline-none focus:ring-2 ${error.includes('trop longue') ? 'focus:ring-rose-500/20' : 'focus:ring-indigo-500/20'} transition-all font-mono text-sm leading-relaxed dark:text-slate-300 resize-none`}
           />
@@ -167,6 +173,9 @@ export function JSONFormatter({ initialData, onStateChange }: { initialData?: an
           className="px-8 py-4 bg-indigo-600 text-white rounded-2xl font-black text-lg shadow-lg shadow-indigo-600/20 hover:bg-indigo-700 transition-all active:scale-95 flex items-center gap-2"
         >
           <Maximize2 className="w-5 h-5" /> Formater (Beautify)
+          <kbd className="ml-2 hidden sm:inline-flex items-center gap-1 px-2 py-0.5 border border-white/20 rounded text-[10px] font-bold bg-white/10">
+            Ctrl + Enter
+          </kbd>
         </button>
         <button
           onClick={handleMinify}

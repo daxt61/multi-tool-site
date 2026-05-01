@@ -7,12 +7,13 @@ const MAX_DEPTH = 20;
 export function JSONToTS({ initialData, onStateChange }: { initialData?: any; onStateChange?: (state: any) => void }) {
   const [input, setInput] = useState(initialData?.input || '');
   const [output, setOutput] = useState(initialData?.output || '');
+  const [useExport, setUseExport] = useState(initialData?.useExport ?? false);
   const [error, setError] = useState('');
   const [copied, setCopied] = useState(false);
 
   useEffect(() => {
-    onStateChange?.({ input, output });
-  }, [input, output]);
+    onStateChange?.({ input, output, useExport });
+  }, [input, output, useExport]);
 
   const convertJSONToTS = (json: any, indent: string = '', depth: number = 0): string => {
     if (depth > MAX_DEPTH) return 'any';
@@ -46,12 +47,13 @@ export function JSONToTS({ initialData, onStateChange }: { initialData?: any; on
       }
       const parsed = JSON.parse(input);
       let result = convertJSONToTS(parsed);
+      const prefix = useExport ? 'export ' : '';
 
       // Wrap the root object in an interface
       if (result.startsWith('{')) {
-        result = `interface RootObject ${result}`;
+        result = `${prefix}interface RootObject ${result}`;
       } else {
-        result = `type RootObject = ${result};`;
+        result = `${prefix}type RootObject = ${result};`;
       }
 
       setOutput(result);
@@ -103,13 +105,25 @@ export function JSONToTS({ initialData, onStateChange }: { initialData?: any; on
               <FileCode className="w-4 h-4 text-indigo-500" />
               <label htmlFor="json-input" className="text-xs font-black uppercase tracking-widest text-slate-400 cursor-pointer">Entrée JSON</label>
             </div>
-            <button
-              onClick={handleClear}
-              disabled={!input && !output}
-              className="text-xs font-bold px-3 py-1 rounded-full text-rose-500 bg-rose-50 dark:bg-rose-500/10 hover:bg-rose-100 dark:hover:bg-rose-500/20 transition-all flex items-center gap-1 disabled:opacity-50 disabled:cursor-not-allowed focus-visible:ring-2 focus-visible:ring-rose-500 focus-visible:outline-none"
-            >
-              <Trash2 className="w-3 h-3" /> Effacer
-            </button>
+            <div className="flex gap-2">
+              <button
+                onClick={() => setUseExport(!useExport)}
+                className={`text-xs font-bold px-3 py-1 rounded-full transition-all flex items-center gap-1 focus-visible:ring-2 focus-visible:ring-indigo-500 focus-visible:outline-none ${
+                  useExport
+                    ? 'bg-indigo-600 text-white shadow-md'
+                    : 'text-slate-500 bg-slate-100 dark:bg-slate-800 hover:bg-slate-200'
+                }`}
+              >
+                Exporter
+              </button>
+              <button
+                onClick={handleClear}
+                disabled={!input && !output}
+                className="text-xs font-bold px-3 py-1 rounded-full text-rose-500 bg-rose-50 dark:bg-rose-500/10 hover:bg-rose-100 dark:hover:bg-rose-500/20 transition-all flex items-center gap-1 disabled:opacity-50 disabled:cursor-not-allowed focus-visible:ring-2 focus-visible:ring-rose-500 focus-visible:outline-none"
+              >
+                <Trash2 className="w-3 h-3" /> Effacer
+              </button>
+            </div>
           </div>
           <textarea
             id="json-input"

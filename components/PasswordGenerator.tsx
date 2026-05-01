@@ -119,8 +119,10 @@ export function PasswordGenerator({ initialData, onStateChange }: { initialData?
     if (!password) return { label: '', color: 'bg-slate-200', icon: <ShieldAlert />, feedback: '' };
 
     if (mode === 'passphrase') {
-      if (wordCount < 3) return { label: 'Faible', color: 'bg-rose-500', icon: <ShieldAlert className="w-4 h-4" />, feedback: 'Trop court pour être sécurisé.' };
-      if (wordCount < 5) return { label: 'Moyen', color: 'bg-amber-500', icon: <Shield className="w-4 h-4" />, feedback: 'Bonne sécurité pour un usage quotidien.' };
+      const bonus = (addNumber ? 0.5 : 0) + (addSymbol ? 0.5 : 0);
+      const effectiveWordCount = wordCount + bonus;
+      if (effectiveWordCount < 3) return { label: 'Faible', color: 'bg-rose-500', icon: <ShieldAlert className="w-4 h-4" />, feedback: 'Trop court pour être sécurisé.' };
+      if (effectiveWordCount < 5) return { label: 'Moyen', color: 'bg-amber-500', icon: <Shield className="w-4 h-4" />, feedback: 'Bonne sécurité pour un usage quotidien.' };
       return { label: 'Fort', color: 'bg-emerald-500', icon: <ShieldCheck className="w-4 h-4" />, feedback: 'Excellente sécurité, très difficile à deviner.' };
     }
 

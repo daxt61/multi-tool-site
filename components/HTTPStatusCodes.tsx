@@ -102,6 +102,7 @@ const STATUS_CODES: StatusCategory[] = [
 export function HTTPStatusCodes({ initialData, onStateChange }: { initialData?: any; onStateChange?: (state: any) => void }) {
   const [searchQuery, setSearchQuery] = useState(initialData?.searchQuery || '');
   const [copiedCode, setCopiedCode] = useState<string | null>(null);
+  const [copiedAll, setCopiedAll] = useState(false);
 
   useEffect(() => {
     onStateChange?.({ searchQuery });
@@ -125,6 +126,15 @@ export function HTTPStatusCodes({ initialData, onStateChange }: { initialData?: 
     navigator.clipboard.writeText(text);
     setCopiedCode(id);
     setTimeout(() => setCopiedCode(null), 2000);
+  };
+
+  const handleCopyAll = () => {
+    const text = filteredCategories.flatMap(cat =>
+      cat.codes.map(c => `${c.code} - ${c.name}: ${c.description}`)
+    ).join('\n');
+    navigator.clipboard.writeText(text);
+    setCopiedAll(true);
+    setTimeout(() => setCopiedAll(false), 2000);
   };
 
   return (
@@ -153,6 +163,20 @@ export function HTTPStatusCodes({ initialData, onStateChange }: { initialData?: 
               <X className="h-5 w-5" />
             </button>
           )}
+        </div>
+        <div className="flex justify-center mt-4">
+          <button
+            onClick={handleCopyAll}
+            disabled={filteredCategories.length === 0}
+            className={`text-xs font-bold px-4 py-2 rounded-full transition-all flex items-center gap-2 focus-visible:ring-2 focus-visible:ring-indigo-500 focus-visible:outline-none ${
+              copiedAll
+                ? 'bg-emerald-50 dark:bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border border-emerald-200 dark:border-emerald-500/20'
+                : 'text-slate-500 bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700'
+            }`}
+          >
+            {copiedAll ? <Check className="w-3 h-3" /> : <Copy className="w-3 h-3" />}
+            {copiedAll ? 'Liste copiée' : 'Copier toute la liste'}
+          </button>
         </div>
       </div>
 

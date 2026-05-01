@@ -94,6 +94,10 @@ export function ListCleaner({ initialData, onStateChange }: { initialData?: any;
     processList(lines => [...lines].sort((a, b) => a.length - b.length));
   };
 
+  const reverseList = () => {
+    processList(lines => [...lines].reverse());
+  };
+
   const addPrefixSuffix = () => {
     const prefix = prompt("Préfixe à ajouter :", "") || "";
     const suffix = prompt("Suffixe à ajouter :", "") || "";
@@ -214,6 +218,7 @@ export function ListCleaner({ initialData, onStateChange }: { initialData?: any;
               { label: 'Supprimer les lignes vides', icon: Trash2, action: removeEmptyLines },
               { label: 'Tronquer les espaces', icon: Scissors, action: trimLines },
               { label: 'Mélanger la liste', icon: RefreshCcw, action: shuffleList },
+              { label: 'Inverser l\'ordre', icon: RefreshCcw, action: reverseList },
               { label: 'Limiter à N éléments', icon: Scissors, action: limitList },
             ].map((btn) => (
               <button

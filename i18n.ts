@@ -46,6 +46,8 @@ const resources = {
       "tool.css-triangle.description": "Visual pure CSS triangle generator",
       "tool.css-border-radius.name": "CSS Border Radius",
       "tool.css-border-radius.description": "Visual CSS border-radius generator with individual corner controls",
+      "tool.yaml-formatter.name": "YAML Formatter",
+      "tool.yaml-formatter.description": "Prettify, minify and validate your YAML",
     }
   },
   fr: {
@@ -91,6 +93,8 @@ const resources = {
       "tool.css-triangle.description": "Générateur visuel de triangles en pur CSS",
       "tool.css-border-radius.name": "Border Radius CSS",
       "tool.css-border-radius.description": "Générateur visuel de border-radius CSS avec contrôle individuel des coins",
+      "tool.yaml-formatter.name": "Formateur YAML",
+      "tool.yaml-formatter.description": "Prettify, minify et valide votre YAML",
     }
   }
 };

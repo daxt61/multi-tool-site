@@ -70,17 +70,18 @@ export function JSONCSVConverter({ initialData, onStateChange }: { initialData?:
       const lines = csv.trim().split('\n');
       if (lines.length < 2) return '';
       const headers = parseCSVLine(lines[0]).map(h => {
+        const trimmed = h.trim();
         // Sentinel: Prevent Prototype Pollution by prefixing dangerous keys
-        const lower = h.toLowerCase().trim();
+        const lower = trimmed.toLowerCase();
         if (lower === '__proto__' || lower === 'constructor' || lower === 'prototype') {
-          return `_${h}`;
+          return `_${trimmed}`;
         }
-        return h;
+        return trimmed;
       });
       const result = lines.slice(1).map(line => {
         const values = parseCSVLine(line);
         return headers.reduce((obj, header, index) => {
-          let val: any = values[index];
+          let val: any = values[index] ?? '';
           if (val === 'true') val = true;
           else if (val === 'false') val = false;
           else if (!isNaN(Number(val)) && val !== '') val = Number(val);

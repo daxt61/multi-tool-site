@@ -14,6 +14,7 @@ import {
   Outlet,
 } from "react-router-dom";
 import { useTranslation, Trans } from "react-i18next";
+import { Command } from "cmdk";
 import i18n from "./i18n";
 import {
   Calculator as CalcIcon,
@@ -155,6 +156,7 @@ const UnixTimestampConverter = lazy(() => import("./components/UnixTimestampConv
 const RandomGenerator = lazy(() => import("./components/RandomGenerator").then(m => ({ default: m.RandomGenerator })));
 const JSONFormatter = lazy(() => import("./components/JSONFormatter").then(m => ({ default: m.JSONFormatter })));
 const SQLFormatter = lazy(() => import("./components/SQLFormatter").then(m => ({ default: m.SQLFormatter })));
+const YAMLFormatter = lazy(() => import("./components/YAMLFormatter").then(m => ({ default: m.YAMLFormatter })));
 const YAMLJSONConverter = lazy(() => import("./components/YAMLJSONConverter").then(m => ({ default: m.YAMLJSONConverter })));
 const CronGenerator = lazy(() => import("./components/CronGenerator").then(m => ({ default: m.CronGenerator })));
 const HTMLEntityConverter = lazy(() => import("./components/HTMLEntityConverter").then(m => ({ default: m.HTMLEntityConverter })));
@@ -969,6 +971,16 @@ const tools: Tool[] = [
     category: "dev",
   },
   {
+    id: "yaml-formatter",
+    name: "Formateur YAML",
+    nameEn: "YAML Formatter",
+    icon: FileCode,
+    description: "Prettify, minify et valide votre YAML",
+    descriptionEn: "Prettify, minify and validate your YAML",
+    Component: YAMLFormatter,
+    category: "dev",
+  },
+  {
     id: "yaml-json",
     name: "YAML <> JSON",
     icon: ArrowLeftRight,
@@ -1395,10 +1407,78 @@ function LangWrapper() {
   return <Outlet />;
 }
 
+function CommandMenu({ open, setOpen, onSelect }: { open: boolean, setOpen: (open: boolean) => void, onSelect: (id: string) => void }) {
+  const { t, i18n } = useTranslation();
+  const currentLang = i18n.language || 'fr';
+
+  useEffect(() => {
+    const down = (e: KeyboardEvent) => {
+      if (e.key === "k" && (e.metaKey || e.ctrlKey)) {
+        e.preventDefault();
+        setOpen(!open);
+      }
+    };
+
+    document.addEventListener("keydown", down);
+    return () => document.removeEventListener("keydown", down);
+  }, [open, setOpen]);
+
+  if (!open) return null;
+
+  return (
+    <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 sm:p-6 md:p-20">
+      <div className="fixed inset-0 bg-slate-950/40 backdrop-blur-sm" onClick={() => setOpen(false)} />
+      <Command
+        className="relative w-full max-w-2xl bg-white dark:bg-slate-900 rounded-3xl border border-slate-200 dark:border-slate-800 shadow-2xl overflow-hidden animate-in zoom-in-95 duration-200"
+        label="Menu de commande"
+      >
+        <div className="flex items-center border-b border-slate-200 dark:border-slate-800 px-4 py-4">
+          <Search className="w-5 h-5 text-slate-400 mr-3" />
+          <Command.Input
+            placeholder={t("search.placeholder")}
+            className="flex-1 bg-transparent border-none outline-none text-slate-900 dark:text-white placeholder:text-slate-400"
+          />
+          <kbd className="hidden sm:inline-flex items-center gap-1 px-2 py-1 border border-slate-200 dark:border-slate-700 rounded text-[10px] font-bold text-slate-400">
+            ESC
+          </kbd>
+        </div>
+        <Command.List className="max-h-[400px] overflow-y-auto p-2 no-scrollbar">
+          <Command.Empty className="py-12 text-center text-sm text-slate-500">
+            {t("search.no_results")}
+          </Command.Empty>
+
+          <Command.Group heading={t("category.all")} className="px-2 py-2 text-xs font-bold text-slate-400 uppercase tracking-widest">
+            {tools.map((tool) => {
+              const name = (currentLang === 'en' && tool.nameEn) ? tool.nameEn : tool.name;
+              return (
+                <Command.Item
+                  key={tool.id}
+                  onSelect={() => {
+                    onSelect(tool.id);
+                    setOpen(false);
+                  }}
+                  className="flex items-center gap-3 p-3 rounded-xl cursor-pointer hover:bg-slate-50 dark:hover:bg-slate-800 aria-selected:bg-indigo-50 dark:aria-selected:bg-indigo-900/20 aria-selected:text-indigo-600 dark:aria-selected:text-indigo-400 transition-colors group"
+                >
+                  <div className="w-8 h-8 rounded-lg bg-slate-100 dark:bg-slate-800 flex items-center justify-center text-slate-500 group-hover:text-indigo-500 group-aria-selected:text-indigo-600 dark:group-aria-selected:text-indigo-400 transition-colors">
+                    <tool.icon className="w-4 h-4" />
+                  </div>
+                  <span className="font-semibold">{name}</span>
+                  <span className="ml-auto text-[10px] font-medium opacity-50">{t(`category.${tool.category}`)}</span>
+                </Command.Item>
+              );
+            })}
+          </Command.Group>
+        </Command.List>
+      </Command>
+    </div>
+  );
+}
+
 function MainApp() {
   const navigate = useNavigate();
   const location = useLocation();
   const { t, i18n: i18nInstance } = useTranslation();
+  const [commandOpen, setCommandOpen] = useState(false);
 
   const handleToolVisit = useCallback((id: string) => {
     // Sentinel: Validate tool ID before adding to recent history.
@@ -1617,6 +1697,7 @@ function MainApp() {
 
   return (
     <div className="min-h-screen bg-white dark:bg-slate-950 text-slate-900 dark:text-slate-100 selection:bg-indigo-100 dark:selection:bg-indigo-900/50">
+      <CommandMenu open={commandOpen} setOpen={setCommandOpen} onSelect={handleToolSelect} />
       <a
         href="#main-content"
         className="fixed top-4 left-4 z-[100] px-4 py-2 bg-indigo-600 text-white rounded-lg font-bold shadow-xl -translate-y-24 focus:translate-y-0 transition-transform duration-200"
@@ -1648,6 +1729,16 @@ function MainApp() {
               <Link to={`/${i18nInstance.language}/a-propos`} className="text-sm font-medium text-slate-500 hover:text-slate-900 dark:text-slate-400 dark:hover:text-white transition-colors focus-visible:ring-2 focus-visible:ring-indigo-500 focus-visible:outline-none rounded-lg">{t("nav.about")}</Link>
               <Link to={`/${i18nInstance.language}/contact`} className="text-sm font-medium text-slate-500 hover:text-slate-900 dark:text-slate-400 dark:hover:text-white transition-colors focus-visible:ring-2 focus-visible:ring-indigo-500 focus-visible:outline-none rounded-lg">{t("nav.contact")}</Link>
             </nav>
+            <button
+              onClick={() => setCommandOpen(true)}
+              className="p-2 rounded-lg bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 transition-colors text-slate-600 dark:text-slate-300 border border-slate-200 dark:border-slate-700 focus-visible:ring-2 focus-visible:ring-indigo-500 focus-visible:outline-none flex items-center gap-2 group"
+              aria-label="Ouvrir la recherche (Ctrl+K)"
+            >
+              <Search className="w-5 h-5" />
+              <kbd className="hidden lg:inline-flex items-center gap-1 px-1.5 py-0.5 border border-slate-300 dark:border-slate-600 rounded text-[10px] font-bold bg-white dark:bg-slate-900 group-hover:border-indigo-500 transition-colors">
+                K
+              </kbd>
+            </button>
             <ThemeToggle navigate={navigate} location={location} />
           </div>
         </header>

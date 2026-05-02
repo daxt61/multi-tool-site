@@ -1,76 +1,50 @@
-import { useState, useEffect, useCallback } from 'react';
-import { FileCode, Copy, Check, Trash2, AlertCircle, Maximize2, Minimize2, Download, SortAsc, Wrench } from 'lucide-react';
+import { useState, useEffect } from 'react';
+import { FileCode, Copy, Check, Trash2, AlertCircle, Maximize2, Minimize2, Download } from 'lucide-react';
+import yaml from 'js-yaml';
 
 const MAX_LENGTH = 100000;
 
-export function JSONFormatter({ initialData, onStateChange }: { initialData?: any; onStateChange?: (state: any) => void }) {
+export function YAMLFormatter({ initialData, onStateChange }: { initialData?: any; onStateChange?: (state: any) => void }) {
   const [input, setInput] = useState(initialData?.input || '');
   const [output, setOutput] = useState(initialData?.output || '');
   const [indentSize, setIndentSize] = useState(initialData?.indentSize || '2');
-  const [sortKeys, setSortKeys] = useState(initialData?.sortKeys || false);
   const [error, setError] = useState('');
   const [copied, setCopied] = useState(false);
 
   useEffect(() => {
-    onStateChange?.({ input, output, indentSize, sortKeys });
-  }, [input, output, indentSize, sortKeys]);
-
-  const sortObjectKeys = useCallback((obj: any): any => {
-    if (obj === null || typeof obj !== 'object' || Array.isArray(obj)) {
-      if (Array.isArray(obj)) {
-        return obj.map(sortObjectKeys);
-      }
-      return obj;
-    }
-
-    return Object.keys(obj)
-      .sort()
-      .reduce((acc: any, key) => {
-        acc[key] = sortObjectKeys(obj[key]);
-        return acc;
-      }, {});
-  }, []);
+    onStateChange?.({ input, output, indentSize });
+  }, [input, output, indentSize]);
 
   const handlePrettify = () => {
     try {
       if (!input.trim() || input.length > MAX_LENGTH) return;
-      let parsed = JSON.parse(input);
-      if (sortKeys) {
-        parsed = sortObjectKeys(parsed);
-      }
-      const indent = indentSize === 'tab' ? '\t' : Number(indentSize);
-      const formatted = JSON.stringify(parsed, null, indent);
+      const parsed = yaml.load(input);
+      const formatted = yaml.dump(parsed, {
+        indent: Number(indentSize),
+        lineWidth: -1, // Disable line wrapping
+        noRefs: true
+      });
       setOutput(formatted);
       setError('');
     } catch (e: any) {
-      setError('JSON invalide : ' + e.message);
-    }
-  };
-
-  const handleFix = () => {
-    try {
-      let fixed = input
-        .replace(/(\{|,)\s*'([^']*)'\s*:/g, '$1"$2":') // Single quotes for keys
-        .replace(/:\s*'([^']*)'\s*([,\}])/g, ':"$1"$2') // Single quotes for values
-        .replace(/,\s*([}\]])/g, '$1'); // Trailing commas
-
-      const parsed = JSON.parse(fixed);
-      setInput(JSON.stringify(parsed, null, indentSize === 'tab' ? '\t' : Number(indentSize)));
-      setError('');
-    } catch (e: any) {
-      setError('Impossible de réparer automatiquement : ' + e.message);
+      setError('YAML invalide : ' + e.message);
     }
   };
 
   const handleMinify = () => {
     try {
       if (!input.trim() || input.length > MAX_LENGTH) return;
-      const parsed = JSON.parse(input);
-      const formatted = JSON.stringify(parsed);
+      const parsed = yaml.load(input);
+      // Minifying YAML usually means converting it to JSON-like flow style
+      const formatted = yaml.dump(parsed, {
+        flowLevel: 0,
+        indent: 0,
+        noRefs: true
+      });
       setOutput(formatted);
       setError('');
     } catch (e: any) {
-      setError('JSON invalide : ' + e.message);
+      setError('YAML invalide : ' + e.message);
     }
   };
 
@@ -98,11 +72,11 @@ export function JSONFormatter({ initialData, onStateChange }: { initialData?: an
 
   const handleDownload = () => {
     if (!output) return;
-    const blob = new Blob([output], { type: 'application/json' });
+    const blob = new Blob([output], { type: 'text/yaml' });
     const url = URL.createObjectURL(blob);
     const a = document.createElement('a');
     a.href = url;
-    a.download = 'data.json';
+    a.download = 'data.yaml';
     a.click();
     URL.revokeObjectURL(url);
   };
@@ -122,7 +96,7 @@ export function JSONFormatter({ initialData, onStateChange }: { initialData?: an
           <div className="flex justify-between items-center px-1">
             <div className="flex items-center gap-2">
               <FileCode className="w-4 h-4 text-indigo-500" />
-              <label htmlFor="json-input" className="text-xs font-black uppercase tracking-widest text-slate-400 cursor-pointer">Entrée JSON</label>
+              <label htmlFor="yaml-input" className="text-xs font-black uppercase tracking-widest text-slate-400 cursor-pointer">Entrée YAML</label>
             </div>
             <button
               onClick={handleClear}
@@ -133,7 +107,7 @@ export function JSONFormatter({ initialData, onStateChange }: { initialData?: an
             </button>
           </div>
           <textarea
-            id="json-input"
+            id="yaml-input"
             value={input}
             onChange={(e) => handleInputChange(e.target.value)}
             onKeyDown={(e) => {
@@ -142,7 +116,7 @@ export function JSONFormatter({ initialData, onStateChange }: { initialData?: an
                 handlePrettify();
               }
             }}
-            placeholder='{"key": "value"}'
+            placeholder="key: value\nlist:\n  - item 1"
             className={`w-full h-[450px] p-6 bg-slate-50 dark:bg-slate-900 border ${error.includes('trop longue') ? 'border-rose-500 ring-rose-500/20' : 'border-slate-200 dark:border-slate-800'} rounded-3xl outline-none focus:ring-2 ${error.includes('trop longue') ? 'focus:ring-rose-500/20' : 'focus:ring-indigo-500/20'} transition-all font-mono text-sm leading-relaxed dark:text-slate-300 resize-none`}
           />
         </div>
@@ -152,7 +126,7 @@ export function JSONFormatter({ initialData, onStateChange }: { initialData?: an
           <div className="flex justify-between items-center px-1">
             <div className="flex items-center gap-2">
               <Check className="w-4 h-4 text-emerald-500" />
-              <label htmlFor="json-output" className="text-xs font-black uppercase tracking-widest text-slate-400 cursor-pointer">Résultat</label>
+              <label htmlFor="yaml-output" className="text-xs font-black uppercase tracking-widest text-slate-400 cursor-pointer">Résultat</label>
             </div>
             <div className="flex gap-2">
               <button
@@ -173,7 +147,7 @@ export function JSONFormatter({ initialData, onStateChange }: { initialData?: an
             </div>
           </div>
           <textarea
-            id="json-output"
+            id="yaml-output"
             value={output}
             readOnly
             placeholder="Le résultat formaté apparaîtra ici..."
@@ -186,8 +160,7 @@ export function JSONFormatter({ initialData, onStateChange }: { initialData?: an
         <div className="flex bg-slate-100 dark:bg-slate-800 p-1.5 rounded-2xl border border-slate-200 dark:border-slate-700">
           {[
             { label: '2 espaces', value: '2' },
-            { label: '4 espaces', value: '4' },
-            { label: 'Tab', value: 'tab' }
+            { label: '4 espaces', value: '4' }
           ].map((opt) => (
             <button
               key={opt.value}
@@ -204,28 +177,10 @@ export function JSONFormatter({ initialData, onStateChange }: { initialData?: an
         </div>
 
         <button
-          onClick={() => setSortKeys(!sortKeys)}
-          className={`px-4 py-3 rounded-2xl text-sm font-bold transition-all flex items-center gap-2 border ${
-            sortKeys
-              ? 'bg-indigo-600 text-white shadow-md border-indigo-600'
-              : 'text-slate-600 bg-white dark:bg-slate-900 border-slate-200 dark:border-slate-800 hover:border-indigo-500'
-          }`}
-        >
-          <SortAsc className="w-4 h-4" /> Trier les clés
-        </button>
-
-        <button
-          onClick={handleFix}
-          className="px-4 py-3 bg-white dark:bg-slate-900 text-slate-600 dark:text-slate-300 border border-slate-200 dark:border-slate-800 rounded-2xl text-sm font-bold hover:border-indigo-500 transition-all flex items-center gap-2"
-        >
-          <Wrench className="w-4 h-4" /> Réparer
-        </button>
-
-        <button
           onClick={handlePrettify}
           className="px-8 py-4 bg-indigo-600 text-white rounded-2xl font-black text-lg shadow-lg shadow-indigo-600/20 hover:bg-indigo-700 transition-all active:scale-95 flex items-center gap-2"
         >
-          <Maximize2 className="w-5 h-5" /> Formater (Beautify)
+          <Maximize2 className="w-5 h-5" /> Formater
           <kbd className="ml-2 hidden sm:inline-flex items-center gap-1 px-2 py-0.5 border border-white/20 rounded text-[10px] font-bold bg-white/10">
             Ctrl + Enter
           </kbd>
@@ -241,9 +196,9 @@ export function JSONFormatter({ initialData, onStateChange }: { initialData?: an
       <div className="bg-indigo-50 dark:bg-indigo-900/10 p-6 rounded-[2rem] border border-indigo-100 dark:border-indigo-900/20">
         <h4 className="font-bold text-indigo-900 dark:text-indigo-100 mb-2">Conseils</h4>
         <ul className="text-sm text-indigo-700 dark:text-indigo-300 space-y-1 list-disc list-inside">
-          <li>Utilisez "Formater" pour rendre le JSON lisible avec des indentations.</li>
-          <li>Utilisez "Minifier" pour supprimer tous les espaces et réduire la taille du fichier.</li>
-          <li>L'outil valide automatiquement la syntaxe et signale les erreurs éventuelles.</li>
+          <li>Utilisez "Formater" pour rendre le YAML lisible avec des indentations.</li>
+          <li>L'outil valide automatiquement la syntaxe YAML lors de la conversion.</li>
+          <li>Toutes les opérations sont effectuées localement dans votre navigateur.</li>
         </ul>
       </div>
     </div>

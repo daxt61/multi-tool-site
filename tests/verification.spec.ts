@@ -5,10 +5,10 @@ test('verify new tools and upgraded password generator', async ({ page }) => {
 
   // Check if new tools are present in the search
   await page.fill('#tool-search', 'WhatsApp');
-  await expect(page.getByText('Lien WhatsApp')).toBeVisible();
+  await expect(page.getByRole('heading', { name: 'Lien WhatsApp' })).toBeVisible();
 
   await page.fill('#tool-search', 'Security');
-  await expect(page.getByText('Headers Sécurité')).toBeVisible();
+  await expect(page.getByRole('heading', { name: 'Headers Sécurité' })).toBeVisible();
 
   // Verify WhatsApp Link Generator
   await page.goto('http://localhost:5173/outil/whatsapp-link');

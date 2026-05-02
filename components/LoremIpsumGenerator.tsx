@@ -4,6 +4,7 @@ import { Copy, Check, RefreshCw, Trash2, Type, Hash } from 'lucide-react';
 export function LoremIpsumGenerator() {
   const [count, setCount] = useState(3);
   const [type, setType] = useState<'paragraphs' | 'sentences' | 'words'>('paragraphs');
+  const [useHtml, setUseHtml] = useState(false);
   const [copied, setCopied] = useState(false);
   const [refreshTrigger, setRefreshTrigger] = useState(0);
 
@@ -67,13 +68,14 @@ export function LoremIpsumGenerator() {
       } else {
         const paragraphs = [];
         for (let i = 0; i < count; i++) {
-          paragraphs.push(generateParagraph());
+          const p = generateParagraph();
+          paragraphs.push(useHtml ? `<p>${p}</p>` : p);
         }
-        return paragraphs.join('\n\n');
+        return paragraphs.join(useHtml ? '\n' : '\n\n');
       }
     };
     return generateText();
-  }, [count, type, refreshTrigger]);
+  }, [count, type, refreshTrigger, useHtml]);
 
   const handleRegenerate = useCallback(() => {
     setRefreshTrigger(prev => prev + 1);
@@ -146,16 +148,30 @@ export function LoremIpsumGenerator() {
             <label htmlFor="lorem-type" className="text-xs font-black uppercase tracking-widest text-slate-400 px-1">
               Type
             </label>
-            <select
-              id="lorem-type"
-              value={type}
-              onChange={(e) => setType(e.target.value as any)}
-              className="w-full p-4 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-2xl font-bold focus:ring-2 focus:ring-indigo-500/20 outline-none transition-all dark:text-white cursor-pointer"
-            >
-              <option value="paragraphs">Paragraphes</option>
-              <option value="sentences">Phrases</option>
-              <option value="words">Mots</option>
-            </select>
+            <div className="flex gap-2">
+              <select
+                id="lorem-type"
+                value={type}
+                onChange={(e) => setType(e.target.value as any)}
+                className="flex-1 p-4 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-2xl font-bold focus:ring-2 focus:ring-indigo-500/20 outline-none transition-all dark:text-white cursor-pointer"
+              >
+                <option value="paragraphs">Paragraphes</option>
+                <option value="sentences">Phrases</option>
+                <option value="words">Mots</option>
+              </select>
+              {type === 'paragraphs' && (
+                <button
+                  onClick={() => setUseHtml(!useHtml)}
+                  className={`px-4 rounded-2xl font-bold text-xs transition-all border ${
+                    useHtml
+                      ? 'bg-indigo-600 text-white border-indigo-600 shadow-md'
+                      : 'bg-white dark:bg-slate-800 text-slate-500 border-slate-200 dark:border-slate-700'
+                  }`}
+                >
+                  HTML
+                </button>
+              )}
+            </div>
           </div>
         </div>
 

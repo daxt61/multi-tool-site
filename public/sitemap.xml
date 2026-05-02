@@ -1,222 +1,2098 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
-  <!-- Pages Principales -->
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9" xmlns:xhtml="http://www.w3.org/1999/xhtml">
   <url>
-    <loc>https://multitools-five.vercel.app/</loc>
+    <loc>https://multitools-five.vercel.app/fr</loc>
+    <xhtml:link rel="alternate" hreflang="fr" href="https://multitools-five.vercel.app/fr"/>
+    <xhtml:link rel="alternate" hreflang="en" href="https://multitools-five.vercel.app/en"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://multitools-five.vercel.app/fr"/>
     <changefreq>weekly</changefreq>
     <priority>1.0</priority>
   </url>
   <url>
-    <loc>https://multitools-five.vercel.app/a-propos</loc>
+    <loc>https://multitools-five.vercel.app/en</loc>
+    <xhtml:link rel="alternate" hreflang="fr" href="https://multitools-five.vercel.app/fr"/>
+    <xhtml:link rel="alternate" hreflang="en" href="https://multitools-five.vercel.app/en"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://multitools-five.vercel.app/fr"/>
+    <changefreq>weekly</changefreq>
+    <priority>1.0</priority>
+  </url>
+  <url>
+    <loc>https://multitools-five.vercel.app/fr/a-propos</loc>
+    <xhtml:link rel="alternate" hreflang="fr" href="https://multitools-five.vercel.app/fr/a-propos"/>
+    <xhtml:link rel="alternate" hreflang="en" href="https://multitools-five.vercel.app/en/a-propos"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://multitools-five.vercel.app/fr/a-propos"/>
     <changefreq>monthly</changefreq>
     <priority>0.5</priority>
   </url>
   <url>
-    <loc>https://multitools-five.vercel.app/contact</loc>
+    <loc>https://multitools-five.vercel.app/en/a-propos</loc>
+    <xhtml:link rel="alternate" hreflang="fr" href="https://multitools-five.vercel.app/fr/a-propos"/>
+    <xhtml:link rel="alternate" hreflang="en" href="https://multitools-five.vercel.app/en/a-propos"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://multitools-five.vercel.app/fr/a-propos"/>
     <changefreq>monthly</changefreq>
     <priority>0.5</priority>
   </url>
   <url>
-    <loc>https://multitools-five.vercel.app/confidentialite</loc>
+    <loc>https://multitools-five.vercel.app/fr/contact</loc>
+    <xhtml:link rel="alternate" hreflang="fr" href="https://multitools-five.vercel.app/fr/contact"/>
+    <xhtml:link rel="alternate" hreflang="en" href="https://multitools-five.vercel.app/en/contact"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://multitools-five.vercel.app/fr/contact"/>
+    <changefreq>monthly</changefreq>
+    <priority>0.5</priority>
+  </url>
+  <url>
+    <loc>https://multitools-five.vercel.app/en/contact</loc>
+    <xhtml:link rel="alternate" hreflang="fr" href="https://multitools-five.vercel.app/fr/contact"/>
+    <xhtml:link rel="alternate" hreflang="en" href="https://multitools-five.vercel.app/en/contact"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://multitools-five.vercel.app/fr/contact"/>
+    <changefreq>monthly</changefreq>
+    <priority>0.5</priority>
+  </url>
+  <url>
+    <loc>https://multitools-five.vercel.app/fr/confidentialite</loc>
+    <xhtml:link rel="alternate" hreflang="fr" href="https://multitools-five.vercel.app/fr/confidentialite"/>
+    <xhtml:link rel="alternate" hreflang="en" href="https://multitools-five.vercel.app/en/confidentialite"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://multitools-five.vercel.app/fr/confidentialite"/>
     <changefreq>monthly</changefreq>
     <priority>0.3</priority>
   </url>
-
-  <!-- Outils Business -->
   <url>
-    <loc>https://multitools-five.vercel.app/outil/invoice-generator</loc>
+    <loc>https://multitools-five.vercel.app/en/confidentialite</loc>
+    <xhtml:link rel="alternate" hreflang="fr" href="https://multitools-five.vercel.app/fr/confidentialite"/>
+    <xhtml:link rel="alternate" hreflang="en" href="https://multitools-five.vercel.app/en/confidentialite"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://multitools-five.vercel.app/fr/confidentialite"/>
+    <changefreq>monthly</changefreq>
+    <priority>0.3</priority>
+  </url>
+  <url>
+    <loc>https://multitools-five.vercel.app/fr/outil/all</loc>
+    <xhtml:link rel="alternate" hreflang="fr" href="https://multitools-five.vercel.app/fr/outil/all"/>
+    <xhtml:link rel="alternate" hreflang="en" href="https://multitools-five.vercel.app/en/outil/all"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://multitools-five.vercel.app/fr/outil/all"/>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
-    <loc>https://multitools-five.vercel.app/outil/margin-calculator</loc>
+    <loc>https://multitools-five.vercel.app/en/outil/all</loc>
+    <xhtml:link rel="alternate" hreflang="fr" href="https://multitools-five.vercel.app/fr/outil/all"/>
+    <xhtml:link rel="alternate" hreflang="en" href="https://multitools-five.vercel.app/en/outil/all"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://multitools-five.vercel.app/fr/outil/all"/>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
-    <loc>https://multitools-five.vercel.app/outil/vat-calculator</loc>
+    <loc>https://multitools-five.vercel.app/fr/outil/favorites</loc>
+    <xhtml:link rel="alternate" hreflang="fr" href="https://multitools-five.vercel.app/fr/outil/favorites"/>
+    <xhtml:link rel="alternate" hreflang="en" href="https://multitools-five.vercel.app/en/outil/favorites"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://multitools-five.vercel.app/fr/outil/favorites"/>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
-    <loc>https://multitools-five.vercel.app/outil/roi-calculator</loc>
-    <changefreq>monthly</changefreq>
-    <priority>0.8</priority>
-  </url>
-
-  <!-- Outils Finance & Budget -->
-  <url>
-    <loc>https://multitools-five.vercel.app/outil/budget-planner</loc>
+    <loc>https://multitools-five.vercel.app/en/outil/favorites</loc>
+    <xhtml:link rel="alternate" hreflang="fr" href="https://multitools-five.vercel.app/fr/outil/favorites"/>
+    <xhtml:link rel="alternate" hreflang="en" href="https://multitools-five.vercel.app/en/outil/favorites"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://multitools-five.vercel.app/fr/outil/favorites"/>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
-    <loc>https://multitools-five.vercel.app/outil/expense-tracker</loc>
+    <loc>https://multitools-five.vercel.app/fr/outil/business</loc>
+    <xhtml:link rel="alternate" hreflang="fr" href="https://multitools-five.vercel.app/fr/outil/business"/>
+    <xhtml:link rel="alternate" hreflang="en" href="https://multitools-five.vercel.app/en/outil/business"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://multitools-five.vercel.app/fr/outil/business"/>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
-    <loc>https://multitools-five.vercel.app/outil/loan-calculator</loc>
+    <loc>https://multitools-five.vercel.app/en/outil/business</loc>
+    <xhtml:link rel="alternate" hreflang="fr" href="https://multitools-five.vercel.app/fr/outil/business"/>
+    <xhtml:link rel="alternate" hreflang="en" href="https://multitools-five.vercel.app/en/outil/business"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://multitools-five.vercel.app/fr/outil/business"/>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
-    <loc>https://multitools-five.vercel.app/outil/savings-calculator</loc>
+    <loc>https://multitools-five.vercel.app/fr/outil/budget</loc>
+    <xhtml:link rel="alternate" hreflang="fr" href="https://multitools-five.vercel.app/fr/outil/budget"/>
+    <xhtml:link rel="alternate" hreflang="en" href="https://multitools-five.vercel.app/en/outil/budget"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://multitools-five.vercel.app/fr/outil/budget"/>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
-    <loc>https://multitools-five.vercel.app/outil/salary-calculator</loc>
+    <loc>https://multitools-five.vercel.app/en/outil/budget</loc>
+    <xhtml:link rel="alternate" hreflang="fr" href="https://multitools-five.vercel.app/fr/outil/budget"/>
+    <xhtml:link rel="alternate" hreflang="en" href="https://multitools-five.vercel.app/en/outil/budget"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://multitools-five.vercel.app/fr/outil/budget"/>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
-    <loc>https://multitools-five.vercel.app/outil/tip-calculator</loc>
+    <loc>https://multitools-five.vercel.app/fr/outil/health</loc>
+    <xhtml:link rel="alternate" hreflang="fr" href="https://multitools-five.vercel.app/fr/outil/health"/>
+    <xhtml:link rel="alternate" hreflang="en" href="https://multitools-five.vercel.app/en/outil/health"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://multitools-five.vercel.app/fr/outil/health"/>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
-    <loc>https://multitools-five.vercel.app/outil/currency-converter</loc>
-    <changefreq>monthly</changefreq>
-    <priority>0.8</priority>
-  </url>
-
-  <!-- Calculatrices -->
-  <url>
-    <loc>https://multitools-five.vercel.app/outil/calculator</loc>
+    <loc>https://multitools-five.vercel.app/en/outil/health</loc>
+    <xhtml:link rel="alternate" hreflang="fr" href="https://multitools-five.vercel.app/fr/outil/health"/>
+    <xhtml:link rel="alternate" hreflang="en" href="https://multitools-five.vercel.app/en/outil/health"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://multitools-five.vercel.app/fr/outil/health"/>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
-    <loc>https://multitools-five.vercel.app/outil/percentage</loc>
+    <loc>https://multitools-five.vercel.app/fr/outil/calculators</loc>
+    <xhtml:link rel="alternate" hreflang="fr" href="https://multitools-five.vercel.app/fr/outil/calculators"/>
+    <xhtml:link rel="alternate" hreflang="en" href="https://multitools-five.vercel.app/en/outil/calculators"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://multitools-five.vercel.app/fr/outil/calculators"/>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
-    <loc>https://multitools-five.vercel.app/outil/bmi-calculator</loc>
+    <loc>https://multitools-five.vercel.app/en/outil/calculators</loc>
+    <xhtml:link rel="alternate" hreflang="fr" href="https://multitools-five.vercel.app/fr/outil/calculators"/>
+    <xhtml:link rel="alternate" hreflang="en" href="https://multitools-five.vercel.app/en/outil/calculators"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://multitools-five.vercel.app/fr/outil/calculators"/>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
-    <loc>https://multitools-five.vercel.app/outil/date-calculator</loc>
-    <changefreq>monthly</changefreq>
-    <priority>0.8</priority>
-  </url>
-
-  <!-- Convertisseurs -->
-  <url>
-    <loc>https://multitools-five.vercel.app/outil/unit-converter</loc>
+    <loc>https://multitools-five.vercel.app/fr/outil/converters</loc>
+    <xhtml:link rel="alternate" hreflang="fr" href="https://multitools-five.vercel.app/fr/outil/converters"/>
+    <xhtml:link rel="alternate" hreflang="en" href="https://multitools-five.vercel.app/en/outil/converters"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://multitools-five.vercel.app/fr/outil/converters"/>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
-    <loc>https://multitools-five.vercel.app/outil/color-converter</loc>
+    <loc>https://multitools-five.vercel.app/en/outil/converters</loc>
+    <xhtml:link rel="alternate" hreflang="fr" href="https://multitools-five.vercel.app/fr/outil/converters"/>
+    <xhtml:link rel="alternate" hreflang="en" href="https://multitools-five.vercel.app/en/outil/converters"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://multitools-five.vercel.app/fr/outil/converters"/>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
-    <loc>https://multitools-five.vercel.app/outil/number-converter</loc>
-    <changefreq>monthly</changefreq>
-    <priority>0.8</priority>
-  </url>
-
-  <!-- Outils de Texte -->
-  <url>
-    <loc>https://multitools-five.vercel.app/outil/word-counter</loc>
+    <loc>https://multitools-five.vercel.app/fr/outil/text</loc>
+    <xhtml:link rel="alternate" hreflang="fr" href="https://multitools-five.vercel.app/fr/outil/text"/>
+    <xhtml:link rel="alternate" hreflang="en" href="https://multitools-five.vercel.app/en/outil/text"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://multitools-five.vercel.app/fr/outil/text"/>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
-    <loc>https://multitools-five.vercel.app/outil/case-converter</loc>
+    <loc>https://multitools-five.vercel.app/en/outil/text</loc>
+    <xhtml:link rel="alternate" hreflang="fr" href="https://multitools-five.vercel.app/fr/outil/text"/>
+    <xhtml:link rel="alternate" hreflang="en" href="https://multitools-five.vercel.app/en/outil/text"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://multitools-five.vercel.app/fr/outil/text"/>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
-    <loc>https://multitools-five.vercel.app/outil/text-formatter</loc>
+    <loc>https://multitools-five.vercel.app/fr/outil/dev</loc>
+    <xhtml:link rel="alternate" hreflang="fr" href="https://multitools-five.vercel.app/fr/outil/dev"/>
+    <xhtml:link rel="alternate" hreflang="en" href="https://multitools-five.vercel.app/en/outil/dev"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://multitools-five.vercel.app/fr/outil/dev"/>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
-    <loc>https://multitools-five.vercel.app/outil/lorem-ipsum</loc>
+    <loc>https://multitools-five.vercel.app/en/outil/dev</loc>
+    <xhtml:link rel="alternate" hreflang="fr" href="https://multitools-five.vercel.app/fr/outil/dev"/>
+    <xhtml:link rel="alternate" hreflang="en" href="https://multitools-five.vercel.app/en/outil/dev"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://multitools-five.vercel.app/fr/outil/dev"/>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
-    <loc>https://multitools-five.vercel.app/outil/markdown-preview</loc>
+    <loc>https://multitools-five.vercel.app/fr/outil/other</loc>
+    <xhtml:link rel="alternate" hreflang="fr" href="https://multitools-five.vercel.app/fr/outil/other"/>
+    <xhtml:link rel="alternate" hreflang="en" href="https://multitools-five.vercel.app/en/outil/other"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://multitools-five.vercel.app/fr/outil/other"/>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
-    <loc>https://multitools-five.vercel.app/outil/diff-checker</loc>
+    <loc>https://multitools-five.vercel.app/en/outil/other</loc>
+    <xhtml:link rel="alternate" hreflang="fr" href="https://multitools-five.vercel.app/fr/outil/other"/>
+    <xhtml:link rel="alternate" hreflang="en" href="https://multitools-five.vercel.app/en/outil/other"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://multitools-five.vercel.app/fr/outil/other"/>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
-    <loc>https://multitools-five.vercel.app/outil/morse-code</loc>
-    <changefreq>monthly</changefreq>
-    <priority>0.8</priority>
-  </url>
-
-  <!-- Outils Développeur -->
-  <url>
-    <loc>https://multitools-five.vercel.app/outil/password-generator</loc>
+    <loc>https://multitools-five.vercel.app/fr/outil/invoice-generator</loc>
+    <xhtml:link rel="alternate" hreflang="fr" href="https://multitools-five.vercel.app/fr/outil/invoice-generator"/>
+    <xhtml:link rel="alternate" hreflang="en" href="https://multitools-five.vercel.app/en/outil/invoice-generator"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://multitools-five.vercel.app/fr/outil/invoice-generator"/>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
-    <loc>https://multitools-five.vercel.app/outil/qr-code</loc>
+    <loc>https://multitools-five.vercel.app/en/outil/invoice-generator</loc>
+    <xhtml:link rel="alternate" hreflang="fr" href="https://multitools-five.vercel.app/fr/outil/invoice-generator"/>
+    <xhtml:link rel="alternate" hreflang="en" href="https://multitools-five.vercel.app/en/outil/invoice-generator"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://multitools-five.vercel.app/fr/outil/invoice-generator"/>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
-    <loc>https://multitools-five.vercel.app/outil/uuid-generator</loc>
+    <loc>https://multitools-five.vercel.app/fr/outil/margin-calculator</loc>
+    <xhtml:link rel="alternate" hreflang="fr" href="https://multitools-five.vercel.app/fr/outil/margin-calculator"/>
+    <xhtml:link rel="alternate" hreflang="en" href="https://multitools-five.vercel.app/en/outil/margin-calculator"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://multitools-five.vercel.app/fr/outil/margin-calculator"/>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
-    <loc>https://multitools-five.vercel.app/outil/base64</loc>
+    <loc>https://multitools-five.vercel.app/en/outil/margin-calculator</loc>
+    <xhtml:link rel="alternate" hreflang="fr" href="https://multitools-five.vercel.app/fr/outil/margin-calculator"/>
+    <xhtml:link rel="alternate" hreflang="en" href="https://multitools-five.vercel.app/en/outil/margin-calculator"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://multitools-five.vercel.app/fr/outil/margin-calculator"/>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
-    <loc>https://multitools-five.vercel.app/outil/json-formatter</loc>
+    <loc>https://multitools-five.vercel.app/fr/outil/vat-calculator</loc>
+    <xhtml:link rel="alternate" hreflang="fr" href="https://multitools-five.vercel.app/fr/outil/vat-calculator"/>
+    <xhtml:link rel="alternate" hreflang="en" href="https://multitools-five.vercel.app/en/outil/vat-calculator"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://multitools-five.vercel.app/fr/outil/vat-calculator"/>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
-    <loc>https://multitools-five.vercel.app/outil/hash-generator</loc>
+    <loc>https://multitools-five.vercel.app/en/outil/vat-calculator</loc>
+    <xhtml:link rel="alternate" hreflang="fr" href="https://multitools-five.vercel.app/fr/outil/vat-calculator"/>
+    <xhtml:link rel="alternate" hreflang="en" href="https://multitools-five.vercel.app/en/outil/vat-calculator"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://multitools-five.vercel.app/fr/outil/vat-calculator"/>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
-    <loc>https://multitools-five.vercel.app/outil/url-encoder</loc>
-    <changefreq>monthly</changefreq>
-    <priority>0.8</priority>
-  </url>
-
-  <!-- Autres Utilitaires -->
-  <url>
-    <loc>https://multitools-five.vercel.app/outil/timer</loc>
+    <loc>https://multitools-five.vercel.app/fr/outil/roi-calculator</loc>
+    <xhtml:link rel="alternate" hreflang="fr" href="https://multitools-five.vercel.app/fr/outil/roi-calculator"/>
+    <xhtml:link rel="alternate" hreflang="en" href="https://multitools-five.vercel.app/en/outil/roi-calculator"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://multitools-five.vercel.app/fr/outil/roi-calculator"/>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
-    <loc>https://multitools-five.vercel.app/outil/image-compressor</loc>
+    <loc>https://multitools-five.vercel.app/en/outil/roi-calculator</loc>
+    <xhtml:link rel="alternate" hreflang="fr" href="https://multitools-five.vercel.app/fr/outil/roi-calculator"/>
+    <xhtml:link rel="alternate" hreflang="en" href="https://multitools-five.vercel.app/en/outil/roi-calculator"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://multitools-five.vercel.app/fr/outil/roi-calculator"/>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
-    <loc>https://multitools-five.vercel.app/outil/ip-address</loc>
+    <loc>https://multitools-five.vercel.app/fr/outil/fuel-cost</loc>
+    <xhtml:link rel="alternate" hreflang="fr" href="https://multitools-five.vercel.app/fr/outil/fuel-cost"/>
+    <xhtml:link rel="alternate" hreflang="en" href="https://multitools-five.vercel.app/en/outil/fuel-cost"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://multitools-five.vercel.app/fr/outil/fuel-cost"/>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
-    <loc>https://multitools-five.vercel.app/outil/aspect-ratio</loc>
+    <loc>https://multitools-five.vercel.app/en/outil/fuel-cost</loc>
+    <xhtml:link rel="alternate" hreflang="fr" href="https://multitools-five.vercel.app/fr/outil/fuel-cost"/>
+    <xhtml:link rel="alternate" hreflang="en" href="https://multitools-five.vercel.app/en/outil/fuel-cost"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://multitools-five.vercel.app/fr/outil/fuel-cost"/>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
-    <loc>https://multitools-five.vercel.app/outil/bpm-counter</loc>
+    <loc>https://multitools-five.vercel.app/fr/outil/financial-ratios</loc>
+    <xhtml:link rel="alternate" hreflang="fr" href="https://multitools-five.vercel.app/fr/outil/financial-ratios"/>
+    <xhtml:link rel="alternate" hreflang="en" href="https://multitools-five.vercel.app/en/outil/financial-ratios"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://multitools-five.vercel.app/fr/outil/financial-ratios"/>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://multitools-five.vercel.app/en/outil/financial-ratios</loc>
+    <xhtml:link rel="alternate" hreflang="fr" href="https://multitools-five.vercel.app/fr/outil/financial-ratios"/>
+    <xhtml:link rel="alternate" hreflang="en" href="https://multitools-five.vercel.app/en/outil/financial-ratios"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://multitools-five.vercel.app/fr/outil/financial-ratios"/>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://multitools-five.vercel.app/fr/outil/freelance-tax</loc>
+    <xhtml:link rel="alternate" hreflang="fr" href="https://multitools-five.vercel.app/fr/outil/freelance-tax"/>
+    <xhtml:link rel="alternate" hreflang="en" href="https://multitools-five.vercel.app/en/outil/freelance-tax"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://multitools-five.vercel.app/fr/outil/freelance-tax"/>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://multitools-five.vercel.app/en/outil/freelance-tax</loc>
+    <xhtml:link rel="alternate" hreflang="fr" href="https://multitools-five.vercel.app/fr/outil/freelance-tax"/>
+    <xhtml:link rel="alternate" hreflang="en" href="https://multitools-five.vercel.app/en/outil/freelance-tax"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://multitools-five.vercel.app/fr/outil/freelance-tax"/>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://multitools-five.vercel.app/fr/outil/budget-planner</loc>
+    <xhtml:link rel="alternate" hreflang="fr" href="https://multitools-five.vercel.app/fr/outil/budget-planner"/>
+    <xhtml:link rel="alternate" hreflang="en" href="https://multitools-five.vercel.app/en/outil/budget-planner"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://multitools-five.vercel.app/fr/outil/budget-planner"/>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://multitools-five.vercel.app/en/outil/budget-planner</loc>
+    <xhtml:link rel="alternate" hreflang="fr" href="https://multitools-five.vercel.app/fr/outil/budget-planner"/>
+    <xhtml:link rel="alternate" hreflang="en" href="https://multitools-five.vercel.app/en/outil/budget-planner"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://multitools-five.vercel.app/fr/outil/budget-planner"/>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://multitools-five.vercel.app/fr/outil/expense-tracker</loc>
+    <xhtml:link rel="alternate" hreflang="fr" href="https://multitools-five.vercel.app/fr/outil/expense-tracker"/>
+    <xhtml:link rel="alternate" hreflang="en" href="https://multitools-five.vercel.app/en/outil/expense-tracker"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://multitools-five.vercel.app/fr/outil/expense-tracker"/>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://multitools-five.vercel.app/en/outil/expense-tracker</loc>
+    <xhtml:link rel="alternate" hreflang="fr" href="https://multitools-five.vercel.app/fr/outil/expense-tracker"/>
+    <xhtml:link rel="alternate" hreflang="en" href="https://multitools-five.vercel.app/en/outil/expense-tracker"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://multitools-five.vercel.app/fr/outil/expense-tracker"/>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://multitools-five.vercel.app/fr/outil/loan-calculator</loc>
+    <xhtml:link rel="alternate" hreflang="fr" href="https://multitools-five.vercel.app/fr/outil/loan-calculator"/>
+    <xhtml:link rel="alternate" hreflang="en" href="https://multitools-five.vercel.app/en/outil/loan-calculator"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://multitools-five.vercel.app/fr/outil/loan-calculator"/>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://multitools-five.vercel.app/en/outil/loan-calculator</loc>
+    <xhtml:link rel="alternate" hreflang="fr" href="https://multitools-five.vercel.app/fr/outil/loan-calculator"/>
+    <xhtml:link rel="alternate" hreflang="en" href="https://multitools-five.vercel.app/en/outil/loan-calculator"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://multitools-five.vercel.app/fr/outil/loan-calculator"/>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://multitools-five.vercel.app/fr/outil/savings-calculator</loc>
+    <xhtml:link rel="alternate" hreflang="fr" href="https://multitools-five.vercel.app/fr/outil/savings-calculator"/>
+    <xhtml:link rel="alternate" hreflang="en" href="https://multitools-five.vercel.app/en/outil/savings-calculator"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://multitools-five.vercel.app/fr/outil/savings-calculator"/>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://multitools-five.vercel.app/en/outil/savings-calculator</loc>
+    <xhtml:link rel="alternate" hreflang="fr" href="https://multitools-five.vercel.app/fr/outil/savings-calculator"/>
+    <xhtml:link rel="alternate" hreflang="en" href="https://multitools-five.vercel.app/en/outil/savings-calculator"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://multitools-five.vercel.app/fr/outil/savings-calculator"/>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://multitools-five.vercel.app/fr/outil/compound-interest</loc>
+    <xhtml:link rel="alternate" hreflang="fr" href="https://multitools-five.vercel.app/fr/outil/compound-interest"/>
+    <xhtml:link rel="alternate" hreflang="en" href="https://multitools-five.vercel.app/en/outil/compound-interest"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://multitools-five.vercel.app/fr/outil/compound-interest"/>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://multitools-five.vercel.app/en/outil/compound-interest</loc>
+    <xhtml:link rel="alternate" hreflang="fr" href="https://multitools-five.vercel.app/fr/outil/compound-interest"/>
+    <xhtml:link rel="alternate" hreflang="en" href="https://multitools-five.vercel.app/en/outil/compound-interest"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://multitools-five.vercel.app/fr/outil/compound-interest"/>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://multitools-five.vercel.app/fr/outil/iban-validator</loc>
+    <xhtml:link rel="alternate" hreflang="fr" href="https://multitools-five.vercel.app/fr/outil/iban-validator"/>
+    <xhtml:link rel="alternate" hreflang="en" href="https://multitools-five.vercel.app/en/outil/iban-validator"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://multitools-five.vercel.app/fr/outil/iban-validator"/>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://multitools-five.vercel.app/en/outil/iban-validator</loc>
+    <xhtml:link rel="alternate" hreflang="fr" href="https://multitools-five.vercel.app/fr/outil/iban-validator"/>
+    <xhtml:link rel="alternate" hreflang="en" href="https://multitools-five.vercel.app/en/outil/iban-validator"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://multitools-five.vercel.app/fr/outil/iban-validator"/>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://multitools-five.vercel.app/fr/outil/salary-calculator</loc>
+    <xhtml:link rel="alternate" hreflang="fr" href="https://multitools-five.vercel.app/fr/outil/salary-calculator"/>
+    <xhtml:link rel="alternate" hreflang="en" href="https://multitools-five.vercel.app/en/outil/salary-calculator"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://multitools-five.vercel.app/fr/outil/salary-calculator"/>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://multitools-five.vercel.app/en/outil/salary-calculator</loc>
+    <xhtml:link rel="alternate" hreflang="fr" href="https://multitools-five.vercel.app/fr/outil/salary-calculator"/>
+    <xhtml:link rel="alternate" hreflang="en" href="https://multitools-five.vercel.app/en/outil/salary-calculator"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://multitools-five.vercel.app/fr/outil/salary-calculator"/>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://multitools-five.vercel.app/fr/outil/tip-calculator</loc>
+    <xhtml:link rel="alternate" hreflang="fr" href="https://multitools-five.vercel.app/fr/outil/tip-calculator"/>
+    <xhtml:link rel="alternate" hreflang="en" href="https://multitools-five.vercel.app/en/outil/tip-calculator"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://multitools-five.vercel.app/fr/outil/tip-calculator"/>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://multitools-five.vercel.app/en/outil/tip-calculator</loc>
+    <xhtml:link rel="alternate" hreflang="fr" href="https://multitools-five.vercel.app/fr/outil/tip-calculator"/>
+    <xhtml:link rel="alternate" hreflang="en" href="https://multitools-five.vercel.app/en/outil/tip-calculator"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://multitools-five.vercel.app/fr/outil/tip-calculator"/>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://multitools-five.vercel.app/fr/outil/currency-converter</loc>
+    <xhtml:link rel="alternate" hreflang="fr" href="https://multitools-five.vercel.app/fr/outil/currency-converter"/>
+    <xhtml:link rel="alternate" hreflang="en" href="https://multitools-five.vercel.app/en/outil/currency-converter"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://multitools-five.vercel.app/fr/outil/currency-converter"/>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://multitools-five.vercel.app/en/outil/currency-converter</loc>
+    <xhtml:link rel="alternate" hreflang="fr" href="https://multitools-five.vercel.app/fr/outil/currency-converter"/>
+    <xhtml:link rel="alternate" hreflang="en" href="https://multitools-five.vercel.app/en/outil/currency-converter"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://multitools-five.vercel.app/fr/outil/currency-converter"/>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://multitools-five.vercel.app/fr/outil/unit-price-calculator</loc>
+    <xhtml:link rel="alternate" hreflang="fr" href="https://multitools-five.vercel.app/fr/outil/unit-price-calculator"/>
+    <xhtml:link rel="alternate" hreflang="en" href="https://multitools-five.vercel.app/en/outil/unit-price-calculator"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://multitools-five.vercel.app/fr/outil/unit-price-calculator"/>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://multitools-five.vercel.app/en/outil/unit-price-calculator</loc>
+    <xhtml:link rel="alternate" hreflang="fr" href="https://multitools-five.vercel.app/fr/outil/unit-price-calculator"/>
+    <xhtml:link rel="alternate" hreflang="en" href="https://multitools-five.vercel.app/en/outil/unit-price-calculator"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://multitools-five.vercel.app/fr/outil/unit-price-calculator"/>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://multitools-five.vercel.app/fr/outil/discount-calculator</loc>
+    <xhtml:link rel="alternate" hreflang="fr" href="https://multitools-five.vercel.app/fr/outil/discount-calculator"/>
+    <xhtml:link rel="alternate" hreflang="en" href="https://multitools-five.vercel.app/en/outil/discount-calculator"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://multitools-five.vercel.app/fr/outil/discount-calculator"/>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://multitools-five.vercel.app/en/outil/discount-calculator</loc>
+    <xhtml:link rel="alternate" hreflang="fr" href="https://multitools-five.vercel.app/fr/outil/discount-calculator"/>
+    <xhtml:link rel="alternate" hreflang="en" href="https://multitools-five.vercel.app/en/outil/discount-calculator"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://multitools-five.vercel.app/fr/outil/discount-calculator"/>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://multitools-five.vercel.app/fr/outil/overtime-calculator</loc>
+    <xhtml:link rel="alternate" hreflang="fr" href="https://multitools-five.vercel.app/fr/outil/overtime-calculator"/>
+    <xhtml:link rel="alternate" hreflang="en" href="https://multitools-five.vercel.app/en/outil/overtime-calculator"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://multitools-five.vercel.app/fr/outil/overtime-calculator"/>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://multitools-five.vercel.app/en/outil/overtime-calculator</loc>
+    <xhtml:link rel="alternate" hreflang="fr" href="https://multitools-five.vercel.app/fr/outil/overtime-calculator"/>
+    <xhtml:link rel="alternate" hreflang="en" href="https://multitools-five.vercel.app/en/outil/overtime-calculator"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://multitools-five.vercel.app/fr/outil/overtime-calculator"/>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://multitools-five.vercel.app/fr/outil/retirement-calculator</loc>
+    <xhtml:link rel="alternate" hreflang="fr" href="https://multitools-five.vercel.app/fr/outil/retirement-calculator"/>
+    <xhtml:link rel="alternate" hreflang="en" href="https://multitools-five.vercel.app/en/outil/retirement-calculator"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://multitools-five.vercel.app/fr/outil/retirement-calculator"/>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://multitools-five.vercel.app/en/outil/retirement-calculator</loc>
+    <xhtml:link rel="alternate" hreflang="fr" href="https://multitools-five.vercel.app/fr/outil/retirement-calculator"/>
+    <xhtml:link rel="alternate" hreflang="en" href="https://multitools-five.vercel.app/en/outil/retirement-calculator"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://multitools-five.vercel.app/fr/outil/retirement-calculator"/>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://multitools-five.vercel.app/fr/outil/grade-calculator</loc>
+    <xhtml:link rel="alternate" hreflang="fr" href="https://multitools-five.vercel.app/fr/outil/grade-calculator"/>
+    <xhtml:link rel="alternate" hreflang="en" href="https://multitools-five.vercel.app/en/outil/grade-calculator"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://multitools-five.vercel.app/fr/outil/grade-calculator"/>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://multitools-five.vercel.app/en/outil/grade-calculator</loc>
+    <xhtml:link rel="alternate" hreflang="fr" href="https://multitools-five.vercel.app/fr/outil/grade-calculator"/>
+    <xhtml:link rel="alternate" hreflang="en" href="https://multitools-five.vercel.app/en/outil/grade-calculator"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://multitools-five.vercel.app/fr/outil/grade-calculator"/>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://multitools-five.vercel.app/fr/outil/duration-calculator</loc>
+    <xhtml:link rel="alternate" hreflang="fr" href="https://multitools-five.vercel.app/fr/outil/duration-calculator"/>
+    <xhtml:link rel="alternate" hreflang="en" href="https://multitools-five.vercel.app/en/outil/duration-calculator"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://multitools-five.vercel.app/fr/outil/duration-calculator"/>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://multitools-five.vercel.app/en/outil/duration-calculator</loc>
+    <xhtml:link rel="alternate" hreflang="fr" href="https://multitools-five.vercel.app/fr/outil/duration-calculator"/>
+    <xhtml:link rel="alternate" hreflang="en" href="https://multitools-five.vercel.app/en/outil/duration-calculator"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://multitools-five.vercel.app/fr/outil/duration-calculator"/>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://multitools-five.vercel.app/fr/outil/gpa-converter</loc>
+    <xhtml:link rel="alternate" hreflang="fr" href="https://multitools-five.vercel.app/fr/outil/gpa-converter"/>
+    <xhtml:link rel="alternate" hreflang="en" href="https://multitools-five.vercel.app/en/outil/gpa-converter"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://multitools-five.vercel.app/fr/outil/gpa-converter"/>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://multitools-five.vercel.app/en/outil/gpa-converter</loc>
+    <xhtml:link rel="alternate" hreflang="fr" href="https://multitools-five.vercel.app/fr/outil/gpa-converter"/>
+    <xhtml:link rel="alternate" hreflang="en" href="https://multitools-five.vercel.app/en/outil/gpa-converter"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://multitools-five.vercel.app/fr/outil/gpa-converter"/>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://multitools-five.vercel.app/fr/outil/breakeven-calculator</loc>
+    <xhtml:link rel="alternate" hreflang="fr" href="https://multitools-five.vercel.app/fr/outil/breakeven-calculator"/>
+    <xhtml:link rel="alternate" hreflang="en" href="https://multitools-five.vercel.app/en/outil/breakeven-calculator"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://multitools-five.vercel.app/fr/outil/breakeven-calculator"/>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://multitools-five.vercel.app/en/outil/breakeven-calculator</loc>
+    <xhtml:link rel="alternate" hreflang="fr" href="https://multitools-five.vercel.app/fr/outil/breakeven-calculator"/>
+    <xhtml:link rel="alternate" hreflang="en" href="https://multitools-five.vercel.app/en/outil/breakeven-calculator"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://multitools-five.vercel.app/fr/outil/breakeven-calculator"/>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://multitools-five.vercel.app/fr/outil/mock-data</loc>
+    <xhtml:link rel="alternate" hreflang="fr" href="https://multitools-five.vercel.app/fr/outil/mock-data"/>
+    <xhtml:link rel="alternate" hreflang="en" href="https://multitools-five.vercel.app/en/outil/mock-data"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://multitools-five.vercel.app/fr/outil/mock-data"/>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://multitools-five.vercel.app/en/outil/mock-data</loc>
+    <xhtml:link rel="alternate" hreflang="fr" href="https://multitools-five.vercel.app/fr/outil/mock-data"/>
+    <xhtml:link rel="alternate" hreflang="en" href="https://multitools-five.vercel.app/en/outil/mock-data"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://multitools-five.vercel.app/fr/outil/mock-data"/>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://multitools-five.vercel.app/fr/outil/chart-generator</loc>
+    <xhtml:link rel="alternate" hreflang="fr" href="https://multitools-five.vercel.app/fr/outil/chart-generator"/>
+    <xhtml:link rel="alternate" hreflang="en" href="https://multitools-five.vercel.app/en/outil/chart-generator"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://multitools-five.vercel.app/fr/outil/chart-generator"/>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://multitools-five.vercel.app/en/outil/chart-generator</loc>
+    <xhtml:link rel="alternate" hreflang="fr" href="https://multitools-five.vercel.app/fr/outil/chart-generator"/>
+    <xhtml:link rel="alternate" hreflang="en" href="https://multitools-five.vercel.app/en/outil/chart-generator"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://multitools-five.vercel.app/fr/outil/chart-generator"/>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://multitools-five.vercel.app/fr/outil/calculator</loc>
+    <xhtml:link rel="alternate" hreflang="fr" href="https://multitools-five.vercel.app/fr/outil/calculator"/>
+    <xhtml:link rel="alternate" hreflang="en" href="https://multitools-five.vercel.app/en/outil/calculator"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://multitools-five.vercel.app/fr/outil/calculator"/>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://multitools-five.vercel.app/en/outil/calculator</loc>
+    <xhtml:link rel="alternate" hreflang="fr" href="https://multitools-five.vercel.app/fr/outil/calculator"/>
+    <xhtml:link rel="alternate" hreflang="en" href="https://multitools-five.vercel.app/en/outil/calculator"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://multitools-five.vercel.app/fr/outil/calculator"/>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://multitools-five.vercel.app/fr/outil/percentage</loc>
+    <xhtml:link rel="alternate" hreflang="fr" href="https://multitools-five.vercel.app/fr/outil/percentage"/>
+    <xhtml:link rel="alternate" hreflang="en" href="https://multitools-five.vercel.app/en/outil/percentage"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://multitools-five.vercel.app/fr/outil/percentage"/>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://multitools-five.vercel.app/en/outil/percentage</loc>
+    <xhtml:link rel="alternate" hreflang="fr" href="https://multitools-five.vercel.app/fr/outil/percentage"/>
+    <xhtml:link rel="alternate" hreflang="en" href="https://multitools-five.vercel.app/en/outil/percentage"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://multitools-five.vercel.app/fr/outil/percentage"/>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://multitools-five.vercel.app/fr/outil/bmi-calculator</loc>
+    <xhtml:link rel="alternate" hreflang="fr" href="https://multitools-five.vercel.app/fr/outil/bmi-calculator"/>
+    <xhtml:link rel="alternate" hreflang="en" href="https://multitools-five.vercel.app/en/outil/bmi-calculator"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://multitools-five.vercel.app/fr/outil/bmi-calculator"/>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://multitools-five.vercel.app/en/outil/bmi-calculator</loc>
+    <xhtml:link rel="alternate" hreflang="fr" href="https://multitools-five.vercel.app/fr/outil/bmi-calculator"/>
+    <xhtml:link rel="alternate" hreflang="en" href="https://multitools-five.vercel.app/en/outil/bmi-calculator"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://multitools-five.vercel.app/fr/outil/bmi-calculator"/>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://multitools-five.vercel.app/fr/outil/body-fat-calculator</loc>
+    <xhtml:link rel="alternate" hreflang="fr" href="https://multitools-five.vercel.app/fr/outil/body-fat-calculator"/>
+    <xhtml:link rel="alternate" hreflang="en" href="https://multitools-five.vercel.app/en/outil/body-fat-calculator"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://multitools-five.vercel.app/fr/outil/body-fat-calculator"/>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://multitools-five.vercel.app/en/outil/body-fat-calculator</loc>
+    <xhtml:link rel="alternate" hreflang="fr" href="https://multitools-five.vercel.app/fr/outil/body-fat-calculator"/>
+    <xhtml:link rel="alternate" hreflang="en" href="https://multitools-five.vercel.app/en/outil/body-fat-calculator"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://multitools-five.vercel.app/fr/outil/body-fat-calculator"/>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://multitools-five.vercel.app/fr/outil/bmr-calculator</loc>
+    <xhtml:link rel="alternate" hreflang="fr" href="https://multitools-five.vercel.app/fr/outil/bmr-calculator"/>
+    <xhtml:link rel="alternate" hreflang="en" href="https://multitools-five.vercel.app/en/outil/bmr-calculator"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://multitools-five.vercel.app/fr/outil/bmr-calculator"/>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://multitools-five.vercel.app/en/outil/bmr-calculator</loc>
+    <xhtml:link rel="alternate" hreflang="fr" href="https://multitools-five.vercel.app/fr/outil/bmr-calculator"/>
+    <xhtml:link rel="alternate" hreflang="en" href="https://multitools-five.vercel.app/en/outil/bmr-calculator"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://multitools-five.vercel.app/fr/outil/bmr-calculator"/>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://multitools-five.vercel.app/fr/outil/date-calculator</loc>
+    <xhtml:link rel="alternate" hreflang="fr" href="https://multitools-five.vercel.app/fr/outil/date-calculator"/>
+    <xhtml:link rel="alternate" hreflang="en" href="https://multitools-five.vercel.app/en/outil/date-calculator"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://multitools-five.vercel.app/fr/outil/date-calculator"/>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://multitools-five.vercel.app/en/outil/date-calculator</loc>
+    <xhtml:link rel="alternate" hreflang="fr" href="https://multitools-five.vercel.app/fr/outil/date-calculator"/>
+    <xhtml:link rel="alternate" hreflang="en" href="https://multitools-five.vercel.app/en/outil/date-calculator"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://multitools-five.vercel.app/fr/outil/date-calculator"/>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://multitools-five.vercel.app/fr/outil/age-calculator</loc>
+    <xhtml:link rel="alternate" hreflang="fr" href="https://multitools-five.vercel.app/fr/outil/age-calculator"/>
+    <xhtml:link rel="alternate" hreflang="en" href="https://multitools-five.vercel.app/en/outil/age-calculator"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://multitools-five.vercel.app/fr/outil/age-calculator"/>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://multitools-five.vercel.app/en/outil/age-calculator</loc>
+    <xhtml:link rel="alternate" hreflang="fr" href="https://multitools-five.vercel.app/fr/outil/age-calculator"/>
+    <xhtml:link rel="alternate" hreflang="en" href="https://multitools-five.vercel.app/en/outil/age-calculator"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://multitools-five.vercel.app/fr/outil/age-calculator"/>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://multitools-five.vercel.app/fr/outil/sleep-calculator</loc>
+    <xhtml:link rel="alternate" hreflang="fr" href="https://multitools-five.vercel.app/fr/outil/sleep-calculator"/>
+    <xhtml:link rel="alternate" hreflang="en" href="https://multitools-five.vercel.app/en/outil/sleep-calculator"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://multitools-five.vercel.app/fr/outil/sleep-calculator"/>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://multitools-five.vercel.app/en/outil/sleep-calculator</loc>
+    <xhtml:link rel="alternate" hreflang="fr" href="https://multitools-five.vercel.app/fr/outil/sleep-calculator"/>
+    <xhtml:link rel="alternate" hreflang="en" href="https://multitools-five.vercel.app/en/outil/sleep-calculator"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://multitools-five.vercel.app/fr/outil/sleep-calculator"/>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://multitools-five.vercel.app/fr/outil/water-calculator</loc>
+    <xhtml:link rel="alternate" hreflang="fr" href="https://multitools-five.vercel.app/fr/outil/water-calculator"/>
+    <xhtml:link rel="alternate" hreflang="en" href="https://multitools-five.vercel.app/en/outil/water-calculator"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://multitools-five.vercel.app/fr/outil/water-calculator"/>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://multitools-five.vercel.app/en/outil/water-calculator</loc>
+    <xhtml:link rel="alternate" hreflang="fr" href="https://multitools-five.vercel.app/fr/outil/water-calculator"/>
+    <xhtml:link rel="alternate" hreflang="en" href="https://multitools-five.vercel.app/en/outil/water-calculator"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://multitools-five.vercel.app/fr/outil/water-calculator"/>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://multitools-five.vercel.app/fr/outil/unit-converter</loc>
+    <xhtml:link rel="alternate" hreflang="fr" href="https://multitools-five.vercel.app/fr/outil/unit-converter"/>
+    <xhtml:link rel="alternate" hreflang="en" href="https://multitools-five.vercel.app/en/outil/unit-converter"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://multitools-five.vercel.app/fr/outil/unit-converter"/>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://multitools-five.vercel.app/en/outil/unit-converter</loc>
+    <xhtml:link rel="alternate" hreflang="fr" href="https://multitools-five.vercel.app/fr/outil/unit-converter"/>
+    <xhtml:link rel="alternate" hreflang="en" href="https://multitools-five.vercel.app/en/outil/unit-converter"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://multitools-five.vercel.app/fr/outil/unit-converter"/>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://multitools-five.vercel.app/fr/outil/css-unit-converter</loc>
+    <xhtml:link rel="alternate" hreflang="fr" href="https://multitools-five.vercel.app/fr/outil/css-unit-converter"/>
+    <xhtml:link rel="alternate" hreflang="en" href="https://multitools-five.vercel.app/en/outil/css-unit-converter"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://multitools-five.vercel.app/fr/outil/css-unit-converter"/>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://multitools-five.vercel.app/en/outil/css-unit-converter</loc>
+    <xhtml:link rel="alternate" hreflang="fr" href="https://multitools-five.vercel.app/fr/outil/css-unit-converter"/>
+    <xhtml:link rel="alternate" hreflang="en" href="https://multitools-five.vercel.app/en/outil/css-unit-converter"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://multitools-five.vercel.app/fr/outil/css-unit-converter"/>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://multitools-five.vercel.app/fr/outil/color-converter</loc>
+    <xhtml:link rel="alternate" hreflang="fr" href="https://multitools-five.vercel.app/fr/outil/color-converter"/>
+    <xhtml:link rel="alternate" hreflang="en" href="https://multitools-five.vercel.app/en/outil/color-converter"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://multitools-five.vercel.app/fr/outil/color-converter"/>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://multitools-five.vercel.app/en/outil/color-converter</loc>
+    <xhtml:link rel="alternate" hreflang="fr" href="https://multitools-five.vercel.app/fr/outil/color-converter"/>
+    <xhtml:link rel="alternate" hreflang="en" href="https://multitools-five.vercel.app/en/outil/color-converter"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://multitools-five.vercel.app/fr/outil/color-converter"/>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://multitools-five.vercel.app/fr/outil/number-converter</loc>
+    <xhtml:link rel="alternate" hreflang="fr" href="https://multitools-five.vercel.app/fr/outil/number-converter"/>
+    <xhtml:link rel="alternate" hreflang="en" href="https://multitools-five.vercel.app/en/outil/number-converter"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://multitools-five.vercel.app/fr/outil/number-converter"/>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://multitools-five.vercel.app/en/outil/number-converter</loc>
+    <xhtml:link rel="alternate" hreflang="fr" href="https://multitools-five.vercel.app/fr/outil/number-converter"/>
+    <xhtml:link rel="alternate" hreflang="en" href="https://multitools-five.vercel.app/en/outil/number-converter"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://multitools-five.vercel.app/fr/outil/number-converter"/>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://multitools-five.vercel.app/fr/outil/dpi-calculator</loc>
+    <xhtml:link rel="alternate" hreflang="fr" href="https://multitools-five.vercel.app/fr/outil/dpi-calculator"/>
+    <xhtml:link rel="alternate" hreflang="en" href="https://multitools-five.vercel.app/en/outil/dpi-calculator"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://multitools-five.vercel.app/fr/outil/dpi-calculator"/>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://multitools-five.vercel.app/en/outil/dpi-calculator</loc>
+    <xhtml:link rel="alternate" hreflang="fr" href="https://multitools-five.vercel.app/fr/outil/dpi-calculator"/>
+    <xhtml:link rel="alternate" hreflang="en" href="https://multitools-five.vercel.app/en/outil/dpi-calculator"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://multitools-five.vercel.app/fr/outil/dpi-calculator"/>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://multitools-five.vercel.app/fr/outil/roman-numeral</loc>
+    <xhtml:link rel="alternate" hreflang="fr" href="https://multitools-five.vercel.app/fr/outil/roman-numeral"/>
+    <xhtml:link rel="alternate" hreflang="en" href="https://multitools-five.vercel.app/en/outil/roman-numeral"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://multitools-five.vercel.app/fr/outil/roman-numeral"/>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://multitools-five.vercel.app/en/outil/roman-numeral</loc>
+    <xhtml:link rel="alternate" hreflang="fr" href="https://multitools-five.vercel.app/fr/outil/roman-numeral"/>
+    <xhtml:link rel="alternate" hreflang="en" href="https://multitools-five.vercel.app/en/outil/roman-numeral"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://multitools-five.vercel.app/fr/outil/roman-numeral"/>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://multitools-five.vercel.app/fr/outil/color-palette</loc>
+    <xhtml:link rel="alternate" hreflang="fr" href="https://multitools-five.vercel.app/fr/outil/color-palette"/>
+    <xhtml:link rel="alternate" hreflang="en" href="https://multitools-five.vercel.app/en/outil/color-palette"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://multitools-five.vercel.app/fr/outil/color-palette"/>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://multitools-five.vercel.app/en/outil/color-palette</loc>
+    <xhtml:link rel="alternate" hreflang="fr" href="https://multitools-five.vercel.app/fr/outil/color-palette"/>
+    <xhtml:link rel="alternate" hreflang="en" href="https://multitools-five.vercel.app/en/outil/color-palette"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://multitools-five.vercel.app/fr/outil/color-palette"/>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://multitools-five.vercel.app/fr/outil/contrast-checker</loc>
+    <xhtml:link rel="alternate" hreflang="fr" href="https://multitools-five.vercel.app/fr/outil/contrast-checker"/>
+    <xhtml:link rel="alternate" hreflang="en" href="https://multitools-five.vercel.app/en/outil/contrast-checker"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://multitools-five.vercel.app/fr/outil/contrast-checker"/>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://multitools-five.vercel.app/en/outil/contrast-checker</loc>
+    <xhtml:link rel="alternate" hreflang="fr" href="https://multitools-five.vercel.app/fr/outil/contrast-checker"/>
+    <xhtml:link rel="alternate" hreflang="en" href="https://multitools-five.vercel.app/en/outil/contrast-checker"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://multitools-five.vercel.app/fr/outil/contrast-checker"/>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://multitools-five.vercel.app/fr/outil/color-mixer</loc>
+    <xhtml:link rel="alternate" hreflang="fr" href="https://multitools-five.vercel.app/fr/outil/color-mixer"/>
+    <xhtml:link rel="alternate" hreflang="en" href="https://multitools-five.vercel.app/en/outil/color-mixer"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://multitools-five.vercel.app/fr/outil/color-mixer"/>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://multitools-five.vercel.app/en/outil/color-mixer</loc>
+    <xhtml:link rel="alternate" hreflang="fr" href="https://multitools-five.vercel.app/fr/outil/color-mixer"/>
+    <xhtml:link rel="alternate" hreflang="en" href="https://multitools-five.vercel.app/en/outil/color-mixer"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://multitools-five.vercel.app/fr/outil/color-mixer"/>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://multitools-five.vercel.app/fr/outil/word-counter</loc>
+    <xhtml:link rel="alternate" hreflang="fr" href="https://multitools-five.vercel.app/fr/outil/word-counter"/>
+    <xhtml:link rel="alternate" hreflang="en" href="https://multitools-five.vercel.app/en/outil/word-counter"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://multitools-five.vercel.app/fr/outil/word-counter"/>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://multitools-five.vercel.app/en/outil/word-counter</loc>
+    <xhtml:link rel="alternate" hreflang="fr" href="https://multitools-five.vercel.app/fr/outil/word-counter"/>
+    <xhtml:link rel="alternate" hreflang="en" href="https://multitools-five.vercel.app/en/outil/word-counter"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://multitools-five.vercel.app/fr/outil/word-counter"/>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://multitools-five.vercel.app/fr/outil/text-transformer</loc>
+    <xhtml:link rel="alternate" hreflang="fr" href="https://multitools-five.vercel.app/fr/outil/text-transformer"/>
+    <xhtml:link rel="alternate" hreflang="en" href="https://multitools-five.vercel.app/en/outil/text-transformer"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://multitools-five.vercel.app/fr/outil/text-transformer"/>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://multitools-five.vercel.app/en/outil/text-transformer</loc>
+    <xhtml:link rel="alternate" hreflang="fr" href="https://multitools-five.vercel.app/fr/outil/text-transformer"/>
+    <xhtml:link rel="alternate" hreflang="en" href="https://multitools-five.vercel.app/en/outil/text-transformer"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://multitools-five.vercel.app/fr/outil/text-transformer"/>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://multitools-five.vercel.app/fr/outil/number-to-words</loc>
+    <xhtml:link rel="alternate" hreflang="fr" href="https://multitools-five.vercel.app/fr/outil/number-to-words"/>
+    <xhtml:link rel="alternate" hreflang="en" href="https://multitools-five.vercel.app/en/outil/number-to-words"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://multitools-five.vercel.app/fr/outil/number-to-words"/>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://multitools-five.vercel.app/en/outil/number-to-words</loc>
+    <xhtml:link rel="alternate" hreflang="fr" href="https://multitools-five.vercel.app/fr/outil/number-to-words"/>
+    <xhtml:link rel="alternate" hreflang="en" href="https://multitools-five.vercel.app/en/outil/number-to-words"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://multitools-five.vercel.app/fr/outil/number-to-words"/>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://multitools-five.vercel.app/fr/outil/slug-generator</loc>
+    <xhtml:link rel="alternate" hreflang="fr" href="https://multitools-five.vercel.app/fr/outil/slug-generator"/>
+    <xhtml:link rel="alternate" hreflang="en" href="https://multitools-five.vercel.app/en/outil/slug-generator"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://multitools-five.vercel.app/fr/outil/slug-generator"/>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://multitools-five.vercel.app/en/outil/slug-generator</loc>
+    <xhtml:link rel="alternate" hreflang="fr" href="https://multitools-five.vercel.app/fr/outil/slug-generator"/>
+    <xhtml:link rel="alternate" hreflang="en" href="https://multitools-five.vercel.app/en/outil/slug-generator"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://multitools-five.vercel.app/fr/outil/slug-generator"/>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://multitools-five.vercel.app/fr/outil/case-converter</loc>
+    <xhtml:link rel="alternate" hreflang="fr" href="https://multitools-five.vercel.app/fr/outil/case-converter"/>
+    <xhtml:link rel="alternate" hreflang="en" href="https://multitools-five.vercel.app/en/outil/case-converter"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://multitools-five.vercel.app/fr/outil/case-converter"/>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://multitools-five.vercel.app/en/outil/case-converter</loc>
+    <xhtml:link rel="alternate" hreflang="fr" href="https://multitools-five.vercel.app/fr/outil/case-converter"/>
+    <xhtml:link rel="alternate" hreflang="en" href="https://multitools-five.vercel.app/en/outil/case-converter"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://multitools-five.vercel.app/fr/outil/case-converter"/>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://multitools-five.vercel.app/fr/outil/cesar-cipher</loc>
+    <xhtml:link rel="alternate" hreflang="fr" href="https://multitools-five.vercel.app/fr/outil/cesar-cipher"/>
+    <xhtml:link rel="alternate" hreflang="en" href="https://multitools-five.vercel.app/en/outil/cesar-cipher"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://multitools-five.vercel.app/fr/outil/cesar-cipher"/>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://multitools-five.vercel.app/en/outil/cesar-cipher</loc>
+    <xhtml:link rel="alternate" hreflang="fr" href="https://multitools-five.vercel.app/fr/outil/cesar-cipher"/>
+    <xhtml:link rel="alternate" hreflang="en" href="https://multitools-five.vercel.app/en/outil/cesar-cipher"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://multitools-five.vercel.app/fr/outil/cesar-cipher"/>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://multitools-five.vercel.app/fr/outil/vigenere-cipher</loc>
+    <xhtml:link rel="alternate" hreflang="fr" href="https://multitools-five.vercel.app/fr/outil/vigenere-cipher"/>
+    <xhtml:link rel="alternate" hreflang="en" href="https://multitools-five.vercel.app/en/outil/vigenere-cipher"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://multitools-five.vercel.app/fr/outil/vigenere-cipher"/>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://multitools-five.vercel.app/en/outil/vigenere-cipher</loc>
+    <xhtml:link rel="alternate" hreflang="fr" href="https://multitools-five.vercel.app/fr/outil/vigenere-cipher"/>
+    <xhtml:link rel="alternate" hreflang="en" href="https://multitools-five.vercel.app/en/outil/vigenere-cipher"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://multitools-five.vercel.app/fr/outil/vigenere-cipher"/>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://multitools-five.vercel.app/fr/outil/text-formatter</loc>
+    <xhtml:link rel="alternate" hreflang="fr" href="https://multitools-five.vercel.app/fr/outil/text-formatter"/>
+    <xhtml:link rel="alternate" hreflang="en" href="https://multitools-five.vercel.app/en/outil/text-formatter"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://multitools-five.vercel.app/fr/outil/text-formatter"/>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://multitools-five.vercel.app/en/outil/text-formatter</loc>
+    <xhtml:link rel="alternate" hreflang="fr" href="https://multitools-five.vercel.app/fr/outil/text-formatter"/>
+    <xhtml:link rel="alternate" hreflang="en" href="https://multitools-five.vercel.app/en/outil/text-formatter"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://multitools-five.vercel.app/fr/outil/text-formatter"/>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://multitools-five.vercel.app/fr/outil/lorem-ipsum</loc>
+    <xhtml:link rel="alternate" hreflang="fr" href="https://multitools-five.vercel.app/fr/outil/lorem-ipsum"/>
+    <xhtml:link rel="alternate" hreflang="en" href="https://multitools-five.vercel.app/en/outil/lorem-ipsum"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://multitools-five.vercel.app/fr/outil/lorem-ipsum"/>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://multitools-five.vercel.app/en/outil/lorem-ipsum</loc>
+    <xhtml:link rel="alternate" hreflang="fr" href="https://multitools-five.vercel.app/fr/outil/lorem-ipsum"/>
+    <xhtml:link rel="alternate" hreflang="en" href="https://multitools-five.vercel.app/en/outil/lorem-ipsum"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://multitools-five.vercel.app/fr/outil/lorem-ipsum"/>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://multitools-five.vercel.app/fr/outil/markdown-preview</loc>
+    <xhtml:link rel="alternate" hreflang="fr" href="https://multitools-five.vercel.app/fr/outil/markdown-preview"/>
+    <xhtml:link rel="alternate" hreflang="en" href="https://multitools-five.vercel.app/en/outil/markdown-preview"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://multitools-five.vercel.app/fr/outil/markdown-preview"/>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://multitools-five.vercel.app/en/outil/markdown-preview</loc>
+    <xhtml:link rel="alternate" hreflang="fr" href="https://multitools-five.vercel.app/fr/outil/markdown-preview"/>
+    <xhtml:link rel="alternate" hreflang="en" href="https://multitools-five.vercel.app/en/outil/markdown-preview"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://multitools-five.vercel.app/fr/outil/markdown-preview"/>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://multitools-five.vercel.app/fr/outil/markdown-table</loc>
+    <xhtml:link rel="alternate" hreflang="fr" href="https://multitools-five.vercel.app/fr/outil/markdown-table"/>
+    <xhtml:link rel="alternate" hreflang="en" href="https://multitools-five.vercel.app/en/outil/markdown-table"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://multitools-five.vercel.app/fr/outil/markdown-table"/>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://multitools-five.vercel.app/en/outil/markdown-table</loc>
+    <xhtml:link rel="alternate" hreflang="fr" href="https://multitools-five.vercel.app/fr/outil/markdown-table"/>
+    <xhtml:link rel="alternate" hreflang="en" href="https://multitools-five.vercel.app/en/outil/markdown-table"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://multitools-five.vercel.app/fr/outil/markdown-table"/>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://multitools-five.vercel.app/fr/outil/diff-checker</loc>
+    <xhtml:link rel="alternate" hreflang="fr" href="https://multitools-five.vercel.app/fr/outil/diff-checker"/>
+    <xhtml:link rel="alternate" hreflang="en" href="https://multitools-five.vercel.app/en/outil/diff-checker"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://multitools-five.vercel.app/fr/outil/diff-checker"/>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://multitools-five.vercel.app/en/outil/diff-checker</loc>
+    <xhtml:link rel="alternate" hreflang="fr" href="https://multitools-five.vercel.app/fr/outil/diff-checker"/>
+    <xhtml:link rel="alternate" hreflang="en" href="https://multitools-five.vercel.app/en/outil/diff-checker"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://multitools-five.vercel.app/fr/outil/diff-checker"/>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://multitools-five.vercel.app/fr/outil/morse-code</loc>
+    <xhtml:link rel="alternate" hreflang="fr" href="https://multitools-five.vercel.app/fr/outil/morse-code"/>
+    <xhtml:link rel="alternate" hreflang="en" href="https://multitools-five.vercel.app/en/outil/morse-code"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://multitools-five.vercel.app/fr/outil/morse-code"/>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://multitools-five.vercel.app/en/outil/morse-code</loc>
+    <xhtml:link rel="alternate" hreflang="fr" href="https://multitools-five.vercel.app/fr/outil/morse-code"/>
+    <xhtml:link rel="alternate" hreflang="en" href="https://multitools-five.vercel.app/en/outil/morse-code"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://multitools-five.vercel.app/fr/outil/morse-code"/>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://multitools-five.vercel.app/fr/outil/list-cleaner</loc>
+    <xhtml:link rel="alternate" hreflang="fr" href="https://multitools-five.vercel.app/fr/outil/list-cleaner"/>
+    <xhtml:link rel="alternate" hreflang="en" href="https://multitools-five.vercel.app/en/outil/list-cleaner"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://multitools-five.vercel.app/fr/outil/list-cleaner"/>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://multitools-five.vercel.app/en/outil/list-cleaner</loc>
+    <xhtml:link rel="alternate" hreflang="fr" href="https://multitools-five.vercel.app/fr/outil/list-cleaner"/>
+    <xhtml:link rel="alternate" hreflang="en" href="https://multitools-five.vercel.app/en/outil/list-cleaner"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://multitools-five.vercel.app/fr/outil/list-cleaner"/>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://multitools-five.vercel.app/fr/outil/nato-translator</loc>
+    <xhtml:link rel="alternate" hreflang="fr" href="https://multitools-five.vercel.app/fr/outil/nato-translator"/>
+    <xhtml:link rel="alternate" hreflang="en" href="https://multitools-five.vercel.app/en/outil/nato-translator"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://multitools-five.vercel.app/fr/outil/nato-translator"/>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://multitools-five.vercel.app/en/outil/nato-translator</loc>
+    <xhtml:link rel="alternate" hreflang="fr" href="https://multitools-five.vercel.app/fr/outil/nato-translator"/>
+    <xhtml:link rel="alternate" hreflang="en" href="https://multitools-five.vercel.app/en/outil/nato-translator"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://multitools-five.vercel.app/fr/outil/nato-translator"/>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://multitools-five.vercel.app/fr/outil/braille-translator</loc>
+    <xhtml:link rel="alternate" hreflang="fr" href="https://multitools-five.vercel.app/fr/outil/braille-translator"/>
+    <xhtml:link rel="alternate" hreflang="en" href="https://multitools-five.vercel.app/en/outil/braille-translator"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://multitools-five.vercel.app/fr/outil/braille-translator"/>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://multitools-five.vercel.app/en/outil/braille-translator</loc>
+    <xhtml:link rel="alternate" hreflang="fr" href="https://multitools-five.vercel.app/fr/outil/braille-translator"/>
+    <xhtml:link rel="alternate" hreflang="en" href="https://multitools-five.vercel.app/en/outil/braille-translator"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://multitools-five.vercel.app/fr/outil/braille-translator"/>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://multitools-five.vercel.app/fr/outil/leetspeak-converter</loc>
+    <xhtml:link rel="alternate" hreflang="fr" href="https://multitools-five.vercel.app/fr/outil/leetspeak-converter"/>
+    <xhtml:link rel="alternate" hreflang="en" href="https://multitools-five.vercel.app/en/outil/leetspeak-converter"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://multitools-five.vercel.app/fr/outil/leetspeak-converter"/>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://multitools-five.vercel.app/en/outil/leetspeak-converter</loc>
+    <xhtml:link rel="alternate" hreflang="fr" href="https://multitools-five.vercel.app/fr/outil/leetspeak-converter"/>
+    <xhtml:link rel="alternate" hreflang="en" href="https://multitools-five.vercel.app/en/outil/leetspeak-converter"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://multitools-five.vercel.app/fr/outil/leetspeak-converter"/>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://multitools-five.vercel.app/fr/outil/password-generator</loc>
+    <xhtml:link rel="alternate" hreflang="fr" href="https://multitools-five.vercel.app/fr/outil/password-generator"/>
+    <xhtml:link rel="alternate" hreflang="en" href="https://multitools-five.vercel.app/en/outil/password-generator"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://multitools-five.vercel.app/fr/outil/password-generator"/>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://multitools-five.vercel.app/en/outil/password-generator</loc>
+    <xhtml:link rel="alternate" hreflang="fr" href="https://multitools-five.vercel.app/fr/outil/password-generator"/>
+    <xhtml:link rel="alternate" hreflang="en" href="https://multitools-five.vercel.app/en/outil/password-generator"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://multitools-five.vercel.app/fr/outil/password-generator"/>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://multitools-five.vercel.app/fr/outil/credit-card-validator</loc>
+    <xhtml:link rel="alternate" hreflang="fr" href="https://multitools-five.vercel.app/fr/outil/credit-card-validator"/>
+    <xhtml:link rel="alternate" hreflang="en" href="https://multitools-five.vercel.app/en/outil/credit-card-validator"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://multitools-five.vercel.app/fr/outil/credit-card-validator"/>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://multitools-five.vercel.app/en/outil/credit-card-validator</loc>
+    <xhtml:link rel="alternate" hreflang="fr" href="https://multitools-five.vercel.app/fr/outil/credit-card-validator"/>
+    <xhtml:link rel="alternate" hreflang="en" href="https://multitools-five.vercel.app/en/outil/credit-card-validator"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://multitools-five.vercel.app/fr/outil/credit-card-validator"/>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://multitools-five.vercel.app/fr/outil/json-schema</loc>
+    <xhtml:link rel="alternate" hreflang="fr" href="https://multitools-five.vercel.app/fr/outil/json-schema"/>
+    <xhtml:link rel="alternate" hreflang="en" href="https://multitools-five.vercel.app/en/outil/json-schema"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://multitools-five.vercel.app/fr/outil/json-schema"/>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://multitools-five.vercel.app/en/outil/json-schema</loc>
+    <xhtml:link rel="alternate" hreflang="fr" href="https://multitools-five.vercel.app/fr/outil/json-schema"/>
+    <xhtml:link rel="alternate" hreflang="en" href="https://multitools-five.vercel.app/en/outil/json-schema"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://multitools-five.vercel.app/fr/outil/json-schema"/>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://multitools-five.vercel.app/fr/outil/zod-schema</loc>
+    <xhtml:link rel="alternate" hreflang="fr" href="https://multitools-five.vercel.app/fr/outil/zod-schema"/>
+    <xhtml:link rel="alternate" hreflang="en" href="https://multitools-five.vercel.app/en/outil/zod-schema"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://multitools-five.vercel.app/fr/outil/zod-schema"/>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://multitools-five.vercel.app/en/outil/zod-schema</loc>
+    <xhtml:link rel="alternate" hreflang="fr" href="https://multitools-five.vercel.app/fr/outil/zod-schema"/>
+    <xhtml:link rel="alternate" hreflang="en" href="https://multitools-five.vercel.app/en/outil/zod-schema"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://multitools-five.vercel.app/fr/outil/zod-schema"/>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://multitools-five.vercel.app/fr/outil/json-tree-viewer</loc>
+    <xhtml:link rel="alternate" hreflang="fr" href="https://multitools-five.vercel.app/fr/outil/json-tree-viewer"/>
+    <xhtml:link rel="alternate" hreflang="en" href="https://multitools-five.vercel.app/en/outil/json-tree-viewer"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://multitools-five.vercel.app/fr/outil/json-tree-viewer"/>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://multitools-five.vercel.app/en/outil/json-tree-viewer</loc>
+    <xhtml:link rel="alternate" hreflang="fr" href="https://multitools-five.vercel.app/fr/outil/json-tree-viewer"/>
+    <xhtml:link rel="alternate" hreflang="en" href="https://multitools-five.vercel.app/en/outil/json-tree-viewer"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://multitools-five.vercel.app/fr/outil/json-tree-viewer"/>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://multitools-five.vercel.app/fr/outil/chmod</loc>
+    <xhtml:link rel="alternate" hreflang="fr" href="https://multitools-five.vercel.app/fr/outil/chmod"/>
+    <xhtml:link rel="alternate" hreflang="en" href="https://multitools-five.vercel.app/en/outil/chmod"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://multitools-five.vercel.app/fr/outil/chmod"/>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://multitools-five.vercel.app/en/outil/chmod</loc>
+    <xhtml:link rel="alternate" hreflang="fr" href="https://multitools-five.vercel.app/fr/outil/chmod"/>
+    <xhtml:link rel="alternate" hreflang="en" href="https://multitools-five.vercel.app/en/outil/chmod"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://multitools-five.vercel.app/fr/outil/chmod"/>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://multitools-five.vercel.app/fr/outil/subnet-calculator</loc>
+    <xhtml:link rel="alternate" hreflang="fr" href="https://multitools-five.vercel.app/fr/outil/subnet-calculator"/>
+    <xhtml:link rel="alternate" hreflang="en" href="https://multitools-five.vercel.app/en/outil/subnet-calculator"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://multitools-five.vercel.app/fr/outil/subnet-calculator"/>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://multitools-five.vercel.app/en/outil/subnet-calculator</loc>
+    <xhtml:link rel="alternate" hreflang="fr" href="https://multitools-five.vercel.app/fr/outil/subnet-calculator"/>
+    <xhtml:link rel="alternate" hreflang="en" href="https://multitools-five.vercel.app/en/outil/subnet-calculator"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://multitools-five.vercel.app/fr/outil/subnet-calculator"/>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://multitools-five.vercel.app/fr/outil/jwt-decoder</loc>
+    <xhtml:link rel="alternate" hreflang="fr" href="https://multitools-five.vercel.app/fr/outil/jwt-decoder"/>
+    <xhtml:link rel="alternate" hreflang="en" href="https://multitools-five.vercel.app/en/outil/jwt-decoder"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://multitools-five.vercel.app/fr/outil/jwt-decoder"/>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://multitools-five.vercel.app/en/outil/jwt-decoder</loc>
+    <xhtml:link rel="alternate" hreflang="fr" href="https://multitools-five.vercel.app/fr/outil/jwt-decoder"/>
+    <xhtml:link rel="alternate" hreflang="en" href="https://multitools-five.vercel.app/en/outil/jwt-decoder"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://multitools-five.vercel.app/fr/outil/jwt-decoder"/>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://multitools-five.vercel.app/fr/outil/qr-code</loc>
+    <xhtml:link rel="alternate" hreflang="fr" href="https://multitools-five.vercel.app/fr/outil/qr-code"/>
+    <xhtml:link rel="alternate" hreflang="en" href="https://multitools-five.vercel.app/en/outil/qr-code"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://multitools-five.vercel.app/fr/outil/qr-code"/>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://multitools-five.vercel.app/en/outil/qr-code</loc>
+    <xhtml:link rel="alternate" hreflang="fr" href="https://multitools-five.vercel.app/fr/outil/qr-code"/>
+    <xhtml:link rel="alternate" hreflang="en" href="https://multitools-five.vercel.app/en/outil/qr-code"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://multitools-five.vercel.app/fr/outil/qr-code"/>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://multitools-five.vercel.app/fr/outil/uuid-generator</loc>
+    <xhtml:link rel="alternate" hreflang="fr" href="https://multitools-five.vercel.app/fr/outil/uuid-generator"/>
+    <xhtml:link rel="alternate" hreflang="en" href="https://multitools-five.vercel.app/en/outil/uuid-generator"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://multitools-five.vercel.app/fr/outil/uuid-generator"/>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://multitools-five.vercel.app/en/outil/uuid-generator</loc>
+    <xhtml:link rel="alternate" hreflang="fr" href="https://multitools-five.vercel.app/fr/outil/uuid-generator"/>
+    <xhtml:link rel="alternate" hreflang="en" href="https://multitools-five.vercel.app/en/outil/uuid-generator"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://multitools-five.vercel.app/fr/outil/uuid-generator"/>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://multitools-five.vercel.app/fr/outil/base64</loc>
+    <xhtml:link rel="alternate" hreflang="fr" href="https://multitools-five.vercel.app/fr/outil/base64"/>
+    <xhtml:link rel="alternate" hreflang="en" href="https://multitools-five.vercel.app/en/outil/base64"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://multitools-five.vercel.app/fr/outil/base64"/>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://multitools-five.vercel.app/en/outil/base64</loc>
+    <xhtml:link rel="alternate" hreflang="fr" href="https://multitools-five.vercel.app/fr/outil/base64"/>
+    <xhtml:link rel="alternate" hreflang="en" href="https://multitools-five.vercel.app/en/outil/base64"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://multitools-five.vercel.app/fr/outil/base64"/>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://multitools-five.vercel.app/fr/outil/hash-generator</loc>
+    <xhtml:link rel="alternate" hreflang="fr" href="https://multitools-five.vercel.app/fr/outil/hash-generator"/>
+    <xhtml:link rel="alternate" hreflang="en" href="https://multitools-five.vercel.app/en/outil/hash-generator"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://multitools-five.vercel.app/fr/outil/hash-generator"/>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://multitools-five.vercel.app/en/outil/hash-generator</loc>
+    <xhtml:link rel="alternate" hreflang="fr" href="https://multitools-five.vercel.app/fr/outil/hash-generator"/>
+    <xhtml:link rel="alternate" hreflang="en" href="https://multitools-five.vercel.app/en/outil/hash-generator"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://multitools-five.vercel.app/fr/outil/hash-generator"/>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://multitools-five.vercel.app/fr/outil/regex-tester</loc>
+    <xhtml:link rel="alternate" hreflang="fr" href="https://multitools-five.vercel.app/fr/outil/regex-tester"/>
+    <xhtml:link rel="alternate" hreflang="en" href="https://multitools-five.vercel.app/en/outil/regex-tester"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://multitools-five.vercel.app/fr/outil/regex-tester"/>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://multitools-five.vercel.app/en/outil/regex-tester</loc>
+    <xhtml:link rel="alternate" hreflang="fr" href="https://multitools-five.vercel.app/fr/outil/regex-tester"/>
+    <xhtml:link rel="alternate" hreflang="en" href="https://multitools-five.vercel.app/en/outil/regex-tester"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://multitools-five.vercel.app/fr/outil/regex-tester"/>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://multitools-five.vercel.app/fr/outil/utm-builder</loc>
+    <xhtml:link rel="alternate" hreflang="fr" href="https://multitools-five.vercel.app/fr/outil/utm-builder"/>
+    <xhtml:link rel="alternate" hreflang="en" href="https://multitools-five.vercel.app/en/outil/utm-builder"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://multitools-five.vercel.app/fr/outil/utm-builder"/>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://multitools-five.vercel.app/en/outil/utm-builder</loc>
+    <xhtml:link rel="alternate" hreflang="fr" href="https://multitools-five.vercel.app/fr/outil/utm-builder"/>
+    <xhtml:link rel="alternate" hreflang="en" href="https://multitools-five.vercel.app/en/outil/utm-builder"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://multitools-five.vercel.app/fr/outil/utm-builder"/>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://multitools-five.vercel.app/fr/outil/social-links</loc>
+    <xhtml:link rel="alternate" hreflang="fr" href="https://multitools-five.vercel.app/fr/outil/social-links"/>
+    <xhtml:link rel="alternate" hreflang="en" href="https://multitools-five.vercel.app/en/outil/social-links"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://multitools-five.vercel.app/fr/outil/social-links"/>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://multitools-five.vercel.app/en/outil/social-links</loc>
+    <xhtml:link rel="alternate" hreflang="fr" href="https://multitools-five.vercel.app/fr/outil/social-links"/>
+    <xhtml:link rel="alternate" hreflang="en" href="https://multitools-five.vercel.app/en/outil/social-links"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://multitools-five.vercel.app/fr/outil/social-links"/>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://multitools-five.vercel.app/fr/outil/box-shadow</loc>
+    <xhtml:link rel="alternate" hreflang="fr" href="https://multitools-five.vercel.app/fr/outil/box-shadow"/>
+    <xhtml:link rel="alternate" hreflang="en" href="https://multitools-five.vercel.app/en/outil/box-shadow"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://multitools-five.vercel.app/fr/outil/box-shadow"/>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://multitools-five.vercel.app/en/outil/box-shadow</loc>
+    <xhtml:link rel="alternate" hreflang="fr" href="https://multitools-five.vercel.app/fr/outil/box-shadow"/>
+    <xhtml:link rel="alternate" hreflang="en" href="https://multitools-five.vercel.app/en/outil/box-shadow"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://multitools-five.vercel.app/fr/outil/box-shadow"/>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://multitools-five.vercel.app/fr/outil/gradient-generator</loc>
+    <xhtml:link rel="alternate" hreflang="fr" href="https://multitools-five.vercel.app/fr/outil/gradient-generator"/>
+    <xhtml:link rel="alternate" hreflang="en" href="https://multitools-five.vercel.app/en/outil/gradient-generator"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://multitools-five.vercel.app/fr/outil/gradient-generator"/>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://multitools-five.vercel.app/en/outil/gradient-generator</loc>
+    <xhtml:link rel="alternate" hreflang="fr" href="https://multitools-five.vercel.app/fr/outil/gradient-generator"/>
+    <xhtml:link rel="alternate" hreflang="en" href="https://multitools-five.vercel.app/en/outil/gradient-generator"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://multitools-five.vercel.app/fr/outil/gradient-generator"/>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://multitools-five.vercel.app/fr/outil/meta-tags</loc>
+    <xhtml:link rel="alternate" hreflang="fr" href="https://multitools-five.vercel.app/fr/outil/meta-tags"/>
+    <xhtml:link rel="alternate" hreflang="en" href="https://multitools-five.vercel.app/en/outil/meta-tags"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://multitools-five.vercel.app/fr/outil/meta-tags"/>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://multitools-five.vercel.app/en/outil/meta-tags</loc>
+    <xhtml:link rel="alternate" hreflang="fr" href="https://multitools-five.vercel.app/fr/outil/meta-tags"/>
+    <xhtml:link rel="alternate" hreflang="en" href="https://multitools-five.vercel.app/en/outil/meta-tags"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://multitools-five.vercel.app/fr/outil/meta-tags"/>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://multitools-five.vercel.app/fr/outil/json-csv</loc>
+    <xhtml:link rel="alternate" hreflang="fr" href="https://multitools-five.vercel.app/fr/outil/json-csv"/>
+    <xhtml:link rel="alternate" hreflang="en" href="https://multitools-five.vercel.app/en/outil/json-csv"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://multitools-five.vercel.app/fr/outil/json-csv"/>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://multitools-five.vercel.app/en/outil/json-csv</loc>
+    <xhtml:link rel="alternate" hreflang="fr" href="https://multitools-five.vercel.app/fr/outil/json-csv"/>
+    <xhtml:link rel="alternate" hreflang="en" href="https://multitools-five.vercel.app/en/outil/json-csv"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://multitools-five.vercel.app/fr/outil/json-csv"/>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://multitools-five.vercel.app/fr/outil/json-formatter</loc>
+    <xhtml:link rel="alternate" hreflang="fr" href="https://multitools-five.vercel.app/fr/outil/json-formatter"/>
+    <xhtml:link rel="alternate" hreflang="en" href="https://multitools-five.vercel.app/en/outil/json-formatter"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://multitools-five.vercel.app/fr/outil/json-formatter"/>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://multitools-five.vercel.app/en/outil/json-formatter</loc>
+    <xhtml:link rel="alternate" hreflang="fr" href="https://multitools-five.vercel.app/fr/outil/json-formatter"/>
+    <xhtml:link rel="alternate" hreflang="en" href="https://multitools-five.vercel.app/en/outil/json-formatter"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://multitools-five.vercel.app/fr/outil/json-formatter"/>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://multitools-five.vercel.app/fr/outil/xml-formatter</loc>
+    <xhtml:link rel="alternate" hreflang="fr" href="https://multitools-five.vercel.app/fr/outil/xml-formatter"/>
+    <xhtml:link rel="alternate" hreflang="en" href="https://multitools-five.vercel.app/en/outil/xml-formatter"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://multitools-five.vercel.app/fr/outil/xml-formatter"/>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://multitools-five.vercel.app/en/outil/xml-formatter</loc>
+    <xhtml:link rel="alternate" hreflang="fr" href="https://multitools-five.vercel.app/fr/outil/xml-formatter"/>
+    <xhtml:link rel="alternate" hreflang="en" href="https://multitools-five.vercel.app/en/outil/xml-formatter"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://multitools-five.vercel.app/fr/outil/xml-formatter"/>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://multitools-five.vercel.app/fr/outil/json-to-ts</loc>
+    <xhtml:link rel="alternate" hreflang="fr" href="https://multitools-five.vercel.app/fr/outil/json-to-ts"/>
+    <xhtml:link rel="alternate" hreflang="en" href="https://multitools-five.vercel.app/en/outil/json-to-ts"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://multitools-five.vercel.app/fr/outil/json-to-ts"/>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://multitools-five.vercel.app/en/outil/json-to-ts</loc>
+    <xhtml:link rel="alternate" hreflang="fr" href="https://multitools-five.vercel.app/fr/outil/json-to-ts"/>
+    <xhtml:link rel="alternate" hreflang="en" href="https://multitools-five.vercel.app/en/outil/json-to-ts"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://multitools-five.vercel.app/fr/outil/json-to-ts"/>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://multitools-five.vercel.app/fr/outil/sql-formatter</loc>
+    <xhtml:link rel="alternate" hreflang="fr" href="https://multitools-five.vercel.app/fr/outil/sql-formatter"/>
+    <xhtml:link rel="alternate" hreflang="en" href="https://multitools-five.vercel.app/en/outil/sql-formatter"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://multitools-five.vercel.app/fr/outil/sql-formatter"/>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://multitools-five.vercel.app/en/outil/sql-formatter</loc>
+    <xhtml:link rel="alternate" hreflang="fr" href="https://multitools-five.vercel.app/fr/outil/sql-formatter"/>
+    <xhtml:link rel="alternate" hreflang="en" href="https://multitools-five.vercel.app/en/outil/sql-formatter"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://multitools-five.vercel.app/fr/outil/sql-formatter"/>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://multitools-five.vercel.app/fr/outil/yaml-json</loc>
+    <xhtml:link rel="alternate" hreflang="fr" href="https://multitools-five.vercel.app/fr/outil/yaml-json"/>
+    <xhtml:link rel="alternate" hreflang="en" href="https://multitools-five.vercel.app/en/outil/yaml-json"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://multitools-five.vercel.app/fr/outil/yaml-json"/>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://multitools-five.vercel.app/en/outil/yaml-json</loc>
+    <xhtml:link rel="alternate" hreflang="fr" href="https://multitools-five.vercel.app/fr/outil/yaml-json"/>
+    <xhtml:link rel="alternate" hreflang="en" href="https://multitools-five.vercel.app/en/outil/yaml-json"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://multitools-five.vercel.app/fr/outil/yaml-json"/>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://multitools-five.vercel.app/fr/outil/cron-generator</loc>
+    <xhtml:link rel="alternate" hreflang="fr" href="https://multitools-five.vercel.app/fr/outil/cron-generator"/>
+    <xhtml:link rel="alternate" hreflang="en" href="https://multitools-five.vercel.app/en/outil/cron-generator"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://multitools-five.vercel.app/fr/outil/cron-generator"/>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://multitools-five.vercel.app/en/outil/cron-generator</loc>
+    <xhtml:link rel="alternate" hreflang="fr" href="https://multitools-five.vercel.app/fr/outil/cron-generator"/>
+    <xhtml:link rel="alternate" hreflang="en" href="https://multitools-five.vercel.app/en/outil/cron-generator"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://multitools-five.vercel.app/fr/outil/cron-generator"/>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://multitools-five.vercel.app/fr/outil/html-entity</loc>
+    <xhtml:link rel="alternate" hreflang="fr" href="https://multitools-five.vercel.app/fr/outil/html-entity"/>
+    <xhtml:link rel="alternate" hreflang="en" href="https://multitools-five.vercel.app/en/outil/html-entity"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://multitools-five.vercel.app/fr/outil/html-entity"/>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://multitools-five.vercel.app/en/outil/html-entity</loc>
+    <xhtml:link rel="alternate" hreflang="fr" href="https://multitools-five.vercel.app/fr/outil/html-entity"/>
+    <xhtml:link rel="alternate" hreflang="en" href="https://multitools-five.vercel.app/en/outil/html-entity"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://multitools-five.vercel.app/fr/outil/html-entity"/>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://multitools-five.vercel.app/fr/outil/unix-timestamp</loc>
+    <xhtml:link rel="alternate" hreflang="fr" href="https://multitools-five.vercel.app/fr/outil/unix-timestamp"/>
+    <xhtml:link rel="alternate" hreflang="en" href="https://multitools-five.vercel.app/en/outil/unix-timestamp"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://multitools-five.vercel.app/fr/outil/unix-timestamp"/>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://multitools-five.vercel.app/en/outil/unix-timestamp</loc>
+    <xhtml:link rel="alternate" hreflang="fr" href="https://multitools-five.vercel.app/fr/outil/unix-timestamp"/>
+    <xhtml:link rel="alternate" hreflang="en" href="https://multitools-five.vercel.app/en/outil/unix-timestamp"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://multitools-five.vercel.app/fr/outil/unix-timestamp"/>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://multitools-five.vercel.app/fr/outil/url-encoder</loc>
+    <xhtml:link rel="alternate" hreflang="fr" href="https://multitools-five.vercel.app/fr/outil/url-encoder"/>
+    <xhtml:link rel="alternate" hreflang="en" href="https://multitools-five.vercel.app/en/outil/url-encoder"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://multitools-five.vercel.app/fr/outil/url-encoder"/>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://multitools-five.vercel.app/en/outil/url-encoder</loc>
+    <xhtml:link rel="alternate" hreflang="fr" href="https://multitools-five.vercel.app/fr/outil/url-encoder"/>
+    <xhtml:link rel="alternate" hreflang="en" href="https://multitools-five.vercel.app/en/outil/url-encoder"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://multitools-five.vercel.app/fr/outil/url-encoder"/>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://multitools-five.vercel.app/fr/outil/url-parser</loc>
+    <xhtml:link rel="alternate" hreflang="fr" href="https://multitools-five.vercel.app/fr/outil/url-parser"/>
+    <xhtml:link rel="alternate" hreflang="en" href="https://multitools-five.vercel.app/en/outil/url-parser"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://multitools-five.vercel.app/fr/outil/url-parser"/>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://multitools-five.vercel.app/en/outil/url-parser</loc>
+    <xhtml:link rel="alternate" hreflang="fr" href="https://multitools-five.vercel.app/fr/outil/url-parser"/>
+    <xhtml:link rel="alternate" hreflang="en" href="https://multitools-five.vercel.app/en/outil/url-parser"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://multitools-five.vercel.app/fr/outil/url-parser"/>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://multitools-five.vercel.app/fr/outil/file-to-base64</loc>
+    <xhtml:link rel="alternate" hreflang="fr" href="https://multitools-five.vercel.app/fr/outil/file-to-base64"/>
+    <xhtml:link rel="alternate" hreflang="en" href="https://multitools-five.vercel.app/en/outil/file-to-base64"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://multitools-five.vercel.app/fr/outil/file-to-base64"/>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://multitools-five.vercel.app/en/outil/file-to-base64</loc>
+    <xhtml:link rel="alternate" hreflang="fr" href="https://multitools-five.vercel.app/fr/outil/file-to-base64"/>
+    <xhtml:link rel="alternate" hreflang="en" href="https://multitools-five.vercel.app/en/outil/file-to-base64"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://multitools-five.vercel.app/fr/outil/file-to-base64"/>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://multitools-five.vercel.app/fr/outil/base64-to-image</loc>
+    <xhtml:link rel="alternate" hreflang="fr" href="https://multitools-five.vercel.app/fr/outil/base64-to-image"/>
+    <xhtml:link rel="alternate" hreflang="en" href="https://multitools-five.vercel.app/en/outil/base64-to-image"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://multitools-five.vercel.app/fr/outil/base64-to-image"/>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://multitools-five.vercel.app/en/outil/base64-to-image</loc>
+    <xhtml:link rel="alternate" hreflang="fr" href="https://multitools-five.vercel.app/fr/outil/base64-to-image"/>
+    <xhtml:link rel="alternate" hreflang="en" href="https://multitools-five.vercel.app/en/outil/base64-to-image"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://multitools-five.vercel.app/fr/outil/base64-to-image"/>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://multitools-five.vercel.app/fr/outil/code-minifier</loc>
+    <xhtml:link rel="alternate" hreflang="fr" href="https://multitools-five.vercel.app/fr/outil/code-minifier"/>
+    <xhtml:link rel="alternate" hreflang="en" href="https://multitools-five.vercel.app/en/outil/code-minifier"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://multitools-five.vercel.app/fr/outil/code-minifier"/>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://multitools-five.vercel.app/en/outil/code-minifier</loc>
+    <xhtml:link rel="alternate" hreflang="fr" href="https://multitools-five.vercel.app/fr/outil/code-minifier"/>
+    <xhtml:link rel="alternate" hreflang="en" href="https://multitools-five.vercel.app/en/outil/code-minifier"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://multitools-five.vercel.app/fr/outil/code-minifier"/>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://multitools-five.vercel.app/fr/outil/binary-converter</loc>
+    <xhtml:link rel="alternate" hreflang="fr" href="https://multitools-five.vercel.app/fr/outil/binary-converter"/>
+    <xhtml:link rel="alternate" hreflang="en" href="https://multitools-five.vercel.app/en/outil/binary-converter"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://multitools-five.vercel.app/fr/outil/binary-converter"/>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://multitools-five.vercel.app/en/outil/binary-converter</loc>
+    <xhtml:link rel="alternate" hreflang="fr" href="https://multitools-five.vercel.app/fr/outil/binary-converter"/>
+    <xhtml:link rel="alternate" hreflang="en" href="https://multitools-five.vercel.app/en/outil/binary-converter"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://multitools-five.vercel.app/fr/outil/binary-converter"/>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://multitools-five.vercel.app/fr/outil/json-xml</loc>
+    <xhtml:link rel="alternate" hreflang="fr" href="https://multitools-five.vercel.app/fr/outil/json-xml"/>
+    <xhtml:link rel="alternate" hreflang="en" href="https://multitools-five.vercel.app/en/outil/json-xml"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://multitools-five.vercel.app/fr/outil/json-xml"/>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://multitools-five.vercel.app/en/outil/json-xml</loc>
+    <xhtml:link rel="alternate" hreflang="fr" href="https://multitools-five.vercel.app/fr/outil/json-xml"/>
+    <xhtml:link rel="alternate" hreflang="en" href="https://multitools-five.vercel.app/en/outil/json-xml"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://multitools-five.vercel.app/fr/outil/json-xml"/>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://multitools-five.vercel.app/fr/outil/curl-converter</loc>
+    <xhtml:link rel="alternate" hreflang="fr" href="https://multitools-five.vercel.app/fr/outil/curl-converter"/>
+    <xhtml:link rel="alternate" hreflang="en" href="https://multitools-five.vercel.app/en/outil/curl-converter"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://multitools-five.vercel.app/fr/outil/curl-converter"/>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://multitools-five.vercel.app/en/outil/curl-converter</loc>
+    <xhtml:link rel="alternate" hreflang="fr" href="https://multitools-five.vercel.app/fr/outil/curl-converter"/>
+    <xhtml:link rel="alternate" hreflang="en" href="https://multitools-five.vercel.app/en/outil/curl-converter"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://multitools-five.vercel.app/fr/outil/curl-converter"/>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://multitools-five.vercel.app/fr/outil/svg-placeholder</loc>
+    <xhtml:link rel="alternate" hreflang="fr" href="https://multitools-five.vercel.app/fr/outil/svg-placeholder"/>
+    <xhtml:link rel="alternate" hreflang="en" href="https://multitools-five.vercel.app/en/outil/svg-placeholder"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://multitools-five.vercel.app/fr/outil/svg-placeholder"/>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://multitools-five.vercel.app/en/outil/svg-placeholder</loc>
+    <xhtml:link rel="alternate" hreflang="fr" href="https://multitools-five.vercel.app/fr/outil/svg-placeholder"/>
+    <xhtml:link rel="alternate" hreflang="en" href="https://multitools-five.vercel.app/en/outil/svg-placeholder"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://multitools-five.vercel.app/fr/outil/svg-placeholder"/>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://multitools-five.vercel.app/fr/outil/http-status</loc>
+    <xhtml:link rel="alternate" hreflang="fr" href="https://multitools-five.vercel.app/fr/outil/http-status"/>
+    <xhtml:link rel="alternate" hreflang="en" href="https://multitools-five.vercel.app/en/outil/http-status"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://multitools-five.vercel.app/fr/outil/http-status"/>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://multitools-five.vercel.app/en/outil/http-status</loc>
+    <xhtml:link rel="alternate" hreflang="fr" href="https://multitools-five.vercel.app/fr/outil/http-status"/>
+    <xhtml:link rel="alternate" hreflang="en" href="https://multitools-five.vercel.app/en/outil/http-status"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://multitools-five.vercel.app/fr/outil/http-status"/>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://multitools-five.vercel.app/fr/outil/timer</loc>
+    <xhtml:link rel="alternate" hreflang="fr" href="https://multitools-five.vercel.app/fr/outil/timer"/>
+    <xhtml:link rel="alternate" hreflang="en" href="https://multitools-five.vercel.app/en/outil/timer"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://multitools-five.vercel.app/fr/outil/timer"/>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://multitools-five.vercel.app/en/outil/timer</loc>
+    <xhtml:link rel="alternate" hreflang="fr" href="https://multitools-five.vercel.app/fr/outil/timer"/>
+    <xhtml:link rel="alternate" hreflang="en" href="https://multitools-five.vercel.app/en/outil/timer"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://multitools-five.vercel.app/fr/outil/timer"/>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://multitools-five.vercel.app/fr/outil/image-compressor</loc>
+    <xhtml:link rel="alternate" hreflang="fr" href="https://multitools-five.vercel.app/fr/outil/image-compressor"/>
+    <xhtml:link rel="alternate" hreflang="en" href="https://multitools-five.vercel.app/en/outil/image-compressor"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://multitools-five.vercel.app/fr/outil/image-compressor"/>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://multitools-five.vercel.app/en/outil/image-compressor</loc>
+    <xhtml:link rel="alternate" hreflang="fr" href="https://multitools-five.vercel.app/fr/outil/image-compressor"/>
+    <xhtml:link rel="alternate" hreflang="en" href="https://multitools-five.vercel.app/en/outil/image-compressor"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://multitools-five.vercel.app/fr/outil/image-compressor"/>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://multitools-five.vercel.app/fr/outil/ip-address</loc>
+    <xhtml:link rel="alternate" hreflang="fr" href="https://multitools-five.vercel.app/fr/outil/ip-address"/>
+    <xhtml:link rel="alternate" hreflang="en" href="https://multitools-five.vercel.app/en/outil/ip-address"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://multitools-five.vercel.app/fr/outil/ip-address"/>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://multitools-five.vercel.app/en/outil/ip-address</loc>
+    <xhtml:link rel="alternate" hreflang="fr" href="https://multitools-five.vercel.app/fr/outil/ip-address"/>
+    <xhtml:link rel="alternate" hreflang="en" href="https://multitools-five.vercel.app/en/outil/ip-address"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://multitools-five.vercel.app/fr/outil/ip-address"/>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://multitools-five.vercel.app/fr/outil/aspect-ratio</loc>
+    <xhtml:link rel="alternate" hreflang="fr" href="https://multitools-five.vercel.app/fr/outil/aspect-ratio"/>
+    <xhtml:link rel="alternate" hreflang="en" href="https://multitools-five.vercel.app/en/outil/aspect-ratio"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://multitools-five.vercel.app/fr/outil/aspect-ratio"/>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://multitools-five.vercel.app/en/outil/aspect-ratio</loc>
+    <xhtml:link rel="alternate" hreflang="fr" href="https://multitools-five.vercel.app/fr/outil/aspect-ratio"/>
+    <xhtml:link rel="alternate" hreflang="en" href="https://multitools-five.vercel.app/en/outil/aspect-ratio"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://multitools-five.vercel.app/fr/outil/aspect-ratio"/>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://multitools-five.vercel.app/fr/outil/bpm-counter</loc>
+    <xhtml:link rel="alternate" hreflang="fr" href="https://multitools-five.vercel.app/fr/outil/bpm-counter"/>
+    <xhtml:link rel="alternate" hreflang="en" href="https://multitools-five.vercel.app/en/outil/bpm-counter"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://multitools-five.vercel.app/fr/outil/bpm-counter"/>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://multitools-five.vercel.app/en/outil/bpm-counter</loc>
+    <xhtml:link rel="alternate" hreflang="fr" href="https://multitools-five.vercel.app/fr/outil/bpm-counter"/>
+    <xhtml:link rel="alternate" hreflang="en" href="https://multitools-five.vercel.app/en/outil/bpm-counter"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://multitools-five.vercel.app/fr/outil/bpm-counter"/>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://multitools-five.vercel.app/fr/outil/random-generator</loc>
+    <xhtml:link rel="alternate" hreflang="fr" href="https://multitools-five.vercel.app/fr/outil/random-generator"/>
+    <xhtml:link rel="alternate" hreflang="en" href="https://multitools-five.vercel.app/en/outil/random-generator"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://multitools-five.vercel.app/fr/outil/random-generator"/>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://multitools-five.vercel.app/en/outil/random-generator</loc>
+    <xhtml:link rel="alternate" hreflang="fr" href="https://multitools-five.vercel.app/fr/outil/random-generator"/>
+    <xhtml:link rel="alternate" hreflang="en" href="https://multitools-five.vercel.app/en/outil/random-generator"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://multitools-five.vercel.app/fr/outil/random-generator"/>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://multitools-five.vercel.app/fr/outil/user-agent</loc>
+    <xhtml:link rel="alternate" hreflang="fr" href="https://multitools-five.vercel.app/fr/outil/user-agent"/>
+    <xhtml:link rel="alternate" hreflang="en" href="https://multitools-five.vercel.app/en/outil/user-agent"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://multitools-five.vercel.app/fr/outil/user-agent"/>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://multitools-five.vercel.app/en/outil/user-agent</loc>
+    <xhtml:link rel="alternate" hreflang="fr" href="https://multitools-five.vercel.app/fr/outil/user-agent"/>
+    <xhtml:link rel="alternate" hreflang="en" href="https://multitools-five.vercel.app/en/outil/user-agent"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://multitools-five.vercel.app/fr/outil/user-agent"/>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://multitools-five.vercel.app/fr/outil/metronome</loc>
+    <xhtml:link rel="alternate" hreflang="fr" href="https://multitools-five.vercel.app/fr/outil/metronome"/>
+    <xhtml:link rel="alternate" hreflang="en" href="https://multitools-five.vercel.app/en/outil/metronome"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://multitools-five.vercel.app/fr/outil/metronome"/>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://multitools-five.vercel.app/en/outil/metronome</loc>
+    <xhtml:link rel="alternate" hreflang="fr" href="https://multitools-five.vercel.app/fr/outil/metronome"/>
+    <xhtml:link rel="alternate" hreflang="en" href="https://multitools-five.vercel.app/en/outil/metronome"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://multitools-five.vercel.app/fr/outil/metronome"/>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://multitools-five.vercel.app/fr/outil/text-to-speech</loc>
+    <xhtml:link rel="alternate" hreflang="fr" href="https://multitools-five.vercel.app/fr/outil/text-to-speech"/>
+    <xhtml:link rel="alternate" hreflang="en" href="https://multitools-five.vercel.app/en/outil/text-to-speech"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://multitools-five.vercel.app/fr/outil/text-to-speech"/>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://multitools-five.vercel.app/en/outil/text-to-speech</loc>
+    <xhtml:link rel="alternate" hreflang="fr" href="https://multitools-five.vercel.app/fr/outil/text-to-speech"/>
+    <xhtml:link rel="alternate" hreflang="en" href="https://multitools-five.vercel.app/en/outil/text-to-speech"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://multitools-five.vercel.app/fr/outil/text-to-speech"/>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://multitools-five.vercel.app/fr/outil/glassmorphism</loc>
+    <xhtml:link rel="alternate" hreflang="fr" href="https://multitools-five.vercel.app/fr/outil/glassmorphism"/>
+    <xhtml:link rel="alternate" hreflang="en" href="https://multitools-five.vercel.app/en/outil/glassmorphism"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://multitools-five.vercel.app/fr/outil/glassmorphism"/>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://multitools-five.vercel.app/en/outil/glassmorphism</loc>
+    <xhtml:link rel="alternate" hreflang="fr" href="https://multitools-five.vercel.app/fr/outil/glassmorphism"/>
+    <xhtml:link rel="alternate" hreflang="en" href="https://multitools-five.vercel.app/en/outil/glassmorphism"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://multitools-five.vercel.app/fr/outil/glassmorphism"/>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://multitools-five.vercel.app/fr/outil/image-to-webp</loc>
+    <xhtml:link rel="alternate" hreflang="fr" href="https://multitools-five.vercel.app/fr/outil/image-to-webp"/>
+    <xhtml:link rel="alternate" hreflang="en" href="https://multitools-five.vercel.app/en/outil/image-to-webp"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://multitools-five.vercel.app/fr/outil/image-to-webp"/>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://multitools-five.vercel.app/en/outil/image-to-webp</loc>
+    <xhtml:link rel="alternate" hreflang="fr" href="https://multitools-five.vercel.app/fr/outil/image-to-webp"/>
+    <xhtml:link rel="alternate" hreflang="en" href="https://multitools-five.vercel.app/en/outil/image-to-webp"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://multitools-five.vercel.app/fr/outil/image-to-webp"/>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://multitools-five.vercel.app/fr/outil/timezone-converter</loc>
+    <xhtml:link rel="alternate" hreflang="fr" href="https://multitools-five.vercel.app/fr/outil/timezone-converter"/>
+    <xhtml:link rel="alternate" hreflang="en" href="https://multitools-five.vercel.app/en/outil/timezone-converter"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://multitools-five.vercel.app/fr/outil/timezone-converter"/>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://multitools-five.vercel.app/en/outil/timezone-converter</loc>
+    <xhtml:link rel="alternate" hreflang="fr" href="https://multitools-five.vercel.app/fr/outil/timezone-converter"/>
+    <xhtml:link rel="alternate" hreflang="en" href="https://multitools-five.vercel.app/en/outil/timezone-converter"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://multitools-five.vercel.app/fr/outil/timezone-converter"/>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://multitools-five.vercel.app/fr/outil/download-time</loc>
+    <xhtml:link rel="alternate" hreflang="fr" href="https://multitools-five.vercel.app/fr/outil/download-time"/>
+    <xhtml:link rel="alternate" hreflang="en" href="https://multitools-five.vercel.app/en/outil/download-time"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://multitools-five.vercel.app/fr/outil/download-time"/>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://multitools-five.vercel.app/en/outil/download-time</loc>
+    <xhtml:link rel="alternate" hreflang="fr" href="https://multitools-five.vercel.app/fr/outil/download-time"/>
+    <xhtml:link rel="alternate" hreflang="en" href="https://multitools-five.vercel.app/en/outil/download-time"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://multitools-five.vercel.app/fr/outil/download-time"/>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://multitools-five.vercel.app/fr/outil/list-comparator</loc>
+    <xhtml:link rel="alternate" hreflang="fr" href="https://multitools-five.vercel.app/fr/outil/list-comparator"/>
+    <xhtml:link rel="alternate" hreflang="en" href="https://multitools-five.vercel.app/en/outil/list-comparator"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://multitools-five.vercel.app/fr/outil/list-comparator"/>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://multitools-five.vercel.app/en/outil/list-comparator</loc>
+    <xhtml:link rel="alternate" hreflang="fr" href="https://multitools-five.vercel.app/fr/outil/list-comparator"/>
+    <xhtml:link rel="alternate" hreflang="en" href="https://multitools-five.vercel.app/en/outil/list-comparator"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://multitools-five.vercel.app/fr/outil/list-comparator"/>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://multitools-five.vercel.app/fr/outil/cursor-reference</loc>
+    <xhtml:link rel="alternate" hreflang="fr" href="https://multitools-five.vercel.app/fr/outil/cursor-reference"/>
+    <xhtml:link rel="alternate" hreflang="en" href="https://multitools-five.vercel.app/en/outil/cursor-reference"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://multitools-five.vercel.app/fr/outil/cursor-reference"/>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://multitools-five.vercel.app/en/outil/cursor-reference</loc>
+    <xhtml:link rel="alternate" hreflang="fr" href="https://multitools-five.vercel.app/fr/outil/cursor-reference"/>
+    <xhtml:link rel="alternate" hreflang="en" href="https://multitools-five.vercel.app/en/outil/cursor-reference"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://multitools-five.vercel.app/fr/outil/cursor-reference"/>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://multitools-five.vercel.app/fr/outil/whatsapp-link</loc>
+    <xhtml:link rel="alternate" hreflang="fr" href="https://multitools-five.vercel.app/fr/outil/whatsapp-link"/>
+    <xhtml:link rel="alternate" hreflang="en" href="https://multitools-five.vercel.app/en/outil/whatsapp-link"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://multitools-five.vercel.app/fr/outil/whatsapp-link"/>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://multitools-five.vercel.app/en/outil/whatsapp-link</loc>
+    <xhtml:link rel="alternate" hreflang="fr" href="https://multitools-five.vercel.app/fr/outil/whatsapp-link"/>
+    <xhtml:link rel="alternate" hreflang="en" href="https://multitools-five.vercel.app/en/outil/whatsapp-link"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://multitools-five.vercel.app/fr/outil/whatsapp-link"/>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://multitools-five.vercel.app/fr/outil/security-headers</loc>
+    <xhtml:link rel="alternate" hreflang="fr" href="https://multitools-five.vercel.app/fr/outil/security-headers"/>
+    <xhtml:link rel="alternate" hreflang="en" href="https://multitools-five.vercel.app/en/outil/security-headers"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://multitools-five.vercel.app/fr/outil/security-headers"/>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://multitools-five.vercel.app/en/outil/security-headers</loc>
+    <xhtml:link rel="alternate" hreflang="fr" href="https://multitools-five.vercel.app/fr/outil/security-headers"/>
+    <xhtml:link rel="alternate" hreflang="en" href="https://multitools-five.vercel.app/en/outil/security-headers"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://multitools-five.vercel.app/fr/outil/security-headers"/>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://multitools-five.vercel.app/fr/outil/wifi-generator</loc>
+    <xhtml:link rel="alternate" hreflang="fr" href="https://multitools-five.vercel.app/fr/outil/wifi-generator"/>
+    <xhtml:link rel="alternate" hreflang="en" href="https://multitools-five.vercel.app/en/outil/wifi-generator"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://multitools-five.vercel.app/fr/outil/wifi-generator"/>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://multitools-five.vercel.app/en/outil/wifi-generator</loc>
+    <xhtml:link rel="alternate" hreflang="fr" href="https://multitools-five.vercel.app/fr/outil/wifi-generator"/>
+    <xhtml:link rel="alternate" hreflang="en" href="https://multitools-five.vercel.app/en/outil/wifi-generator"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://multitools-five.vercel.app/fr/outil/wifi-generator"/>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://multitools-five.vercel.app/fr/outil/robots-txt</loc>
+    <xhtml:link rel="alternate" hreflang="fr" href="https://multitools-five.vercel.app/fr/outil/robots-txt"/>
+    <xhtml:link rel="alternate" hreflang="en" href="https://multitools-five.vercel.app/en/outil/robots-txt"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://multitools-five.vercel.app/fr/outil/robots-txt"/>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://multitools-five.vercel.app/en/outil/robots-txt</loc>
+    <xhtml:link rel="alternate" hreflang="fr" href="https://multitools-five.vercel.app/fr/outil/robots-txt"/>
+    <xhtml:link rel="alternate" hreflang="en" href="https://multitools-five.vercel.app/en/outil/robots-txt"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://multitools-five.vercel.app/fr/outil/robots-txt"/>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
   </url>

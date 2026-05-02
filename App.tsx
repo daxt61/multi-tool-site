@@ -10,7 +10,11 @@ import {
   useParams,
   useLocation,
   useSearchParams,
+  Navigate,
+  Outlet,
 } from "react-router-dom";
+import { useTranslation, Trans } from "react-i18next";
+import i18n from "./i18n";
 import {
   Calculator as CalcIcon,
   Ruler,
@@ -230,8 +234,10 @@ const TOOL_SEARCH_INDEX = new Map<string, { name: string; description: string }>
 interface Tool {
   id: string;
   name: string;
+  nameEn?: string;
   icon: React.ElementType;
   description: string;
+  descriptionEn?: string;
   Component: React.ElementType<{ initialData?: any; onStateChange?: (state: any) => void }>;
   category: string;
   keywords?: string[];
@@ -261,8 +267,10 @@ const tools: Tool[] = [
   {
     id: "invoice-generator",
     name: "Factures",
+    nameEn: "Invoice Generator",
     icon: Receipt,
     description: "Générateur de factures professionnelles",
+    descriptionEn: "Professional invoice generator",
     Component: InvoiceGenerator,
     category: "business",
   },
@@ -550,8 +558,10 @@ const tools: Tool[] = [
   {
     id: "unit-converter",
     name: "Unités",
+    nameEn: "Unit Converter",
     icon: Ruler,
     description: "Longueurs, poids, températures",
+    descriptionEn: "Length, weight, temperature converter",
     Component: UnitConverter,
     category: "converters",
     keywords: ["conversion", "mètres", "kilos", "température", "pression", "vitesse"],
@@ -626,8 +636,10 @@ const tools: Tool[] = [
   {
     id: "word-counter",
     name: "Mots",
+    nameEn: "Word Counter",
     icon: Type,
     description: "Compteur de mots et caractères",
+    descriptionEn: "Word and character counter",
     Component: WordCounter,
     category: "text",
     keywords: ["texte", "lettres", "lignes", "lisibilité", "seo", "densité", "mots-clés"],
@@ -765,8 +777,10 @@ const tools: Tool[] = [
   {
     id: "password-generator",
     name: "Mots de passe",
+    nameEn: "Password Generator",
     icon: Key,
     description: "Générateur de clés sécurisées",
+    descriptionEn: "Secure password generator",
     Component: PasswordGenerator,
     category: "dev",
     keywords: ["sécurité", "passphrase", "crypto", "robuste"],
@@ -1245,35 +1259,41 @@ const ToolCard = React.memo(({ tool, isFavorite, onToggleFavorite }: {
   const titleId = `tool-title-${tool.id}`;
   const descId = `tool-desc-${tool.id}`;
 
+  const { t, i18n } = useTranslation();
+  const currentLang = i18n.language || 'fr';
+  const name = (currentLang === 'en' && tool.nameEn) ? tool.nameEn : tool.name;
+  const description = (currentLang === 'en' && tool.descriptionEn) ? tool.descriptionEn : tool.description;
+
   return (
     <div
       className="group p-5 bg-white dark:bg-slate-900/40 rounded-2xl border border-slate-200 dark:border-slate-800 hover:border-indigo-500/50 dark:hover:border-indigo-500/50 hover:shadow-xl hover:shadow-indigo-500/5 transition-all text-left flex flex-col h-full relative"
     >
       <div className="flex justify-between items-start mb-4 relative z-20">
         <div className="w-10 h-10 rounded-xl bg-slate-50 dark:bg-slate-800 flex items-center justify-center text-slate-400 group-hover:text-indigo-500 group-hover:bg-indigo-50 dark:group-hover:bg-indigo-900/20 transition-all group-hover:rotate-3">
-          <tool.icon className="w-5 h-5 transition-transform duration-300 group-hover:scale-110" />
+          <tool.icon className="w-5 h-5 transition-transform duration-300 group-hover:scale-110" aria-hidden="true" />
+          <span className="sr-only">{currentLang === 'fr' ? `Icône de ${name}` : `${name} icon`}</span>
         </div>
         <button
           onClick={(e) => onToggleFavorite(e, tool.id)}
           className={`p-1.5 rounded-lg transition-colors focus-visible:ring-2 focus-visible:ring-indigo-500 focus-visible:outline-none ${isFavorite ? 'text-amber-500' : 'text-slate-300 hover:text-slate-400'}`}
-          aria-label={isFavorite ? "Retirer des favoris" : "Ajouter aux favoris"}
+          aria-label={isFavorite ? t("tool.remove_favorite") : t("tool.add_favorite")}
         >
           <Star className={`w-5 h-5 ${isFavorite ? 'fill-current' : ''}`} />
         </button>
       </div>
 
       <Link
-        to={`/outil/${tool.id}`}
+        to={`/${currentLang}/outil/${tool.id}`}
         className="absolute inset-0 z-10 rounded-2xl focus-visible:ring-2 focus-visible:ring-indigo-500 focus-visible:outline-none transition-all"
         aria-labelledby={titleId}
         aria-describedby={descId}
       />
 
-      <h4 id={titleId} className="font-bold text-slate-900 dark:text-white mb-2 relative z-0">{tool.name}</h4>
-      <p id={descId} className="text-sm text-slate-500 dark:text-slate-400 line-clamp-2 flex-grow leading-relaxed relative z-0">{tool.description}</p>
+      <h4 id={titleId} className="font-bold text-slate-900 dark:text-white mb-2 relative z-0">{name}</h4>
+      <p id={descId} className="text-sm text-slate-500 dark:text-slate-400 line-clamp-2 flex-grow leading-relaxed relative z-0">{description}</p>
 
       <div className="mt-4 flex items-center gap-2 text-xs font-bold text-indigo-500 opacity-0 group-hover:opacity-100 group-focus-within:opacity-100 transition-all -translate-x-2 group-hover:translate-x-0 group-focus-within:translate-x-0 relative z-0">
-        Ouvrir <ArrowRight className="w-3 h-3" />
+        {t("tool.open")} <ArrowRight className="w-3 h-3" />
       </div>
     </div>
   );
@@ -1293,28 +1313,66 @@ function LoadingTool() {
   );
 }
 
-function ThemeToggle() {
+function ThemeToggle({ navigate, location }: { navigate: any, location: any }) {
   const { theme, setTheme } = useTheme();
+  const { i18n: i18nInstance } = useTranslation();
   const [mounted, setMounted] = useState(false);
 
   useEffect(() => setMounted(true), []);
 
   if (!mounted) return null;
 
+  const toggleLanguage = () => {
+    const currentLang = i18nInstance.language || 'fr';
+    const newLang = currentLang === 'fr' ? 'en' : 'fr';
+    const currentPath = location.pathname;
+
+    let newPath = currentPath;
+    if (currentPath === '/' || currentPath === '/fr' || currentPath === '/en') {
+      newPath = `/${newLang}`;
+    } else {
+      newPath = currentPath.replace(/^\/(fr|en)/, `/${newLang}`);
+    }
+    navigate(newPath);
+  };
+
   return (
-    <button
-      onClick={() => setTheme(theme === "dark" ? "light" : "dark")}
-      className="p-2 rounded-lg bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 transition-colors text-slate-600 dark:text-slate-300 border border-slate-200 dark:border-slate-700 focus-visible:ring-2 focus-visible:ring-indigo-500 focus-visible:outline-none"
-      aria-label="Changer de thème"
-    >
-      {theme === "dark" ? <Sun className="w-5 h-5" /> : <Moon className="w-5 h-5" />}
-    </button>
+    <div className="flex items-center gap-2">
+      <button
+        onClick={toggleLanguage}
+        className="px-3 py-2 rounded-lg bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 transition-colors text-xs font-bold text-slate-600 dark:text-slate-300 border border-slate-200 dark:border-slate-700 focus-visible:ring-2 focus-visible:ring-indigo-500 focus-visible:outline-none"
+        aria-label="Changer de langue"
+      >
+        {i18nInstance.language === 'fr' ? 'EN' : 'FR'}
+      </button>
+      <button
+        onClick={() => setTheme(theme === "dark" ? "light" : "dark")}
+        className="p-2 rounded-lg bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 transition-colors text-slate-600 dark:text-slate-300 border border-slate-200 dark:border-slate-700 focus-visible:ring-2 focus-visible:ring-indigo-500 focus-visible:outline-none"
+        aria-label="Changer de thème"
+      >
+        {theme === "dark" ? <Sun className="w-5 h-5" /> : <Moon className="w-5 h-5" />}
+      </button>
+    </div>
   );
+}
+
+function LangWrapper() {
+  const { lang } = useParams();
+  const { i18n: i18nInstance } = useTranslation();
+
+  useEffect(() => {
+    if (lang && (lang === 'en' || lang === 'fr') && i18nInstance.language !== lang) {
+      i18nInstance.changeLanguage(lang);
+    }
+  }, [lang, i18nInstance]);
+
+  return <Outlet />;
 }
 
 function MainApp() {
   const navigate = useNavigate();
   const location = useLocation();
+  const { t, i18n: i18nInstance } = useTranslation();
 
   const handleToolVisit = useCallback((id: string) => {
     // Sentinel: Validate tool ID before adding to recent history.
@@ -1442,10 +1500,9 @@ function MainApp() {
   }, []);
 
   const handleToolSelect = useCallback((id: string) => {
-    navigate(`/outil/${id}`);
-  }, [navigate]);
-
-  const isHome = location.pathname === "/";
+    const currentLang = i18nInstance.language || 'fr';
+    navigate(`/${currentLang}/outil/${id}`);
+  }, [navigate, i18nInstance.language]);
 
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
@@ -1461,36 +1518,76 @@ function MainApp() {
   useEffect(() => {
     const updateSEO = () => {
       const path = location.pathname;
-      let title = "Boîte à Outils - Outils simples pour tâches complexes";
-      let description = "Une collection d'utilitaires gratuits, privés et open-source pour booster votre productivité au quotidien.";
+      const baseUrl = "https://multitools-five.vercel.app";
+      const fullUrl = `${baseUrl}${path}`;
+      const currentLang = i18nInstance.language || 'fr';
+      const otherLang = currentLang === 'fr' ? 'en' : 'fr';
 
-      if (path.startsWith("/outil/")) {
-        const id = path.split("/")[2];
+      let title = t("app.title");
+      let description = t("app.description");
+      let ogImage = `${baseUrl}/password-tool.png`;
+
+      // Extract tool ID from localized path /fr/outil/id or /en/outil/id
+      const toolMatch = path.match(/^\/(?:fr|en)\/outil\/([^\/]+)/);
+      if (toolMatch) {
+        const id = toolMatch[1];
         const tool = tools.find(t => t.id === id);
         if (tool) {
-          title = `${tool.name} - Boîte à Outils`;
-          description = tool.description;
+          const toolName = (currentLang === 'en' && tool.nameEn) ? tool.nameEn : tool.name;
+          const toolDesc = (currentLang === 'en' && tool.descriptionEn) ? tool.descriptionEn : tool.description;
+          title = `${toolName} - ${t("footer.copy")}`;
+          description = `${toolDesc}. ${currentLang === 'fr' ? 'Un outil gratuit, privé et facile à utiliser.' : 'A free, private and easy to use tool.'}`;
+          // Map specific tool icons to preview images if available, otherwise use default
+          if (id === 'password-generator') ogImage = `${baseUrl}/password-tool.png`;
+          else if (id === 'security-headers') ogImage = `${baseUrl}/security-headers-tool.png`;
+          else if (id === 'whatsapp-link') ogImage = `${baseUrl}/whatsapp-tool.png`;
         }
-      } else if (path === "/a-propos") {
-        title = "À propos - Boîte à Outils";
-      } else if (path === "/contact") {
-        title = "Contact - Boîte à Outils";
-      } else if (path === "/confidentialite") {
-        title = "Confidentialité - Boîte à Outils";
+      } else if (path.includes("/a-propos")) {
+        title = `${t("nav.about")} - ${t("footer.copy")}`;
+      } else if (path.includes("/contact")) {
+        title = `${t("nav.contact")} - ${t("footer.copy")}`;
+      } else if (path.includes("/confidentialite")) {
+        title = `${t("nav.privacy")} - ${t("footer.copy")}`;
       }
 
       document.title = title;
-      let meta = document.querySelector('meta[name="description"]');
-      if (!meta) {
-        meta = document.createElement('meta');
-        meta.setAttribute('name', 'description');
-        document.head.appendChild(meta);
-      }
-      meta.setAttribute("content", description);
+
+      const updateTag = (selector: string, attr: string, value: string) => {
+        let el = document.querySelector(selector);
+        if (!el) {
+          const tag = selector.startsWith('meta') ? 'meta' : (selector.startsWith('link') ? 'link' : '');
+          if (!tag) return;
+          el = document.createElement(tag);
+          if (selector.includes('[')) {
+            const attrMatch = selector.match(/\[(.*?)="(.*?)"\]/);
+            if (attrMatch) el.setAttribute(attrMatch[1], attrMatch[2]);
+          }
+          document.head.appendChild(el);
+        }
+        el.setAttribute(attr, value);
+      };
+
+      updateTag('meta[name="description"]', 'content', description);
+      updateTag('meta[property="og:title"]', 'content', title);
+      updateTag('meta[property="og:description"]', 'content', description);
+      updateTag('meta[property="og:url"]', 'content', fullUrl);
+      updateTag('meta[property="og:image"]', 'content', ogImage);
+      updateTag('meta[property="twitter:title"]', 'content', title);
+      updateTag('meta[property="twitter:description"]', 'content', description);
+      updateTag('meta[property="twitter:url"]', 'content', fullUrl);
+      updateTag('meta[property="twitter:image"]', 'content', ogImage);
+      updateTag('link[rel="canonical"]', 'href', fullUrl);
+
+      // Hreflang tags
+      const otherPath = path.replace(`/${currentLang}`, `/${otherLang}`);
+      const otherUrl = `${baseUrl}${otherPath}`;
+      updateTag(`link[hreflang="${currentLang}"]`, 'href', fullUrl);
+      updateTag(`link[hreflang="${otherLang}"]`, 'href', otherUrl);
+      updateTag('link[hreflang="x-default"]', 'href', `${baseUrl}/fr${path.replace(`/${currentLang}`, '')}`);
     };
 
     updateSEO();
-  }, [location]);
+  }, [location, t, i18nInstance.language]);
 
   return (
     <div className="min-h-screen bg-white dark:bg-slate-950 text-slate-900 dark:text-slate-100 selection:bg-indigo-100 dark:selection:bg-indigo-900/50">
@@ -1511,44 +1608,48 @@ function MainApp() {
         {/* Nav Header */}
         <header className="flex justify-between items-center mb-16">
           <Link
-            to="/"
+            to={`/${i18nInstance.language}`}
             className="flex items-center gap-2 group focus-visible:ring-2 focus-visible:ring-indigo-500 focus-visible:outline-none rounded-lg"
           >
             <div className="w-10 h-10 bg-slate-900 dark:bg-white rounded-lg flex items-center justify-center transition-transform group-hover:scale-105 active:scale-95">
               <Sparkles className="w-6 h-6 text-white dark:text-slate-900" />
             </div>
-            <span className="text-xl font-bold tracking-tight">Boîte à Outils</span>
+            <span className="text-xl font-bold tracking-tight">{t("footer.copy")}</span>
           </Link>
 
           <div className="flex items-center gap-4">
             <nav className="hidden md:flex items-center gap-6 mr-4">
-              <Link to="/a-propos" className="text-sm font-medium text-slate-500 hover:text-slate-900 dark:text-slate-400 dark:hover:text-white transition-colors focus-visible:ring-2 focus-visible:ring-indigo-500 focus-visible:outline-none rounded-lg">À propos</Link>
-              <Link to="/contact" className="text-sm font-medium text-slate-500 hover:text-slate-900 dark:text-slate-400 dark:hover:text-white transition-colors focus-visible:ring-2 focus-visible:ring-indigo-500 focus-visible:outline-none rounded-lg">Contact</Link>
+              <Link to={`/${i18nInstance.language}/a-propos`} className="text-sm font-medium text-slate-500 hover:text-slate-900 dark:text-slate-400 dark:hover:text-white transition-colors focus-visible:ring-2 focus-visible:ring-indigo-500 focus-visible:outline-none rounded-lg">{t("nav.about")}</Link>
+              <Link to={`/${i18nInstance.language}/contact`} className="text-sm font-medium text-slate-500 hover:text-slate-900 dark:text-slate-400 dark:hover:text-white transition-colors focus-visible:ring-2 focus-visible:ring-indigo-500 focus-visible:outline-none rounded-lg">{t("nav.contact")}</Link>
             </nav>
-            <ThemeToggle />
+            <ThemeToggle navigate={navigate} location={location} />
           </div>
         </header>
 
         <main id="main-content">
         <Routes>
-          <Route path="/" element={
+          <Route path="/" element={<Navigate to="/fr" replace />} />
+          <Route path="/:lang" element={<LangWrapper />}>
+            <Route index element={
             <div className="space-y-20">
               {/* Minimal Hero */}
               <div className="max-w-2xl mx-auto text-center space-y-8">
                 <h1 className="text-4xl md:text-6xl font-extrabold tracking-tight leading-[1.1]">
-                  Des outils simples pour des <span className="text-slate-400 dark:text-slate-600">tâches complexes.</span>
+                  <Trans i18nKey="hero.title">
+                    Des outils simples pour des <span className="text-slate-400 dark:text-slate-600">tâches complexes.</span>
+                  </Trans>
                 </h1>
                 <p className="text-lg text-slate-500 dark:text-slate-400 leading-relaxed">
-                  Une collection d'utilitaires gratuits, privés et open-source pour booster votre productivité au quotidien.
+                  {t("hero.subtitle")}
                 </p>
 
                 <div className="relative group max-w-lg mx-auto">
-                  <label htmlFor="tool-search" className="sr-only">Rechercher</label>
+                  <label htmlFor="tool-search" className="sr-only">{t("search.placeholder")}</label>
                   <div className="absolute inset-y-0 left-4 flex items-center pointer-events-none"><Search className="h-5 w-5 text-slate-400" /></div>
                   <input
                     id="tool-search"
                     type="text"
-                    placeholder="Rechercher un outil..."
+                    placeholder={t("search.placeholder")}
                     value={searchQuery}
                     onChange={(e) => setSearchQuery(e.target.value)}
                     onKeyDown={(e) => {
@@ -1567,7 +1668,7 @@ function MainApp() {
                       </kbd>
                     </div>
                   )}
-                  {searchQuery && <button onClick={() => setSearchQuery("")} className="absolute inset-y-0 right-4 flex items-center text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 transition-colors focus-visible:ring-2 focus-visible:ring-indigo-500 focus-visible:outline-none rounded-lg" aria-label="Effacer"><X className="h-5 w-5" /></button>}
+                  {searchQuery && <button onClick={() => setSearchQuery("")} className="absolute inset-y-0 right-4 flex items-center text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 transition-colors focus-visible:ring-2 focus-visible:ring-indigo-500 focus-visible:outline-none rounded-lg" aria-label={t("search.clear")}><X className="h-5 w-5" /></button>}
                 </div>
 
                 <div className="flex justify-center">
@@ -1577,22 +1678,22 @@ function MainApp() {
                       handleToolSelect(randomTool.id);
                     }}
                     className="flex items-center gap-2 px-6 py-3 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl text-sm font-bold text-slate-600 dark:text-slate-400 hover:border-indigo-500 dark:hover:border-indigo-500 hover:text-indigo-600 dark:hover:text-indigo-400 transition-all shadow-sm focus-visible:ring-2 focus-visible:ring-indigo-500 focus-visible:outline-none group/random"
-                    aria-label="Ouvrir un outil au hasard"
+                    aria-label={t("search.luck")}
                   >
-                    <Shuffle className="w-4 h-4 transition-transform duration-500 group-hover/random:rotate-180" /> J'ai de la chance
+                    <Shuffle className="w-4 h-4 transition-transform duration-500 group-hover/random:rotate-180" /> {t("search.luck")}
                   </button>
                 </div>
               </div>
 
               {/* Recents */}
               {!searchQuery && recentTools.length > 0 && (
-                <section className="animate-in fade-in slide-in-from-bottom-4 duration-500">
-                  <h3 className="text-xs font-bold uppercase tracking-widest text-slate-400 dark:text-slate-500 mb-6 px-1">Récent</h3>
+                <section className="animate-in fade-in slide-in-from-bottom-4 duration-500" aria-labelledby="recent-tools-title">
+                  <h2 id="recent-tools-title" className="text-xs font-bold uppercase tracking-widest text-slate-400 dark:text-slate-500 mb-6 px-1">{t("recent.title")}</h2>
                   <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
                     {recentTools.map(tool => (
                       <Link
                         key={tool.id}
-                        to={`/outil/${tool.id}`}
+                        to={`/${i18nInstance.language}/outil/${tool.id}`}
                         className="flex items-center gap-3 p-4 bg-slate-50 dark:bg-slate-900/50 rounded-xl border border-slate-200 dark:border-slate-800 hover:border-slate-300 dark:hover:border-slate-700 transition-all group focus-visible:ring-2 focus-visible:ring-indigo-500 focus-visible:outline-none"
                       >
                         <div className="w-8 h-8 rounded-lg bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 flex items-center justify-center text-slate-400 group-hover:text-indigo-500 transition-colors">
@@ -1607,6 +1708,7 @@ function MainApp() {
 
               {/* Main Content */}
               <div className="space-y-12">
+                <h2 className="sr-only">Tous les outils</h2>
                 {/* Category Nav */}
                 <div className="sticky top-4 z-40 bg-white/80 dark:bg-slate-950/80 backdrop-blur-md py-4 border-b border-slate-200/50 dark:border-slate-800/50 -mx-4 px-4">
                   <div className="flex gap-2 overflow-x-auto no-scrollbar">
@@ -1622,7 +1724,7 @@ function MainApp() {
                         }`}
                       >
                         <cat.icon className="w-4 h-4" />
-                        {cat.name}
+                      {t(`category.${cat.id}`)}
                       </button>
                     ))}
 
@@ -1633,7 +1735,7 @@ function MainApp() {
                             onClick={handleExportFavorites}
                             className="flex items-center gap-2 px-4 py-2 rounded-full text-sm font-bold text-indigo-600 dark:text-indigo-400 hover:bg-indigo-50 dark:hover:bg-indigo-900/20 transition-all border border-indigo-100 dark:border-indigo-900/30"
                           >
-                            <Download className="w-4 h-4" /> Exporter
+                            <Download className="w-4 h-4" /> {t("favorites.export")}
                           </button>
                         )}
                         <label
@@ -1647,7 +1749,7 @@ function MainApp() {
                           }}
                           className="flex items-center gap-2 px-4 py-2 rounded-full text-sm font-bold text-slate-600 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-900 transition-all border border-slate-200 dark:border-slate-800 cursor-pointer focus-visible:ring-2 focus-visible:ring-indigo-500 focus-visible:outline-none"
                         >
-                          <FileUp className="w-4 h-4" /> Importer
+                          <FileUp className="w-4 h-4" /> {t("favorites.import")}
                           <input type="file" accept=".json" onChange={handleImportFavorites} className="hidden" />
                         </label>
                       </div>
@@ -1673,11 +1775,11 @@ function MainApp() {
                       {selectedCategory === "favorites" && !searchQuery ? <Star className="w-8 h-8" /> : <Search className="w-8 h-8" />}
                     </div>
                     <h4 className="text-xl font-bold mb-2">
-                      {selectedCategory === "favorites" && !searchQuery ? "Aucun favori pour le moment" : "Aucun outil trouvé"}
+                      {selectedCategory === "favorites" && !searchQuery ? t("favorites.empty") : t("search.no_results")}
                     </h4>
                     <p className="text-slate-500 dark:text-slate-400 mb-8">
                       {selectedCategory === "favorites" && !searchQuery
-                        ? "Cliquez sur l'étoile d'un outil pour l'ajouter à votre liste de favoris."
+                        ? t("favorites.hint")
                         : "Essayez un autre mot-clé ou effacez les filtres."}
                     </p>
                     <button
@@ -1691,7 +1793,7 @@ function MainApp() {
                       }}
                       className="px-6 py-2 bg-slate-900 dark:bg-white text-white dark:text-slate-900 rounded-xl font-bold transition-all"
                     >
-                      {selectedCategory === "favorites" && !searchQuery ? "Voir tous les outils" : "Effacer tout"}
+                      {selectedCategory === "favorites" && !searchQuery ? t("category.all") : t("search.clear")}
                     </button>
                   </div>
                 )}
@@ -1705,21 +1807,22 @@ function MainApp() {
                 <div className="flex flex-col md:flex-row justify-between items-center gap-8">
                   <div className="flex items-center gap-2 text-slate-400">
                     <Sparkles className="w-4 h-4" />
-                    <span className="text-sm font-bold">Boîte à Outils © {new Date().getFullYear()}</span>
+                    <span className="text-sm font-bold">{t("footer.copy")} © {new Date().getFullYear()}</span>
                   </div>
                   <div className="flex gap-8">
-                    <Link to="/a-propos" className="text-sm font-medium text-slate-400 hover:text-slate-900 dark:hover:text-white transition-colors">À propos</Link>
-                    <Link to="/confidentialite" className="text-sm font-medium text-slate-400 hover:text-slate-900 dark:hover:text-white transition-colors">Confidentialité</Link>
-                    <Link to="/contact" className="text-sm font-medium text-slate-400 hover:text-slate-900 dark:hover:text-white transition-colors">Contact</Link>
+                    <Link to={`/${i18nInstance.language}/a-propos`} className="text-sm font-medium text-slate-400 hover:text-slate-900 dark:hover:text-white transition-colors">{t("nav.about")}</Link>
+                    <Link to={`/${i18nInstance.language}/confidentialite`} className="text-sm font-medium text-slate-400 hover:text-slate-900 dark:hover:text-white transition-colors">{t("nav.privacy")}</Link>
+                    <Link to={`/${i18nInstance.language}/contact`} className="text-sm font-medium text-slate-400 hover:text-slate-900 dark:hover:text-white transition-colors">{t("nav.contact")}</Link>
                   </div>
                 </div>
               </footer>
             </div>
           } />
-          <Route path="/outil/:toolId" element={<ToolView favorites={favorites} toggleFavorite={toggleFavorite} onVisit={handleToolVisit} />} />
-          <Route path="/a-propos" element={<InfoPage title="À propos" component={<About />} />} />
-          <Route path="/contact" element={<InfoPage title="Contact" component={<Contact />} />} />
-          <Route path="/confidentialite" element={<InfoPage title="Confidentialité" component={<PrivacyPolicy />} />} />
+            <Route path="outil/:toolId" element={<ToolView favorites={favorites} toggleFavorite={toggleFavorite} onVisit={handleToolVisit} />} />
+            <Route path="a-propos" element={<InfoPage title={t("nav.about")} component={<About />} />} />
+            <Route path="contact" element={<InfoPage title={t("nav.contact")} component={<Contact />} />} />
+            <Route path="confidentialite" element={<InfoPage title={t("nav.privacy")} component={<PrivacyPolicy />} />} />
+          </Route>
         </Routes>
         </main>
       </div>
@@ -1733,6 +1836,7 @@ function ToolView({ favorites, toggleFavorite, onVisit }: {
   onVisit: (id: string) => void
 }) {
   const { toolId } = useParams();
+  const { t, i18n: i18nInstance } = useTranslation();
   const [searchParams] = useSearchParams();
   // ⚡ Bolt Optimization: Use toolsMap for O(1) lookup
   const currentTool = toolId ? toolsMap[toolId] : null;
@@ -1792,8 +1896,8 @@ function ToolView({ favorites, toggleFavorite, onVisit }: {
   if (!currentTool) {
     return (
       <div className="text-center py-20">
-        <h2 className="text-2xl font-bold mb-4">Outil non trouvé</h2>
-        <Link to="/" className="text-indigo-600 font-bold hover:underline focus-visible:ring-2 focus-visible:ring-indigo-500 focus-visible:outline-none rounded-lg">Retour au tableau de bord</Link>
+        <h2 className="text-2xl font-bold mb-4">{t("tool.not_found")}</h2>
+        <Link to={`/${i18nInstance.language}`} className="text-indigo-600 font-bold hover:underline focus-visible:ring-2 focus-visible:ring-indigo-500 focus-visible:outline-none rounded-lg">{t("nav.home")}</Link>
       </div>
     );
   }
@@ -1801,11 +1905,11 @@ function ToolView({ favorites, toggleFavorite, onVisit }: {
   return (
     <div className="animate-in fade-in slide-in-from-bottom-4 duration-500">
       <Link
-        to="/"
+        to={`/${i18nInstance.language}`}
         className="mb-8 inline-flex items-center gap-2 text-sm font-semibold text-slate-500 hover:text-slate-900 dark:text-slate-400 dark:hover:text-white transition-colors group focus-visible:ring-2 focus-visible:ring-indigo-500 focus-visible:outline-none rounded-lg"
       >
         <ArrowLeft className="w-4 h-4 group-hover:-translate-x-1 transition-transform" />
-        Retour au tableau de bord
+        {t("nav.home")}
       </Link>
 
       <div className="mb-12 space-y-4">
@@ -1813,11 +1917,11 @@ function ToolView({ favorites, toggleFavorite, onVisit }: {
           <div className="space-y-2">
             {category && (
               <div className="inline-flex items-center gap-2 px-3 py-1 bg-indigo-50 dark:bg-indigo-900/20 text-indigo-600 dark:text-indigo-400 rounded-full text-xs font-bold uppercase tracking-widest">
-                <category.icon className="w-3 h-3" /> {category.name}
+                <category.icon className="w-3 h-3" /> {t(`category.${category.id}`)}
               </div>
             )}
-            <h1 className="text-4xl md:text-5xl font-black tracking-tight">{currentTool.name}</h1>
-            <p className="text-lg text-slate-500 dark:text-slate-400 max-w-2xl">{currentTool.description}</p>
+            <h1 className="text-4xl md:text-5xl font-black tracking-tight">{(i18nInstance.language === 'en' && currentTool.nameEn) ? currentTool.nameEn : currentTool.name}</h1>
+            <p className="text-lg text-slate-500 dark:text-slate-400 max-w-2xl">{(i18nInstance.language === 'en' && currentTool.descriptionEn) ? currentTool.descriptionEn : currentTool.description}</p>
           </div>
           <div className="flex items-center gap-3 flex-wrap">
             <button
@@ -1829,12 +1933,12 @@ function ToolView({ favorites, toggleFavorite, onVisit }: {
               }`}
             >
               {linkCopied ? <Check className="w-4 h-4" /> : <LinkIcon className="w-4 h-4" />}
-              {linkCopied ? "Lien copié" : "Copier lien"}
+              {linkCopied ? t("tool.copied") : t("tool.copy")}
             </button>
             {toolState && (
               <button
                 onClick={handleShareWithState}
-                title="Copier le lien avec la configuration actuelle"
+                title={t("tool.share_config")}
                 className={`flex items-center gap-2 px-4 py-2.5 rounded-2xl text-sm font-bold transition-all border focus-visible:ring-2 focus-visible:ring-indigo-500 focus-visible:outline-none ${
                   shareCopied
                     ? "bg-emerald-50 dark:bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border-emerald-200 dark:border-emerald-500/20"
@@ -1842,7 +1946,7 @@ function ToolView({ favorites, toggleFavorite, onVisit }: {
                 }`}
               >
                 {shareCopied ? <Check className="w-4 h-4" /> : <Share2 className="w-4 h-4" />}
-                {shareCopied ? "Config copiée" : "Partager config"}
+                {shareCopied ? t("tool.config_copied") : t("tool.share_config")}
               </button>
             )}
             <button
@@ -1855,7 +1959,7 @@ function ToolView({ favorites, toggleFavorite, onVisit }: {
               }`}
             >
               <Star className={`w-5 h-5 ${favorites.includes(currentTool.id) ? 'fill-current' : ''}`} />
-              {favorites.includes(currentTool.id) ? "Favori" : "Mettre en favori"}
+              {favorites.includes(currentTool.id) ? t("tool.favorite") : t("tool.add_favorite")}
             </button>
           </div>
         </div>
@@ -1877,14 +1981,15 @@ function ToolView({ favorites, toggleFavorite, onVisit }: {
 }
 
 function InfoPage({ title, component }: { title: string, component: React.ReactNode }) {
+  const { t, i18n: i18nInstance } = useTranslation();
   return (
     <div className="animate-in fade-in slide-in-from-bottom-4 duration-500">
       <Link
-        to="/"
+        to={`/${i18nInstance.language}`}
         className="mb-8 inline-flex items-center gap-2 text-sm font-semibold text-slate-500 hover:text-slate-900 dark:text-slate-400 dark:hover:text-white transition-colors group focus-visible:ring-2 focus-visible:ring-indigo-500 focus-visible:outline-none rounded-lg"
       >
         <ArrowLeft className="w-4 h-4 group-hover:-translate-x-1 transition-transform" />
-        Retour au tableau de bord
+        {t("nav.home")}
       </Link>
       <h1 className="text-4xl font-black mb-12">{title}</h1>
       <div className="bg-white dark:bg-slate-900/40 rounded-[2.5rem] border border-slate-200 dark:border-slate-800 p-5 md:p-12 shadow-sm">

@@ -42,6 +42,10 @@ const resources = {
       "tool.add_favorite": "Add to favorites",
       "tool.not_found": "Tool not found",
       "tool.remove_favorite": "Remove from favorites",
+      "tool.css-triangle.name": "CSS Triangle",
+      "tool.css-triangle.description": "Visual pure CSS triangle generator",
+      "tool.css-border-radius.name": "CSS Border Radius",
+      "tool.css-border-radius.description": "Visual CSS border-radius generator with individual corner controls",
     }
   },
   fr: {
@@ -83,6 +87,10 @@ const resources = {
       "tool.add_favorite": "Mettre en favori",
       "tool.not_found": "Outil non trouvé",
       "tool.remove_favorite": "Retirer des favoris",
+      "tool.css-triangle.name": "Triangle CSS",
+      "tool.css-triangle.description": "Générateur visuel de triangles en pur CSS",
+      "tool.css-border-radius.name": "Border Radius CSS",
+      "tool.css-border-radius.description": "Générateur visuel de border-radius CSS avec contrôle individuel des coins",
     }
   }
 };

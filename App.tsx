@@ -19,6 +19,7 @@ import {
   Calculator as CalcIcon,
   Ruler,
   Key,
+  Play,
   Type,
   Palette,
   Timer,
@@ -43,6 +44,7 @@ import {
   Columns,
   Monitor,
   Maximize,
+  Triangle,
   GraduationCap,
   Activity,
   Signal,
@@ -226,6 +228,8 @@ const WhatsAppLinkGenerator = lazy(() => import("./components/WhatsAppLinkGenera
 const SecurityHeadersGenerator = lazy(() => import("./components/SecurityHeadersGenerator").then(m => ({ default: m.SecurityHeadersGenerator })));
 const WiFiGenerator = lazy(() => import("./components/WiFiGenerator").then(m => ({ default: m.WiFiGenerator })));
 const RobotsTxtGenerator = lazy(() => import("./components/RobotsTxtGenerator").then(m => ({ default: m.RobotsTxtGenerator })));
+const CSSTriangleGenerator = lazy(() => import("./components/CSSTriangleGenerator").then(m => ({ default: m.CSSTriangleGenerator })));
+const CSSBorderRadiusGenerator = lazy(() => import("./components/CSSBorderRadiusGenerator").then(m => ({ default: m.CSSBorderRadiusGenerator })));
 
 // ⚡ Bolt Optimization: Pre-calculating tool map and search index for O(1) lookups and faster filtering
 const toolsMap: Record<string, Tool> = {};
@@ -1236,6 +1240,28 @@ const tools: Tool[] = [
     Component: RobotsTxtGenerator,
     category: "dev",
     keywords: ["seo", "robots", "txt", "google", "indexation", "sitemap", "webmaster"],
+  },
+  {
+    id: "css-triangle",
+    name: "Triangle CSS",
+    nameEn: "CSS Triangle",
+    icon: Triangle,
+    description: "Générateur visuel de triangles en pur CSS",
+    descriptionEn: "Visual pure CSS triangle generator",
+    Component: CSSTriangleGenerator,
+    category: "dev",
+    keywords: ["css", "triangle", "shape", "design", "frontend", "pure css"],
+  },
+  {
+    id: "css-border-radius",
+    name: "Border Radius CSS",
+    nameEn: "CSS Border Radius",
+    icon: Maximize,
+    description: "Générateur visuel de border-radius pour CSS",
+    descriptionEn: "Visual CSS border-radius generator",
+    Component: CSSBorderRadiusGenerator,
+    category: "dev",
+    keywords: ["css", "border-radius", "design", "frontend", "rounded corners"],
   },
 ];
 

@@ -261,19 +261,21 @@ export function PasswordGenerator({ initialData, onStateChange }: { initialData?
           <div className="flex gap-3">
             <button
               onClick={() => setShowPassword(!showPassword)}
-              className="p-4 bg-white/10 hover:bg-white/20 text-white rounded-2xl transition-all active:scale-95 focus-visible:ring-2 focus-visible:ring-indigo-500 focus-visible:outline-none"
+              className="p-4 bg-white/10 hover:bg-white/20 text-white rounded-2xl transition-all active:scale-95 focus-visible:ring-2 focus-visible:ring-indigo-500 focus-visible:outline-none flex items-center gap-2"
               title={showPassword ? "Masquer (V)" : "Afficher (V)"}
-              aria-label={showPassword ? "Masquer le mot de passe" : "Afficher le mot de passe"}
+              aria-label={showPassword ? "Masquer le mot de passe (V)" : "Afficher le mot de passe (V)"}
             >
               {showPassword ? <EyeOff className="w-6 h-6" /> : <Eye className="w-6 h-6" />}
+              <kbd className="hidden sm:inline-flex items-center justify-center w-5 h-5 border border-white/20 rounded text-[10px] font-bold bg-white/5 text-white/50">V</kbd>
             </button>
             <button
               onClick={generatePassword}
-              className="p-4 bg-white/10 hover:bg-white/20 text-white rounded-2xl transition-all active:scale-95 focus-visible:ring-2 focus-visible:ring-indigo-500 focus-visible:outline-none group/regen"
+              className="p-4 bg-white/10 hover:bg-white/20 text-white rounded-2xl transition-all active:scale-95 focus-visible:ring-2 focus-visible:ring-indigo-500 focus-visible:outline-none group/regen flex items-center gap-2"
               title="Régénérer (R)"
-              aria-label="Régénérer le mot de passe"
+              aria-label="Régénérer le mot de passe (R)"
             >
               <RefreshCw className="w-6 h-6 transition-transform duration-500 group-hover/regen:rotate-180" />
+              <kbd className="hidden sm:inline-flex items-center justify-center w-5 h-5 border border-white/20 rounded text-[10px] font-bold bg-white/5 text-white/50">R</kbd>
             </button>
             <button
               onClick={copyToClipboard}
@@ -283,9 +285,15 @@ export function PasswordGenerator({ initialData, onStateChange }: { initialData?
                   : 'bg-white text-slate-900 border-transparent hover:bg-slate-100'
               }`}
               title="Copier (C)"
+              aria-label="Copier le mot de passe (C)"
             >
               {copied ? <Check className="w-6 h-6" /> : <Copy className="w-6 h-6" />}
               {copied ? 'Copié' : 'Copier'}
+              <kbd className={`ml-1 hidden sm:inline-flex items-center justify-center w-5 h-5 border rounded text-[10px] font-bold ${
+                copied
+                  ? 'bg-emerald-500/10 border-emerald-500/20 text-emerald-600'
+                  : 'bg-slate-100 border-slate-200 text-slate-400'
+              }`}>C</kbd>
             </button>
           </div>
         </div>

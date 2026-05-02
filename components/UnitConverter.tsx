@@ -1,4 +1,4 @@
-import { useState, useEffect, useMemo } from 'react';
+import { useState, useEffect, useMemo, useCallback } from 'react';
 import { Copy, Check, Trash2, ArrowUpDown, Info, Ruler, Download, Search, X } from 'lucide-react';
 
 type ConversionCategory = 'length' | 'weight' | 'temperature' | 'area' | 'volume' | 'digital' | 'digital_si' | 'pressure' | 'energy' | 'speed' | 'time' | 'power' | 'frequency' | 'consumption' | 'angle' | 'torque' | 'force' | 'datarate' | 'illuminance' | 'luminance' | 'radiation' | 'magnetic' | 'acceleration' | 'density' | 'voltage' | 'current' | 'resistance' | 'capacitance' | 'typography' | 'cooking';
@@ -328,7 +328,7 @@ export function UnitConverter({ initialData, onStateChange }: { initialData?: an
     setToValue(0);
   };
 
-  const handleSwap = () => {
+  const handleSwap = useCallback(() => {
     const newFromUnit = toUnit;
     const newToUnit = fromUnit;
     const newFromValue = toValue.toString();
@@ -337,7 +337,23 @@ export function UnitConverter({ initialData, onStateChange }: { initialData?: an
     setToUnit(newToUnit);
     setFromValue(newFromValue);
     setToValue(convert(newFromValue, newFromUnit, newToUnit, category));
-  };
+  }, [fromUnit, toUnit, toValue, category]);
+
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (document.activeElement?.tagName === "INPUT" || document.activeElement?.tagName === "TEXTAREA" || document.activeElement?.tagName === "SELECT") {
+        return;
+      }
+
+      if (e.key.toLowerCase() === 's') {
+        e.preventDefault();
+        handleSwap();
+      }
+    };
+
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [handleSwap]);
 
   return (
     <div className="max-w-4xl mx-auto space-y-12">
@@ -437,14 +453,15 @@ export function UnitConverter({ initialData, onStateChange }: { initialData?: an
           </div>
         </div>
 
-        <div className="flex justify-center md:pt-8">
+        <div className="flex flex-col items-center justify-center md:pt-8 gap-2">
           <button
             onClick={handleSwap}
             className="w-10 h-10 md:w-12 md:h-12 bg-indigo-600 text-white rounded-full flex items-center justify-center shadow-lg shadow-indigo-600/20 transition-all hover:scale-110 active:scale-95 group focus-visible:ring-2 focus-visible:ring-indigo-500 focus-visible:outline-none"
-            aria-label="Inverser les unités"
+            aria-label="Inverser les unités (S)"
           >
             <ArrowUpDown className="w-5 h-5 md:w-6 md:h-6 transition-transform group-hover:rotate-180 duration-500" />
           </button>
+          <kbd className="hidden sm:inline-flex items-center justify-center w-5 h-5 border border-slate-200 dark:border-slate-800 rounded text-[10px] font-bold text-slate-400 bg-white dark:bg-slate-900">S</kbd>
         </div>
 
         {/* Vers */}

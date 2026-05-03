@@ -48,6 +48,10 @@ const resources = {
       "tool.css-border-radius.description": "Visual CSS border-radius generator with individual corner controls",
       "tool.yaml-formatter.name": "YAML Formatter",
       "tool.yaml-formatter.description": "Prettify, minify and validate your YAML",
+      "tool.json-path.name": "JSONPath Tester",
+      "tool.json-path.description": "Test JSONPath expressions on your JSON data",
+      "tool.sitemap-generator.name": "Sitemap Generator",
+      "tool.sitemap-generator.description": "Generate a sitemap.xml file for SEO",
     }
   },
   fr: {
@@ -95,6 +99,10 @@ const resources = {
       "tool.css-border-radius.description": "Générateur visuel de border-radius CSS avec contrôle individuel des coins",
       "tool.yaml-formatter.name": "Formateur YAML",
       "tool.yaml-formatter.description": "Prettify, minify et valide votre YAML",
+      "tool.json-path.name": "Testeur JSONPath",
+      "tool.json-path.description": "Tester des expressions JSONPath sur vos données JSON",
+      "tool.sitemap-generator.name": "Générateur de Sitemap",
+      "tool.sitemap-generator.description": "Générer un fichier sitemap.xml pour le SEO",
     }
   }
 };

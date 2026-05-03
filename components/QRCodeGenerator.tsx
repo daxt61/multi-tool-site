@@ -20,13 +20,28 @@ export function QRCodeGenerator({ initialData, onStateChange }: { initialData?: 
     ? `https://api.qrserver.com/v1/create-qr-code/?size=${size}x${size}&data=${encodeURIComponent(text)}&color=${cleanFg}&bgcolor=${cleanBg}&ecc=${ecc}`
     : '';
 
-  const downloadQRCode = () => {
+  const downloadQRCode = async () => {
     if (!qrCodeUrl) return;
     
-    const link = document.createElement('a');
-    link.href = qrCodeUrl;
-    link.download = `qrcode-${Date.now()}.png`;
-    link.click();
+    try {
+      const response = await fetch(qrCodeUrl);
+      const blob = await response.blob();
+      const url = window.URL.createObjectURL(blob);
+      const link = document.createElement('a');
+      link.href = url;
+      link.download = `qrcode-${Date.now()}.png`;
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      window.URL.revokeObjectURL(url);
+    } catch (e) {
+      // Fallback for CORS issues or other fetch failures
+      const link = document.createElement('a');
+      link.href = qrCodeUrl;
+      link.target = '_blank';
+      link.download = `qrcode-${Date.now()}.png`;
+      link.click();
+    }
   };
 
   const handleClear = () => {

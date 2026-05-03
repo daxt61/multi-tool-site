@@ -1,5 +1,7 @@
 import { useState, useMemo, useEffect } from 'react';
-import { Link as LinkIcon, Globe, FileText, Hash, Search, Copy, Check, Trash2, Info, Download, ShieldCheck } from 'lucide-react';
+import { Link as LinkIcon, Globe, FileText, Hash, Search, Copy, Check, Trash2, Info, Download, ShieldCheck, Terminal, AlertCircle } from 'lucide-react';
+
+const MAX_LENGTH = 10000;
 
 export function UrlParser({ initialData, onStateChange }: { initialData?: any; onStateChange?: (state: any) => void }) {
   const [url, setUrl] = useState(initialData?.url || '');
@@ -11,6 +13,9 @@ export function UrlParser({ initialData, onStateChange }: { initialData?: any; o
 
   const parsed = useMemo(() => {
     if (!url.trim()) return null;
+    if (url.length > MAX_LENGTH) {
+      return { isValid: false as const, error: `L'URL est trop longue. Limite de ${MAX_LENGTH.toLocaleString()} caractères.` };
+    }
     try {
       // Handle cases where protocol might be missing
       let urlToParse = url.trim();
@@ -67,6 +72,12 @@ Origine : ${parsed.origin}`;
     URL.revokeObjectURL(urlBlob);
   };
 
+  const handleCopyCurl = () => {
+    if (!url) return;
+    const curl = `curl "${url}"`;
+    copyToClipboard(curl, 'curl');
+  };
+
   return (
     <div className="max-w-5xl mx-auto space-y-12">
       {/* Input Section */}
@@ -90,28 +101,47 @@ Origine : ${parsed.origin}`;
             value={url}
             onChange={(e) => setUrl(e.target.value)}
             placeholder="https://example.com/path?param=value#hash"
-            className="w-full p-6 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-3xl outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 transition-all text-lg font-mono dark:text-white"
+            className={`w-full p-6 bg-slate-50 dark:bg-slate-900 border ${url.length > MAX_LENGTH ? 'border-rose-500 ring-rose-500/20' : 'border-slate-200 dark:border-slate-800'} rounded-3xl outline-none focus:ring-2 ${url.length > MAX_LENGTH ? 'focus:ring-rose-500/20' : 'focus:ring-indigo-500/20'} transition-all text-lg font-mono dark:text-white`}
           />
           {url && parsed && !parsed.isValid && (
             <div className="absolute right-4 top-1/2 -translate-y-1/2 text-rose-500">
-               <Info className="w-5 h-5" />
+               <AlertCircle className="w-5 h-5" />
             </div>
           )}
         </div>
+        {url.length > MAX_LENGTH && (
+          <div className="flex items-center gap-2 text-rose-500 text-xs font-bold px-4">
+            <AlertCircle className="w-4 h-4" />
+            L'URL est trop longue. Limite de {MAX_LENGTH.toLocaleString()} caractères.
+          </div>
+        )}
       </div>
 
       {url && parsed && (
         parsed.isValid ? (
           <div className="space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-500">
-            {/* Header with Download */}
+            {/* Header with Actions */}
             <div className="flex justify-between items-center px-1">
                <h3 className="text-sm font-black uppercase tracking-widest text-slate-400">Résultats de l'analyse</h3>
-               <button
-                 onClick={handleDownload}
-                 className="text-xs font-bold text-indigo-600 bg-indigo-50 dark:bg-indigo-900/20 hover:bg-indigo-100 dark:hover:bg-indigo-900/30 px-3 py-1.5 rounded-xl flex items-center gap-1 transition-all"
-               >
-                 <Download className="w-3 h-3" /> Télécharger
-               </button>
+               <div className="flex gap-2">
+                 <button
+                   onClick={handleCopyCurl}
+                   className={`text-xs font-bold px-3 py-1.5 rounded-xl transition-all flex items-center gap-1 border focus-visible:ring-2 focus-visible:ring-indigo-500 focus-visible:outline-none ${
+                     copied === 'curl'
+                       ? "bg-emerald-50 dark:bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border-emerald-200 dark:border-emerald-500/20"
+                       : "bg-slate-50 text-slate-500 border-slate-200 dark:bg-slate-900 dark:border-slate-800 hover:border-slate-300 dark:hover:border-slate-700"
+                   }`}
+                 >
+                   {copied === 'curl' ? <Check className="w-3 h-3" /> : <Terminal className="w-3 h-3" />}
+                   {copied === 'curl' ? 'CURL Copié' : 'Copier cURL'}
+                 </button>
+                 <button
+                   onClick={handleDownload}
+                   className="text-xs font-bold text-indigo-600 bg-indigo-50 dark:bg-indigo-900/20 hover:bg-indigo-100 dark:hover:bg-indigo-900/30 px-3 py-1.5 rounded-xl flex items-center gap-1 transition-all"
+                 >
+                   <Download className="w-3 h-3" /> Télécharger
+                 </button>
+               </div>
             </div>
 
             {/* Grid of components */}
@@ -184,10 +214,14 @@ Origine : ${parsed.origin}`;
         ) : (
           <div className="text-center py-20 bg-rose-50 dark:bg-rose-500/5 rounded-[2.5rem] border-2 border-dashed border-rose-200 dark:border-rose-500/20">
              <div className="w-16 h-16 bg-white dark:bg-slate-900 rounded-full flex items-center justify-center mx-auto mb-6 text-rose-500 shadow-lg">
-                <Info className="w-8 h-8" />
+                <AlertCircle className="w-8 h-8" />
              </div>
-             <h4 className="text-xl font-bold text-rose-900 dark:text-rose-400 mb-2">URL Invalide</h4>
-             <p className="text-rose-600/60 dark:text-rose-400/60 font-medium">Veuillez entrer une URL valide pour voir l'analyse détaillée.</p>
+             <h4 className="text-xl font-bold text-rose-900 dark:text-rose-400 mb-2">
+               {(parsed as any).error || "URL Invalide"}
+             </h4>
+             <p className="text-rose-600/60 dark:text-rose-400/60 font-medium">
+               {!(parsed as any).error && "Veuillez entrer une URL valide pour voir l'analyse détaillée."}
+             </p>
           </div>
         )
       )}

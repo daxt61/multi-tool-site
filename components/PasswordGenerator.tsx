@@ -32,6 +32,7 @@ export function PasswordGenerator({ initialData, onStateChange }: { initialData?
   const [showPassword, setShowPassword] = useState(false);
   const [copied, setCopied] = useState(false);
   const [copiedHistoryIndex, setCopiedHistoryIndex] = useState<number | null>(null);
+  const [copiedHistoryAll, setCopiedHistoryAll] = useState(false);
   const [history, setHistory] = useState<string[]>([]);
 
   const getSecureRandomIndex = useCallback((range: number) => {
@@ -150,6 +151,13 @@ export function PasswordGenerator({ initialData, onStateChange }: { initialData?
     navigator.clipboard.writeText(item);
     setCopiedHistoryIndex(index);
     setTimeout(() => setCopiedHistoryIndex(null), 2000);
+  };
+
+  const copyHistoryAll = () => {
+    if (history.length === 0) return;
+    navigator.clipboard.writeText(history.join('\n'));
+    setCopiedHistoryAll(true);
+    setTimeout(() => setCopiedHistoryAll(false), 2000);
   };
 
   const handleDownload = () => {
@@ -327,6 +335,17 @@ export function PasswordGenerator({ initialData, onStateChange }: { initialData?
             <h3 className="text-[10px] font-black uppercase tracking-widest text-slate-400 flex items-center gap-2">
               <RefreshCw className="w-3 h-3" /> Historique récent
             </h3>
+            <button
+              onClick={copyHistoryAll}
+              className={`text-[10px] font-black uppercase tracking-widest px-3 py-1 rounded-lg transition-all flex items-center gap-1.5 border ${
+                copiedHistoryAll
+                  ? 'bg-emerald-50 dark:bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border-emerald-200 dark:border-emerald-500/20'
+                  : 'text-indigo-600 dark:text-indigo-400 border-transparent hover:bg-indigo-50 dark:hover:bg-indigo-900/20'
+              }`}
+            >
+              {copiedHistoryAll ? <Check className="w-3 h-3" /> : <Copy className="w-3 h-3" />}
+              {copiedHistoryAll ? 'Copié' : 'Tout copier'}
+            </button>
           </div>
           <div className="flex flex-wrap gap-2">
             {history.slice(1).map((item, idx) => (

@@ -9,3 +9,7 @@
 ## 2025-05-30 - [Search Keyboard Shortcuts & Navigation]
 **Learning:** Adding standard keyboard shortcuts (Escape to clear, Enter to select first result) to a global search input significantly improves the speed and accessibility for power users. It reduces reliance on mouse interaction for the primary navigation entry point.
 **Action:** Prioritize standard keyboard interaction patterns (Escape/Enter) for search and filter inputs in future tools.
+
+## 2025-05-31 - [Recent Tools in Command Menu & Global Localization]
+**Learning:** Integrating a 'Recent Tools' section into the global command menu (Ctrl+K) provides a significant usability boost for returning users, mirroring the dashboard experience in a modal context. Additionally, global UI elements like 'Skip to Content' links and theme/language toggles require explicit ARIA labeling and localization to be fully accessible.
+**Action:** Always consider including a 'Recently Used' or 'Favorites' section in searchable command palettes. Ensure all top-level UI components use `useTranslation` for localized `aria-label` and `title` attributes.

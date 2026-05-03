@@ -1363,20 +1363,21 @@ ToolCard.displayName = "ToolCard";
 
 
 function LoadingTool() {
+  const { t } = useTranslation();
   return (
     <div className="flex flex-col items-center justify-center min-h-[400px] space-y-4 animate-in fade-in duration-500">
       <div className="relative">
         <div className="w-12 h-12 border-4 border-indigo-500/20 rounded-full"></div>
         <Loader2 className="w-12 h-12 text-indigo-500 animate-spin absolute top-0 left-0" />
       </div>
-      <p className="text-sm font-medium text-slate-500 dark:text-slate-400 animate-pulse">Chargement de l'outil...</p>
+      <p className="text-sm font-medium text-slate-500 dark:text-slate-400 animate-pulse">{t("tool.loading")}</p>
     </div>
   );
 }
 
 function ThemeToggle({ navigate, location }: { navigate: any, location: any }) {
   const { theme, setTheme } = useTheme();
-  const { i18n: i18nInstance } = useTranslation();
+  const { t, i18n: i18nInstance } = useTranslation();
   const [mounted, setMounted] = useState(false);
 
   useEffect(() => setMounted(true), []);
@@ -1402,14 +1403,14 @@ function ThemeToggle({ navigate, location }: { navigate: any, location: any }) {
       <button
         onClick={toggleLanguage}
         className="px-3 py-2 rounded-lg bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 transition-colors text-xs font-bold text-slate-600 dark:text-slate-300 border border-slate-200 dark:border-slate-700 focus-visible:ring-2 focus-visible:ring-indigo-500 focus-visible:outline-none"
-        aria-label="Changer de langue"
+        aria-label={t("nav.lang_toggle")}
       >
         {i18nInstance.language === 'fr' ? 'EN' : 'FR'}
       </button>
       <button
         onClick={() => setTheme(theme === "dark" ? "light" : "dark")}
         className="p-2 rounded-lg bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 transition-colors text-slate-600 dark:text-slate-300 border border-slate-200 dark:border-slate-700 focus-visible:ring-2 focus-visible:ring-indigo-500 focus-visible:outline-none"
-        aria-label="Changer de thème"
+        aria-label={t("nav.theme_toggle")}
       >
         {theme === "dark" ? <Sun className="w-5 h-5" /> : <Moon className="w-5 h-5" />}
       </button>
@@ -1430,7 +1431,12 @@ function LangWrapper() {
   return <Outlet />;
 }
 
-function CommandMenu({ open, setOpen, onSelect }: { open: boolean, setOpen: (open: boolean) => void, onSelect: (id: string) => void }) {
+function CommandMenu({ open, setOpen, onSelect, recentTools = [] }: {
+  open: boolean,
+  setOpen: (open: boolean) => void,
+  onSelect: (id: string) => void,
+  recentTools?: Tool[]
+}) {
   const { t, i18n } = useTranslation();
   const currentLang = i18n.language || 'fr';
 
@@ -1453,7 +1459,7 @@ function CommandMenu({ open, setOpen, onSelect }: { open: boolean, setOpen: (ope
       <div className="fixed inset-0 bg-slate-950/40 backdrop-blur-sm" onClick={() => setOpen(false)} />
       <Command
         className="relative w-full max-w-2xl bg-white dark:bg-slate-900 rounded-3xl border border-slate-200 dark:border-slate-800 shadow-2xl overflow-hidden animate-in zoom-in-95 duration-200"
-        label="Menu de commande"
+        label={t("nav.search_aria")}
       >
         <div className="flex items-center border-b border-slate-200 dark:border-slate-800 px-4 py-4">
           <Search className="w-5 h-5 text-slate-400 mr-3" />
@@ -1469,6 +1475,30 @@ function CommandMenu({ open, setOpen, onSelect }: { open: boolean, setOpen: (ope
           <Command.Empty className="py-12 text-center text-sm text-slate-500">
             {t("search.no_results")}
           </Command.Empty>
+
+          {recentTools.length > 0 && (
+            <Command.Group heading={t("recent.title")} className="px-2 py-2 text-xs font-bold text-slate-400 uppercase tracking-widest">
+              {recentTools.map((tool) => {
+                const name = (currentLang === 'en' && tool.nameEn) ? tool.nameEn : tool.name;
+                return (
+                  <Command.Item
+                    key={`recent-${tool.id}`}
+                    onSelect={() => {
+                      onSelect(tool.id);
+                      setOpen(false);
+                    }}
+                    className="flex items-center gap-3 p-3 rounded-xl cursor-pointer hover:bg-slate-50 dark:hover:bg-slate-800 aria-selected:bg-indigo-50 dark:aria-selected:bg-indigo-900/20 aria-selected:text-indigo-600 dark:aria-selected:text-indigo-400 transition-colors group"
+                  >
+                    <div className="w-8 h-8 rounded-lg bg-slate-100 dark:bg-slate-800 flex items-center justify-center text-slate-500 group-hover:text-indigo-500 group-aria-selected:text-indigo-600 dark:group-aria-selected:text-indigo-400 transition-colors">
+                      <tool.icon className="w-4 h-4" />
+                    </div>
+                    <span className="font-semibold">{name}</span>
+                    <span className="ml-auto text-[10px] font-medium opacity-50">{t(`category.${tool.category}`)}</span>
+                  </Command.Item>
+                );
+              })}
+            </Command.Group>
+          )}
 
           <Command.Group heading={t("category.all")} className="px-2 py-2 text-xs font-bold text-slate-400 uppercase tracking-widest">
             {tools.map((tool) => {
@@ -1720,12 +1750,12 @@ function MainApp() {
 
   return (
     <div className="min-h-screen bg-white dark:bg-slate-950 text-slate-900 dark:text-slate-100 selection:bg-indigo-100 dark:selection:bg-indigo-900/50">
-      <CommandMenu open={commandOpen} setOpen={setCommandOpen} onSelect={handleToolSelect} />
+      <CommandMenu open={commandOpen} setOpen={setCommandOpen} onSelect={handleToolSelect} recentTools={recentTools} />
       <a
         href="#main-content"
         className="fixed top-4 left-4 z-[100] px-4 py-2 bg-indigo-600 text-white rounded-lg font-bold shadow-xl -translate-y-24 focus:translate-y-0 transition-transform duration-200"
       >
-        Aller au contenu principal
+        {t("nav.skip")}
       </a>
 
       {/* Background Decor */}
@@ -1861,7 +1891,7 @@ function MainApp() {
 
               {/* Main Content */}
               <div className="space-y-12">
-                <h2 className="sr-only">Tous les outils</h2>
+                <h2 className="sr-only">{t("tool.all_tools_aria")}</h2>
                 {/* Category Nav */}
                 <div className="sticky top-4 z-40 bg-white/80 dark:bg-slate-950/80 backdrop-blur-md py-4 border-b border-slate-200/50 dark:border-slate-800/50 -mx-4 px-4">
                   <div className="flex gap-2 overflow-x-auto no-scrollbar">
@@ -1933,7 +1963,7 @@ function MainApp() {
                     <p className="text-slate-500 dark:text-slate-400 mb-8">
                       {selectedCategory === "favorites" && !searchQuery
                         ? t("favorites.hint")
-                        : "Essayez un autre mot-clé ou effacez les filtres."}
+                        : t("search.no_results_hint")}
                     </p>
                     <button
                       onClick={() => {

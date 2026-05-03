@@ -13,13 +13,27 @@ export function Base64ToImage({ initialData, onStateChange }: { initialData?: an
 const MAX_LENGTH = 1000000; // 1MB for images in base64 is reasonable
 
   const cleanBase64 = (str: string) => {
-    return str.trim().replace(/^data:image\/[a-z]+;base64,/, '');
+    return str.trim().replace(/^data:image\/[a-z+]+;base64,/, '');
   };
 
   const getFullDataUrl = (str: string) => {
-    if (str.startsWith('data:image/')) return str;
-    // Attempt to detect format or default to png
-    return `data:image/png;base64,${cleanBase64(str)}`;
+    const s = str.trim();
+    if (s.startsWith('data:image/')) return s;
+
+    const cleaned = cleanBase64(s);
+    // Detect format from magic bytes (first few chars of base64)
+    // iVBORw0KGgo = PNG
+    // /9j/ = JPEG
+    // R0lGOD = GIF
+    // UklGR = WebP
+    let format = 'png';
+    if (cleaned.startsWith('iVBORw0KGgo')) format = 'png';
+    else if (cleaned.startsWith('/9j/')) format = 'jpeg';
+    else if (cleaned.startsWith('R0lGOD')) format = 'gif';
+    else if (cleaned.startsWith('UklGR')) format = 'webp';
+    else if (cleaned.startsWith('PHN2Zy')) format = 'svg+xml';
+
+    return `data:image/${format};base64,${cleaned}`;
   };
 
   const handleDownload = () => {

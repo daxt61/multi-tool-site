@@ -947,6 +947,7 @@ const tools: Tool[] = [
     description: "Prettify, minify et valide votre JSON",
     Component: JSONFormatter,
     category: "dev",
+    keywords: ["formatting", "pretty", "beautify", "json", "lint"],
   },
   {
     id: "xml-formatter",
@@ -955,6 +956,7 @@ const tools: Tool[] = [
     description: "Embellir, minifier et valider votre XML",
     Component: XMLFormatter,
     category: "dev",
+    keywords: ["formatting", "pretty", "beautify", "xml", "soap"],
   },
   {
     id: "json-to-ts",
@@ -1094,6 +1096,7 @@ const tools: Tool[] = [
     description: "Référence complète des codes d'état HTTP",
     Component: HTTPStatusCodes,
     category: "dev",
+    keywords: ["http", "status", "codes", "error", "server", "rest"],
   },
   // Other Tools
   {
@@ -1253,7 +1256,7 @@ const tools: Tool[] = [
     description: "Générer un fichier robots.txt pour le SEO",
     Component: RobotsTxtGenerator,
     category: "dev",
-    keywords: ["seo", "robots", "txt", "google", "indexation", "sitemap", "webmaster"],
+    keywords: ["seo", "robots", "txt", "google", "indexation", "sitemap", "webmaster", "crawler"],
   },
   {
     id: "css-triangle",

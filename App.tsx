@@ -232,6 +232,8 @@ const WiFiGenerator = lazy(() => import("./components/WiFiGenerator").then(m => 
 const RobotsTxtGenerator = lazy(() => import("./components/RobotsTxtGenerator").then(m => ({ default: m.RobotsTxtGenerator })));
 const CSSTriangleGenerator = lazy(() => import("./components/CSSTriangleGenerator").then(m => ({ default: m.CSSTriangleGenerator })));
 const CSSBorderRadiusGenerator = lazy(() => import("./components/CSSBorderRadiusGenerator").then(m => ({ default: m.CSSBorderRadiusGenerator })));
+const JSONPathTester = lazy(() => import("./components/JSONPathTester").then(m => ({ default: m.JSONPathTester })));
+const SitemapGenerator = lazy(() => import("./components/SitemapGenerator").then(m => ({ default: m.SitemapGenerator })));
 
 // ⚡ Bolt Optimization: Pre-calculating tool map and search index for O(1) lookups and faster filtering
 const toolsMap: Record<string, Tool> = {};
@@ -1274,6 +1276,27 @@ const tools: Tool[] = [
     Component: CSSBorderRadiusGenerator,
     category: "dev",
     keywords: ["css", "border-radius", "design", "frontend", "rounded corners"],
+  },
+  {
+    id: "json-path",
+    name: "JSONPath Tester",
+    icon: Search,
+    description: "Tester des expressions JSONPath sur vos données JSON",
+    descriptionEn: "Test JSONPath expressions on your JSON data",
+    Component: JSONPathTester,
+    category: "dev",
+    keywords: ["json", "path", "query", "filter", "extract"],
+  },
+  {
+    id: "sitemap-generator",
+    name: "Générateur de Sitemap",
+    nameEn: "Sitemap Generator",
+    icon: Globe,
+    description: "Générer un fichier sitemap.xml pour le SEO",
+    descriptionEn: "Generate a sitemap.xml file for SEO",
+    Component: SitemapGenerator,
+    category: "dev",
+    keywords: ["seo", "sitemap", "xml", "google", "indexation"],
   },
 ];
 

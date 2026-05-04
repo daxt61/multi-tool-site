@@ -1,19 +1,38 @@
 import { useState, useEffect } from 'react';
-import { Table, Plus, RotateCcw, Copy, Check, Download } from 'lucide-react';
+import { Table, Plus, RotateCcw, Copy, Check, Download, AlertCircle } from 'lucide-react';
+
+const MAX_ROWS = 50;
+const MAX_COLS = 10;
+const MAX_CELL_LENGTH = 1000;
 
 export function MarkdownTableGenerator({ initialData, onStateChange }: { initialData?: any; onStateChange?: (state: any) => void }) {
-  const [data, setData] = useState<string[][]>(initialData?.data || [
-    ['En-tête 1', 'En-tête 2', 'En-tête 3'],
-    ['Donnée 1', 'Donnée 2', 'Donnée 3'],
-    ['Donnée 4', 'Donnée 5', 'Donnée 6']
-  ]);
+  const [data, setData] = useState<string[][]>(() => {
+    // Sentinel: Validate and slice initialData to mitigate local DoS from massive tables.
+    const rawData = initialData?.data || [
+      ['En-tête 1', 'En-tête 2', 'En-tête 3'],
+      ['Donnée 1', 'Donnée 2', 'Donnée 3'],
+      ['Donnée 4', 'Donnée 5', 'Donnée 6']
+    ];
+
+    if (!Array.isArray(rawData)) return [['']];
+
+    return rawData.slice(0, MAX_ROWS).map(row =>
+      Array.isArray(row) ? row.slice(0, MAX_COLS).map(cell => String(cell || '').slice(0, MAX_CELL_LENGTH)) : []
+    );
+  });
   const [copied, setCopied] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
     onStateChange?.({ data });
   }, [data]);
 
   const updateCell = (r: number, c: number, val: string) => {
+    if (val.length > MAX_CELL_LENGTH) {
+      setError(`La cellule est limitée à ${MAX_CELL_LENGTH} caractères.`);
+      return;
+    }
+    setError(null);
     const newData = data.map((row, rowIndex) =>
       rowIndex === r ? row.map((cell, cellIndex) => cellIndex === c ? val : cell) : row
     );
@@ -21,26 +40,38 @@ export function MarkdownTableGenerator({ initialData, onStateChange }: { initial
   };
 
   const addRow = () => {
+    if (data.length >= MAX_ROWS) {
+      setError(`Nombre maximal de lignes atteint (${MAX_ROWS}).`);
+      return;
+    }
+    setError(null);
     setData([...data, Array(data[0].length).fill('')]);
   };
 
   const addCol = () => {
+    if (data[0].length >= MAX_COLS) {
+      setError(`Nombre maximal de colonnes atteint (${MAX_COLS}).`);
+      return;
+    }
+    setError(null);
     setData(data.map(row => [...row, '']));
   };
 
   const removeRow = (r: number) => {
     if (data.length <= 1) return;
+    setError(null);
     setData(data.filter((_, index) => index !== r));
   };
 
   const removeCol = (c: number) => {
     if (data[0].length <= 1) return;
+    setError(null);
     setData(data.map(row => row.filter((_, index) => index !== c)));
   };
 
   const generateMarkdown = () => {
     if (data.length === 0) return '';
-    const escape = (val: string) => val.replace(/\|/g, '\\|');
+    const escape = (val: string) => String(val).replace(/\|/g, '\\|');
     let md = '| ' + data[0].map(escape).join(' | ') + ' |\n';
     md += '| ' + data[0].map(() => '---').join(' | ') + ' |\n';
     for (let i = 1; i < data.length; i++) {
@@ -72,10 +103,18 @@ export function MarkdownTableGenerator({ initialData, onStateChange }: { initial
       ['Donnée 1', 'Donnée 2', 'Donnée 3'],
       ['Donnée 4', 'Donnée 5', 'Donnée 6']
     ]);
+    setError(null);
   };
 
   return (
     <div className="max-w-6xl mx-auto space-y-8">
+      {error && (
+        <div className="bg-rose-50 dark:bg-rose-500/10 border border-rose-200 dark:border-rose-800 p-4 rounded-2xl flex items-center gap-3 text-rose-600 dark:text-rose-400 font-bold animate-in fade-in slide-in-from-top-2">
+          <AlertCircle className="w-5 h-5" />
+          {error}
+        </div>
+      )}
+
       <div className="flex flex-wrap gap-4 justify-between items-center">
         <div className="flex gap-3">
           <button

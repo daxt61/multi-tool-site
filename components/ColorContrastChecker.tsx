@@ -1,7 +1,9 @@
-import { useState, useMemo } from 'react';
+import { useState, useMemo, useEffect, useCallback } from 'react';
 import { Palette, Type, Check, X, Info, Copy, RefreshCw } from 'lucide-react';
+import { useTranslation } from 'react-i18next';
 
 export function ColorContrastChecker() {
+  const { t } = useTranslation();
   const [foreground, setForeground] = useState('#FFFFFF');
   const [background, setBackground] = useState('#4F46E5');
   const [copied, setCopied] = useState<string | null>(null);
@@ -18,7 +20,9 @@ export function ColorContrastChecker() {
   };
 
   const hexToRgb = (hex: string) => {
-    const result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex);
+    const shorthandRegex = /^#?([a-f\d])([a-f\d])([a-f\d])$/i;
+    const fullHex = hex.replace(shorthandRegex, (m, r, g, b) => r + r + g + g + b + b);
+    const result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(fullHex);
     return result ? {
       r: parseInt(result[1], 16),
       g: parseInt(result[2], 16),
@@ -40,11 +44,27 @@ export function ColorContrastChecker() {
     setTimeout(() => setCopied(null), 2000);
   };
 
-  const swapColors = () => {
+  const swapColors = useCallback(() => {
     const temp = foreground;
     setForeground(background);
     setBackground(temp);
-  };
+  }, [foreground, background]);
+
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (document.activeElement?.tagName === "INPUT" || document.activeElement?.tagName === "TEXTAREA" || document.activeElement?.tagName === "SELECT") {
+        return;
+      }
+
+      if (e.key.toLowerCase() === 's') {
+        e.preventDefault();
+        swapColors();
+      }
+    };
+
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [swapColors]);
 
   const getStatus = (ratio: number, threshold: number) => ratio >= threshold;
 
@@ -58,12 +78,13 @@ export function ColorContrastChecker() {
               {/* Foreground */}
               <div className="space-y-3">
                 <div className="flex justify-between items-center px-1">
-                  <label htmlFor="foreground" className="text-xs font-black uppercase tracking-widest text-slate-400 flex items-center gap-2">
+                  <label htmlFor="foreground-input" className="text-xs font-black uppercase tracking-widest text-slate-400 flex items-center gap-2">
                     <Type className="w-4 h-4" /> Texte (Premier plan)
                   </label>
                   <button
                     onClick={() => copyToClipboard(foreground, 'fg')}
-                    className={`p-1.5 rounded-lg transition-all ${copied === 'fg' ? 'text-emerald-500' : 'text-slate-400 hover:text-indigo-500'}`}
+                    className={`p-1.5 rounded-lg transition-all focus-visible:ring-2 focus-visible:ring-indigo-500 focus-visible:outline-none ${copied === 'fg' ? 'text-emerald-500' : 'text-slate-400 hover:text-indigo-500'}`}
+                    aria-label={t("tool.copy_color")}
                   >
                     {copied === 'fg' ? <Check className="w-4 h-4" /> : <Copy className="w-4 h-4" />}
                   </button>
@@ -74,9 +95,11 @@ export function ColorContrastChecker() {
                     type="color"
                     value={foreground}
                     onChange={(e) => setForeground(e.target.value.toUpperCase())}
-                    className="w-16 h-16 rounded-2xl cursor-pointer border-4 border-white dark:border-slate-800 shadow-sm"
+                    className="w-16 h-16 rounded-2xl cursor-pointer border-4 border-white dark:border-slate-800 shadow-sm focus-visible:ring-2 focus-visible:ring-indigo-500 focus-visible:outline-none"
+                    aria-label="Sélecteur de couleur de texte"
                   />
                   <input
+                    id="foreground-input"
                     type="text"
                     value={foreground}
                     onChange={(e) => setForeground(e.target.value.toUpperCase())}
@@ -86,25 +109,28 @@ export function ColorContrastChecker() {
               </div>
 
               {/* Swap Button */}
-              <div className="flex justify-center -my-4">
+              <div className="flex flex-col items-center gap-2 -my-4">
                 <button
                   onClick={swapColors}
-                  className="p-3 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-full shadow-sm hover:scale-110 active:scale-95 transition-all text-slate-400 hover:text-indigo-600"
-                  title="Inverser les couleurs"
+                  className="group p-3 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-full shadow-sm hover:scale-110 active:scale-95 transition-all text-slate-400 hover:text-indigo-600 focus-visible:ring-2 focus-visible:ring-indigo-500 focus-visible:outline-none"
+                  title="Inverser les couleurs (S)"
+                  aria-label="Inverser les couleurs (S)"
                 >
-                  <RefreshCw className="w-5 h-5" />
+                  <RefreshCw className="w-5 h-5 transition-transform duration-500 group-hover:rotate-180" />
                 </button>
+                <kbd className="hidden sm:inline-flex items-center justify-center w-5 h-5 border border-slate-200 dark:border-slate-700 rounded text-[10px] font-bold text-slate-400 bg-white dark:bg-slate-900">S</kbd>
               </div>
 
               {/* Background */}
               <div className="space-y-3">
                 <div className="flex justify-between items-center px-1">
-                  <label htmlFor="background" className="text-xs font-black uppercase tracking-widest text-slate-400 flex items-center gap-2">
+                  <label htmlFor="background-input" className="text-xs font-black uppercase tracking-widest text-slate-400 flex items-center gap-2">
                     <Palette className="w-4 h-4" /> Fond (Arrière-plan)
                   </label>
                   <button
                     onClick={() => copyToClipboard(background, 'bg')}
-                    className={`p-1.5 rounded-lg transition-all ${copied === 'bg' ? 'text-emerald-500' : 'text-slate-400 hover:text-indigo-500'}`}
+                    className={`p-1.5 rounded-lg transition-all focus-visible:ring-2 focus-visible:ring-indigo-500 focus-visible:outline-none ${copied === 'bg' ? 'text-emerald-500' : 'text-slate-400 hover:text-indigo-500'}`}
+                    aria-label={t("tool.copy_color")}
                   >
                     {copied === 'bg' ? <Check className="w-4 h-4" /> : <Copy className="w-4 h-4" />}
                   </button>
@@ -115,9 +141,11 @@ export function ColorContrastChecker() {
                     type="color"
                     value={background}
                     onChange={(e) => setBackground(e.target.value.toUpperCase())}
-                    className="w-16 h-16 rounded-2xl cursor-pointer border-4 border-white dark:border-slate-800 shadow-sm"
+                    className="w-16 h-16 rounded-2xl cursor-pointer border-4 border-white dark:border-slate-800 shadow-sm focus-visible:ring-2 focus-visible:ring-indigo-500 focus-visible:outline-none"
+                    aria-label="Sélecteur de couleur de fond"
                   />
                   <input
+                    id="background-input"
                     type="text"
                     value={background}
                     onChange={(e) => setBackground(e.target.value.toUpperCase())}

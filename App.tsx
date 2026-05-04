@@ -627,10 +627,13 @@ const tools: Tool[] = [
   {
     id: "contrast-checker",
     name: "Contrast-mètre",
+    nameEn: "Contrast Checker",
     icon: Eye,
     description: "Vérifier le contraste de couleurs (WCAG)",
+    descriptionEn: "Check color contrast ratio (WCAG)",
     Component: ColorContrastChecker,
     category: "converters",
+    keywords: ["wcag", "a11y", "accessibility", "colors", "contrast"],
   },
   {
     id: "color-mixer",

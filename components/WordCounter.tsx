@@ -1,9 +1,11 @@
 import { useState, useMemo, useDeferredValue, useEffect } from 'react';
 import { Copy, Check, Trash2, Hash, Type, FileText, AlignLeft, Clock, MessageSquare, BarChart3, Info, Star, AlertCircle } from 'lucide-react';
+import { useTranslation } from 'react-i18next';
 
 const MAX_LENGTH = 100000;
 
 export function WordCounter({ initialData, onStateChange }: { initialData?: any; onStateChange?: (state: any) => void }) {
+  const { t } = useTranslation();
   const [text, setText] = useState(initialData?.text || '');
   const [copied, setCopied] = useState(false);
   const [copiedStats, setCopiedStats] = useState(false);
@@ -83,20 +85,20 @@ export function WordCounter({ initialData, onStateChange }: { initialData?: any;
 
     const getAriGrade = (score: number) => {
       const rounded = Math.ceil(score);
-      if (rounded <= 1) return "CP";
-      if (rounded === 2) return "CE1";
-      if (rounded === 3) return "CE2";
-      if (rounded === 4) return "CM1";
-      if (rounded === 5) return "CM2";
-      if (rounded === 6) return "6ème";
-      if (rounded === 7) return "5ème";
-      if (rounded === 8) return "4ème";
-      if (rounded === 9) return "3ème";
-      if (rounded === 10) return "Seconde";
-      if (rounded === 11) return "Première";
-      if (rounded === 12) return "Terminale";
-      if (rounded === 13) return "Université";
-      return "Expert / Académique";
+      if (rounded <= 1) return t('wordcounter.ari.grade_1');
+      if (rounded === 2) return t('wordcounter.ari.grade_2');
+      if (rounded === 3) return t('wordcounter.ari.grade_3');
+      if (rounded === 4) return t('wordcounter.ari.grade_4');
+      if (rounded === 5) return t('wordcounter.ari.grade_5');
+      if (rounded === 6) return t('wordcounter.ari.grade_6');
+      if (rounded === 7) return t('wordcounter.ari.grade_7');
+      if (rounded === 8) return t('wordcounter.ari.grade_8');
+      if (rounded === 9) return t('wordcounter.ari.grade_9');
+      if (rounded === 10) return t('wordcounter.ari.grade_10');
+      if (rounded === 11) return t('wordcounter.ari.grade_11');
+      if (rounded === 12) return t('wordcounter.ari.grade_12');
+      if (rounded === 13) return t('wordcounter.ari.university');
+      return t('wordcounter.ari.expert');
     };
 
     // Flesch Reading Ease (French Formula)
@@ -123,13 +125,13 @@ export function WordCounter({ initialData, onStateChange }: { initialData?: any;
     }
 
     const getFleschLevel = (score: number) => {
-      if (score >= 90) return "Très facile";
-      if (score >= 80) return "Facile";
-      if (score >= 70) return "Assez facile";
-      if (score >= 60) return "Standard";
-      if (score >= 50) return "Assez difficile";
-      if (score >= 30) return "Difficile";
-      return "Très difficile";
+      if (score >= 90) return t('wordcounter.flesch.very_easy');
+      if (score >= 80) return t('wordcounter.flesch.easy');
+      if (score >= 70) return t('wordcounter.flesch.fairly_easy');
+      if (score >= 60) return t('wordcounter.flesch.standard');
+      if (score >= 50) return t('wordcounter.flesch.fairly_difficult');
+      if (score >= 30) return t('wordcounter.flesch.difficult');
+      return t('wordcounter.flesch.very_difficult');
     };
 
     const charFreq = Object.entries(deferredText.replace(/\s/g, '').split('').reduce((acc: Record<string, number>, char: string) => {
@@ -158,14 +160,14 @@ export function WordCounter({ initialData, onStateChange }: { initialData?: any;
 
   const formatTime = (minutes: number) => {
     if (minutes === 0) return "0s";
-    if (minutes < 1 / 60) return "moins d'une seconde";
-    if (minutes < 1) return `${Math.round(minutes * 60)}s`;
+    if (minutes < 1 / 60) return t('wordcounter.time.less_than_second');
+    if (minutes < 1) return t('wordcounter.time.seconds', { count: Math.round(minutes * 60) });
 
     const totalSeconds = Math.round(minutes * 60);
     const mins = Math.floor(totalSeconds / 60);
     const secs = totalSeconds % 60;
 
-    return secs > 0 ? `${mins}m ${secs}s` : `${mins}m`;
+    return secs > 0 ? t('wordcounter.time.minutes_seconds', { m: mins, s: secs }) : t('wordcounter.time.minutes', { count: mins });
   };
 
   const handleCopy = () => {
@@ -177,22 +179,22 @@ export function WordCounter({ initialData, onStateChange }: { initialData?: any;
 
   const handleCopyCharFreq = () => {
     if (stats.charFreq.length === 0) return;
-    const report = `Fréquence des caractères :\n` + stats.charFreq.map(([char, count]) => `- ${char} : ${count} (${((count / stats.charactersNoSpaces) * 100).toFixed(1)}%)`).join('\n');
+    const report = `${t('wordcounter.char_freq_report')}:\n` + stats.charFreq.map(([char, count]) => `- ${char} : ${count} (${((count / stats.charactersNoSpaces) * 100).toFixed(1)}%)`).join('\n');
     navigator.clipboard.writeText(report);
     setCopiedCharFreq(true);
     setTimeout(() => setCopiedCharFreq(false), 2000);
   };
 
   const handleCopyStats = () => {
-    const report = `Rapport de texte :
-- Caractères : ${stats.characters}
-- Mots : ${stats.words}
-- Lignes : ${stats.lines}
-- Phrases : ${stats.sentences}
-- Lisibilité (ARI) : ${stats.ari} (${stats.ariGrade})
-- Score Flesch : ${stats.flesch} (${stats.fleschLevel})
-- Temps de lecture : ~${stats.readingTime} min
-- Temps de parole : ~${stats.speakingTime} min`;
+    const report = `${t('wordcounter.report_title')}:
+- ${t('wordcounter.stat.characters')}: ${stats.characters}
+- ${t('wordcounter.stat.words')}: ${stats.words}
+- ${t('wordcounter.stat.lines')}: ${stats.lines}
+- ${t('wordcounter.stat.sentences')}: ${stats.sentences}
+- ${t('wordcounter.stat.readability')} (ARI): ${stats.ari} (${stats.ariGrade})
+- ${t('wordcounter.stat.flesch')}: ${stats.flesch} (${stats.fleschLevel})
+- ${t('wordcounter.stat.reading_time')}: ~${stats.readingTime.toFixed(1)} min
+- ${t('wordcounter.stat.speaking_time')}: ~${stats.speakingTime.toFixed(1)} min`;
 
     navigator.clipboard.writeText(report);
     setCopiedStats(true);
@@ -209,7 +211,7 @@ export function WordCounter({ initialData, onStateChange }: { initialData?: any;
       )}
       <div className="space-y-4">
         <div className="flex justify-between items-center px-1">
-          <label htmlFor="word-counter-input" className="text-xs font-black uppercase tracking-widest text-slate-400 cursor-pointer">Votre Texte</label>
+          <label htmlFor="word-counter-input" className="text-xs font-black uppercase tracking-widest text-slate-400 cursor-pointer">{t('wordcounter.your_text')}</label>
           <div className="flex gap-2">
             <button
               onClick={handleCopyStats}
@@ -219,10 +221,10 @@ export function WordCounter({ initialData, onStateChange }: { initialData?: any;
                   ? 'bg-emerald-50 dark:bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border-emerald-200 dark:border-emerald-500/20'
                   : 'text-indigo-500 bg-indigo-50 dark:bg-indigo-500/10 border-transparent hover:bg-indigo-100 dark:hover:bg-indigo-500/20'
               } disabled:opacity-50 disabled:cursor-not-allowed`}
-              title="Copier les statistiques"
+              title={t('wordcounter.copy_stats')}
             >
               {copiedStats ? <Check className="w-3 h-3" /> : <BarChart3 className="w-3 h-3" />}
-              {copiedStats ? 'Stats copiées' : 'Copier stats'}
+              {copiedStats ? t('common.copied') : t('wordcounter.copy_stats_btn')}
             </button>
             <button
               onClick={handleCopy}
@@ -233,7 +235,7 @@ export function WordCounter({ initialData, onStateChange }: { initialData?: any;
                   : 'text-slate-500 bg-slate-100 dark:bg-slate-800 border-transparent hover:bg-slate-200 dark:hover:bg-slate-700'
               } disabled:opacity-50 disabled:cursor-not-allowed`}
             >
-              {copied ? <Check className="w-3 h-3" /> : <Copy className="w-3 h-3" />} {copied ? 'Copié' : 'Copier'}
+              {copied ? <Check className="w-3 h-3" /> : <Copy className="w-3 h-3" />} {copied ? t('common.copied') : t('common.copy')}
             </button>
             <button
               onClick={() => {
@@ -243,7 +245,7 @@ export function WordCounter({ initialData, onStateChange }: { initialData?: any;
               disabled={!text}
               className="text-xs font-bold text-rose-500 bg-rose-50 dark:bg-rose-500/10 hover:bg-rose-100 dark:hover:bg-rose-500/20 px-3 py-1.5 rounded-xl flex items-center gap-1 transition-all disabled:opacity-50 disabled:cursor-not-allowed"
             >
-              <Trash2 className="w-3 h-3" /> Effacer
+              <Trash2 className="w-3 h-3" /> {t('common.clear')}
             </button>
           </div>
         </div>
@@ -254,27 +256,27 @@ export function WordCounter({ initialData, onStateChange }: { initialData?: any;
             const val = e.target.value;
             setText(val);
             if (val.length > MAX_LENGTH) {
-              setError(`L'entrée est trop longue. Limite de ${MAX_LENGTH.toLocaleString()} caractères.`);
+              setError(t('error.max_length', { max: MAX_LENGTH.toLocaleString() }));
             } else {
               setError(null);
             }
           }}
-          placeholder="Commencez à taper..."
+          placeholder={t('wordcounter.placeholder')}
           className={`w-full h-80 p-8 bg-slate-50 dark:bg-slate-900 border ${error ? 'border-rose-500 focus:ring-rose-500/20' : 'border-slate-200 dark:border-slate-800 focus:ring-indigo-500/20'} rounded-[2rem] outline-none focus:ring-2 transition-all text-lg leading-relaxed dark:text-slate-300`}
         />
       </div>
 
       <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-8 gap-4">
         {[
-          { icon: <Hash className="w-4 h-4" />, label: 'Caractères', value: stats.characters },
-          { icon: <Hash className="w-4 h-4" />, label: 'Sans espaces', value: stats.charactersNoSpaces },
-          { icon: <Type className="w-4 h-4" />, label: 'Mots', value: stats.words },
-          { icon: <FileText className="w-4 h-4" />, label: 'Lignes', value: stats.lines },
-          { icon: <AlignLeft className="w-4 h-4" />, label: 'Phrases', value: stats.sentences },
-          { icon: <Star className="w-4 h-4" />, label: 'Lisibilité', value: stats.ariGrade },
-          { icon: <Clock className="w-4 h-4" />, label: 'Lecture', value: formatTime(stats.readingTime) },
-          { icon: <MessageSquare className="w-4 h-4" />, label: 'Parole', value: formatTime(stats.speakingTime) },
-          { icon: <FileText className="w-4 h-4" />, label: 'Écriture', value: formatTime(stats.writingTime) },
+          { icon: <Hash className="w-4 h-4" />, label: t('wordcounter.stat.characters'), value: stats.characters },
+          { icon: <Hash className="w-4 h-4" />, label: t('wordcounter.stat.characters_no_spaces'), value: stats.charactersNoSpaces },
+          { icon: <Type className="w-4 h-4" />, label: t('wordcounter.stat.words'), value: stats.words },
+          { icon: <FileText className="w-4 h-4" />, label: t('wordcounter.stat.lines'), value: stats.lines },
+          { icon: <AlignLeft className="w-4 h-4" />, label: t('wordcounter.stat.sentences'), value: stats.sentences },
+          { icon: <Star className="w-4 h-4" />, label: t('wordcounter.stat.readability'), value: stats.ariGrade },
+          { icon: <Clock className="w-4 h-4" />, label: t('wordcounter.stat.reading'), value: formatTime(stats.readingTime) },
+          { icon: <MessageSquare className="w-4 h-4" />, label: t('wordcounter.stat.speaking'), value: formatTime(stats.speakingTime) },
+          { icon: <FileText className="w-4 h-4" />, label: t('wordcounter.stat.writing'), value: formatTime(stats.writingTime) },
         ].map((stat) => (
           <div key={stat.label} className="p-6 bg-white dark:bg-slate-900 border border-slate-100 dark:border-slate-800 rounded-2xl space-y-2">
             <div className="text-indigo-500 dark:text-indigo-400">{stat.icon}</div>
@@ -289,25 +291,25 @@ export function WordCounter({ initialData, onStateChange }: { initialData?: any;
           onClick={() => setText(text.toUpperCase())}
           className="px-6 py-3 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-sm font-bold hover:bg-slate-50 transition-all"
         >
-          MAJUSCULES
+          {t('wordcounter.btn.uppercase')}
         </button>
         <button
           onClick={() => setText(text.toLowerCase())}
           className="px-6 py-3 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-sm font-bold hover:bg-slate-50 transition-all"
         >
-          minuscules
+          {t('wordcounter.btn.lowercase')}
         </button>
         <button
           onClick={() => setText(text.replace(/\b\w+/g, (w: string) => w.charAt(0).toUpperCase() + w.slice(1).toLowerCase()))}
           className="px-6 py-3 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-sm font-bold hover:bg-slate-50 dark:hover:bg-slate-700 transition-all"
         >
-          Capitaliser
+          {t('wordcounter.btn.capitalize')}
         </button>
         <button
           onClick={() => setText(text.toLowerCase().replace(/(^\w|[.!?]\s+\w)/gm, (s: string) => s.toUpperCase()))}
           className="px-6 py-3 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-sm font-bold hover:bg-slate-50 dark:hover:bg-slate-700 transition-all"
         >
-          Mode phrase
+          {t('wordcounter.btn.sentence_mode')}
         </button>
       </div>
 
@@ -315,7 +317,7 @@ export function WordCounter({ initialData, onStateChange }: { initialData?: any;
         <div className="pt-8 border-t border-slate-100 dark:border-slate-800 grid grid-cols-1 md:grid-cols-2 gap-12">
           <div className="space-y-6">
             <h3 className="text-xs font-black uppercase tracking-widest text-slate-400 mb-6 flex items-center gap-2">
-              <BarChart3 className="w-4 h-4" /> Mots les plus fréquents (Densité)
+              <BarChart3 className="w-4 h-4" /> {t('wordcounter.top_words')}
             </h3>
             <div className="flex flex-wrap gap-3">
               {stats.topWords.map(([word, count]) => (
@@ -341,7 +343,7 @@ export function WordCounter({ initialData, onStateChange }: { initialData?: any;
             {stats.topBigrams.length > 0 && (
               <div className="space-y-6">
                 <h3 className="text-xs font-black uppercase tracking-widest text-slate-400 flex items-center gap-2">
-                  <BarChart3 className="w-4 h-4" /> Groupes de 2 mots (Bigrammes)
+                  <BarChart3 className="w-4 h-4" /> {t('wordcounter.top_bigrams')}
                 </h3>
                 <div className="flex flex-wrap gap-3">
                   {stats.topBigrams.map(([bigram, count]) => (
@@ -362,7 +364,7 @@ export function WordCounter({ initialData, onStateChange }: { initialData?: any;
             <div className="space-y-6">
             <div className="flex justify-between items-center px-1">
               <h3 className="text-xs font-black uppercase tracking-widest text-slate-400 flex items-center gap-2">
-                <Hash className="w-4 h-4" /> Fréquence des caractères
+                <Hash className="w-4 h-4" /> {t('wordcounter.char_freq')}
               </h3>
               <button
                 onClick={handleCopyCharFreq}
@@ -373,7 +375,7 @@ export function WordCounter({ initialData, onStateChange }: { initialData?: any;
                 }`}
               >
                 {copiedCharFreq ? <Check className="w-3 h-3" /> : <Copy className="w-3 h-3" />}
-                {copiedCharFreq ? 'Copié' : 'Copier'}
+                {copiedCharFreq ? t('common.copied') : t('common.copy')}
               </button>
             </div>
             <div className="grid grid-cols-2 sm:grid-cols-5 gap-2">
@@ -393,7 +395,7 @@ export function WordCounter({ initialData, onStateChange }: { initialData?: any;
       <div className="bg-indigo-50 dark:bg-indigo-900/10 p-8 rounded-[2.5rem] border border-indigo-100 dark:border-indigo-900/20 grid grid-cols-1 md:grid-cols-2 gap-8">
          <div className="space-y-4">
             <h4 className="font-bold dark:text-white flex items-center gap-2">
-               <Star className="w-4 h-4 text-indigo-500" /> Score de lisibilité Flesch
+               <Star className="w-4 h-4 text-indigo-500" /> {t('wordcounter.flesch_title')}
             </h4>
             <div className="flex items-center gap-4">
                <div className="text-4xl font-black text-indigo-600 dark:text-indigo-400 font-mono">
@@ -401,19 +403,19 @@ export function WordCounter({ initialData, onStateChange }: { initialData?: any;
                </div>
                <div>
                   <div className="text-sm font-bold dark:text-white">{stats.fleschLevel}</div>
-                  <div className="text-xs text-slate-500 dark:text-slate-400">Basé sur la formule adaptée au français</div>
+                  <div className="text-xs text-slate-500 dark:text-slate-400">{t('wordcounter.flesch_subtitle')}</div>
                </div>
             </div>
             <p className="text-xs text-slate-500 dark:text-slate-400 leading-relaxed">
-               Un score élevé (90-100) indique un texte très facile à lire, tandis qu'un score bas (0-30) correspond à un texte académique ou technique complexe.
+               {t('wordcounter.flesch_description')}
             </p>
          </div>
          <div className="space-y-4">
             <h4 className="font-bold dark:text-white flex items-center gap-2">
-               <BarChart3 className="w-4 h-4 text-indigo-500" /> Densité de mots
+               <BarChart3 className="w-4 h-4 text-indigo-500" /> {t('wordcounter.density_title')}
             </h4>
             <p className="text-sm text-slate-500 dark:text-slate-400 leading-relaxed">
-               La densité de mots vous aide à identifier les termes répétitifs. C'est un indicateur clé pour l'optimisation SEO et la qualité rédactionnelle afin d'éviter les répétitions excessives.
+               {t('wordcounter.density_description')}
             </p>
          </div>
       </div>
@@ -422,18 +424,18 @@ export function WordCounter({ initialData, onStateChange }: { initialData?: any;
       <div className="mt-16 grid grid-cols-1 md:grid-cols-3 gap-8 pt-16 border-t border-slate-100 dark:border-slate-800">
         <div className="space-y-4">
           <h4 className="font-bold dark:text-white flex items-center gap-2">
-            <Info className="w-4 h-4 text-indigo-500" /> Guide d'utilisation
+            <Info className="w-4 h-4 text-indigo-500" /> {t('wordcounter.guide_title')}
           </h4>
           <p className="text-sm text-slate-500 dark:text-slate-400 leading-relaxed">
-            Collez simplement votre texte dans la zone de saisie. Les statistiques se mettent à jour instantanément. Vous pouvez utiliser les boutons pour changer la casse du texte ou copier les rapports de statistiques détaillés.
+            {t('wordcounter.guide_text')}
           </p>
         </div>
         <div className="space-y-4">
           <h4 className="font-bold dark:text-white flex items-center gap-2">
-            <FileText className="w-4 h-4 text-indigo-500" /> Détails Techniques
+            <FileText className="w-4 h-4 text-indigo-500" /> {t('wordcounter.tech_title')}
           </h4>
           <p className="text-sm text-slate-500 dark:text-slate-400 leading-relaxed">
-            Le comptage des mots utilise une expression régulière robuste pour identifier les séparateurs. Le temps de lecture est estimé sur une base de 200 mots/minute, tandis que le temps de parole est calculé sur 130 mots/minute.
+            {t('wordcounter.tech_text')}
           </p>
         </div>
         <div className="space-y-4">
@@ -441,7 +443,7 @@ export function WordCounter({ initialData, onStateChange }: { initialData?: any;
             <MessageSquare className="w-4 h-4 text-indigo-500" /> FAQ
           </h4>
           <p className="text-sm text-slate-500 dark:text-slate-400 leading-relaxed">
-            <strong>Mes données sont-elles privées ?</strong> Absolument. Aucun texte n'est envoyé à un serveur. Tout le traitement est effectué localement sur votre appareil.
+            {t('wordcounter.faq_text')}
           </p>
         </div>
       </div>

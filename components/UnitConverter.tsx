@@ -1,5 +1,6 @@
 import { useState, useEffect, useMemo, useCallback } from 'react';
 import { Copy, Check, Trash2, ArrowUpDown, Info, Ruler, Download, Search, X } from 'lucide-react';
+import { useTranslation } from 'react-i18next';
 
 type ConversionCategory = 'length' | 'weight' | 'temperature' | 'area' | 'volume' | 'digital' | 'digital_si' | 'pressure' | 'energy' | 'speed' | 'time' | 'power' | 'frequency' | 'consumption' | 'angle' | 'torque' | 'force' | 'datarate' | 'illuminance' | 'luminance' | 'radiation' | 'magnetic' | 'acceleration' | 'density' | 'voltage' | 'current' | 'resistance' | 'capacitance' | 'typography' | 'cooking' | 'radioactivity';
 
@@ -239,44 +240,9 @@ const CONVERSIONS: Record<ConversionCategory, Record<string, ConversionUnit>> = 
   }
 };
 
-const CATEGORIES_MAP = [
-  { id: 'length', name: 'Longueur' },
-  { id: 'weight', name: 'Poids' },
-  { id: 'temperature', name: 'Température' },
-  { id: 'area', name: 'Surface' },
-  { id: 'volume', name: 'Volume' },
-  { id: 'digital', name: 'Digital (Base 1024)' },
-  { id: 'digital_si', name: 'Digital (Base 1000)' },
-  { id: 'speed', name: 'Vitesse' },
-  { id: 'time', name: 'Temps' },
-  { id: 'pressure', name: 'Pression' },
-  { id: 'energy', name: 'Énergie' },
-  { id: 'power', name: 'Puissance' },
-  { id: 'frequency', name: 'Fréquence' },
-  { id: 'consumption', name: 'Consommation' },
-  { id: 'angle', name: 'Angle' },
-  { id: 'torque', name: 'Couple (Torque)' },
-  { id: 'force', name: 'Force' },
-  { id: 'datarate', name: 'Débit binaire' },
-  { id: 'illuminance', name: 'Éclairement' },
-  { id: 'luminance', name: 'Luminance' },
-  { id: 'radiation', name: 'Radiation' },
-  { id: 'magnetic', name: 'Champ Magnétique' },
-  { id: 'acceleration', name: 'Accélération' },
-  { id: 'density', name: 'Densité' },
-  { id: 'voltage', name: 'Tension (Volt)' },
-  { id: 'current', name: 'Courant (Ampère)' },
-  { id: 'resistance', name: 'Résistance (Ohm)' },
-  { id: 'capacitance', name: 'Capacité (Farad)' },
-  { id: 'typography', name: 'Typographie' },
-  { id: 'cooking', name: 'Cuisine' },
-  { id: 'radioactivity', name: 'Radioactivité' }
+const CATEGORIES_IDS: ConversionCategory[] = [
+  'length', 'weight', 'temperature', 'area', 'volume', 'digital', 'digital_si', 'speed', 'time', 'pressure', 'energy', 'power', 'frequency', 'consumption', 'angle', 'torque', 'force', 'datarate', 'illuminance', 'luminance', 'radiation', 'magnetic', 'acceleration', 'density', 'voltage', 'current', 'resistance', 'capacitance', 'typography', 'cooking', 'radioactivity'
 ];
-
-const formatter = new Intl.NumberFormat('fr-FR', {
-  maximumFractionDigits: 10,
-  minimumFractionDigits: 0,
-});
 
 const convert = (value: string, from: string, to: string, cat: ConversionCategory) => {
   const num = parseFloat(value);
@@ -287,6 +253,18 @@ const convert = (value: string, from: string, to: string, cat: ConversionCategor
 };
 
 export function UnitConverter({ initialData, onStateChange }: { initialData?: any; onStateChange?: (state: any) => void }) {
+  const { t, i18n } = useTranslation();
+
+  const formatter = useMemo(() => new Intl.NumberFormat(i18n.language === 'en' ? 'en-US' : 'fr-FR', {
+    maximumFractionDigits: 10,
+    minimumFractionDigits: 0,
+  }), [i18n.language]);
+
+  const categoriesMap = useMemo(() => CATEGORIES_IDS.map(id => ({
+    id,
+    name: t(`unit.${id}`)
+  })), [t]);
+
   const [category, setCategory] = useState<ConversionCategory>(initialData?.category || 'length');
   const [fromUnit, setFromUnit] = useState(initialData?.fromUnit || 'm');
   const [toUnit, setToUnit] = useState(initialData?.toUnit || 'km');
@@ -296,10 +274,10 @@ export function UnitConverter({ initialData, onStateChange }: { initialData?: an
   const [copied, setCopied] = useState(false);
 
   const filteredCategories = useMemo(() => {
-    if (!categorySearch.trim()) return CATEGORIES_MAP;
+    if (!categorySearch.trim()) return categoriesMap;
     const query = categorySearch.toLowerCase().trim();
-    return CATEGORIES_MAP.filter(cat => cat.name.toLowerCase().includes(query));
-  }, [categorySearch]);
+    return categoriesMap.filter(cat => cat.name.toLowerCase().includes(query));
+  }, [categorySearch, categoriesMap]);
 
   useEffect(() => {
     onStateChange?.({ category, fromUnit, toUnit, fromValue, toValue });
@@ -368,14 +346,14 @@ export function UnitConverter({ initialData, onStateChange }: { initialData?: an
       {/* Category Search and Nav */}
       <div className="space-y-6">
         <div className="relative group max-w-md mx-auto">
-          <label htmlFor="category-search" className="sr-only">Rechercher une catégorie</label>
+          <label htmlFor="category-search" className="sr-only">{t('unit.search_category')}</label>
           <div className="absolute inset-y-0 left-4 flex items-center pointer-events-none">
             <Search className="h-4 w-4 text-slate-400" />
           </div>
           <input
             id="category-search"
             type="text"
-            placeholder="Rechercher une catégorie..."
+            placeholder={t('unit.search_category')}
             value={categorySearch}
             onChange={(e) => setCategorySearch(e.target.value)}
             onKeyDown={(e) => {
@@ -422,13 +400,13 @@ export function UnitConverter({ initialData, onStateChange }: { initialData?: an
         {/* De */}
         <div className="space-y-4">
           <div className="flex justify-between items-center px-1">
-            <label htmlFor="fromValue" className="text-xs font-black uppercase tracking-widest text-slate-400 cursor-pointer">De</label>
+            <label htmlFor="fromValue" className="text-xs font-black uppercase tracking-widest text-slate-400 cursor-pointer">{t('common.from')}</label>
             <button
               onClick={handleClear}
               disabled={!fromValue}
               className="text-xs font-bold text-rose-500 bg-rose-50 dark:bg-rose-500/10 hover:bg-rose-100 dark:hover:bg-rose-500/20 px-3 py-1.5 rounded-xl flex items-center gap-1 transition-all disabled:opacity-50 disabled:cursor-not-allowed focus-visible:ring-2 focus-visible:ring-rose-500 focus-visible:outline-none"
             >
-              <Trash2 className="w-3 h-3" /> Effacer
+              <Trash2 className="w-3 h-3" /> {t('common.clear')}
             </button>
           </div>
           <div className="flex flex-col gap-3 p-6 bg-slate-50 dark:bg-slate-900/50 rounded-3xl border border-slate-200 dark:border-slate-800 focus-within:ring-2 focus-within:ring-indigo-500 transition-all">
@@ -475,14 +453,14 @@ export function UnitConverter({ initialData, onStateChange }: { initialData?: an
         {/* Vers */}
         <div className="space-y-4">
           <div className="flex justify-between items-center px-1">
-            <label htmlFor="toUnit" className="text-xs font-black uppercase tracking-widest text-slate-400 cursor-pointer">Vers</label>
+            <label htmlFor="toUnit" className="text-xs font-black uppercase tracking-widest text-slate-400 cursor-pointer">{t('common.to')}</label>
             <div className="flex gap-2">
               <button
                 onClick={handleDownload}
                 disabled={!fromValue}
                 className="text-xs font-bold text-indigo-500 bg-indigo-50 dark:bg-indigo-500/10 hover:bg-indigo-100 px-2 py-1 rounded-lg flex items-center gap-1 transition-all disabled:opacity-50 disabled:cursor-not-allowed focus-visible:ring-2 focus-visible:ring-indigo-500 focus-visible:outline-none"
               >
-                <Download className="w-3 h-3" /> Télécharger
+                <Download className="w-3 h-3" /> {t('common.download')}
               </button>
               <button
                 onClick={handleCopy}
@@ -490,7 +468,7 @@ export function UnitConverter({ initialData, onStateChange }: { initialData?: an
                 className={`text-xs font-bold flex items-center gap-1 px-2 py-1 rounded-lg transition-all focus-visible:ring-2 focus-visible:ring-indigo-500 focus-visible:outline-none ${copied ? 'bg-emerald-50 dark:bg-emerald-500/10 text-emerald-600 dark:text-emerald-400' : 'text-indigo-500 bg-indigo-50 dark:bg-indigo-500/10 hover:bg-indigo-100'} disabled:opacity-50 disabled:cursor-not-allowed`}
               >
                 {copied ? <Check className="w-3 h-3" /> : <Copy className="w-3 h-3" />}
-                {copied ? 'Copié' : 'Copier'}
+                {copied ? t('common.copied') : t('common.copy')}
               </button>
             </div>
           </div>
@@ -521,7 +499,9 @@ export function UnitConverter({ initialData, onStateChange }: { initialData?: an
         <div className="space-y-6 animate-in fade-in slide-in-from-bottom-4 duration-500">
           <div className="flex items-center gap-2 px-1">
             <Ruler className="w-4 h-4 text-indigo-500" />
-            <h3 className="text-xs font-black uppercase tracking-widest text-slate-400">Toutes les conversions pour {fromValue} {CONVERSIONS[category][fromUnit].name}</h3>
+            <h3 className="text-xs font-black uppercase tracking-widest text-slate-400">
+              {t('unit.all_conversions', { value: fromValue, unit: CONVERSIONS[category][fromUnit].name })}
+            </h3>
           </div>
           <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4">
             {Object.entries(CONVERSIONS[category]).map(([key, unit]) => {
@@ -554,26 +534,26 @@ export function UnitConverter({ initialData, onStateChange }: { initialData?: an
       <div className="mt-20 grid grid-cols-1 md:grid-cols-3 gap-12 pt-16 border-t border-slate-100 dark:border-slate-800">
         <div className="space-y-4">
           <h4 className="font-bold dark:text-white flex items-center gap-2">
-            <Info className="w-4 h-4 text-indigo-500" /> Guide d'utilisation
+            <Info className="w-4 h-4 text-indigo-500" /> {t('unit.guide_title')}
           </h4>
           <p className="text-sm text-slate-500 dark:text-slate-400 leading-relaxed">
-            Choisissez d'abord une catégorie (Longueur, Poids, Angle, etc.) dans le menu supérieur. Saisissez ensuite la valeur à convertir dans le champ "De" et sélectionnez les unités correspondantes. Le résultat s'affiche instantanément.
+            {t('unit.guide_text')}
           </p>
         </div>
         <div className="space-y-4">
           <h4 className="font-bold dark:text-white flex items-center gap-2">
-            <Ruler className="w-4 h-4 text-indigo-500" /> Précision & Calculs
+            <Ruler className="w-4 h-4 text-indigo-500" /> {t('unit.precision_title')}
           </h4>
           <p className="text-sm text-slate-500 dark:text-slate-400 leading-relaxed">
-            Toutes les conversions utilisent une unité de base interne pour chaque catégorie afin de garantir une précision maximale. Les résultats sont formatés selon les standards français pour une lecture aisée.
+            {t('unit.precision_text')}
           </p>
         </div>
         <div className="space-y-4">
           <h4 className="font-bold dark:text-white flex items-center gap-2">
-            <Check className="w-4 h-4 text-indigo-500" /> Fiabilité
+            <Check className="w-4 h-4 text-indigo-500" /> {t('unit.reliability_title')}
           </h4>
           <p className="text-sm text-slate-500 dark:text-slate-400 leading-relaxed">
-            Les facteurs de conversion sont basés sur les standards internationaux (SI). Pour les unités de stockage numérique, nous utilisons la base 1024 (Kio, Mio, etc.) conformément aux usages informatiques.
+            {t('unit.reliability_text')}
           </p>
         </div>
       </div>

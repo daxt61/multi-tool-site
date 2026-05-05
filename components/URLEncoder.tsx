@@ -1,5 +1,7 @@
 import { useState, useCallback, useEffect } from 'react';
-import { ArrowRight, ArrowLeft, Trash2, Copy, Check, Info, LinkIcon, Code } from 'lucide-react';
+import { ArrowRight, ArrowLeft, Trash2, Copy, Check, Info, LinkIcon, Code, AlertCircle } from 'lucide-react';
+
+const MAX_LENGTH = 100000;
 
 export function URLEncoder({ initialData, onStateChange }: { initialData?: any; onStateChange?: (state: any) => void }) {
   const [decoded, setDecoded] = useState(initialData?.decoded || '');
@@ -10,6 +12,12 @@ export function URLEncoder({ initialData, onStateChange }: { initialData?: any; 
   useEffect(() => {
     onStateChange?.({ decoded, encoded });
   }, [decoded, encoded]);
+
+  // Derived error state for better maintainability and robustness
+  // This ensures that the error is shown if EITHER field exceeds the limit.
+  const error = (decoded.length > MAX_LENGTH || encoded.length > MAX_LENGTH)
+    ? `L'entrée est trop longue. Limite de ${MAX_LENGTH.toLocaleString()} caractères.`
+    : null;
 
   const encode = (text: string) => {
     try {
@@ -29,12 +37,18 @@ export function URLEncoder({ initialData, onStateChange }: { initialData?: any; 
 
   const handleDecodedChange = (value: string) => {
     setDecoded(value);
-    setEncoded(encode(value));
+    // Sentinel: skip expensive computation if input exceeds limit to prevent DoS
+    if (value.length <= MAX_LENGTH) {
+      setEncoded(encode(value));
+    }
   };
 
   const handleEncodedChange = (value: string) => {
     setEncoded(value);
-    setDecoded(decode(value));
+    // Sentinel: skip expensive computation if input exceeds limit to prevent DoS
+    if (value.length <= MAX_LENGTH) {
+      setDecoded(decode(value));
+    }
   };
 
   const handleCopyDecoded = useCallback(() => {
@@ -58,6 +72,13 @@ export function URLEncoder({ initialData, onStateChange }: { initialData?: any; 
 
   return (
     <div className="max-w-5xl mx-auto space-y-12">
+      {error && (
+        <div className="bg-rose-50 dark:bg-rose-500/10 border border-rose-200 dark:border-rose-800 p-4 rounded-2xl flex items-center gap-3 text-rose-600 dark:text-rose-400 font-bold animate-in fade-in slide-in-from-top-2">
+          <AlertCircle className="w-5 h-5" />
+          {error}
+        </div>
+      )}
+
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 items-start">
         {/* Décodé */}
         <div className="space-y-4">
@@ -92,7 +113,7 @@ export function URLEncoder({ initialData, onStateChange }: { initialData?: any; 
             value={decoded}
             onChange={(e) => handleDecodedChange(e.target.value)}
             placeholder="Entrez du texte ou une URL à encoder..."
-            className="w-full h-80 p-8 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-[2.5rem] outline-none focus:ring-2 focus:ring-indigo-500/20 transition-all text-lg leading-relaxed dark:text-slate-300 font-mono resize-none"
+            className={`w-full h-80 p-8 bg-slate-50 dark:bg-slate-900 border ${decoded.length > MAX_LENGTH ? 'border-rose-500 ring-rose-500/20' : 'border-slate-200 dark:border-slate-800'} rounded-[2.5rem] outline-none focus:ring-2 ${decoded.length > MAX_LENGTH ? 'focus:ring-rose-500/20' : 'focus:ring-indigo-500/20'} transition-all text-lg leading-relaxed dark:text-slate-300 font-mono resize-none`}
           />
         </div>
 
@@ -121,7 +142,7 @@ export function URLEncoder({ initialData, onStateChange }: { initialData?: any; 
             value={encoded}
             onChange={(e) => handleEncodedChange(e.target.value)}
             placeholder="Entrez du texte encodé à décoder..."
-            className="w-full h-80 p-8 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-[2.5rem] outline-none focus:ring-2 focus:ring-indigo-500/20 transition-all text-lg leading-relaxed dark:text-slate-300 font-mono resize-none break-all"
+            className={`w-full h-80 p-8 bg-slate-50 dark:bg-slate-900 border ${encoded.length > MAX_LENGTH ? 'border-rose-500 ring-rose-500/20' : 'border-slate-200 dark:border-slate-800'} rounded-[2.5rem] outline-none focus:ring-2 ${encoded.length > MAX_LENGTH ? 'focus:ring-rose-500/20' : 'focus:ring-indigo-500/20'} transition-all text-lg leading-relaxed dark:text-slate-300 font-mono resize-none break-all`}
           />
         </div>
       </div>

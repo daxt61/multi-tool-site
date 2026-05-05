@@ -2154,7 +2154,7 @@ function MainApp() {
                         key={cat.id}
                         onClick={() => setSelectedCategory(cat.id === "all" ? null : cat.id)}
                         aria-pressed={(selectedCategory === cat.id) || (cat.id === "all" && !selectedCategory)}
-                        className={`flex items-center gap-2 px-4 py-2 rounded-full text-sm font-bold transition-all whitespace-nowrap border ${
+                        className={`flex items-center gap-2 px-4 py-2 rounded-full text-sm font-bold transition-all whitespace-nowrap border focus-visible:ring-2 focus-visible:ring-indigo-500 focus-visible:outline-none ${
                           (selectedCategory === cat.id) || (cat.id === "all" && !selectedCategory)
                             ? "bg-slate-900 text-white border-slate-900 dark:bg-white dark:text-slate-950 dark:border-white shadow-md shadow-indigo-500/10"
                             : "bg-slate-50 text-slate-500 border-slate-200 hover:border-slate-300 dark:bg-slate-900 dark:text-slate-400 dark:border-slate-800 dark:hover:border-slate-700"
@@ -2170,7 +2170,7 @@ function MainApp() {
                         {favorites.length > 0 && (
                           <button
                             onClick={handleExportFavorites}
-                            className="flex items-center gap-2 px-4 py-2 rounded-full text-sm font-bold text-indigo-600 dark:text-indigo-400 hover:bg-indigo-50 dark:hover:bg-indigo-900/20 transition-all border border-indigo-100 dark:border-indigo-900/30"
+                            className="flex items-center gap-2 px-4 py-2 rounded-full text-sm font-bold text-indigo-600 dark:text-indigo-400 hover:bg-indigo-50 dark:hover:bg-indigo-900/20 transition-all border border-indigo-100 dark:border-indigo-900/30 focus-visible:ring-2 focus-visible:ring-indigo-500 focus-visible:outline-none"
                           >
                             <Download className="w-4 h-4" /> {t("favorites.export")}
                           </button>

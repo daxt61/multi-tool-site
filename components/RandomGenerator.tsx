@@ -1,9 +1,11 @@
 import { useState, useEffect } from 'react';
 import { Shuffle, Copy, Check, RefreshCw, Hash, Type, AlignLeft, Trash2, Download, AlertCircle } from 'lucide-react';
+import { useTranslation } from 'react-i18next';
 
 const MAX_LENGTH = 100000;
 
 export function RandomGenerator({ initialData, onStateChange }: { initialData?: any; onStateChange?: (state: any) => void }) {
+  const { t } = useTranslation();
   const [min, setMin] = useState(initialData?.min ?? 1);
   const [max, setMax] = useState(initialData?.max ?? 100);
   const [randomNumber, setRandomNumber] = useState<number | null>(null);
@@ -24,7 +26,7 @@ export function RandomGenerator({ initialData, onStateChange }: { initialData?: 
   const handleListChange = (val: string) => {
     setList(val);
     if (val.length > MAX_LENGTH) {
-      setError(`La liste est trop longue. Limite de ${MAX_LENGTH.toLocaleString()} caractères.`);
+      setError(t('error.max_length', { max: MAX_LENGTH.toLocaleString() }));
     } else {
       setError(null);
     }
@@ -171,12 +173,12 @@ export function RandomGenerator({ initialData, onStateChange }: { initialData?: 
       <section className="bg-slate-50 dark:bg-slate-900/50 p-8 rounded-[2.5rem] border border-slate-200 dark:border-slate-800 space-y-8">
         <div className="flex items-center gap-2 px-1">
           <Hash className="w-4 h-4 text-indigo-500" />
-          <h3 className="text-xs font-black uppercase tracking-widest text-slate-400">Nombre Aléatoire</h3>
+          <h3 className="text-xs font-black uppercase tracking-widest text-slate-400">{t('random.number_title')}</h3>
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 items-end">
           <div className="space-y-2">
-            <label htmlFor="num-min" className="text-xs font-bold text-slate-400 px-1 cursor-pointer">MIN</label>
+            <label htmlFor="num-min" className="text-xs font-bold text-slate-400 px-1 cursor-pointer">{t('random.min')}</label>
             <input
               id="num-min"
               type="number"
@@ -186,7 +188,7 @@ export function RandomGenerator({ initialData, onStateChange }: { initialData?: 
             />
           </div>
           <div className="space-y-2">
-            <label htmlFor="num-max" className="text-xs font-bold text-slate-400 px-1 cursor-pointer">MAX</label>
+            <label htmlFor="num-max" className="text-xs font-bold text-slate-400 px-1 cursor-pointer">{t('random.max')}</label>
             <input
               id="num-max"
               type="number"
@@ -202,21 +204,21 @@ export function RandomGenerator({ initialData, onStateChange }: { initialData?: 
                 disabled={randomNumber === null}
                 className="text-xs font-bold text-indigo-600 bg-indigo-50 dark:bg-indigo-900/20 hover:bg-indigo-100 dark:hover:bg-indigo-900/30 px-3 py-1.5 rounded-xl flex items-center gap-1 transition-all disabled:opacity-50 disabled:cursor-not-allowed focus-visible:ring-2 focus-visible:ring-indigo-500 focus-visible:outline-none"
               >
-                <Download className="w-3 h-3" /> Télécharger
+                <Download className="w-3 h-3" /> {t('common.download')}
               </button>
               <button
                 onClick={() => setRandomNumber(null)}
                 disabled={randomNumber === null}
-                className="text-xs font-bold text-rose-500 bg-rose-50 dark:bg-rose-500/10 hover:bg-rose-100 dark:hover:bg-rose-500/20 px-3 py-1.5 rounded-xl flex items-center gap-1 transition-all disabled:opacity-50 disabled:cursor-not-allowed focus-visible:ring-2 focus-visible:ring-indigo-500 focus-visible:outline-none"
+                className="text-xs font-bold text-rose-500 bg-rose-50 dark:bg-rose-500/10 hover:bg-rose-100 dark:hover:bg-rose-500/20 px-3 py-1.5 rounded-xl flex items-center gap-1 transition-all disabled:opacity-50 disabled:cursor-not-allowed focus-visible:ring-2 focus-visible:ring-rose-500 focus-visible:outline-none"
               >
-                <Trash2 className="w-3 h-3" /> Effacer
+                <Trash2 className="w-3 h-3" /> {t('common.clear')}
               </button>
             </div>
             <button
               onClick={generateNumber}
               className="h-14 bg-indigo-600 text-white rounded-2xl font-black hover:bg-indigo-700 transition-all shadow-lg shadow-indigo-600/20 active:scale-95 flex items-center justify-center gap-2"
             >
-              <RefreshCw className="w-5 h-5" /> Générer
+              <RefreshCw className="w-5 h-5" /> {t('random.generate')}
             </button>
           </div>
 
@@ -230,7 +232,7 @@ export function RandomGenerator({ initialData, onStateChange }: { initialData?: 
                     ? 'bg-emerald-50 dark:bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border-emerald-200 dark:border-emerald-500/20'
                     : 'text-slate-400 hover:text-indigo-500 border-transparent'
                 }`}
-                aria-label="Copier le nombre"
+                aria-label={t('random.copy_num')}
               >
                 {copied === 'num' ? <Check className="w-5 h-5" /> : <Copy className="w-5 h-5" />}
               </button>
@@ -243,7 +245,7 @@ export function RandomGenerator({ initialData, onStateChange }: { initialData?: 
       <section className="bg-white dark:bg-slate-900/40 p-8 rounded-[2.5rem] border border-slate-200 dark:border-slate-800 space-y-8 shadow-sm">
         <div className="flex items-center gap-2 px-1">
           <Type className="w-4 h-4 text-indigo-500" />
-          <h3 className="text-xs font-black uppercase tracking-widest text-slate-400">Chaîne Aléatoire</h3>
+          <h3 className="text-xs font-black uppercase tracking-widest text-slate-400">{t('random.string_title')}</h3>
         </div>
 
         <div className="flex justify-end gap-2 px-1">
@@ -252,14 +254,14 @@ export function RandomGenerator({ initialData, onStateChange }: { initialData?: 
             disabled={!randomString}
             className="text-xs font-bold text-indigo-600 bg-indigo-50 dark:bg-indigo-900/20 hover:bg-indigo-100 dark:hover:bg-indigo-900/30 px-3 py-1.5 rounded-xl flex items-center gap-1 transition-all disabled:opacity-50 disabled:cursor-not-allowed focus-visible:ring-2 focus-visible:ring-indigo-500 focus-visible:outline-none"
           >
-            <Download className="w-3 h-3" /> Télécharger
+            <Download className="w-3 h-3" /> {t('common.download')}
           </button>
           <button
             onClick={() => setRandomString('')}
             disabled={!randomString}
-            className="text-xs font-bold text-rose-500 bg-rose-50 dark:bg-rose-500/10 hover:bg-rose-100 dark:hover:bg-rose-500/20 px-3 py-1.5 rounded-xl flex items-center gap-1 transition-all disabled:opacity-50 disabled:cursor-not-allowed focus-visible:ring-2 focus-visible:ring-indigo-500 focus-visible:outline-none"
+            className="text-xs font-bold text-rose-500 bg-rose-50 dark:bg-rose-500/10 hover:bg-rose-100 dark:hover:bg-rose-500/20 px-3 py-1.5 rounded-xl flex items-center gap-1 transition-all disabled:opacity-50 disabled:cursor-not-allowed focus-visible:ring-2 focus-visible:ring-rose-500 focus-visible:outline-none"
           >
-            <Trash2 className="w-3 h-3" /> Effacer
+            <Trash2 className="w-3 h-3" /> {t('common.clear')}
           </button>
         </div>
 
@@ -280,7 +282,7 @@ export function RandomGenerator({ initialData, onStateChange }: { initialData?: 
                 </button>
               ))}
               <div className="flex items-center gap-3 ml-auto">
-                <label htmlFor="str-length" className="text-xs font-bold text-slate-400 cursor-pointer">LONGUEUR</label>
+                <label htmlFor="str-length" className="text-xs font-bold text-slate-400 cursor-pointer">{t('random.length')}</label>
                 <input
                   id="str-length"
                   type="number"
@@ -298,7 +300,7 @@ export function RandomGenerator({ initialData, onStateChange }: { initialData?: 
                 type="text"
                 value={randomString}
                 readOnly
-                placeholder="Le résultat apparaîtra ici..."
+                placeholder={t('random.placeholder_str')}
                 className="w-full p-6 bg-slate-50 dark:bg-slate-900 border border-slate-100 dark:border-slate-800 rounded-2xl font-mono text-xl outline-none transition-all dark:text-white"
               />
               <button
@@ -308,7 +310,7 @@ export function RandomGenerator({ initialData, onStateChange }: { initialData?: 
                     ? 'bg-emerald-50 dark:bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border-emerald-200 dark:border-emerald-500/20'
                     : 'bg-white dark:bg-slate-800 text-slate-400 hover:text-indigo-500 border-slate-100 dark:border-slate-700'
                 }`}
-                aria-label="Copier la chaîne"
+                aria-label={t('random.copy_str')}
               >
                 {copied === 'str' ? <Check className="w-5 h-5" /> : <Copy className="w-5 h-5" />}
               </button>
@@ -320,7 +322,7 @@ export function RandomGenerator({ initialData, onStateChange }: { initialData?: 
               disabled={!includeUpper && !includeLower && !includeNumbers}
               className="w-full h-14 lg:h-20 bg-slate-900 dark:bg-white text-white dark:text-slate-900 rounded-2xl font-black text-lg hover:opacity-90 transition-all active:scale-95 flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
             >
-              <RefreshCw className="w-6 h-6" /> Générer
+              <RefreshCw className="w-6 h-6" /> {t('random.generate')}
             </button>
           </div>
         </div>
@@ -331,7 +333,7 @@ export function RandomGenerator({ initialData, onStateChange }: { initialData?: 
          <section className="bg-white dark:bg-slate-900/40 p-8 rounded-[2.5rem] border border-slate-200 dark:border-slate-800 space-y-8 shadow-sm">
             <div className="flex items-center gap-2 px-1">
               <Shuffle className="w-4 h-4 text-indigo-500" />
-              <h3 className="text-xs font-black uppercase tracking-widest text-slate-400">Lancer de Dés</h3>
+              <h3 className="text-xs font-black uppercase tracking-widest text-slate-400">{t('random.dice_title')}</h3>
             </div>
             <div className="grid grid-cols-3 sm:grid-cols-6 gap-2">
                {[4, 6, 8, 10, 12, 20].map(sides => (
@@ -348,7 +350,7 @@ export function RandomGenerator({ initialData, onStateChange }: { initialData?: 
                <div className="flex items-center justify-center p-8 bg-indigo-50 dark:bg-indigo-500/10 rounded-3xl border-2 border-indigo-200 dark:border-indigo-500/20 animate-in zoom-in-95">
                   <div className="text-center space-y-2">
                      <div className="text-5xl font-black text-indigo-600 dark:text-indigo-400 font-mono">{diceResult.value}</div>
-                     <div className="text-[10px] font-black uppercase tracking-widest text-slate-400">Résultat D{diceResult.type}</div>
+                     <div className="text-[10px] font-black uppercase tracking-widest text-slate-400">{t('random.dice_result', { type: diceResult.type })}</div>
                   </div>
                </div>
             )}
@@ -357,21 +359,21 @@ export function RandomGenerator({ initialData, onStateChange }: { initialData?: 
          <section className="bg-white dark:bg-slate-900/40 p-8 rounded-[2.5rem] border border-slate-200 dark:border-slate-800 space-y-8 shadow-sm">
             <div className="flex items-center gap-2 px-1">
               <Shuffle className="w-4 h-4 text-indigo-500" />
-              <h3 className="text-xs font-black uppercase tracking-widest text-slate-400">Pile ou Face</h3>
+              <h3 className="text-xs font-black uppercase tracking-widest text-slate-400">{t('random.coin_title')}</h3>
             </div>
             <div className="flex justify-center">
                <button
                  onClick={flipCoin}
                  className="w-32 h-32 rounded-full bg-slate-900 dark:bg-white text-white dark:text-slate-900 font-black text-xl hover:scale-105 active:scale-95 transition-all shadow-xl shadow-slate-900/20 dark:shadow-white/10"
                >
-                 LANCER
+                 {t('random.flip')}
                </button>
             </div>
             {coinResult && (
                <div className="flex items-center justify-center p-8 bg-amber-50 dark:bg-amber-500/10 rounded-3xl border-2 border-amber-200 dark:border-amber-500/20 animate-in zoom-in-95">
                   <div className="text-center space-y-2">
                      <div className="text-4xl font-black text-amber-600 dark:text-amber-400 uppercase tracking-tight">{coinResult}</div>
-                     <div className="text-[10px] font-black uppercase tracking-widest text-slate-400">Résultat du tirage</div>
+                     <div className="text-[10px] font-black uppercase tracking-widest text-slate-400">{t('random.coin_result')}</div>
                   </div>
                </div>
             )}
@@ -382,7 +384,7 @@ export function RandomGenerator({ initialData, onStateChange }: { initialData?: 
       <section className="bg-slate-50 dark:bg-slate-900/50 p-8 rounded-[2.5rem] border border-slate-200 dark:border-slate-800 space-y-8">
         <div className="flex items-center gap-2 px-1">
           <AlignLeft className="w-4 h-4 text-indigo-500" />
-          <h3 className="text-xs font-black uppercase tracking-widest text-slate-400">Mélanger une Liste</h3>
+          <h3 className="text-xs font-black uppercase tracking-widest text-slate-400">{t('random.list_title')}</h3>
         </div>
 
         {error && (
@@ -401,7 +403,7 @@ export function RandomGenerator({ initialData, onStateChange }: { initialData?: 
               }}
               className="text-xs font-bold text-indigo-600 bg-indigo-50 dark:bg-indigo-900/20 hover:bg-indigo-100 dark:hover:bg-indigo-900/30 px-3 py-1.5 rounded-xl flex items-center gap-1 transition-all focus-visible:ring-2 focus-visible:ring-indigo-500 focus-visible:outline-none"
             >
-              <Download className="w-3 h-3" /> Télécharger
+              <Download className="w-3 h-3" /> {t('common.download')}
             </button>
           )}
           <button
@@ -409,13 +411,13 @@ export function RandomGenerator({ initialData, onStateChange }: { initialData?: 
             disabled={!list && shuffledList.length === 0 && !winner && teams.length === 0}
             className="text-xs font-bold text-rose-500 bg-rose-50 dark:bg-rose-500/10 hover:bg-rose-100 dark:hover:bg-rose-500/20 px-3 py-1.5 rounded-xl flex items-center gap-1 transition-all disabled:opacity-50 disabled:cursor-not-allowed focus-visible:ring-2 focus-visible:ring-indigo-500 focus-visible:outline-none"
           >
-            <Trash2 className="w-3 h-3" /> Effacer
+            <Trash2 className="w-3 h-3" /> {t('common.clear')}
           </button>
         </div>
 
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
           <div className="space-y-4">
-            <label htmlFor="list-input" className="text-xs font-bold text-slate-400 px-1 cursor-pointer">ENTRÉE (Une ligne par élément)</label>
+            <label htmlFor="list-input" className="text-xs font-bold text-slate-400 px-1 cursor-pointer">{t('random.list_input')}</label>
             <textarea
               id="list-input"
               value={list}
@@ -425,7 +427,7 @@ export function RandomGenerator({ initialData, onStateChange }: { initialData?: 
             />
             <div className="space-y-3">
               <div className="flex items-center gap-3 bg-white dark:bg-slate-900 p-3 rounded-2xl border border-slate-200 dark:border-slate-800">
-                <label htmlFor="team-count" className="text-xs font-black uppercase tracking-widest text-slate-400 whitespace-nowrap">Nombre d'équipes :</label>
+                <label htmlFor="team-count" className="text-xs font-black uppercase tracking-widest text-slate-400 whitespace-nowrap">{t('random.team_count')}</label>
                 <input
                   id="team-count"
                   type="number"
@@ -440,7 +442,7 @@ export function RandomGenerator({ initialData, onStateChange }: { initialData?: 
                   disabled={!list.trim()}
                   className="px-4 py-2 bg-indigo-600 text-white rounded-xl font-bold text-xs hover:bg-indigo-700 transition-all disabled:opacity-50 whitespace-nowrap"
                 >
-                  Générer Équipes
+                  {t('random.generate_teams')}
                 </button>
               </div>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
@@ -449,14 +451,14 @@ export function RandomGenerator({ initialData, onStateChange }: { initialData?: 
                   disabled={!list.trim()}
                   className="py-4 bg-slate-900 dark:bg-white text-white dark:text-slate-900 rounded-2xl font-black hover:opacity-90 transition-all active:scale-95 flex items-center justify-center gap-2 disabled:opacity-50"
                 >
-                  <Shuffle className="w-5 h-5" /> Mélanger
+                  <Shuffle className="w-5 h-5" /> {t('random.shuffle')}
                 </button>
                 <button
                   onClick={pickWinner}
                   disabled={!list.trim()}
                   className="py-4 bg-indigo-600 text-white rounded-2xl font-black hover:bg-indigo-700 transition-all shadow-lg shadow-indigo-600/20 active:scale-95 flex items-center justify-center gap-2 disabled:opacity-50"
                 >
-                  <RefreshCw className="w-5 h-5" /> Tirer au sort
+                  <RefreshCw className="w-5 h-5" /> {t('random.pick_winner')}
                 </button>
               </div>
             </div>
@@ -464,11 +466,11 @@ export function RandomGenerator({ initialData, onStateChange }: { initialData?: 
 
           <div className="space-y-4">
             <div className="flex justify-between items-center px-1">
-              <label className="text-xs font-bold text-slate-400">RÉSULTAT</label>
+              <label className="text-xs font-bold text-slate-400">{t('random.result')}</label>
               {(shuffledList.length > 0 || winner || teams.length > 0) && (
                 <button
                   onClick={() => {
-                    const text = winner || (teams.length > 0 ? teams.map((t, i) => `Équipe ${i + 1}:\n${t.join('\n')}`).join('\n\n') : shuffledList.join('\n'));
+                    const text = winner || (teams.length > 0 ? teams.map((team, i) => `${t('random.team_label', { id: i + 1 })}:\n${team.join('\n')}`).join('\n\n') : shuffledList.join('\n'));
                     copyToClipboard(text, 'list');
                   }}
                   className={`text-xs font-bold px-3 py-1 rounded-full transition-all flex items-center gap-1 border ${
@@ -477,7 +479,7 @@ export function RandomGenerator({ initialData, onStateChange }: { initialData?: 
                       : 'text-indigo-600 dark:text-indigo-400 border-transparent hover:bg-indigo-50 dark:hover:bg-indigo-900/20'
                   }`}
                 >
-                  {copied === 'list' ? <Check className="w-3 h-3" /> : <Copy className="w-3 h-3" />} {copied === 'list' ? 'Copié' : 'Copier'}
+                  {copied === 'list' ? <Check className="w-3 h-3" /> : <Copy className="w-3 h-3" />} {copied === 'list' ? t('common.copied') : t('common.copy')}
                 </button>
               )}
             </div>
@@ -485,7 +487,7 @@ export function RandomGenerator({ initialData, onStateChange }: { initialData?: 
               {teams.length > 0 && (
                 <button
                   onClick={() => {
-                    const text = teams.map((t, i) => `Équipe ${i + 1}:\n${t.join('\n')}`).join('\n\n');
+                    const text = teams.map((team, i) => `${t('random.team_label', { id: i + 1 })}:\n${team.join('\n')}`).join('\n\n');
                     copyToClipboard(text, 'teams-all');
                   }}
                   className={`absolute top-4 right-4 z-10 p-2 rounded-xl transition-all border ${
@@ -493,14 +495,14 @@ export function RandomGenerator({ initialData, onStateChange }: { initialData?: 
                       ? "bg-emerald-50 dark:bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border-emerald-200 dark:border-emerald-500/20"
                       : "bg-white dark:bg-slate-800 text-slate-400 hover:text-indigo-500 border-slate-100 dark:border-slate-700 opacity-0 group-hover/result:opacity-100"
                   }`}
-                  title="Copier toutes les équipes"
+                  title={t('random.copy_teams')}
                 >
                   {copied === 'teams-all' ? <Check className="w-4 h-4" /> : <Copy className="w-4 h-4" />}
                 </button>
               )}
               {winner ? (
                 <div className="h-full flex flex-col items-center justify-center space-y-6 animate-in zoom-in-95 duration-500">
-                  <div className="text-xs font-black uppercase tracking-widest text-indigo-500">Gagnant Tiré au sort !</div>
+                  <div className="text-xs font-black uppercase tracking-widest text-indigo-500">{t('random.winner_title')}</div>
                   <div className="text-3xl font-black text-slate-900 dark:text-white bg-indigo-50 dark:bg-indigo-500/10 px-8 py-6 rounded-2xl border-2 border-indigo-500/20 text-center break-all max-w-full">
                     {winner}
                   </div>
@@ -513,14 +515,14 @@ export function RandomGenerator({ initialData, onStateChange }: { initialData?: 
                     }`}
                   >
                     {copied === 'winner-btn' ? <Check className="w-4 h-4" /> : <Copy className="w-4 h-4" />}
-                    {copied === 'winner-btn' ? "Copié" : "Copier le gagnant"}
+                    {copied === 'winner-btn' ? t('common.copied') : t('random.copy_winner')}
                   </button>
                 </div>
               ) : teams.length > 0 ? (
                 <div className="space-y-6">
                   {teams.map((team, i) => (
                     <div key={i} className="space-y-2 animate-in fade-in slide-in-from-bottom-2 duration-300" style={{ animationDelay: `${i * 100}ms` }}>
-                      <div className="text-[10px] font-black uppercase tracking-widest text-indigo-500">Équipe {i + 1}</div>
+                      <div className="text-[10px] font-black uppercase tracking-widest text-indigo-500">{t('random.team_label', { id: i + 1 })}</div>
                       <div className="grid grid-cols-1 gap-2">
                         {team.map((member, j) => (
                           <div key={j} className="p-3 bg-slate-50 dark:bg-slate-800 rounded-xl border border-slate-100 dark:border-slate-700 font-bold text-sm dark:text-slate-200">
@@ -533,7 +535,7 @@ export function RandomGenerator({ initialData, onStateChange }: { initialData?: 
                 </div>
               ) : shuffledList.length === 0 ? (
                 <div className="h-full flex items-center justify-center text-slate-300 font-bold italic text-center px-4">
-                  La liste mélangée, le gagnant ou les équipes apparaîtront ici
+                  {t('random.list_placeholder')}
                 </div>
               ) : (
                 shuffledList.map((item, i) => (

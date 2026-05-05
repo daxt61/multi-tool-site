@@ -1,9 +1,11 @@
 import { useState, useEffect } from 'react';
 import { Copy, Check, Trash2, ArrowRightLeft, FileCode, Type, Download, AlertCircle } from 'lucide-react';
+import { useTranslation } from 'react-i18next';
 
 const MAX_LENGTH = 100000;
 
 export function Base64Tool({ initialData, onStateChange }: { initialData?: any; onStateChange?: (state: any) => void }) {
+  const { t } = useTranslation();
   const [text, setText] = useState(initialData?.text || '');
   const [base64, setBase64] = useState(initialData?.base64 || '');
   const [urlSafe, setUrlSafe] = useState(initialData?.urlSafe ?? false);
@@ -36,7 +38,7 @@ export function Base64Tool({ initialData, onStateChange }: { initialData?: any; 
       }
       return result;
     } catch (e) {
-      return 'Erreur d\'encodage';
+      return 'Error';
     }
   };
 
@@ -55,13 +57,13 @@ export function Base64Tool({ initialData, onStateChange }: { initialData?: any; 
       }
       return new TextDecoder().decode(bytes);
     } catch (e) {
-      return 'Erreur de décodage';
+      return 'Error';
     }
   };
 
   const handleTextChange = (value: string) => {
     if (value.length > MAX_LENGTH) {
-      setError(`L'entrée est trop longue. Limite de ${MAX_LENGTH.toLocaleString()} caractères.`);
+      setError(t('error.max_length', { max: MAX_LENGTH.toLocaleString() }));
       setText(value);
       setBase64('');
       return;
@@ -73,7 +75,7 @@ export function Base64Tool({ initialData, onStateChange }: { initialData?: any; 
 
   const handleBase64Change = (value: string) => {
     if (value.length > MAX_LENGTH) {
-      setError(`L'entrée est trop longue. Limite de ${MAX_LENGTH.toLocaleString()} caractères.`);
+      setError(t('error.max_length', { max: MAX_LENGTH.toLocaleString() }));
       setBase64(value);
       setText('');
       return;
@@ -122,7 +124,7 @@ export function Base64Tool({ initialData, onStateChange }: { initialData?: any; 
           <div className="flex justify-between items-center px-1">
             <div className="flex items-center gap-2">
               <Type className="w-4 h-4 text-indigo-500" />
-              <label htmlFor="text-input" className="text-xs font-black uppercase tracking-widest text-slate-400 cursor-pointer">Texte Clair</label>
+              <label htmlFor="text-input" className="text-xs font-black uppercase tracking-widest text-slate-400 cursor-pointer">{t('base64.clear_text')}</label>
             </div>
             <div className="flex gap-2">
               <button
@@ -134,7 +136,7 @@ export function Base64Tool({ initialData, onStateChange }: { initialData?: any; 
                     : 'text-slate-500 bg-slate-100 dark:bg-slate-800 border-transparent hover:bg-slate-200 dark:hover:bg-slate-700'
                 } disabled:opacity-50 disabled:cursor-not-allowed`}
               >
-                {copied === 'text' ? <Check className="w-3 h-3" /> : <Copy className="w-3 h-3" />} {copied === 'text' ? 'Copié' : 'Copier'}
+                {copied === 'text' ? <Check className="w-3 h-3" /> : <Copy className="w-3 h-3" />} {copied === 'text' ? t('common.copied') : t('common.copy')}
               </button>
               <div className="flex gap-2">
                 <button
@@ -145,7 +147,7 @@ export function Base64Tool({ initialData, onStateChange }: { initialData?: any; 
                       : 'text-slate-500 bg-slate-100 dark:bg-slate-800 hover:bg-slate-200'
                   }`}
                 >
-                  URL-Safe
+                  {t('base64.url_safe')}
                 </button>
                 <button
                   onClick={() => {setText(''); setBase64(''); setError(null);}}
@@ -161,7 +163,7 @@ export function Base64Tool({ initialData, onStateChange }: { initialData?: any; 
             id="text-input"
             value={text}
             onChange={(e) => handleTextChange(e.target.value)}
-            placeholder="Entrez votre texte ici..."
+            placeholder={t('base64.placeholder_text')}
             className={`w-full h-[400px] p-6 bg-slate-50 dark:bg-slate-900 border ${error ? 'border-rose-500 ring-rose-500/20' : 'border-slate-200 dark:border-slate-800'} rounded-3xl outline-none focus:ring-2 ${error ? 'focus:ring-rose-500/20' : 'focus:ring-indigo-500/20'} transition-all font-mono text-sm leading-relaxed dark:text-slate-300 resize-none`}
           />
         </div>
@@ -171,7 +173,7 @@ export function Base64Tool({ initialData, onStateChange }: { initialData?: any; 
           <div className="flex justify-between items-center px-1">
             <div className="flex items-center gap-2">
               <FileCode className="w-4 h-4 text-indigo-500" />
-              <label htmlFor="base64-input" className="text-xs font-black uppercase tracking-widest text-slate-400 cursor-pointer">Base64</label>
+              <label htmlFor="base64-input" className="text-xs font-black uppercase tracking-widest text-slate-400 cursor-pointer">{t('base64.title')}</label>
             </div>
             <div className="flex gap-2">
               <button
@@ -191,7 +193,7 @@ export function Base64Tool({ initialData, onStateChange }: { initialData?: any; 
                     : 'text-slate-500 bg-slate-100 dark:bg-slate-800 border-transparent hover:bg-slate-200 dark:hover:bg-slate-700'
                 } disabled:opacity-50 disabled:cursor-not-allowed`}
               >
-                {copied === 'base64' ? <Check className="w-3 h-3" /> : <Copy className="w-3 h-3" />} {copied === 'base64' ? 'Copié' : 'Copier'}
+                {copied === 'base64' ? <Check className="w-3 h-3" /> : <Copy className="w-3 h-3" />} {copied === 'base64' ? t('common.copied') : t('common.copy')}
               </button>
             </div>
           </div>
@@ -199,17 +201,16 @@ export function Base64Tool({ initialData, onStateChange }: { initialData?: any; 
             id="base64-input"
             value={base64}
             onChange={(e) => handleBase64Change(e.target.value)}
-            placeholder="Le résultat Base64 apparaîtra ici..."
+            placeholder={t('base64.placeholder_base64')}
             className={`w-full h-[400px] p-6 bg-slate-50 dark:bg-slate-900 border ${error ? 'border-rose-500 ring-rose-500/20' : 'border-slate-200 dark:border-slate-800'} rounded-3xl outline-none focus:ring-2 ${error ? 'focus:ring-rose-500/20' : 'focus:ring-indigo-500/20'} transition-all font-mono text-sm leading-relaxed text-indigo-600 dark:text-indigo-400 break-all resize-none`}
           />
         </div>
       </div>
 
       <div className="bg-slate-50 dark:bg-slate-900/50 p-8 rounded-[2.5rem] border border-slate-200 dark:border-slate-800">
-        <h4 className="font-bold text-slate-900 dark:text-white mb-4">À propos du Base64</h4>
+        <h4 className="font-bold text-slate-900 dark:text-white mb-4">{t('base64.about_title')}</h4>
         <p className="text-sm text-slate-500 dark:text-slate-400 leading-relaxed">
-          Le Base64 est un schéma d'encodage binaire vers texte qui représente des données binaires dans un format de chaîne ASCII en les traduisant dans une représentation radix-64.
-          C'est particulièrement utile pour transmettre des données qui pourraient être mal interprétées par certains protocoles (comme les caractères spéciaux dans les URLs ou les données binaires dans les e-mails).
+          {t('base64.about_text')}
         </p>
       </div>
     </div>

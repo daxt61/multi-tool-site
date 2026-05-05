@@ -1,14 +1,16 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import { Copy, Check, Hash, Binary, Octagon, Hexagon, Info, Trash2 } from 'lucide-react';
-
-const BASE_CONFIGS = [
-  { label: 'Décimal (Base 10)', getter: (s: any) => s.decimal, onChange: (v: string, s: any) => s.updateFromDecimal(v), placeholder: '0-9', id: 'dec' },
-  { label: 'Binaire (Base 2)', getter: (s: any) => s.binary, onChange: (v: string, s: any) => s.updateFromBinary(v), placeholder: '0-1', id: 'bin' },
-  { label: 'Octal (Base 8)', getter: (s: any) => s.octal, onChange: (v: string, s: any) => s.updateFromOctal(v), placeholder: '0-7', id: 'oct' },
-  { label: 'Hexadécimal (Base 16)', getter: (s: any) => s.hexadecimal, onChange: (v: string, s: any) => s.updateFromHexadecimal(v.toUpperCase()), placeholder: '0-9, A-F', id: 'hex' },
-];
+import { useTranslation } from 'react-i18next';
 
 export function NumberConverter({ initialData, onStateChange }: { initialData?: any; onStateChange?: (state: any) => void }) {
+  const { t } = useTranslation();
+
+  const BASE_CONFIGS = useMemo(() => [
+    { label: t('numberconverter.dec'), getter: (s: any) => s.decimal, onChange: (v: string, s: any) => s.updateFromDecimal(v), placeholder: '0-9', id: 'dec' },
+    { label: t('numberconverter.bin'), getter: (s: any) => s.binary, onChange: (v: string, s: any) => s.updateFromBinary(v), placeholder: '0-1', id: 'bin' },
+    { label: t('numberconverter.oct'), getter: (s: any) => s.octal, onChange: (v: string, s: any) => s.updateFromOctal(v), placeholder: '0-7', id: 'oct' },
+    { label: t('numberconverter.hex'), getter: (s: any) => s.hexadecimal, onChange: (v: string, s: any) => s.updateFromHexadecimal(v.toUpperCase()), placeholder: '0-9, A-F', id: 'hex' },
+  ], [t]);
   const [decimal, setDecimal] = useState(initialData?.decimal || '42');
   const [binary, setBinary] = useState(initialData?.binary || '101010');
   const [octal, setOctal] = useState(initialData?.octal || '52');
@@ -132,7 +134,7 @@ export function NumberConverter({ initialData, onStateChange }: { initialData?: 
           disabled={!decimal && !binary && !octal && !hexadecimal}
           className="text-xs font-bold text-rose-500 bg-rose-50 dark:bg-rose-500/10 hover:bg-rose-100 dark:hover:bg-rose-500/20 px-3 py-1.5 rounded-xl flex items-center gap-2 transition-all disabled:opacity-50 disabled:cursor-not-allowed"
         >
-          <Trash2 className="w-3.5 h-3.5" /> Effacer tout
+          <Trash2 className="w-3.5 h-3.5" /> {t('common.clear')}
         </button>
       </div>
 
@@ -151,7 +153,7 @@ export function NumberConverter({ initialData, onStateChange }: { initialData?: 
                     ? 'bg-emerald-50 dark:bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border-emerald-200 dark:border-emerald-500/20'
                     : 'text-slate-400 hover:text-indigo-500 bg-white dark:bg-slate-800 shadow-sm border-slate-100 dark:border-slate-700'
                 }`}
-                aria-label={`Copier le résultat en ${base.label}`}
+                aria-label={t('numberconverter.copy', { label: base.label })}
               >
                 {copied === base.id ? <Check className="w-4 h-4" /> : <Copy className="w-4 h-4" />}
               </button>
@@ -173,29 +175,29 @@ export function NumberConverter({ initialData, onStateChange }: { initialData?: 
           <Info className="w-6 h-6" />
         </div>
         <div className="space-y-4">
-          <h4 className="font-bold dark:text-white">À propos des bases numériques</h4>
+          <h4 className="font-bold dark:text-white">{t('numberconverter.about_title')}</h4>
           <p className="text-sm text-slate-500 dark:text-slate-400">
-            Cet outil supporte désormais les nombres arbitrairement grands (BigInt), évitant toute perte de précision lors des conversions.
+            {t('numberconverter.about_text')}
           </p>
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <ul className="text-sm text-slate-500 dark:text-slate-400 space-y-2">
               <li className="flex gap-2">
                 <span className="font-bold text-indigo-500">•</span>
-                <span><span className="font-bold">Binaire :</span> Système de base 2, utilisé par les ordinateurs au niveau le plus bas.</span>
+                <span><span className="font-bold">{t('numberconverter.bin').split(' ')[0]} :</span> {t('numberconverter.bin_desc')}</span>
               </li>
               <li className="flex gap-2">
                 <span className="font-bold text-indigo-500">•</span>
-                <span><span className="font-bold">Octal :</span> Système de base 8, utilisé parfois en informatique pour grouper les bits par trois.</span>
+                <span><span className="font-bold">{t('numberconverter.oct').split(' ')[0]} :</span> {t('numberconverter.oct_desc')}</span>
               </li>
             </ul>
             <ul className="text-sm text-slate-500 dark:text-slate-400 space-y-2">
               <li className="flex gap-2">
                 <span className="font-bold text-indigo-500">•</span>
-                <span><span className="font-bold">Décimal :</span> Système de base 10, le système standard utilisé par les humains.</span>
+                <span><span className="font-bold">{t('numberconverter.dec').split(' ')[0]} :</span> {t('numberconverter.dec_desc')}</span>
               </li>
               <li className="flex gap-2">
                 <span className="font-bold text-indigo-500">•</span>
-                <span><span className="font-bold">Hexadécimal :</span> Système de base 16, largement utilisé en programmation et pour les couleurs.</span>
+                <span><span className="font-bold">{t('numberconverter.hex').split(' ')[0]} :</span> {t('numberconverter.hex_desc')}</span>
               </li>
             </ul>
           </div>

@@ -1,10 +1,12 @@
 import { useState, useEffect } from 'react';
 import { FileCode, Copy, Check, Trash2, AlertCircle, Terminal, Download } from 'lucide-react';
+import { useTranslation } from 'react-i18next';
 
 const MAX_LENGTH = 100000;
 const MAX_DEPTH = 20;
 
 export function JSONToTS({ initialData, onStateChange }: { initialData?: any; onStateChange?: (state: any) => void }) {
+  const { t } = useTranslation();
   const [input, setInput] = useState(initialData?.input || '');
   const [output, setOutput] = useState(initialData?.output || '');
   const [useExport, setUseExport] = useState(initialData?.useExport ?? false);
@@ -42,7 +44,7 @@ export function JSONToTS({ initialData, onStateChange }: { initialData?: any; on
     try {
       if (!input.trim()) return;
       if (input.length > MAX_LENGTH) {
-        setError(`L'entrée est trop longue. Limite de ${MAX_LENGTH.toLocaleString()} caractères.`);
+        setError(t('error.max_length', { max: MAX_LENGTH.toLocaleString() }));
         return;
       }
       const parsed = JSON.parse(input);
@@ -59,7 +61,7 @@ export function JSONToTS({ initialData, onStateChange }: { initialData?: any; on
       setOutput(result);
       setError('');
     } catch (e: any) {
-      setError('JSON invalide : ' + e.message);
+      setError(t('error.invalid_json') + ': ' + e.message);
     }
   };
 
@@ -103,7 +105,7 @@ export function JSONToTS({ initialData, onStateChange }: { initialData?: any; on
           <div className="flex justify-between items-center px-1">
             <div className="flex items-center gap-2">
               <FileCode className="w-4 h-4 text-indigo-500" />
-              <label htmlFor="json-input" className="text-xs font-black uppercase tracking-widest text-slate-400 cursor-pointer">Entrée JSON</label>
+              <label htmlFor="json-input" className="text-xs font-black uppercase tracking-widest text-slate-400 cursor-pointer">{t('jsontots.json_input')}</label>
             </div>
             <div className="flex gap-2">
               <button
@@ -114,14 +116,14 @@ export function JSONToTS({ initialData, onStateChange }: { initialData?: any; on
                     : 'text-slate-500 bg-slate-100 dark:bg-slate-800 hover:bg-slate-200'
                 }`}
               >
-                Exporter
+                {t('jsontots.export')}
               </button>
               <button
                 onClick={handleClear}
                 disabled={!input && !output}
                 className="text-xs font-bold px-3 py-1 rounded-full text-rose-500 bg-rose-50 dark:bg-rose-500/10 hover:bg-rose-100 dark:hover:bg-rose-500/20 transition-all flex items-center gap-1 disabled:opacity-50 disabled:cursor-not-allowed focus-visible:ring-2 focus-visible:ring-rose-500 focus-visible:outline-none"
               >
-                <Trash2 className="w-3 h-3" /> Effacer
+                <Trash2 className="w-3 h-3" /> {t('common.clear')}
               </button>
             </div>
           </div>
@@ -144,7 +146,7 @@ export function JSONToTS({ initialData, onStateChange }: { initialData?: any; on
           <div className="flex justify-between items-center px-1">
             <div className="flex items-center gap-2">
               <Terminal className="w-4 h-4 text-emerald-500" />
-              <label htmlFor="ts-output" className="text-xs font-black uppercase tracking-widest text-slate-400 cursor-pointer">Interfaces TypeScript</label>
+              <label htmlFor="ts-output" className="text-xs font-black uppercase tracking-widest text-slate-400 cursor-pointer">{t('jsontots.ts_output')}</label>
             </div>
             <div className="flex gap-2">
               <button
@@ -163,7 +165,7 @@ export function JSONToTS({ initialData, onStateChange }: { initialData?: any; on
                     : 'text-slate-500 bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 disabled:opacity-50 disabled:cursor-not-allowed'
                 }`}
               >
-                {copied ? <Check className="w-3 h-3" /> : <Copy className="w-3 h-3" />} {copied ? 'Copié' : 'Copier'}
+                {copied ? <Check className="w-3 h-3" /> : <Copy className="w-3 h-3" />} {copied ? t('common.copied') : t('common.copy')}
               </button>
             </div>
           </div>
@@ -171,7 +173,7 @@ export function JSONToTS({ initialData, onStateChange }: { initialData?: any; on
             id="ts-output"
             value={output}
             readOnly
-            placeholder="Les interfaces TypeScript apparaîtront ici..."
+            placeholder={t('jsontots.placeholder_output')}
             className="w-full h-[450px] p-6 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-3xl outline-none font-mono text-sm leading-relaxed text-indigo-600 dark:text-indigo-400 resize-none"
           />
         </div>
@@ -182,7 +184,7 @@ export function JSONToTS({ initialData, onStateChange }: { initialData?: any; on
           onClick={handleConvert}
           className="px-10 py-4 bg-indigo-600 text-white rounded-2xl font-black text-lg shadow-lg shadow-indigo-600/20 hover:bg-indigo-700 transition-all active:scale-95 flex items-center gap-2 focus-visible:ring-2 focus-visible:ring-indigo-500 focus-visible:outline-none"
         >
-          <Terminal className="w-5 h-5" /> Générer les interfaces
+          <Terminal className="w-5 h-5" /> {t('jsontots.generate')}
           <kbd className="ml-2 hidden sm:inline-flex items-center gap-1 px-2 py-0.5 border border-white/20 rounded text-[10px] font-bold bg-white/10">
             Ctrl + Enter
           </kbd>

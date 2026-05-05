@@ -1,5 +1,6 @@
-import { useState } from 'react';
+import { useState, useMemo } from 'react';
 import { Tag, Info, Trash2 } from 'lucide-react';
+import { useTranslation } from 'react-i18next';
 
 interface Product {
   price: string;
@@ -16,6 +17,7 @@ const UNITS = [
 ];
 
 export function UnitPriceCalculator() {
+  const { t } = useTranslation();
   const [productA, setProductA] = useState<Product>({ price: '', quantity: '', unit: 'g' });
   const [productB, setProductB] = useState<Product>({ price: '', quantity: '', unit: 'g' });
   const [productC, setProductC] = useState<Product>({ price: '', quantity: '', unit: 'g' });
@@ -69,7 +71,7 @@ export function UnitPriceCalculator() {
       <div className="flex justify-between items-center mb-6">
         <h3 className="font-black uppercase tracking-widest text-sm flex items-center gap-2">
           <span className={`w-8 h-8 rounded-lg ${colorClass} text-white flex items-center justify-center text-xs`}>{id}</span>
-          Produit {id}
+          {t('unitprice.product', { id })}
         </h3>
         <div className="flex items-center gap-2">
           <button
@@ -77,17 +79,17 @@ export function UnitPriceCalculator() {
             disabled={!product.price && !product.quantity}
             className="text-xs font-bold text-rose-500 bg-rose-50 dark:bg-rose-500/10 hover:bg-rose-100 dark:hover:bg-rose-500/20 px-2 py-1 rounded-lg flex items-center gap-1 transition-all disabled:opacity-50 disabled:cursor-not-allowed"
           >
-            <Trash2 className="w-3 h-3" /> Effacer
+            <Trash2 className="w-3 h-3" /> {t('common.clear')}
           </button>
           {isWinner && (
-            <span className="px-3 py-1 bg-emerald-500 text-white text-[10px] font-black uppercase tracking-widest rounded-full animate-bounce">Moins cher</span>
+            <span className="px-3 py-1 bg-emerald-500 text-white text-[10px] font-black uppercase tracking-widest rounded-full animate-bounce">{t('unitprice.cheaper')}</span>
           )}
         </div>
       </div>
 
       <div className="space-y-6">
         <div className="space-y-2">
-          <label htmlFor={`price${id}`} className="text-xs font-bold text-slate-400 uppercase tracking-widest px-1">Prix (€)</label>
+          <label htmlFor={`price${id}`} className="text-xs font-bold text-slate-400 uppercase tracking-widest px-1">{t('unitprice.price')}</label>
           <input
             id={`price${id}`}
             type="number"
@@ -99,7 +101,7 @@ export function UnitPriceCalculator() {
         </div>
         <div className="grid grid-cols-2 gap-4">
           <div className="space-y-2">
-            <label htmlFor={`qty${id}`} className="text-xs font-bold text-slate-400 uppercase tracking-widest px-1">Quantité</label>
+            <label htmlFor={`qty${id}`} className="text-xs font-bold text-slate-400 uppercase tracking-widest px-1">{t('unitprice.quantity')}</label>
             <input
               id={`qty${id}`}
               type="number"
@@ -110,7 +112,7 @@ export function UnitPriceCalculator() {
             />
           </div>
           <div className="space-y-2">
-            <label htmlFor={`unit${id}`} className="text-xs font-bold text-slate-400 uppercase tracking-widest px-1">Unité</label>
+            <label htmlFor={`unit${id}`} className="text-xs font-bold text-slate-400 uppercase tracking-widest px-1">{t('unitprice.unit')}</label>
             <select
               id={`unit${id}`}
               value={product.unit}
@@ -125,7 +127,7 @@ export function UnitPriceCalculator() {
 
       {unitPrice !== null && (
         <div className="mt-8 pt-8 border-t border-slate-200 dark:border-slate-700 text-center">
-          <div className="text-xs font-bold text-slate-400 uppercase tracking-widest mb-2">Prix pour 100{product.unit === 'unit' ? ' unités' : (product.unit.includes('l') ? 'ml' : 'g')}</div>
+          <div className="text-xs font-bold text-slate-400 uppercase tracking-widest mb-2">{t('unitprice.for100', { unit: product.unit === 'unit' ? ' unités' : (product.unit.includes('l') ? 'ml' : 'g') })}</div>
           <div className="text-4xl font-black font-mono text-indigo-600 dark:text-indigo-400">
             {unitPrice.toFixed(3)}€
           </div>
@@ -147,9 +149,9 @@ export function UnitPriceCalculator() {
           <Info className="w-8 h-8" />
         </div>
         <div className="space-y-2">
-          <h4 className="font-black uppercase tracking-widest text-xs text-slate-400">Comment ça marche ?</h4>
+          <h4 className="font-black uppercase tracking-widest text-xs text-slate-400">{t('unitprice.how_title')}</h4>
           <p className="text-slate-500 dark:text-slate-400 leading-relaxed font-medium">
-            Entrez le prix et la quantité de jusqu'à trois produits pour comparer leur rapport qualité-prix. Nous convertissons tout dans une unité de base (100g, 100ml ou à l'unité) pour faciliter la comparaison.
+            {t('unitprice.how_text')}
           </p>
         </div>
       </div>

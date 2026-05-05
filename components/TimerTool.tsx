@@ -1,9 +1,11 @@
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect, useRef, useMemo } from 'react';
 import { Play, Pause, RotateCcw, Timer, StopCircle, Flag, Bell, BellOff, Coffee, Brain, ChevronRight, Copy, Check } from 'lucide-react';
+import { useTranslation } from 'react-i18next';
 
 type PomodoroState = 'work' | 'shortBreak' | 'longBreak';
 
 export function TimerTool({ initialData, onStateChange }: { initialData?: any; onStateChange?: (state: any) => void }) {
+  const { t } = useTranslation();
   const [mode, setMode] = useState<'timer' | 'stopwatch' | 'pomodoro'>(initialData?.mode || 'timer');
 
   // Timer state
@@ -49,19 +51,27 @@ export function TimerTool({ initialData, onStateChange }: { initialData?: any; o
   const startTimeRef = useRef<number>(0);
   const audioContextRef = useRef<AudioContext | null>(null);
 
-  const POMODORO_CONFIG = {
-    work: { duration: workDuration * 60, label: 'Travail', icon: <Brain className="w-5 h-5" />, color: 'text-indigo-600', bg: 'bg-indigo-50 dark:bg-indigo-500/10' },
-    shortBreak: { duration: shortBreakDuration * 60, label: 'Pause courte', icon: <Coffee className="w-5 h-5" />, color: 'text-emerald-600', bg: 'bg-emerald-50 dark:bg-emerald-500/10' },
-    longBreak: { duration: longBreakDuration * 60, label: 'Pause longue', icon: <Coffee className="w-5 h-5" />, color: 'text-blue-600', bg: 'bg-blue-50 dark:bg-blue-500/10' },
+  const POMODORO_CONFIG = useMemo(() => ({
+    work: { duration: workDuration * 60, label: t('timer.work'), icon: <Brain className="w-5 h-5" />, color: 'text-indigo-600', bg: 'bg-indigo-50 dark:bg-indigo-500/10' },
+    shortBreak: { duration: shortBreakDuration * 60, label: t('timer.short_break'), icon: <Coffee className="w-5 h-5" />, color: 'text-emerald-600', bg: 'bg-emerald-50 dark:bg-emerald-500/10' },
+    longBreak: { duration: longBreakDuration * 60, label: t('timer.long_break'), icon: <Coffee className="w-5 h-5" />, color: 'text-blue-600', bg: 'bg-blue-50 dark:bg-blue-500/10' },
+  }), [t, workDuration, shortBreakDuration, longBreakDuration]);
+
+  const initAudio = () => {
+    if (!audioContextRef.current) {
+      audioContextRef.current = new (window.AudioContext || (window as any).webkitAudioContext)();
+    }
+    if (audioContextRef.current?.state === 'suspended') {
+      audioContextRef.current.resume();
+    }
   };
 
   const playBeep = () => {
     if (!soundEnabled) return;
     try {
-      if (!audioContextRef.current) {
-        audioContextRef.current = new (window.AudioContext || (window as any).webkitAudioContext)();
-      }
+      initAudio();
       const ctx = audioContextRef.current;
+      if (!ctx) return;
       const osc = ctx.createOscillator();
       const gain = ctx.createGain();
 
@@ -163,7 +173,7 @@ export function TimerTool({ initialData, onStateChange }: { initialData?: any; o
 
   const copyLaps = () => {
     if (laps.length === 0) return;
-    const text = laps.map((lap, i) => `Tour ${laps.length - i} : ${formatStopwatchTime(lap)}`).join('\n');
+    const text = laps.map((lap, i) => `${t('timer.lap')} ${laps.length - i} : ${formatStopwatchTime(lap)}`).join('\n');
     navigator.clipboard.writeText(text);
     setLapsCopied(true);
     setTimeout(() => setLapsCopied(false), 2000);
@@ -214,19 +224,19 @@ export function TimerTool({ initialData, onStateChange }: { initialData?: any; o
           onClick={() => setMode('timer')}
           className={`px-6 py-3 rounded-xl text-sm font-bold transition-all flex items-center gap-2 whitespace-nowrap ${mode === 'timer' ? 'bg-white dark:bg-slate-700 text-indigo-600 shadow-sm' : 'text-slate-500 hover:text-slate-900'}`}
         >
-          <Timer className="w-4 h-4" /> Minuteur
+          <Timer className="w-4 h-4" /> {t('timer.timer')}
         </button>
         <button
           onClick={() => setMode('stopwatch')}
           className={`px-6 py-3 rounded-xl text-sm font-bold transition-all flex items-center gap-2 whitespace-nowrap ${mode === 'stopwatch' ? 'bg-white dark:bg-slate-700 text-indigo-600 shadow-sm' : 'text-slate-500 hover:text-slate-900'}`}
         >
-          <StopCircle className="w-4 h-4" /> Chronomètre
+          <StopCircle className="w-4 h-4" /> {t('timer.stopwatch')}
         </button>
         <button
           onClick={() => setMode('pomodoro')}
           className={`px-6 py-3 rounded-xl text-sm font-bold transition-all flex items-center gap-2 whitespace-nowrap ${mode === 'pomodoro' ? 'bg-white dark:bg-slate-700 text-indigo-600 shadow-sm' : 'text-slate-500 hover:text-slate-900'}`}
         >
-          <Brain className="w-4 h-4" /> Pomodoro
+          <Brain className="w-4 h-4" /> {t('timer.pomodoro')}
         </button>
       </div>
 
@@ -249,7 +259,7 @@ export function TimerTool({ initialData, onStateChange }: { initialData?: any; o
 
                 <div className="flex justify-center items-end gap-4">
                   <div className="space-y-2">
-                    <label htmlFor="timerMinutes" className="text-xs font-black uppercase tracking-widest text-slate-400 px-1 cursor-pointer">Minutes</label>
+                    <label htmlFor="timerMinutes" className="text-xs font-black uppercase tracking-widest text-slate-400 px-1 cursor-pointer">{t('timer.minutes')}</label>
                     <input
                       id="timerMinutes"
                       type="number"
@@ -266,7 +276,7 @@ export function TimerTool({ initialData, onStateChange }: { initialData?: any; o
                   </div>
                   <div className="text-3xl font-black text-slate-300 pb-4" aria-hidden="true">:</div>
                   <div className="space-y-2">
-                    <label htmlFor="timerSeconds" className="text-xs font-black uppercase tracking-widest text-slate-400 px-1 cursor-pointer">Secondes</label>
+                    <label htmlFor="timerSeconds" className="text-xs font-black uppercase tracking-widest text-slate-400 px-1 cursor-pointer">{t('timer.seconds')}</label>
                     <input
                       id="timerSeconds"
                       type="number"
@@ -287,17 +297,20 @@ export function TimerTool({ initialData, onStateChange }: { initialData?: any; o
 
             <div className="flex gap-3 justify-center">
               <button
-                onClick={() => setTimerRunning(!timerRunning)}
+                onClick={() => {
+                  initAudio();
+                  setTimerRunning(!timerRunning);
+                }}
                 className={`px-10 py-4 rounded-2xl font-black text-lg transition-all active:scale-95 flex items-center gap-2 ${timerRunning ? 'bg-amber-500 text-white shadow-lg shadow-amber-500/20' : 'bg-indigo-600 text-white shadow-lg shadow-indigo-600/20 hover:bg-indigo-700'}`}
               >
                 {timerRunning ? <Pause className="w-5 h-5 fill-current" /> : <Play className="w-5 h-5 fill-current" />}
-                {timerRunning ? 'Pause' : 'Démarrer'}
+                {timerRunning ? t('timer.pause') : t('timer.start')}
               </button>
               <button
                 onClick={resetTimer}
                 className="px-8 py-4 text-rose-500 bg-rose-50 dark:bg-rose-500/10 hover:bg-rose-100 dark:hover:bg-rose-500/20 border border-rose-100 dark:border-rose-500/20 rounded-2xl font-bold transition-all flex items-center gap-2"
               >
-                <RotateCcw className="w-5 h-5" /> Reset
+                <RotateCcw className="w-5 h-5" /> {t('timer.reset')}
               </button>
             </div>
           </div>
@@ -332,31 +345,34 @@ export function TimerTool({ initialData, onStateChange }: { initialData?: any; o
 
           <div className="flex flex-wrap gap-4 justify-center">
             <button
-              onClick={() => setStopwatchRunning(!stopwatchRunning)}
+              onClick={() => {
+                initAudio();
+                setStopwatchRunning(!stopwatchRunning);
+              }}
               className={`px-10 py-4 rounded-2xl font-black text-lg transition-all active:scale-95 flex items-center gap-2 ${stopwatchRunning ? 'bg-amber-500 text-white shadow-lg shadow-amber-500/20' : 'bg-emerald-600 text-white shadow-lg shadow-emerald-600/20 hover:bg-emerald-700'}`}
             >
               {stopwatchRunning ? <Pause className="w-5 h-5 fill-current" /> : <Play className="w-5 h-5 fill-current" />}
-              {stopwatchRunning ? 'Pause' : 'Démarrer'}
+              {stopwatchRunning ? t('timer.pause') : t('timer.start')}
             </button>
             <button
               onClick={() => setLaps([stopwatchTime, ...laps])}
               disabled={!stopwatchRunning && stopwatchTime === 0}
               className="px-8 py-4 bg-indigo-600 text-white rounded-2xl font-black text-lg shadow-lg shadow-indigo-600/20 hover:bg-indigo-700 transition-all active:scale-95 disabled:opacity-50 flex items-center gap-2"
             >
-              <Flag className="w-5 h-5" /> Tour
+              <Flag className="w-5 h-5" /> {t('timer.lap')}
             </button>
             <button
               onClick={resetStopwatch}
               className="px-8 py-4 text-rose-500 bg-rose-50 dark:bg-rose-500/10 hover:bg-rose-100 dark:hover:bg-rose-500/20 border border-rose-100 dark:border-rose-500/20 rounded-2xl font-bold transition-all flex items-center gap-2"
             >
-              <RotateCcw className="w-5 h-5" /> Reset
+              <RotateCcw className="w-5 h-5" /> {t('timer.reset')}
             </button>
           </div>
 
           {laps.length > 0 && (
             <div className="max-w-md mx-auto space-y-3">
               <div className="flex justify-between items-center px-1">
-                <h4 className="text-xs font-black uppercase tracking-widest text-slate-400">Tours</h4>
+                <h4 className="text-xs font-black uppercase tracking-widest text-slate-400">{t('timer.laps')}</h4>
                 <button
                   onClick={copyLaps}
                   className={`text-[10px] font-black uppercase tracking-widest px-3 py-1 rounded-lg transition-all flex items-center gap-1.5 border ${
@@ -366,13 +382,13 @@ export function TimerTool({ initialData, onStateChange }: { initialData?: any; o
                   }`}
                 >
                   {lapsCopied ? <Check className="w-3 h-3" /> : <Copy className="w-3 h-3" />}
-                  {lapsCopied ? 'Copié' : 'Copier les tours'}
+                  {lapsCopied ? t('common.copied') : t('timer.copy_laps')}
                 </button>
               </div>
               <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-3xl overflow-hidden divide-y divide-slate-100 dark:divide-slate-800">
                 {laps.map((lap, i) => (
                   <div key={i} className="flex justify-between items-center p-4">
-                    <span className="text-xs font-bold text-slate-400">TOUR {laps.length - i}</span>
+                    <span className="text-xs font-bold text-slate-400">{t('timer.lap_label', { id: laps.length - i })}</span>
                     <span className="font-mono font-black dark:text-white">{formatStopwatchTime(lap)}</span>
                   </div>
                 ))}
@@ -407,11 +423,14 @@ export function TimerTool({ initialData, onStateChange }: { initialData?: any; o
 
           <div className="flex flex-wrap gap-4 justify-center">
             <button
-              onClick={() => setPomodoroRunning(!pomodoroRunning)}
+              onClick={() => {
+                initAudio();
+                setPomodoroRunning(!pomodoroRunning);
+              }}
               className={`px-10 py-4 rounded-2xl font-black text-lg transition-all active:scale-95 flex items-center gap-2 ${pomodoroRunning ? 'bg-amber-500 text-white shadow-lg shadow-amber-500/20' : 'bg-indigo-600 text-white shadow-lg shadow-indigo-600/20 hover:bg-indigo-700'}`}
             >
               {pomodoroRunning ? <Pause className="w-5 h-5 fill-current" /> : <Play className="w-5 h-5 fill-current" />}
-              {pomodoroRunning ? 'Pause' : 'Démarrer'}
+              {pomodoroRunning ? t('timer.pause') : t('timer.start')}
             </button>
             <button
               onClick={handlePomodoroNext}
@@ -423,19 +442,19 @@ export function TimerTool({ initialData, onStateChange }: { initialData?: any; o
               onClick={() => setPomodoroCycles(0)}
               className="px-8 py-4 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-2xl font-bold transition-all hover:bg-slate-50 dark:hover:bg-slate-700 flex items-center gap-2 dark:text-white"
             >
-              <RotateCcw className="w-4 h-4" /> Reset Cycles
+              <RotateCcw className="w-4 h-4" /> {t('timer.reset_cycles')}
             </button>
             <button
               onClick={resetPomodoro}
               className="px-8 py-4 text-rose-500 bg-rose-50 dark:bg-rose-500/10 hover:bg-rose-100 dark:hover:bg-rose-500/20 border border-rose-100 dark:border-rose-500/20 rounded-2xl font-bold transition-all flex items-center gap-2"
             >
-              <RotateCcw className="w-5 h-5" /> Reset Tout
+              <RotateCcw className="w-5 h-5" /> {t('timer.reset_all')}
             </button>
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6 max-w-2xl mx-auto">
             <div className="space-y-2">
-              <label htmlFor="work-duration" className="text-xs font-black uppercase tracking-widest text-slate-400 px-1">Travail (min)</label>
+              <label htmlFor="work-duration" className="text-xs font-black uppercase tracking-widest text-slate-400 px-1">{t('timer.work_label')}</label>
               <input
                 id="work-duration"
                 type="number"
@@ -451,7 +470,7 @@ export function TimerTool({ initialData, onStateChange }: { initialData?: any; o
               />
             </div>
             <div className="space-y-2">
-              <label htmlFor="short-break-duration" className="text-xs font-black uppercase tracking-widest text-slate-400 px-1">Pause Courte (min)</label>
+              <label htmlFor="short-break-duration" className="text-xs font-black uppercase tracking-widest text-slate-400 px-1">{t('timer.short_break_label')}</label>
               <input
                 id="short-break-duration"
                 type="number"
@@ -467,7 +486,7 @@ export function TimerTool({ initialData, onStateChange }: { initialData?: any; o
               />
             </div>
             <div className="space-y-2">
-              <label htmlFor="long-break-duration" className="text-xs font-black uppercase tracking-widest text-slate-400 px-1">Pause Longue (min)</label>
+              <label htmlFor="long-break-duration" className="text-xs font-black uppercase tracking-widest text-slate-400 px-1">{t('timer.long_break_label')}</label>
               <input
                 id="long-break-duration"
                 type="number"
@@ -489,9 +508,9 @@ export function TimerTool({ initialData, onStateChange }: { initialData?: any; o
                 <Brain className="w-6 h-6" />
              </div>
              <div className="space-y-2">
-                <h4 className="font-bold dark:text-white">C'est quoi la méthode Pomodoro ?</h4>
+                <h4 className="font-bold dark:text-white">{t('timer.pomodoro_how_title')}</h4>
                 <p className="text-sm text-slate-500 dark:text-slate-400 leading-relaxed">
-                  C'est une technique de gestion du temps qui utilise un minuteur pour diviser le travail en intervalles de 25 minutes, séparés par de courtes pauses. Après 4 cycles, faites une pause plus longue de 15 à 30 minutes.
+                  {t('timer.pomodoro_how_text')}
                 </p>
              </div>
           </div>

@@ -236,6 +236,7 @@ const JSONPathTester = lazy(() => import("./components/JSONPathTester").then(m =
 const SitemapGenerator = lazy(() => import("./components/SitemapGenerator").then(m => ({ default: m.SitemapGenerator })));
 const JSONToSQL = lazy(() => import("./components/JSONToSQL").then(m => ({ default: m.JSONToSQL })));
 const StringEscaper = lazy(() => import("./components/StringEscaper").then(m => ({ default: m.StringEscaper })));
+const FlexboxGenerator = lazy(() => import("./components/FlexboxGenerator").then(m => ({ default: m.FlexboxGenerator })));
 
 // ⚡ Bolt Optimization: Pre-calculating tool map and search index for O(1) lookups and faster filtering
 const toolsMap: Record<string, Tool> = {};
@@ -909,6 +910,17 @@ const tools: Tool[] = [
     Component: StringEscaper,
     category: "text",
     keywords: ["escape", "unescape", "html", "json", "sql", "quotes"],
+  },
+  {
+    id: "flexbox-generator",
+    name: "Flexbox CSS",
+    nameEn: "Flexbox CSS",
+    icon: LayoutGrid,
+    description: "Générateur visuel de mise en page Flexbox CSS",
+    descriptionEn: "Visual CSS Flexbox layout generator",
+    Component: FlexboxGenerator,
+    category: "dev",
+    keywords: ["css", "flexbox", "layout", "design", "frontend", "responsive"],
   },
   // Dev Tools
   {

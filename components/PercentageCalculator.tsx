@@ -1,7 +1,9 @@
 import { useState, useEffect } from 'react';
 import { Percent, ArrowRight, Info, TrendingUp, Trash2, Copy, Check } from 'lucide-react';
+import { useTranslation } from 'react-i18next';
 
 export function PercentageCalculator({ initialData, onStateChange }: { initialData?: any; onStateChange?: (state: any) => void }) {
+  const { t } = useTranslation();
   const [value1, setValue1] = useState(initialData?.value1 || '');
   const [value2, setValue2] = useState(initialData?.value2 || '');
   const [value3, setValue3] = useState(initialData?.value3 || '');
@@ -53,7 +55,7 @@ export function PercentageCalculator({ initialData, onStateChange }: { initialDa
           disabled={!hasContent}
           className="text-xs font-bold text-rose-500 bg-rose-50 dark:bg-rose-500/10 hover:bg-rose-100 dark:hover:bg-rose-500/20 px-3 py-1.5 rounded-xl flex items-center gap-2 transition-all disabled:opacity-50 disabled:cursor-not-allowed"
         >
-          <Trash2 className="w-4 h-4" /> Effacer tout
+          <Trash2 className="w-4 h-4" /> {t('common.clear')}
         </button>
       </div>
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -63,14 +65,14 @@ export function PercentageCalculator({ initialData, onStateChange }: { initialDa
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-2 text-indigo-500">
                 <Percent className="w-4 h-4" />
-                <label htmlFor="percent-val" className="text-xs font-black uppercase tracking-widest text-slate-400 cursor-pointer">Combien font X% de Y ?</label>
+                <label htmlFor="percent-val" className="text-xs font-black uppercase tracking-widest text-slate-400 cursor-pointer">{t('percentage.title1')}</label>
               </div>
               <button
                 onClick={() => { setValue2(''); setValue1(''); }}
                 disabled={!value2 && !value1}
                 className="text-[10px] font-bold text-rose-500 bg-rose-50 dark:bg-rose-500/10 hover:bg-rose-100 dark:hover:bg-rose-500/20 px-2 py-0.5 rounded-lg transition-all disabled:opacity-0"
               >
-                Effacer
+                {t('common.clear')}
               </button>
             </div>
             <div className="flex items-center gap-3">
@@ -96,7 +98,7 @@ export function PercentageCalculator({ initialData, onStateChange }: { initialDa
             </div>
           </div>
           <div className="relative group/copy bg-white dark:bg-slate-800 p-6 rounded-2xl border border-slate-100 dark:border-slate-700 text-center">
-            <div className="text-xs font-bold text-slate-400 uppercase tracking-widest mb-2">Résultat</div>
+            <div className="text-xs font-bold text-slate-400 uppercase tracking-widest mb-2">{t('percentage.result')}</div>
             <div className="text-4xl font-black text-indigo-600 dark:text-indigo-400 font-mono">
                {isNaN(percentageOf) ? '0' : percentageOf.toLocaleString(undefined, { maximumFractionDigits: 2 })}
             </div>
@@ -108,7 +110,7 @@ export function PercentageCalculator({ initialData, onStateChange }: { initialDa
                   ? 'bg-emerald-50 dark:bg-emerald-500/10 text-emerald-600 dark:text-emerald-400'
                   : 'text-slate-400 hover:text-indigo-500 bg-white dark:bg-slate-800 opacity-0 group-hover/copy:opacity-100 shadow-sm border border-slate-100 dark:border-slate-700'
               } disabled:opacity-0`}
-              aria-label="Copier le résultat"
+              aria-label={t('percentage.copy_result')}
             >
               {copiedId === 'copy1' ? <Check className="w-4 h-4" /> : <Copy className="w-4 h-4" />}
             </button>
@@ -121,14 +123,14 @@ export function PercentageCalculator({ initialData, onStateChange }: { initialDa
              <div className="flex items-center justify-between">
               <div className="flex items-center gap-2 text-indigo-500">
                 <ArrowRight className="w-4 h-4" />
-                <label htmlFor="part-val" className="text-xs font-black uppercase tracking-widest text-slate-400 cursor-pointer">X représente quel % de Y ?</label>
+                <label htmlFor="part-val" className="text-xs font-black uppercase tracking-widest text-slate-400 cursor-pointer">{t('percentage.title2')}</label>
               </div>
               <button
                 onClick={() => { setValue3(''); setValue4(''); }}
                 disabled={!value3 && !value4}
                 className="text-[10px] font-bold text-rose-500 bg-rose-50 dark:bg-rose-500/10 hover:bg-rose-100 dark:hover:bg-rose-500/20 px-2 py-0.5 rounded-lg transition-all disabled:opacity-0"
               >
-                Effacer
+                {t('common.clear')}
               </button>
             </div>
             <div className="flex items-center gap-3">
@@ -154,7 +156,7 @@ export function PercentageCalculator({ initialData, onStateChange }: { initialDa
             </div>
           </div>
           <div className="relative group/copy bg-white dark:bg-slate-800 p-6 rounded-2xl border border-slate-100 dark:border-slate-700 text-center">
-            <div className="text-xs font-bold text-slate-400 uppercase tracking-widest mb-2">Résultat</div>
+            <div className="text-xs font-bold text-slate-400 uppercase tracking-widest mb-2">{t('percentage.result')}</div>
             <div className="text-4xl font-black text-indigo-600 dark:text-indigo-400 font-mono">
                {isNaN(whatPercent) ? '0' : whatPercent.toLocaleString(undefined, { maximumFractionDigits: 2 })}%
             </div>
@@ -166,7 +168,7 @@ export function PercentageCalculator({ initialData, onStateChange }: { initialDa
                   ? 'bg-emerald-50 dark:bg-emerald-500/10 text-emerald-600 dark:text-emerald-400'
                   : 'text-slate-400 hover:text-indigo-500 bg-white dark:bg-slate-800 opacity-0 group-hover/copy:opacity-100 shadow-sm border border-slate-100 dark:border-slate-700'
               } disabled:opacity-0`}
-              aria-label="Copier le résultat"
+              aria-label={t('percentage.copy_result')}
             >
               {copiedId === 'copy2' ? <Check className="w-4 h-4" /> : <Copy className="w-4 h-4" />}
             </button>
@@ -179,19 +181,19 @@ export function PercentageCalculator({ initialData, onStateChange }: { initialDa
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-2 text-indigo-500">
             <TrendingUp className="w-4 h-4" />
-            <label htmlFor="initial-val" className="text-xs font-black uppercase tracking-widest text-slate-400 cursor-pointer">Variation en % (Augmentation/Diminution)</label>
+            <label htmlFor="initial-val" className="text-xs font-black uppercase tracking-widest text-slate-400 cursor-pointer">{t('percentage.title3')}</label>
           </div>
           <button
             onClick={() => { setInitialVal(''); setFinalVal(''); }}
             disabled={!initialVal && !finalVal}
             className="text-[10px] font-bold text-rose-500 bg-rose-50 dark:bg-rose-500/10 hover:bg-rose-100 dark:hover:bg-rose-500/20 px-2 py-0.5 rounded-lg transition-all disabled:opacity-0"
           >
-            Effacer
+            {t('common.clear')}
           </button>
         </div>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           <div className="space-y-3">
-             <label htmlFor="initial-val" className="text-xs font-bold text-slate-400 px-1 uppercase tracking-widest cursor-pointer">Valeur initiale</label>
+             <label htmlFor="initial-val" className="text-xs font-bold text-slate-400 px-1 uppercase tracking-widest cursor-pointer">{t('percentage.val_initial')}</label>
              <input
               id="initial-val"
               type="number"
@@ -201,7 +203,7 @@ export function PercentageCalculator({ initialData, onStateChange }: { initialDa
             />
           </div>
           <div className="space-y-3">
-             <label htmlFor="final-val" className="text-xs font-bold text-slate-400 px-1 uppercase tracking-widest cursor-pointer">Valeur finale</label>
+             <label htmlFor="final-val" className="text-xs font-bold text-slate-400 px-1 uppercase tracking-widest cursor-pointer">{t('percentage.val_final')}</label>
              <input
               id="final-val"
               type="number"
@@ -213,7 +215,7 @@ export function PercentageCalculator({ initialData, onStateChange }: { initialDa
         </div>
 
         <div className="relative group/copy bg-white dark:bg-slate-800 p-8 rounded-3xl border border-slate-100 dark:border-slate-700 text-center">
-            <div className="text-xs font-bold text-slate-400 uppercase tracking-widest mb-2">Variation</div>
+            <div className="text-xs font-bold text-slate-400 uppercase tracking-widest mb-2">{t('percentage.variation')}</div>
             <div className={`text-5xl font-black font-mono ${percentChange >= 0 ? 'text-emerald-500' : 'text-rose-500'}`}>
                {percentChange > 0 ? '+' : ''}{isNaN(percentChange) ? '0' : percentChange.toLocaleString(undefined, { maximumFractionDigits: 2 })}%
             </div>
@@ -225,7 +227,7 @@ export function PercentageCalculator({ initialData, onStateChange }: { initialDa
                   ? 'bg-emerald-50 dark:bg-emerald-500/10 text-emerald-600 dark:text-emerald-400'
                   : 'text-slate-400 hover:text-indigo-500 bg-white dark:bg-slate-800 opacity-0 group-hover/copy:opacity-100 shadow-sm border border-slate-100 dark:border-slate-700'
               } disabled:opacity-0`}
-              aria-label="Copier le résultat"
+              aria-label={t('percentage.copy_result')}
             >
               {copiedId === 'copy3' ? <Check className="w-4 h-4" /> : <Copy className="w-4 h-4" />}
             </button>
@@ -237,19 +239,19 @@ export function PercentageCalculator({ initialData, onStateChange }: { initialDa
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-2 text-indigo-500">
             <Info className="w-4 h-4" />
-            <label htmlFor="base-val-after" className="text-xs font-black uppercase tracking-widest text-slate-400 cursor-pointer">Calculer une valeur après changement</label>
+            <label htmlFor="base-val-after" className="text-xs font-black uppercase tracking-widest text-slate-400 cursor-pointer">{t('percentage.title4')}</label>
           </div>
           <button
             onClick={() => { setValAfter(''); setPercentAfter(''); }}
             disabled={!valAfter && !percentAfter}
             className="text-[10px] font-bold text-rose-500 bg-rose-50 dark:bg-rose-500/10 hover:bg-rose-100 dark:hover:bg-rose-500/20 px-2 py-0.5 rounded-lg transition-all disabled:opacity-0"
           >
-            Effacer
+            {t('common.clear')}
           </button>
         </div>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           <div className="space-y-3">
-             <label htmlFor="base-val-after" className="text-xs font-bold text-slate-400 px-1 uppercase tracking-widest cursor-pointer">Valeur de base</label>
+             <label htmlFor="base-val-after" className="text-xs font-bold text-slate-400 px-1 uppercase tracking-widest cursor-pointer">{t('percentage.val_base')}</label>
              <input
               id="base-val-after"
               type="number"
@@ -260,7 +262,7 @@ export function PercentageCalculator({ initialData, onStateChange }: { initialDa
             />
           </div>
           <div className="space-y-3">
-             <label htmlFor="percent-change-after" className="text-xs font-bold text-slate-400 px-1 uppercase tracking-widest cursor-pointer">Pourcentage (+ ou -)</label>
+             <label htmlFor="percent-change-after" className="text-xs font-bold text-slate-400 px-1 uppercase tracking-widest cursor-pointer">{t('percentage.percent_change')}</label>
              <input
               id="percent-change-after"
               type="number"
@@ -274,7 +276,7 @@ export function PercentageCalculator({ initialData, onStateChange }: { initialDa
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
            <div className="relative group/copy bg-emerald-50 dark:bg-emerald-900/10 border border-emerald-100 dark:border-emerald-900/20 p-6 rounded-2xl text-center">
-             <div className="text-xs font-bold text-emerald-600 dark:text-emerald-400 uppercase tracking-widest mb-1">Si Augmentation (+)</div>
+             <div className="text-xs font-bold text-emerald-600 dark:text-emerald-400 uppercase tracking-widest mb-1">{t('percentage.increase')}</div>
              <div className="text-3xl font-black text-emerald-600 dark:text-emerald-400 font-mono">
                {afterIncrease.toLocaleString(undefined, { maximumFractionDigits: 2 })}
              </div>
@@ -285,13 +287,13 @@ export function PercentageCalculator({ initialData, onStateChange }: { initialDa
                   ? 'bg-white text-emerald-600'
                   : 'text-emerald-400 hover:text-emerald-600 bg-white/50 opacity-0 group-hover/copy:opacity-100 shadow-sm border border-emerald-100'
               }`}
-              aria-label="Copier l'augmentation"
+              aria-label={t('percentage.copy_increase')}
             >
               {copiedId === 'copy4' ? <Check className="w-4 h-4" /> : <Copy className="w-4 h-4" />}
             </button>
            </div>
            <div className="relative group/copy bg-rose-50 dark:bg-rose-900/10 border border-rose-100 dark:border-rose-900/20 p-6 rounded-2xl text-center">
-             <div className="text-xs font-bold text-rose-600 dark:text-rose-400 uppercase tracking-widest mb-1">Si Diminution (-)</div>
+             <div className="text-xs font-bold text-rose-600 dark:text-rose-400 uppercase tracking-widest mb-1">{t('percentage.decrease')}</div>
              <div className="text-3xl font-black text-rose-600 dark:text-rose-400 font-mono">
                {afterDecrease.toLocaleString(undefined, { maximumFractionDigits: 2 })}
              </div>
@@ -302,7 +304,7 @@ export function PercentageCalculator({ initialData, onStateChange }: { initialDa
                   ? 'bg-white text-rose-600'
                   : 'text-rose-400 hover:text-rose-600 bg-white/50 opacity-0 group-hover/copy:opacity-100 shadow-sm border border-rose-100'
               }`}
-              aria-label="Copier la diminution"
+              aria-label={t('percentage.copy_decrease')}
             >
               {copiedId === 'copy5' ? <Check className="w-4 h-4" /> : <Copy className="w-4 h-4" />}
             </button>

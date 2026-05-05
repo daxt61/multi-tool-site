@@ -1,9 +1,11 @@
 import { useState, useEffect, useCallback } from 'react';
 import { Copy, Check, Type, FileText, Trash2, AlertCircle, Download } from 'lucide-react';
+import { useTranslation } from 'react-i18next';
 
 const MAX_LENGTH = 100000;
 
 export function CaseConverter({ initialData, onStateChange }: { initialData?: any; onStateChange?: (state: any) => void }) {
+  const { t } = useTranslation();
   const [text, setText] = useState(initialData?.text || '');
   const [copied, setCopied] = useState('');
   const [error, setError] = useState<string | null>(null);
@@ -44,7 +46,7 @@ export function CaseConverter({ initialData, onStateChange }: { initialData?: an
   const handleTextChange = (val: string) => {
     setText(val);
     if (val.length > MAX_LENGTH) {
-      setError(`L'entrée est trop longue. Limite de ${MAX_LENGTH.toLocaleString()} caractères.`);
+      setError(t('error.max_length', { max: MAX_LENGTH.toLocaleString() }));
     } else {
       setError(null);
     }
@@ -78,7 +80,7 @@ export function CaseConverter({ initialData, onStateChange }: { initialData?: an
       <div className="space-y-4">
         <div className="flex justify-between items-center px-1">
           <label htmlFor="case-text" className="text-xs font-black uppercase tracking-widest text-slate-400 flex items-center gap-2">
-            <Type className="w-4 h-4 text-indigo-500" /> Votre Texte
+            <Type className="w-4 h-4 text-indigo-500" /> {t('caseconverter.your_text')}
           </label>
           <div className="flex gap-2">
             <button
@@ -86,15 +88,15 @@ export function CaseConverter({ initialData, onStateChange }: { initialData?: an
               disabled={!text || !!error}
               className="text-xs font-bold px-3 py-1 rounded-full text-indigo-600 bg-indigo-50 dark:bg-indigo-500/10 hover:bg-indigo-100 dark:hover:bg-indigo-500/20 transition-all flex items-center gap-1 disabled:opacity-50 disabled:cursor-not-allowed"
             >
-              <Download className="w-3 h-3" /> Télécharger
+              <Download className="w-3 h-3" /> {t('common.download')}
             </button>
             <button
               onClick={handleClear}
               disabled={!text}
               className="text-xs font-bold px-3 py-1 rounded-full text-rose-500 bg-rose-50 dark:bg-rose-500/10 hover:bg-rose-100 dark:hover:bg-rose-500/20 transition-all flex items-center gap-1 disabled:opacity-50 disabled:cursor-not-allowed"
-              aria-label="Effacer le texte"
+              aria-label={t('common.clear')}
             >
-              <Trash2 className="w-3 h-3" /> Effacer
+              <Trash2 className="w-3 h-3" /> {t('common.clear')}
             </button>
           </div>
         </div>
@@ -102,7 +104,7 @@ export function CaseConverter({ initialData, onStateChange }: { initialData?: an
           id="case-text"
           value={text}
           onChange={(e) => handleTextChange(e.target.value)}
-          placeholder="Entrez votre texte ici..."
+          placeholder={t('caseconverter.placeholder')}
           className={`w-full h-48 p-8 bg-slate-50 dark:bg-slate-900 border ${error ? 'border-rose-500 ring-rose-500/20' : 'border-slate-200 dark:border-slate-800'} rounded-[2rem] outline-none focus:ring-2 ${error ? 'focus:ring-rose-500/20' : 'focus:ring-indigo-500/20'} transition-all text-lg leading-relaxed dark:text-slate-300 resize-none`}
         />
       </div>
@@ -121,7 +123,7 @@ export function CaseConverter({ initialData, onStateChange }: { initialData?: an
                   onClick={() => copyToClipboard(converted, name)}
                   disabled={!text}
                   className={`p-2 rounded-xl transition-all ${copied === name ? 'bg-emerald-50 dark:bg-emerald-500/10 text-emerald-600 dark:text-emerald-400' : 'text-slate-400 hover:text-indigo-500 bg-slate-50 dark:bg-slate-800 shadow-sm'} disabled:opacity-50 disabled:cursor-not-allowed`}
-                  aria-label={`Copier en format ${name}`}
+                  aria-label={t('caseconverter.copy_as', { name })}
                 >
                   {copied === name ? (
                     <Check className="w-4 h-4" />
@@ -131,7 +133,7 @@ export function CaseConverter({ initialData, onStateChange }: { initialData?: an
                 </button>
               </div>
               <div className="bg-slate-50 dark:bg-slate-950 p-4 rounded-2xl font-mono text-sm min-h-[4rem] break-all dark:text-slate-300">
-                {converted || <span className="text-slate-400">Le résultat apparaîtra ici...</span>}
+                {converted || <span className="text-slate-400">{t('caseconverter.result_placeholder')}</span>}
               </div>
             </div>
           );

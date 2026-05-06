@@ -1,5 +1,5 @@
-import { useState, useEffect, useCallback } from 'react';
-import { Copy, RefreshCw, Check, Shield, ShieldAlert, ShieldCheck, Key, BookOpen, Trash2, Download, Eye, EyeOff, AlertCircle, Info } from 'lucide-react';
+import { useState, useEffect, useCallback, useMemo } from 'react';
+import { Copy, RefreshCw, Check, Shield, ShieldAlert, ShieldCheck, Key, BookOpen, Trash2, Download, Eye, EyeOff, AlertCircle, Info, Activity } from 'lucide-react';
 
 const WORDS = [
   'bleu', 'rouge', 'vert', 'jaune', 'noir', 'blanc', 'orange', 'rose', 'gris', 'brun', 'violet', 'marron', 'argent', 'or', 'indigo', 'turquoise', 'beige', 'ocre', 'cyan', 'lime',
@@ -107,7 +107,7 @@ export function PasswordGenerator({ initialData, onStateChange }: { initialData?
       mode, length, wordCount, capitalizeWords, addNumber, addSymbol,
       includeUppercase, includeLowercase, includeNumbers, includeSymbols, excludeSimilar
     });
-  }, [mode, length, wordCount, capitalizeWords, addNumber, addSymbol, includeUppercase, includeLowercase, includeNumbers, includeSymbols, excludeSimilar]);
+  }, [mode, length, wordCount, capitalizeWords, addNumber, addSymbol, includeUppercase, includeLowercase, includeNumbers, includeSymbols, excludeSimilar, onStateChange]);
 
   const copyToClipboard = useCallback(() => {
     if (!password) return;
@@ -116,31 +116,33 @@ export function PasswordGenerator({ initialData, onStateChange }: { initialData?
     setTimeout(() => setCopied(false), 2000);
   }, [password]);
 
-  const getStrength = () => {
+  const entropy = useMemo(() => {
+    if (!password) return 0;
+    let charsetSize = 0;
+    if (mode === 'random') {
+      if (includeUppercase) charsetSize += 26;
+      if (includeLowercase) charsetSize += 26;
+      if (includeNumbers) charsetSize += 10;
+      if (includeSymbols) charsetSize += 26;
+      if (excludeSimilar) charsetSize -= 7;
+      return Math.floor(password.length * Math.log2(Math.max(charsetSize, 1)));
+    } else {
+      // Passphrase entropy: log2(wordlist_size ^ word_count)
+      const baseEntropy = wordCount * Math.log2(WORDS.length);
+      const extraEntropy = (addNumber ? Math.log2(10) : 0) + (addSymbol ? Math.log2(8) : 0);
+      return Math.floor(baseEntropy + extraEntropy);
+    }
+  }, [password, mode, includeUppercase, includeLowercase, includeNumbers, includeSymbols, excludeSimilar, wordCount, addNumber, addSymbol]);
+
+  const strength = useMemo(() => {
     if (!password) return { label: '', color: 'bg-slate-200', icon: <ShieldAlert />, feedback: '' };
 
-    if (mode === 'passphrase') {
-      const bonus = (addNumber ? 0.5 : 0) + (addSymbol ? 0.5 : 0);
-      const effectiveWordCount = wordCount + bonus;
-      if (effectiveWordCount < 3) return { label: 'Faible', color: 'bg-rose-500', icon: <ShieldAlert className="w-4 h-4" />, feedback: 'Trop court pour être sécurisé.' };
-      if (effectiveWordCount < 5) return { label: 'Moyen', color: 'bg-amber-500', icon: <Shield className="w-4 h-4" />, feedback: 'Bonne sécurité pour un usage quotidien.' };
-      return { label: 'Fort', color: 'bg-emerald-500', icon: <ShieldCheck className="w-4 h-4" />, feedback: 'Excellente sécurité, très difficile à deviner.' };
-    }
-
-    let score = 0;
-    if (password.length >= 12) score++;
-    if (password.length >= 20) score++;
-    if (/[a-z]/.test(password)) score++;
-    if (/[A-Z]/.test(password)) score++;
-    if (/[0-9]/.test(password)) score++;
-    if (/[^a-zA-Z0-9]/.test(password)) score++;
-
-    if (score <= 3) return { label: 'Faible', color: 'bg-rose-500', icon: <ShieldAlert className="w-4 h-4" />, feedback: 'Augmentez la longueur ou variez les caractères.' };
-    if (score <= 5) return { label: 'Moyen', color: 'bg-amber-500', icon: <Shield className="w-4 h-4" />, feedback: 'Sécurité correcte pour la plupart des sites.' };
-    return { label: 'Fort', color: 'bg-emerald-500', icon: <ShieldCheck className="w-4 h-4" />, feedback: 'Mot de passe très robuste et hautement sécurisé.' };
-  };
-
-  const strength = getStrength();
+    if (entropy < 40) return { label: 'Très Faible', color: 'bg-rose-600', icon: <ShieldAlert className="w-4 h-4" />, feedback: 'Facilement cassable par force brute.' };
+    if (entropy < 60) return { label: 'Faible', color: 'bg-rose-400', icon: <ShieldAlert className="w-4 h-4" />, feedback: 'Augmentez la longueur pour plus de sécurité.' };
+    if (entropy < 80) return { label: 'Moyen', color: 'bg-amber-500', icon: <Shield className="w-4 h-4" />, feedback: 'Sécurité correcte pour un usage standard.' };
+    if (entropy < 100) return { label: 'Fort', color: 'bg-emerald-500', icon: <ShieldCheck className="w-4 h-4" />, feedback: 'Très robuste contre les attaques modernes.' };
+    return { label: 'Excellent', color: 'bg-indigo-600', icon: <ShieldCheck className="w-4 h-4" />, feedback: 'Niveau de sécurité militaire (Haute entropie).' };
+  }, [password, entropy]);
 
   const handleClear = () => {
     setPassword('');
@@ -177,9 +179,6 @@ export function PasswordGenerator({ initialData, onStateChange }: { initialData?
         return;
       }
 
-      // We allow Space for regeneration only if it doesn't interfere with standard accessibility
-      // Native behavior for Space on buttons is to activate them.
-      // If no interactive element is focused (except body), we can use Space.
       const isBodyFocused = document.activeElement === document.body;
 
       if ((e.key.toLowerCase() === 'r') || (e.code === 'Space' && isBodyFocused)) {
@@ -238,7 +237,7 @@ export function PasswordGenerator({ initialData, onStateChange }: { initialData?
                 : 'text-slate-500 hover:text-slate-900 dark:hover:text-slate-300'
             }`}
           >
-            <BookOpen className="w-4 h-4" /> Memorable
+            <BookOpen className="w-4 h-4" /> Mémorable
           </button>
         </div>
       </div>
@@ -316,14 +315,22 @@ export function PasswordGenerator({ initialData, onStateChange }: { initialData?
                 <div className="h-1.5 w-32 bg-white/10 rounded-full overflow-hidden">
                   <div
                     className={`h-full transition-all duration-700 ${strength.color}`}
-                    style={{ width: strength.label === 'Faible' ? '33%' : strength.label === 'Moyen' ? '66%' : '100%' }}
+                    style={{ width: `${Math.min(entropy, 100)}%` }}
                   />
                 </div>
               </div>
               <p className="text-xs text-white/40 font-medium">{strength.feedback}</p>
             </div>
-            <div className="text-white/40 font-bold text-sm tracking-widest uppercase">
-              {mode === 'random' ? `${password.length} caractères` : `${wordCount} mots`}
+            <div className="flex items-center gap-6">
+              <div className="text-center">
+                <div className="text-white font-mono text-xl font-black">{entropy}</div>
+                <div className="text-[10px] text-white/40 font-black uppercase tracking-widest">Bits Entropie</div>
+              </div>
+              <div className="text-right">
+                <div className="text-white/40 font-bold text-sm tracking-widest uppercase">
+                  {mode === 'random' ? `${password.length} caractères` : `${wordCount} mots`}
+                </div>
+              </div>
             </div>
           </div>
         )}
@@ -478,11 +485,17 @@ export function PasswordGenerator({ initialData, onStateChange }: { initialData?
         {/* Info */}
         <div className="bg-indigo-600 rounded-[2.5rem] p-10 text-white shadow-xl shadow-indigo-600/10 relative overflow-hidden flex flex-col justify-center">
            <div className="absolute top-0 right-0 w-48 h-48 bg-white/10 rounded-full blur-3xl -mr-24 -mt-24"></div>
-           <ShieldCheck className="w-12 h-12 mb-6 opacity-50" />
-           <h3 className="text-2xl font-black mb-4">Sécurité maximale</h3>
-           <p className="text-indigo-100 font-medium leading-relaxed">
-             Nous utilisons <code>window.crypto</code> pour générer des mots de passe avec une entropie élevée. Vos clés ne quittent jamais votre appareil et ne sont jamais enregistrées.
+           <Activity className="w-12 h-12 mb-6 opacity-50" />
+           <h3 className="text-2xl font-black mb-4">Calcul d'Entropie</h3>
+           <p className="text-indigo-100 font-medium leading-relaxed mb-6">
+             L'entropie mesure la robustesse d'un mot de passe contre les attaques par force brute. Elle est exprimée en <strong>bits</strong>.
            </p>
+           <ul className="space-y-2 text-sm text-indigo-100/80">
+             <li className="flex items-center gap-2"><div className="w-1.5 h-1.5 rounded-full bg-indigo-300" /> 40 bits : Très faible (secondes)</li>
+             <li className="flex items-center gap-2"><div className="w-1.5 h-1.5 rounded-full bg-indigo-300" /> 60 bits : Standard (jours/mois)</li>
+             <li className="flex items-center gap-2"><div className="w-1.5 h-1.5 rounded-full bg-indigo-300" /> 80 bits : Robuste (siècles)</li>
+             <li className="flex items-center gap-2"><div className="w-1.5 h-1.5 rounded-full bg-indigo-300" /> 128 bits+ : Inviolable</li>
+           </ul>
         </div>
       </div>
     </div>

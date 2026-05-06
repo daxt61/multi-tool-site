@@ -1,5 +1,5 @@
-import { useState, useMemo, useDeferredValue, useEffect } from 'react';
-import { Copy, Check, Trash2, Hash, Type, FileText, AlignLeft, Clock, MessageSquare, BarChart3, Info, Star, AlertCircle } from 'lucide-react';
+import { useState, useMemo, useDeferredValue, useEffect, useCallback } from 'react';
+import { Copy, Check, Trash2, Hash, Type, FileText, AlignLeft, Clock, MessageSquare, BarChart3, Info, Star, AlertCircle, Download } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 
 const MAX_LENGTH = 100000;
@@ -185,6 +185,17 @@ export function WordCounter({ initialData, onStateChange }: { initialData?: any;
     setTimeout(() => setCopiedCharFreq(false), 2000);
   };
 
+  const handleDownload = useCallback(() => {
+    if (!text || text.length > MAX_LENGTH) return;
+    const blob = new Blob([text], { type: 'text/plain' });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    link.href = url;
+    link.download = `texte-analyse-${Date.now()}.txt`;
+    link.click();
+    URL.revokeObjectURL(url);
+  }, [text]);
+
   const handleCopyStats = () => {
     const report = `${t('wordcounter.report_title')}:
 - ${t('wordcounter.stat.characters')}: ${stats.characters}
@@ -225,6 +236,13 @@ export function WordCounter({ initialData, onStateChange }: { initialData?: any;
             >
               {copiedStats ? <Check className="w-3 h-3" /> : <BarChart3 className="w-3 h-3" />}
               {copiedStats ? t('common.copied') : t('wordcounter.copy_stats_btn')}
+            </button>
+            <button
+              onClick={handleDownload}
+              disabled={!text || text.length > MAX_LENGTH}
+              className="text-xs font-bold px-3 py-1 rounded-full text-indigo-500 bg-indigo-50 dark:bg-indigo-500/10 hover:bg-indigo-100 dark:hover:bg-indigo-500/20 transition-all flex items-center gap-1 disabled:opacity-50 disabled:cursor-not-allowed focus-visible:ring-2 focus-visible:ring-indigo-500 focus-visible:outline-none"
+            >
+              <Download className="w-3 h-3" /> {t('common.download')}
             </button>
             <button
               onClick={handleCopy}

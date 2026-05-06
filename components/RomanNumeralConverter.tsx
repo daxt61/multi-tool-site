@@ -1,11 +1,17 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Copy, Check, Trash2, ArrowRightLeft, Hash, Type, Info, AlertCircle } from 'lucide-react';
+import { useTranslation } from 'react-i18next';
 
-export function RomanNumeralConverter() {
-  const [arabic, setArabic] = useState('2024');
-  const [roman, setRoman] = useState('MMXXIV');
+export function RomanNumeralConverter({ initialData, onStateChange }: { initialData?: any; onStateChange?: (state: any) => void }) {
+  const { t } = useTranslation();
+  const [arabic, setArabic] = useState(initialData?.arabic || '2024');
+  const [roman, setRoman] = useState(initialData?.roman || 'MMXXIV');
   const [error, setError] = useState<string | null>(null);
   const [copied, setCopied] = useState<'arabic' | 'roman' | null>(null);
+
+  useEffect(() => {
+    onStateChange?.({ arabic, roman });
+  }, [arabic, roman, onStateChange]);
 
   const romanMap: [number, string][] = [
     [1000, 'M'], [900, 'CM'], [500, 'D'], [400, 'CD'],
@@ -53,10 +59,10 @@ export function RomanNumeralConverter() {
     }
     const num = parseInt(val);
     if (isNaN(num)) {
-      setError('Veuillez entrer un nombre valide');
+      setError(t('romannumeral.error_invalid_number'));
       setRoman('');
     } else if (num <= 0 || num > 3999) {
-      setError('Le nombre doit être entre 1 et 3999');
+      setError(t('romannumeral.error_range'));
       setRoman('');
     } else {
       setRoman(toRoman(num));
@@ -72,7 +78,7 @@ export function RomanNumeralConverter() {
     }
     const num = fromRoman(val);
     if (num === -1) {
-      setError('Chiffre romain invalide');
+      setError(t('romannumeral.error_invalid_roman'));
       setArabic('');
     } else {
       setArabic(num.toString());
@@ -112,7 +118,7 @@ export function RomanNumeralConverter() {
         <div className="space-y-4">
           <div className="flex justify-between items-center px-1">
             <label htmlFor="arabic-input" className="text-xs font-black uppercase tracking-widest text-slate-400 flex items-center gap-2">
-              <Hash className="w-4 h-4 text-indigo-500" /> Nombre Arabe
+              <Hash className="w-4 h-4 text-indigo-500" /> {t('romannumeral.arabic_number')}
             </label>
             <div className="flex gap-2">
               <button
@@ -122,7 +128,7 @@ export function RomanNumeralConverter() {
                   copied === 'arabic' ? 'bg-emerald-500 text-white' : 'text-slate-500 bg-slate-100 dark:bg-slate-800 hover:bg-slate-200'
                 } disabled:opacity-50`}
               >
-                {copied === 'arabic' ? <Check className="w-3 h-3" /> : <Copy className="w-3 h-3" />} {copied === 'arabic' ? 'Copié' : 'Copier'}
+                {copied === 'arabic' ? <Check className="w-3 h-3" /> : <Copy className="w-3 h-3" />} {copied === 'arabic' ? t('common.copied') : t('common.copy')}
               </button>
               <button
                 onClick={handleClear}
@@ -148,7 +154,7 @@ export function RomanNumeralConverter() {
         <div className="space-y-4">
           <div className="flex justify-between items-center px-1">
             <label htmlFor="roman-input" className="text-xs font-black uppercase tracking-widest text-slate-400 flex items-center gap-2">
-              <Type className="w-4 h-4 text-indigo-500" /> Chiffre Romain
+              <Type className="w-4 h-4 text-indigo-500" /> {t('romannumeral.roman_numeral')}
             </label>
             <div className="flex gap-2">
               <button
@@ -158,7 +164,7 @@ export function RomanNumeralConverter() {
                   copied === 'roman' ? 'bg-emerald-500 text-white' : 'text-slate-500 bg-slate-100 dark:bg-slate-800 hover:bg-slate-200'
                 } disabled:opacity-50`}
               >
-                {copied === 'roman' ? <Check className="w-3 h-3" /> : <Copy className="w-3 h-3" />} {copied === 'roman' ? 'Copié' : 'Copier'}
+                {copied === 'roman' ? <Check className="w-3 h-3" /> : <Copy className="w-3 h-3" />} {copied === 'roman' ? t('common.copied') : t('common.copy')}
               </button>
             </div>
           </div>
@@ -181,12 +187,12 @@ export function RomanNumeralConverter() {
           <div className="p-2 bg-indigo-50 dark:bg-indigo-900/20 text-indigo-600 rounded-xl">
             <Info className="w-5 h-5" />
           </div>
-          <h3 className="text-lg font-black dark:text-white">Règles des chiffres romains</h3>
+          <h3 className="text-lg font-black dark:text-white">{t('romannumeral.rules_title')}</h3>
         </div>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
           <div className="space-y-4">
             <p className="text-sm text-slate-500 dark:text-slate-400 leading-relaxed">
-              Le système de numération romaine est un système additif et soustractif utilisé dans la Rome antique. Il utilise sept lettres de l'alphabet latin :
+              {t('romannumeral.rules_description')}
             </p>
             <div className="grid grid-cols-4 gap-2">
               {[
@@ -201,12 +207,12 @@ export function RomanNumeralConverter() {
             </div>
           </div>
           <div className="space-y-3">
-            <h4 className="text-xs font-black uppercase tracking-widest text-slate-400">Quelques règles :</h4>
+            <h4 className="text-xs font-black uppercase tracking-widest text-slate-400">{t('romannumeral.rules_list_title')}</h4>
             <ul className="text-sm text-slate-500 dark:text-slate-400 space-y-2 list-disc pl-4">
-              <li>Une lettre ne peut être répétée plus de 3 fois consécutivement (ex: 4 s'écrit <span className="font-bold text-indigo-500">IV</span> et non <span className="line-through">IIII</span>).</li>
-              <li>Placée à droite d'une lettre de valeur supérieure, on l'ajoute (ex: <span className="font-bold text-indigo-500">VI</span> = 6).</li>
-              <li>Placée à gauche d'une lettre de valeur supérieure, on la soustrait (ex: <span className="font-bold text-indigo-500">IV</span> = 4).</li>
-              <li>Le système standard s'arrête à 3999 (MMMCMXCIX).</li>
+              <li>{t('romannumeral.rule1')}</li>
+              <li>{t('romannumeral.rule2')}</li>
+              <li>{t('romannumeral.rule3')}</li>
+              <li>{t('romannumeral.rule4')}</li>
             </ul>
           </div>
         </div>

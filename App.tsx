@@ -1767,7 +1767,7 @@ function CommandMenu({ open, setOpen, onSelect, recentTools = [] }: {
           </Command.Empty>
 
           {recentTools.length > 0 && (
-            <Command.Group heading={t("recent.title")} className="px-2 py-2 text-xs font-bold text-slate-400 uppercase tracking-widest">
+            <Command.Group heading={t("recent.title")} className="px-2 py-2 text-xs font-bold text-slate-500 uppercase tracking-widest">
               {recentTools.map((tool) => {
                 const name = (currentLang === 'en' && tool.nameEn) ? tool.nameEn : tool.name;
                 return (
@@ -1790,7 +1790,7 @@ function CommandMenu({ open, setOpen, onSelect, recentTools = [] }: {
             </Command.Group>
           )}
 
-          <Command.Group heading={t("category.all")} className="px-2 py-2 text-xs font-bold text-slate-400 uppercase tracking-widest">
+          <Command.Group heading={t("category.all")} className="px-2 py-2 text-xs font-bold text-slate-500 uppercase tracking-widest">
             {tools.map((tool) => {
               const name = (currentLang === 'en' && tool.nameEn) ? tool.nameEn : tool.name;
               return (
@@ -1871,6 +1871,20 @@ function MainApp() {
 
   // ⚡ Bolt Optimization: use Set for O(1) favorite checks
   const favoriteSet = useMemo(() => new Set(favorites), [favorites]);
+
+  // ⚡ Bolt Optimization: Pre-calculate tool counts per category for dashboard badges
+  const categoryCounts = useMemo(() => {
+    const counts: Record<string, number> = {
+      all: tools.length,
+      favorites: favorites.length,
+    };
+
+    tools.forEach(tool => {
+      counts[tool.category] = (counts[tool.category] || 0) + 1;
+    });
+
+    return counts;
+  }, [favorites.length]);
 
   const filteredTools = useMemo(() => {
     const query = deferredSearchQuery.trim().toLowerCase();
@@ -2161,7 +2175,7 @@ function MainApp() {
               {/* Recents */}
               {!searchQuery && recentTools.length > 0 && (
                 <section className="animate-in fade-in slide-in-from-bottom-4 duration-500" aria-labelledby="recent-tools-title">
-                  <h2 id="recent-tools-title" className="text-xs font-bold uppercase tracking-widest text-slate-400 dark:text-slate-500 mb-6 px-1">{t("recent.title")}</h2>
+                  <h2 id="recent-tools-title" className="text-xs font-bold uppercase tracking-widest text-slate-500 dark:text-slate-500 mb-6 px-1">{t("recent.title")}</h2>
                   <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
                     {recentTools.map(tool => (
                       <Link
@@ -2193,11 +2207,14 @@ function MainApp() {
                         className={`flex items-center gap-2 px-4 py-2 rounded-full text-sm font-bold transition-all whitespace-nowrap border focus-visible:ring-2 focus-visible:ring-indigo-500 focus-visible:outline-none ${
                           (selectedCategory === cat.id) || (cat.id === "all" && !selectedCategory)
                             ? "bg-slate-900 text-white border-slate-900 dark:bg-white dark:text-slate-950 dark:border-white shadow-md shadow-indigo-500/10"
-                            : "bg-slate-50 text-slate-500 border-slate-200 hover:border-slate-300 dark:bg-slate-900 dark:text-slate-400 dark:border-slate-800 dark:hover:border-slate-700"
+                            : "bg-slate-50 text-slate-600 border-slate-200 hover:border-slate-300 dark:bg-slate-900 dark:text-slate-400 dark:border-slate-800 dark:hover:border-slate-700"
                         }`}
                       >
                         <cat.icon className="w-4 h-4" />
                       {t(`category.${cat.id}`)}
+                      <span className={`ml-1.5 opacity-50 font-mono text-[10px] tabular-nums ${(selectedCategory === cat.id) || (cat.id === "all" && !selectedCategory) ? 'text-white dark:text-slate-900' : 'text-slate-500 dark:text-slate-400'}`}>
+                        {categoryCounts[cat.id] || 0}
+                      </span>
                       </button>
                     ))}
 

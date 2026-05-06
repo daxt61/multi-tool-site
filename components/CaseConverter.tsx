@@ -59,15 +59,19 @@ export function CaseConverter({ initialData, onStateChange }: { initialData?: an
     setError(null);
   };
 
-  const handleDownload = useCallback(() => {
-    if (!text || error) return;
-    const blob = new Blob([text], { type: 'text/plain' });
+  const handleDownload = (content: string, name: string) => {
+    if (!content || error) return;
+    const blob = new Blob([content], { type: 'text/plain' });
     const url = URL.createObjectURL(blob);
     const link = document.createElement('a');
     link.href = url;
-    link.download = `texte-converti-${Date.now()}.txt`;
+    link.download = `${name}-${Date.now()}.txt`;
     link.click();
     URL.revokeObjectURL(url);
+  };
+
+  const handleDownloadOriginal = useCallback(() => {
+    handleDownload(text, 'texte-original');
   }, [text, error]);
 
   return (
@@ -86,7 +90,7 @@ export function CaseConverter({ initialData, onStateChange }: { initialData?: an
           </label>
           <div className="flex gap-2">
             <button
-              onClick={handleDownload}
+              onClick={handleDownloadOriginal}
               disabled={!text || !!error}
               className="text-xs font-bold px-3 py-1 rounded-full text-indigo-600 bg-indigo-50 dark:bg-indigo-500/10 hover:bg-indigo-100 dark:hover:bg-indigo-500/20 transition-all flex items-center gap-1 disabled:opacity-50 disabled:cursor-not-allowed focus-visible:ring-2 focus-visible:ring-indigo-500 focus-visible:outline-none"
             >
@@ -126,18 +130,28 @@ export function CaseConverter({ initialData, onStateChange }: { initialData?: an
                   <FileText className="w-4 h-4 text-slate-400 group-hover:text-indigo-500 transition-colors" />
                   <span className="text-[10px] font-black uppercase tracking-widest text-slate-400 group-hover:text-slate-600 dark:group-hover:text-slate-300 transition-colors">{name}</span>
                 </div>
-                <button
-                  onClick={() => copyToClipboard(converted, name)}
-                  disabled={!text}
-                  className={`p-2 rounded-xl transition-all ${copied === name ? 'bg-emerald-50 dark:bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border border-emerald-200 dark:border-emerald-500/20' : 'text-slate-400 hover:text-indigo-500 bg-slate-50 dark:bg-slate-800 border border-transparent'} disabled:opacity-50 disabled:cursor-not-allowed focus-visible:ring-2 focus-visible:ring-indigo-500 focus-visible:outline-none`}
-                  aria-label={t('caseconverter.copy_as', { name })}
-                >
-                  {copied === name ? (
-                    <Check className="w-4 h-4" />
-                  ) : (
-                    <Copy className="w-4 h-4" />
-                  )}
-                </button>
+                <div className="flex gap-1">
+                  <button
+                    onClick={() => handleDownload(converted, name.toLowerCase())}
+                    disabled={!text}
+                    className="p-2 text-slate-400 hover:text-indigo-500 bg-slate-50 dark:bg-slate-800 rounded-xl transition-all disabled:opacity-50 focus-visible:ring-2 focus-visible:ring-indigo-500 focus-visible:outline-none"
+                    title={t('common.download')}
+                  >
+                    <Download className="w-4 h-4" />
+                  </button>
+                  <button
+                    onClick={() => copyToClipboard(converted, name)}
+                    disabled={!text}
+                    className={`p-2 rounded-xl transition-all ${copied === name ? 'bg-emerald-50 dark:bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border border-emerald-200 dark:border-emerald-500/20' : 'text-slate-400 hover:text-indigo-500 bg-slate-50 dark:bg-slate-800 border border-transparent'} disabled:opacity-50 disabled:cursor-not-allowed focus-visible:ring-2 focus-visible:ring-indigo-500 focus-visible:outline-none`}
+                    aria-label={t('caseconverter.copy_as', { name })}
+                  >
+                    {copied === name ? (
+                      <Check className="w-4 h-4" />
+                    ) : (
+                      <Copy className="w-4 h-4" />
+                    )}
+                  </button>
+                </div>
               </div>
               <div className="bg-slate-50 dark:bg-slate-950 p-4 rounded-2xl font-mono text-sm min-h-[4rem] max-h-32 overflow-y-auto break-all dark:text-slate-300 border border-transparent group-hover:border-slate-200 dark:group-hover:border-slate-800 transition-all scrollbar-thin">
                 {converted || <span className="text-slate-400 italic">{t('caseconverter.result_placeholder')}</span>}

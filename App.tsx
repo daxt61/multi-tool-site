@@ -698,6 +698,7 @@ const tools: Tool[] = [
     descriptionEn: "Roman numeral converter",
     Component: RomanNumeralConverter,
     category: "converters",
+    keywords: ["latin", "histoire", "nombres", "ancient", "history"],
   },
   {
     id: "color-palette",

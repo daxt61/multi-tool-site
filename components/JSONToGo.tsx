@@ -3,6 +3,7 @@ import { Copy, Check, Trash2, Code, Braces, AlertCircle, Info } from 'lucide-rea
 import { useTranslation } from 'react-i18next';
 
 const MAX_LENGTH = 100000;
+const MAX_DEPTH = 20;
 
 export function JSONToGo({ initialData, onStateChange }: { initialData?: any; onStateChange?: (state: any) => void }) {
   const { t } = useTranslation();
@@ -23,7 +24,8 @@ export function JSONToGo({ initialData, onStateChange }: { initialData?: any; on
       .join('');
   };
 
-  const getType = (val: any, indent: string = ''): string => {
+  const getType = (val: any, indent: string = '', depth: number = 0): string => {
+    if (depth > MAX_DEPTH) return 'interface{}';
     if (val === null) return 'interface{}';
 
     switch (typeof val) {
@@ -36,14 +38,15 @@ export function JSONToGo({ initialData, onStateChange }: { initialData?: any; on
       case 'object':
         if (Array.isArray(val)) {
           if (val.length === 0) return '[]interface{}';
-          return `[]${getType(val[0], indent)}`;
+          return `[]${getType(val[0], indent, depth + 1)}`;
         } else {
           let structStr = 'struct {\n';
           const nextIndent = indent + '\t';
-          for (const key in val) {
+          // Sentinel: Using Object.entries for safer iteration and enforcing depth limit to prevent stack overflow.
+          Object.entries(val).forEach(([key, value]) => {
             const pascalKey = toPascalCase(key);
-            structStr += `${nextIndent}${pascalKey} ${getType(val[key], nextIndent)} \`json:"${key}"\`\n`;
-          }
+            structStr += `${nextIndent}${pascalKey} ${getType(value, nextIndent, depth + 1)} \`json:"${key}"\`\n`;
+          });
           structStr += `${indent}}`;
           return structStr;
         }

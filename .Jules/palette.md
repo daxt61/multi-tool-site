@@ -13,3 +13,7 @@
 ## 2025-06-12 - [Consistency in Utility Patterns]
 **Learning:** Providing a "Reset" utility button using the `RotateCcw` icon and `rose-500` styling is a well-established pattern in this repository that users expect for clearing complex states. Additionally, enabling URL state sharing via `initialData` and `onStateChange` props allows users to share their specific configurations, which is a major UX win for utility tools.
 **Action:** Always check if a tool can benefit from a Reset button or state sharing to maintain repository-wide UX consistency.
+
+## 2025-07-20 - [Dashboard Information Density & Contrast]
+**Learning:** Adding tool counts to category filters provides immediate value by informing users about tool distribution at a glance. Additionally, auditing secondary text contrast (e.g., changing text-slate-400 to text-slate-500) is a critical micro-UX step to ensure WCAG AA compliance for section headers and labels.
+**Action:** For collection-based dashboards, display item counts in filter badges and ensure all informational labels meet a minimum 4.5:1 contrast ratio.

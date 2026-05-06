@@ -237,6 +237,8 @@ const SitemapGenerator = lazy(() => import("./components/SitemapGenerator").then
 const JSONToSQL = lazy(() => import("./components/JSONToSQL").then(m => ({ default: m.JSONToSQL })));
 const StringEscaper = lazy(() => import("./components/StringEscaper").then(m => ({ default: m.StringEscaper })));
 const FlexboxGenerator = lazy(() => import("./components/FlexboxGenerator").then(m => ({ default: m.FlexboxGenerator })));
+const JSONToGo = lazy(() => import("./components/JSONToGo").then(m => ({ default: m.JSONToGo })));
+const HTMLToJSX = lazy(() => import("./components/HTMLToJSX").then(m => ({ default: m.HTMLToJSX })));
 
 // ⚡ Bolt Optimization: Pre-calculating tool map and search index for O(1) lookups and faster filtering
 const toolsMap: Record<string, Tool> = {};
@@ -1563,6 +1565,28 @@ const tools: Tool[] = [
     Component: SitemapGenerator,
     category: "dev",
     keywords: ["seo", "sitemap", "xml", "google", "indexation"],
+  },
+  {
+    id: "json-to-go",
+    name: "JSON en Go",
+    nameEn: "JSON to Go",
+    icon: Code,
+    description: "Convertir du JSON en structures Go",
+    descriptionEn: "Convert JSON to Go struct definitions",
+    Component: JSONToGo,
+    category: "dev",
+    keywords: ["golang", "go", "struct", "json", "types"],
+  },
+  {
+    id: "html-to-jsx",
+    name: "HTML en JSX",
+    nameEn: "HTML to JSX",
+    icon: FileCode,
+    description: "Convertir du HTML en syntaxe JSX React",
+    descriptionEn: "Convert HTML to React JSX syntax",
+    Component: HTMLToJSX,
+    category: "dev",
+    keywords: ["react", "jsx", "html", "frontend", "convert"],
   },
 ];
 

@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { Table, Plus, RotateCcw, Copy, Check, Download, AlertCircle } from 'lucide-react';
+import { Table, Plus, RotateCcw, Copy, Check, Download, AlertCircle, Code } from 'lucide-react';
 
 const MAX_ROWS = 50;
 const MAX_COLS = 10;
@@ -21,6 +21,7 @@ export function MarkdownTableGenerator({ initialData, onStateChange }: { initial
     );
   });
   const [copied, setCopied] = useState(false);
+  const [copiedHtml, setCopiedHtml] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
@@ -80,10 +81,48 @@ export function MarkdownTableGenerator({ initialData, onStateChange }: { initial
     return md;
   };
 
+  const generateHtml = () => {
+    if (data.length === 0) return '';
+    const escape = (val: string) => String(val)
+      .replace(/&/g, '&amp;')
+      .replace(/</g, '&lt;')
+      .replace(/>/g, '&gt;')
+      .replace(/"/g, '&quot;')
+      .replace(/'/g, '&#39;');
+
+    let html = '<table class="table-auto border-collapse border border-slate-400">\n';
+
+    // Header
+    html += '  <thead>\n    <tr>\n';
+    data[0].forEach(cell => {
+      html += `      <th class="border border-slate-300 px-4 py-2">${escape(cell)}</th>\n`;
+    });
+    html += '    </tr>\n  </thead>\n';
+
+    // Body
+    html += '  <tbody>\n';
+    for (let i = 1; i < data.length; i++) {
+      html += '    <tr>\n';
+      data[i].forEach(cell => {
+        html += `      <td class="border border-slate-300 px-4 py-2">${escape(cell)}</td>\n`;
+      });
+      html += '    </tr>\n';
+    }
+    html += '  </tbody>\n</table>';
+
+    return html;
+  };
+
   const copyToClipboard = () => {
     navigator.clipboard.writeText(generateMarkdown());
     setCopied(true);
     setTimeout(() => setCopied(false), 2000);
+  };
+
+  const copyHtmlToClipboard = () => {
+    navigator.clipboard.writeText(generateHtml());
+    setCopiedHtml(true);
+    setTimeout(() => setCopiedHtml(false), 2000);
   };
 
   const handleDownload = () => {
@@ -144,6 +183,17 @@ export function MarkdownTableGenerator({ initialData, onStateChange }: { initial
             className="px-4 py-2 bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 rounded-xl font-bold text-sm flex items-center gap-2 hover:bg-slate-200 transition-all focus-visible:ring-2 focus-visible:ring-indigo-500 focus-visible:outline-none"
           >
             <Download className="w-4 h-4" /> Télécharger
+          </button>
+          <button
+            onClick={copyHtmlToClipboard}
+            className={`px-4 py-2 rounded-xl font-bold text-sm flex items-center gap-2 transition-all border focus-visible:ring-2 focus-visible:ring-indigo-500 focus-visible:outline-none ${
+              copiedHtml
+                ? 'bg-emerald-50 dark:bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border-emerald-200 dark:border-emerald-500/20'
+                : 'bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 hover:bg-slate-200'
+            }`}
+          >
+            {copiedHtml ? <Check className="w-4 h-4" /> : <Code className="w-4 h-4" />}
+            {copiedHtml ? 'Copié' : 'Copier HTML'}
           </button>
           <button
             onClick={copyToClipboard}

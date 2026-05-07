@@ -398,7 +398,7 @@ export function RandomGenerator({ initialData, onStateChange }: { initialData?: 
           {(shuffledList.length > 0 || winner || teams.length > 0) && (
             <button
               onClick={() => {
-                const text = winner || (teams.length > 0 ? teams.map((t, i) => `Équipe ${i + 1}:\n${t.join('\n')}`).join('\n\n') : shuffledList.join('\n'));
+                const text = winner || (teams.length > 0 ? teams.map((team, i) => `${t('random.team_label', { id: i + 1 })}:\n${team.join('\n')}`).join('\n\n') : shuffledList.join('\n'));
                 handleDownload(text, 'resultat-tirage');
               }}
               className="text-xs font-bold text-indigo-600 bg-indigo-50 dark:bg-indigo-900/20 hover:bg-indigo-100 dark:hover:bg-indigo-900/30 px-3 py-1.5 rounded-xl flex items-center gap-1 transition-all focus-visible:ring-2 focus-visible:ring-indigo-500 focus-visible:outline-none"

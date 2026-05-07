@@ -1,5 +1,5 @@
 import { useState, useMemo, useDeferredValue, useEffect, useCallback } from 'react';
-import { Copy, Check, Trash2, Hash, Type, FileText, AlignLeft, Clock, MessageSquare, BarChart3, Info, Star, AlertCircle, Download } from 'lucide-react';
+import { Copy, Check, Trash2, Hash, Type, FileText, AlignLeft, Clock, MessageSquare, BarChart3, Info, Star, AlertCircle, Download, Pilcrow } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 
 const MAX_LENGTH = 100000;
@@ -30,6 +30,7 @@ export function WordCounter({ initialData, onStateChange }: { initialData?: any;
         charactersNoSpaces: 0,
         words: 0,
         lines: 0,
+        paragraphs: 0,
         sentences: 0,
         readingTime: 0,
         speakingTime: 0,
@@ -75,6 +76,7 @@ export function WordCounter({ initialData, onStateChange }: { initialData?: any;
 
     const sentenceCount = trimmed === '' ? 0 : deferredText.split(/[.!?]+(?:\s|$)/).filter((s: string) => s.trim().length > 0).length;
     const charCount = deferredText.replace(/\s/g, '').length;
+    const paragraphCount = trimmed === '' ? 0 : deferredText.split(/\n\s*\n/).filter((p: string) => p.trim().length > 0).length;
 
     // Automated Readability Index (ARI)
     // ARI = 4.71 * (characters/words) + 0.5 * (words/sentences) - 21.43
@@ -144,6 +146,7 @@ export function WordCounter({ initialData, onStateChange }: { initialData?: any;
       charactersNoSpaces: charCount,
       words: wordCount,
       lines: deferredText === '' ? 0 : deferredText.split('\n').length,
+      paragraphs: paragraphCount,
       sentences: sentenceCount,
       readingTime: wordCount / 200,
       speakingTime: wordCount / 130,
@@ -201,6 +204,7 @@ export function WordCounter({ initialData, onStateChange }: { initialData?: any;
 - ${t('wordcounter.stat.characters')}: ${stats.characters}
 - ${t('wordcounter.stat.words')}: ${stats.words}
 - ${t('wordcounter.stat.lines')}: ${stats.lines}
+- ${t('wordcounter.stat.paragraphs')}: ${stats.paragraphs}
 - ${t('wordcounter.stat.sentences')}: ${stats.sentences}
 - ${t('wordcounter.stat.readability')} (ARI): ${stats.ari} (${stats.ariGrade})
 - ${t('wordcounter.stat.flesch')}: ${stats.flesch} (${stats.fleschLevel})
@@ -290,6 +294,7 @@ export function WordCounter({ initialData, onStateChange }: { initialData?: any;
           { icon: <Hash className="w-4 h-4" />, label: t('wordcounter.stat.characters_no_spaces'), value: stats.charactersNoSpaces },
           { icon: <Type className="w-4 h-4" />, label: t('wordcounter.stat.words'), value: stats.words },
           { icon: <FileText className="w-4 h-4" />, label: t('wordcounter.stat.lines'), value: stats.lines },
+          { icon: <Pilcrow className="w-4 h-4" />, label: t('wordcounter.stat.paragraphs'), value: stats.paragraphs },
           { icon: <AlignLeft className="w-4 h-4" />, label: t('wordcounter.stat.sentences'), value: stats.sentences },
           { icon: <Star className="w-4 h-4" />, label: t('wordcounter.stat.readability'), value: stats.ariGrade },
           { icon: <Clock className="w-4 h-4" />, label: t('wordcounter.stat.reading'), value: formatTime(stats.readingTime) },

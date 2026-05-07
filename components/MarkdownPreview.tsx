@@ -82,19 +82,26 @@ export function MarkdownPreview({ initialData, onStateChange }: { initialData?: 
     
     // 4. Blockquotes
     html = html.replace(/^\s*&gt;\s+(.*)$/gim, '<blockquote class="border-l-4 border-slate-300 dark:border-slate-700 pl-4 italic my-6 text-slate-600 dark:text-slate-400">$1</blockquote>');
-    
-    // 5. Unordered lists
+
+    // 5. Task Lists (Must be before unordered lists)
+    html = html.replace(/^(\s*[-*]\s+)\[ \]\s+(.*)$/gim, '<li class="ml-6 list-none flex items-start gap-2 text-slate-700 dark:text-slate-300 my-1"><input type="checkbox" disabled class="mt-1 rounded border-slate-300 dark:border-slate-700" /> <span>$2</span></li>');
+    html = html.replace(/^(\s*[-*]\s+)\[x\]\s+(.*)$/gim, '<li class="ml-6 list-none flex items-start gap-2 text-slate-700 dark:text-slate-300 my-1"><input type="checkbox" checked disabled class="mt-1 rounded border-indigo-500 bg-indigo-500" /> <span class="line-through opacity-50">$2</span></li>');
+
+    // 6. Unordered lists
     html = html.replace(/^\s*[-*]\s+(.*)$/gim, '<li class="ml-6 list-disc text-slate-700 dark:text-slate-300 my-1">$1</li>');
     // Wrap adjacent <li> in <ul>
     html = html.replace(/((?:<li.*?>.*?<\/li>\s*)+)/g, '<ul class="my-4">$1</ul>');
 
-    // 6. Bold
+    // 7. Strikethrough
+    html = html.replace(/~~(.*?)~~/g, '<del class="line-through opacity-50">$1</del>');
+
+    // 8. Bold
     html = html.replace(/\*\*(.*?)\*\*/g, '<strong class="font-bold text-slate-900 dark:text-white">$1</strong>');
 
-    // 7. Italic
+    // 9. Italic
     html = html.replace(/\*(.*?)\*/g, '<em class="italic">$1</em>');
     
-    // 8. Links
+    // 10. Links
     // Sentinel: Exclude quotes and other attribute-breaking characters from the URL match.
     html = html.replace(/\[(.*?)\]\(([^)\s\<\>"\']+)\)/g, (match, linkText, url) => {
       // Sentinel: Improved protocol check to prevent XSS.
@@ -112,14 +119,14 @@ export function MarkdownPreview({ initialData, onStateChange }: { initialData?: 
         : `<span class="text-slate-400 underline decoration-dotted" title="Lien non sécurisé">${linkText}</span>`;
     });
     
-    // 9. Line breaks (apply only to non-block content)
+    // 11. Line breaks (apply only to non-block content)
     html = html.replace(/\n/g, '<br>');
 
     // Clean up breaks around block elements to avoid excessive spacing
     html = html.replace(/<br>\s*<(ul|li|blockquote|pre|h1|h2|h3)/gi, '<$1');
     html = html.replace(/<\/(ul|li|blockquote|pre|h1|h2|h3)>\s*<br>/gi, '</$1>');
     
-    // 10. Restore placeholders
+    // 12. Restore placeholders
     placeholders.forEach((content, i) => {
       html = html.replace(new RegExp(`__(?:BLOCK|INLINE)_${i}__`, 'g'), () => content);
     });

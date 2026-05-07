@@ -90,6 +90,7 @@ import {
   ShieldCheck,
   Scissors,
   Binary,
+  Coffee,
   Volume2,
   Layers,
   Network,
@@ -239,6 +240,8 @@ const StringEscaper = lazy(() => import("./components/StringEscaper").then(m => 
 const FlexboxGenerator = lazy(() => import("./components/FlexboxGenerator").then(m => ({ default: m.FlexboxGenerator })));
 const JSONToGo = lazy(() => import("./components/JSONToGo").then(m => ({ default: m.JSONToGo })));
 const HTMLToJSX = lazy(() => import("./components/HTMLToJSX").then(m => ({ default: m.HTMLToJSX })));
+const JSONToJava = lazy(() => import("./components/JSONToJava").then(m => ({ default: m.JSONToJava })));
+const JSONToCSharp = lazy(() => import("./components/JSONToCSharp").then(m => ({ default: m.JSONToCSharp })));
 
 // ⚡ Bolt Optimization: Pre-calculating tool map and search index for O(1) lookups and faster filtering
 const toolsMap: Record<string, Tool> = {};
@@ -1588,6 +1591,28 @@ const tools: Tool[] = [
     Component: HTMLToJSX,
     category: "dev",
     keywords: ["react", "jsx", "html", "frontend", "convert"],
+  },
+  {
+    id: "json-to-java",
+    name: "JSON en Java",
+    nameEn: "JSON to Java",
+    icon: Coffee,
+    description: "Convertir du JSON en classes Java (POJO)",
+    descriptionEn: "Convert JSON to Java POJO classes",
+    Component: JSONToJava,
+    category: "dev",
+    keywords: ["java", "pojo", "jackson", "gson", "lombok"],
+  },
+  {
+    id: "json-to-csharp",
+    name: "JSON en C#",
+    nameEn: "JSON to C#",
+    icon: Code,
+    description: "Convertir du JSON en classes C#",
+    descriptionEn: "Convert JSON to C# classes",
+    Component: JSONToCSharp,
+    category: "dev",
+    keywords: ["csharp", "dotnet", "class", "json", "types"],
   },
 ];
 

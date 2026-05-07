@@ -1621,8 +1621,8 @@ tools.forEach(tool => {
   toolsMap[tool.id] = tool;
   const category = categories.find(c => c.id === tool.category);
   TOOL_SEARCH_INDEX.set(tool.id, {
-    name: `${tool.name} ${category?.name || ''} ${tool.keywords?.join(' ') || ''}`.toLowerCase(),
-    description: tool.description.toLowerCase(),
+    name: `${tool.name} ${tool.nameEn || ''} ${category?.name || ''} ${tool.keywords?.join(' ') || ''}`.toLowerCase(),
+    description: `${tool.description} ${tool.descriptionEn || ''}`.toLowerCase(),
   });
 });
 

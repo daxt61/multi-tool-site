@@ -1,4 +1,4 @@
-import { useState, useMemo } from 'react';
+import { useState, useMemo, useCallback, useEffect } from 'react';
 import { Palette, Type, Check, X, Info, Copy, RefreshCw } from 'lucide-react';
 
 export function ColorContrastChecker() {
@@ -18,7 +18,13 @@ export function ColorContrastChecker() {
   };
 
   const hexToRgb = (hex: string) => {
-    const result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex);
+    // Expand shorthand form (e.g. "03F") to full form (e.g. "0033FF")
+    const shorthandRegex = /^#?([a-f\d])([a-f\d])([a-f\d])$/i;
+    const fullHex = hex.replace(shorthandRegex, (_m, r, g, b) => {
+      return r + r + g + g + b + b;
+    });
+
+    const result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(fullHex);
     return result ? {
       r: parseInt(result[1], 16),
       g: parseInt(result[2], 16),
@@ -40,11 +46,27 @@ export function ColorContrastChecker() {
     setTimeout(() => setCopied(null), 2000);
   };
 
-  const swapColors = () => {
+  const swapColors = useCallback(() => {
     const temp = foreground;
     setForeground(background);
     setBackground(temp);
-  };
+  }, [foreground, background]);
+
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (document.activeElement?.tagName === "INPUT" || document.activeElement?.tagName === "TEXTAREA" || document.activeElement?.tagName === "SELECT") {
+        return;
+      }
+
+      if (e.key.toLowerCase() === 's') {
+        e.preventDefault();
+        swapColors();
+      }
+    };
+
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [swapColors]);
 
   const getStatus = (ratio: number, threshold: number) => ratio >= threshold;
 
@@ -63,7 +85,12 @@ export function ColorContrastChecker() {
                   </label>
                   <button
                     onClick={() => copyToClipboard(foreground, 'fg')}
-                    className={`p-1.5 rounded-lg transition-all ${copied === 'fg' ? 'text-emerald-500' : 'text-slate-400 hover:text-indigo-500'}`}
+                    aria-label={copied === 'fg' ? 'Couleur copiée' : 'Copier la couleur du texte'}
+                    className={`p-1.5 rounded-lg transition-all border ${
+                      copied === 'fg'
+                        ? 'bg-emerald-50 dark:bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border-emerald-200 dark:border-emerald-500/20'
+                        : 'text-slate-400 hover:text-indigo-500 border-transparent'
+                    }`}
                   >
                     {copied === 'fg' ? <Check className="w-4 h-4" /> : <Copy className="w-4 h-4" />}
                   </button>
@@ -75,25 +102,30 @@ export function ColorContrastChecker() {
                     value={foreground}
                     onChange={(e) => setForeground(e.target.value.toUpperCase())}
                     className="w-16 h-16 rounded-2xl cursor-pointer border-4 border-white dark:border-slate-800 shadow-sm"
+                    aria-label="Choisir la couleur du texte"
                   />
                   <input
                     type="text"
                     value={foreground}
                     onChange={(e) => setForeground(e.target.value.toUpperCase())}
-                    className="flex-1 px-4 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-2xl font-mono font-bold outline-none focus:ring-2 focus:ring-indigo-500/20 dark:text-white"
+                    placeholder="#FFFFFF"
+                    className="flex-1 px-4 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-2xl font-mono font-bold outline-none focus-visible:ring-2 focus-visible:ring-indigo-500 focus:border-indigo-500 dark:text-white"
+                    aria-label="Code hexadécimal de la couleur du texte"
                   />
                 </div>
               </div>
 
               {/* Swap Button */}
-              <div className="flex justify-center -my-4">
+              <div className="flex flex-col items-center gap-2 -my-4">
                 <button
                   onClick={swapColors}
-                  className="p-3 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-full shadow-sm hover:scale-110 active:scale-95 transition-all text-slate-400 hover:text-indigo-600"
-                  title="Inverser les couleurs"
+                  className="p-3 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-full shadow-sm hover:scale-110 active:scale-95 transition-all text-slate-400 hover:text-indigo-600 group focus-visible:ring-2 focus-visible:ring-indigo-500 focus-visible:outline-none"
+                  aria-label="Inverser les couleurs (S)"
+                  title="Inverser les couleurs (S)"
                 >
-                  <RefreshCw className="w-5 h-5" />
+                  <RefreshCw className="w-5 h-5 transition-transform group-hover:rotate-180 duration-500" />
                 </button>
+                <kbd className="hidden sm:inline-flex items-center justify-center w-5 h-5 border border-slate-200 dark:border-slate-800 rounded text-[10px] font-bold text-slate-400 bg-white dark:bg-slate-900">S</kbd>
               </div>
 
               {/* Background */}
@@ -104,7 +136,12 @@ export function ColorContrastChecker() {
                   </label>
                   <button
                     onClick={() => copyToClipboard(background, 'bg')}
-                    className={`p-1.5 rounded-lg transition-all ${copied === 'bg' ? 'text-emerald-500' : 'text-slate-400 hover:text-indigo-500'}`}
+                    aria-label={copied === 'bg' ? 'Couleur copiée' : 'Copier la couleur de fond'}
+                    className={`p-1.5 rounded-lg transition-all border ${
+                      copied === 'bg'
+                        ? 'bg-emerald-50 dark:bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border-emerald-200 dark:border-emerald-500/20'
+                        : 'text-slate-400 hover:text-indigo-500 border-transparent'
+                    }`}
                   >
                     {copied === 'bg' ? <Check className="w-4 h-4" /> : <Copy className="w-4 h-4" />}
                   </button>
@@ -116,12 +153,15 @@ export function ColorContrastChecker() {
                     value={background}
                     onChange={(e) => setBackground(e.target.value.toUpperCase())}
                     className="w-16 h-16 rounded-2xl cursor-pointer border-4 border-white dark:border-slate-800 shadow-sm"
+                    aria-label="Choisir la couleur de fond"
                   />
                   <input
                     type="text"
                     value={background}
                     onChange={(e) => setBackground(e.target.value.toUpperCase())}
-                    className="flex-1 px-4 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-2xl font-mono font-bold outline-none focus:ring-2 focus:ring-indigo-500/20 dark:text-white"
+                    placeholder="#4F46E5"
+                    className="flex-1 px-4 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-2xl font-mono font-bold outline-none focus-visible:ring-2 focus-visible:ring-indigo-500 focus:border-indigo-500 dark:text-white"
+                    aria-label="Code hexadécimal de la couleur de fond"
                   />
                 </div>
               </div>

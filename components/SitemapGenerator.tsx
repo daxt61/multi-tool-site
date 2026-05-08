@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { Globe, Plus, Trash2, Copy, Check, Download, AlertCircle, Info, LinkIcon } from 'lucide-react';
 
 interface SitemapURL {
@@ -9,10 +9,20 @@ interface SitemapURL {
 }
 
 const MAX_URLS = 1000;
+const MAX_URL_LENGTH = 2048;
+const MAX_BULK_INPUT_LENGTH = 50000;
 
 export function SitemapGenerator({ initialData, onStateChange }: { initialData?: any; onStateChange?: (state: any) => void }) {
-  const [urls, setUrls] = useState<SitemapURL[]>(initialData?.urls || [{ url: 'https://example.com/', priority: '1.0', changefreq: 'daily' }]);
-  const [baseUrl, setBaseUrl] = useState(initialData?.baseUrl || 'https://example.com');
+  const [urls, setUrls] = useState<SitemapURL[]>(() => {
+    const initial = initialData?.urls || [{ url: 'https://example.com/', priority: '1.0', changefreq: 'daily' }];
+    return initial.slice(0, MAX_URLS).map((item: any) => ({
+      ...item,
+      url: String(item.url || '').slice(0, MAX_URL_LENGTH),
+      lastmod: String(item.lastmod || '').slice(0, 20),
+      priority: String(item.priority || '').slice(0, 5),
+    }));
+  });
+  const [baseUrl, setBaseUrl] = useState(() => String(initialData?.baseUrl || 'https://example.com').slice(0, MAX_URL_LENGTH));
   const [output, setOutput] = useState('');
   const [copied, setCopied] = useState(false);
   const [error, setError] = useState('');
@@ -21,7 +31,20 @@ export function SitemapGenerator({ initialData, onStateChange }: { initialData?:
     onStateChange?.({ urls, baseUrl, output });
   }, [urls, baseUrl, output]);
 
-  const generateSitemap = () => {
+  const escapeXml = (unsafe: string) => {
+    return unsafe.replace(/[<>&"']/g, (c) => {
+      switch (c) {
+        case '<': return '&lt;';
+        case '>': return '&gt;';
+        case '&': return '&amp;';
+        case '"': return '&quot;';
+        case "'": return '&apos;';
+        default: return c;
+      }
+    });
+  };
+
+  const generateSitemap = useCallback(() => {
     try {
       setError('');
       if (urls.length === 0) {
@@ -34,24 +57,26 @@ export function SitemapGenerator({ initialData, onStateChange }: { initialData?:
 
       urls.forEach((item) => {
         if (!item.url) return;
+        // Sentinel: Escape all user-provided data to prevent XML injection.
         xml += '  <url>\n';
-        xml += `    <loc>${item.url}</loc>\n`;
-        if (item.lastmod) xml += `    <lastmod>${item.lastmod}</lastmod>\n`;
-        if (item.changefreq) xml += `    <changefreq>${item.changefreq}</changefreq>\n`;
-        if (item.priority) xml += `    <priority>${item.priority}</priority>\n`;
+        xml += `    <loc>${escapeXml(item.url)}</loc>\n`;
+        if (item.lastmod) xml += `    <lastmod>${escapeXml(item.lastmod)}</lastmod>\n`;
+        if (item.changefreq) xml += `    <changefreq>${escapeXml(item.changefreq)}</changefreq>\n`;
+        if (item.priority) xml += `    <priority>${escapeXml(item.priority)}</priority>\n`;
         xml += '  </url>\n';
       });
 
       xml += '</urlset>';
       setOutput(xml);
     } catch (e: any) {
-      setError('Erreur de génération : ' + e.message);
+      // Sentinel: Generic error message to avoid information leakage.
+      setError('Erreur lors de la génération du sitemap.');
     }
-  };
+  }, [urls]);
 
   useEffect(() => {
     generateSitemap();
-  }, [urls]);
+  }, [generateSitemap]);
 
   const addUrl = () => {
     if (urls.length >= MAX_URLS) {
@@ -66,6 +91,7 @@ export function SitemapGenerator({ initialData, onStateChange }: { initialData?:
   };
 
   const updateUrl = (index: number, field: keyof SitemapURL, value: string) => {
+    if (value.length > MAX_URL_LENGTH) return;
     const newUrls = [...urls];
     newUrls[index] = { ...newUrls[index], [field]: value };
     setUrls(newUrls);
@@ -92,12 +118,16 @@ export function SitemapGenerator({ initialData, onStateChange }: { initialData?:
   };
 
   const handleBulkAdd = (text: string) => {
+    if (text.length > MAX_BULK_INPUT_LENGTH) {
+      setError(`L'entrée est trop longue. Limite de ${MAX_BULK_INPUT_LENGTH.toLocaleString()} caractères.`);
+      return;
+    }
     const lines = text.split('\n').map(l => l.trim()).filter(l => l.startsWith('http'));
     if (lines.length + urls.length > MAX_URLS) {
       setError(`L'ajout de ces URLs dépasserait la limite de ${MAX_URLS}.`);
       return;
     }
-    const newEntries = lines.map(url => ({ url, priority: '0.5', changefreq: 'monthly' }));
+    const newEntries = lines.map(url => ({ url: url.slice(0, MAX_URL_LENGTH), priority: '0.5', changefreq: 'monthly' }));
     setUrls([...urls, ...newEntries]);
   };
 
@@ -137,8 +167,9 @@ export function SitemapGenerator({ initialData, onStateChange }: { initialData?:
                 </button>
 
                 <div className="space-y-1">
-                  <label className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">URL</label>
+                  <label htmlFor={`url-${index}`} className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">URL</label>
                   <input
+                    id={`url-${index}`}
                     type="url"
                     value={item.url}
                     onChange={(e) => updateUrl(index, 'url', e.target.value)}
@@ -186,7 +217,9 @@ export function SitemapGenerator({ initialData, onStateChange }: { initialData?:
               <Plus className="w-4 h-4 text-indigo-500" />
               <h4 className="text-xs font-black uppercase tracking-widest text-indigo-600 dark:text-indigo-400">Ajout en masse</h4>
             </div>
+            <label htmlFor="bulk-add" className="sr-only">Ajout en masse</label>
             <textarea
+              id="bulk-add"
               placeholder="Collez une liste d'URLs (une par ligne)..."
               onBlur={(e) => {
                 if (e.target.value) {

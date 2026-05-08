@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { Search, Info, AlertCircle, Copy, Check, Flag, Loader2 } from 'lucide-react';
+import { useTranslation } from 'react-i18next';
 
 interface MatchResult {
   index: number;
@@ -34,9 +35,10 @@ const WORKER_CODE = `
 `;
 
 export function RegExTester({ initialData, onStateChange }: { initialData?: any; onStateChange?: (state: any) => void }) {
+  const { t } = useTranslation();
   const [regex, setRegex] = useState(initialData?.regex || '([a-zA-Z0-9._%+-]+)@([a-zA-Z0-9.-]+)\\.([a-zA-Z]{2,})');
   const [flags, setFlags] = useState(initialData?.flags || 'g');
-  const [testText, setTestText] = useState(initialData?.testText || 'Contactez-nous à support@example.com ou sales@test.org pour plus d\'informations.');
+  const [testText, setTestText] = useState(initialData?.testText || t('regextester.test_text_placeholder'));
   const [matches, setMatches] = useState<MatchResult[]>([]);
   const [error, setError] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(false);
@@ -67,7 +69,7 @@ export function RegExTester({ initialData, onStateChange }: { initialData?: any;
 
   useEffect(() => {
     onStateChange?.({ regex, flags, testText });
-  }, [regex, flags, testText]);
+  }, [regex, flags, testText, onStateChange]);
 
   useEffect(() => {
     if (!regex) {
@@ -106,7 +108,7 @@ export function RegExTester({ initialData, onStateChange }: { initialData?: any;
         clearTimeout(executionTimerId.current);
       }
       setIsLoading(false);
-      setError('Erreur du Web Worker');
+      setError(t('regextester.worker_error'));
       worker.terminate();
     };
 
@@ -115,10 +117,10 @@ export function RegExTester({ initialData, onStateChange }: { initialData?: any;
     executionTimerId.current = setTimeout(() => {
       worker.terminate();
       setIsLoading(false);
-      setError("L'exécution a pris trop de temps (ReDoS potentiel détecté).");
+      setError(t('regextester.error_redos'));
     }, 2000);
 
-  }, [regex, flags, testText]);
+  }, [regex, flags, testText, t]);
 
   const syncScroll = () => {
     if (backdropRef.current && textareaRef.current) {
@@ -178,7 +180,7 @@ export function RegExTester({ initialData, onStateChange }: { initialData?: any;
 
   const availableFlags = [
     { char: 'g', name: 'Global' },
-    { char: 'i', name: 'Insensible à la casse' },
+    { char: 'i', name: t('regextester.flag_i') },
     { char: 'm', name: 'Multiligne' },
     { char: 's', name: 'DotAll' },
     { char: 'u', name: 'Unicode' },
@@ -189,7 +191,7 @@ export function RegExTester({ initialData, onStateChange }: { initialData?: any;
     { name: 'URL', regex: 'https?:\\/\\/(www\\.)?[-a-zA-Z0-9@:%._\\+~#=]{1,256}\\.[a-zA-Z0-9()]{1,6}\\b([-a-zA-Z0-9()@:%_\\+.~#?&//=]*)', flags: 'g' },
     { name: 'IPv4', regex: '(?:(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\\.){3}(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)', flags: 'g' },
     { name: 'Date (YYYY-MM-DD)', regex: '\\d{4}-(0[1-9]|1[0-2])-(0[1-9]|[12][0-9]|3[01])', flags: 'g' },
-    { name: 'Téléphone (FR)', regex: '(?:(?:\\+|00)33|0)\\s*[1-9](?:[\\s.-]*\\d{2}){4}', flags: 'g' },
+    { name: t('regextester.pattern_phone_fr'), regex: '(?:(?:\\+|00)33|0)\\s*[1-9](?:[\\s.-]*\\d{2}){4}', flags: 'g' },
   ];
 
   const toggleFlag = (flag: string) => {
@@ -200,7 +202,7 @@ export function RegExTester({ initialData, onStateChange }: { initialData?: any;
     <div className="max-w-5xl mx-auto space-y-8">
       {/* Pattern Library */}
       <div className="bg-white dark:bg-slate-900/40 p-6 rounded-[2.5rem] border border-slate-200 dark:border-slate-800 space-y-4">
-        <h3 className="text-xs font-black uppercase tracking-widest text-slate-400 px-1">Bibliothèque de modèles</h3>
+        <h3 className="text-xs font-black uppercase tracking-widest text-slate-400 px-1">{t('regextester.pattern_library')}</h3>
         <div className="flex flex-wrap gap-2">
           {PATTERN_LIBRARY.map((pattern) => (
             <button
@@ -222,9 +224,9 @@ export function RegExTester({ initialData, onStateChange }: { initialData?: any;
         <div className="lg:col-span-7 space-y-6">
           <div className="bg-slate-50 dark:bg-slate-900/50 p-6 rounded-[2.5rem] border border-slate-200 dark:border-slate-800 space-y-4">
             <div className="flex justify-between items-center px-1">
-              <label htmlFor="regex-input" className="text-xs font-black uppercase tracking-widest text-slate-400">Expression Régulière</label>
+              <label htmlFor="regex-input" className="text-xs font-black uppercase tracking-widest text-slate-400">{t('regextester.regex_input')}</label>
               <button onClick={handleCopy} className="text-xs font-bold text-indigo-500 flex items-center gap-1">
-                {copied ? <Check className="w-3 h-3" /> : <Copy className="w-3 h-3" />} {copied ? 'Copié' : 'Copier'}
+                {copied ? <Check className="w-3 h-3" /> : <Copy className="w-3 h-3" />} {copied ? t('common.copied') : t('common.copy')}
               </button>
             </div>
             <div className="relative group">
@@ -252,10 +254,10 @@ export function RegExTester({ initialData, onStateChange }: { initialData?: any;
 
           <div className="bg-white dark:bg-slate-900/40 p-6 rounded-[2.5rem] border border-slate-200 dark:border-slate-800 space-y-4 relative">
              <div className="flex justify-between items-center px-1">
-              <label htmlFor="test-text" className="text-xs font-black uppercase tracking-widest text-slate-400">Texte de Test</label>
+              <label htmlFor="test-text" className="text-xs font-black uppercase tracking-widest text-slate-400">{t('regextester.test_text_input')}</label>
               <div className="text-xs font-bold text-slate-400 flex items-center gap-2">
                 {isLoading && <Loader2 className="w-3 h-3 animate-spin text-indigo-500" />}
-                {matches.length} match{matches.length > 1 ? 'es' : ''} trouvé{matches.length > 1 ? 's' : ''}
+                {t(matches.length === 1 ? 'regextester.matches_found_one' : 'regextester.matches_found_other', { count: matches.length })}
               </div>
             </div>
 
@@ -277,7 +279,7 @@ export function RegExTester({ initialData, onStateChange }: { initialData?: any;
                 onChange={(e) => setTestText(e.target.value)}
                 onScroll={syncScroll}
                 className="absolute inset-0 w-full h-full p-4 bg-transparent border border-slate-200 dark:border-slate-800 rounded-2xl outline-none focus:ring-2 focus:ring-indigo-500/20 transition-all resize-none dark:text-white selection:bg-indigo-500/20"
-                placeholder="Saisissez le texte à tester..."
+                placeholder={t('regextester.test_text_placeholder_input')}
               />
             </div>
           </div>
@@ -318,28 +320,28 @@ export function RegExTester({ initialData, onStateChange }: { initialData?: any;
           <div className="bg-indigo-600 rounded-[2.5rem] p-10 text-white shadow-xl shadow-indigo-600/10 space-y-6">
             <div className="flex items-center gap-3">
               <Info className="w-6 h-6 opacity-50" />
-              <h3 className="text-xl font-black">Aide Rapide</h3>
+              <h3 className="text-xl font-black">{t('regextester.quick_help')}</h3>
             </div>
             <div className="space-y-4 text-indigo-100 text-sm font-medium leading-relaxed">
               <div className="flex gap-3">
                 <code className="bg-white/10 px-2 py-0.5 rounded text-white">.</code>
-                <span>N'importe quel caractère</span>
+                <span>{t('regextester.help_dot')}</span>
               </div>
               <div className="flex gap-3">
                 <code className="bg-white/10 px-2 py-0.5 rounded text-white">\d</code>
-                <span>Un chiffre (0-9)</span>
+                <span>{t('regextester.help_digit')}</span>
               </div>
               <div className="flex gap-3">
                 <code className="bg-white/10 px-2 py-0.5 rounded text-white">\w</code>
-                <span>Un mot (a-z, A-Z, 0-9, _)</span>
+                <span>{t('regextester.help_word')}</span>
               </div>
               <div className="flex gap-3">
                 <code className="bg-white/10 px-2 py-0.5 rounded text-white">+</code>
-                <span>1 ou plusieurs occurrences</span>
+                <span>{t('regextester.help_plus')}</span>
               </div>
               <div className="flex gap-3">
                 <code className="bg-white/10 px-2 py-0.5 rounded text-white">*</code>
-                <span>0 ou plusieurs occurrences</span>
+                <span>{t('regextester.help_star')}</span>
               </div>
             </div>
           </div>

@@ -242,6 +242,7 @@ const JSONToGo = lazy(() => import("./components/JSONToGo").then(m => ({ default
 const HTMLToJSX = lazy(() => import("./components/HTMLToJSX").then(m => ({ default: m.HTMLToJSX })));
 const JSONToJava = lazy(() => import("./components/JSONToJava").then(m => ({ default: m.JSONToJava })));
 const JSONToCSharp = lazy(() => import("./components/JSONToCSharp").then(m => ({ default: m.JSONToCSharp })));
+const JsonDiff = lazy(() => import("./components/JsonDiff").then(m => ({ default: m.JsonDiff })));
 
 // ⚡ Bolt Optimization: Pre-calculating tool map and search index for O(1) lookups and faster filtering
 const toolsMap: Record<string, Tool> = {};
@@ -1613,6 +1614,17 @@ const tools: Tool[] = [
     Component: JSONToCSharp,
     category: "dev",
     keywords: ["csharp", "dotnet", "class", "json", "types"],
+  },
+  {
+    id: "json-diff",
+    name: "Diff JSON",
+    nameEn: "JSON Diff",
+    icon: Columns,
+    description: "Comparer deux objets JSON structurellement",
+    descriptionEn: "Compare two JSON objects structurally",
+    Component: JsonDiff,
+    category: "dev",
+    keywords: ["json", "diff", "compare", "normalize", "structural"],
   },
 ];
 

@@ -2,7 +2,7 @@ import { test, expect } from '@playwright/test';
 
 test('verify Ctrl+Enter keyboard shortcut in JSONToTS tool', async ({ page }) => {
   // Navigate to the JSON to TypeScript tool
-  await page.goto('http://localhost:5173/outil/json-to-ts');
+  await page.goto('http://localhost:5173/fr/outil/json-to-ts');
 
   const jsonInput = page.locator('#json-input');
   const tsOutput = page.locator('#ts-output');

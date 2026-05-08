@@ -27,6 +27,13 @@ export function CaseConverter({ initialData, onStateChange }: { initialData?: an
     'SCREAMING_SNAKE_CASE': (t: string) => t.toUpperCase().replace(/[\s-]+/g, '_'),
     'kebab-case': (t: string) => t.toLowerCase().replace(/[\s_]+/g, '-'),
     'SCREAMING-KEBAB-CASE': (t: string) => t.toUpperCase().replace(/[\s_]+/g, '-'),
+    'slugify': (t: string) => t.toLowerCase()
+      .normalize('NFD')
+      .replace(/[\u0300-\u036f]/g, '')
+      .replace(/[^a-z0-9\s-]/g, '')
+      .trim()
+      .replace(/[\s_]+/g, '-')
+      .replace(/-+/g, '-'),
     'Train-Case': (t: string) => t.toLowerCase().split(/[\s_-]+/).map(w => w.charAt(0).toUpperCase() + w.slice(1)).join('-'),
     'Header-Case': (t: string) => t.toLowerCase().split(/[\s_-]+/).map(w => w.charAt(0).toUpperCase() + w.slice(1)).join('-'),
     'dot.case': (t: string) => t.toLowerCase().replace(/[\s_-]+/g, '.'),

@@ -1,0 +1,224 @@
+import React, { useState, useMemo, useEffect } from 'react';
+import { Split, Trash2, Copy, Check, ArrowLeftRight, Info, Search, AlertCircle, RefreshCw } from 'lucide-react';
+import { useTranslation } from 'react-i18next';
+
+const MAX_LENGTH = 100000;
+
+export function JsonDiff({ initialData, onStateChange }: { initialData?: any; onStateChange?: (state: any) => void }) {
+  const { t } = useTranslation();
+  const [json1, setJson1] = useState(initialData?.json1 || '');
+  const [json2, setJson2] = useState(initialData?.json2 || '');
+  const [normalize, setNormalize] = useState(true);
+  const [copied, setCopied] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+
+  useEffect(() => {
+    onStateChange?.({ json1, json2, normalize });
+  }, [json1, json2, normalize, onStateChange]);
+
+  const handleSwap = () => {
+    const temp = json1;
+    setJson1(json2);
+    setJson2(temp);
+  };
+
+  const sortObjectKeys = (obj: any): any => {
+    if (obj === null || typeof obj !== 'object') {
+      return obj;
+    }
+    if (Array.isArray(obj)) {
+      return obj.map(sortObjectKeys);
+    }
+    const sortedKeys = Object.keys(obj).sort();
+    const result: any = {};
+    sortedKeys.forEach(key => {
+      result[key] = sortObjectKeys(obj[key]);
+    });
+    return result;
+  };
+
+  const diffResult = useMemo(() => {
+    setError(null);
+    if (!json1 && !json2) return [];
+
+    try {
+      let obj1 = json1 ? JSON.parse(json1) : {};
+      let obj2 = json2 ? JSON.parse(json2) : {};
+
+      if (normalize) {
+        obj1 = sortObjectKeys(obj1);
+        obj2 = sortObjectKeys(obj2);
+      }
+
+      const str1 = JSON.stringify(obj1, null, 2).split('\n');
+      const str2 = JSON.stringify(obj2, null, 2).split('\n');
+
+      const n = str1.length;
+      const m = str2.length;
+      const dp = Array.from({ length: n + 1 }, () => Array(m + 1).fill(0));
+
+      for (let i = 1; i <= n; i++) {
+        for (let j = 1; j <= m; j++) {
+          if (str1[i - 1] === str2[j - 1]) {
+            dp[i][j] = dp[i - 1][j - 1] + 1;
+          } else {
+            dp[i][j] = Math.max(dp[i - 1][j], dp[i][j - 1]);
+          }
+        }
+      }
+
+      const diff = [];
+      let i = n, j = m;
+      while (i > 0 || j > 0) {
+        if (i > 0 && j > 0 && str1[i - 1] === str2[j - 1]) {
+          diff.unshift({ type: 'unchanged', text: str1[i - 1] });
+          i--;
+          j--;
+        } else if (j > 0 && (i === 0 || dp[i][j - 1] >= dp[i - 1][j])) {
+          diff.unshift({ type: 'added', text: str2[j - 1] });
+          j--;
+        } else {
+          diff.unshift({ type: 'removed', text: str1[i - 1] });
+          i--;
+        }
+      }
+      return diff;
+    } catch (e) {
+      setError(t('jsondiff.error_invalid'));
+      return [];
+    }
+  }, [json1, json2, normalize, t]);
+
+  const handleCopy = () => {
+    const result = diffResult.map(item => `${item.type === 'added' ? '+' : item.type === 'removed' ? '-' : ' '} ${item.text}`).join('\n');
+    navigator.clipboard.writeText(result);
+    setCopied(true);
+    setTimeout(() => setCopied(false), 2000);
+  };
+
+  return (
+    <div className="max-w-6xl mx-auto space-y-8">
+      {error && (
+        <div className="bg-rose-50 dark:bg-rose-500/10 border border-rose-200 dark:border-rose-800 p-4 rounded-2xl flex items-center gap-3 text-rose-600 dark:text-rose-400 font-bold animate-in fade-in slide-in-from-top-2">
+          <AlertCircle className="w-5 h-5" />
+          {error}
+        </div>
+      )}
+
+      <div className="flex justify-center">
+        <button
+          onClick={() => setNormalize(!normalize)}
+          className={`flex items-center gap-2 px-6 py-2.5 rounded-xl text-sm font-bold transition-all border ${
+            normalize
+              ? 'bg-indigo-600 text-white border-indigo-600 shadow-md'
+              : 'bg-white dark:bg-slate-800 text-slate-500 border-slate-200 dark:border-slate-700 hover:border-indigo-500'
+          }`}
+        >
+          <RefreshCw className={`w-4 h-4 ${normalize ? 'animate-spin-slow' : ''}`} />
+          {t('jsondiff.normalize')}
+        </button>
+      </div>
+
+      <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-center">
+        <div className="lg:col-span-5 space-y-4">
+          <div className="flex justify-between items-center px-1">
+            <label htmlFor="json1" className="text-xs font-black uppercase tracking-widest text-slate-400 cursor-pointer">{t('jsondiff.json1')}</label>
+            <button
+              onClick={() => setJson1('')}
+              className="text-xs font-bold text-rose-500 bg-rose-50 dark:bg-rose-500/10 hover:bg-rose-100 transition-all px-2 py-1 rounded-lg flex items-center gap-1 disabled:opacity-50"
+              disabled={!json1}
+            >
+              <Trash2 className="w-3 h-3" /> {t('common.clear')}
+            </button>
+          </div>
+          <textarea
+            id="json1"
+            value={json1}
+            onChange={(e) => setJson1(e.target.value)}
+            placeholder='{ "key": "value" }'
+            className="w-full h-64 p-6 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-3xl outline-none focus:ring-2 focus:ring-indigo-500/20 transition-all font-mono text-sm leading-relaxed dark:text-slate-300 resize-none"
+          />
+        </div>
+
+        <div className="lg:col-span-2 flex justify-center">
+          <button
+            onClick={handleSwap}
+            className="w-12 h-12 bg-indigo-600 text-white rounded-full flex items-center justify-center shadow-lg shadow-indigo-600/20 transition-all hover:scale-110 active:scale-95 group"
+            aria-label={t('diffchecker.swap_aria')}
+          >
+            <ArrowLeftRight className="w-6 h-6 transition-transform group-hover:rotate-180 duration-500" />
+          </button>
+        </div>
+
+        <div className="lg:col-span-5 space-y-4">
+          <div className="flex justify-between items-center px-1">
+            <label htmlFor="json2" className="text-xs font-black uppercase tracking-widest text-slate-400 cursor-pointer">{t('jsondiff.json2')}</label>
+            <button
+              onClick={() => setJson2('')}
+              className="text-xs font-bold text-rose-500 bg-rose-50 dark:bg-rose-500/10 hover:bg-rose-100 transition-all px-2 py-1 rounded-lg flex items-center gap-1 disabled:opacity-50"
+              disabled={!json2}
+            >
+              <Trash2 className="w-3 h-3" /> {t('common.clear')}
+            </button>
+          </div>
+          <textarea
+            id="json2"
+            value={json2}
+            onChange={(e) => setJson2(e.target.value)}
+            placeholder='{ "key": "new value" }'
+            className="w-full h-64 p-6 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-3xl outline-none focus:ring-2 focus:ring-indigo-500/20 transition-all font-mono text-sm leading-relaxed dark:text-slate-300 resize-none"
+          />
+        </div>
+      </div>
+
+      <div className="bg-white dark:bg-slate-900/40 border border-slate-200 dark:border-slate-800 rounded-[2.5rem] overflow-hidden shadow-sm">
+        <div className="bg-slate-50 dark:bg-slate-900/50 px-8 py-4 border-b border-slate-200 dark:border-slate-800 flex justify-between items-center">
+          <div className="flex items-center gap-3">
+            <div className="p-2 bg-indigo-50 dark:bg-indigo-900/20 rounded-xl">
+              <Split className="w-5 h-5 text-indigo-500" />
+            </div>
+            <span className="font-black text-slate-900 dark:text-white uppercase tracking-widest text-xs">{t('jsondiff.title')}</span>
+          </div>
+          <button
+            onClick={handleCopy}
+            disabled={diffResult.length === 0}
+            className={`text-xs font-bold px-4 py-2 rounded-xl transition-all flex items-center gap-2 border ${
+              copied
+                ? 'bg-emerald-50 dark:bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border-emerald-200 dark:border-emerald-500/20'
+                : 'bg-white dark:bg-slate-800 text-slate-600 dark:text-slate-300 border-slate-200 dark:border-slate-700 hover:border-slate-300'
+            } disabled:opacity-50`}
+          >
+            {copied ? <Check className="w-3.5 h-3.5" /> : <Copy className="w-3.5 h-3.5" />}
+            {copied ? t('common.copied') : t('common.copy')}
+          </button>
+        </div>
+        <div className="p-8 font-mono text-sm space-y-1 overflow-x-auto max-h-[500px]">
+          {diffResult.length === 0 ? (
+            <div className="text-center py-12 px-4 space-y-3">
+              <div className="w-12 h-12 bg-slate-100 dark:bg-slate-800 rounded-full flex items-center justify-center mx-auto text-slate-300">
+                <Search className="w-6 h-6" />
+              </div>
+              <p className="text-sm font-medium text-slate-400 italic">{t('jsondiff.no_diff')}</p>
+            </div>
+          ) : (
+            diffResult.map((item, index) => (
+              <div
+                key={index}
+                className={`flex gap-4 px-3 py-0.5 rounded border ${
+                  item.type === 'added' ? 'bg-emerald-50 border-emerald-100 text-emerald-800 dark:bg-emerald-500/10 dark:border-emerald-500/20 dark:text-emerald-400' :
+                  item.type === 'removed' ? 'bg-rose-50 border-rose-100 text-rose-800 dark:bg-rose-500/10 dark:border-rose-500/20 dark:text-rose-400' :
+                  'text-slate-600 dark:text-slate-400 border-transparent'
+                }`}
+              >
+                <span className="w-4 select-none opacity-50 font-black flex-shrink-0">
+                  {item.type === 'added' ? '+' : item.type === 'removed' ? '-' : ' '}
+                </span>
+                <span className="whitespace-pre break-all">{item.text}</span>
+              </div>
+            ))
+          )}
+        </div>
+      </div>
+    </div>
+  );
+}

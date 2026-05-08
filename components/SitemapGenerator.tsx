@@ -9,6 +9,21 @@ interface SitemapURL {
 }
 
 const MAX_URLS = 1000;
+const MAX_LENGTH = 50000;
+
+const escapeXml = (unsafe: any) => {
+  if (typeof unsafe !== 'string') return String(unsafe);
+  return unsafe.replace(/[<>&"']/g, (c) => {
+    switch (c) {
+      case '<': return '&lt;';
+      case '>': return '&gt;';
+      case '&': return '&amp;';
+      case '"': return '&quot;';
+      case "'": return '&apos;';
+      default: return c;
+    }
+  });
+};
 
 export function SitemapGenerator({ initialData, onStateChange }: { initialData?: any; onStateChange?: (state: any) => void }) {
   const [urls, setUrls] = useState<SitemapURL[]>(initialData?.urls || [{ url: 'https://example.com/', priority: '1.0', changefreq: 'daily' }]);
@@ -35,14 +50,21 @@ export function SitemapGenerator({ initialData, onStateChange }: { initialData?:
       urls.forEach((item) => {
         if (!item.url) return;
         xml += '  <url>\n';
-        xml += `    <loc>${item.url}</loc>\n`;
-        if (item.lastmod) xml += `    <lastmod>${item.lastmod}</lastmod>\n`;
-        if (item.changefreq) xml += `    <changefreq>${item.changefreq}</changefreq>\n`;
-        if (item.priority) xml += `    <priority>${item.priority}</priority>\n`;
+        xml += `    <loc>${escapeXml(item.url)}</loc>\n`;
+        if (item.lastmod) xml += `    <lastmod>${escapeXml(item.lastmod)}</lastmod>\n`;
+        if (item.changefreq) xml += `    <changefreq>${escapeXml(item.changefreq)}</changefreq>\n`;
+        if (item.priority) xml += `    <priority>${escapeXml(item.priority)}</priority>\n`;
         xml += '  </url>\n';
       });
 
       xml += '</urlset>';
+
+      if (xml.length > MAX_LENGTH) {
+        setError(`The generated sitemap is too large (limit of ${MAX_LENGTH.toLocaleString()} characters).`);
+        setOutput('');
+        return;
+      }
+
       setOutput(xml);
     } catch (e: any) {
       setError('Erreur de génération : ' + e.message);
@@ -66,6 +88,7 @@ export function SitemapGenerator({ initialData, onStateChange }: { initialData?:
   };
 
   const updateUrl = (index: number, field: keyof SitemapURL, value: string) => {
+    if (value.length > 2048) return; // Mitigation: limit individual field length
     const newUrls = [...urls];
     newUrls[index] = { ...newUrls[index], [field]: value };
     setUrls(newUrls);
@@ -92,6 +115,10 @@ export function SitemapGenerator({ initialData, onStateChange }: { initialData?:
   };
 
   const handleBulkAdd = (text: string) => {
+    if (text.length > MAX_LENGTH) {
+      setError(`Input is too long. Limit of ${MAX_LENGTH.toLocaleString()} characters.`);
+      return;
+    }
     const lines = text.split('\n').map(l => l.trim()).filter(l => l.startsWith('http'));
     if (lines.length + urls.length > MAX_URLS) {
       setError(`L'ajout de ces URLs dépasserait la limite de ${MAX_URLS}.`);

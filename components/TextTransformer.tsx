@@ -1,5 +1,8 @@
 import { useState, useEffect, useCallback } from 'react';
-import { Type, Copy, Check, Trash2, RefreshCw, Info, Share2, Download } from 'lucide-react';
+import { Type, Copy, Check, Trash2, RefreshCw, Info, Share2, Download, AlertCircle } from 'lucide-react';
+import { useTranslation } from 'react-i18next';
+
+const MAX_LENGTH = 10000;
 
 const UPSIDE_DOWN_MAP: Record<string, string> = {
   'a': 'ɐ', 'b': 'q', 'c': 'ɔ', 'd': 'p', 'e': 'ǝ', 'f': 'ɟ', 'g': 'ƃ', 'h': 'ɥ', 'i': 'ᴉ', 'j': 'ɾ',
@@ -36,11 +39,28 @@ const ZALGO_MID = ['\u0315', '\u031b', '\u0324', '\u0325', '\u0326', '\u0327', '
 const ZALGO_DOWN = ['\u0316', '\u0317', '\u0318', '\u0319', '\u031c', '\u031d', '\u031e', '\u031f', '\u0320', '\u0321', '\u0322', '\u0327', '\u0328', '\u0329', '\u032a', '\u032b', '\u032c', '\u032d', '\u032e', '\u032f', '\u0330', '\u0331', '\u0332', '\u0333', '\u0339', '\u033a', '\u033b', '\u033c', '\u0345', '\u0347', '\u0348', '\u0349', '\u034d', '\u034e', '\u0353', '\u0354', '\u0355', '\u0356', '\u0359', '\u035a', '\u035c', '\u035d', '\u035e', '\u035f', '\u0360', '\u0361', '\u0362'];
 
 export function TextTransformer({ initialData, onStateChange }: { initialData?: any; onStateChange?: (state: any) => void }) {
+  const { t } = useTranslation();
   const [input, setInput] = useState(initialData?.input || '');
   const [transform, setTransform] = useState<TransformType>(initialData?.transform || 'reverse');
   const [intensity, setIntensity] = useState(initialData?.intensity || 5);
   const [output, setOutput] = useState('');
+  const [error, setError] = useState<string | null>(null);
   const [copied, setCopied] = useState(false);
+
+  // Sentinel: Use cryptographically secure random values with rejection sampling
+  // to prevent bias and ensure high-quality entropy for transformations.
+  const getSecureRandom = useCallback((range: number): number => {
+    if (range <= 0) return 0;
+    const array = new Uint32Array(1);
+    const maxUint32 = 0xffffffff;
+    const limit = maxUint32 - (maxUint32 % range);
+    let randomVal;
+    do {
+      window.crypto.getRandomValues(array);
+      randomVal = array[0];
+    } while (randomVal >= limit);
+    return randomVal % range;
+  }, []);
 
   useEffect(() => {
     onStateChange?.({ input, transform, intensity });
@@ -61,19 +81,25 @@ export function TextTransformer({ initialData, onStateChange }: { initialData?: 
           if (/\s/.test(char)) return char;
           let result = char;
           for (let i = 0; i < lvl; i++) {
-            result += ZALGO_UP[Math.floor(Math.random() * ZALGO_UP.length)];
-            result += ZALGO_MID[Math.floor(Math.random() * ZALGO_MID.length)];
-            result += ZALGO_DOWN[Math.floor(Math.random() * ZALGO_DOWN.length)];
+            result += ZALGO_UP[getSecureRandom(ZALGO_UP.length)];
+            result += ZALGO_MID[getSecureRandom(ZALGO_MID.length)];
+            result += ZALGO_DOWN[getSecureRandom(ZALGO_DOWN.length)];
           }
           return result;
         }).join('');
       default:
         return text;
     }
-  }, []);
+  }, [getSecureRandom]);
 
   useEffect(() => {
-    setOutput(applyTransform(input, transform, intensity));
+    if (input.length > MAX_LENGTH) {
+      setError(t('error.max_length', { max: MAX_LENGTH.toLocaleString() }));
+      setOutput('');
+    } else {
+      setError(null);
+      setOutput(applyTransform(input, transform, intensity));
+    }
   }, [input, transform, intensity, applyTransform]);
 
   const handleCopy = () => {
@@ -100,6 +126,13 @@ export function TextTransformer({ initialData, onStateChange }: { initialData?: 
 
   return (
     <div className="max-w-4xl mx-auto space-y-8">
+      {error && (
+        <div className="bg-rose-50 dark:bg-rose-500/10 border border-rose-200 dark:border-rose-800 p-4 rounded-2xl flex items-center gap-3 text-rose-600 dark:text-rose-400 font-bold animate-in fade-in slide-in-from-top-2">
+          <AlertCircle className="w-5 h-5" />
+          {error}
+        </div>
+      )}
+
       <div className="space-y-4">
         <div className="flex justify-between items-center px-1">
           <label htmlFor="transformer-input" className="text-xs font-black uppercase tracking-widest text-slate-400 cursor-pointer flex items-center gap-2">

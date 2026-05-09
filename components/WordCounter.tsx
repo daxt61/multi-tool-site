@@ -37,6 +37,9 @@ export function WordCounter({ initialData, onStateChange }: { initialData?: any;
         writingTime: 0,
         ari: 0,
         ariGrade: 'N/A',
+        flesch: 0,
+        fleschLevel: 'N/A',
+        fogIndex: 0,
         topWords: [],
         topBigrams: [],
         charFreq: [] as [string, number][]
@@ -126,6 +129,19 @@ export function WordCounter({ initialData, onStateChange }: { initialData?: any;
       flesch = 206.835 - (1.015 * asl) - (84.6 * asw);
     }
 
+    // Gunning Fog Index
+    // Grade Level = 0.4 * ( (words / sentences) + 100 * (complex_words / words) )
+    // where complex_words are words with 3 or more syllables.
+    let complexWords = 0;
+    words.forEach((w: string) => {
+      if (countSyllables(w) >= 3) complexWords++;
+    });
+
+    let fogIndex = 0;
+    if (wordCount > 0 && sentenceCount > 0) {
+      fogIndex = 0.4 * ((wordCount / sentenceCount) + 100 * (complexWords / wordCount));
+    }
+
     const getFleschLevel = (score: number) => {
       if (score >= 90) return t('wordcounter.flesch.very_easy');
       if (score >= 80) return t('wordcounter.flesch.easy');
@@ -155,6 +171,7 @@ export function WordCounter({ initialData, onStateChange }: { initialData?: any;
       ariGrade: getAriGrade(ari),
       flesch: flesch.toFixed(1),
       fleschLevel: getFleschLevel(flesch),
+      fogIndex: fogIndex.toFixed(1),
       topWords,
       topBigrams,
       charFreq
@@ -208,6 +225,7 @@ export function WordCounter({ initialData, onStateChange }: { initialData?: any;
 - ${t('wordcounter.stat.sentences')}: ${stats.sentences}
 - ${t('wordcounter.stat.readability')} (ARI): ${stats.ari} (${stats.ariGrade})
 - ${t('wordcounter.stat.flesch')}: ${stats.flesch} (${stats.fleschLevel})
+- Gunning Fog Index: ${stats.fogIndex}
 - ${t('wordcounter.stat.reading_time')}: ~${stats.readingTime.toFixed(1)} min
 - ${t('wordcounter.stat.speaking_time')}: ~${stats.speakingTime.toFixed(1)} min`;
 
@@ -296,6 +314,7 @@ export function WordCounter({ initialData, onStateChange }: { initialData?: any;
           { icon: <FileText className="w-4 h-4" />, label: t('wordcounter.stat.lines'), value: stats.lines },
           { icon: <Pilcrow className="w-4 h-4" />, label: t('wordcounter.stat.paragraphs'), value: stats.paragraphs },
           { icon: <AlignLeft className="w-4 h-4" />, label: t('wordcounter.stat.sentences'), value: stats.sentences },
+          { icon: <Star className="w-4 h-4" />, label: t('wordcounter.stat.fog'), value: stats.fogIndex },
           { icon: <Star className="w-4 h-4" />, label: t('wordcounter.stat.readability'), value: stats.ariGrade },
           { icon: <Clock className="w-4 h-4" />, label: t('wordcounter.stat.reading'), value: formatTime(stats.readingTime) },
           { icon: <MessageSquare className="w-4 h-4" />, label: t('wordcounter.stat.speaking'), value: formatTime(stats.speakingTime) },

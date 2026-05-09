@@ -242,6 +242,11 @@ const JSONToGo = lazy(() => import("./components/JSONToGo").then(m => ({ default
 const HTMLToJSX = lazy(() => import("./components/HTMLToJSX").then(m => ({ default: m.HTMLToJSX })));
 const JSONToJava = lazy(() => import("./components/JSONToJava").then(m => ({ default: m.JSONToJava })));
 const JSONToCSharp = lazy(() => import("./components/JSONToCSharp").then(m => ({ default: m.JSONToCSharp })));
+const JSONToPython = lazy(() => import("./components/JSONToPython").then(m => ({ default: m.JSONToPython })));
+const JSONToRust = lazy(() => import("./components/JSONToRust").then(m => ({ default: m.JSONToRust })));
+const JSONToPHP = lazy(() => import("./components/JSONToPHP").then(m => ({ default: m.JSONToPHP })));
+const JSONToKotlin = lazy(() => import("./components/JSONToKotlin").then(m => ({ default: m.JSONToKotlin })));
+const JSONToDart = lazy(() => import("./components/JSONToDart").then(m => ({ default: m.JSONToDart })));
 const JsonDiff = lazy(() => import("./components/JsonDiff").then(m => ({ default: m.JsonDiff })));
 
 // ⚡ Bolt Optimization: Pre-calculating tool map and search index for O(1) lookups and faster filtering
@@ -1614,6 +1619,61 @@ const tools: Tool[] = [
     Component: JSONToCSharp,
     category: "dev",
     keywords: ["csharp", "dotnet", "class", "json", "types"],
+  },
+  {
+    id: "json-to-python",
+    name: "JSON en Python",
+    nameEn: "JSON to Python",
+    icon: Code,
+    description: "Convertir du JSON en classes Python",
+    descriptionEn: "Convert JSON to Python classes",
+    Component: JSONToPython,
+    category: "dev",
+    keywords: ["python", "dataclass", "json", "types"],
+  },
+  {
+    id: "json-to-rust",
+    name: "JSON en Rust",
+    nameEn: "JSON to Rust",
+    icon: Code,
+    description: "Convertir du JSON en structures Rust",
+    descriptionEn: "Convert JSON to Rust structs",
+    Component: JSONToRust,
+    category: "dev",
+    keywords: ["rust", "struct", "json", "types", "serde"],
+  },
+  {
+    id: "json-to-php",
+    name: "JSON en PHP",
+    nameEn: "JSON to PHP",
+    icon: Code,
+    description: "Convertir du JSON en classes PHP",
+    descriptionEn: "Convert JSON to PHP classes",
+    Component: JSONToPHP,
+    category: "dev",
+    keywords: ["php", "class", "json", "types"],
+  },
+  {
+    id: "json-to-kotlin",
+    name: "JSON en Kotlin",
+    nameEn: "JSON to Kotlin",
+    icon: Coffee,
+    description: "Convertir du JSON en classes Kotlin",
+    descriptionEn: "Convert JSON to Kotlin data classes",
+    Component: JSONToKotlin,
+    category: "dev",
+    keywords: ["kotlin", "data class", "json", "types"],
+  },
+  {
+    id: "json-to-dart",
+    name: "JSON en Dart",
+    nameEn: "JSON to Dart",
+    icon: Code,
+    description: "Convertir du JSON en classes Dart",
+    descriptionEn: "Convert JSON to Dart classes",
+    Component: JSONToDart,
+    category: "dev",
+    keywords: ["dart", "flutter", "class", "json", "types"],
   },
   {
     id: "json-diff",

@@ -1,7 +1,8 @@
 import { useState, useEffect, useCallback, useMemo } from 'react';
 import { Copy, RefreshCw, Check, Shield, ShieldAlert, ShieldCheck, Key, BookOpen, Trash2, Download, Eye, EyeOff, AlertCircle, Info, Activity } from 'lucide-react';
+import { useTranslation } from 'react-i18next';
 
-const WORDS = [
+const WORDS_FR = [
   'bleu', 'rouge', 'vert', 'jaune', 'noir', 'blanc', 'orange', 'rose', 'gris', 'brun', 'violet', 'marron', 'argent', 'or', 'indigo', 'turquoise', 'beige', 'ocre', 'cyan', 'lime',
   'petit', 'grand', 'rapide', 'lent', 'fort', 'faible', 'chaud', 'froid', 'beau', 'jeune', 'vieux', 'riche', 'pauvre', 'doux', 'dur', 'leger', 'lourd', 'propre', 'sale', 'neuf', 'ancien', 'haut', 'bas', 'large', 'etroit', 'rond', 'carre', 'plat', 'amer', 'sucre',
   'chat', 'chien', 'oiseau', 'lion', 'tigre', 'ours', 'loup', 'renard', 'lapin', 'singe', 'cheval', 'vache', 'cochon', 'poule', 'canard', 'souris', 'rat', 'serpent', 'tortue', 'grenouille', 'poisson', 'requin', 'baleine', 'dauphin', 'abeille', 'fourmi', 'mouche', 'papillon', 'araignee', 'hibou',
@@ -16,7 +17,23 @@ const WORDS = [
   'marche', 'course', 'vol', 'nage', 'saut', 'cri', 'appel', 'jeu', 'sport', 'fight', 'choc', 'clic', 'zoom', 'scan', 'flux', 'bloc', 'lien', 'post', 'mail', 'chat', 'quiz', 'test', 'avis', 'plan', 'prix', 'gain', 'perte', 'choix', 'vue'
 ];
 
+const WORDS_EN = [
+  'blue', 'red', 'green', 'yellow', 'black', 'white', 'orange', 'pink', 'gray', 'brown', 'purple', 'silver', 'gold', 'indigo', 'turquoise', 'beige', 'cyan', 'lime',
+  'small', 'large', 'fast', 'slow', 'strong', 'weak', 'hot', 'cold', 'beautiful', 'young', 'old', 'rich', 'poor', 'soft', 'hard', 'light', 'heavy', 'clean', 'dirty', 'new', 'old', 'high', 'low', 'wide', 'narrow', 'round', 'square', 'flat', 'bitter', 'sweet',
+  'cat', 'dog', 'bird', 'lion', 'tiger', 'bear', 'wolf', 'fox', 'rabbit', 'monkey', 'horse', 'cow', 'pig', 'chicken', 'duck', 'mouse', 'rat', 'snake', 'turtle', 'frog', 'fish', 'shark', 'whale', 'dolphin', 'bee', 'ant', 'fly', 'butterfly', 'spider', 'owl',
+  'house', 'garden', 'tree', 'flower', 'sun', 'moon', 'star', 'sea', 'wind', 'rain', 'snow', 'ice', 'cloud', 'storm', 'thunder', 'earth', 'sky', 'mountain', 'valley', 'river', 'lake', 'ocean', 'forest', 'desert', 'beach', 'island', 'rock', 'sand', 'grass', 'bush',
+  'apple', 'bread', 'water', 'milk', 'coffee', 'tea', 'sugar', 'salt', 'rice', 'pasta', 'egg', 'cheese', 'butter', 'meat', 'fruit', 'vegetable', 'soup', 'salad', 'honey', 'chocolate', 'cake', 'pizza', 'juice', 'wine', 'beer', 'nut', 'almond', 'strawberry', 'banana', 'lemon',
+  'table', 'chair', 'door', 'window', 'bed', 'closet', 'mirror', 'rug', 'curtain', 'sofa', 'lamp', 'desk', 'kitchen', 'living', 'shower', 'key', 'bag', 'box', 'glass', 'bowl', 'oven', 'fridge', 'pan', 'plate', 'knife', 'fork', 'spoon', 'towel', 'broom', 'soap',
+  'book', 'pen', 'screen', 'road', 'bridge', 'city', 'village', 'plane', 'train', 'bike', 'car', 'boat', 'motor', 'bus', 'truck', 'rocket', 'engine', 'speed', 'phone', 'comp', 'keyboard', 'mouse', 'watch', 'tool', 'hammer', 'saw', 'screw', 'nail', 'glue', 'paper',
+  'joy', 'peace', 'love', 'hope', 'force', 'mind', 'reason', 'action', 'work', 'success', 'life', 'death', 'time', 'hour', 'minute', 'second', 'day', 'night', 'morning', 'evening', 'noon', 'north', 'south', 'east', 'west', 'right', 'left', 'center', 'goal', 'name',
+  'head', 'body', 'arm', 'hand', 'finger', 'leg', 'foot', 'back', 'heart', 'blood', 'skin', 'bone', 'nerve', 'eye', 'nose', 'mouth', 'ear', 'hair', 'voice', 'breath', 'laugh', 'cry', 'sleep', 'dream', 'idea', 'sense', 'taste', 'smell', 'hunger', 'thirst',
+  'music', 'dance', 'paint', 'movie', 'theater', 'poem', 'story', 'song', 'piano', 'guitar', 'violin', 'drum', 'trumpet', 'harp', 'flute', 'organ', 'bell', 'rhythm', 'sound', 'note', 'film', 'page', 'museum', 'art', 'draw', 'image', 'photo', 'color', 'shape',
+  'space', 'atom', 'photon', 'wave', 'mass', 'weight', 'metal', 'steel', 'iron', 'copper', 'platinum', 'plastic', 'code', 'web', 'site', 'app', 'bug', 'data', 'cloud', 'pixel', 'byte', 'bit', 'hertz', 'volt', 'watt',
+  'walk', 'run', 'flight', 'swim', 'jump', 'shout', 'call', 'game', 'sport', 'fight', 'shock', 'click', 'zoom', 'scan', 'flow', 'block', 'link', 'post', 'mail', 'chat', 'quiz', 'test', 'view', 'plan', 'price', 'gain', 'loss', 'choice'
+];
+
 export function PasswordGenerator({ initialData, onStateChange }: { initialData?: any; onStateChange?: (state: any) => void }) {
+  const { t, i18n } = useTranslation();
   const [mode, setMode] = useState<'random' | 'passphrase'>(initialData?.mode || 'random');
   const [password, setPassword] = useState('');
   const [length, setLength] = useState(initialData?.length || 16);
@@ -76,8 +93,9 @@ export function PasswordGenerator({ initialData, onStateChange }: { initialData?
       setHistory(prev => [newPassword, ...prev].slice(0, 5));
     } else {
       const selectedWords = [];
+      const wordList = i18n.language === 'en' ? WORDS_EN : WORDS_FR;
       for (let i = 0; i < wordCount; i++) {
-        let word = WORDS[getSecureRandomIndex(WORDS.length)];
+        let word = wordList[getSecureRandomIndex(wordList.length)];
         if (capitalizeWords) {
           word = word.charAt(0).toUpperCase() + word.slice(1);
         }
@@ -96,7 +114,7 @@ export function PasswordGenerator({ initialData, onStateChange }: { initialData?
       setHistory(prev => [res, ...prev].slice(0, 5));
     }
     setCopied(false);
-  }, [mode, includeUppercase, includeLowercase, includeNumbers, includeSymbols, excludeSimilar, length, wordCount, capitalizeWords, addNumber, addSymbol, getSecureRandomIndex]);
+  }, [mode, includeUppercase, includeLowercase, includeNumbers, includeSymbols, excludeSimilar, length, wordCount, capitalizeWords, addNumber, addSymbol, getSecureRandomIndex, i18n.language]);
 
   useEffect(() => {
     generatePassword();
@@ -128,21 +146,22 @@ export function PasswordGenerator({ initialData, onStateChange }: { initialData?
       return Math.floor(password.length * Math.log2(Math.max(charsetSize, 1)));
     } else {
       // Passphrase entropy: log2(wordlist_size ^ word_count)
-      const baseEntropy = wordCount * Math.log2(WORDS.length);
+      const wordListSize = i18n.language === 'en' ? WORDS_EN.length : WORDS_FR.length;
+      const baseEntropy = wordCount * Math.log2(wordListSize);
       const extraEntropy = (addNumber ? Math.log2(10) : 0) + (addSymbol ? Math.log2(8) : 0);
       return Math.floor(baseEntropy + extraEntropy);
     }
-  }, [password, mode, includeUppercase, includeLowercase, includeNumbers, includeSymbols, excludeSimilar, wordCount, addNumber, addSymbol]);
+  }, [password, mode, includeUppercase, includeLowercase, includeNumbers, includeSymbols, excludeSimilar, wordCount, addNumber, addSymbol, i18n.language]);
 
   const strength = useMemo(() => {
     if (!password) return { label: '', color: 'bg-slate-200', icon: <ShieldAlert />, feedback: '' };
 
-    if (entropy < 40) return { label: 'Très Faible', color: 'bg-rose-600', icon: <ShieldAlert className="w-4 h-4" />, feedback: 'Facilement cassable par force brute.' };
-    if (entropy < 60) return { label: 'Faible', color: 'bg-rose-400', icon: <ShieldAlert className="w-4 h-4" />, feedback: 'Augmentez la longueur pour plus de sécurité.' };
-    if (entropy < 80) return { label: 'Moyen', color: 'bg-amber-500', icon: <Shield className="w-4 h-4" />, feedback: 'Sécurité correcte pour un usage standard.' };
-    if (entropy < 100) return { label: 'Fort', color: 'bg-emerald-500', icon: <ShieldCheck className="w-4 h-4" />, feedback: 'Très robuste contre les attaques modernes.' };
-    return { label: 'Excellent', color: 'bg-indigo-600', icon: <ShieldCheck className="w-4 h-4" />, feedback: 'Niveau de sécurité militaire (Haute entropie).' };
-  }, [password, entropy]);
+    if (entropy < 40) return { label: t('passwordgenerator.strength.very_weak'), color: 'bg-rose-600', icon: <ShieldAlert className="w-4 h-4" />, feedback: t('passwordgenerator.feedback.very_weak') };
+    if (entropy < 60) return { label: t('passwordgenerator.strength.weak'), color: 'bg-rose-400', icon: <ShieldAlert className="w-4 h-4" />, feedback: t('passwordgenerator.feedback.weak') };
+    if (entropy < 80) return { label: t('passwordgenerator.strength.medium'), color: 'bg-amber-500', icon: <Shield className="w-4 h-4" />, feedback: t('passwordgenerator.feedback.medium') };
+    if (entropy < 100) return { label: t('passwordgenerator.strength.strong'), color: 'bg-emerald-500', icon: <ShieldCheck className="w-4 h-4" />, feedback: t('passwordgenerator.feedback.strong') };
+    return { label: t('passwordgenerator.strength.excellent'), color: 'bg-indigo-600', icon: <ShieldCheck className="w-4 h-4" />, feedback: t('passwordgenerator.feedback.excellent') };
+  }, [password, entropy, t]);
 
   const handleClear = () => {
     setPassword('');
@@ -205,14 +224,14 @@ export function PasswordGenerator({ initialData, onStateChange }: { initialData?
           disabled={!password}
           className="text-xs font-bold text-indigo-600 bg-indigo-50 dark:bg-indigo-500/10 hover:bg-indigo-100 dark:hover:bg-indigo-500/20 px-3 py-1.5 rounded-xl flex items-center gap-1 transition-all disabled:opacity-50 disabled:cursor-not-allowed focus-visible:ring-2 focus-visible:ring-indigo-500 focus-visible:outline-none"
         >
-          <Download className="w-3 h-3" /> Télécharger
+          <Download className="w-3 h-3" /> {t('common.download')}
         </button>
         <button
           onClick={handleClear}
           disabled={!password}
           className="text-xs font-bold text-rose-500 bg-rose-50 dark:bg-rose-500/10 hover:bg-rose-100 dark:hover:bg-rose-500/20 px-3 py-1.5 rounded-xl flex items-center gap-1 transition-all disabled:opacity-50 disabled:cursor-not-allowed focus-visible:ring-2 focus-visible:ring-rose-500 focus-visible:outline-none"
         >
-          <Trash2 className="w-3 h-3" /> Effacer
+          <Trash2 className="w-3 h-3" /> {t('common.clear')}
         </button>
       </div>
 
@@ -227,7 +246,7 @@ export function PasswordGenerator({ initialData, onStateChange }: { initialData?
                 : 'text-slate-500 hover:text-slate-900 dark:hover:text-slate-300'
             }`}
           >
-            <Key className="w-4 h-4" /> Aléatoire
+            <Key className="w-4 h-4" /> {t('passwordgenerator.random')}
           </button>
           <button
             onClick={() => setMode('passphrase')}
@@ -237,7 +256,7 @@ export function PasswordGenerator({ initialData, onStateChange }: { initialData?
                 : 'text-slate-500 hover:text-slate-900 dark:hover:text-slate-300'
             }`}
           >
-            <BookOpen className="w-4 h-4" /> Mémorable
+            <BookOpen className="w-4 h-4" /> {t('passwordgenerator.passphrase')}
           </button>
         </div>
       </div>
@@ -250,6 +269,7 @@ export function PasswordGenerator({ initialData, onStateChange }: { initialData?
               type={showPassword ? "text" : "password"}
               value={password}
               readOnly
+              id="password-output"
               className={`w-full bg-transparent font-mono text-white outline-none tracking-tight text-center md:text-left selection:bg-indigo-500/30 ${
                 password.length > 30 ? 'text-2xl md:text-3xl' : 'text-3xl md:text-5xl'
               } ${!showPassword ? 'text-transparent' : ''}`}
@@ -269,8 +289,8 @@ export function PasswordGenerator({ initialData, onStateChange }: { initialData?
             <button
               onClick={() => setShowPassword(!showPassword)}
               className="p-4 bg-white/10 hover:bg-white/20 text-white rounded-2xl transition-all active:scale-95 focus-visible:ring-2 focus-visible:ring-indigo-500 focus-visible:outline-none flex items-center gap-2"
-              title={showPassword ? "Masquer (V)" : "Afficher (V)"}
-              aria-label={showPassword ? "Masquer le mot de passe (V)" : "Afficher le mot de passe (V)"}
+              title={showPassword ? `${t('passwordgenerator.hide')} (V)` : `${t('passwordgenerator.show')} (V)`}
+              aria-label={showPassword ? `${t('passwordgenerator.hide_aria')} (V)` : `${t('passwordgenerator.show_aria')} (V)`}
             >
               {showPassword ? <EyeOff className="w-6 h-6" /> : <Eye className="w-6 h-6" />}
               <kbd className="hidden sm:inline-flex items-center justify-center w-5 h-5 border border-white/20 rounded text-[10px] font-bold bg-white/5 text-white/50">V</kbd>
@@ -278,8 +298,8 @@ export function PasswordGenerator({ initialData, onStateChange }: { initialData?
             <button
               onClick={generatePassword}
               className="p-4 bg-white/10 hover:bg-white/20 text-white rounded-2xl transition-all active:scale-95 focus-visible:ring-2 focus-visible:ring-indigo-500 focus-visible:outline-none group/regen flex items-center gap-2"
-              title="Régénérer (R)"
-              aria-label="Régénérer le mot de passe (R)"
+              title={`${t('passwordgenerator.regenerate')} (R)`}
+              aria-label={`${t('passwordgenerator.regenerate_aria')} (R)`}
             >
               <RefreshCw className="w-6 h-6 transition-transform duration-500 group-hover/regen:rotate-180" />
               <kbd className="hidden sm:inline-flex items-center justify-center w-5 h-5 border border-white/20 rounded text-[10px] font-bold bg-white/5 text-white/50">R</kbd>
@@ -291,11 +311,11 @@ export function PasswordGenerator({ initialData, onStateChange }: { initialData?
                   ? 'bg-emerald-50 dark:bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border-emerald-200 dark:border-emerald-500/20'
                   : 'bg-white text-slate-900 border-transparent hover:bg-slate-100'
               }`}
-              title="Copier (C)"
-              aria-label="Copier le mot de passe (C)"
+              title={`${t('common.copy')} (C)`}
+              aria-label={`${t('common.copy')} (C)`}
             >
               {copied ? <Check className="w-6 h-6" /> : <Copy className="w-6 h-6" />}
-              {copied ? 'Copié' : 'Copier'}
+              {copied ? t('common.copied') : t('common.copy')}
               <kbd className={`ml-1 hidden sm:inline-flex items-center justify-center w-5 h-5 border rounded text-[10px] font-bold ${
                 copied
                   ? 'bg-emerald-500/10 border-emerald-500/20 text-emerald-600'
@@ -324,11 +344,11 @@ export function PasswordGenerator({ initialData, onStateChange }: { initialData?
             <div className="flex items-center gap-6">
               <div className="text-center">
                 <div className="text-white font-mono text-xl font-black">{entropy}</div>
-                <div className="text-[10px] text-white/40 font-black uppercase tracking-widest">Bits Entropie</div>
+                <div className="text-[10px] text-white/40 font-black uppercase tracking-widest">{t('passwordgenerator.entropy_bits')}</div>
               </div>
               <div className="text-right">
                 <div className="text-white/40 font-bold text-sm tracking-widest uppercase">
-                  {mode === 'random' ? `${password.length} caractères` : `${wordCount} mots`}
+                  {mode === 'random' ? t('passwordgenerator.char_count', { count: password.length }) : t('passwordgenerator.word_count_label', { count: wordCount })}
                 </div>
               </div>
             </div>
@@ -340,7 +360,7 @@ export function PasswordGenerator({ initialData, onStateChange }: { initialData?
         <div className="bg-slate-50 dark:bg-slate-900/50 p-6 rounded-[2rem] border border-slate-200 dark:border-slate-800 animate-in fade-in slide-in-from-top-2">
           <div className="flex items-center justify-between mb-4 px-2">
             <h3 className="text-[10px] font-black uppercase tracking-widest text-slate-400 flex items-center gap-2">
-              <RefreshCw className="w-3 h-3" /> Historique récent
+              <RefreshCw className="w-3 h-3" /> {t('passwordgenerator.recent_history')}
             </h3>
             <button
               onClick={copyHistoryAll}
@@ -351,7 +371,7 @@ export function PasswordGenerator({ initialData, onStateChange }: { initialData?
               }`}
             >
               {copiedHistoryAll ? <Check className="w-3 h-3" /> : <Copy className="w-3 h-3" />}
-              {copiedHistoryAll ? 'Copié' : 'Tout copier'}
+              {copiedHistoryAll ? t('common.copied') : t('passwordgenerator.copy_all')}
             </button>
           </div>
           <div className="flex flex-wrap gap-2">
@@ -385,7 +405,7 @@ export function PasswordGenerator({ initialData, onStateChange }: { initialData?
           {mode === 'random' ? (
             <div className="space-y-6">
               <div className="flex justify-between items-center px-1">
-                <label htmlFor="password-length" className="text-xs font-black uppercase tracking-widest text-slate-400 cursor-pointer">Longueur</label>
+                <label htmlFor="password-length" className="text-xs font-black uppercase tracking-widest text-slate-400 cursor-pointer">{t('passwordgenerator.length')}</label>
                 <span className="text-2xl font-black font-mono text-indigo-600 dark:text-indigo-400">{length}</span>
               </div>
               <input
@@ -401,7 +421,7 @@ export function PasswordGenerator({ initialData, onStateChange }: { initialData?
           ) : (
             <div className="space-y-6">
               <div className="flex justify-between items-center px-1">
-                <label htmlFor="word-count" className="text-xs font-black uppercase tracking-widest text-slate-400 cursor-pointer">Nombre de mots</label>
+                <label htmlFor="word-count" className="text-xs font-black uppercase tracking-widest text-slate-400 cursor-pointer">{t('passwordgenerator.word_count')}</label>
                 <span className="text-2xl font-black font-mono text-indigo-600 dark:text-indigo-400">{wordCount}</span>
               </div>
               <input
@@ -419,11 +439,11 @@ export function PasswordGenerator({ initialData, onStateChange }: { initialData?
           {mode === 'random' && (
             <div className="grid grid-cols-2 gap-3">
               {[
-                { label: 'Majuscules', state: includeUppercase, setState: setIncludeUppercase },
-                { label: 'Minuscules', state: includeLowercase, setState: setIncludeLowercase },
-                { label: 'Chiffres', state: includeNumbers, setState: setIncludeNumbers },
-                { label: 'Symboles', state: includeSymbols, setState: setIncludeSymbols },
-                { label: 'Exclure similaires', state: excludeSimilar, setState: setExcludeSimilar },
+                { label: t('passwordgenerator.uppercase'), state: includeUppercase, setState: setIncludeUppercase },
+                { label: t('passwordgenerator.lowercase'), state: includeLowercase, setState: setIncludeLowercase },
+                { label: t('passwordgenerator.numbers'), state: includeNumbers, setState: setIncludeNumbers },
+                { label: t('passwordgenerator.symbols'), state: includeSymbols, setState: setIncludeSymbols },
+                { label: t('passwordgenerator.exclude_similar'), state: excludeSimilar, setState: setExcludeSimilar },
               ].map((opt) => (
                 <button
                   key={opt.label}
@@ -450,9 +470,9 @@ export function PasswordGenerator({ initialData, onStateChange }: { initialData?
             <div className="space-y-6">
               <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
                 {[
-                  { label: 'Capitaliser', state: capitalizeWords, setState: setCapitalizeWords },
-                  { label: 'Ajouter Chiffre', state: addNumber, setState: setAddNumber },
-                  { label: 'Ajouter Symbole', state: addSymbol, setState: setAddSymbol },
+                  { label: t('passwordgenerator.capitalize'), state: capitalizeWords, setState: setCapitalizeWords },
+                  { label: t('passwordgenerator.add_number'), state: addNumber, setState: setAddNumber },
+                  { label: t('passwordgenerator.add_symbol'), state: addSymbol, setState: setAddSymbol },
                 ].map((opt) => (
                   <button
                     key={opt.label}
@@ -475,7 +495,7 @@ export function PasswordGenerator({ initialData, onStateChange }: { initialData?
               </div>
               <div className="bg-white dark:bg-slate-800 p-6 rounded-3xl border border-slate-200 dark:border-slate-700">
                 <p className="text-sm text-slate-500 dark:text-slate-400 leading-relaxed">
-                  Le mode <strong>Mémorable</strong> (Passphrase) génère une suite de mots aléatoires séparés par des tirets. Ces mots de passe sont souvent plus faciles à retenir tout en restant très sécurisés grâce à leur longueur.
+                  {t('passwordgenerator.passphrase_info')}
                 </p>
               </div>
             </div>
@@ -486,15 +506,15 @@ export function PasswordGenerator({ initialData, onStateChange }: { initialData?
         <div className="bg-indigo-600 rounded-[2.5rem] p-10 text-white shadow-xl shadow-indigo-600/10 relative overflow-hidden flex flex-col justify-center">
            <div className="absolute top-0 right-0 w-48 h-48 bg-white/10 rounded-full blur-3xl -mr-24 -mt-24"></div>
            <Activity className="w-12 h-12 mb-6 opacity-50" />
-           <h3 className="text-2xl font-black mb-4">Calcul d'Entropie</h3>
+           <h3 className="text-2xl font-black mb-4">{t('passwordgenerator.entropy_calc')}</h3>
            <p className="text-indigo-100 font-medium leading-relaxed mb-6">
-             L'entropie mesure la robustesse d'un mot de passe contre les attaques par force brute. Elle est exprimée en <strong>bits</strong>.
+             {t('passwordgenerator.entropy_desc')}
            </p>
            <ul className="space-y-2 text-sm text-indigo-100/80">
-             <li className="flex items-center gap-2"><div className="w-1.5 h-1.5 rounded-full bg-indigo-300" /> 40 bits : Très faible (secondes)</li>
-             <li className="flex items-center gap-2"><div className="w-1.5 h-1.5 rounded-full bg-indigo-300" /> 60 bits : Standard (jours/mois)</li>
-             <li className="flex items-center gap-2"><div className="w-1.5 h-1.5 rounded-full bg-indigo-300" /> 80 bits : Robuste (siècles)</li>
-             <li className="flex items-center gap-2"><div className="w-1.5 h-1.5 rounded-full bg-indigo-300" /> 128 bits+ : Inviolable</li>
+             <li className="flex items-center gap-2"><div className="w-1.5 h-1.5 rounded-full bg-indigo-300" /> 40 bits : {t('passwordgenerator.strength.very_weak')} ({t('passwordgenerator.time.seconds')})</li>
+             <li className="flex items-center gap-2"><div className="w-1.5 h-1.5 rounded-full bg-indigo-300" /> 60 bits : {t('passwordgenerator.strength.standard')} ({t('passwordgenerator.time.days_months')})</li>
+             <li className="flex items-center gap-2"><div className="w-1.5 h-1.5 rounded-full bg-indigo-300" /> 80 bits : {t('passwordgenerator.strength.strong')} ({t('passwordgenerator.time.centuries')})</li>
+             <li className="flex items-center gap-2"><div className="w-1.5 h-1.5 rounded-full bg-indigo-300" /> 128 bits+ : {t('passwordgenerator.strength.unbreakable')}</li>
            </ul>
         </div>
       </div>

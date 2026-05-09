@@ -33,7 +33,8 @@ export function JSONToSQL({ initialData, onStateChange }: { initialData?: any; o
       }
 
       const columns = Object.keys(data[0]);
-      const sqlTableName = tableName.trim() || 'table_name';
+      const sqlTableName = `"${(tableName.trim() || 'table_name').replace(/"/g, '""')}"`;
+      const escapedColumns = columns.map(col => `"${col.replace(/"/g, '""')}"`);
 
       const statements = data.map((row: any) => {
         const values = columns.map(col => {
@@ -43,7 +44,7 @@ export function JSONToSQL({ initialData, onStateChange }: { initialData?: any; o
           if (typeof val === 'boolean') return val ? '1' : '0';
           return val;
         });
-        return `INSERT INTO ${sqlTableName} (${columns.join(', ')}) VALUES (${values.join(', ')});`;
+        return `INSERT INTO ${sqlTableName} (${escapedColumns.join(', ')}) VALUES (${values.join(', ')});`;
       });
 
       setOutput(statements.join('\n'));

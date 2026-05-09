@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef, useMemo } from 'react';
+import { useState, useEffect, useRef, useMemo, useCallback } from 'react';
 import { Play, Pause, RotateCcw, Timer, StopCircle, Flag, Bell, BellOff, Coffee, Brain, ChevronRight, Copy, Check } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 
@@ -144,25 +144,25 @@ export function TimerTool({ initialData, onStateChange }: { initialData?: any; o
     setPomodoroRunning(false);
   };
 
-  const resetTimer = () => {
+  const resetTimer = useCallback(() => {
     setTimerRunning(false);
     setTimerTime(timerMinutes * 60 + timerSeconds);
     setTimerDone(false);
-  };
+  }, [timerMinutes, timerSeconds]);
 
-  const resetStopwatch = () => {
+  const resetStopwatch = useCallback(() => {
     setStopwatchRunning(false);
     setStopwatchTime(0);
     setLaps([]);
     setLapsCopied(false);
-  };
+  }, []);
 
-  const resetPomodoro = () => {
+  const resetPomodoro = useCallback(() => {
     setPomodoroRunning(false);
     setPomodoroState('work');
     setPomodoroTime(workDuration * 60);
     setPomodoroCycles(0);
-  };
+  }, [workDuration]);
 
   const formatTime = (totalSeconds: number) => {
     const hours = Math.floor(totalSeconds / 3600);
@@ -210,33 +210,55 @@ export function TimerTool({ initialData, onStateChange }: { initialData?: any; o
         if (mode === 'timer') resetTimer();
         else if (mode === 'stopwatch') resetStopwatch();
         else if (mode === 'pomodoro') resetPomodoro();
+      } else if (e.key.toLowerCase() === 'm') {
+        setSoundEnabled(prev => !prev);
       }
     };
 
     window.addEventListener('keydown', handleKeyDown);
     return () => window.removeEventListener('keydown', handleKeyDown);
-  }, [mode]);
+  }, [mode, resetTimer, resetStopwatch, resetPomodoro]);
 
   return (
     <div className="max-w-4xl mx-auto space-y-12">
-      <div className="flex bg-slate-100 dark:bg-slate-800 p-1 rounded-2xl w-fit mx-auto overflow-x-auto no-scrollbar max-w-full">
+      <div className="flex flex-col md:flex-row items-center justify-center gap-4">
+        <div className="flex bg-slate-100 dark:bg-slate-800 p-1 rounded-2xl w-fit overflow-x-auto no-scrollbar max-w-full">
+          <button
+            onClick={() => setMode('timer')}
+            className={`px-6 py-3 rounded-xl text-sm font-bold transition-all flex items-center gap-2 whitespace-nowrap ${mode === 'timer' ? 'bg-white dark:bg-slate-700 text-indigo-600 shadow-sm' : 'text-slate-500 hover:text-slate-900'}`}
+          >
+            <Timer className="w-4 h-4" /> {t('timer.timer')}
+          </button>
+          <button
+            onClick={() => setMode('stopwatch')}
+            className={`px-6 py-3 rounded-xl text-sm font-bold transition-all flex items-center gap-2 whitespace-nowrap ${mode === 'stopwatch' ? 'bg-white dark:bg-slate-700 text-indigo-600 shadow-sm' : 'text-slate-500 hover:text-slate-900'}`}
+          >
+            <StopCircle className="w-4 h-4" /> {t('timer.stopwatch')}
+          </button>
+          <button
+            onClick={() => setMode('pomodoro')}
+            className={`px-6 py-3 rounded-xl text-sm font-bold transition-all flex items-center gap-2 whitespace-nowrap ${mode === 'pomodoro' ? 'bg-white dark:bg-slate-700 text-indigo-600 shadow-sm' : 'text-slate-500 hover:text-slate-900'}`}
+          >
+            <Brain className="w-4 h-4" /> {t('timer.pomodoro')}
+          </button>
+        </div>
         <button
-          onClick={() => setMode('timer')}
-          className={`px-6 py-3 rounded-xl text-sm font-bold transition-all flex items-center gap-2 whitespace-nowrap ${mode === 'timer' ? 'bg-white dark:bg-slate-700 text-indigo-600 shadow-sm' : 'text-slate-500 hover:text-slate-900'}`}
+          onClick={() => setSoundEnabled(!soundEnabled)}
+          aria-pressed={soundEnabled}
+          aria-label={soundEnabled ? t('timer.sound_on') : t('timer.sound_off')}
+          title={`${soundEnabled ? t('timer.sound_on') : t('timer.sound_off')} (M)`}
+          className={`p-3 rounded-xl transition-all border focus-visible:ring-2 focus-visible:ring-indigo-500 focus-visible:outline-none flex items-center gap-2 ${
+            soundEnabled
+              ? 'bg-indigo-50 dark:bg-indigo-900/20 text-indigo-600 dark:text-indigo-400 border-indigo-200 dark:border-indigo-500/20'
+              : 'bg-slate-50 text-slate-500 border-slate-200 dark:bg-slate-900 dark:border-slate-800 hover:border-slate-300 dark:hover:border-slate-700'
+          }`}
         >
-          <Timer className="w-4 h-4" /> {t('timer.timer')}
-        </button>
-        <button
-          onClick={() => setMode('stopwatch')}
-          className={`px-6 py-3 rounded-xl text-sm font-bold transition-all flex items-center gap-2 whitespace-nowrap ${mode === 'stopwatch' ? 'bg-white dark:bg-slate-700 text-indigo-600 shadow-sm' : 'text-slate-500 hover:text-slate-900'}`}
-        >
-          <StopCircle className="w-4 h-4" /> {t('timer.stopwatch')}
-        </button>
-        <button
-          onClick={() => setMode('pomodoro')}
-          className={`px-6 py-3 rounded-xl text-sm font-bold transition-all flex items-center gap-2 whitespace-nowrap ${mode === 'pomodoro' ? 'bg-white dark:bg-slate-700 text-indigo-600 shadow-sm' : 'text-slate-500 hover:text-slate-900'}`}
-        >
-          <Brain className="w-4 h-4" /> {t('timer.pomodoro')}
+          {soundEnabled ? <Bell className="w-5 h-5" /> : <BellOff className="w-5 h-5" />}
+          <kbd className={`hidden sm:inline-flex items-center justify-center w-5 h-5 border rounded text-[10px] font-bold ${
+            soundEnabled
+              ? 'bg-indigo-600 border-indigo-500 text-white'
+              : 'border-slate-300 dark:border-slate-600 text-slate-400'
+          }`}>M</kbd>
         </button>
       </div>
 
@@ -305,12 +327,14 @@ export function TimerTool({ initialData, onStateChange }: { initialData?: any; o
               >
                 {timerRunning ? <Pause className="w-5 h-5 fill-current" /> : <Play className="w-5 h-5 fill-current" />}
                 {timerRunning ? t('timer.pause') : t('timer.start')}
+                <kbd className="hidden sm:inline-flex items-center justify-center h-5 px-1.5 border border-white/20 rounded text-[10px] font-bold bg-white/10 ml-1">Space</kbd>
               </button>
               <button
                 onClick={resetTimer}
                 className="px-8 py-4 text-rose-500 bg-rose-50 dark:bg-rose-500/10 hover:bg-rose-100 dark:hover:bg-rose-500/20 border border-rose-100 dark:border-rose-500/20 rounded-2xl font-bold transition-all flex items-center gap-2"
               >
                 <RotateCcw className="w-5 h-5" /> {t('timer.reset')}
+                <kbd className="hidden sm:inline-flex items-center justify-center w-5 h-5 border border-rose-200 dark:border-rose-800 rounded text-[10px] font-bold bg-white dark:bg-slate-900 ml-1">R</kbd>
               </button>
             </div>
           </div>
@@ -327,9 +351,6 @@ export function TimerTool({ initialData, onStateChange }: { initialData?: any; o
               <div className={`text-6xl font-black font-mono tracking-tighter ${timerDone ? 'text-rose-500' : 'dark:text-white'}`}>
                 {formatTime(timerTime)}
               </div>
-              <button onClick={() => setSoundEnabled(!soundEnabled)} className={`mt-4 p-2 rounded-full transition-colors ${soundEnabled ? 'text-indigo-600' : 'text-slate-300'}`}>
-                {soundEnabled ? <Bell className="w-5 h-5" /> : <BellOff className="w-5 h-5" />}
-              </button>
             </div>
           </div>
         </div>
@@ -353,6 +374,7 @@ export function TimerTool({ initialData, onStateChange }: { initialData?: any; o
             >
               {stopwatchRunning ? <Pause className="w-5 h-5 fill-current" /> : <Play className="w-5 h-5 fill-current" />}
               {stopwatchRunning ? t('timer.pause') : t('timer.start')}
+              <kbd className="hidden sm:inline-flex items-center justify-center h-5 px-1.5 border border-white/20 rounded text-[10px] font-bold bg-white/10 ml-1">Space</kbd>
             </button>
             <button
               onClick={() => setLaps([stopwatchTime, ...laps])}
@@ -366,6 +388,7 @@ export function TimerTool({ initialData, onStateChange }: { initialData?: any; o
               className="px-8 py-4 text-rose-500 bg-rose-50 dark:bg-rose-500/10 hover:bg-rose-100 dark:hover:bg-rose-500/20 border border-rose-100 dark:border-rose-500/20 rounded-2xl font-bold transition-all flex items-center gap-2"
             >
               <RotateCcw className="w-5 h-5" /> {t('timer.reset')}
+              <kbd className="hidden sm:inline-flex items-center justify-center w-5 h-5 border border-rose-200 dark:border-rose-800 rounded text-[10px] font-bold bg-white dark:bg-slate-900 ml-1">R</kbd>
             </button>
           </div>
 
@@ -417,7 +440,7 @@ export function TimerTool({ initialData, onStateChange }: { initialData?: any; o
               {formatTime(pomodoroTime)}
             </div>
             <div className="mt-4 flex items-center justify-center gap-2 text-slate-400 font-bold uppercase tracking-widest text-sm">
-              <Brain className="w-4 h-4" /> Cycle #{pomodoroCycles + 1}
+              <Brain className="w-4 h-4" /> {t('timer.cycle', { count: pomodoroCycles + 1 })}
             </div>
           </div>
 
@@ -431,12 +454,13 @@ export function TimerTool({ initialData, onStateChange }: { initialData?: any; o
             >
               {pomodoroRunning ? <Pause className="w-5 h-5 fill-current" /> : <Play className="w-5 h-5 fill-current" />}
               {pomodoroRunning ? t('timer.pause') : t('timer.start')}
+              <kbd className="hidden sm:inline-flex items-center justify-center h-5 px-1.5 border border-white/20 rounded text-[10px] font-bold bg-white/10 ml-1">Space</kbd>
             </button>
             <button
               onClick={handlePomodoroNext}
               className="px-8 py-4 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-2xl font-bold transition-all hover:bg-slate-50 dark:hover:bg-slate-700 flex items-center gap-2 dark:text-white"
             >
-              Suivant <ChevronRight className="w-5 h-5" />
+              {t('common.next')} <ChevronRight className="w-5 h-5" />
             </button>
             <button
               onClick={() => setPomodoroCycles(0)}
@@ -449,6 +473,7 @@ export function TimerTool({ initialData, onStateChange }: { initialData?: any; o
               className="px-8 py-4 text-rose-500 bg-rose-50 dark:bg-rose-500/10 hover:bg-rose-100 dark:hover:bg-rose-500/20 border border-rose-100 dark:border-rose-500/20 rounded-2xl font-bold transition-all flex items-center gap-2"
             >
               <RotateCcw className="w-5 h-5" /> {t('timer.reset_all')}
+              <kbd className="hidden sm:inline-flex items-center justify-center w-5 h-5 border border-rose-200 dark:border-rose-800 rounded text-[10px] font-bold bg-white dark:bg-slate-900 ml-1">R</kbd>
             </button>
           </div>
 

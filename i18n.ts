@@ -472,6 +472,12 @@ const resources = {
       "sitemap.bulk_placeholder": "Paste a list of URLs (one per line)...",
       "sitemap.about_title": "What is a Sitemap?",
       "sitemap.about_text": "A sitemap is an XML file that lists the URLs of a site as well as additional metadata about each URL (date of last modification, update frequency, relative importance). It allows search engines like Google to crawl your site in a smarter and more efficient way.",
+      "unit.magnetic_flux": "Magnetic Flux",
+      "unit.dash": "Dash",
+      "unit.smidgen": "Smidgen",
+      "unit.drop": "Drop",
+      "listcleaner.case_insensitive": "Case-insensitive",
+      "listcleaner.add_line_numbers": "Add line numbers",
     }
   },
   fr: {
@@ -943,6 +949,12 @@ const resources = {
       "sitemap.bulk_placeholder": "Collez une liste d'URLs (une par ligne)...",
       "sitemap.about_title": "Qu'est-ce qu'un Sitemap ?",
       "sitemap.about_text": "Un sitemap est un fichier XML qui répertorie les URLs d'un site ainsi que des métadonnées complémentaires sur chaque URL (date de dernière modification, fréquence de mise à jour, importance relative). Il permet aux moteurs de recherche comme Google d'explorer votre site de manière plus intelligente et efficace.",
+      "unit.magnetic_flux": "Flux Magnétique",
+      "unit.dash": "Pincée (Dash)",
+      "unit.smidgen": "Soupçon (Smidgen)",
+      "unit.drop": "Goutte",
+      "listcleaner.case_insensitive": "Insensible à la casse",
+      "listcleaner.add_line_numbers": "Ajouter numéros de ligne",
     }
   }
 };

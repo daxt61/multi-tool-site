@@ -248,6 +248,9 @@ const JSONToPHP = lazy(() => import("./components/JSONToPHP").then(m => ({ defau
 const JSONToKotlin = lazy(() => import("./components/JSONToKotlin").then(m => ({ default: m.JSONToKotlin })));
 const JSONToDart = lazy(() => import("./components/JSONToDart").then(m => ({ default: m.JSONToDart })));
 const JsonDiff = lazy(() => import("./components/JsonDiff").then(m => ({ default: m.JsonDiff })));
+const JSONToGraphQL = lazy(() => import("./components/JSONToGraphQL").then(m => ({ default: m.JSONToGraphQL })));
+const JSONToMongoose = lazy(() => import("./components/JSONToMongoose").then(m => ({ default: m.JSONToMongoose })));
+const HTMLToMarkdown = lazy(() => import("./components/HTMLToMarkdown").then(m => ({ default: m.HTMLToMarkdown })));
 
 // ⚡ Bolt Optimization: Pre-calculating tool map and search index for O(1) lookups and faster filtering
 const toolsMap: Record<string, Tool> = {};
@@ -1685,6 +1688,39 @@ const tools: Tool[] = [
     Component: JsonDiff,
     category: "dev",
     keywords: ["json", "diff", "compare", "normalize", "structural"],
+  },
+  {
+    id: "json-to-graphql",
+    name: "JSON en GraphQL",
+    nameEn: "JSON to GraphQL",
+    icon: Database,
+    description: "Convertir du JSON en types GraphQL",
+    descriptionEn: "Convert JSON to GraphQL type definitions",
+    Component: JSONToGraphQL,
+    category: "dev",
+    keywords: ["graphql", "schema", "json", "types"],
+  },
+  {
+    id: "json-to-mongoose",
+    name: "JSON en Mongoose",
+    nameEn: "JSON to Mongoose",
+    icon: ShieldCheck,
+    description: "Convertir du JSON en schémas Mongoose",
+    descriptionEn: "Convert JSON to Mongoose schema definitions",
+    Component: JSONToMongoose,
+    category: "dev",
+    keywords: ["mongodb", "mongoose", "schema", "json", "database"],
+  },
+  {
+    id: "html-to-markdown",
+    name: "HTML en Markdown",
+    nameEn: "HTML to Markdown",
+    icon: FileText,
+    description: "Convertir du HTML en Markdown",
+    descriptionEn: "Convert HTML to Markdown",
+    Component: HTMLToMarkdown,
+    category: "text",
+    keywords: ["markdown", "html", "convert", "md"],
   },
 ];
 

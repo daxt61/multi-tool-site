@@ -1,5 +1,5 @@
 import { useState, useCallback, useEffect } from 'react';
-import { Copy, Check, Trash2, SortAsc, SortDesc, ListChecks, Type, FileDown, Scissors, RefreshCcw, AlertCircle, Plus, Minus, Hash } from 'lucide-react';
+import { Copy, Check, Trash2, SortAsc, SortDesc, ListChecks, Type, FileDown, Scissors, RefreshCcw, AlertCircle, Plus, Minus, Hash, CaseSensitive } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 
 const MAX_LENGTH = 100000;
@@ -9,6 +9,7 @@ export function ListCleaner({ initialData, onStateChange }: { initialData?: any;
   const [text, setText] = useState(initialData?.text || '');
   const [copied, setCopied] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [caseInsensitive, setCaseInsensitive] = useState(false);
 
   // States for interactive tools
   const [prefix, setPrefix] = useState('');
@@ -72,7 +73,17 @@ export function ListCleaner({ initialData, onStateChange }: { initialData?: any;
     setText(processed.join('\n'));
   };
 
-  const removeDuplicates = () => processList(lines => [...new Set(lines)]);
+  const removeDuplicates = () => processList(lines => {
+    if (!caseInsensitive) return [...new Set(lines)];
+    const seen = new Set();
+    return lines.filter(line => {
+      const lower = line.toLowerCase();
+      if (seen.has(lower)) return false;
+      seen.add(lower);
+      return true;
+    });
+  });
+
   const removeEmptyLines = () => processList(lines => lines.filter(line => line.trim() !== ''));
   const trimLines = () => processList(lines => lines.map(line => line.trim()));
   const sortAZ = () => processList(lines => [...lines].sort((a, b) => a.localeCompare(b)));
@@ -80,6 +91,8 @@ export function ListCleaner({ initialData, onStateChange }: { initialData?: any;
   const sortNumeric = () => processList(lines => [...lines].sort((a, b) => a.localeCompare(b, undefined, { numeric: true })));
   const sortLength = () => processList(lines => [...lines].sort((a, b) => a.length - b.length));
   const reverseList = () => processList(lines => [...lines].reverse());
+
+  const addLineNumbers = () => processList(lines => lines.map((line, i) => `${i + 1}. ${line}`));
 
   const handleAddPrefixSuffix = () => {
     if (prefix || suffix) {
@@ -173,7 +186,7 @@ export function ListCleaner({ initialData, onStateChange }: { initialData?: any;
             value={text}
             onChange={(e) => handleTextChange(e.target.value)}
             placeholder={t('listcleaner.placeholder')}
-            className={`w-full h-[500px] p-8 bg-slate-50 dark:bg-slate-900 border ${error ? 'border-rose-500 focus:ring-rose-500/20' : 'border-slate-200 dark:border-slate-800 focus:ring-indigo-500/20'} rounded-[2.5rem] outline-none focus:ring-2 transition-all text-lg leading-relaxed dark:text-slate-300 font-mono resize-none`}
+            className={`w-full h-[500px] p-8 bg-slate-50 dark:bg-slate-900 border ${error ? 'border-rose-500' : 'border-slate-200 dark:border-slate-800'} rounded-[2.5rem] outline-none focus:ring-2 transition-all text-lg leading-relaxed dark:text-slate-300 font-mono resize-none`}
           />
           <div className="flex justify-end text-xs font-bold text-slate-400 uppercase tracking-widest px-4">
             {t(itemCount === 1 ? 'listcleaner.item_count_one' : 'listcleaner.item_count_other', { count: itemCount })}
@@ -254,15 +267,25 @@ export function ListCleaner({ initialData, onStateChange }: { initialData?: any;
 
           {/* Cleaning Actions */}
           <div className="p-6 bg-white dark:bg-slate-900/50 border border-slate-200 dark:border-slate-800 rounded-3xl space-y-4">
-            <div className="flex items-center gap-2 text-indigo-500 px-1">
-              <Scissors className="w-4 h-4" />
-              <h3 className="font-black uppercase tracking-widest text-[10px] text-slate-400">{t('listcleaner.cleaning')}</h3>
+            <div className="flex justify-between items-center px-1">
+              <div className="flex items-center gap-2 text-indigo-500">
+                <Scissors className="w-4 h-4" />
+                <h3 className="font-black uppercase tracking-widest text-[10px] text-slate-400">{t('listcleaner.cleaning')}</h3>
+              </div>
+              <button
+                onClick={() => setCaseInsensitive(!caseInsensitive)}
+                className={`p-1 rounded-md transition-colors ${caseInsensitive ? 'bg-indigo-100 text-indigo-600' : 'text-slate-300 hover:text-slate-400'}`}
+                title={t('listcleaner.case_insensitive')}
+              >
+                <CaseSensitive className="w-4 h-4" />
+              </button>
             </div>
             <div className="grid grid-cols-1 gap-2">
               {[
                 { label: t('listcleaner.remove_duplicates'), icon: ListChecks, action: removeDuplicates },
                 { label: t('listcleaner.remove_empty_lines'), icon: Trash2, action: removeEmptyLines },
                 { label: t('listcleaner.trim_lines'), icon: Scissors, action: trimLines },
+                { label: t('listcleaner.add_line_numbers'), icon: Hash, action: addLineNumbers },
                 { label: t('listcleaner.shuffle_list'), icon: RefreshCcw, action: shuffleList },
                 { label: t('listcleaner.reverse_list'), icon: RefreshCcw, action: reverseList },
               ].map((btn) => (

@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import { Copy, Check, Palette, Hash, Sliders, RotateCcw } from 'lucide-react';
+import { useTranslation } from 'react-i18next';
 
 interface ColorState {
   hex: string;
@@ -21,6 +22,7 @@ export function ColorConverter({ initialData, onStateChange }: {
   initialData?: Partial<ColorState>;
   onStateChange?: (state: ColorState) => void
 }) {
+  const { t, i18n } = useTranslation();
   const [hex, setHex] = useState(initialData?.hex || DEFAULT_COLORS.hex);
   const [rgb, setRgb] = useState(initialData?.rgb || DEFAULT_COLORS.rgb);
   const [hsl, setHsl] = useState(initialData?.hsl || DEFAULT_COLORS.hsl);
@@ -313,7 +315,7 @@ export function ColorConverter({ initialData, onStateChange }: {
           disabled={isDefault}
           className="text-xs font-bold text-rose-500 bg-rose-50 dark:bg-rose-500/10 hover:bg-rose-100 dark:hover:bg-rose-500/20 px-3 py-1.5 rounded-xl flex items-center gap-1 transition-all disabled:opacity-50 disabled:cursor-not-allowed focus-visible:ring-2 focus-visible:ring-rose-500 focus-visible:outline-none"
         >
-          <RotateCcw className="w-3 h-3" /> Réinitialiser
+          <RotateCcw className="w-3 h-3" /> {t('colorconverter.reset')}
         </button>
       </div>
 
@@ -329,7 +331,7 @@ export function ColorConverter({ initialData, onStateChange }: {
             value={hex}
             onChange={(e) => updateFromHex(e.target.value)}
             className="w-20 h-20 rounded-full border-4 border-white dark:border-slate-800 cursor-pointer shadow-xl overflow-hidden"
-            aria-label="Choisir une couleur"
+            aria-label={t('colorconverter.choose_color')}
           />
         </div>
       </div>
@@ -366,13 +368,13 @@ export function ColorConverter({ initialData, onStateChange }: {
         {/* RGB Sliders */}
         <div className="bg-white dark:bg-slate-900/40 border border-slate-200 dark:border-slate-800 p-8 rounded-[2.5rem] space-y-8">
           <h4 className="text-xs font-black uppercase tracking-widest text-slate-400 flex items-center gap-2 px-1">
-            <Sliders className="w-4 h-4" /> Composantes RGB
+            <Sliders className="w-4 h-4" /> {t('colorconverter.rgb_components')}
           </h4>
           <div className="space-y-6">
             {[
-              { label: 'Rouge', key: 'r', color: 'bg-rose-500' },
-              { label: 'Vert', key: 'g', color: 'bg-emerald-500' },
-              { label: 'Bleu', key: 'b', color: 'bg-blue-500' },
+              { label: t('colorconverter.red'), key: 'r', color: 'bg-rose-500' },
+              { label: t('colorconverter.green'), key: 'g', color: 'bg-emerald-500' },
+              { label: t('colorconverter.blue'), key: 'b', color: 'bg-blue-500' },
             ].map((chan) => (
               <div key={chan.key} className="space-y-2">
                 <div className="flex justify-between items-center px-1">
@@ -396,12 +398,12 @@ export function ColorConverter({ initialData, onStateChange }: {
         {/* HSL Sliders */}
         <div className="bg-white dark:bg-slate-900/40 border border-slate-200 dark:border-slate-800 p-8 rounded-[2.5rem] space-y-8">
           <h4 className="text-xs font-black uppercase tracking-widest text-slate-400 flex items-center gap-2 px-1">
-            <Palette className="w-4 h-4" /> Composantes HSL
+            <Palette className="w-4 h-4" /> {t('colorconverter.hsl_components')}
           </h4>
           <div className="space-y-6">
             <div className="space-y-2">
               <div className="flex justify-between items-center px-1">
-                <label htmlFor="hsl-h" className="text-xs font-bold text-slate-500 cursor-pointer">Teinte</label>
+                <label htmlFor="hsl-h" className="text-xs font-bold text-slate-500 cursor-pointer">{t('colorconverter.hue')}</label>
                 <span className="text-sm font-black font-mono dark:text-slate-300">{hsl.h}°</span>
               </div>
               <input
@@ -416,7 +418,7 @@ export function ColorConverter({ initialData, onStateChange }: {
             </div>
             <div className="space-y-2">
               <div className="flex justify-between items-center px-1">
-                <label htmlFor="hsl-s" className="text-xs font-bold text-slate-500 cursor-pointer">Saturation</label>
+                <label htmlFor="hsl-s" className="text-xs font-bold text-slate-500 cursor-pointer">{t('colorconverter.saturation')}</label>
                 <span className="text-sm font-black font-mono dark:text-slate-300">{hsl.s}%</span>
               </div>
               <input
@@ -431,7 +433,7 @@ export function ColorConverter({ initialData, onStateChange }: {
             </div>
             <div className="space-y-2">
               <div className="flex justify-between items-center px-1">
-                <label htmlFor="hsl-l" className="text-xs font-bold text-slate-500 cursor-pointer">Luminosité</label>
+                <label htmlFor="hsl-l" className="text-xs font-bold text-slate-500 cursor-pointer">{t('colorconverter.lightness')}</label>
                 <span className="text-sm font-black font-mono dark:text-slate-300">{hsl.l}%</span>
               </div>
               <input
@@ -450,14 +452,14 @@ export function ColorConverter({ initialData, onStateChange }: {
         {/* CMYK Sliders */}
         <div className="bg-white dark:bg-slate-900/40 border border-slate-200 dark:border-slate-800 p-8 rounded-[2.5rem] space-y-8">
           <h4 className="text-xs font-black uppercase tracking-widest text-slate-400 flex items-center gap-2 px-1">
-            <Sliders className="w-4 h-4 text-indigo-500" /> Composantes CMYK (Impression)
+            <Sliders className="w-4 h-4 text-indigo-500" /> {t('colorconverter.cmyk_components')}
           </h4>
           <div className="space-y-6">
             {[
-              { label: 'Cyan', key: 'c' },
-              { label: 'Magenta', key: 'm' },
-              { label: 'Jaune', key: 'y' },
-              { label: 'Noir', key: 'k' },
+              { label: t('colorconverter.cyan'), key: 'c' },
+              { label: t('colorconverter.magenta'), key: 'm' },
+              { label: t('colorconverter.yellow'), key: 'y' },
+              { label: t('colorconverter.black'), key: 'k' },
             ].map((chan) => (
               <div key={chan.key} className="space-y-2">
                 <div className="flex justify-between items-center px-1">
@@ -481,12 +483,12 @@ export function ColorConverter({ initialData, onStateChange }: {
         {/* OKLCH Sliders */}
         <div className="bg-white dark:bg-slate-900/40 border border-slate-200 dark:border-slate-800 p-8 rounded-[2.5rem] space-y-8">
           <h4 className="text-xs font-black uppercase tracking-widest text-slate-400 flex items-center gap-2 px-1">
-            <Sliders className="w-4 h-4 text-indigo-500" /> Composantes OKLCH (Modern CSS)
+            <Sliders className="w-4 h-4 text-indigo-500" /> {t('colorconverter.oklch_components')}
           </h4>
           <div className="space-y-6">
             <div className="space-y-2">
               <div className="flex justify-between items-center px-1">
-                <label htmlFor="oklch-l" className="text-xs font-bold text-slate-500 cursor-pointer">Luminosité (L)</label>
+                <label htmlFor="oklch-l" className="text-xs font-bold text-slate-500 cursor-pointer">{t('colorconverter.lightness')} (L)</label>
                 <span className="text-sm font-black font-mono dark:text-slate-300">{oklch.l.toFixed(2)}</span>
               </div>
               <input
@@ -502,7 +504,7 @@ export function ColorConverter({ initialData, onStateChange }: {
             </div>
             <div className="space-y-2">
               <div className="flex justify-between items-center px-1">
-                <label htmlFor="oklch-c" className="text-xs font-bold text-slate-500 cursor-pointer">Chroma (C)</label>
+                <label htmlFor="oklch-c" className="text-xs font-bold text-slate-500 cursor-pointer">{t('colorconverter.chroma')} (C)</label>
                 <span className="text-sm font-black font-mono dark:text-slate-300">{oklch.c.toFixed(2)}</span>
               </div>
               <input
@@ -518,7 +520,7 @@ export function ColorConverter({ initialData, onStateChange }: {
             </div>
             <div className="space-y-2">
               <div className="flex justify-between items-center px-1">
-                <label htmlFor="oklch-h" className="text-xs font-bold text-slate-500 cursor-pointer">Teinte (H)</label>
+                <label htmlFor="oklch-h" className="text-xs font-bold text-slate-500 cursor-pointer">{t('colorconverter.hue')} (H)</label>
                 <span className="text-sm font-black font-mono dark:text-slate-300">{oklch.h.toFixed(0)}°</span>
               </div>
               <input
@@ -538,32 +540,32 @@ export function ColorConverter({ initialData, onStateChange }: {
       {/* Contrast Check Area */}
       <div className="bg-slate-50 dark:bg-slate-900/50 p-8 rounded-[2.5rem] border border-slate-200 dark:border-slate-800 space-y-8">
         <h4 className="text-xs font-black uppercase tracking-widest text-slate-400 flex items-center gap-2 px-1">
-          <Check className="w-4 h-4 text-indigo-500" /> Accessibilité (WCAG 2.1)
+          <Check className="w-4 h-4 text-indigo-500" /> {t('colorconverter.accessibility')}
         </h4>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
           <div className="p-6 rounded-3xl space-y-4" style={{ backgroundColor: hex, color: '#FFFFFF' }}>
              <div className="flex justify-between items-center">
-                <span className="text-xs font-bold uppercase tracking-widest opacity-80">Sur Fond Blanc</span>
+                <span className="text-xs font-bold uppercase tracking-widest opacity-80">{t('colorconverter.on_white')}</span>
                 <span className={`px-2 py-1 rounded-lg text-[10px] font-black uppercase tracking-widest ${contrastWhite >= 4.5 ? 'bg-emerald-500' : 'bg-rose-500'} text-white shadow-lg`}>
                    {getWCAGRating(contrastWhite)}
                 </span>
              </div>
              <div className="text-3xl font-black">{contrastWhite.toFixed(2)} : 1</div>
              <p className="text-sm font-medium opacity-90 leading-relaxed">
-               L'herbe est plus verte ailleurs. Le soleil brille pour tout le monde.
+               {i18n.language === 'fr' ? 'L\'herbe est plus verte ailleurs. Le soleil brille pour tout le monde.' : 'The grass is greener on the other side. The sun shines for everyone.'}
              </p>
           </div>
 
           <div className="p-6 rounded-3xl space-y-4" style={{ backgroundColor: hex, color: '#000000' }}>
              <div className="flex justify-between items-center">
-                <span className="text-xs font-bold uppercase tracking-widest opacity-80">Sur Fond Noir</span>
+                <span className="text-xs font-bold uppercase tracking-widest opacity-80">{t('colorconverter.on_black')}</span>
                 <span className={`px-2 py-1 rounded-lg text-[10px] font-black uppercase tracking-widest ${contrastBlack >= 4.5 ? 'bg-emerald-500' : 'bg-rose-500'} text-white shadow-lg`}>
                    {getWCAGRating(contrastBlack)}
                 </span>
              </div>
              <div className="text-3xl font-black">{contrastBlack.toFixed(2)} : 1</div>
              <p className="text-sm font-medium opacity-90 leading-relaxed">
-               La nuit, tous les chats sont gris. Le silence est d'or.
+               {i18n.language === 'fr' ? 'La nuit, tous les chats sont gris. Le silence est d\'or.' : 'At night, all cats are grey. Silence is golden.'}
              </p>
           </div>
         </div>

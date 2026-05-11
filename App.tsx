@@ -247,6 +247,9 @@ const JSONToRust = lazy(() => import("./components/JSONToRust").then(m => ({ def
 const JSONToPHP = lazy(() => import("./components/JSONToPHP").then(m => ({ default: m.JSONToPHP })));
 const JSONToKotlin = lazy(() => import("./components/JSONToKotlin").then(m => ({ default: m.JSONToKotlin })));
 const JSONToDart = lazy(() => import("./components/JSONToDart").then(m => ({ default: m.JSONToDart })));
+const JSONToGraphQL = lazy(() => import("./components/JSONToGraphQL").then(m => ({ default: m.JSONToGraphQL })));
+const JSONToMongoose = lazy(() => import("./components/JSONToMongoose").then(m => ({ default: m.JSONToMongoose })));
+const HTMLToMarkdown = lazy(() => import("./components/HTMLToMarkdown").then(m => ({ default: m.HTMLToMarkdown })));
 const JsonDiff = lazy(() => import("./components/JsonDiff").then(m => ({ default: m.JsonDiff })));
 
 // ⚡ Bolt Optimization: Pre-calculating tool map and search index for O(1) lookups and faster filtering
@@ -1674,6 +1677,39 @@ const tools: Tool[] = [
     Component: JSONToDart,
     category: "dev",
     keywords: ["dart", "flutter", "class", "json", "types"],
+  },
+  {
+    id: "json-to-graphql",
+    name: "JSON en GraphQL",
+    nameEn: "JSON to GraphQL",
+    icon: Database,
+    description: "Générer un schéma GraphQL à partir d'un JSON",
+    descriptionEn: "Generate a GraphQL schema from JSON",
+    Component: JSONToGraphQL,
+    category: "dev",
+    keywords: ["graphql", "schema", "api", "json", "types"],
+  },
+  {
+    id: "json-to-mongoose",
+    name: "JSON en Mongoose",
+    nameEn: "JSON to Mongoose",
+    icon: Database,
+    description: "Générer un modèle Mongoose à partir d'un JSON",
+    descriptionEn: "Generate a Mongoose model from JSON",
+    Component: JSONToMongoose,
+    category: "dev",
+    keywords: ["mongodb", "mongoose", "schema", "model", "json", "node"],
+  },
+  {
+    id: "html-to-markdown",
+    name: "HTML en Markdown",
+    nameEn: "HTML to Markdown",
+    icon: FileCode,
+    description: "Convertir du HTML en syntaxe Markdown",
+    descriptionEn: "Convert HTML to Markdown syntax",
+    Component: HTMLToMarkdown,
+    category: "dev",
+    keywords: ["html", "markdown", "convert", "cms", "text"],
   },
   {
     id: "json-diff",

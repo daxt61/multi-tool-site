@@ -65,36 +65,40 @@ export function PercentageCalculator({ initialData, onStateChange }: { initialDa
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-2 text-indigo-500">
                 <Percent className="w-4 h-4" />
-                <label htmlFor="percent-val" className="text-xs font-black uppercase tracking-widest text-slate-400 cursor-pointer">{t('percentage.title1')}</label>
+                <h3 className="text-xs font-black uppercase tracking-widest text-slate-400">{t('percentage.title1')}</h3>
               </div>
               <button
                 onClick={() => { setValue2(''); setValue1(''); }}
                 disabled={!value2 && !value1}
-                className="text-[10px] font-bold text-rose-500 bg-rose-50 dark:bg-rose-500/10 hover:bg-rose-100 dark:hover:bg-rose-500/20 px-2 py-0.5 rounded-lg transition-all disabled:opacity-0"
+                className="text-[10px] font-bold text-rose-500 bg-rose-50 dark:bg-rose-500/10 hover:bg-rose-100 dark:hover:bg-rose-500/20 px-2 py-0.5 rounded-lg transition-all disabled:opacity-0 disabled:pointer-events-none"
               >
                 {t('common.clear')}
               </button>
             </div>
             <div className="flex items-center gap-3">
-              <input
-                id="percent-val"
-                type="number"
-                value={value2}
-                onChange={(e) => setValue2(e.target.value)}
-                className="w-full p-4 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-2xl text-xl font-black font-mono focus:border-indigo-500 outline-none transition-all dark:text-white"
-                placeholder="20"
-                aria-label="Pourcentage"
-              />
-              <span className="text-xl font-bold text-slate-400 whitespace-nowrap">% de</span>
-              <input
-                id="total-val"
-                type="number"
-                value={value1}
-                onChange={(e) => setValue1(e.target.value)}
-                className="w-full p-4 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-2xl text-xl font-black font-mono focus:border-indigo-500 outline-none transition-all dark:text-white"
-                placeholder="100"
-                aria-label="Valeur totale"
-              />
+              <div className="w-full">
+                <label htmlFor="percent-val" className="sr-only">{t('percentage.label_percent')}</label>
+                <input
+                  id="percent-val"
+                  type="number"
+                  value={value2}
+                  onChange={(e) => setValue2(e.target.value)}
+                  className="w-full p-4 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-2xl text-xl font-black font-mono focus:border-indigo-500 outline-none transition-all dark:text-white"
+                  placeholder="20"
+                />
+              </div>
+              <span className="text-xl font-bold text-slate-400 whitespace-nowrap">{t('percentage.percent_of')}</span>
+              <div className="w-full">
+                <label htmlFor="total-val" className="sr-only">{t('percentage.label_total')}</label>
+                <input
+                  id="total-val"
+                  type="number"
+                  value={value1}
+                  onChange={(e) => setValue1(e.target.value)}
+                  className="w-full p-4 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-2xl text-xl font-black font-mono focus:border-indigo-500 outline-none transition-all dark:text-white"
+                  placeholder="100"
+                />
+              </div>
             </div>
           </div>
           <div className="relative group/copy bg-white dark:bg-slate-800 p-6 rounded-2xl border border-slate-100 dark:border-slate-700 text-center">
@@ -105,12 +109,12 @@ export function PercentageCalculator({ initialData, onStateChange }: { initialDa
             <button
               onClick={() => copyToClipboard(percentageOf.toFixed(2), 'copy1')}
               disabled={isNaN(percentageOf)}
-              className={`absolute top-2 right-2 p-2 rounded-xl transition-all ${
+              className={`absolute top-2 right-2 p-2 rounded-xl transition-all focus-visible:ring-2 focus-visible:ring-indigo-500 focus-visible:outline-none focus-visible:opacity-100 ${
                 copiedId === 'copy1'
                   ? 'bg-emerald-50 dark:bg-emerald-500/10 text-emerald-600 dark:text-emerald-400'
                   : 'text-slate-400 hover:text-indigo-500 bg-white dark:bg-slate-800 opacity-0 group-hover/copy:opacity-100 shadow-sm border border-slate-100 dark:border-slate-700'
-              } disabled:opacity-0`}
-              aria-label={t('percentage.copy_result')}
+              } disabled:opacity-0 disabled:pointer-events-none`}
+              aria-label={t('percentage.copy_result_of')}
             >
               {copiedId === 'copy1' ? <Check className="w-4 h-4" /> : <Copy className="w-4 h-4" />}
             </button>
@@ -123,36 +127,40 @@ export function PercentageCalculator({ initialData, onStateChange }: { initialDa
              <div className="flex items-center justify-between">
               <div className="flex items-center gap-2 text-indigo-500">
                 <ArrowRight className="w-4 h-4" />
-                <label htmlFor="part-val" className="text-xs font-black uppercase tracking-widest text-slate-400 cursor-pointer">{t('percentage.title2')}</label>
+                <h3 className="text-xs font-black uppercase tracking-widest text-slate-400">{t('percentage.title2')}</h3>
               </div>
               <button
                 onClick={() => { setValue3(''); setValue4(''); }}
                 disabled={!value3 && !value4}
-                className="text-[10px] font-bold text-rose-500 bg-rose-50 dark:bg-rose-500/10 hover:bg-rose-100 dark:hover:bg-rose-500/20 px-2 py-0.5 rounded-lg transition-all disabled:opacity-0"
+                className="text-[10px] font-bold text-rose-500 bg-rose-50 dark:bg-rose-500/10 hover:bg-rose-100 dark:hover:bg-rose-500/20 px-2 py-0.5 rounded-lg transition-all disabled:opacity-0 disabled:pointer-events-none"
               >
                 {t('common.clear')}
               </button>
             </div>
             <div className="flex items-center gap-3">
-              <input
-                id="part-val"
-                type="number"
-                value={value3}
-                onChange={(e) => setValue3(e.target.value)}
-                className="w-full p-4 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-2xl text-xl font-black font-mono focus:border-indigo-500 outline-none transition-all dark:text-white"
-                placeholder="150"
-                aria-label="Valeur partielle"
-              />
-              <span className="text-xl font-bold text-slate-400 whitespace-nowrap">de</span>
-              <input
-                id="whole-val"
-                type="number"
-                value={value4}
-                onChange={(e) => setValue4(e.target.value)}
-                className="w-full p-4 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-2xl text-xl font-black font-mono focus:border-indigo-500 outline-none transition-all dark:text-white"
-                placeholder="100"
-                aria-label="Valeur de référence"
-              />
+              <div className="w-full">
+                <label htmlFor="part-val" className="sr-only">{t('percentage.label_part')}</label>
+                <input
+                  id="part-val"
+                  type="number"
+                  value={value3}
+                  onChange={(e) => setValue3(e.target.value)}
+                  className="w-full p-4 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-2xl text-xl font-black font-mono focus:border-indigo-500 outline-none transition-all dark:text-white"
+                  placeholder="150"
+                />
+              </div>
+              <span className="text-xl font-bold text-slate-400 whitespace-nowrap">{t('percentage.of')}</span>
+              <div className="w-full">
+                <label htmlFor="whole-val" className="sr-only">{t('percentage.label_reference')}</label>
+                <input
+                  id="whole-val"
+                  type="number"
+                  value={value4}
+                  onChange={(e) => setValue4(e.target.value)}
+                  className="w-full p-4 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-2xl text-xl font-black font-mono focus:border-indigo-500 outline-none transition-all dark:text-white"
+                  placeholder="100"
+                />
+              </div>
             </div>
           </div>
           <div className="relative group/copy bg-white dark:bg-slate-800 p-6 rounded-2xl border border-slate-100 dark:border-slate-700 text-center">
@@ -163,12 +171,12 @@ export function PercentageCalculator({ initialData, onStateChange }: { initialDa
             <button
               onClick={() => copyToClipboard(whatPercent.toFixed(2) + '%', 'copy2')}
               disabled={isNaN(whatPercent)}
-              className={`absolute top-2 right-2 p-2 rounded-xl transition-all ${
+              className={`absolute top-2 right-2 p-2 rounded-xl transition-all focus-visible:ring-2 focus-visible:ring-indigo-500 focus-visible:outline-none focus-visible:opacity-100 ${
                 copiedId === 'copy2'
                   ? 'bg-emerald-50 dark:bg-emerald-500/10 text-emerald-600 dark:text-emerald-400'
                   : 'text-slate-400 hover:text-indigo-500 bg-white dark:bg-slate-800 opacity-0 group-hover/copy:opacity-100 shadow-sm border border-slate-100 dark:border-slate-700'
-              } disabled:opacity-0`}
-              aria-label={t('percentage.copy_result')}
+              } disabled:opacity-0 disabled:pointer-events-none`}
+              aria-label={t('percentage.copy_result_represents')}
             >
               {copiedId === 'copy2' ? <Check className="w-4 h-4" /> : <Copy className="w-4 h-4" />}
             </button>
@@ -181,12 +189,12 @@ export function PercentageCalculator({ initialData, onStateChange }: { initialDa
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-2 text-indigo-500">
             <TrendingUp className="w-4 h-4" />
-            <label htmlFor="initial-val" className="text-xs font-black uppercase tracking-widest text-slate-400 cursor-pointer">{t('percentage.title3')}</label>
+            <h3 className="text-xs font-black uppercase tracking-widest text-slate-400">{t('percentage.title3')}</h3>
           </div>
           <button
             onClick={() => { setInitialVal(''); setFinalVal(''); }}
             disabled={!initialVal && !finalVal}
-            className="text-[10px] font-bold text-rose-500 bg-rose-50 dark:bg-rose-500/10 hover:bg-rose-100 dark:hover:bg-rose-500/20 px-2 py-0.5 rounded-lg transition-all disabled:opacity-0"
+            className="text-[10px] font-bold text-rose-500 bg-rose-50 dark:bg-rose-500/10 hover:bg-rose-100 dark:hover:bg-rose-500/20 px-2 py-0.5 rounded-lg transition-all disabled:opacity-0 disabled:pointer-events-none"
           >
             {t('common.clear')}
           </button>
@@ -200,6 +208,7 @@ export function PercentageCalculator({ initialData, onStateChange }: { initialDa
               value={initialVal}
               onChange={(e) => setInitialVal(e.target.value)}
               className="w-full p-4 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-2xl text-2xl font-black font-mono focus:border-indigo-500 outline-none transition-all dark:text-white"
+              aria-label={t('percentage.val_initial')}
             />
           </div>
           <div className="space-y-3">
@@ -210,6 +219,7 @@ export function PercentageCalculator({ initialData, onStateChange }: { initialDa
               value={finalVal}
               onChange={(e) => setFinalVal(e.target.value)}
               className="w-full p-4 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-2xl text-2xl font-black font-mono focus:border-indigo-500 outline-none transition-all dark:text-white"
+              aria-label={t('percentage.val_final')}
             />
           </div>
         </div>
@@ -222,12 +232,12 @@ export function PercentageCalculator({ initialData, onStateChange }: { initialDa
             <button
               onClick={() => copyToClipboard((percentChange > 0 ? '+' : '') + percentChange.toFixed(2) + '%', 'copy3')}
               disabled={isNaN(percentChange)}
-              className={`absolute top-4 right-4 p-2 rounded-xl transition-all ${
+              className={`absolute top-4 right-4 p-2 rounded-xl transition-all focus-visible:ring-2 focus-visible:ring-indigo-500 focus-visible:outline-none focus-visible:opacity-100 ${
                 copiedId === 'copy3'
                   ? 'bg-emerald-50 dark:bg-emerald-500/10 text-emerald-600 dark:text-emerald-400'
                   : 'text-slate-400 hover:text-indigo-500 bg-white dark:bg-slate-800 opacity-0 group-hover/copy:opacity-100 shadow-sm border border-slate-100 dark:border-slate-700'
-              } disabled:opacity-0`}
-              aria-label={t('percentage.copy_result')}
+              } disabled:opacity-0 disabled:pointer-events-none`}
+              aria-label={t('percentage.copy_result_variation')}
             >
               {copiedId === 'copy3' ? <Check className="w-4 h-4" /> : <Copy className="w-4 h-4" />}
             </button>
@@ -239,12 +249,12 @@ export function PercentageCalculator({ initialData, onStateChange }: { initialDa
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-2 text-indigo-500">
             <Info className="w-4 h-4" />
-            <label htmlFor="base-val-after" className="text-xs font-black uppercase tracking-widest text-slate-400 cursor-pointer">{t('percentage.title4')}</label>
+            <h3 className="text-xs font-black uppercase tracking-widest text-slate-400">{t('percentage.title4')}</h3>
           </div>
           <button
             onClick={() => { setValAfter(''); setPercentAfter(''); }}
             disabled={!valAfter && !percentAfter}
-            className="text-[10px] font-bold text-rose-500 bg-rose-50 dark:bg-rose-500/10 hover:bg-rose-100 dark:hover:bg-rose-500/20 px-2 py-0.5 rounded-lg transition-all disabled:opacity-0"
+            className="text-[10px] font-bold text-rose-500 bg-rose-50 dark:bg-rose-500/10 hover:bg-rose-100 dark:hover:bg-rose-500/20 px-2 py-0.5 rounded-lg transition-all disabled:opacity-0 disabled:pointer-events-none"
           >
             {t('common.clear')}
           </button>
@@ -259,6 +269,7 @@ export function PercentageCalculator({ initialData, onStateChange }: { initialDa
               onChange={(e) => setValAfter(e.target.value)}
               className="w-full p-4 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-2xl text-2xl font-black font-mono focus:border-indigo-500 outline-none transition-all dark:text-white"
               placeholder="100"
+              aria-label={t('percentage.val_base')}
             />
           </div>
           <div className="space-y-3">
@@ -270,6 +281,7 @@ export function PercentageCalculator({ initialData, onStateChange }: { initialDa
               onChange={(e) => setPercentAfter(e.target.value)}
               className="w-full p-4 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-2xl text-2xl font-black font-mono focus:border-indigo-500 outline-none transition-all dark:text-white"
               placeholder="20"
+              aria-label={t('percentage.percent_change')}
             />
           </div>
         </div>
@@ -282,11 +294,12 @@ export function PercentageCalculator({ initialData, onStateChange }: { initialDa
              </div>
              <button
               onClick={() => copyToClipboard(afterIncrease.toFixed(2), 'copy4')}
-              className={`absolute top-2 right-2 p-2 rounded-xl transition-all ${
+              disabled={!valAfter && !percentAfter}
+              className={`absolute top-2 right-2 p-2 rounded-xl transition-all focus-visible:ring-2 focus-visible:ring-emerald-500 focus-visible:outline-none focus-visible:opacity-100 ${
                 copiedId === 'copy4'
                   ? 'bg-white text-emerald-600'
                   : 'text-emerald-400 hover:text-emerald-600 bg-white/50 opacity-0 group-hover/copy:opacity-100 shadow-sm border border-emerald-100'
-              }`}
+              } disabled:opacity-0 disabled:pointer-events-none`}
               aria-label={t('percentage.copy_increase')}
             >
               {copiedId === 'copy4' ? <Check className="w-4 h-4" /> : <Copy className="w-4 h-4" />}
@@ -299,11 +312,12 @@ export function PercentageCalculator({ initialData, onStateChange }: { initialDa
              </div>
              <button
               onClick={() => copyToClipboard(afterDecrease.toFixed(2), 'copy5')}
-              className={`absolute top-2 right-2 p-2 rounded-xl transition-all ${
+              disabled={!valAfter && !percentAfter}
+              className={`absolute top-2 right-2 p-2 rounded-xl transition-all focus-visible:ring-2 focus-visible:ring-rose-500 focus-visible:outline-none focus-visible:opacity-100 ${
                 copiedId === 'copy5'
                   ? 'bg-white text-rose-600'
                   : 'text-rose-400 hover:text-rose-600 bg-white/50 opacity-0 group-hover/copy:opacity-100 shadow-sm border border-rose-100'
-              }`}
+              } disabled:opacity-0 disabled:pointer-events-none`}
               aria-label={t('percentage.copy_decrease')}
             >
               {copiedId === 'copy5' ? <Check className="w-4 h-4" /> : <Copy className="w-4 h-4" />}

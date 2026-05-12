@@ -37,6 +37,7 @@ export function WordCounter({ initialData, onStateChange }: { initialData?: any;
         writingTime: 0,
         ari: 0,
         ariGrade: 'N/A',
+        fog: 0,
         topWords: [],
         topBigrams: [],
         charFreq: [] as [string, number][]
@@ -83,6 +84,28 @@ export function WordCounter({ initialData, onStateChange }: { initialData?: any;
     let ari = 0;
     if (wordCount > 0 && sentenceCount > 0) {
       ari = 4.71 * (charCount / wordCount) + 0.5 * (wordCount / sentenceCount) - 21.43;
+    }
+
+    // Gunning Fog Index
+    // Fog = 0.4 * ((words/sentences) + 100 * (complex_words/words))
+    // Complex words: 3+ syllables
+    const getSyllables = (word: string) => {
+      word = word.toLowerCase().replace(/[^a-zàâäéèêëîïôöùûüÿç]/g, '');
+      if (word.length <= 3) return 1;
+      word = word.replace(/(?:[^laeiouy]|ed|es|e)$/, '');
+      word = word.replace(/^y/, '');
+      const matched = word.match(/[aeiouyàâäéèêëîïôöùûüÿ]{1,2}/g);
+      return matched ? matched.length : 1;
+    };
+
+    let complexWords = 0;
+    words.forEach((w: string) => {
+      if (getSyllables(w) >= 3) complexWords++;
+    });
+
+    let fog = 0;
+    if (wordCount > 0 && sentenceCount > 0) {
+      fog = 0.4 * ((wordCount / sentenceCount) + 100 * (complexWords / wordCount));
     }
 
     const getAriGrade = (score: number) => {
@@ -153,6 +176,7 @@ export function WordCounter({ initialData, onStateChange }: { initialData?: any;
       writingTime: wordCount / 40,
       ari: ari > 0 ? ari.toFixed(1) : 0,
       ariGrade: getAriGrade(ari),
+      fog: fog.toFixed(1),
       flesch: flesch.toFixed(1),
       fleschLevel: getFleschLevel(flesch),
       topWords,
@@ -207,6 +231,7 @@ export function WordCounter({ initialData, onStateChange }: { initialData?: any;
 - ${t('wordcounter.stat.paragraphs')}: ${stats.paragraphs}
 - ${t('wordcounter.stat.sentences')}: ${stats.sentences}
 - ${t('wordcounter.stat.readability')} (ARI): ${stats.ari} (${stats.ariGrade})
+- Gunning Fog Index: ${stats.fog}
 - ${t('wordcounter.stat.flesch')}: ${stats.flesch} (${stats.fleschLevel})
 - ${t('wordcounter.stat.reading_time')}: ~${stats.readingTime.toFixed(1)} min
 - ${t('wordcounter.stat.speaking_time')}: ~${stats.speakingTime.toFixed(1)} min`;
@@ -296,7 +321,7 @@ export function WordCounter({ initialData, onStateChange }: { initialData?: any;
           { icon: <FileText className="w-4 h-4" />, label: t('wordcounter.stat.lines'), value: stats.lines },
           { icon: <Pilcrow className="w-4 h-4" />, label: t('wordcounter.stat.paragraphs'), value: stats.paragraphs },
           { icon: <AlignLeft className="w-4 h-4" />, label: t('wordcounter.stat.sentences'), value: stats.sentences },
-          { icon: <Star className="w-4 h-4" />, label: t('wordcounter.stat.readability'), value: stats.ariGrade },
+          { icon: <Star className="w-4 h-4" />, label: "Gunning Fog", value: stats.fog },
           { icon: <Clock className="w-4 h-4" />, label: t('wordcounter.stat.reading'), value: formatTime(stats.readingTime) },
           { icon: <MessageSquare className="w-4 h-4" />, label: t('wordcounter.stat.speaking'), value: formatTime(stats.speakingTime) },
           { icon: <FileText className="w-4 h-4" />, label: t('wordcounter.stat.writing'), value: formatTime(stats.writingTime) },
@@ -437,7 +462,23 @@ export function WordCounter({ initialData, onStateChange }: { initialData?: any;
             <h4 className="font-bold dark:text-white flex items-center gap-2">
                <BarChart3 className="w-4 h-4 text-indigo-500" /> {t('wordcounter.density_title')}
             </h4>
-            <p className="text-sm text-slate-500 dark:text-slate-400 leading-relaxed">
+            <div className="space-y-3">
+              {stats.topWords.slice(0, 5).map(([word, count]) => (
+                <div key={word} className="space-y-1">
+                  <div className="flex justify-between text-xs font-bold">
+                    <span className="dark:text-slate-300">{word}</span>
+                    <span className="text-indigo-600 dark:text-indigo-400">{((count as number / stats.words) * 100).toFixed(1)}%</span>
+                  </div>
+                  <div className="h-1.5 w-full bg-slate-200 dark:bg-slate-800 rounded-full overflow-hidden">
+                    <div
+                      className="h-full bg-indigo-500 rounded-full transition-all"
+                      style={{ width: `${(count as number / stats.words) * 100}%` }}
+                    />
+                  </div>
+                </div>
+              ))}
+            </div>
+            <p className="text-[10px] text-slate-500 dark:text-slate-400 leading-relaxed mt-2">
                {t('wordcounter.density_description')}
             </p>
          </div>

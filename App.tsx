@@ -102,6 +102,7 @@ import {
   SunDim,
   Wifi,
   FileSearch,
+  Box,
 } from "lucide-react";
 const AdPlaceholder = lazy(() => import("./components/AdPlaceholder").then(m => ({ default: m.AdPlaceholder })));
 
@@ -251,6 +252,8 @@ const JSONToGraphQL = lazy(() => import("./components/JSONToGraphQL").then(m => 
 const JSONToMongoose = lazy(() => import("./components/JSONToMongoose").then(m => ({ default: m.JSONToMongoose })));
 const HTMLToMarkdown = lazy(() => import("./components/HTMLToMarkdown").then(m => ({ default: m.HTMLToMarkdown })));
 const JsonDiff = lazy(() => import("./components/JsonDiff").then(m => ({ default: m.JsonDiff })));
+const NeumorphismGenerator = lazy(() => import("./components/NeumorphismGenerator").then(m => ({ default: m.NeumorphismGenerator })));
+const JSONToEnv = lazy(() => import("./components/JSONToEnv").then(m => ({ default: m.JSONToEnv })));
 
 // ⚡ Bolt Optimization: Pre-calculating tool map and search index for O(1) lookups and faster filtering
 const toolsMap: Record<string, Tool> = {};
@@ -1547,6 +1550,17 @@ const tools: Tool[] = [
     keywords: ["css", "triangle", "shape", "design", "frontend", "pure css"],
   },
   {
+    id: "neumorphism-generator",
+    name: "Neumorphism",
+    nameEn: "Neumorphism",
+    icon: Box,
+    description: "Générateur visuel de design Neumorphisme (Soft UI)",
+    descriptionEn: "Visual Neumorphism (Soft UI) design generator",
+    Component: NeumorphismGenerator,
+    category: "dev",
+    keywords: ["css", "neumorphism", "soft ui", "design", "frontend", "shadow"],
+  },
+  {
     id: "css-border-radius",
     name: "Border Radius CSS",
     nameEn: "CSS Border Radius",
@@ -1644,6 +1658,17 @@ const tools: Tool[] = [
     Component: JSONToRust,
     category: "dev",
     keywords: ["rust", "serde", "struct", "json", "types"],
+  },
+  {
+    id: "json-to-env",
+    name: "JSON en ENV",
+    nameEn: "JSON to ENV",
+    icon: Terminal,
+    description: "Convertir du JSON en format de fichier .env",
+    descriptionEn: "Convert JSON to .env file format",
+    Component: JSONToEnv,
+    category: "dev",
+    keywords: ["env", "environment", "json", "config", "dotenv"],
   },
   {
     id: "json-to-php",

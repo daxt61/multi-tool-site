@@ -1,11 +1,13 @@
 import { useState, useEffect } from 'react';
 import { Table, Plus, RotateCcw, Copy, Check, Download, AlertCircle, Code } from 'lucide-react';
+import { useTranslation } from 'react-i18next';
 
 const MAX_ROWS = 50;
 const MAX_COLS = 10;
 const MAX_CELL_LENGTH = 1000;
 
 export function MarkdownTableGenerator({ initialData, onStateChange }: { initialData?: any; onStateChange?: (state: any) => void }) {
+  const { t } = useTranslation();
   const [data, setData] = useState<string[][]>(() => {
     // Sentinel: Validate and slice initialData to mitigate local DoS from massive tables.
     const rawData = initialData?.data || [
@@ -20,13 +22,21 @@ export function MarkdownTableGenerator({ initialData, onStateChange }: { initial
       Array.isArray(row) ? row.slice(0, MAX_COLS).map(cell => String(cell || '').slice(0, MAX_CELL_LENGTH)) : []
     );
   });
+
+  const [alignments, setAlignments] = useState<('left' | 'center' | 'right')[]>(() => {
+    if (initialData?.alignments && Array.isArray(initialData.alignments)) {
+      return initialData.alignments.slice(0, MAX_COLS);
+    }
+    return Array(data[0].length).fill('left');
+  });
+
   const [copied, setCopied] = useState(false);
   const [copiedHtml, setCopiedHtml] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    onStateChange?.({ data });
-  }, [data]);
+    onStateChange?.({ data, alignments });
+  }, [data, alignments]);
 
   const updateCell = (r: number, c: number, val: string) => {
     if (val.length > MAX_CELL_LENGTH) {
@@ -56,6 +66,7 @@ export function MarkdownTableGenerator({ initialData, onStateChange }: { initial
     }
     setError(null);
     setData(data.map(row => [...row, '']));
+    setAlignments([...alignments, 'left']);
   };
 
   const removeRow = (r: number) => {
@@ -68,13 +79,18 @@ export function MarkdownTableGenerator({ initialData, onStateChange }: { initial
     if (data[0].length <= 1) return;
     setError(null);
     setData(data.map(row => row.filter((_, index) => index !== c)));
+    setAlignments(alignments.filter((_, index) => index !== c));
   };
 
   const generateMarkdown = () => {
     if (data.length === 0) return '';
     const escape = (val: string) => String(val).replace(/\|/g, '\\|');
     let md = '| ' + data[0].map(escape).join(' | ') + ' |\n';
-    md += '| ' + data[0].map(() => '---').join(' | ') + ' |\n';
+    md += '| ' + alignments.map(a => {
+      if (a === 'center') return ':---:';
+      if (a === 'right') return '---:';
+      return ':---';
+    }).join(' | ') + ' |\n';
     for (let i = 1; i < data.length; i++) {
       md += '| ' + data[i].map(escape).join(' | ') + ' |\n';
     }
@@ -94,8 +110,9 @@ export function MarkdownTableGenerator({ initialData, onStateChange }: { initial
 
     // Header
     html += '  <thead>\n    <tr>\n';
-    data[0].forEach(cell => {
-      html += `      <th class="border border-slate-300 px-4 py-2">${escape(cell)}</th>\n`;
+    data[0].forEach((cell, idx) => {
+      const alignClass = alignments[idx] === 'center' ? 'text-center' : (alignments[idx] === 'right' ? 'text-right' : 'text-left');
+      html += `      <th class="border border-slate-300 px-4 py-2 ${alignClass}">${escape(cell)}</th>\n`;
     });
     html += '    </tr>\n  </thead>\n';
 
@@ -103,8 +120,9 @@ export function MarkdownTableGenerator({ initialData, onStateChange }: { initial
     html += '  <tbody>\n';
     for (let i = 1; i < data.length; i++) {
       html += '    <tr>\n';
-      data[i].forEach(cell => {
-        html += `      <td class="border border-slate-300 px-4 py-2">${escape(cell)}</td>\n`;
+      data[i].forEach((cell, idx) => {
+        const alignClass = alignments[idx] === 'center' ? 'text-center' : (alignments[idx] === 'right' ? 'text-right' : 'text-left');
+        html += `      <td class="border border-slate-300 px-4 py-2 ${alignClass}">${escape(cell)}</td>\n`;
       });
       html += '    </tr>\n';
     }
@@ -142,7 +160,14 @@ export function MarkdownTableGenerator({ initialData, onStateChange }: { initial
       ['Donnée 1', 'Donnée 2', 'Donnée 3'],
       ['Donnée 4', 'Donnée 5', 'Donnée 6']
     ]);
+    setAlignments(['left', 'left', 'left']);
     setError(null);
+  };
+
+  const updateAlignment = (c: number, align: 'left' | 'center' | 'right') => {
+    const newAlignments = [...alignments];
+    newAlignments[c] = align;
+    setAlignments(newAlignments);
   };
 
   return (
@@ -160,13 +185,13 @@ export function MarkdownTableGenerator({ initialData, onStateChange }: { initial
             onClick={addRow}
             className="px-4 py-2 bg-slate-900 dark:bg-white text-white dark:text-slate-900 rounded-xl font-bold text-sm flex items-center gap-2 hover:opacity-90 transition-all"
           >
-            <Plus className="w-4 h-4" /> Ajouter ligne
+            <Plus className="w-4 h-4" /> {t('markdown.add_row')}
           </button>
           <button
             onClick={addCol}
             className="px-4 py-2 bg-slate-900 dark:bg-white text-white dark:text-slate-900 rounded-xl font-bold text-sm flex items-center gap-2 hover:opacity-90 transition-all"
           >
-            <Plus className="w-4 h-4" /> Ajouter colonne
+            <Plus className="w-4 h-4" /> {t('markdown.add_col')}
           </button>
           <button
             onClick={reset}
@@ -215,15 +240,35 @@ export function MarkdownTableGenerator({ initialData, onStateChange }: { initial
             <tr>
               {data[0].map((_, c) => (
                 <th key={c} className="p-1 relative group">
-                   <input
-                    type="text"
-                    value={data[0][c]}
-                    onChange={(e) => updateCell(0, c, e.target.value)}
-                    className="w-full p-3 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl font-bold text-sm outline-none focus:ring-2 focus:ring-indigo-500/20"
-                  />
+                  <div className="flex flex-col gap-2">
+                    <div className="flex justify-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
+                      {(['left', 'center', 'right'] as const).map((a) => (
+                        <button
+                          key={a}
+                          onClick={() => updateAlignment(c, a)}
+                          className={`w-6 h-6 rounded flex items-center justify-center text-[10px] font-bold border transition-all ${
+                            alignments[c] === a
+                              ? 'bg-indigo-600 text-white border-indigo-600'
+                              : 'bg-white dark:bg-slate-800 text-slate-400 border-slate-200 dark:border-slate-700 hover:border-indigo-500/50'
+                          }`}
+                          title={t(`markdown.align_${a}`)}
+                        >
+                          {a.charAt(0).toUpperCase()}
+                        </button>
+                      ))}
+                    </div>
+                    <input
+                      type="text"
+                      value={data[0][c]}
+                      onChange={(e) => updateCell(0, c, e.target.value)}
+                      className={`w-full p-3 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl font-bold text-sm outline-none focus:ring-2 focus:ring-indigo-500/20 ${
+                        alignments[c] === 'center' ? 'text-center' : (alignments[c] === 'right' ? 'text-right' : 'text-left')
+                      }`}
+                    />
+                  </div>
                   <button
                     onClick={() => removeCol(c)}
-                    className="absolute -top-2 -right-2 w-5 h-5 bg-rose-500 text-white rounded-full flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity text-[10px]"
+                    className="absolute top-8 -right-2 w-5 h-5 bg-rose-500 text-white rounded-full flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity text-[10px]"
                   >
                     ×
                   </button>
@@ -240,7 +285,9 @@ export function MarkdownTableGenerator({ initialData, onStateChange }: { initial
                       type="text"
                       value={data[r + 1][c]}
                       onChange={(e) => updateCell(r + 1, c, e.target.value)}
-                      className="w-full p-3 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-sm outline-none focus:ring-2 focus:ring-indigo-500/20"
+                      className={`w-full p-3 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-sm outline-none focus:ring-2 focus:ring-indigo-500/20 ${
+                        alignments[c] === 'center' ? 'text-center' : (alignments[c] === 'right' ? 'text-right' : 'text-left')
+                      }`}
                     />
                     {c === row.length - 1 && (
                        <button

@@ -2493,6 +2493,16 @@ function ToolView({ favorites, toggleFavorite, onVisit }: {
   const [shareCopied, setShareCopied] = useState(false);
   const [toolState, setToolState] = useState<any>(null);
 
+  const favoriteSet = useMemo(() => new Set(favorites), [favorites]);
+
+  const relatedTools = useMemo(() => {
+    if (!currentTool) return [];
+    return tools
+      .filter(t => t.category === currentTool.category && t.id !== currentTool.id)
+      .sort(() => 0.5 - Math.random())
+      .slice(0, 4);
+  }, [currentTool]);
+
   useEffect(() => {
     setToolState(null);
     if (toolId) {
@@ -2619,6 +2629,29 @@ function ToolView({ favorites, toggleFavorite, onVisit }: {
           <currentTool.Component initialData={initialData} onStateChange={setToolState} />
         </Suspense>
       </div>
+
+      {relatedTools.length > 0 && (
+        <div className="mt-16 space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-700 delay-300">
+          <div className="flex items-center gap-3 px-1">
+            <div className="w-8 h-8 rounded-lg bg-indigo-50 dark:bg-indigo-900/20 flex items-center justify-center text-indigo-500">
+              <Sparkles className="w-4 h-4" />
+            </div>
+            <h3 className="text-sm font-black uppercase tracking-widest text-slate-400">
+              {t("tool.related")}
+            </h3>
+          </div>
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+            {relatedTools.map((tool) => (
+              <ToolCard
+                key={tool.id}
+                tool={tool}
+                isFavorite={favoriteSet.has(tool.id)}
+                onToggleFavorite={toggleFavorite}
+              />
+            ))}
+          </div>
+        </div>
+      )}
 
       <div className="mt-12">
         <Suspense fallback={null}>

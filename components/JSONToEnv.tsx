@@ -3,6 +3,7 @@ import { Copy, Check, Trash2, Braces, AlertCircle, Info, Download, Terminal, Set
 import { useTranslation } from 'react-i18next';
 
 const MAX_LENGTH = 100000;
+const MAX_DEPTH = 20;
 
 export function JSONToEnv({ initialData, onStateChange }: { initialData?: any; onStateChange?: (state: any) => void }) {
   const { t } = useTranslation();
@@ -35,7 +36,10 @@ export function JSONToEnv({ initialData, onStateChange }: { initialData?: any; o
       const parsed = JSON.parse(jsonInput);
       const lines: string[] = [];
 
-      const flatten = (obj: any, path: string[] = []) => {
+      const flatten = (obj: any, path: string[] = [], depth: number = 0) => {
+        // Sentinel: Enforce recursion depth limit to prevent Stack Overflow DoS.
+        if (depth > MAX_DEPTH) return;
+
         if (obj === null || typeof obj !== 'object' || Array.isArray(obj)) {
           let key = path.join('_');
           if (uppercaseKeys) key = key.toUpperCase();
@@ -54,7 +58,7 @@ export function JSONToEnv({ initialData, onStateChange }: { initialData?: any; o
         }
 
         Object.entries(obj).forEach(([key, value]) => {
-          flatten(value, [...path, key]);
+          flatten(value, [...path, key], depth + 1);
         });
       };
 

@@ -14,6 +14,15 @@ export function CaseConverter({ initialData, onStateChange }: { initialData?: an
     onStateChange?.({ text });
   }, [text, onStateChange]);
 
+  // Sentinel: Use cryptographically secure random values instead of Math.random()
+  // to ensure unbiased and unpredictable character selection for randomized cases.
+  const getSecureRandomBoolean = useCallback(() => {
+    if (typeof window === 'undefined' || !window.crypto) return Math.random() > 0.5;
+    const array = new Uint8Array(1);
+    window.crypto.getRandomValues(array);
+    return array[0] > 127;
+  }, []);
+
   const conversions = {
     'camelCase': (t: string) => {
       const words = t.toLowerCase().split(/[\s_-]+/);
@@ -40,7 +49,7 @@ export function CaseConverter({ initialData, onStateChange }: { initialData?: an
     'path/case': (t: string) => t.toLowerCase().replace(/[\s_-]+/g, '/'),
     'Title Case': (t: string) => t.toLowerCase().replace(/(^\s*\p{L}|[^\p{L}]\p{L})/gu, s => s.toUpperCase()),
     'Sentence case': (t: string) => t.toLowerCase().replace(/(^\s*\p{L}|[.!?]\s+\p{L}|[\n\r]\s*\p{L})/gu, s => s.toUpperCase()),
-    'mOcKiNg CaSe': (t: string) => t.split('').map(c => Math.random() > 0.5 ? c.toLowerCase() : c.toUpperCase()).join(''),
+    'mOcKiNg CaSe': (t: string) => t.split('').map(c => getSecureRandomBoolean() ? c.toLowerCase() : c.toUpperCase()).join(''),
     'UPPERCASE': (t: string) => t.toUpperCase(),
     'lowercase': (t: string) => t.toLowerCase(),
     'aLtErNaTiNg CaSe': (t: string) => t.split('').map((c, i) => i % 2 === 0 ? c.toLowerCase() : c.toUpperCase()).join(''),

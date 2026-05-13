@@ -174,10 +174,13 @@ ${idealWeightRange ? `- Poids idéal estimé : ${idealWeightRange.low.toFixed(1)
           <div className="space-y-6">
             <div className="flex items-center justify-between p-4 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-2xl">
               <div className="space-y-1">
-                <div className="text-xs font-bold dark:text-white">Nouvelle Formule</div>
+                <div id="new-formula-label" className="text-xs font-bold dark:text-white">Nouvelle Formule</div>
                 <div className="text-[10px] text-slate-400">Proposée par Nick Trefethen (Oxon)</div>
               </div>
               <button
+                role="switch"
+                aria-checked={useNewFormula}
+                aria-labelledby="new-formula-label"
                 onClick={() => setUseNewFormula(!useNewFormula)}
                 className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 ${useNewFormula ? 'bg-indigo-600' : 'bg-slate-200 dark:bg-slate-700'}`}
               >
@@ -224,7 +227,7 @@ ${idealWeightRange ? `- Poids idéal estimé : ${idealWeightRange.low.toFixed(1)
                </div>
                <button
                   onClick={handleCopyIdeal}
-                  className={`p-2 rounded-xl transition-all ${copiedIdeal ? 'bg-emerald-50 dark:bg-emerald-500/10 text-emerald-600 dark:text-emerald-400' : 'bg-white dark:bg-slate-800 text-slate-400 hover:text-indigo-500 opacity-0 group-hover/ideal:opacity-100'}`}
+                  className={`p-2 rounded-xl transition-all z-20 ${copiedIdeal ? 'bg-emerald-50 dark:bg-emerald-500/10 text-emerald-600 dark:text-emerald-400' : 'bg-white dark:bg-slate-800 text-slate-400 hover:text-indigo-500 opacity-0 group-hover/ideal:opacity-100 focus-visible:opacity-100'}`}
                   aria-label="Copier le poids idéal"
                 >
                   {copiedIdeal ? <Check className="w-4 h-4" /> : <Copy className="w-4 h-4" />}
@@ -251,7 +254,7 @@ ${idealWeightRange ? `- Poids idéal estimé : ${idealWeightRange.low.toFixed(1)
               {copied ? <Check className="w-5 h-5" /> : <Copy className="w-5 h-5" />}
             </button>
             <div className="text-slate-400 font-bold uppercase tracking-widest text-xs">Votre IMC</div>
-            <div className="text-6xl md:text-8xl font-black text-white font-mono tracking-tighter">
+            <div className="text-6xl md:text-8xl font-black text-white font-mono tracking-tighter" aria-live="polite">
               {bmi > 0 ? bmi.toFixed(1) : '0.0'}
             </div>
             <div className={`px-6 py-2 rounded-full font-black text-sm uppercase tracking-widest ${category.color} text-white shadow-lg`}>

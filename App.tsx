@@ -246,6 +246,9 @@ const JSONToCSharp = lazy(() => import("./components/JSONToCSharp").then(m => ({
 const JSONToPython = lazy(() => import("./components/JSONToPython").then(m => ({ default: m.JSONToPython })));
 const JSONToRust = lazy(() => import("./components/JSONToRust").then(m => ({ default: m.JSONToRust })));
 const JSONToPHP = lazy(() => import("./components/JSONToPHP").then(m => ({ default: m.JSONToPHP })));
+const JSONToSwift = lazy(() => import("./components/JSONToSwift").then(m => ({ default: m.JSONToSwift })));
+const JSONToRuby = lazy(() => import("./components/JSONToRuby").then(m => ({ default: m.JSONToRuby })));
+const JSONToScala = lazy(() => import("./components/JSONToScala").then(m => ({ default: m.JSONToScala })));
 const JSONToKotlin = lazy(() => import("./components/JSONToKotlin").then(m => ({ default: m.JSONToKotlin })));
 const JSONToDart = lazy(() => import("./components/JSONToDart").then(m => ({ default: m.JSONToDart })));
 const JSONToGraphQL = lazy(() => import("./components/JSONToGraphQL").then(m => ({ default: m.JSONToGraphQL })));
@@ -1680,6 +1683,39 @@ const tools: Tool[] = [
     Component: JSONToPHP,
     category: "dev",
     keywords: ["php", "class", "json", "types"],
+  },
+  {
+    id: "json-to-swift",
+    name: "JSON en Swift",
+    nameEn: "JSON to Swift",
+    icon: FileCode,
+    description: "Convertir du JSON en structures Swift Codable",
+    descriptionEn: "Convert JSON to Swift Codable structs",
+    Component: JSONToSwift,
+    category: "dev",
+    keywords: ["swift", "ios", "macos", "codable", "json"],
+  },
+  {
+    id: "json-to-ruby",
+    name: "JSON en Ruby",
+    nameEn: "JSON to Ruby",
+    icon: FileCode,
+    description: "Convertir du JSON en classes Ruby",
+    descriptionEn: "Convert JSON to Ruby classes",
+    Component: JSONToRuby,
+    category: "dev",
+    keywords: ["ruby", "rails", "class", "json"],
+  },
+  {
+    id: "json-to-scala",
+    name: "JSON en Scala",
+    nameEn: "JSON to Scala",
+    icon: FileCode,
+    description: "Convertir du JSON en case classes Scala",
+    descriptionEn: "Convert JSON to Scala case classes",
+    Component: JSONToScala,
+    category: "dev",
+    keywords: ["scala", "spark", "case class", "json"],
   },
   {
     id: "json-to-kotlin",

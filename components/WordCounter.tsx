@@ -86,6 +86,17 @@ export function WordCounter({ initialData, onStateChange }: { initialData?: any;
       ari = 4.71 * (charCount / wordCount) + 0.5 * (wordCount / sentenceCount) - 21.43;
     }
 
+    // Coleman-Liau Index
+    // CLI = 0.0588 * L - 0.296 * S - 15.8
+    // L: average number of letters per 100 words
+    // S: average number of sentences per 100 words
+    let cli = 0;
+    if (wordCount > 0) {
+      const L = (charCount / wordCount) * 100;
+      const S = (sentenceCount / wordCount) * 100;
+      cli = 0.0588 * L - 0.296 * S - 15.8;
+    }
+
     // Gunning Fog Index
     // Fog = 0.4 * ((words/sentences) + 100 * (complex_words/words))
     // Complex words: 3+ syllables
@@ -106,6 +117,13 @@ export function WordCounter({ initialData, onStateChange }: { initialData?: any;
     let fog = 0;
     if (wordCount > 0 && sentenceCount > 0) {
       fog = 0.4 * ((wordCount / sentenceCount) + 100 * (complexWords / wordCount));
+    }
+
+    // SMOG Index
+    // SMOG = 1.0430 * sqrt(complex_words * (30/sentences)) + 3.1291
+    let smog = 0;
+    if (sentenceCount >= 3) {
+      smog = 1.0430 * Math.sqrt(complexWords * (30 / sentenceCount)) + 3.1291;
     }
 
     const getAriGrade = (score: number) => {
@@ -176,6 +194,8 @@ export function WordCounter({ initialData, onStateChange }: { initialData?: any;
       writingTime: wordCount / 40,
       ari: ari > 0 ? ari.toFixed(1) : 0,
       ariGrade: getAriGrade(ari),
+      cli: cli.toFixed(1),
+      smog: smog > 0 ? smog.toFixed(1) : 'N/A',
       fog: fog.toFixed(1),
       flesch: flesch.toFixed(1),
       fleschLevel: getFleschLevel(flesch),
@@ -231,7 +251,9 @@ export function WordCounter({ initialData, onStateChange }: { initialData?: any;
 - ${t('wordcounter.stat.paragraphs')}: ${stats.paragraphs}
 - ${t('wordcounter.stat.sentences')}: ${stats.sentences}
 - ${t('wordcounter.stat.readability')} (ARI): ${stats.ari} (${stats.ariGrade})
-- Gunning Fog Index: ${stats.fog}
+- ${t('wordcounter.stat.cli')}: ${stats.cli}
+- ${t('wordcounter.stat.smog')}: ${stats.smog}
+- ${t('wordcounter.stat.fog')}: ${stats.fog}
 - ${t('wordcounter.stat.flesch')}: ${stats.flesch} (${stats.fleschLevel})
 - ${t('wordcounter.stat.reading_time')}: ~${stats.readingTime.toFixed(1)} min
 - ${t('wordcounter.stat.speaking_time')}: ~${stats.speakingTime.toFixed(1)} min`;
@@ -321,7 +343,9 @@ export function WordCounter({ initialData, onStateChange }: { initialData?: any;
           { icon: <FileText className="w-4 h-4" />, label: t('wordcounter.stat.lines'), value: stats.lines },
           { icon: <Pilcrow className="w-4 h-4" />, label: t('wordcounter.stat.paragraphs'), value: stats.paragraphs },
           { icon: <AlignLeft className="w-4 h-4" />, label: t('wordcounter.stat.sentences'), value: stats.sentences },
-          { icon: <Star className="w-4 h-4" />, label: "Gunning Fog", value: stats.fog },
+          { icon: <Star className="w-4 h-4" />, label: t('wordcounter.stat.cli'), value: stats.cli },
+          { icon: <Star className="w-4 h-4" />, label: t('wordcounter.stat.smog'), value: stats.smog },
+          { icon: <Star className="w-4 h-4" />, label: t('wordcounter.stat.fog'), value: stats.fog },
           { icon: <Clock className="w-4 h-4" />, label: t('wordcounter.stat.reading'), value: formatTime(stats.readingTime) },
           { icon: <MessageSquare className="w-4 h-4" />, label: t('wordcounter.stat.speaking'), value: formatTime(stats.speakingTime) },
           { icon: <FileText className="w-4 h-4" />, label: t('wordcounter.stat.writing'), value: formatTime(stats.writingTime) },

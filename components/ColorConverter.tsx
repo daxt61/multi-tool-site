@@ -307,6 +307,32 @@ export function ColorConverter({ initialData, onStateChange }: {
 
   const isDefault = hex === DEFAULT_COLORS.hex;
 
+  const generateVariations = (rgb: { r: number, g: number, b: number }) => {
+    const variations = { tints: [] as string[], shades: [] as string[] };
+
+    // Tints (mix with white)
+    for (let i = 1; i <= 10; i++) {
+      const weight = i * 0.1;
+      const r = Math.round(rgb.r + (255 - rgb.r) * weight);
+      const g = Math.round(rgb.g + (255 - rgb.g) * weight);
+      const b = Math.round(rgb.b + (255 - rgb.b) * weight);
+      variations.tints.push(rgbToHex(r, g, b));
+    }
+
+    // Shades (mix with black)
+    for (let i = 1; i <= 10; i++) {
+      const weight = i * 0.1;
+      const r = Math.round(rgb.r * (1 - weight));
+      const g = Math.round(rgb.g * (1 - weight));
+      const b = Math.round(rgb.b * (1 - weight));
+      variations.shades.push(rgbToHex(r, g, b));
+    }
+
+    return variations;
+  };
+
+  const variations = generateVariations(rgb);
+
   return (
     <div className="max-w-5xl mx-auto space-y-12">
       <div className="flex justify-end items-center px-1">
@@ -532,6 +558,57 @@ export function ColorConverter({ initialData, onStateChange }: {
                 onChange={(e) => updateFromOklch(oklch.l, oklch.c, Number(e.target.value))}
                 className="w-full h-1.5 rounded-lg appearance-none cursor-pointer bg-slate-100 dark:bg-slate-800 accent-indigo-600"
               />
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/* Variations Area */}
+      <div className="bg-white dark:bg-slate-900/40 border border-slate-200 dark:border-slate-800 p-8 rounded-[2.5rem] space-y-8">
+        <h4 className="text-xs font-black uppercase tracking-widest text-slate-400 flex items-center gap-2 px-1">
+          <Palette className="w-4 h-4 text-indigo-500" /> {t('colorconverter.shades_tints')}
+        </h4>
+
+        <div className="space-y-8">
+          <div className="space-y-4">
+            <span className="text-xs font-bold text-slate-500 px-1">{t('colorconverter.tints')}</span>
+            <div className="grid grid-cols-5 md:grid-cols-11 gap-2">
+              <button
+                onClick={() => updateFromHex(hex)}
+                className="h-12 rounded-xl border border-slate-200 dark:border-slate-700 transition-transform hover:scale-110 active:scale-95"
+                style={{ backgroundColor: hex }}
+                title={hex}
+              />
+              {variations.tints.map((t, i) => (
+                <button
+                  key={`tint-${i}`}
+                  onClick={() => updateFromHex(t)}
+                  className="h-12 rounded-xl border border-slate-200 dark:border-slate-700 transition-transform hover:scale-110 active:scale-95"
+                  style={{ backgroundColor: t }}
+                  title={t}
+                />
+              ))}
+            </div>
+          </div>
+
+          <div className="space-y-4">
+            <span className="text-xs font-bold text-slate-500 px-1">{t('colorconverter.shades')}</span>
+            <div className="grid grid-cols-5 md:grid-cols-11 gap-2">
+              <button
+                onClick={() => updateFromHex(hex)}
+                className="h-12 rounded-xl border border-slate-200 dark:border-slate-700 transition-transform hover:scale-110 active:scale-95"
+                style={{ backgroundColor: hex }}
+                title={hex}
+              />
+              {variations.shades.map((s, i) => (
+                <button
+                  key={`shade-${i}`}
+                  onClick={() => updateFromHex(s)}
+                  className="h-12 rounded-xl border border-slate-200 dark:border-slate-700 transition-transform hover:scale-110 active:scale-95"
+                  style={{ backgroundColor: s }}
+                  title={s}
+                />
+              ))}
             </div>
           </div>
         </div>

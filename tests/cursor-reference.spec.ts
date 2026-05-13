@@ -1,7 +1,7 @@
 import { test, expect } from '@playwright/test';
 
 test('search input has an accessible label', async ({ page }) => {
-  await page.goto('http://localhost:5173/outil/cursor-reference');
+  await page.goto('http://localhost:5173/fr/outil/cursor-reference');
   // Check if the search input can be found by its label
   const searchInput = page.getByLabel('Rechercher un curseur');
   await expect(searchInput).toBeVisible();
@@ -9,7 +9,7 @@ test('search input has an accessible label', async ({ page }) => {
 });
 
 test('copy button is visible on focus for keyboard users', async ({ page }) => {
-  await page.goto('http://localhost:5173/outil/cursor-reference');
+  await page.goto('http://localhost:5173/fr/outil/cursor-reference');
 
   // Wait for the tool to load and render cards
   await page.waitForSelector('h4');

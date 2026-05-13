@@ -1,9 +1,11 @@
 import { useState, useMemo, useEffect } from 'react';
 import { Link as LinkIcon, Globe, FileText, Hash, Search, Copy, Check, Trash2, Info, Download, ShieldCheck, Terminal, AlertCircle } from 'lucide-react';
+import { useTranslation } from 'react-i18next';
 
 const MAX_LENGTH = 10000;
 
 export function UrlParser({ initialData, onStateChange }: { initialData?: any; onStateChange?: (state: any) => void }) {
+  const { t } = useTranslation();
   const [url, setUrl] = useState(initialData?.url || '');
   const [copied, setCopied] = useState<string | null>(null);
 
@@ -14,7 +16,7 @@ export function UrlParser({ initialData, onStateChange }: { initialData?: any; o
   const parsed = useMemo(() => {
     if (!url.trim()) return null;
     if (url.length > MAX_LENGTH) {
-      return { isValid: false as const, error: `L'URL est trop longue. Limite de ${MAX_LENGTH.toLocaleString()} caractères.` };
+      return { isValid: false as const, error: t('urlparser.error_too_long', { max: MAX_LENGTH.toLocaleString() }) };
     }
     try {
       // Handle cases where protocol might be missing
@@ -43,7 +45,7 @@ export function UrlParser({ initialData, onStateChange }: { initialData?: any; o
     } catch (e) {
       return { isValid: false as const };
     }
-  }, [url]);
+  }, [url, t]);
 
   const copyToClipboard = (text: string, id: string) => {
     navigator.clipboard.writeText(text);
@@ -53,15 +55,15 @@ export function UrlParser({ initialData, onStateChange }: { initialData?: any; o
 
   const handleDownload = () => {
     if (!parsed || !parsed.isValid) return;
-    const report = `Analyse d'URL : ${url}
+    const report = `${t('urlparser.results')} : ${url}
 
-Protocole : ${parsed.protocol}
-Hôte : ${parsed.hostname}
-Port : ${parsed.port || 'N/A'}
-Chemin : ${parsed.pathname}
-Paramètres : ${parsed.search}
-Hash : ${parsed.hash || 'N/A'}
-Origine : ${parsed.origin}`;
+${t('urlparser.protocol')} : ${parsed.protocol}
+${t('urlparser.host')} : ${parsed.hostname}
+${t('urlparser.port')} : ${parsed.port || 'N/A'}
+${t('urlparser.path')} : ${parsed.pathname}
+${t('urlparser.params')} : ${parsed.search}
+${t('urlparser.hash')} : ${parsed.hash || 'N/A'}
+${t('urlparser.origin')} : ${parsed.origin}`;
 
     const blob = new Blob([report], { type: 'text/plain' });
     const urlBlob = URL.createObjectURL(blob);
@@ -74,7 +76,9 @@ Origine : ${parsed.origin}`;
 
   const handleCopyCurl = () => {
     if (!url) return;
-    const curl = `curl "${url}"`;
+    // Sentinel: Escape double quotes to mitigate command injection in the generated snippet
+    const escapedUrl = url.replace(/"/g, '\\"');
+    const curl = `curl "${escapedUrl}"`;
     copyToClipboard(curl, 'curl');
   };
 
@@ -84,14 +88,14 @@ Origine : ${parsed.origin}`;
       <div className="space-y-4">
         <div className="flex justify-between items-center px-1">
           <label htmlFor="url-input" className="text-xs font-black uppercase tracking-widest text-slate-400 flex items-center gap-2">
-            <LinkIcon className="w-4 h-4 text-indigo-500" /> URL à analyser
+            <LinkIcon className="w-4 h-4 text-indigo-500" /> {t('urlparser.title')}
           </label>
           <button
             onClick={() => setUrl('')}
             disabled={!url}
             className="text-xs font-bold text-rose-500 bg-rose-50 dark:bg-rose-500/10 hover:bg-rose-100 dark:hover:bg-rose-500/20 px-3 py-1.5 rounded-xl flex items-center gap-1 transition-all disabled:opacity-50 disabled:cursor-not-allowed"
           >
-            <Trash2 className="w-3 h-3" /> Effacer
+            <Trash2 className="w-3 h-3" /> {t('common.clear')}
           </button>
         </div>
         <div className="relative group">
@@ -112,7 +116,7 @@ Origine : ${parsed.origin}`;
         {url.length > MAX_LENGTH && (
           <div className="flex items-center gap-2 text-rose-500 text-xs font-bold px-4">
             <AlertCircle className="w-4 h-4" />
-            L'URL est trop longue. Limite de {MAX_LENGTH.toLocaleString()} caractères.
+            {t('urlparser.error_too_long', { max: MAX_LENGTH.toLocaleString() })}
           </div>
         )}
       </div>
@@ -122,7 +126,7 @@ Origine : ${parsed.origin}`;
           <div className="space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-500">
             {/* Header with Actions */}
             <div className="flex justify-between items-center px-1">
-               <h3 className="text-sm font-black uppercase tracking-widest text-slate-400">Résultats de l'analyse</h3>
+               <h3 className="text-sm font-black uppercase tracking-widest text-slate-400">{t('urlparser.results')}</h3>
                <div className="flex gap-2">
                  <button
                    onClick={handleCopyCurl}
@@ -133,13 +137,13 @@ Origine : ${parsed.origin}`;
                    }`}
                  >
                    {copied === 'curl' ? <Check className="w-3 h-3" /> : <Terminal className="w-3 h-3" />}
-                   {copied === 'curl' ? 'CURL Copié' : 'Copier cURL'}
+                   {copied === 'curl' ? t('urlparser.curl_copied') : t('urlparser.copy_curl')}
                  </button>
                  <button
                    onClick={handleDownload}
                    className="text-xs font-bold text-indigo-600 bg-indigo-50 dark:bg-indigo-900/20 hover:bg-indigo-100 dark:hover:bg-indigo-900/30 px-3 py-1.5 rounded-xl flex items-center gap-1 transition-all"
                  >
-                   <Download className="w-3 h-3" /> Télécharger
+                   <Download className="w-3 h-3" /> {t('common.download')}
                  </button>
                </div>
             </div>
@@ -147,12 +151,12 @@ Origine : ${parsed.origin}`;
             {/* Grid of components */}
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
               {[
-                { label: 'Protocole', value: parsed.protocol, icon: <ShieldCheck className="w-4 h-4" /> },
-                { label: 'Hôte', value: parsed.hostname, icon: <Globe className="w-4 h-4" /> },
-                { label: 'Port', value: parsed.port || 'Standard', icon: <Hash className="w-4 h-4" /> },
-                { label: 'Chemin', value: parsed.pathname, icon: <FileText className="w-4 h-4" /> },
-                { label: 'Hash', value: parsed.hash || 'N/A', icon: <Hash className="w-4 h-4" /> },
-                { label: 'Origine', value: parsed.origin, icon: <LinkIcon className="w-4 h-4" /> },
+                { label: t('urlparser.protocol'), value: parsed.protocol, icon: <ShieldCheck className="w-4 h-4" /> },
+                { label: t('urlparser.host'), value: parsed.hostname, icon: <Globe className="w-4 h-4" /> },
+                { label: t('urlparser.port'), value: parsed.port || 'Standard', icon: <Hash className="w-4 h-4" /> },
+                { label: t('urlparser.path'), value: parsed.pathname, icon: <FileText className="w-4 h-4" /> },
+                { label: t('urlparser.hash'), value: parsed.hash || 'N/A', icon: <Hash className="w-4 h-4" /> },
+                { label: t('urlparser.origin'), value: parsed.origin, icon: <LinkIcon className="w-4 h-4" /> },
               ].map((item, idx) => (
                 <div key={idx} className="bg-white dark:bg-slate-900/40 p-6 rounded-[2rem] border border-slate-200 dark:border-slate-800 space-y-4 group">
                   <div className="flex justify-between items-center">
@@ -179,14 +183,14 @@ Origine : ${parsed.origin}`;
               <div className="space-y-4">
                 <div className="flex items-center gap-2 px-1">
                   <Search className="w-4 h-4 text-indigo-500" />
-                  <h3 className="text-xs font-black uppercase tracking-widest text-slate-400">Paramètres de requête ({parsed.searchParams.length})</h3>
+                  <h3 className="text-xs font-black uppercase tracking-widest text-slate-400">{t('urlparser.params')} ({parsed.searchParams.length})</h3>
                 </div>
                 <div className="bg-slate-50 dark:bg-slate-900/50 rounded-[2.5rem] border border-slate-200 dark:border-slate-800 overflow-hidden">
                    <table className="w-full text-left text-sm">
                       <thead className="bg-white dark:bg-slate-800 border-b border-slate-200 dark:border-slate-700">
                         <tr>
-                          <th className="px-6 py-4 font-black text-slate-400 uppercase tracking-widest text-[10px]">Clé</th>
-                          <th className="px-6 py-4 font-black text-slate-400 uppercase tracking-widest text-[10px]">Valeur</th>
+                          <th className="px-6 py-4 font-black text-slate-400 uppercase tracking-widest text-[10px]">{t('urlparser.key')}</th>
+                          <th className="px-6 py-4 font-black text-slate-400 uppercase tracking-widest text-[10px]">{t('urlparser.value')}</th>
                           <th className="px-6 py-4 text-right"></th>
                         </tr>
                       </thead>
@@ -217,10 +221,10 @@ Origine : ${parsed.origin}`;
                 <AlertCircle className="w-8 h-8" />
              </div>
              <h4 className="text-xl font-bold text-rose-900 dark:text-rose-400 mb-2">
-               {(parsed as any).error || "URL Invalide"}
+               {(parsed as any).error || t('urlparser.invalid_url')}
              </h4>
              <p className="text-rose-600/60 dark:text-rose-400/60 font-medium">
-               {!(parsed as any).error && "Veuillez entrer une URL valide pour voir l'analyse détaillée."}
+               {!(parsed as any).error && t('urlparser.invalid_hint')}
              </p>
           </div>
         )
@@ -232,9 +236,9 @@ Origine : ${parsed.origin}`;
             <Info className="w-6 h-6" />
          </div>
          <div className="space-y-2">
-            <h4 className="font-bold dark:text-white">Pourquoi analyser une URL ?</h4>
+            <h4 className="font-bold dark:text-white">{t('urlparser.why_title')}</h4>
             <p className="text-sm text-slate-500 dark:text-slate-400 leading-relaxed">
-              L'analyseur d'URL décompose les adresses web complexes en parties compréhensibles. C'est utile pour les développeurs pour déboguer les paramètres de requête, vérifier les chemins ou simplement comprendre comment une URL est structurée selon les standards RFC 3986.
+              {t('urlparser.why_text')}
             </p>
          </div>
       </div>

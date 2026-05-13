@@ -1,10 +1,12 @@
 import { useState, useEffect } from 'react';
 import { FileCode, Search, Copy, Check, Trash2, AlertCircle, Terminal, Download, Info } from 'lucide-react';
 import { JSONPath } from 'jsonpath-plus';
+import { useTranslation } from 'react-i18next';
 
 const MAX_LENGTH = 100000;
 
 export function JSONPathTester({ initialData, onStateChange }: { initialData?: any; onStateChange?: (state: any) => void }) {
+  const { t } = useTranslation();
   const [jsonInput, setJsonInput] = useState(initialData?.jsonInput || '');
   const [pathInput, setPathInput] = useState(initialData?.pathInput || '$');
   const [output, setOutput] = useState(initialData?.output || '');
@@ -20,7 +22,7 @@ export function JSONPathTester({ initialData, onStateChange }: { initialData?: a
       setError('');
       if (!jsonInput.trim()) return;
       if (jsonInput.length > MAX_LENGTH) {
-        setError(`L'entrée est trop longue. Limite de ${MAX_LENGTH.toLocaleString()} caractères.`);
+        setError(t('error.max_length', { max: MAX_LENGTH.toLocaleString() }));
         return;
       }
 
@@ -28,12 +30,14 @@ export function JSONPathTester({ initialData, onStateChange }: { initialData?: a
       const result = JSONPath({
         path: pathInput,
         json: parsed,
-        wrap: false
+        wrap: false,
+        // Sentinel: Disable eval to prevent arbitrary code execution via JSONPath filter expressions
+        eval: false
       });
 
       setOutput(JSON.stringify(result, null, 2));
     } catch (e: any) {
-      setError('Erreur : ' + e.message);
+      setError(t('error.invalid_json') + ' : ' + e.message);
       setOutput('');
     }
   };
@@ -85,14 +89,14 @@ export function JSONPathTester({ initialData, onStateChange }: { initialData?: a
           <div className="flex justify-between items-center px-1">
             <div className="flex items-center gap-2">
               <FileCode className="w-4 h-4 text-indigo-500" />
-              <label htmlFor="json-input" className="text-xs font-black uppercase tracking-widest text-slate-400 cursor-pointer">Données JSON</label>
+              <label htmlFor="json-input" className="text-xs font-black uppercase tracking-widest text-slate-400 cursor-pointer">{t('jsonpath.json_data')}</label>
             </div>
             <button
               onClick={handleClear}
               disabled={!jsonInput && output === ''}
               className="text-xs font-bold px-3 py-1 rounded-full text-rose-500 bg-rose-50 dark:bg-rose-500/10 hover:bg-rose-100 transition-all flex items-center gap-1 disabled:opacity-50 disabled:cursor-not-allowed focus-visible:ring-2 focus-visible:ring-rose-500 focus-visible:outline-none"
             >
-              <Trash2 className="w-3 h-3" /> Effacer
+              <Trash2 className="w-3 h-3" /> {t('common.clear')}
             </button>
           </div>
           <textarea
@@ -106,7 +110,7 @@ export function JSONPathTester({ initialData, onStateChange }: { initialData?: a
           <div className="space-y-2">
             <div className="flex items-center gap-2 px-1">
               <Search className="w-4 h-4 text-indigo-500" />
-              <label htmlFor="path-input" className="text-xs font-black uppercase tracking-widest text-slate-400 cursor-pointer">Expression JSONPath</label>
+              <label htmlFor="path-input" className="text-xs font-black uppercase tracking-widest text-slate-400 cursor-pointer">{t('jsonpath.expression')}</label>
             </div>
             <input
               id="path-input"
@@ -123,7 +127,7 @@ export function JSONPathTester({ initialData, onStateChange }: { initialData?: a
           <div className="flex justify-between items-center px-1">
             <div className="flex items-center gap-2">
               <Terminal className="w-4 h-4 text-emerald-500" />
-              <label htmlFor="result-output" className="text-xs font-black uppercase tracking-widest text-slate-400 cursor-pointer">Résultat</label>
+              <label htmlFor="result-output" className="text-xs font-black uppercase tracking-widest text-slate-400 cursor-pointer">{t('jsonpath.result')}</label>
             </div>
             <div className="flex gap-2">
               <button
@@ -142,7 +146,7 @@ export function JSONPathTester({ initialData, onStateChange }: { initialData?: a
                     : 'text-slate-500 bg-slate-100 dark:bg-slate-800 hover:bg-slate-200'
                 } disabled:opacity-50 disabled:cursor-not-allowed`}
               >
-                {copied ? <Check className="w-3 h-3" /> : <Copy className="w-3 h-3" />} {copied ? 'Copié' : 'Copier'}
+                {copied ? <Check className="w-3 h-3" /> : <Copy className="w-3 h-3" />} {copied ? t('common.copied') : t('common.copy')}
               </button>
             </div>
           </div>
@@ -150,7 +154,7 @@ export function JSONPathTester({ initialData, onStateChange }: { initialData?: a
             id="result-output"
             value={output}
             readOnly
-            placeholder="Le résultat de l'expression apparaîtra ici..."
+            placeholder={t('jsonpath.placeholder_result')}
             className="w-full h-[450px] p-6 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-3xl outline-none font-mono text-sm leading-relaxed text-indigo-600 dark:text-indigo-400 resize-none"
           />
         </div>
@@ -161,26 +165,26 @@ export function JSONPathTester({ initialData, onStateChange }: { initialData?: a
           <div className="p-2 bg-indigo-500/10 rounded-lg text-indigo-500">
             <Info className="w-5 h-5" />
           </div>
-          <h4 className="font-bold text-slate-900 dark:text-white">Guide Rapide JSONPath</h4>
+          <h4 className="font-bold text-slate-900 dark:text-white">{t('jsonpath.guide_title')}</h4>
         </div>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
           <div className="space-y-2">
-            <h5 className="text-sm font-bold text-slate-700 dark:text-slate-300">Opérateurs de base</h5>
+            <h5 className="text-sm font-bold text-slate-700 dark:text-slate-300">{t('jsonpath.operators')}</h5>
             <ul className="text-xs text-slate-500 dark:text-slate-400 space-y-1">
-              <li><code className="text-indigo-500 font-bold">$</code> : L'objet racine</li>
-              <li><code className="text-indigo-500 font-bold">@</code> : L'objet courant</li>
-              <li><code className="text-indigo-500 font-bold">.</code> ou <code className="text-indigo-500 font-bold">[]</code> : Enfant</li>
-              <li><code className="text-indigo-500 font-bold">..</code> : Descente profonde (récursif)</li>
-              <li><code className="text-indigo-500 font-bold">*</code> : Joker (tous les éléments)</li>
+              <li><code className="text-indigo-500 font-bold">$</code> : {t('jsonpath.root')}</li>
+              <li><code className="text-indigo-500 font-bold">@</code> : {t('jsonpath.current')}</li>
+              <li><code className="text-indigo-500 font-bold">.</code> ou <code className="text-indigo-500 font-bold">[]</code> : {t('jsonpath.child')}</li>
+              <li><code className="text-indigo-500 font-bold">..</code> : {t('jsonpath.deep')}</li>
+              <li><code className="text-indigo-500 font-bold">*</code> : {t('jsonpath.wildcard')}</li>
             </ul>
           </div>
           <div className="space-y-2">
-            <h5 className="text-sm font-bold text-slate-700 dark:text-slate-300">Exemples</h5>
+            <h5 className="text-sm font-bold text-slate-700 dark:text-slate-300">{t('jsonpath.examples')}</h5>
             <ul className="text-xs text-slate-500 dark:text-slate-400 space-y-1">
-              <li><code className="text-indigo-500 font-bold">$.store.book[*].author</code> : Auteurs de tous les livres</li>
-              <li><code className="text-indigo-500 font-bold">$..author</code> : Tous les auteurs dans le document</li>
-              <li><code className="text-indigo-500 font-bold">$.store..price</code> : Tous les prix dans le magasin</li>
-              <li><code className="text-indigo-500 font-bold">$..book[?(@.price &lt; 10)]</code> : Livres à moins de 10€</li>
+              <li><code className="text-indigo-500 font-bold">$.store.book[*].author</code> : {t('jsonpath.example_authors')}</li>
+              <li><code className="text-indigo-500 font-bold">$..author</code> : {t('jsonpath.example_all_authors')}</li>
+              <li><code className="text-indigo-500 font-bold">$.store..price</code> : {t('jsonpath.example_prices')}</li>
+              <li><code className="text-indigo-500 font-bold">$..book[?(@.price &lt; 10)]</code> : {t('jsonpath.example_filter')}</li>
             </ul>
           </div>
         </div>

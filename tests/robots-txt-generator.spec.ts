@@ -2,7 +2,7 @@ import { test, expect } from '@playwright/test';
 
 test.describe('RobotsTxtGenerator DoS Mitigations', () => {
   test.beforeEach(async ({ page }) => {
-    await page.goto('http://localhost:5173/outil/robots-txt');
+    await page.goto('http://localhost:5173/fr/outil/robots-txt');
   });
 
   test('enforces MAX_RULES limit', async ({ page }) => {

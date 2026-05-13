@@ -17,7 +17,8 @@ test('verify Word Counter updates', async ({ page }) => {
   await page.goto('http://localhost:5173/fr/outil/word-counter');
   await page.fill('#word-counter-input', 'Ceci est un test avec des mots complexes comme anticonstitutionnellement.');
   await expect(page.getByText('Gunning Fog').first()).toBeVisible();
-  await expect(page.getByText('anticonstitutionnellement')).toBeVisible();
+  // Use exact match to avoid strict mode violation with the textarea content
+  await expect(page.getByText('anticonstitutionnellement', { exact: true })).toBeVisible();
 });
 
 test('verify Markdown Table Generator updates', async ({ page }) => {

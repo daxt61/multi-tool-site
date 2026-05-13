@@ -9,7 +9,7 @@ test.describe('Tool Updates and State Sharing', () => {
   });
 
   test('URLEncoder state sharing', async ({ page }) => {
-    await page.goto(`${BASE_URL}/outil/url-encoder`);
+    await page.goto(`${BASE_URL}/fr/outil/url-encoder`);
     await page.fill('#url-decoded', 'Hello World!');
 
     // Use the "Partager config" button in the ToolView header
@@ -26,7 +26,7 @@ test.describe('Tool Updates and State Sharing', () => {
   });
 
   test('UUIDGenerator state sharing', async ({ page }) => {
-    await page.goto(`${BASE_URL}/outil/uuid-generator`);
+    await page.goto(`${BASE_URL}/fr/outil/uuid-generator`);
     await page.fill('#uuid-count', '5');
     await page.click('button:has-text("Générer")');
 
@@ -48,7 +48,7 @@ test.describe('Tool Updates and State Sharing', () => {
 
   test('JWTDecoder state sharing', async ({ page }) => {
     const dummyJwt = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiaWF0IjoxNTE2MjM5MDIyfQ.SflKxwRJSMeKKF2QT4fwpMeJf36POk6yJV_adQssw5c';
-    await page.goto(`${BASE_URL}/outil/jwt-decoder`);
+    await page.goto(`${BASE_URL}/fr/outil/jwt-decoder`);
     await page.fill('#jwt-input', dummyJwt);
 
     await expect(page.locator('text=John Doe')).toBeVisible();
@@ -62,7 +62,7 @@ test.describe('Tool Updates and State Sharing', () => {
   });
 
   test('YAMLJSONConverter state sharing', async ({ page }) => {
-    await page.goto(`${BASE_URL}/outil/yaml-json`);
+    await page.goto(`${BASE_URL}/fr/outil/yaml-json`);
     const yamlInput = 'foo: bar\nbaz: 123';
     await page.fill('#yaml-input', yamlInput);
 
@@ -78,7 +78,7 @@ test.describe('Tool Updates and State Sharing', () => {
   });
 
   test('HTTPStatusCodes state sharing', async ({ page }) => {
-    await page.goto(`${BASE_URL}/outil/http-status`);
+    await page.goto(`${BASE_URL}/fr/outil/http-status`);
     await page.fill('#status-search', '404');
 
     await expect(page.locator('text=Not Found')).toBeVisible();
@@ -93,7 +93,7 @@ test.describe('Tool Updates and State Sharing', () => {
   });
 
   test('Standardized UI check (Copy buttons)', async ({ page }) => {
-    await page.goto(`${BASE_URL}/outil/url-encoder`);
+    await page.goto(`${BASE_URL}/fr/outil/url-encoder`);
     await page.fill('#url-decoded', 'Test');
 
     // Select the button that starts with "Copier"

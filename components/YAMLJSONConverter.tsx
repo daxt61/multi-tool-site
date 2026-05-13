@@ -1,10 +1,12 @@
 import { useState, useEffect } from 'react';
 import { FileCode, Copy, Check, Trash2, AlertCircle, ArrowLeftRight, Download } from 'lucide-react';
 import yaml from 'js-yaml';
+import { useTranslation } from 'react-i18next';
 
 const MAX_LENGTH = 100000;
 
 export function YAMLJSONConverter({ initialData, onStateChange }: { initialData?: any; onStateChange?: (state: any) => void }) {
+  const { t } = useTranslation();
   const [yamlInput, setYamlInput] = useState(initialData?.yamlInput || '');
   const [jsonInput, setJsonInput] = useState(initialData?.jsonInput || '');
   const [error, setError] = useState('');
@@ -23,13 +25,13 @@ export function YAMLJSONConverter({ initialData, onStateChange }: { initialData?
       }
       // Sentinel: Implement input length limit to mitigate client-side Denial of Service (DoS)
       if (val.length > MAX_LENGTH) {
-        setError(`L'entrée est trop longue. Limite de ${MAX_LENGTH.toLocaleString()} caractères.`);
+        setError(t('error.max_length', { max: MAX_LENGTH.toLocaleString() }));
         return;
       }
       const obj = yaml.load(val);
       setJsonInput(JSON.stringify(obj, null, 2));
     } catch (e: any) {
-      setError('YAML invalide : ' + e.message);
+      setError('YAML ' + t('error.invalid_json').toLowerCase() + ' : ' + e.message);
     }
   };
 
@@ -42,13 +44,13 @@ export function YAMLJSONConverter({ initialData, onStateChange }: { initialData?
       }
       // Sentinel: Implement input length limit to mitigate client-side Denial of Service (DoS)
       if (val.length > MAX_LENGTH) {
-        setError(`L'entrée est trop longue. Limite de ${MAX_LENGTH.toLocaleString()} caractères.`);
+        setError(t('error.max_length', { max: MAX_LENGTH.toLocaleString() }));
         return;
       }
       const obj = JSON.parse(val);
       setYamlInput(yaml.dump(obj));
     } catch (e: any) {
-      setError('JSON invalide : ' + e.message);
+      setError('JSON ' + t('error.invalid_json').toLowerCase() + ' : ' + e.message);
     }
   };
 
@@ -118,16 +120,16 @@ export function YAMLJSONConverter({ initialData, onStateChange }: { initialData?
                 disabled={!yamlInput}
                 className={`text-xs font-bold px-3 py-1 rounded-full transition-all flex items-center gap-1 border focus-visible:ring-2 focus-visible:ring-indigo-500 focus-visible:outline-none ${
                   copied === 'yaml'
-                    ? 'bg-emerald-50 dark:bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border-emerald-200 dark:border-emerald-500/20'
+                    ? 'bg-emerald-50 dark:bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border border-emerald-200 dark:border-emerald-500/20'
                     : 'text-slate-500 bg-slate-100 dark:bg-slate-800 border-transparent hover:bg-slate-200 dark:hover:bg-slate-700 disabled:opacity-50 disabled:cursor-not-allowed'
                 }`}
               >
-                {copied === 'yaml' ? <Check className="w-3 h-3" /> : <Copy className="w-3 h-3" />} {copied === 'yaml' ? 'Copié' : 'Copier'}
+                {copied === 'yaml' ? <Check className="w-3 h-3" /> : <Copy className="w-3 h-3" />} {copied === 'yaml' ? t('common.copied') : t('common.copy')}
               </button>
               <button
                 onClick={() => {setYamlInput(''); setJsonInput(''); setError('');}}
                 disabled={!yamlInput && !jsonInput}
-                aria-label="Effacer tout"
+                aria-label={t('common.clear')}
                 className="text-xs font-bold px-3 py-1 rounded-full text-rose-500 bg-rose-50 dark:bg-rose-500/10 hover:bg-rose-100 dark:hover:bg-rose-500/20 border border-transparent transition-all flex items-center gap-1 disabled:opacity-50 disabled:cursor-not-allowed focus-visible:ring-2 focus-visible:ring-rose-500 focus-visible:outline-none"
               >
                 <Trash2 className="w-3 h-3" />
@@ -163,11 +165,11 @@ export function YAMLJSONConverter({ initialData, onStateChange }: { initialData?
                 disabled={!jsonInput}
                 className={`text-xs font-bold px-3 py-1 rounded-full transition-all flex items-center gap-1 border focus-visible:ring-2 focus-visible:ring-indigo-500 focus-visible:outline-none ${
                   copied === 'json'
-                    ? 'bg-emerald-50 dark:bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border-emerald-200 dark:border-emerald-500/20'
+                    ? 'bg-emerald-50 dark:bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border border-emerald-200 dark:border-emerald-500/20'
                     : 'text-slate-500 bg-slate-100 dark:bg-slate-800 border-transparent hover:bg-slate-200 dark:hover:bg-slate-700 disabled:opacity-50 disabled:cursor-not-allowed'
                 }`}
               >
-                {copied === 'json' ? <Check className="w-3 h-3" /> : <Copy className="w-3 h-3" />} {copied === 'json' ? 'Copié' : 'Copier'}
+                {copied === 'json' ? <Check className="w-3 h-3" /> : <Copy className="w-3 h-3" />} {copied === 'json' ? t('common.copied') : t('common.copy')}
               </button>
             </div>
           </div>
@@ -182,12 +184,12 @@ export function YAMLJSONConverter({ initialData, onStateChange }: { initialData?
       </div>
 
       <div className="bg-indigo-50 dark:bg-indigo-900/10 p-8 rounded-[2rem] border border-indigo-100 dark:border-indigo-900/20">
-        <h4 className="font-bold text-slate-900 dark:text-white mb-4">À propos de la conversion YAML/JSON</h4>
+        <h4 className="font-bold text-slate-900 dark:text-white mb-4">{t('yamljson.about_title')}</h4>
         <p className="text-sm text-slate-500 dark:text-slate-400 leading-relaxed mb-4">
-          YAML et JSON sont deux formats de sérialisation de données largement utilisés. Le YAML est souvent privilégié pour les fichiers de configuration grâce à sa lisibilité, tandis que le JSON est le standard pour les échanges de données via API.
+          {t('yamljson.about_text1')}
         </p>
         <p className="text-sm text-slate-500 dark:text-slate-400 leading-relaxed">
-          Comme tous nos outils, la conversion s'effectue localement dans votre navigateur. Aucune donnée n'est transmise à nos serveurs, garantissant ainsi la confidentialité de vos fichiers de configuration.
+          {t('yamljson.about_text2')}
         </p>
       </div>
     </div>

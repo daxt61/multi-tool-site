@@ -11,24 +11,24 @@ test('verify new tools and upgraded password generator', async ({ page }) => {
   await expect(page.getByRole('heading', { name: 'Headers Sécurité' })).toBeVisible();
 
   // Verify WhatsApp Link Generator
-  await page.goto('http://localhost:5173/outil/whatsapp-link');
+  await page.goto('http://localhost:5173/fr/outil/whatsapp-link');
   await page.fill('#phone-number', '33612345678');
   await page.fill('#message', 'Hello World');
   await expect(page.getByText('https://wa.me/33612345678?text=Hello%20World')).toBeVisible();
   await page.screenshot({ path: 'whatsapp-tool.png' });
 
   // Verify Security Headers Generator
-  await page.goto('http://localhost:5173/outil/security-headers');
+  await page.goto('http://localhost:5173/fr/outil/security-headers');
   await expect(page.getByText('CSP (Content Security Policy)')).toBeVisible();
   await page.screenshot({ path: 'security-headers-tool.png' });
 
   // Verify Upgraded Password Generator
-  await page.goto('http://localhost:5173/outil/password-generator');
+  await page.goto('http://localhost:5173/fr/outil/password-generator');
   const passwordInput = page.locator('input[type="password"]');
   await expect(passwordInput).toBeVisible();
 
   // Toggle visibility
-  await page.click('button[aria-label="Afficher le mot de passe"]');
+  await page.click('button[aria-label^="Afficher le mot de passe"]');
   const visiblePasswordInput = page.locator('input[type="text"]');
   await expect(visiblePasswordInput).toBeVisible();
 

@@ -254,6 +254,9 @@ const HTMLToMarkdown = lazy(() => import("./components/HTMLToMarkdown").then(m =
 const JsonDiff = lazy(() => import("./components/JsonDiff").then(m => ({ default: m.JsonDiff })));
 const NeumorphismGenerator = lazy(() => import("./components/NeumorphismGenerator").then(m => ({ default: m.NeumorphismGenerator })));
 const JSONToEnv = lazy(() => import("./components/JSONToEnv").then(m => ({ default: m.JSONToEnv })));
+const JSONToSwift = lazy(() => import("./components/JSONToSwift").then(m => ({ default: m.JSONToSwift })));
+const JSONToRuby = lazy(() => import("./components/JSONToRuby").then(m => ({ default: m.JSONToRuby })));
+const JSONToScala = lazy(() => import("./components/JSONToScala").then(m => ({ default: m.JSONToScala })));
 
 // ⚡ Bolt Optimization: Pre-calculating tool map and search index for O(1) lookups and faster filtering
 const toolsMap: Record<string, Tool> = {};
@@ -1746,6 +1749,39 @@ const tools: Tool[] = [
     Component: JsonDiff,
     category: "dev",
     keywords: ["json", "diff", "compare", "normalize", "structural"],
+  },
+  {
+    id: "json-to-swift",
+    name: "JSON en Swift",
+    nameEn: "JSON to Swift",
+    icon: Code,
+    description: "Convertir du JSON en structures Swift (Codable)",
+    descriptionEn: "Convert JSON to Swift struct definitions (Codable)",
+    Component: JSONToSwift,
+    category: "dev",
+    keywords: ["swift", "ios", "codable", "struct", "json", "types"],
+  },
+  {
+    id: "json-to-ruby",
+    name: "JSON en Ruby",
+    nameEn: "JSON to Ruby",
+    icon: Code,
+    description: "Convertir du JSON en classes Ruby",
+    descriptionEn: "Convert JSON to Ruby classes",
+    Component: JSONToRuby,
+    category: "dev",
+    keywords: ["ruby", "class", "json", "types", "rails"],
+  },
+  {
+    id: "json-to-scala",
+    name: "JSON en Scala",
+    nameEn: "JSON to Scala",
+    icon: Code,
+    description: "Convertir du JSON en case classes Scala",
+    descriptionEn: "Convert JSON to Scala case classes",
+    Component: JSONToScala,
+    category: "dev",
+    keywords: ["scala", "case class", "json", "types", "spark"],
   },
 ];
 

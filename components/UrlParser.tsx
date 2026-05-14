@@ -59,10 +59,10 @@ export function UrlParser({ initialData, onStateChange }: { initialData?: any; o
 
 ${t('urlparser.protocol')} : ${parsed.protocol}
 ${t('urlparser.host')} : ${parsed.hostname}
-${t('urlparser.port')} : ${parsed.port || 'N/A'}
+${t('urlparser.port')} : ${parsed.port || t('common.na')}
 ${t('urlparser.path')} : ${parsed.pathname}
 ${t('urlparser.params')} : ${parsed.search}
-${t('urlparser.hash')} : ${parsed.hash || 'N/A'}
+${t('urlparser.hash')} : ${parsed.hash || t('common.na')}
 ${t('urlparser.origin')} : ${parsed.origin}`;
 
     const blob = new Blob([report], { type: 'text/plain' });
@@ -153,9 +153,9 @@ ${t('urlparser.origin')} : ${parsed.origin}`;
               {[
                 { label: t('urlparser.protocol'), value: parsed.protocol, icon: <ShieldCheck className="w-4 h-4" /> },
                 { label: t('urlparser.host'), value: parsed.hostname, icon: <Globe className="w-4 h-4" /> },
-                { label: t('urlparser.port'), value: parsed.port || 'Standard', icon: <Hash className="w-4 h-4" /> },
+                { label: t('urlparser.port'), value: parsed.port || t('common.standard'), icon: <Hash className="w-4 h-4" /> },
                 { label: t('urlparser.path'), value: parsed.pathname, icon: <FileText className="w-4 h-4" /> },
-                { label: t('urlparser.hash'), value: parsed.hash || 'N/A', icon: <Hash className="w-4 h-4" /> },
+                { label: t('urlparser.hash'), value: parsed.hash || t('common.na'), icon: <Hash className="w-4 h-4" /> },
                 { label: t('urlparser.origin'), value: parsed.origin, icon: <LinkIcon className="w-4 h-4" /> },
               ].map((item, idx) => (
                 <div key={idx} className="bg-white dark:bg-slate-900/40 p-6 rounded-[2rem] border border-slate-200 dark:border-slate-800 space-y-4 group">
@@ -166,7 +166,8 @@ ${t('urlparser.origin')} : ${parsed.origin}`;
                     </div>
                     <button
                       onClick={() => copyToClipboard(item.value, `comp-${idx}`)}
-                      className={`p-2 rounded-xl transition-all ${copied === `comp-${idx}` ? 'bg-emerald-50 dark:bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border border-emerald-200 dark:border-emerald-500/20' : 'text-slate-400 hover:text-indigo-500 opacity-0 group-hover:opacity-100'}`}
+                      aria-label={`${t('common.copy')} ${item.label.toLowerCase()}`}
+                      className={`p-2 rounded-xl transition-all relative z-10 ${copied === `comp-${idx}` ? 'bg-emerald-50 dark:bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border border-emerald-200 dark:border-emerald-500/20' : 'text-slate-400 hover:text-indigo-500 md:opacity-0 group-hover:opacity-100 focus-visible:opacity-100'}`}
                     >
                       {copied === `comp-${idx}` ? <Check className="w-4 h-4" /> : <Copy className="w-4 h-4" />}
                     </button>
@@ -202,7 +203,8 @@ ${t('urlparser.origin')} : ${parsed.origin}`;
                             <td className="px-6 py-4 text-right">
                                <button
                                  onClick={() => copyToClipboard(param.value, `param-${idx}`)}
-                                 className={`p-2 rounded-xl transition-all ${copied === `param-${idx}` ? 'bg-emerald-50 dark:bg-emerald-500/10 text-emerald-600 dark:text-emerald-400' : 'text-slate-400 hover:text-indigo-500 opacity-0 group-hover:opacity-100'}`}
+                                 aria-label={`${t('common.copy')} ${param.key}`}
+                                 className={`p-2 rounded-xl transition-all relative z-10 ${copied === `param-${idx}` ? 'bg-emerald-50 dark:bg-emerald-500/10 text-emerald-600 dark:text-emerald-400' : 'text-slate-400 hover:text-indigo-500 md:opacity-0 group-hover:opacity-100 focus-visible:opacity-100'}`}
                                >
                                  {copied === `param-${idx}` ? <Check className="w-4 h-4" /> : <Copy className="w-4 h-4" />}
                                </button>

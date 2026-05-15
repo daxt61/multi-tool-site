@@ -13,3 +13,7 @@
 ## 2025-05-31 - [Recent Tools in Command Menu & Global Localization]
 **Learning:** Integrating a 'Recent Tools' section into the global command menu (Ctrl+K) provides a significant usability boost for returning users, mirroring the dashboard experience in a modal context. Additionally, global UI elements like 'Skip to Content' links and theme/language toggles require explicit ARIA labeling and localization to be fully accessible.
 **Action:** Always consider including a 'Recently Used' or 'Favorites' section in searchable command palettes. Ensure all top-level UI components use `useTranslation` for localized `aria-label` and `title` attributes.
+
+## 2025-06-15 - [ARIA Live Regions for Real-Time Results]
+**Learning:** Tools that perform real-time calculations (like Percentage or BMI calculators) require `aria-live="polite"` on the result containers. Using `aria-atomic="true"` ensures the entire result (including labels or units) is re-announced, providing necessary context that would be lost if only a single changing digit was announced.
+**Action:** Always implement `aria-live="polite"` and `aria-atomic="true"` on dynamic result displays to ensure screen reader users receive automatic and contextual updates as they type.

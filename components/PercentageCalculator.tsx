@@ -103,7 +103,7 @@ export function PercentageCalculator({ initialData, onStateChange }: { initialDa
           </div>
           <div className="relative group/copy bg-white dark:bg-slate-800 p-6 rounded-2xl border border-slate-100 dark:border-slate-700 text-center">
             <div className="text-xs font-bold text-slate-400 uppercase tracking-widest mb-2">{t('percentage.result')}</div>
-            <div className="text-4xl font-black text-indigo-600 dark:text-indigo-400 font-mono">
+            <div className="text-4xl font-black text-indigo-600 dark:text-indigo-400 font-mono" aria-live="polite" aria-atomic="true">
                {isNaN(percentageOf) ? '0' : percentageOf.toLocaleString(undefined, { maximumFractionDigits: 2 })}
             </div>
             <button
@@ -165,7 +165,7 @@ export function PercentageCalculator({ initialData, onStateChange }: { initialDa
           </div>
           <div className="relative group/copy bg-white dark:bg-slate-800 p-6 rounded-2xl border border-slate-100 dark:border-slate-700 text-center">
             <div className="text-xs font-bold text-slate-400 uppercase tracking-widest mb-2">{t('percentage.result')}</div>
-            <div className="text-4xl font-black text-indigo-600 dark:text-indigo-400 font-mono">
+            <div className="text-4xl font-black text-indigo-600 dark:text-indigo-400 font-mono" aria-live="polite" aria-atomic="true">
                {isNaN(whatPercent) ? '0' : whatPercent.toLocaleString(undefined, { maximumFractionDigits: 2 })}%
             </div>
             <button
@@ -226,7 +226,7 @@ export function PercentageCalculator({ initialData, onStateChange }: { initialDa
 
         <div className="relative group/copy bg-white dark:bg-slate-800 p-8 rounded-3xl border border-slate-100 dark:border-slate-700 text-center">
             <div className="text-xs font-bold text-slate-400 uppercase tracking-widest mb-2">{t('percentage.variation')}</div>
-            <div className={`text-5xl font-black font-mono ${percentChange >= 0 ? 'text-emerald-500' : 'text-rose-500'}`}>
+            <div className={`text-5xl font-black font-mono ${percentChange >= 0 ? 'text-emerald-500' : 'text-rose-500'}`} aria-live="polite" aria-atomic="true">
                {percentChange > 0 ? '+' : ''}{isNaN(percentChange) ? '0' : percentChange.toLocaleString(undefined, { maximumFractionDigits: 2 })}%
             </div>
             <button
@@ -289,7 +289,7 @@ export function PercentageCalculator({ initialData, onStateChange }: { initialDa
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
            <div className="relative group/copy bg-emerald-50 dark:bg-emerald-900/10 border border-emerald-100 dark:border-emerald-900/20 p-6 rounded-2xl text-center">
              <div className="text-xs font-bold text-emerald-600 dark:text-emerald-400 uppercase tracking-widest mb-1">{t('percentage.increase')}</div>
-             <div className="text-3xl font-black text-emerald-600 dark:text-emerald-400 font-mono">
+             <div className="text-3xl font-black text-emerald-600 dark:text-emerald-400 font-mono" aria-live="polite" aria-atomic="true">
                {afterIncrease.toLocaleString(undefined, { maximumFractionDigits: 2 })}
              </div>
              <button
@@ -307,7 +307,7 @@ export function PercentageCalculator({ initialData, onStateChange }: { initialDa
            </div>
            <div className="relative group/copy bg-rose-50 dark:bg-rose-900/10 border border-rose-100 dark:border-rose-900/20 p-6 rounded-2xl text-center">
              <div className="text-xs font-bold text-rose-600 dark:text-rose-400 uppercase tracking-widest mb-1">{t('percentage.decrease')}</div>
-             <div className="text-3xl font-black text-rose-600 dark:text-rose-400 font-mono">
+             <div className="text-3xl font-black text-rose-600 dark:text-rose-400 font-mono" aria-live="polite" aria-atomic="true">
                {afterDecrease.toLocaleString(undefined, { maximumFractionDigits: 2 })}
              </div>
              <button

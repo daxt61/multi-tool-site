@@ -1,5 +1,6 @@
 import { useState, useMemo, useEffect } from 'react';
 import { Heart, Activity, User, Ruler, Weight, RotateCcw, Info, Check, Zap, Trash2, Copy } from 'lucide-react';
+import { useTranslation } from 'react-i18next';
 
 type Gender = 'male' | 'female';
 type ActivityLevel = 'sedentary' | 'light' | 'moderate' | 'active' | 'very_active';
@@ -12,15 +13,8 @@ const ACTIVITY_MULTIPLIERS: Record<ActivityLevel, number> = {
   very_active: 1.9,
 };
 
-const ACTIVITY_LABELS: Record<ActivityLevel, { label: string; desc: string }> = {
-  sedentary: { label: 'Sédentaire', desc: 'Peu ou pas d\'exercice' },
-  light: { label: 'Légèrement actif', desc: 'Exercice léger 1-3 fois/semaine' },
-  moderate: { label: 'Modérément actif', desc: 'Exercice modéré 3-5 fois/semaine' },
-  active: { label: 'Très actif', desc: 'Exercice intense 6-7 fois/semaine' },
-  very_active: { label: 'Extrêmement actif', desc: 'Travail physique ou entraînement intensif' },
-};
-
 export function BMRCalculator({ initialData, onStateChange }: { initialData?: any; onStateChange?: (state: any) => void }) {
+  const { t, i18n } = useTranslation();
   const [age, setAge] = useState<string>(initialData?.age || '');
   const [weight, setWeight] = useState<string>(initialData?.weight || '');
   const [height, setHeight] = useState<string>(initialData?.height || '');
@@ -30,7 +24,7 @@ export function BMRCalculator({ initialData, onStateChange }: { initialData?: an
 
   useEffect(() => {
     onStateChange?.({ age, weight, height, gender, activity });
-  }, [age, weight, height, gender, activity]);
+  }, [age, weight, height, gender, activity, onStateChange]);
 
   const results = useMemo(() => {
     const a = parseFloat(age);
@@ -72,6 +66,8 @@ export function BMRCalculator({ initialData, onStateChange }: { initialData?: an
     setTimeout(() => setCopied(null), 2000);
   };
 
+  const activityLevels: ActivityLevel[] = ['sedentary', 'light', 'moderate', 'active', 'very_active'];
+
   return (
     <div className="max-w-5xl mx-auto space-y-12">
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
@@ -80,21 +76,21 @@ export function BMRCalculator({ initialData, onStateChange }: { initialData?: an
           <div className="bg-slate-50 dark:bg-slate-900/50 p-8 rounded-[2.5rem] border border-slate-200 dark:border-slate-800 space-y-8">
             <div className="flex justify-between items-center px-1">
               <h3 className="text-xs font-black uppercase tracking-widest text-slate-400 flex items-center gap-2">
-                <User className="w-4 h-4" /> Vos Informations
+                <User className="w-4 h-4" /> {t('bmrcalculator.your_info')}
               </h3>
               <button
                 onClick={handleClear}
                 disabled={!age && !weight && !height}
-                className="text-xs font-bold text-rose-500 bg-rose-50 dark:bg-rose-500/10 hover:bg-rose-100 dark:hover:bg-rose-500/20 px-3 py-1.5 rounded-xl flex items-center gap-1 transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+                className="text-xs font-bold text-rose-500 bg-rose-50 dark:bg-rose-500/10 hover:bg-rose-100 dark:hover:bg-rose-500/20 px-3 py-1.5 rounded-xl flex items-center gap-1 transition-all disabled:opacity-50 disabled:cursor-not-allowed focus-visible:ring-2 focus-visible:ring-rose-500 focus-visible:outline-none"
               >
-                <Trash2 className="w-3 h-3" /> Effacer
+                <Trash2 className="w-3 h-3" /> {t('common.clear')}
               </button>
             </div>
 
             <div className="space-y-6">
               {/* Gender Selection */}
               <div className="space-y-3">
-                <label className="text-xs font-bold text-slate-500 px-1">Genre</label>
+                <label className="text-xs font-bold text-slate-500 px-1">{t('bmrcalculator.gender')}</label>
                 <div className="grid grid-cols-2 gap-3">
                   <button
                     onClick={() => setGender('male')}
@@ -105,7 +101,7 @@ export function BMRCalculator({ initialData, onStateChange }: { initialData?: an
                         : 'bg-white dark:bg-slate-800 text-slate-500 border-slate-200 dark:border-slate-700 hover:border-slate-300'
                     }`}
                   >
-                    Homme
+                    {t('bmrcalculator.male')}
                   </button>
                   <button
                     onClick={() => setGender('female')}
@@ -116,7 +112,7 @@ export function BMRCalculator({ initialData, onStateChange }: { initialData?: an
                         : 'bg-white dark:bg-slate-800 text-slate-500 border-slate-200 dark:border-slate-700 hover:border-slate-300'
                     }`}
                   >
-                    Femme
+                    {t('bmrcalculator.female')}
                   </button>
                 </div>
               </div>
@@ -124,7 +120,7 @@ export function BMRCalculator({ initialData, onStateChange }: { initialData?: an
               {/* Age, Weight, Height Grid */}
               <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                 <div className="space-y-2">
-                  <label htmlFor="age" className="text-xs font-bold text-slate-500 px-1">Âge</label>
+                  <label htmlFor="age" className="text-xs font-bold text-slate-500 px-1">{t('bmrcalculator.age')}</label>
                   <div className="relative">
                     <input
                       id="age"
@@ -137,7 +133,7 @@ export function BMRCalculator({ initialData, onStateChange }: { initialData?: an
                   </div>
                 </div>
                 <div className="space-y-2">
-                  <label htmlFor="weight" className="text-xs font-bold text-slate-500 px-1">Poids (kg)</label>
+                  <label htmlFor="weight" className="text-xs font-bold text-slate-500 px-1">{t('bmrcalculator.weight')}</label>
                   <div className="relative">
                     <input
                       id="weight"
@@ -150,7 +146,7 @@ export function BMRCalculator({ initialData, onStateChange }: { initialData?: an
                   </div>
                 </div>
                 <div className="space-y-2">
-                  <label htmlFor="height" className="text-xs font-bold text-slate-500 px-1">Taille (cm)</label>
+                  <label htmlFor="height" className="text-xs font-bold text-slate-500 px-1">{t('bmrcalculator.height')}</label>
                   <div className="relative">
                     <input
                       id="height"
@@ -166,9 +162,9 @@ export function BMRCalculator({ initialData, onStateChange }: { initialData?: an
 
               {/* Activity Level */}
               <div className="space-y-3">
-                <label htmlFor="activity" className="text-xs font-bold text-slate-500 px-1">Niveau d'activité</label>
+                <label htmlFor="activity" className="text-xs font-bold text-slate-500 px-1">{t('bmrcalculator.activity_level')}</label>
                 <div className="grid grid-cols-1 gap-2">
-                  {(Object.keys(ACTIVITY_LABELS) as ActivityLevel[]).map((level) => (
+                  {activityLevels.map((level) => (
                     <button
                       key={level}
                       onClick={() => setActivity(level)}
@@ -186,9 +182,9 @@ export function BMRCalculator({ initialData, onStateChange }: { initialData?: an
                       </div>
                       <div>
                         <div className={`font-bold text-sm ${activity === level ? 'text-indigo-600 dark:text-indigo-400' : 'text-slate-700 dark:text-slate-200'}`}>
-                          {ACTIVITY_LABELS[level].label}
+                          {t(`bmrcalculator.${level}`)}
                         </div>
-                        <div className="text-xs text-slate-400 font-medium">{ACTIVITY_LABELS[level].desc}</div>
+                        <div className="text-xs text-slate-400 font-medium">{t(`bmrcalculator.${level}_desc`)}</div>
                       </div>
                     </button>
                   ))}
@@ -211,42 +207,42 @@ export function BMRCalculator({ initialData, onStateChange }: { initialData?: an
                     ? 'bg-emerald-500 text-white'
                     : 'bg-white/10 text-white/40 hover:text-white hover:bg-white/20 md:opacity-0 md:group-hover:opacity-100 md:focus-visible:opacity-100'
                 }`}
-                aria-label="Copier le TDEE"
-                title="Copier le TDEE"
+                aria-label={t('bmrcalculator.copy_tdee')}
+                title={t('bmrcalculator.copy_tdee')}
               >
                 {copied === 'tdee' ? <Check className="w-5 h-5" /> : <Copy className="w-5 h-5" />}
               </button>
             )}
 
-            <div className="text-slate-400 font-bold uppercase tracking-widest text-xs">Maintien du poids (TDEE)</div>
-            <div className="text-5xl md:text-6xl font-black text-white font-mono tracking-tighter">
-              {results ? results.tdee.toLocaleString() : "0"}
+            <div className="text-slate-400 font-bold uppercase tracking-widest text-xs">{t('bmrcalculator.maintenance')}</div>
+            <div className="text-5xl md:text-6xl font-black text-white font-mono tracking-tighter" aria-live="polite">
+              {results ? results.tdee.toLocaleString(i18n.language === 'en' ? 'en-US' : 'fr-FR') : "0"}
             </div>
             <div className="text-indigo-400 font-black text-xl md:text-2xl uppercase tracking-widest">
-              KCAL / JOUR
+              {t('bmrcalculator.kcal_day')}
             </div>
           </div>
 
           <div className="grid grid-cols-1 gap-4">
             <div className="bg-slate-50 dark:bg-slate-900/50 p-6 rounded-3xl border border-slate-200 dark:border-slate-800 space-y-4">
               <div className="text-xs font-black uppercase tracking-widest text-slate-400 flex justify-between">
-                <span>Objectifs caloriques</span>
-                <span className="text-indigo-500">Estimations</span>
+                <span>{t('bmrcalculator.goals')}</span>
+                <span className="text-indigo-500">{t('bmrcalculator.estimations')}</span>
               </div>
               <div className="space-y-3">
                 <div className="flex justify-between items-center gap-2 group/bmr">
-                  <span className="text-sm text-slate-500 flex items-center gap-1"><Heart className="w-3 h-3" /> Métabolisme de base (BMR)</span>
+                  <span className="text-sm text-slate-500 flex items-center gap-1"><Heart className="w-3 h-3" /> {t('bmrcalculator.bmr_full')}</span>
                   <div className="flex items-center gap-2">
-                    <span className="font-bold font-mono">{results ? results.bmr : "0"} kcal</span>
+                    <span className="font-bold font-mono">{results ? results.bmr.toLocaleString(i18n.language === 'en' ? 'en-US' : 'fr-FR') : "0"} kcal</span>
                     {results && (
                       <button
                         onClick={() => handleCopy(results.bmr, 'bmr')}
                         className={`p-1.5 rounded-lg transition-all focus-visible:ring-2 focus-visible:ring-indigo-500 focus-visible:outline-none ${
                           copied === 'bmr'
                             ? 'bg-emerald-50 dark:bg-emerald-500/10 text-emerald-600 dark:text-emerald-400'
-                            : 'text-slate-400 hover:text-indigo-500 hover:bg-indigo-50 dark:hover:bg-indigo-500/10 opacity-0 focus-visible:opacity-100 group-hover/bmr:opacity-100'
+                            : 'text-slate-400 hover:text-indigo-500 hover:bg-indigo-50 dark:hover:bg-indigo-500/10 md:opacity-0 focus-visible:opacity-100 group-hover/bmr:opacity-100'
                         }`}
-                        aria-label="Copier le BMR"
+                        aria-label={t('bmrcalculator.copy_bmr')}
                       >
                         {copied === 'bmr' ? <Check className="w-3.5 h-3.5" /> : <Copy className="w-3.5 h-3.5" />}
                       </button>
@@ -254,18 +250,18 @@ export function BMRCalculator({ initialData, onStateChange }: { initialData?: an
                   </div>
                 </div>
                 <div className="flex justify-between items-center gap-2 text-rose-500 group/lose">
-                  <span className="text-sm flex items-center gap-1"><Activity className="w-3 h-3" /> Perte de poids (-20%)</span>
+                  <span className="text-sm flex items-center gap-1"><Activity className="w-3 h-3" /> {t('bmrcalculator.lose_weight')}</span>
                   <div className="flex items-center gap-2">
-                    <span className="font-bold font-mono">{results ? results.lose : "0"} kcal</span>
+                    <span className="font-bold font-mono">{results ? results.lose.toLocaleString(i18n.language === 'en' ? 'en-US' : 'fr-FR') : "0"} kcal</span>
                     {results && (
                       <button
                         onClick={() => handleCopy(results.lose, 'lose')}
                         className={`p-1.5 rounded-lg transition-all focus-visible:ring-2 focus-visible:ring-rose-500 focus-visible:outline-none ${
                           copied === 'lose'
                             ? 'bg-emerald-50 dark:bg-emerald-500/10 text-emerald-600 dark:text-emerald-400'
-                            : 'text-rose-400 hover:text-rose-600 hover:bg-rose-50 dark:hover:bg-rose-500/10 opacity-0 focus-visible:opacity-100 group-hover/lose:opacity-100'
+                            : 'text-rose-400 hover:text-rose-600 hover:bg-rose-50 dark:hover:bg-rose-500/10 md:opacity-0 focus-visible:opacity-100 group-hover/lose:opacity-100'
                         }`}
-                        aria-label="Copier les calories pour la perte de poids"
+                        aria-label={t('bmrcalculator.copy_lose')}
                       >
                         {copied === 'lose' ? <Check className="w-3.5 h-3.5" /> : <Copy className="w-3.5 h-3.5" />}
                       </button>
@@ -273,18 +269,18 @@ export function BMRCalculator({ initialData, onStateChange }: { initialData?: an
                   </div>
                 </div>
                 <div className="flex justify-between items-center gap-2 text-emerald-500 group/gain">
-                  <span className="text-sm flex items-center gap-1"><Zap className="w-3 h-3" /> Prise de masse (+15%)</span>
+                  <span className="text-sm flex items-center gap-1"><Zap className="w-3 h-3" /> {t('bmrcalculator.gain_weight')}</span>
                   <div className="flex items-center gap-2">
-                    <span className="font-bold font-mono">{results ? results.gain : "0"} kcal</span>
+                    <span className="font-bold font-mono">{results ? results.gain.toLocaleString(i18n.language === 'en' ? 'en-US' : 'fr-FR') : "0"} kcal</span>
                     {results && (
                       <button
                         onClick={() => handleCopy(results.gain, 'gain')}
                         className={`p-1.5 rounded-lg transition-all focus-visible:ring-2 focus-visible:ring-emerald-500 focus-visible:outline-none ${
                           copied === 'gain'
                             ? 'bg-emerald-50 dark:bg-emerald-500/10 text-emerald-600 dark:text-emerald-400'
-                            : 'text-emerald-400 hover:text-emerald-600 hover:bg-emerald-50 dark:hover:bg-emerald-500/10 opacity-0 focus-visible:opacity-100 group-hover/gain:opacity-100'
+                            : 'text-emerald-400 hover:text-emerald-600 hover:bg-emerald-50 dark:hover:bg-emerald-500/10 md:opacity-0 focus-visible:opacity-100 group-hover/gain:opacity-100'
                         }`}
-                        aria-label="Copier les calories pour la prise de masse"
+                        aria-label={t('bmrcalculator.copy_gain')}
                       >
                         {copied === 'gain' ? <Check className="w-3.5 h-3.5" /> : <Copy className="w-3.5 h-3.5" />}
                       </button>
@@ -301,7 +297,7 @@ export function BMRCalculator({ initialData, onStateChange }: { initialData?: an
                 <Info className="w-6 h-6" />
               </div>
               <p className="text-sm text-slate-500 dark:text-slate-400 leading-relaxed font-medium">
-                Complétez vos informations pour calculer votre métabolisme de base et vos besoins caloriques journaliers.
+                {t('bmrcalculator.complete_info')}
               </p>
             </div>
           )}
@@ -314,9 +310,9 @@ export function BMRCalculator({ initialData, onStateChange }: { initialData?: an
           <div className="w-12 h-12 bg-indigo-50 dark:bg-indigo-900/20 rounded-2xl flex items-center justify-center text-indigo-600">
             <Heart className="w-6 h-6" />
           </div>
-          <h3 className="text-lg font-black">Qu'est-ce que le BMR ?</h3>
+          <h3 className="text-lg font-black">{t('bmrcalculator.what_is_bmr')}</h3>
           <p className="text-sm text-slate-500 dark:text-slate-400 leading-relaxed">
-            Le Basal Metabolic Rate (BMR) correspond aux calories brûlées par votre corps au repos total pour assurer ses fonctions vitales (respiration, digestion, etc.).
+            {t('bmrcalculator.bmr_desc')}
           </p>
         </div>
 
@@ -324,9 +320,9 @@ export function BMRCalculator({ initialData, onStateChange }: { initialData?: an
           <div className="w-12 h-12 bg-emerald-50 dark:bg-emerald-900/20 rounded-2xl flex items-center justify-center text-emerald-600">
             <Activity className="w-6 h-6" />
           </div>
-          <h3 className="text-lg font-black">TDEE vs BMR</h3>
+          <h3 className="text-lg font-black">{t('bmrcalculator.tdee_vs_bmr')}</h3>
           <p className="text-sm text-slate-500 dark:text-slate-400 leading-relaxed">
-            Le Total Daily Energy Expenditure (TDEE) est votre dépense énergétique totale. Il inclut votre BMR multiplié par un facteur lié à votre activité physique quotidienne.
+            {t('bmrcalculator.tdee_desc')}
           </p>
         </div>
 
@@ -334,9 +330,9 @@ export function BMRCalculator({ initialData, onStateChange }: { initialData?: an
           <div className="w-12 h-12 bg-amber-50 dark:bg-amber-900/20 rounded-2xl flex items-center justify-center text-amber-600">
             <Info className="w-6 h-6" />
           </div>
-          <h3 className="text-lg font-black">L'Équation Mifflin-St Jeor</h3>
+          <h3 className="text-lg font-black">{t('bmrcalculator.mifflin_title')}</h3>
           <p className="text-sm text-slate-500 dark:text-slate-400 leading-relaxed">
-            C'est actuellement la formule la plus précise pour estimer le métabolisme de base pour la majorité des individus, devant l'ancienne formule Harris-Benedict.
+            {t('bmrcalculator.mifflin_desc')}
           </p>
         </div>
       </div>

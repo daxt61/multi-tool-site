@@ -1,7 +1,9 @@
 import { useState, useEffect } from 'react';
 import { Maximize2, Monitor, Smartphone, Laptop, Tablet, Tv, Info } from 'lucide-react';
+import { useTranslation } from 'react-i18next';
 
 export function AspectRatioCalculator({ initialData, onStateChange }: { initialData?: any; onStateChange?: (state: any) => void }) {
+  const { t } = useTranslation();
   const [width, setWidth] = useState<string>(initialData?.width || '1920');
   const [height, setHeight] = useState<string>(initialData?.height || '1080');
   const [ratioW, setRatioW] = useState<string>(initialData?.ratioW || '16');
@@ -9,17 +11,17 @@ export function AspectRatioCalculator({ initialData, onStateChange }: { initialD
 
   useEffect(() => {
     onStateChange?.({ width, height, ratioW, ratioH });
-  }, [width, height, ratioW, ratioH]);
+  }, [width, height, ratioW, ratioH, onStateChange]);
 
   const commonRatios = [
-    { name: '16:9', w: 16, h: 9, icon: <Monitor className="w-4 h-4" />, desc: 'Vidéo HD, Écrans' },
-    { name: '4:3', w: 4, h: 3, icon: <Tv className="w-4 h-4" />, desc: 'TV Classique, Photo' },
-    { name: '1:1', w: 1, h: 1, icon: <Maximize2 className="w-4 h-4" />, desc: 'Carré (Instagram)' },
-    { name: '9:16', w: 9, h: 16, icon: <Smartphone className="w-4 h-4" />, desc: 'Story, TikTok' },
-    { name: '3:2', w: 3, h: 2, icon: <Laptop className="w-4 h-4" />, desc: 'Photo DSLR' },
-    { name: '21:9', w: 21, h: 9, icon: <Monitor className="w-4 h-4" />, desc: 'Ultrawide, Cinéma' },
-    { name: '4:5', w: 4, h: 5, icon: <Smartphone className="w-4 h-4" />, desc: 'Portrait Instagram' },
-    { name: '2:3', w: 2, h: 3, icon: <Tablet className="w-4 h-4" />, desc: 'Liseuses, Photo' },
+    { name: '16:9', w: 16, h: 9, icon: <Monitor className="w-4 h-4" />, key: '16_9' },
+    { name: '4:3', w: 4, h: 3, icon: <Tv className="w-4 h-4" />, key: '4_3' },
+    { name: '1:1', w: 1, h: 1, icon: <Maximize2 className="w-4 h-4" />, key: '1_1' },
+    { name: '9:16', w: 9, h: 16, icon: <Smartphone className="w-4 h-4" />, key: '9_16' },
+    { name: '3:2', w: 3, h: 2, icon: <Laptop className="w-4 h-4" />, key: '3_2' },
+    { name: '21:9', w: 21, h: 9, icon: <Monitor className="w-4 h-4" />, key: '21_9' },
+    { name: '4:5', w: 4, h: 5, icon: <Smartphone className="w-4 h-4" />, key: '4_5' },
+    { name: '2:3', w: 2, h: 3, icon: <Tablet className="w-4 h-4" />, key: '2_3' },
   ];
 
   const gcd = (a: number, b: number): number => {
@@ -53,11 +55,11 @@ export function AspectRatioCalculator({ initialData, onStateChange }: { initialD
             {/* Dimensions Section */}
             <div className="space-y-6">
               <h3 className="text-xs font-black uppercase tracking-widest text-slate-400 flex items-center gap-2 px-1">
-                <Maximize2 className="w-4 h-4" /> Dimensions (Pixels)
+                <Maximize2 className="w-4 h-4 text-indigo-500" /> {t('aspectratio.dimensions')}
               </h3>
               <div className="grid grid-cols-2 gap-4">
                 <div className="space-y-2">
-                  <label htmlFor="width" className="text-xs font-bold text-slate-500 px-1">Largeur</label>
+                  <label htmlFor="width" className="text-xs font-bold text-slate-500 px-1">{t('aspectratio.width')}</label>
                   <input
                     id="width"
                     type="number"
@@ -71,7 +73,7 @@ export function AspectRatioCalculator({ initialData, onStateChange }: { initialD
                   />
                 </div>
                 <div className="space-y-2">
-                  <label htmlFor="height" className="text-xs font-bold text-slate-500 px-1">Hauteur</label>
+                  <label htmlFor="height" className="text-xs font-bold text-slate-500 px-1">{t('aspectratio.height')}</label>
                   <input
                     id="height"
                     type="number"
@@ -90,11 +92,11 @@ export function AspectRatioCalculator({ initialData, onStateChange }: { initialD
             {/* Ratio Section */}
             <div className="space-y-6">
               <h3 className="text-xs font-black uppercase tracking-widest text-slate-400 flex items-center gap-2 px-1">
-                <Monitor className="w-4 h-4" /> Ratio
+                <Monitor className="w-4 h-4 text-indigo-500" /> {t('aspectratio.ratio')}
               </h3>
               <div className="flex items-center gap-4">
                 <div className="flex-1 space-y-2">
-                  <label htmlFor="ratioW" className="text-xs font-bold text-slate-500 px-1">Ratio Largeur</label>
+                  <label htmlFor="ratioW" className="text-xs font-bold text-slate-500 px-1">{t('aspectratio.ratio_width')}</label>
                   <input
                     id="ratioW"
                     type="number"
@@ -109,7 +111,7 @@ export function AspectRatioCalculator({ initialData, onStateChange }: { initialD
                 </div>
                 <div className="text-3xl font-black text-slate-300 dark:text-slate-700 pt-8" aria-hidden="true">:</div>
                 <div className="flex-1 space-y-2">
-                  <label htmlFor="ratioH" className="text-xs font-bold text-slate-500 px-1">Ratio Hauteur</label>
+                  <label htmlFor="ratioH" className="text-xs font-bold text-slate-500 px-1">{t('aspectratio.ratio_height')}</label>
                   <input
                     id="ratioH"
                     type="number"
@@ -130,13 +132,13 @@ export function AspectRatioCalculator({ initialData, onStateChange }: { initialD
           <div className="bg-indigo-600 rounded-[2rem] p-8 text-white shadow-xl shadow-indigo-600/10">
             <div className="flex flex-col md:flex-row justify-between items-center gap-6">
               <div className="text-center md:text-left">
-                <p className="text-indigo-100 text-sm font-bold uppercase tracking-widest mb-1">Format Résultant</p>
-                <h4 className="text-3xl font-black font-mono">{width} × {height}</h4>
+                <p className="text-indigo-100 text-sm font-bold uppercase tracking-widest mb-1">{t('aspectratio.result_format')}</p>
+                <h4 className="text-3xl font-black font-mono" aria-live="polite">{width} × {height}</h4>
               </div>
               <div className="h-12 w-px bg-white/20 hidden md:block" />
               <div className="text-center md:text-right">
-                <p className="text-indigo-100 text-sm font-bold uppercase tracking-widest mb-1">Ratio Simplifié</p>
-                <h4 className="text-3xl font-black font-mono">{ratioW}:{ratioH}</h4>
+                <p className="text-indigo-100 text-sm font-bold uppercase tracking-widest mb-1">{t('aspectratio.simplified_ratio')}</p>
+                <h4 className="text-3xl font-black font-mono" aria-live="polite">{ratioW}:{ratioH}</h4>
               </div>
             </div>
           </div>
@@ -146,7 +148,7 @@ export function AspectRatioCalculator({ initialData, onStateChange }: { initialD
         <div className="lg:col-span-5 space-y-8">
           {/* Visual Preview */}
           <div className="bg-white dark:bg-slate-900/40 border border-slate-200 dark:border-slate-800 rounded-[2.5rem] p-8 space-y-6">
-            <h3 className="text-xs font-black uppercase tracking-widest text-slate-400 px-1">Aperçu Visuel</h3>
+            <h3 className="text-xs font-black uppercase tracking-widest text-slate-400 px-1">{t('aspectratio.preview')}</h3>
             <div className="aspect-square bg-slate-50 dark:bg-slate-900 rounded-3xl flex items-center justify-center p-8 border border-slate-100 dark:border-slate-800 overflow-hidden">
                <div
                  className="bg-indigo-500/20 border-2 border-indigo-500 rounded-lg shadow-2xl shadow-indigo-500/10 transition-all duration-500 flex items-center justify-center text-indigo-500 font-black text-xs"
@@ -165,7 +167,7 @@ export function AspectRatioCalculator({ initialData, onStateChange }: { initialD
 
           {/* Presets */}
           <div className="bg-white dark:bg-slate-900/40 border border-slate-200 dark:border-slate-800 rounded-[2.5rem] p-8">
-            <h3 className="text-xs font-black uppercase tracking-widest text-slate-400 mb-6 px-1">Ratios Standards</h3>
+            <h3 className="text-xs font-black uppercase tracking-widest text-slate-400 mb-6 px-1">{t('aspectratio.standards')}</h3>
             <div className="grid grid-cols-2 gap-3">
               {commonRatios.map((r) => (
                 <button
@@ -175,7 +177,8 @@ export function AspectRatioCalculator({ initialData, onStateChange }: { initialD
                     setRatioH(r.h.toString());
                     calculateFromRatio(r.w, r.h, Number(width), true);
                   }}
-                  className="flex flex-col items-start p-4 bg-slate-50 dark:bg-slate-800/50 border border-slate-100 dark:border-slate-700 rounded-2xl hover:border-indigo-500/30 hover:bg-white dark:hover:bg-slate-800 transition-all text-left group"
+                  aria-label={`${r.name} - ${t(`aspectratio.preset.${r.key}`)}`}
+                  className="flex flex-col items-start p-4 bg-slate-50 dark:bg-slate-800/50 border border-slate-100 dark:border-slate-700 rounded-2xl hover:border-indigo-500/30 hover:bg-white dark:hover:bg-slate-800 transition-all text-left group focus-visible:ring-2 focus-visible:ring-indigo-500 focus-visible:outline-none"
                 >
                   <div className="flex items-center gap-2 mb-2">
                     <div className="p-1.5 bg-white dark:bg-slate-700 rounded-lg text-slate-400 group-hover:text-indigo-500 transition-colors">
@@ -183,7 +186,7 @@ export function AspectRatioCalculator({ initialData, onStateChange }: { initialD
                     </div>
                     <span className="font-black text-sm dark:text-white">{r.name}</span>
                   </div>
-                  <span className="text-[10px] font-bold text-slate-400 uppercase tracking-tight">{r.desc}</span>
+                  <span className="text-[10px] font-bold text-slate-400 uppercase tracking-tight">{t(`aspectratio.preset.${r.key}`)}</span>
                 </button>
               ))}
             </div>
@@ -196,9 +199,9 @@ export function AspectRatioCalculator({ initialData, onStateChange }: { initialD
             <Info className="w-6 h-6" />
          </div>
          <div className="space-y-2">
-            <h4 className="font-bold dark:text-white">Pourquoi utiliser un calculateur de ratio ?</h4>
+            <h4 className="font-bold dark:text-white">{t('aspectratio.why_title')}</h4>
             <p className="text-sm text-slate-500 dark:text-slate-400 leading-relaxed">
-              Le ratio d'aspect représente le rapport entre la largeur et la hauteur d'une image ou d'un écran. Il est crucial pour éviter les déformations lors du redimensionnement (le fameux effet "écrasé" ou "étiré"). Utilisez cet outil pour calculer les dimensions exactes nécessaires pour vos montages vidéo, vos photos Instagram ou vos designs web.
+              {t('aspectratio.why_text')}
             </p>
          </div>
       </div>

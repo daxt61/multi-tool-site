@@ -1,9 +1,11 @@
 import { useState, useMemo, useEffect } from 'react';
 import { Columns, Copy, Check, Trash2, ArrowRightLeft, Info, ListFilter, Download, AlertCircle } from 'lucide-react';
+import { useTranslation } from 'react-i18next';
 
 const MAX_LENGTH = 100000;
 
 export function ListComparator({ initialData, onStateChange }: { initialData?: any; onStateChange?: (state: any) => void }) {
+  const { t } = useTranslation();
   const [listA, setListA] = useState(initialData?.listA || '');
   const [listB, setListB] = useState(initialData?.listB || '');
   const [caseSensitive, setCaseSensitive] = useState(initialData?.caseSensitive ?? false);
@@ -13,7 +15,7 @@ export function ListComparator({ initialData, onStateChange }: { initialData?: a
 
   useEffect(() => {
     onStateChange?.({ listA, listB, caseSensitive, trimItems });
-  }, [listA, listB, caseSensitive, trimItems]);
+  }, [listA, listB, caseSensitive, trimItems, onStateChange]);
 
   const processList = (text: string) => {
     let items = text.split('\n').filter(line => line.length > 0);
@@ -103,95 +105,97 @@ export function ListComparator({ initialData, onStateChange }: { initialData?: a
         <div className="flex gap-4">
           <button
             onClick={() => setCaseSensitive(!caseSensitive)}
-            className={`px-4 py-2 rounded-xl text-xs font-bold transition-all border ${
+            className={`px-4 py-2 rounded-xl text-xs font-bold transition-all border focus-visible:ring-2 focus-visible:ring-indigo-500 focus-visible:outline-none ${
               caseSensitive
                 ? 'bg-indigo-600 border-indigo-600 text-white'
                 : 'bg-white dark:bg-slate-800 border-slate-200 dark:border-slate-700 text-slate-500'
             }`}
           >
-            Respecter la casse
+            {t('listcomparator.case_sensitive')}
           </button>
           <button
             onClick={() => setTrimItems(!trimItems)}
-            className={`px-4 py-2 rounded-xl text-xs font-bold transition-all border ${
+            className={`px-4 py-2 rounded-xl text-xs font-bold transition-all border focus-visible:ring-2 focus-visible:ring-indigo-500 focus-visible:outline-none ${
               trimItems
                 ? 'bg-indigo-600 border-indigo-600 text-white'
                 : 'bg-white dark:bg-slate-800 border-slate-200 dark:border-slate-700 text-slate-500'
             }`}
           >
-            Nettoyer les espaces
+            {t('listcomparator.trim')}
           </button>
         </div>
         <button
           onClick={handleClear}
-          className="text-xs font-bold text-rose-500 bg-rose-50 dark:bg-rose-500/10 hover:bg-rose-100 dark:hover:bg-rose-500/20 px-3 py-1.5 rounded-xl flex items-center gap-2 transition-all"
+          className="text-xs font-bold text-rose-500 bg-rose-50 dark:bg-rose-500/10 hover:bg-rose-100 dark:hover:bg-rose-500/20 px-3 py-1.5 rounded-xl flex items-center gap-2 transition-all focus-visible:ring-2 focus-visible:ring-rose-500 focus-visible:outline-none"
         >
-          <Trash2 className="w-4 h-4" /> Tout effacer
+          <Trash2 className="w-4 h-4" /> {t('listcomparator.clear_all')}
         </button>
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
         <div className="space-y-4">
-          <label htmlFor="list-a" className="text-xs font-black uppercase tracking-widest text-slate-400 px-1">Liste A</label>
+          <label htmlFor="list-a" className="text-xs font-black uppercase tracking-widest text-slate-400 px-1">{t('listcomparator.list_a')}</label>
           <textarea
             id="list-a"
             value={listA}
             onChange={(e) => {
               setListA(e.target.value);
-              if (e.target.value.length > MAX_LENGTH) setError('Entrée trop longue');
+              if (e.target.value.length > MAX_LENGTH) setError(t('error.max_length', { max: MAX_LENGTH }));
               else setError(null);
             }}
-            placeholder="Élément 1&#10;Élément 2..."
+            placeholder={t('listcomparator.placeholder_a')}
             className="w-full h-64 p-6 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-[2rem] outline-none focus:ring-2 focus:ring-indigo-500/20 transition-all text-lg font-medium dark:text-slate-300 resize-none"
           />
           <div className="text-[10px] font-black text-slate-400 uppercase tracking-widest px-2">
-            {processList(listA).length} éléments
+            {t('listcomparator.items_count', { count: processList(listA).length })}
           </div>
         </div>
         <div className="space-y-4">
-          <label htmlFor="list-b" className="text-xs font-black uppercase tracking-widest text-slate-400 px-1">Liste B</label>
+          <label htmlFor="list-b" className="text-xs font-black uppercase tracking-widest text-slate-400 px-1">{t('listcomparator.list_b')}</label>
           <textarea
             id="list-b"
             value={listB}
             onChange={(e) => {
               setListB(e.target.value);
-              if (e.target.value.length > MAX_LENGTH) setError('Entrée trop longue');
+              if (e.target.value.length > MAX_LENGTH) setError(t('error.max_length', { max: MAX_LENGTH }));
               else setError(null);
             }}
-            placeholder="Élément A&#10;Élément B..."
+            placeholder={t('listcomparator.placeholder_b')}
             className="w-full h-64 p-6 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-[2rem] outline-none focus:ring-2 focus:ring-indigo-500/20 transition-all text-lg font-medium dark:text-slate-300 resize-none"
           />
           <div className="text-[10px] font-black text-slate-400 uppercase tracking-widest px-2">
-            {processList(listB).length} éléments
+            {t('listcomparator.items_count', { count: processList(listB).length })}
           </div>
         </div>
       </div>
 
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 pt-8 border-t border-slate-100 dark:border-slate-800">
         {[
-          { id: 'common', name: 'Communs (A ∩ B)', items: results.common, color: 'text-indigo-600', bg: 'bg-indigo-50 dark:bg-indigo-900/20' },
-          { id: 'onlyA', name: 'Seulement dans A (A - B)', items: results.onlyA, color: 'text-amber-600', bg: 'bg-amber-50 dark:bg-amber-900/20' },
-          { id: 'onlyB', name: 'Seulement dans B (B - A)', items: results.onlyB, color: 'text-emerald-600', bg: 'bg-emerald-50 dark:bg-emerald-900/20' },
-          { id: 'union', name: 'Unique Total (A ∪ B)', items: results.union, color: 'text-rose-600', bg: 'bg-rose-50 dark:bg-rose-900/20' },
+          { id: 'common', name: t('listcomparator.common'), items: results.common, color: 'text-indigo-600', bg: 'bg-indigo-50 dark:bg-indigo-900/20' },
+          { id: 'onlyA', name: t('listcomparator.only_a'), items: results.onlyA, color: 'text-amber-600', bg: 'bg-amber-50 dark:bg-amber-900/20' },
+          { id: 'onlyB', name: t('listcomparator.only_b'), items: results.onlyB, color: 'text-emerald-600', bg: 'bg-emerald-50 dark:bg-emerald-900/20' },
+          { id: 'union', name: t('listcomparator.union'), items: results.union, color: 'text-rose-600', bg: 'bg-rose-50 dark:bg-rose-900/20' },
         ].map((res) => (
           <div key={res.id} className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-3xl overflow-hidden flex flex-col group">
             <div className={`p-4 ${res.bg} flex justify-between items-center`}>
               <div className="space-y-1">
                 <div className={`text-[10px] font-black uppercase tracking-widest ${res.color}`}>{res.name}</div>
-                <div className="text-2xl font-black dark:text-white">{res.items.length}</div>
+                <div className="text-2xl font-black dark:text-white" aria-live="polite">{res.items.length}</div>
               </div>
               <div className="flex gap-1">
                 <button
                   onClick={() => handleCopy(res.items, res.id)}
-                  className={`p-2 rounded-xl transition-all ${copiedId === res.id ? 'bg-white text-emerald-600 shadow-sm' : 'hover:bg-white/50 text-slate-500'}`}
-                  title="Copier"
+                  className={`p-2 rounded-xl transition-all focus-visible:ring-2 focus-visible:ring-indigo-500 focus-visible:outline-none ${copiedId === res.id ? 'bg-white text-emerald-600 shadow-sm' : 'hover:bg-white/50 text-slate-500'}`}
+                  title={t('listcomparator.copy')}
+                  aria-label={`${t('listcomparator.copy')} ${res.name}`}
                 >
                   {copiedId === res.id ? <Check className="w-4 h-4" /> : <Copy className="w-4 h-4" />}
                 </button>
                 <button
                   onClick={() => handleDownload(res.items, `liste-${res.id}`)}
-                  className="p-2 rounded-xl hover:bg-white/50 text-slate-500 transition-all"
-                  title="Télécharger"
+                  className="p-2 rounded-xl hover:bg-white/50 text-slate-500 transition-all focus-visible:ring-2 focus-visible:ring-indigo-500 focus-visible:outline-none"
+                  title={t('listcomparator.download')}
+                  aria-label={`${t('listcomparator.download')} ${res.name}`}
                 >
                   <Download className="w-4 h-4" />
                 </button>
@@ -208,7 +212,7 @@ export function ListComparator({ initialData, onStateChange }: { initialData?: a
                 </div>
               ) : (
                 <div className="h-full flex items-center justify-center text-xs font-bold text-slate-300 italic">
-                  Aucun résultat
+                  {t('listcomparator.no_results')}
                 </div>
               )}
             </div>
@@ -217,13 +221,13 @@ export function ListComparator({ initialData, onStateChange }: { initialData?: a
       </div>
 
       <div className="bg-indigo-50 dark:bg-indigo-900/10 p-8 rounded-[2.5rem] border border-indigo-100 dark:border-indigo-900/20 flex items-start gap-4 max-w-2xl mx-auto">
-         <div className="p-3 bg-white dark:bg-slate-800 text-indigo-600 rounded-2xl shadow-sm">
+         <div className="p-3 bg-white dark:bg-slate-800 text-indigo-600 rounded-2xl shadow-sm shrink-0">
             <ArrowRightLeft className="w-6 h-6" />
          </div>
          <div className="space-y-2">
-            <h4 className="font-bold dark:text-white">Opérations sur les ensembles</h4>
+            <h4 className="font-bold dark:text-white">{t('listcomparator.sets_title')}</h4>
             <p className="text-sm text-slate-500 dark:text-slate-400 leading-relaxed">
-              Cet outil traite vos listes comme des ensembles mathématiques. Il permet de filtrer rapidement les doublons et de comparer le contenu de deux sources de données différentes de manière visuelle.
+              {t('listcomparator.sets_desc')}
             </p>
          </div>
       </div>
@@ -231,26 +235,26 @@ export function ListComparator({ initialData, onStateChange }: { initialData?: a
       <div className="grid grid-cols-1 md:grid-cols-3 gap-8 pt-8 border-t border-slate-100 dark:border-slate-800">
         <div className="space-y-4">
           <h4 className="font-bold dark:text-white flex items-center gap-2">
-            <Info className="w-4 h-4 text-indigo-500" /> Cas d'usage
+            <Info className="w-4 h-4 text-indigo-500" /> {t('listcomparator.use_cases_title')}
           </h4>
           <p className="text-sm text-slate-500 dark:text-slate-400 leading-relaxed">
-            Comparer des listes d'emails, de mots-clés SEO, d'IDs de produits ou de lignes de logs pour identifier les différences ou les redondances.
+            {t('listcomparator.use_cases_desc')}
           </p>
         </div>
         <div className="space-y-4">
           <h4 className="font-bold dark:text-white flex items-center gap-2">
-            <ListFilter className="w-4 h-4 text-indigo-500" /> Options de nettoyage
+            <ListFilter className="w-4 h-4 text-indigo-500" /> {t('listcomparator.clean_options_title')}
           </h4>
           <p className="text-sm text-slate-500 dark:text-slate-400 leading-relaxed">
-            L'option "Nettoyer les espaces" supprime les espaces inutiles en début et fin de chaque ligne. "Respecter la casse" permet de différencier "Texte" et "texte".
+            {t('listcomparator.clean_options_desc')}
           </p>
         </div>
         <div className="space-y-4">
           <h4 className="font-bold dark:text-white flex items-center gap-2">
-            <Columns className="w-4 h-4 text-indigo-500" /> Confidentialité
+            <Columns className="w-4 h-4 text-indigo-500" /> {t('listcomparator.privacy_title')}
           </h4>
           <p className="text-sm text-slate-500 dark:text-slate-400 leading-relaxed">
-            Comme pour tous nos outils, les données restent sur votre appareil. Rien n'est envoyé sur nos serveurs.
+            {t('listcomparator.privacy_desc')}
           </p>
         </div>
       </div>

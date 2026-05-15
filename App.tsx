@@ -257,6 +257,10 @@ const JSONToEnv = lazy(() => import("./components/JSONToEnv").then(m => ({ defau
 const JSONToSwift = lazy(() => import("./components/JSONToSwift").then(m => ({ default: m.JSONToSwift })));
 const JSONToRuby = lazy(() => import("./components/JSONToRuby").then(m => ({ default: m.JSONToRuby })));
 const JSONToScala = lazy(() => import("./components/JSONToScala").then(m => ({ default: m.JSONToScala })));
+const URLExtractor = lazy(() => import("./components/URLExtractor").then(m => ({ default: m.URLExtractor })));
+const MarkdownToHTML = lazy(() => import("./components/MarkdownToHTML").then(m => ({ default: m.MarkdownToHTML })));
+const HTMLFormatter = lazy(() => import("./components/HTMLFormatter").then(m => ({ default: m.HTMLFormatter })));
+const PasswordStrengthMeter = lazy(() => import("./components/PasswordStrengthMeter").then(m => ({ default: m.PasswordStrengthMeter })));
 
 // ⚡ Bolt Optimization: Pre-calculating tool map and search index for O(1) lookups and faster filtering
 const toolsMap: Record<string, Tool> = {};
@@ -737,6 +741,7 @@ const tools: Tool[] = [
     descriptionEn: "Check color contrast (WCAG)",
     Component: ColorContrastChecker,
     category: "converters",
+    keywords: ["ratio", "wcag", "accessibility", "color"],
   },
   {
     id: "color-mixer",
@@ -1782,6 +1787,50 @@ const tools: Tool[] = [
     Component: JSONToScala,
     category: "dev",
     keywords: ["scala", "case class", "json", "types", "spark"],
+  },
+  {
+    id: "url-extractor",
+    name: "Extracteur d'URLs",
+    nameEn: "URL Extractor",
+    icon: LinkIcon,
+    description: "Extraire et dédoublonner les URLs d'un texte",
+    descriptionEn: "Extract and deduplicate URLs from text",
+    Component: URLExtractor,
+    category: "dev",
+    keywords: ["url", "extract", "link", "regex", "crawler"],
+  },
+  {
+    id: "markdown-to-html",
+    name: "Markdown en HTML",
+    nameEn: "Markdown to HTML",
+    icon: FileCode,
+    description: "Convertir du Markdown en HTML brut",
+    descriptionEn: "Convert Markdown to raw HTML",
+    Component: MarkdownToHTML,
+    category: "dev",
+    keywords: ["markdown", "html", "convert", "static", "web"],
+  },
+  {
+    id: "html-formatter",
+    name: "Formateur HTML",
+    nameEn: "HTML Formatter",
+    icon: FileCode,
+    description: "Embellir ou minifier votre code HTML",
+    descriptionEn: "Beautify or minify your HTML code",
+    Component: HTMLFormatter,
+    category: "dev",
+    keywords: ["html", "format", "beautify", "minify", "lint"],
+  },
+  {
+    id: "password-strength",
+    name: "Force du mot de passe",
+    nameEn: "Password Strength",
+    icon: Shield,
+    description: "Analyser l'entropie et le temps de crackage",
+    descriptionEn: "Analyze entropy and crack time",
+    Component: PasswordStrengthMeter,
+    category: "dev",
+    keywords: ["security", "password", "strength", "entropy", "crack"],
   },
 ];
 

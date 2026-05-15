@@ -1,10 +1,12 @@
 import { useState, useEffect } from 'react';
 import { Eye, Code, Trash2, Copy, Check, FileDown, AlertCircle } from 'lucide-react';
 import { AdPlaceholder } from './AdPlaceholder';
+import { useTranslation } from 'react-i18next';
 
 const MAX_LENGTH = 50000;
 
 export function MarkdownPreview({ initialData, onStateChange }: { initialData?: any; onStateChange?: (state: any) => void }) {
+  const { t } = useTranslation();
   const [markdown, setMarkdown] = useState(initialData?.markdown || '# Titre\n\nVotre texte **Markdown** ici...');
   const [mode, setMode] = useState<'split' | 'edit' | 'preview'>(initialData?.mode || 'split');
   const [error, setError] = useState<string | null>(null);
@@ -54,7 +56,7 @@ export function MarkdownPreview({ initialData, onStateChange }: { initialData?: 
 
   const renderMarkdown = (text: string) => {
     if (text.length > MAX_LENGTH) {
-      return `<div class="text-rose-500 font-bold p-4 border border-rose-200 rounded-xl bg-rose-50">L'entrée est trop longue pour être traitée en toute sécurité (maximum ${MAX_LENGTH.toLocaleString()} caractères).</div>`;
+      return `<div class="text-rose-500 font-bold p-4 border border-rose-200 rounded-xl bg-rose-50">${t('error.max_length', { max: MAX_LENGTH.toLocaleString() })}</div>`;
     }
     const placeholders: string[] = [];
 
@@ -102,18 +104,13 @@ export function MarkdownPreview({ initialData, onStateChange }: { initialData?: 
     html = html.replace(/\*(.*?)\*/g, '<em class="italic">$1</em>');
     
     // 10. Links
-    // Sentinel: Exclude quotes and other attribute-breaking characters from the URL match.
     html = html.replace(/\[(.*?)\]\(([^)\s\<\>"\']+)\)/g, (match, linkText, url) => {
-      // Sentinel: Improved protocol check to prevent XSS.
-      // We whitelist common safe protocols and ensure the URL doesn't contain
-      // encoded characters that could be used for bypasses.
       const isSafe = /^(https?:\/\/|mailto:|tel:|\/|#)/i.test(url) &&
-                    !/[\u0000-\u001F\u007F-\u009F]/.test(url) && // No control characters
-                    !url.includes('&#') && // No numeric HTML entities in URL part
+                    !/[\u0000-\u001F\u007F-\u009F]/.test(url) &&
+                    !url.includes('&#') &&
                     !url.toLowerCase().includes('&colon;') &&
-                    !url.toLowerCase().includes('javascript:'); // Double check for javascript:
+                    !url.toLowerCase().includes('javascript:');
 
-      // Use escapeHTML for the href attribute to prevent attribute injection.
       return isSafe
         ? `<a href="${escapeHTML(url)}" class="text-indigo-600 dark:text-indigo-400 underline underline-offset-4 hover:text-indigo-500 transition-colors" rel="noopener noreferrer" target="_blank">${linkText}</a>`
         : `<span class="text-slate-400 underline decoration-dotted" title="Lien non sécurisé">${linkText}</span>`;
@@ -146,7 +143,7 @@ export function MarkdownPreview({ initialData, onStateChange }: { initialData?: 
               mode === 'edit' ? 'bg-white dark:bg-slate-700 text-indigo-600 shadow-sm' : 'text-slate-500 hover:text-slate-900 dark:hover:text-slate-200'
             }`}
           >
-            <Code className="w-4 h-4" /> Édition
+            <Code className="w-4 h-4" /> {t('markdown.mode_edit') || 'Édition'}
           </button>
           <button
             onClick={() => setMode('split')}
@@ -154,7 +151,7 @@ export function MarkdownPreview({ initialData, onStateChange }: { initialData?: 
               mode === 'split' ? 'bg-white dark:bg-slate-700 text-indigo-600 shadow-sm' : 'text-slate-500 hover:text-slate-900 dark:hover:text-slate-200'
             }`}
           >
-            Divisé
+            {t('markdown.mode_split') || 'Divisé'}
           </button>
           <button
             onClick={() => setMode('preview')}
@@ -162,7 +159,7 @@ export function MarkdownPreview({ initialData, onStateChange }: { initialData?: 
               mode === 'preview' ? 'bg-white dark:bg-slate-700 text-indigo-600 shadow-sm' : 'text-slate-500 hover:text-slate-900 dark:hover:text-slate-200'
             }`}
           >
-            <Eye className="w-4 h-4" /> Aperçu
+            <Eye className="w-4 h-4" /> {t('markdown.mode_preview') || 'Aperçu'}
           </button>
         </div>
 
@@ -171,36 +168,36 @@ export function MarkdownPreview({ initialData, onStateChange }: { initialData?: 
             onClick={handleCopy}
             disabled={!markdown}
             className={`flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-bold transition-all disabled:opacity-50 focus-visible:ring-2 focus-visible:ring-indigo-500 focus-visible:outline-none ${
-              copied ? 'bg-emerald-50 text-emerald-600 dark:bg-emerald-500/10' : 'bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 hover:bg-slate-200'
+              copied ? 'bg-emerald-50 text-emerald-600 dark:bg-emerald-500/10 border border-emerald-200 dark:border-emerald-500/20' : 'bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 hover:bg-slate-200'
             }`}
           >
             {copied ? <Check className="w-4 h-4" /> : <Copy className="w-4 h-4" />}
-            {copied ? 'Copié' : 'Markdown'}
+            {copied ? t('common.copied') : 'Markdown'}
           </button>
           <button
             onClick={handleCopyHtml}
             disabled={!markdown}
             className={`flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-bold transition-all disabled:opacity-50 focus-visible:ring-2 focus-visible:ring-indigo-500 focus-visible:outline-none ${
-              copiedHtml ? 'bg-emerald-50 text-emerald-600 dark:bg-emerald-500/10' : 'bg-indigo-50 dark:bg-indigo-900/10 text-indigo-600 dark:text-indigo-400 hover:bg-indigo-100'
+              copiedHtml ? 'bg-emerald-50 text-emerald-600 dark:bg-emerald-500/10 border border-emerald-200 dark:border-emerald-500/20' : 'bg-indigo-50 dark:bg-indigo-900/10 text-indigo-600 dark:text-indigo-400 hover:bg-indigo-100'
             }`}
           >
             {copiedHtml ? <Check className="w-4 h-4" /> : <Code className="w-4 h-4" />}
-            {copiedHtml ? 'HTML Copié' : 'HTML'}
+            {copiedHtml ? t('common.copied') : 'HTML'}
           </button>
           <button
             onClick={handleDownload}
             disabled={!markdown}
             className="flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-bold bg-indigo-50 dark:bg-indigo-900/10 text-indigo-600 hover:bg-indigo-100 dark:hover:bg-indigo-500/20 transition-all disabled:opacity-50 focus-visible:ring-2 focus-visible:ring-indigo-500 focus-visible:outline-none"
           >
-            <FileDown className="w-4 h-4" /> Télécharger
+            <FileDown className="w-4 h-4" /> {t('common.download')}
           </button>
           <button
             onClick={() => setMarkdown('')}
             disabled={!markdown}
-            aria-label="Effacer le markdown"
+            aria-label={t('markdown.clear_aria') || "Effacer le markdown"}
             className="flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-bold bg-rose-50 dark:bg-rose-500/10 text-rose-500 hover:bg-rose-100 dark:hover:bg-rose-500/20 transition-all disabled:opacity-50 focus-visible:ring-2 focus-visible:ring-rose-500 focus-visible:outline-none"
           >
-            <Trash2 className="w-4 h-4" /> Effacer
+            <Trash2 className="w-4 h-4" /> {t('common.clear')}
           </button>
         </div>
       </div>
@@ -220,7 +217,7 @@ export function MarkdownPreview({ initialData, onStateChange }: { initialData?: 
                 const val = e.target.value;
                 setMarkdown(val);
                 if (val.length > MAX_LENGTH) {
-                  setError(`L'entrée est trop longue. Limite de ${MAX_LENGTH.toLocaleString()} caractères pour la prévisualisation.`);
+                  setError(t('error.max_length', { max: MAX_LENGTH.toLocaleString() }));
                 } else {
                   setError(null);
                 }
@@ -235,7 +232,7 @@ export function MarkdownPreview({ initialData, onStateChange }: { initialData?: 
           <div className="space-y-3">
             <div className="flex justify-between items-center px-1">
               <span className="text-xs font-black uppercase tracking-widest text-slate-400">
-                Aperçu
+                {t('markdown.mode_preview') || 'Aperçu'}
               </span>
             </div>
             <div className="relative group">

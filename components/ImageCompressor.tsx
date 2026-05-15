@@ -1,11 +1,11 @@
 import { useState, useRef, useCallback, useEffect } from 'react';
 import { Upload, Download, Trash2, Image as ImageIcon, Info, Zap, ShieldCheck, AlertCircle } from 'lucide-react';
+import { useTranslation } from 'react-i18next';
 
-// Sentinel: Enforce file size limit to mitigate client-side Denial of Service (DoS)
-// and prevent browser memory exhaustion or crashes.
 const MAX_SIZE = 5 * 1024 * 1024; // 5MB
 
 export function ImageCompressor() {
+  const { t } = useTranslation();
   const [originalImage, setOriginalImage] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [compressedImage, setCompressedImage] = useState<string | null>(null);
@@ -50,7 +50,7 @@ export function ImageCompressor() {
     if (!file || !file.type.startsWith('image/')) return;
 
     if (file.size > MAX_SIZE) {
-      setError(`L'image est trop volumineuse. La limite est de 5 Mo.`);
+      setError(t('imagecompressor.error_size') || `L'image est trop volumineuse. La limite est de 5 Mo.`);
       return;
     }
     setError(null);
@@ -68,7 +68,7 @@ export function ImageCompressor() {
       img.src = event.target?.result as string;
     };
     reader.readAsDataURL(file);
-  }, [compressImage, quality]);
+  }, [compressImage, quality, t]);
 
   const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -171,7 +171,7 @@ export function ImageCompressor() {
             <Upload className="w-10 h-10" />
           </div>
           <p className="mt-8 text-2xl font-black tracking-tight dark:text-white text-center">
-            Cliquez pour uploader une image
+            {t('imagecompressor.upload_prompt') || 'Cliquez pour uploader une image'}
           </p>
           <p className="mt-2 text-slate-500 font-bold uppercase tracking-widest text-xs">JPG, PNG, WEBP, GIF</p>
 
@@ -182,8 +182,8 @@ export function ImageCompressor() {
           <div className="flex flex-col md:flex-row justify-between items-center gap-6 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 p-6 rounded-[2.5rem]">
             <div className="flex-1 w-full space-y-4">
               <div className="flex justify-between items-center px-1">
-                <label htmlFor="quality-range" className="text-xs font-black uppercase tracking-widest text-slate-400">Qualité: {quality}%</label>
-                {isCompressing && <span className="text-[10px] font-bold text-indigo-500 animate-pulse">COMPRESSION...</span>}
+                <label htmlFor="quality-range" className="text-xs font-black uppercase tracking-widest text-slate-400">{t('common.quality')}: {quality}%</label>
+                {isCompressing && <span className="text-[10px] font-bold text-indigo-500 animate-pulse">{t('imagecompressor.compressing') || 'COMPRESSION...'}</span>}
               </div>
               <input
                 id="quality-range"
@@ -199,8 +199,8 @@ export function ImageCompressor() {
               <button
                 onClick={handleClear}
                 className="p-4 text-rose-500 bg-rose-50 dark:bg-rose-500/10 rounded-2xl hover:bg-rose-100 transition-all focus-visible:ring-2 focus-visible:ring-rose-500 focus-visible:outline-none"
-                title="Effacer"
-                aria-label="Effacer le formulaire"
+                title={t('common.clear')}
+                aria-label={t('common.clear')}
               >
                 <Trash2 className="w-6 h-6" />
               </button>
@@ -209,14 +209,14 @@ export function ImageCompressor() {
                 className="px-8 py-4 bg-indigo-600 text-white rounded-2xl font-black text-lg shadow-lg shadow-indigo-600/20 hover:bg-indigo-700 transition-all active:scale-95 flex items-center gap-2"
               >
                 <Download className="w-6 h-6" />
-                Télécharger
+                {t('common.download')}
               </button>
             </div>
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
             <div className="space-y-4">
-              <h3 className="text-xs font-black uppercase tracking-widest text-slate-400 px-1">Image originale</h3>
+              <h3 className="text-xs font-black uppercase tracking-widest text-slate-400 px-1">{t('imagecompressor.original') || 'Image originale'}</h3>
               <div className="relative group rounded-[2.5rem] overflow-hidden border border-slate-200 dark:border-slate-800 bg-slate-100 dark:bg-slate-800">
                 <img src={originalImage} alt="Original" className="w-full h-auto object-contain max-h-[500px]" />
                 <div className="absolute bottom-4 left-4 right-4">
@@ -228,7 +228,7 @@ export function ImageCompressor() {
             </div>
 
             <div className="space-y-4">
-              <h3 className="text-xs font-black uppercase tracking-widest text-slate-400 px-1">Image compressée</h3>
+              <h3 className="text-xs font-black uppercase tracking-widest text-slate-400 px-1">{t('imagecompressor.compressed') || 'Image compressée'}</h3>
               <div className="relative group rounded-[2.5rem] overflow-hidden border border-slate-200 dark:border-slate-800 bg-slate-100 dark:bg-slate-800 min-h-[200px] flex items-center justify-center">
                 {compressedImage ? (
                   <>
@@ -245,7 +245,7 @@ export function ImageCompressor() {
                 ) : (
                   <div className="animate-pulse flex flex-col items-center gap-2 text-slate-400">
                     <ImageIcon className="w-8 h-8" />
-                    <p className="text-xs font-bold uppercase tracking-widest">Compression en cours...</p>
+                    <p className="text-xs font-bold uppercase tracking-widest">{t('imagecompressor.compressing') || 'Compression en cours...'}</p>
                   </div>
                 )}
               </div>
@@ -261,7 +261,7 @@ export function ImageCompressor() {
             <ShieldCheck className="w-4 h-4 text-indigo-500" /> 100% Client-Side
           </h4>
           <p className="text-sm text-slate-500 dark:text-slate-400 leading-relaxed">
-            Vos images ne quittent jamais votre ordinateur. La compression est effectuée localement dans votre navigateur grâce à l'API Canvas.
+            {t('imagecompressor.client_side_desc') || "Vos images ne quittent jamais votre ordinateur. La compression est effectuée localement dans votre navigateur grâce à l'API Canvas."}
           </p>
         </div>
         <div className="space-y-4">
@@ -269,7 +269,7 @@ export function ImageCompressor() {
             <Zap className="w-4 h-4 text-indigo-500" /> Performance Web
           </h4>
           <p className="text-sm text-slate-500 dark:text-slate-400 leading-relaxed">
-            Réduisez le poids de vos pages web sans sacrifier la qualité visuelle. Idéal pour le SEO et le temps de chargement de vos sites.
+            {t('imagecompressor.performance_desc') || "Réduisez le poids de vos pages web sans sacrifier la qualité visuelle. Idéal pour le SEO et le temps de chargement de vos sites."}
           </p>
         </div>
         <div className="space-y-4">
@@ -277,7 +277,7 @@ export function ImageCompressor() {
             <Info className="w-4 h-4 text-indigo-500" /> Formats supportés
           </h4>
           <p className="text-sm text-slate-500 dark:text-slate-400 leading-relaxed">
-            L'outil accepte les fichiers JPG, PNG, WEBP et GIF. Le fichier compressé est généré au format JPEG optimisé.
+            {t('imagecompressor.formats_desc') || "L'outil accepte les fichiers JPG, PNG, WEBP et GIF. Le fichier compressé est généré au format JPEG optimisé."}
           </p>
         </div>
       </div>

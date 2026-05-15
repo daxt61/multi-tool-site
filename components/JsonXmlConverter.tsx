@@ -1,10 +1,12 @@
 import { useState, useEffect } from 'react';
 import { FileCode, ArrowLeftRight, Copy, Check, Trash2, Download, Info, AlertCircle } from 'lucide-react';
+import { useTranslation } from 'react-i18next';
 
 const MAX_LENGTH = 100000;
 const MAX_DEPTH = 20;
 
 export function JsonXmlConverter({ initialData, onStateChange }: { initialData?: any; onStateChange?: (state: any) => void }) {
+  const { t } = useTranslation();
   const [input, setInput] = useState(initialData?.input || '');
   const [output, setOutput] = useState(initialData?.output || '');
   const [direction, setDirection] = useState<'json-to-xml' | 'xml-to-json'>(initialData?.direction || 'json-to-xml');
@@ -33,7 +35,6 @@ export function JsonXmlConverter({ initialData, onStateChange }: { initialData?:
     try {
       const obj = JSON.parse(jsonStr);
       const toXml = (o: any, tab: string = '', depth: number = 0): string => {
-        // Sentinel: Enforce recursion depth limit to prevent Stack Overflow DoS.
         if (depth > MAX_DEPTH) {
           return `${tab}<!-- Max depth reached -->\n`;
         }
@@ -62,7 +63,7 @@ export function JsonXmlConverter({ initialData, onStateChange }: { initialData?:
       };
       return `<?xml version="1.0" encoding="UTF-8"?>\n<root>\n${toXml(obj, '  ', 0)}</root>`;
     } catch (e: any) {
-      throw new Error('JSON invalide : ' + e.message);
+      throw new Error(t('error.invalid_json') + ' : ' + e.message);
     }
   };
 
@@ -72,11 +73,10 @@ export function JsonXmlConverter({ initialData, onStateChange }: { initialData?:
       const xmlDoc = parser.parseFromString(xmlStr, 'application/xml');
       const parseError = xmlDoc.getElementsByTagName('parsererror');
       if (parseError.length > 0) {
-        throw new Error(parseError[0].textContent || 'Erreur de parsing XML');
+        throw new Error(parseError[0].textContent || 'XML parsing error');
       }
 
       const toJson = (node: Node, depth: number = 0): any => {
-        // Sentinel: Enforce recursion depth limit to prevent Stack Overflow DoS.
         if (depth > MAX_DEPTH) {
           return null;
         }
@@ -131,7 +131,7 @@ export function JsonXmlConverter({ initialData, onStateChange }: { initialData?:
 
       return JSON.stringify(toJson(xmlDoc.documentElement, 0), null, 2);
     } catch (e: any) {
-      throw new Error('XML invalide : ' + e.message);
+      throw new Error('XML ' + t('error.invalid_json').toLowerCase() + ' : ' + e.message);
     }
   };
 
@@ -143,7 +143,7 @@ export function JsonXmlConverter({ initialData, onStateChange }: { initialData?:
     }
 
     if (input.length > MAX_LENGTH) {
-      setError(`L'entrée est trop longue (max ${MAX_LENGTH.toLocaleString()} caractères)`);
+      setError(t('error.max_length', { max: MAX_LENGTH.toLocaleString() }));
       return;
     }
 
@@ -200,7 +200,7 @@ export function JsonXmlConverter({ initialData, onStateChange }: { initialData?:
         <div className="lg:col-span-5 space-y-4">
           <div className="flex justify-between items-center px-1">
             <label htmlFor="input-field" className="text-xs font-black uppercase tracking-widest text-slate-400">
-              {direction === 'json-to-xml' ? 'Entrée JSON' : 'Entrée XML'}
+              {direction === 'json-to-xml' ? t('common.input') + ' JSON' : t('common.input') + ' XML'}
             </label>
             <button
               onClick={() => {setInput(''); setOutput(''); setError(null);}}
@@ -223,7 +223,7 @@ export function JsonXmlConverter({ initialData, onStateChange }: { initialData?:
           <button
             onClick={handleSwap}
             className="p-4 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-2xl hover:border-indigo-500 transition-all group"
-            title="Inverser la direction"
+            title={t('diffchecker.swap_aria') || "Swap direction"}
           >
             <ArrowLeftRight className="w-6 h-6 text-slate-400 group-hover:text-indigo-500 group-hover:rotate-180 transition-all duration-500" />
           </button>
@@ -231,7 +231,7 @@ export function JsonXmlConverter({ initialData, onStateChange }: { initialData?:
             onClick={handleConvert}
             className="w-full py-4 bg-indigo-600 text-white rounded-2xl font-black shadow-lg shadow-indigo-600/20 hover:bg-indigo-700 transition-all active:scale-95"
           >
-            Convertir
+            {t('jsontosql.generate') || 'Convert'}
           </button>
         </div>
 
@@ -239,7 +239,7 @@ export function JsonXmlConverter({ initialData, onStateChange }: { initialData?:
         <div className="lg:col-span-5 space-y-4">
           <div className="flex justify-between items-center px-1">
             <label className="text-xs font-black uppercase tracking-widest text-slate-400">
-              {direction === 'json-to-xml' ? 'Résultat XML' : 'Résultat JSON'}
+              {direction === 'json-to-xml' ? t('common.output') + ' XML' : t('common.output') + ' JSON'}
             </label>
             <div className="flex gap-2">
                <button
@@ -252,7 +252,7 @@ export function JsonXmlConverter({ initialData, onStateChange }: { initialData?:
                <button
                  onClick={handleCopy}
                  disabled={!output}
-                 className={`p-2 rounded-lg transition-all ${copied ? 'bg-emerald-500 text-white' : 'text-slate-600 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 hover:border-slate-300'} disabled:opacity-50`}
+                 className={`p-2 rounded-lg transition-all ${copied ? 'bg-emerald-50 text-emerald-600 dark:bg-emerald-500/10 border border-emerald-200 dark:border-emerald-500/20' : 'text-slate-600 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 hover:border-slate-300'} disabled:opacity-50`}
                >
                  {copied ? <Check className="w-3.5 h-3.5" /> : <Copy className="w-3.5 h-3.5" />}
                </button>
@@ -261,7 +261,7 @@ export function JsonXmlConverter({ initialData, onStateChange }: { initialData?:
           <textarea
             readOnly
             value={output}
-            placeholder="Le résultat s'affichera ici..."
+            placeholder={t('jsontosql.placeholder_output') || "Result will appear here..."}
             className="w-full h-80 p-6 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-3xl outline-none font-mono text-sm dark:text-slate-300 resize-none shadow-inner"
           />
         </div>
@@ -272,11 +272,9 @@ export function JsonXmlConverter({ initialData, onStateChange }: { initialData?:
             <Info className="w-6 h-6" />
          </div>
          <div className="space-y-2">
-            <h4 className="font-bold dark:text-white">Comment fonctionne la conversion ?</h4>
+            <h4 className="font-bold dark:text-white">{t('jsonxml.how_title') || 'How does it work?'}</h4>
             <p className="text-sm text-slate-500 dark:text-slate-400 leading-relaxed">
-              Cet outil transforme vos structures de données JSON en XML et vice versa.
-              <strong>JSON vers XML :</strong> Crée un élément racine &lt;root&gt; et transforme chaque paire clé-valeur en balises. Les tableaux sont répétés sous le même nom de balise.
-              <strong>XML vers JSON :</strong> Analyse la structure hiérarchique et les attributs (préfixés par @attributes) pour générer un objet JSON propre.
+              {t('jsonxml.how_text') || 'This tool transforms your JSON data structures into XML and vice versa.'}
             </p>
          </div>
       </div>

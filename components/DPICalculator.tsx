@@ -1,7 +1,9 @@
 import { useState, useMemo } from 'react';
 import { Monitor, Ruler, Hash, Info, Trash2, Copy, Check } from 'lucide-react';
+import { useTranslation } from 'react-i18next';
 
 export function DPICalculator() {
+  const { t, i18n } = useTranslation();
   const [width, setWidth] = useState<string>('1920');
   const [height, setHeight] = useState<string>('1080');
   const [diagonal, setDiagonal] = useState<string>('24');
@@ -13,7 +15,7 @@ export function DPICalculator() {
     const d = parseFloat(diagonal);
 
     if (isNaN(w) || isNaN(h) || isNaN(d) || d <= 0) {
-      return { ppi: 0, pixelPitch: 0, totalPixels: 0, aspectRatio: '0:0' };
+      return { ppi: '0', pixelPitch: '0', totalPixels: '0', aspectRatio: '0:0' };
     }
 
     const diagonalPixels = Math.sqrt(w * w + h * h);
@@ -28,10 +30,10 @@ export function DPICalculator() {
     return {
       ppi: ppi.toFixed(2),
       pixelPitch: pixelPitch.toFixed(4),
-      totalPixels: totalPixels.toLocaleString('fr-FR'),
+      totalPixels: totalPixels.toLocaleString(i18n.language === 'en' ? 'en-US' : 'fr-FR'),
       aspectRatio
     };
-  }, [width, height, diagonal]);
+  }, [width, height, diagonal, i18n.language]);
 
   const handleClear = () => {
     setWidth('');
@@ -40,7 +42,7 @@ export function DPICalculator() {
   };
 
   const handleCopy = () => {
-    const text = `Résolution: ${width}x${height}\nTaille: ${diagonal}"\nPPI: ${stats.ppi}\nPixel Pitch: ${stats.pixelPitch}mm\nRatio: ${stats.aspectRatio}`;
+    const text = `${t('dpicalculator.specs')}:\n${t('dpicalculator.width')}: ${width}px\n${t('dpicalculator.height')}: ${height}px\n${t('dpicalculator.diagonal')}: ${diagonal}"\nPPI: ${stats.ppi}\n${t('dpicalculator.pixel_pitch')}: ${stats.pixelPitch}mm\n${t('dpicalculator.ratio')}: ${stats.aspectRatio}`;
     navigator.clipboard.writeText(text);
     setCopied(true);
     setTimeout(() => setCopied(false), 2000);
@@ -54,20 +56,20 @@ export function DPICalculator() {
           <div className="bg-slate-50 dark:bg-slate-900/50 p-8 rounded-[2.5rem] border border-slate-200 dark:border-slate-800 space-y-6">
             <div className="flex justify-between items-center px-1">
               <h3 className="text-xs font-black uppercase tracking-widest text-slate-400 flex items-center gap-2">
-                <Monitor className="w-4 h-4 text-indigo-500" /> Spécifications
+                <Monitor className="w-4 h-4 text-indigo-500" /> {t('dpicalculator.specs')}
               </h3>
               <button
                 onClick={handleClear}
-                className="text-xs font-bold text-rose-500 bg-rose-50 dark:bg-rose-500/10 hover:bg-rose-100 dark:hover:bg-rose-500/20 px-3 py-1.5 rounded-xl flex items-center gap-1 transition-all"
+                className="text-xs font-bold text-rose-500 bg-rose-50 dark:bg-rose-500/10 hover:bg-rose-100 dark:hover:bg-rose-500/20 px-3 py-1.5 rounded-xl flex items-center gap-1 transition-all focus-visible:ring-2 focus-visible:ring-rose-500 focus-visible:outline-none"
               >
-                <Trash2 className="w-3 h-3" /> Effacer
+                <Trash2 className="w-3 h-3" /> {t('common.clear')}
               </button>
             </div>
 
             <div className="space-y-4">
               <div className="grid grid-cols-2 gap-4">
                 <div className="space-y-2">
-                  <label htmlFor="width" className="text-[10px] font-bold text-slate-400 uppercase px-1">Largeur (px)</label>
+                  <label htmlFor="width" className="text-[10px] font-bold text-slate-400 uppercase px-1">{t('dpicalculator.width')}</label>
                   <input
                     id="width"
                     type="number"
@@ -78,7 +80,7 @@ export function DPICalculator() {
                   />
                 </div>
                 <div className="space-y-2">
-                  <label htmlFor="height" className="text-[10px] font-bold text-slate-400 uppercase px-1">Hauteur (px)</label>
+                  <label htmlFor="height" className="text-[10px] font-bold text-slate-400 uppercase px-1">{t('dpicalculator.height')}</label>
                   <input
                     id="height"
                     type="number"
@@ -91,7 +93,7 @@ export function DPICalculator() {
               </div>
 
               <div className="space-y-2">
-                <label htmlFor="diagonal" className="text-[10px] font-bold text-slate-400 uppercase px-1">Diagonale (pouces)</label>
+                <label htmlFor="diagonal" className="text-[10px] font-bold text-slate-400 uppercase px-1">{t('dpicalculator.diagonal')}</label>
                 <div className="relative">
                   <input
                     id="diagonal"
@@ -113,30 +115,31 @@ export function DPICalculator() {
               <Info className="w-6 h-6" />
             </div>
             <p className="text-xs text-slate-500 dark:text-slate-400 leading-relaxed font-medium">
-              Le DPI (Dots Per Inch) ou PPI (Pixels Per Inch) définit la densité de pixels d'un écran. Plus cette valeur est élevée, plus l'image sera nette à une distance de visionnage normale.
+              {t('dpicalculator.info')}
             </p>
           </div>
         </div>
 
         {/* Results Section */}
         <div className="lg:col-span-7 space-y-8">
-          <div className="bg-slate-900 dark:bg-black p-10 rounded-[2.5rem] shadow-xl shadow-indigo-500/10 flex flex-col items-center justify-center space-y-4 min-h-[300px] relative overflow-hidden text-center">
+          <div className="bg-slate-900 dark:bg-black p-10 rounded-[2.5rem] shadow-xl shadow-indigo-500/10 flex flex-col items-center justify-center space-y-4 min-h-[300px] relative overflow-hidden text-center group">
             <div className="absolute top-0 right-0 w-32 h-32 bg-indigo-500/10 rounded-full -mr-16 -mt-16 blur-3xl"></div>
 
             <button
               onClick={handleCopy}
-              className={`absolute top-6 right-6 p-3 rounded-2xl transition-all ${
+              className={`absolute top-6 right-6 p-3 rounded-2xl transition-all z-20 focus-visible:ring-2 focus-visible:ring-white focus-visible:outline-none ${
                 copied
                   ? 'bg-emerald-500 text-white'
-                  : 'bg-white/10 text-white/40 hover:text-white hover:bg-white/20'
+                  : 'bg-white/10 text-white/40 hover:text-white hover:bg-white/20 md:opacity-0 md:group-hover:opacity-100 md:group-focus-within:opacity-100 md:focus-visible:opacity-100'
               }`}
-              title="Copier les spécifications"
+              title={t('dpicalculator.copy_label')}
+              aria-label={t('dpicalculator.copy_label')}
             >
               {copied ? <Check className="w-5 h-5" /> : <Copy className="w-5 h-5" />}
             </button>
 
-            <div className="text-slate-400 font-bold uppercase tracking-widest text-xs">Densité de pixels</div>
-            <div className="text-6xl md:text-8xl font-black text-white font-mono tracking-tighter">
+            <div className="text-slate-400 font-bold uppercase tracking-widest text-xs">{t('dpicalculator.density')}</div>
+            <div className="text-6xl md:text-8xl font-black text-white font-mono tracking-tighter" aria-live="polite">
               {stats.ppi}
             </div>
             <div className="text-indigo-400 font-black text-xl md:text-2xl uppercase tracking-widest">
@@ -147,7 +150,7 @@ export function DPICalculator() {
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
             <div className="bg-slate-50 dark:bg-slate-900/50 p-6 rounded-3xl border border-slate-200 dark:border-slate-800 space-y-2 text-center">
               <div className="text-xs font-bold text-slate-400 uppercase tracking-widest flex items-center justify-center gap-2">
-                <Ruler className="w-3 h-3" /> Pixel Pitch
+                <Ruler className="w-3 h-3" /> {t('dpicalculator.pixel_pitch')}
               </div>
               <div className="text-xl font-black text-slate-900 dark:text-white font-mono">
                 {stats.pixelPitch}mm
@@ -155,7 +158,7 @@ export function DPICalculator() {
             </div>
             <div className="bg-slate-50 dark:bg-slate-900/50 p-6 rounded-3xl border border-slate-200 dark:border-slate-800 space-y-2 text-center">
               <div className="text-xs font-bold text-slate-400 uppercase tracking-widest flex items-center justify-center gap-2">
-                <Monitor className="w-3 h-3" /> Ratio
+                <Monitor className="w-3 h-3" /> {t('dpicalculator.ratio')}
               </div>
               <div className="text-xl font-black text-slate-900 dark:text-white font-mono">
                 {stats.aspectRatio}
@@ -163,7 +166,7 @@ export function DPICalculator() {
             </div>
             <div className="bg-slate-50 dark:bg-slate-900/50 p-6 rounded-3xl border border-slate-200 dark:border-slate-800 space-y-2 text-center">
               <div className="text-xs font-bold text-slate-400 uppercase tracking-widest flex items-center justify-center gap-2">
-                <Hash className="w-3 h-3" /> Total Pixels
+                <Hash className="w-3 h-3" /> {t('dpicalculator.total_pixels')}
               </div>
               <div className="text-xl font-black text-slate-900 dark:text-white font-mono text-sm sm:text-lg">
                 {stats.totalPixels}

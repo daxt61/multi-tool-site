@@ -1,8 +1,10 @@
 import { useState, useEffect } from 'react';
 import { Globe, MapPin, Wifi, Info, Copy, Check } from 'lucide-react';
 import { AdPlaceholder } from './AdPlaceholder';
+import { useTranslation } from 'react-i18next';
 
 export function IPAddressTool() {
+  const { t } = useTranslation();
   const [ipInfo, setIpInfo] = useState({
     ip: '123.456.789.012',
     city: 'Paris',
@@ -27,27 +29,27 @@ export function IPAddressTool() {
   useEffect(() => {
     fetch('https://ipapi.co/json/')
       .then(res => {
-        if (!res.ok) throw new Error('Échec du chargement des données');
+        if (!res.ok) throw new Error(t('ipaddresstool.error_detection'));
         return res.json();
       })
       .then(data => {
         if (data.ip) {
           setIpInfo({
             ip: data.ip,
-            city: data.city || 'Inconnu',
-            region: data.region || 'Inconnu',
-            country: data.country_name || 'Inconnu',
-            timezone: data.timezone || 'Inconnu',
-            isp: data.org || 'Inconnu'
+            city: data.city || t('common.na'),
+            region: data.region || t('common.na'),
+            country: data.country_name || t('common.na'),
+            timezone: data.timezone || t('common.na'),
+            isp: data.org || t('common.na')
           });
         }
       })
       .catch(err => {
         console.error('Erreur IP:', err);
-        setError('Impossible de récupérer vos informations de connexion. Veuillez vérifier votre connexion ou désactiver votre bloqueur de publicités.');
+        setError(t('ipaddresstool.error_detection'));
       })
       .finally(() => setLoading(false));
-  }, []);
+  }, [t]);
 
   return (
     <div className="max-w-3xl mx-auto">
@@ -62,23 +64,23 @@ export function IPAddressTool() {
                 ? 'bg-emerald-500 text-white border-emerald-400 shadow-lg shadow-emerald-500/20'
                 : 'bg-white/10 text-white/70 border-white/10 hover:bg-white/20 hover:text-white md:opacity-0 md:group-hover:opacity-100 md:group-focus-within:opacity-100 md:focus-visible:opacity-100'
             }`}
-            title="Copier l'adresse IP"
-            aria-label="Copier l'adresse IP"
+            title={t('ipaddresstool.copy_ip')}
+            aria-label={t('ipaddresstool.copy_ip')}
           >
             {copied ? <Check className="w-5 h-5" /> : <Copy className="w-5 h-5" />}
           </button>
         )}
         <Globe className="w-16 h-16 mx-auto mb-6 opacity-80" />
-        <div className="text-xs font-black uppercase tracking-widest opacity-70 mb-3">Votre adresse IP publique</div>
+        <div className="text-xs font-black uppercase tracking-widest opacity-70 mb-3">{t('ipaddresstool.your_ip')}</div>
         {loading ? (
           <div className="h-16 w-64 bg-white/20 animate-pulse rounded-2xl mx-auto mb-4"></div>
         ) : error ? (
           <div className="text-lg font-bold mb-4">{error}</div>
         ) : (
-          <div className="text-4xl md:text-6xl font-black mb-4 break-all font-mono tracking-tighter">{ipInfo.ip}</div>
+          <div className="text-4xl md:text-6xl font-black mb-4 break-all font-mono tracking-tighter" aria-live="polite">{ipInfo.ip}</div>
         )}
         <div className="text-xs font-bold opacity-60">
-          {loading ? 'Chargement des données...' : error ? 'Erreur de détection' : 'Données détectées automatiquement'}
+          {loading ? t('ipaddresstool.loading') : error ? t('ipaddresstool.error_detection') : t('ipaddresstool.auto_detected')}
         </div>
       </div>
 
@@ -88,7 +90,7 @@ export function IPAddressTool() {
             <div className="p-2 bg-blue-50 dark:bg-blue-900/20 rounded-xl">
               <MapPin className="w-5 h-5 text-blue-500" />
             </div>
-            <span className="text-xs font-black uppercase tracking-widest text-slate-400">Localisation</span>
+            <span className="text-xs font-black uppercase tracking-widest text-slate-400">{t('ipaddresstool.location')}</span>
           </div>
           <p className="text-xl font-bold text-slate-900 dark:text-white">{ipInfo.city}, {ipInfo.region}</p>
           <p className="text-slate-500 dark:text-slate-400 font-medium">{ipInfo.country}</p>
@@ -99,7 +101,7 @@ export function IPAddressTool() {
             <div className="p-2 bg-indigo-50 dark:bg-indigo-900/20 rounded-xl">
               <Globe className="w-5 h-5 text-indigo-500" />
             </div>
-            <span className="text-xs font-black uppercase tracking-widest text-slate-400">Fuseau horaire</span>
+            <span className="text-xs font-black uppercase tracking-widest text-slate-400">{t('ipaddresstool.timezone')}</span>
           </div>
           <p className="text-xl font-bold text-slate-900 dark:text-white font-mono">{ipInfo.timezone}</p>
         </div>
@@ -109,7 +111,7 @@ export function IPAddressTool() {
             <div className="p-2 bg-emerald-50 dark:bg-emerald-900/20 rounded-xl">
               <Wifi className="w-5 h-5 text-emerald-500" />
             </div>
-            <span className="text-xs font-black uppercase tracking-widest text-slate-400">Fournisseur d'accès (ISP)</span>
+            <span className="text-xs font-black uppercase tracking-widest text-slate-400">{t('ipaddresstool.isp')}</span>
           </div>
           <p className="text-xl font-bold text-slate-900 dark:text-white">{ipInfo.isp}</p>
         </div>
@@ -120,9 +122,9 @@ export function IPAddressTool() {
           <Info className="w-5 h-5" />
         </div>
         <div>
-          <p className="font-bold mb-1">Note importante</p>
+          <p className="font-bold mb-1">{t('ipaddresstool.note_title')}</p>
           <p className="opacity-80">
-            Ces informations sont basées sur votre adresse IP publique. La localisation peut varier selon votre fournisseur d'accès ou l'utilisation d'un VPN.
+            {t('ipaddresstool.note_text')}
           </p>
         </div>
       </div>

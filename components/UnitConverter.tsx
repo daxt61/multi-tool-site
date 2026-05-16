@@ -285,7 +285,7 @@ export function UnitConverter({ initialData, onStateChange }: { initialData?: an
 
   const handleDownload = () => {
     if (!fromValue) return;
-    const content = `${fromValue} ${CONVERSIONS[category][fromUnit].name} = ${formatter.format(toValue)} ${CONVERSIONS[category][toUnit].name}`;
+    const content = `${fromValue} ${t(`unit.symbol.${category}.${fromUnit}`, CONVERSIONS[category][fromUnit].name)} = ${formatter.format(toValue)} ${t(`unit.symbol.${category}.${toUnit}`, CONVERSIONS[category][toUnit].name)}`;
     const blob = new Blob([content], { type: 'text/plain' });
     const url = URL.createObjectURL(blob);
     const link = document.createElement('a');
@@ -369,7 +369,7 @@ export function UnitConverter({ initialData, onStateChange }: { initialData?: an
             <button
               onClick={() => setCategorySearch('')}
               className="absolute inset-y-0 right-4 flex items-center text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 transition-colors focus-visible:ring-2 focus-visible:ring-indigo-500 focus-visible:outline-none rounded-lg"
-              aria-label="Effacer la recherche"
+              aria-label={t('unit.search_clear_aria')}
             >
               <X className="h-4 w-4" />
             </button>
@@ -420,7 +420,7 @@ export function UnitConverter({ initialData, onStateChange }: { initialData?: an
               }}
               className="bg-transparent text-4xl font-black font-mono outline-none dark:text-white"
               placeholder="0"
-              aria-label="Valeur à convertir"
+              aria-label={t('unit.from_value_aria')}
             />
             <select
               id="fromUnit"
@@ -430,10 +430,10 @@ export function UnitConverter({ initialData, onStateChange }: { initialData?: an
                 setToValue(convert(fromValue, e.target.value, toUnit, category));
               }}
               className="bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl px-4 py-2 font-bold text-sm outline-none cursor-pointer focus-visible:ring-2 focus-visible:ring-indigo-500"
-              aria-label="Unité de départ"
+              aria-label={t('unit.from_unit_aria')}
             >
               {Object.entries(CONVERSIONS[category]).map(([key, unit]) => (
-                <option key={key} value={key}>{unit.name}</option>
+                <option key={key} value={key}>{t(`unit.symbol.${category}.${key}`, unit.name)}</option>
               ))}
             </select>
           </div>
@@ -443,7 +443,7 @@ export function UnitConverter({ initialData, onStateChange }: { initialData?: an
           <button
             onClick={handleSwap}
             className="w-10 h-10 md:w-12 md:h-12 bg-indigo-600 text-white rounded-full flex items-center justify-center shadow-lg shadow-indigo-600/20 transition-all hover:scale-110 active:scale-95 group focus-visible:ring-2 focus-visible:ring-indigo-500 focus-visible:outline-none"
-            aria-label="Inverser les unités (S)"
+            aria-label={t('unit.swap_units_aria')}
           >
             <ArrowUpDown className="w-5 h-5 md:w-6 md:h-6 transition-transform group-hover:rotate-180 duration-500" />
           </button>
@@ -484,10 +484,10 @@ export function UnitConverter({ initialData, onStateChange }: { initialData?: an
                 setToValue(convert(fromValue, fromUnit, e.target.value, category));
               }}
               className="bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl px-4 py-2 font-bold text-sm outline-none cursor-pointer focus-visible:ring-2 focus-visible:ring-indigo-500"
-              aria-label="Unité de destination"
+              aria-label={t('unit.to_unit_aria')}
             >
               {Object.entries(CONVERSIONS[category]).map(([key, unit]) => (
-                <option key={key} value={key}>{unit.name}</option>
+                <option key={key} value={key}>{t(`unit.symbol.${category}.${key}`, unit.name)}</option>
               ))}
             </select>
           </div>
@@ -521,7 +521,7 @@ export function UnitConverter({ initialData, onStateChange }: { initialData?: an
                     {formatter.format(convertedValue)}
                   </div>
                   <div className="text-[10px] font-bold text-slate-400 uppercase tracking-tight truncate">
-                    {unit.name}
+                    {t(`unit.symbol.${category}.${key}`, unit.name)}
                   </div>
                 </button>
               );

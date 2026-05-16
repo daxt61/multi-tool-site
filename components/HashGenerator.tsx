@@ -1,12 +1,15 @@
 import { useState, useEffect } from 'react';
 import { Shield, Copy, Check, Trash2, AlertCircle } from 'lucide-react';
+import { useTranslation } from 'react-i18next';
 
 const MAX_LENGTH = 100000;
 
 export function HashGenerator({ initialData, onStateChange }: { initialData?: any; onStateChange?: (state: any) => void }) {
+  const { t } = useTranslation();
   const [inputText, setInputText] = useState(initialData?.inputText || '');
   const [hashes, setHashes] = useState<{ [key: string]: string }>(initialData?.hashes || {
     'SHA-256': '',
+    'SHA-384': '',
     'SHA-512': '',
   });
 
@@ -20,15 +23,15 @@ export function HashGenerator({ initialData, onStateChange }: { initialData?: an
     setInputText(text);
 
     if (text.length > MAX_LENGTH) {
-      setError(`L'entrée est trop longue. Limite de ${MAX_LENGTH.toLocaleString()} caractères.`);
-      setHashes({ 'SHA-256': '', 'SHA-512': '' });
+      setError(t('error.max_length', { max: MAX_LENGTH.toLocaleString() }));
+      setHashes({ 'SHA-256': '', 'SHA-384': '', 'SHA-512': '' });
       return;
     }
 
     setError(null);
 
     if (!text) {
-      setHashes({ 'SHA-256': '', 'SHA-512': '' });
+      setHashes({ 'SHA-256': '', 'SHA-384': '', 'SHA-512': '' });
       return;
     }
 
@@ -36,7 +39,7 @@ export function HashGenerator({ initialData, onStateChange }: { initialData?: an
       const encoder = new TextEncoder();
       const data = encoder.encode(text);
 
-      const hashAlgorithms = ['SHA-256', 'SHA-512'];
+      const hashAlgorithms = ['SHA-256', 'SHA-384', 'SHA-512'];
       const newHashes: { [key: string]: string } = {};
 
       for (const algo of hashAlgorithms) {
@@ -48,7 +51,7 @@ export function HashGenerator({ initialData, onStateChange }: { initialData?: an
 
       setHashes(newHashes);
     } catch (e: any) {
-      setError('Erreur lors de la génération du hash : ' + e.message);
+      setError(t('hashgenerator.error_generation') + ' : ' + e.message);
     }
   };
 
@@ -60,7 +63,7 @@ export function HashGenerator({ initialData, onStateChange }: { initialData?: an
 
   const handleClear = () => {
     setInputText('');
-    setHashes({ 'SHA-256': '', 'SHA-512': '' });
+    setHashes({ 'SHA-256': '', 'SHA-384': '', 'SHA-512': '' });
     setError(null);
   };
 
@@ -75,23 +78,24 @@ export function HashGenerator({ initialData, onStateChange }: { initialData?: an
 
       <div className="space-y-4">
         <div className="flex justify-between items-center">
-          <label htmlFor="hash-input" className="block text-sm font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wider cursor-pointer">
-            Texte à hasher
+          <label htmlFor="hash-input" className="block text-xs font-black uppercase tracking-widest text-slate-400 cursor-pointer">
+            {t('hashgenerator.input_label')}
           </label>
           <button
             onClick={handleClear}
             disabled={!inputText}
-            className="text-xs font-bold px-3 py-1 rounded-full text-rose-500 bg-rose-50 dark:bg-rose-500/10 hover:bg-rose-100 dark:hover:bg-rose-500/20 transition-all flex items-center gap-1 disabled:opacity-50 disabled:cursor-not-allowed"
+            aria-label={t('common.clear')}
+            className="text-xs font-bold px-3 py-1 rounded-full text-rose-500 bg-rose-50 dark:bg-rose-500/10 hover:bg-rose-100 dark:hover:bg-rose-500/20 border border-transparent transition-all flex items-center gap-1 disabled:opacity-50 disabled:cursor-not-allowed focus-visible:ring-2 focus-visible:ring-rose-500 focus-visible:outline-none"
           >
-            <Trash2 className="w-3 h-3" /> Effacer
+            <Trash2 className="w-3 h-3" /> {t('common.clear')}
           </button>
         </div>
         <textarea
           id="hash-input"
           value={inputText}
           onChange={(e) => generateHashes(e.target.value)}
-          placeholder="Entrez votre texte ici..."
-          className={`w-full h-32 p-4 bg-white dark:bg-slate-800 border-2 ${error ? 'border-rose-500 ring-rose-500/10' : 'border-slate-100 dark:border-slate-700'} rounded-2xl focus:ring-4 focus:ring-indigo-500/10 focus:border-indigo-500 outline-none transition-all dark:text-white`}
+          placeholder={t('hashgenerator.input_placeholder')}
+          className={`w-full h-32 p-6 bg-slate-50 dark:bg-slate-900 border ${error ? 'border-rose-500 ring-rose-500/20' : 'border-slate-200 dark:border-slate-800 focus:ring-indigo-500/20'} rounded-3xl outline-none focus:ring-2 transition-all font-mono text-sm leading-relaxed dark:text-slate-300 resize-none`}
         />
       </div>
 
@@ -105,34 +109,30 @@ export function HashGenerator({ initialData, onStateChange }: { initialData?: an
               <button
                 onClick={() => copyToClipboard(hash, algo)}
                 disabled={!hash}
-                className="flex items-center gap-2 text-sm font-bold text-indigo-600 dark:text-indigo-400 hover:text-indigo-700 disabled:opacity-30 disabled:cursor-not-allowed transition-colors"
-                aria-label={`Copier le hash ${algo}`}
+                className={`text-xs font-bold px-3 py-1 rounded-full transition-all flex items-center gap-1 border focus-visible:ring-2 focus-visible:ring-indigo-500 focus-visible:outline-none ${
+                  copied === algo
+                    ? 'bg-emerald-50 dark:bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border border-emerald-200 dark:border-emerald-500/20'
+                    : 'text-slate-500 bg-slate-100 dark:bg-slate-800 border-transparent hover:bg-slate-200 dark:hover:bg-slate-700 disabled:opacity-50 disabled:cursor-not-allowed'
+                }`}
+                aria-label={copied === algo ? t('common.copied') : `${t('common.copy')} ${algo}`}
               >
-                {copied === algo ? (
-                  <>
-                    <Check className="w-4 h-4" />
-                    Copié !
-                  </>
-                ) : (
-                  <>
-                    <Copy className="w-4 h-4" />
-                    Copier
-                  </>
-                )}
+                {copied === algo ? <Check className="w-3 h-3" /> : <Copy className="w-3 h-3" />} {copied === algo ? t('common.copied') : t('common.copy')}
               </button>
             </div>
             <div className="font-mono text-sm break-all bg-white dark:bg-slate-800 p-4 rounded-xl border border-slate-100 dark:border-slate-700 text-slate-700 dark:text-slate-300">
-              {hash || 'En attente de texte...'}
+              {hash || t('hashgenerator.waiting')}
             </div>
           </div>
         ))}
       </div>
 
-      <div className="bg-blue-50 dark:bg-blue-900/20 p-6 rounded-2xl flex items-start gap-4 border border-blue-100 dark:border-blue-900/30">
-        <Shield className="w-6 h-6 text-blue-600 dark:text-blue-400 flex-shrink-0" />
-        <div className="text-sm text-blue-800 dark:text-blue-300">
-          <p className="font-bold mb-1">Note sur la sécurité</p>
-          Le hashage est effectué localement dans votre navigateur. Votre texte n'est jamais envoyé à un serveur.
+      <div className="bg-indigo-50 dark:bg-indigo-900/10 p-6 rounded-[2rem] flex items-start gap-4 border border-indigo-100 dark:border-indigo-900/20">
+        <Shield className="w-6 h-6 text-indigo-500 flex-shrink-0 mt-1" />
+        <div className="text-sm">
+          <p className="font-bold mb-1 text-slate-900 dark:text-white">{t('hashgenerator.security_note_title')}</p>
+          <p className="text-slate-500 dark:text-slate-400 leading-relaxed">
+            {t('hashgenerator.security_note_text')}
+          </p>
         </div>
       </div>
     </div>

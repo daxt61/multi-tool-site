@@ -76,9 +76,10 @@ ${t('urlparser.origin')} : ${parsed.origin}`;
 
   const handleCopyCurl = () => {
     if (!url) return;
-    // Sentinel: Escape double quotes to mitigate command injection in the generated snippet
-    const escapedUrl = url.replace(/"/g, '\\"');
-    const curl = `curl "${escapedUrl}"`;
+    // Sentinel: Use single quotes and escape existing single quotes to mitigate command injection
+    // in the generated snippet. Single quotes prevent shell expansion (e.g., $() or ` `).
+    const escapedUrl = url.replace(/'/g, "'\\''");
+    const curl = `curl '${escapedUrl}'`;
     copyToClipboard(curl, 'curl');
   };
 

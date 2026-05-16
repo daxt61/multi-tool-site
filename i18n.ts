@@ -519,6 +519,7 @@ const resources = {
       "colorconverter.accessibility": "Accessibility (WCAG 2.1)",
       "colorconverter.on_white": "On White Background",
       "colorconverter.on_black": "On Black Background",
+      "colorconverter.shades_tints": "Shades & Tints",
       "neumorphism.background_color": "Background Color",
       "neumorphism.size": "Size",
       "neumorphism.radius": "Radius",
@@ -705,6 +706,13 @@ const resources = {
       "listcomparator.privacy_desc": "As with all our tools, data stays on your device. Nothing is sent to our servers.",
       "listcomparator.placeholder_a": "Item 1\nItem 2...",
       "listcomparator.placeholder_b": "Item A\nItem B...",
+      "tool.json-to-protobuf.name": "JSON to Protobuf",
+      "tool.json-to-protobuf.description": "Convert JSON to Protobuf definitions (proto3)",
+      "tool.js-object-converter.name": "JS Object <> JSON",
+      "tool.js-object-converter.description": "Convert between JavaScript objects and JSON",
+      "tool.json-to-joi.name": "JSON to Joi",
+      "tool.json-to-joi.description": "Generate a Joi validation schema from JSON",
+      "common.convert": "Convert",
     }
   },
   fr: {
@@ -1223,6 +1231,7 @@ const resources = {
       "colorconverter.accessibility": "Accessibilité (WCAG 2.1)",
       "colorconverter.on_white": "Sur Fond Blanc",
       "colorconverter.on_black": "Sur Fond Noir",
+      "colorconverter.shades_tints": "Nuances & Teintes",
       "neumorphism.background_color": "Couleur de fond",
       "neumorphism.size": "Taille",
       "neumorphism.radius": "Rayon",
@@ -1409,6 +1418,13 @@ const resources = {
       "listcomparator.privacy_desc": "Comme pour tous nos outils, les données restent sur votre appareil. Rien n'est envoyé sur nos serveurs.",
       "listcomparator.placeholder_a": "Élément 1\nÉlément 2...",
       "listcomparator.placeholder_b": "Élément A\nÉlément B...",
+      "tool.json-to-protobuf.name": "JSON en Protobuf",
+      "tool.json-to-protobuf.description": "Convertir du JSON en définitions Protobuf (proto3)",
+      "tool.js-object-converter.name": "JS Object <> JSON",
+      "tool.js-object-converter.description": "Convertir entre objets JavaScript et JSON",
+      "tool.json-to-joi.name": "JSON en Joi",
+      "tool.json-to-joi.description": "Générer un schéma de validation Joi à partir d'un JSON",
+      "common.convert": "Convertir",
     }
   }
 };

@@ -261,6 +261,9 @@ const URLExtractor = lazy(() => import("./components/URLExtractor").then(m => ({
 const MarkdownToHTML = lazy(() => import("./components/MarkdownToHTML").then(m => ({ default: m.MarkdownToHTML })));
 const HTMLFormatter = lazy(() => import("./components/HTMLFormatter").then(m => ({ default: m.HTMLFormatter })));
 const PasswordStrengthMeter = lazy(() => import("./components/PasswordStrengthMeter").then(m => ({ default: m.PasswordStrengthMeter })));
+const JSONToProtobuf = lazy(() => import("./components/JSONToProtobuf").then(m => ({ default: m.JSONToProtobuf })));
+const JSObjectConverter = lazy(() => import("./components/JSObjectConverter").then(m => ({ default: m.JSObjectConverter })));
+const JSONToJoi = lazy(() => import("./components/JSONToJoi").then(m => ({ default: m.JSONToJoi })));
 
 // ⚡ Bolt Optimization: Pre-calculating tool map and search index for O(1) lookups and faster filtering
 const toolsMap: Record<string, Tool> = {};
@@ -1831,6 +1834,39 @@ const tools: Tool[] = [
     Component: PasswordStrengthMeter,
     category: "dev",
     keywords: ["security", "password", "strength", "entropy", "crack"],
+  },
+  {
+    id: "json-to-protobuf",
+    name: "JSON en Protobuf",
+    nameEn: "JSON to Protobuf",
+    icon: FileCode,
+    description: "Convertir du JSON en définitions Protobuf (proto3)",
+    descriptionEn: "Convert JSON to Protobuf definitions (proto3)",
+    Component: JSONToProtobuf,
+    category: "dev",
+    keywords: ["grpc", "protobuf", "proto3", "serialization", "json", "types"],
+  },
+  {
+    id: "js-object-converter",
+    name: "JS Object <> JSON",
+    nameEn: "JS Object <> JSON",
+    icon: Code,
+    description: "Convertir entre objets JavaScript et JSON",
+    descriptionEn: "Convert between JavaScript objects and JSON",
+    Component: JSObjectConverter,
+    category: "dev",
+    keywords: ["javascript", "json", "object", "literal", "convert"],
+  },
+  {
+    id: "json-to-joi",
+    name: "JSON en Joi",
+    nameEn: "JSON to Joi",
+    icon: ShieldCheck,
+    description: "Générer un schéma de validation Joi à partir d'un JSON",
+    descriptionEn: "Generate a Joi validation schema from JSON",
+    Component: JSONToJoi,
+    category: "dev",
+    keywords: ["validation", "joi", "schema", "javascript", "json"],
   },
 ];
 

@@ -619,6 +619,7 @@ const tools: Tool[] = [
     descriptionEn: "Basal metabolic rate and calorie needs",
     Component: BMRCalculator,
     category: "health",
+    keywords: ["calories", "tdee", "mifflin", "diet", "régime", "nutrition"],
   },
   {
     id: "date-calculator",
@@ -639,6 +640,7 @@ const tools: Tool[] = [
     descriptionEn: "Calculate your exact age and next birthday",
     Component: AgeCalculator,
     category: "calculators",
+    keywords: ["birthday", "anniversaire", "zodiac", "zodiaque", "naissance", "birth"],
   },
   {
     id: "sleep-calculator",

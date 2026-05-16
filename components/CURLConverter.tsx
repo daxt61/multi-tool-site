@@ -1,9 +1,11 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { Terminal, Copy, Check, Trash2, AlertCircle, Code, Download, Info } from 'lucide-react';
+import { useTranslation } from 'react-i18next';
 
 const MAX_LENGTH = 100000; // 100KB
 
 export function CURLConverter({ initialData, onStateChange }: { initialData?: any; onStateChange?: (state: any) => void }) {
+  const { t } = useTranslation();
   const [input, setInput] = useState(initialData?.input || '');
   const [output, setOutput] = useState('');
   const [error, setError] = useState<string | null>(null);
@@ -24,7 +26,7 @@ export function CURLConverter({ initialData, onStateChange }: { initialData?: an
       // Basic parser for demonstration
       const urlMatch = curl.match(/curl\s+.*?['"]?(https?:\/\/[^\s'"]+)['"]?/);
       if (!urlMatch) {
-        throw new Error("Commande cURL invalide ou URL non trouvée.");
+        throw new Error(t('curlconverter.error_invalid_curl'));
       }
 
       const url = urlMatch[1];
@@ -65,19 +67,19 @@ export function CURLConverter({ initialData, onStateChange }: { initialData?: an
     } catch (e: any) {
       // Sentinel: Enforce 'Fail-Secure' behavior by using a generic, safe error message
       // that avoids potential leakage of internal error details or stack traces.
-      setError("Erreur lors de la conversion : Commande cURL invalide ou malformée.");
+      setError(t('curlconverter.error_conversion'));
       setOutput('');
     }
-  }, []);
+  }, [t]);
 
   useEffect(() => {
     if (input.length > MAX_LENGTH) {
-      setError(`L'entrée est trop longue. Limite de ${MAX_LENGTH.toLocaleString()} caractères.`);
+      setError(t('error.max_length', { max: MAX_LENGTH.toLocaleString() }));
       setOutput('');
     } else {
       parseCURL(input);
     }
-  }, [input, parseCURL]);
+  }, [input, parseCURL, t]);
 
   const handleCopy = () => {
     if (!output) return;
@@ -117,14 +119,15 @@ export function CURLConverter({ initialData, onStateChange }: { initialData?: an
         <div className="space-y-4">
           <div className="flex justify-between items-center px-1">
             <label htmlFor="curl-input" className="text-xs font-black uppercase tracking-widest text-slate-400 flex items-center gap-2">
-              <Terminal className="w-4 h-4 text-indigo-500" /> Commande cURL
+              <Terminal className="w-4 h-4 text-indigo-500" /> {t('curlconverter.curl_command')}
             </label>
             <button
               onClick={handleClear}
               disabled={!input}
-              className="text-xs font-bold text-rose-500 bg-rose-50 dark:bg-rose-500/10 hover:bg-rose-100 dark:hover:bg-rose-500/20 px-3 py-1.5 rounded-xl flex items-center gap-1 transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+              aria-label={t('common.clear')}
+              className="text-xs font-bold text-rose-500 bg-rose-50 dark:bg-rose-500/10 hover:bg-rose-100 dark:hover:bg-rose-500/20 border border-transparent px-3 py-1.5 rounded-xl flex items-center gap-1 transition-all disabled:opacity-50 disabled:cursor-not-allowed focus-visible:ring-2 focus-visible:ring-rose-500 focus-visible:outline-none"
             >
-              <Trash2 className="w-3 h-3" /> Effacer
+              <Trash2 className="w-3 h-3" /> {t('common.clear')}
             </button>
           </div>
           <textarea
@@ -132,7 +135,7 @@ export function CURLConverter({ initialData, onStateChange }: { initialData?: an
             value={input}
             onChange={(e) => setInput(e.target.value)}
             placeholder='curl https://api.example.com/v1/data -H "Authorization: Bearer token"'
-            className={`w-full h-80 p-6 bg-slate-50 dark:bg-slate-900 border ${error ? 'border-rose-500 ring-rose-500/20' : 'border-slate-200 dark:border-slate-800'} rounded-[2rem] outline-none focus:ring-2 ${error ? 'focus:ring-rose-500/20' : 'focus:ring-indigo-500/20'} transition-all font-mono text-sm leading-relaxed dark:text-slate-300 resize-none`}
+            className={`w-full h-80 p-6 bg-slate-50 dark:bg-slate-900 border ${error ? 'border-rose-500 ring-rose-500/20' : 'border-slate-200 dark:border-slate-800 focus:ring-indigo-500/20'} rounded-[2rem] outline-none focus:ring-2 ${error ? 'focus:ring-rose-500/20' : 'focus:ring-indigo-500/20'} transition-all font-mono text-sm leading-relaxed dark:text-slate-300 resize-none`}
           />
         </div>
 
@@ -146,21 +149,21 @@ export function CURLConverter({ initialData, onStateChange }: { initialData?: an
               <button
                 onClick={handleDownload}
                 disabled={!output}
-                className="text-xs font-bold text-indigo-600 bg-indigo-50 dark:bg-indigo-500/10 hover:bg-indigo-100 dark:hover:bg-indigo-500/20 px-3 py-1.5 rounded-xl flex items-center gap-1 transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+                className="text-xs font-bold text-indigo-600 bg-indigo-50 dark:bg-indigo-900/20 border border-indigo-100 dark:border-indigo-900/30 hover:bg-indigo-100 dark:hover:bg-indigo-900/40 px-3 py-1.5 rounded-xl flex items-center gap-1 transition-all disabled:opacity-50 disabled:cursor-not-allowed focus-visible:ring-2 focus-visible:ring-indigo-500 focus-visible:outline-none"
               >
-                <Download className="w-3 h-3" /> Télécharger
+                <Download className="w-3 h-3" /> {t('common.download')}
               </button>
               <button
                 onClick={handleCopy}
                 disabled={!output}
-                className={`text-xs font-bold px-3 py-1.5 rounded-xl transition-all flex items-center gap-1 border ${
+                className={`text-xs font-bold px-3 py-1.5 rounded-xl transition-all flex items-center gap-1 border focus-visible:ring-2 focus-visible:ring-indigo-500 focus-visible:outline-none ${
                   copied
-                    ? 'bg-emerald-50 dark:bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border-emerald-200 dark:border-emerald-500/20'
-                    : 'text-indigo-500 bg-indigo-50 dark:bg-indigo-500/10 border-transparent hover:bg-indigo-100 dark:hover:bg-indigo-500/20'
+                    ? 'bg-emerald-50 dark:bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border border-emerald-200 dark:border-emerald-500/20'
+                    : 'text-slate-500 bg-slate-100 dark:bg-slate-800 border-transparent hover:bg-slate-200 dark:hover:bg-slate-700'
                 } disabled:opacity-50 disabled:cursor-not-allowed`}
               >
                 {copied ? <Check className="w-3 h-3" /> : <Copy className="w-3 h-3" />}
-                {copied ? 'Copié' : 'Copier'}
+                {copied ? t('common.copied') : t('common.copy')}
               </button>
             </div>
           </div>
@@ -168,7 +171,7 @@ export function CURLConverter({ initialData, onStateChange }: { initialData?: an
             id="fetch-output"
             value={output}
             readOnly
-            placeholder="Le code fetch apparaîtra ici..."
+            placeholder={t('curlconverter.placeholder_output')}
             className="w-full h-80 p-6 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-[2rem] outline-none font-mono text-sm leading-relaxed text-indigo-600 dark:text-indigo-400 resize-none"
           />
         </div>
@@ -180,9 +183,9 @@ export function CURLConverter({ initialData, onStateChange }: { initialData?: an
             <Info className="w-6 h-6" />
          </div>
          <div className="space-y-2">
-            <h4 className="font-bold dark:text-white">Comment ça marche ?</h4>
+            <h4 className="font-bold dark:text-white">{t('curlconverter.how_title')}</h4>
             <p className="text-sm text-slate-500 dark:text-slate-400 leading-relaxed">
-              Collez votre commande cURL dans le champ de gauche. L'outil extraira l'URL, la méthode HTTP, les en-têtes et le corps de la requête pour générer un snippet JavaScript utilisant l'API <code>fetch</code>.
+              {t('curlconverter.how_text')}
             </p>
          </div>
       </div>

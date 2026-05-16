@@ -264,6 +264,7 @@ const PasswordStrengthMeter = lazy(() => import("./components/PasswordStrengthMe
 const JSONToProtobuf = lazy(() => import("./components/JSONToProtobuf").then(m => ({ default: m.JSONToProtobuf })));
 const JSObjectConverter = lazy(() => import("./components/JSObjectConverter").then(m => ({ default: m.JSObjectConverter })));
 const JSONToJoi = lazy(() => import("./components/JSONToJoi").then(m => ({ default: m.JSONToJoi })));
+const JSONToTOML = lazy(() => import("./components/JSONToTOML").then(m => ({ default: m.JSONToTOML })));
 
 // ⚡ Bolt Optimization: Pre-calculating tool map and search index for O(1) lookups and faster filtering
 const toolsMap: Record<string, Tool> = {};
@@ -1869,6 +1870,17 @@ const tools: Tool[] = [
     Component: JSONToJoi,
     category: "dev",
     keywords: ["validation", "joi", "schema", "javascript", "json"],
+  },
+  {
+    id: "json-to-toml",
+    name: "JSON en TOML",
+    nameEn: "JSON to TOML",
+    icon: FileCode,
+    description: "Convertir du JSON en format TOML",
+    descriptionEn: "Convert JSON to TOML format",
+    Component: JSONToTOML,
+    category: "dev",
+    keywords: ["toml", "config", "json", "convert"],
   },
 ];
 

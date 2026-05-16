@@ -201,6 +201,11 @@ export function ColorConverter({ initialData, onStateChange }: {
     };
   };
 
+  const hslToHex = (h: number, s: number, l: number) => {
+    const { r, g, b } = hslToRgb(h, s, l);
+    return rgbToHex(r, g, b);
+  };
+
   const updateFromHex = (newHex: string) => {
     if (!newHex.startsWith('#')) newHex = '#' + newHex;
     if (!/^#[0-9A-Fa-f]{0,6}$/.test(newHex)) return;
@@ -290,6 +295,23 @@ export function ColorConverter({ initialData, onStateChange }: {
     if (contrast >= 3) return 'Large';
     return 'Fail';
   };
+
+  const generateShadesAndTints = () => {
+    const tints = [];
+    const shades = [];
+
+    for (let i = 1; i <= 10; i++) {
+      const tintL = Math.min(100, hsl.l + (100 - hsl.l) * (i / 11));
+      tints.push(hslToHex(hsl.h, hsl.s, tintL));
+
+      const shadeL = Math.max(0, hsl.l * (1 - i / 11));
+      shades.push(hslToHex(hsl.h, hsl.s, shadeL));
+    }
+
+    return { tints: tints.reverse(), shades };
+  };
+
+  const { tints, shades } = generateShadesAndTints();
 
   const handleReset = () => {
     setHex(DEFAULT_COLORS.hex);
@@ -532,6 +554,45 @@ export function ColorConverter({ initialData, onStateChange }: {
                 onChange={(e) => updateFromOklch(oklch.l, oklch.c, Number(e.target.value))}
                 className="w-full h-1.5 rounded-lg appearance-none cursor-pointer bg-slate-100 dark:bg-slate-800 accent-indigo-600"
               />
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/* Shades & Tints Section */}
+      <div className="bg-white dark:bg-slate-900/40 border border-slate-200 dark:border-slate-800 p-8 rounded-[2.5rem] space-y-8">
+        <h4 className="text-xs font-black uppercase tracking-widest text-slate-400 flex items-center gap-2 px-1">
+          <Palette className="w-4 h-4 text-indigo-500" /> {t('colorconverter.shades_tints', 'Nuances & Teintes')}
+        </h4>
+        <div className="space-y-6">
+          <div className="space-y-3">
+            <span className="text-[10px] font-black uppercase tracking-widest text-slate-400 px-1">Teintes (Tints)</span>
+            <div className="flex h-12 rounded-xl overflow-hidden border border-slate-100 dark:border-slate-800">
+              {tints.map((color, i) => (
+                <button
+                  key={`tint-${i}`}
+                  onClick={() => updateFromHex(color)}
+                  className="flex-1 hover:scale-y-110 transition-transform"
+                  style={{ backgroundColor: color }}
+                  title={color}
+                />
+              ))}
+              <div className="flex-1" style={{ backgroundColor: hex }} />
+            </div>
+          </div>
+          <div className="space-y-3">
+            <span className="text-[10px] font-black uppercase tracking-widest text-slate-400 px-1">Nuances (Shades)</span>
+            <div className="flex h-12 rounded-xl overflow-hidden border border-slate-100 dark:border-slate-800">
+              <div className="flex-1" style={{ backgroundColor: hex }} />
+              {shades.map((color, i) => (
+                <button
+                  key={`shade-${i}`}
+                  onClick={() => updateFromHex(color)}
+                  className="flex-1 hover:scale-y-110 transition-transform"
+                  style={{ backgroundColor: color }}
+                  title={color}
+                />
+              ))}
             </div>
           </div>
         </div>

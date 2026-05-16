@@ -91,3 +91,8 @@
 **Vulnerability:** The TextTransformer component was vulnerable to client-side Denial of Service (DoS) and lacked secure randomness. The Zalgo transformation could amplify input size by over 40x, potentially hanging the browser's layout engine with large inputs. Additionally, it used `Math.random()` for character selection.
 **Learning:** Transformations that multiply the number of characters (like Zalgo or repetitive string padding) require stricter input limits than standard formatters. While a tool might seem "fun," it can still be weaponized to crash a user's browser.
 **Prevention:** Enforce a strict `MAX_LENGTH` (e.g., 10,000) for additive transformations. Standardize the use of `window.crypto.getRandomValues()` with rejection sampling for any character selection logic to ensure unbiased, secure output.
+
+## 2026-05-15 - [Command Injection in Generated Shell Snippets]
+**Vulnerability:** The UrlParser component generated cURL snippets by wrapping the user-provided URL in double quotes and only escaping double quotes. This allowed for command injection via shell expansion (e.g., using `$(...)` or ` ` `) when the snippet was pasted into a terminal.
+**Learning:** Double quotes in most shells still allow for variable and command expansion. Using single quotes is a more robust way to prevent the shell from interpreting the content, provided that single quotes themselves are correctly escaped.
+**Prevention:** When generating shell snippets, wrap user-controlled strings in single quotes and escape any existing single quotes by closing the string, adding an escaped quote, and re-opening (e.g., `url.replace(/'/g, "'\\''")`).

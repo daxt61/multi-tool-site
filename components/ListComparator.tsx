@@ -27,7 +27,7 @@ export function ListComparator({ initialData, onStateChange }: { initialData?: a
 
   const results = useMemo(() => {
     if (listA.length > MAX_LENGTH || listB.length > MAX_LENGTH) {
-      return { common: [], onlyA: [], onlyB: [], union: [] };
+      return { common: [], onlyA: [], onlyB: [], union: [], symmetricDiff: [] };
     }
 
     const itemsA = processList(listA);
@@ -60,11 +60,19 @@ export function ListComparator({ initialData, onStateChange }: { initialData?: a
     const union = Array.from(new Set([...itemsA, ...itemsB].map(i => caseSensitive ? i : i.toLowerCase())))
       .map(val => [...itemsA, ...itemsB].find(orig => (caseSensitive ? orig : orig.toLowerCase()) === val) || val);
 
+    const symmetricDiff = [...itemsA, ...itemsB].filter(item => {
+      const val = caseSensitive ? item : item.toLowerCase();
+      return (setA.has(val) && !setB.has(val)) || (!setA.has(val) && setB.has(val));
+    });
+    const uniqueSymmetricDiff = Array.from(new Set(caseSensitive ? symmetricDiff : symmetricDiff.map(c => c.toLowerCase())))
+      .map(val => [...itemsA, ...itemsB].find(orig => (caseSensitive ? orig : orig.toLowerCase()) === val) || val);
+
     return {
       common: uniqueCommon,
       onlyA: uniqueOnlyA,
       onlyB: uniqueOnlyB,
-      union
+      union,
+      symmetricDiff: uniqueSymmetricDiff
     };
   }, [listA, listB, caseSensitive, trimItems]);
 
@@ -169,11 +177,12 @@ export function ListComparator({ initialData, onStateChange }: { initialData?: a
         </div>
       </div>
 
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 pt-8 border-t border-slate-100 dark:border-slate-800">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-6 pt-8 border-t border-slate-100 dark:border-slate-800">
         {[
           { id: 'common', name: t('listcomparator.common'), items: results.common, color: 'text-indigo-600', bg: 'bg-indigo-50 dark:bg-indigo-900/20' },
           { id: 'onlyA', name: t('listcomparator.only_a'), items: results.onlyA, color: 'text-amber-600', bg: 'bg-amber-50 dark:bg-amber-900/20' },
           { id: 'onlyB', name: t('listcomparator.only_b'), items: results.onlyB, color: 'text-emerald-600', bg: 'bg-emerald-50 dark:bg-emerald-900/20' },
+          { id: 'symmetric', name: t('listcomparator.symmetric_diff'), items: results.symmetricDiff, color: 'text-cyan-600', bg: 'bg-cyan-50 dark:bg-cyan-900/20' },
           { id: 'union', name: t('listcomparator.union'), items: results.union, color: 'text-rose-600', bg: 'bg-rose-50 dark:bg-rose-900/20' },
         ].map((res) => (
           <div key={res.id} className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-3xl overflow-hidden flex flex-col group">

@@ -604,7 +604,7 @@ const tools: Tool[] = [
     descriptionEn: "Body Mass Index calculation",
     Component: BMICalculator,
     category: "health",
-    keywords: ["imc", "bmi", "poids", "santé", "corps"],
+    keywords: ["imc", "bmi", "poids", "santé", "corps", "weight", "height", "ideal", "oxon"],
   },
   {
     id: "body-fat-calculator",
@@ -678,7 +678,7 @@ const tools: Tool[] = [
     descriptionEn: "Length, weight, temperature converter",
     Component: UnitConverter,
     category: "converters",
-    keywords: ["conversion", "mètres", "kilos", "température", "pression", "vitesse"],
+    keywords: ["conversion", "mètres", "kilos", "température", "pression", "vitesse", "meters", "kilograms", "temperature", "pressure", "speed"],
   },
   {
     id: "css-unit-converter",
@@ -1174,7 +1174,7 @@ const tools: Tool[] = [
     descriptionEn: "Prettify, minify and validate your JSON",
     Component: JSONFormatter,
     category: "dev",
-    keywords: ["formatting", "pretty", "beautify", "json", "lint"],
+    keywords: ["formatting", "pretty", "beautify", "json", "lint", "formatage", "valider"],
   },
   {
     id: "xml-formatter",
@@ -1247,6 +1247,7 @@ const tools: Tool[] = [
     descriptionEn: "Visual Cron expression generator",
     Component: CronGenerator,
     category: "dev",
+    keywords: ["schedule", "linux", "crontab", "planificateur", "tâche"],
   },
   {
     id: "html-entity",
@@ -1421,6 +1422,7 @@ const tools: Tool[] = [
     descriptionEn: "Beats per minute counter",
     Component: BPMCounter,
     category: "other",
+    keywords: ["music", "tempo", "ritmo", "beat", "musique", "metronome"],
   },
   {
     id: "random-generator",
@@ -1511,7 +1513,7 @@ const tools: Tool[] = [
     descriptionEn: "Compare two lists to find common or unique elements",
     Component: ListComparator,
     category: "text",
-    keywords: ["liste", "comparaison", "doublons", "intersection", "différence"],
+    keywords: ["liste", "comparaison", "doublons", "intersection", "différence", "difference", "symmetric", "set", "ensembles"],
   },
   {
     id: "cursor-reference",

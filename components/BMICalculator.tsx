@@ -1,7 +1,9 @@
 import { useState, useMemo, useEffect } from 'react';
 import { Activity, Info, Copy, Check, Trash2, HelpCircle, BookOpen, ChevronRight, Scale, Download } from 'lucide-react';
+import { useTranslation } from 'react-i18next';
 
 export function BMICalculator({ initialData, onStateChange }: { initialData?: any; onStateChange?: (state: any) => void }) {
+  const { t } = useTranslation();
   const [weight, setWeight] = useState(initialData?.weight || '70');
   const [height, setHeight] = useState(initialData?.height || '170');
   const [unit, setUnit] = useState<'metric' | 'imperial'>(initialData?.unit || 'metric');
@@ -64,18 +66,18 @@ export function BMICalculator({ initialData, onStateChange }: { initialData?: an
   }, [weight, height, unit]);
 
   const getCategory = () => {
-    if (bmi === 0) return { label: 'En attente', color: 'bg-slate-200', text: 'text-slate-500' };
-    if (bmi < 18.5) return { label: 'Insuffisance pondérale', color: 'bg-blue-500', text: 'text-blue-500' };
-    if (bmi < 25) return { label: 'Poids normal', color: 'bg-emerald-500', text: 'text-emerald-500' };
-    if (bmi < 30) return { label: 'Surpoids', color: 'bg-amber-500', text: 'text-amber-500' };
-    return { label: 'Obésité', color: 'bg-rose-500', text: 'text-rose-500' };
+    if (bmi === 0) return { label: t('common.na'), color: 'bg-slate-200', text: 'text-slate-500' };
+    if (bmi < 18.5) return { label: t('bmi.underweight'), color: 'bg-blue-500', text: 'text-blue-500' };
+    if (bmi < 25) return { label: t('bmi.normal'), color: 'bg-emerald-500', text: 'text-emerald-500' };
+    if (bmi < 30) return { label: t('bmi.overweight'), color: 'bg-amber-500', text: 'text-amber-500' };
+    return { label: t('bmi.obesity'), color: 'bg-rose-500', text: 'text-rose-500' };
   };
 
   const category = getCategory();
 
   const handleCopy = () => {
     if (bmi === 0) return;
-    const text = `Mon IMC est de ${bmi.toFixed(1)} (${category.label})`;
+    const text = `${t('bmi.your_bmi')} : ${bmi.toFixed(1)} (${category.label})`;
     navigator.clipboard.writeText(text);
     setCopied(true);
     setTimeout(() => setCopied(false), 2000);
@@ -83,7 +85,7 @@ export function BMICalculator({ initialData, onStateChange }: { initialData?: an
 
   const handleCopyIdeal = () => {
     if (!idealWeightRange) return;
-    const text = `Mon poids idéal estimé est entre ${idealWeightRange.low.toFixed(1)} et ${idealWeightRange.high.toFixed(1)} ${idealWeightRange.unit}`;
+    const text = `${t('bmi.ideal_weight')} : ${idealWeightRange.low.toFixed(1)} - ${idealWeightRange.high.toFixed(1)} ${idealWeightRange.unit}`;
     navigator.clipboard.writeText(text);
     setCopiedIdeal(true);
     setTimeout(() => setCopiedIdeal(false), 2000);
@@ -91,12 +93,12 @@ export function BMICalculator({ initialData, onStateChange }: { initialData?: an
 
   const handleDownload = () => {
     if (bmi === 0) return;
-    const content = `Rapport IMC :
-- Poids : ${weight} ${unit === 'metric' ? 'kg' : 'lb'}
-- Taille : ${height} ${unit === 'metric' ? 'cm' : 'in'}
-- IMC : ${bmi.toFixed(1)}
-- Catégorie : ${category.label}
-${idealWeightRange ? `- Poids idéal estimé : ${idealWeightRange.low.toFixed(1)} - ${idealWeightRange.high.toFixed(1)} ${idealWeightRange.unit}` : ''}`;
+    const content = `${t('bmi.download_report')} :
+- ${t('bmi.weight')} : ${weight} ${unit === 'metric' ? 'kg' : 'lb'}
+- ${t('bmi.height')} : ${height} ${unit === 'metric' ? 'cm' : 'in'}
+- ${t('bmi.your_bmi')} : ${bmi.toFixed(1)}
+- ${t('common.quality')} : ${category.label}
+${idealWeightRange ? `- ${t('bmi.ideal_weight')} : ${idealWeightRange.low.toFixed(1)} - ${idealWeightRange.high.toFixed(1)} ${idealWeightRange.unit}` : ''}`;
 
     const blob = new Blob([content], { type: 'text/plain' });
     const url = URL.createObjectURL(blob);
@@ -143,32 +145,32 @@ ${idealWeightRange ? `- Poids idéal estimé : ${idealWeightRange.low.toFixed(1)
                 aria-pressed={unit === 'metric'}
                 className={`flex-1 py-1.5 rounded-lg text-xs font-bold transition-all ${unit === 'metric' ? 'bg-white dark:bg-slate-700 text-indigo-600 shadow-sm' : 'text-slate-500'}`}
               >
-                Métrique
+                {t('bmi.metric')}
               </button>
               <button
                 onClick={() => handleUnitChange('imperial')}
                 aria-pressed={unit === 'imperial'}
                 className={`flex-1 py-1.5 rounded-lg text-xs font-bold transition-all ${unit === 'imperial' ? 'bg-white dark:bg-slate-700 text-indigo-600 shadow-sm' : 'text-slate-500'}`}
               >
-                Impérial
+                {t('bmi.imperial')}
               </button>
             </div>
             <div className="flex gap-2">
               <button
                 onClick={handleDownload}
                 disabled={bmi === 0}
-                aria-label="Télécharger le rapport IMC"
+                aria-label={t('bmi.download_report')}
                 className="text-xs font-bold text-indigo-600 bg-indigo-50 dark:bg-indigo-500/10 hover:bg-indigo-100 dark:hover:bg-indigo-500/20 px-3 py-1.5 rounded-xl flex items-center gap-1 transition-all disabled:opacity-50 disabled:cursor-not-allowed focus-visible:ring-2 focus-visible:ring-indigo-500 focus-visible:outline-none"
               >
-                <Download className="w-3 h-3" /> Télécharger
+                <Download className="w-3 h-3" /> {t('common.download')}
               </button>
               <button
                 onClick={handleClear}
                 disabled={!weight && !height}
-                aria-label="Effacer les champs"
+                aria-label={t('bmi.clear_fields')}
                 className="text-xs font-bold text-rose-500 bg-rose-50 dark:bg-rose-500/10 hover:bg-rose-100 dark:hover:bg-rose-500/20 px-3 py-1.5 rounded-xl flex items-center gap-1 transition-all disabled:opacity-50 disabled:cursor-not-allowed focus-visible:ring-2 focus-visible:ring-rose-500 focus-visible:outline-none"
               >
-                <Trash2 className="w-3 h-3" /> Effacer
+                <Trash2 className="w-3 h-3" /> {t('common.clear')}
               </button>
             </div>
           </div>
@@ -176,8 +178,8 @@ ${idealWeightRange ? `- Poids idéal estimé : ${idealWeightRange.low.toFixed(1)
           <div className="space-y-6">
             <div className="flex items-center justify-between p-4 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-2xl">
               <div className="space-y-1">
-                <div id="new-formula-label" className="text-xs font-bold dark:text-white">Nouvelle Formule</div>
-                <div className="text-[10px] text-slate-400">Proposée par Nick Trefethen (Oxon)</div>
+                <div id="new-formula-label" className="text-xs font-bold dark:text-white">{t('bmi.new_formula')}</div>
+                <div className="text-[10px] text-slate-400">{t('bmi.formula_by')}</div>
               </div>
               <button
                 role="switch"
@@ -191,7 +193,7 @@ ${idealWeightRange ? `- Poids idéal estimé : ${idealWeightRange.low.toFixed(1)
             </div>
 
             <div className="space-y-3">
-              <label htmlFor="weight" className="text-xs font-black uppercase tracking-widest text-slate-400 px-1 cursor-pointer">Poids ({unit === 'metric' ? 'kg' : 'lb'})</label>
+              <label htmlFor="weight" className="text-xs font-black uppercase tracking-widest text-slate-400 px-1 cursor-pointer">{t('bmi.weight')} ({unit === 'metric' ? 'kg' : 'lb'})</label>
               <input
                 id="weight"
                 type="number"
@@ -202,7 +204,7 @@ ${idealWeightRange ? `- Poids idéal estimé : ${idealWeightRange.low.toFixed(1)
               />
             </div>
             <div className="space-y-3">
-              <label htmlFor="height" className="text-xs font-black uppercase tracking-widest text-slate-400 px-1 cursor-pointer">Taille ({unit === 'metric' ? 'cm' : 'in'})</label>
+              <label htmlFor="height" className="text-xs font-black uppercase tracking-widest text-slate-400 px-1 cursor-pointer">{t('bmi.height')} ({unit === 'metric' ? 'cm' : 'in'})</label>
               <input
                 id="height"
                 type="number"
@@ -221,7 +223,7 @@ ${idealWeightRange ? `- Poids idéal estimé : ${idealWeightRange.low.toFixed(1)
                     <Scale className="w-6 h-6" />
                  </div>
                  <div>
-                    <div className="text-xs font-bold text-indigo-400 uppercase tracking-widest mb-1">Poids idéal estimé</div>
+                    <div className="text-xs font-bold text-indigo-400 uppercase tracking-widest mb-1">{t('bmi.ideal_weight')}</div>
                     <div className="text-lg font-black text-indigo-900 dark:text-indigo-300 font-mono">
                       {idealWeightRange.low.toFixed(1)} - {idealWeightRange.high.toFixed(1)} {idealWeightRange.unit}
                     </div>
@@ -230,7 +232,7 @@ ${idealWeightRange ? `- Poids idéal estimé : ${idealWeightRange.low.toFixed(1)
                <button
                   onClick={handleCopyIdeal}
                   className={`p-2 rounded-xl transition-all z-20 ${copiedIdeal ? 'bg-emerald-50 dark:bg-emerald-500/10 text-emerald-600 dark:text-emerald-400' : 'bg-white dark:bg-slate-800 text-slate-400 hover:text-indigo-500 opacity-0 group-hover/ideal:opacity-100 focus-visible:opacity-100'}`}
-                  aria-label="Copier le poids idéal"
+                  aria-label={t('bmi.copy_ideal')}
                 >
                   {copiedIdeal ? <Check className="w-4 h-4" /> : <Copy className="w-4 h-4" />}
                 </button>
@@ -250,12 +252,12 @@ ${idealWeightRange ? `- Poids idéal estimé : ${idealWeightRange.low.toFixed(1)
                   ? "bg-emerald-50 dark:bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border-emerald-200 dark:border-emerald-500/20"
                   : "bg-white/10 text-white/40 border-transparent hover:text-white hover:bg-white/20 md:opacity-0 md:group-hover:opacity-100 md:focus-visible:opacity-100"
               } disabled:opacity-0`}
-              title="Copier le résultat"
-              aria-label="Copier le résultat"
+              title={t('bmi.copy_result')}
+              aria-label={t('bmi.copy_result')}
             >
               {copied ? <Check className="w-5 h-5" /> : <Copy className="w-5 h-5" />}
             </button>
-            <div className="text-slate-400 font-bold uppercase tracking-widest text-xs">Votre IMC</div>
+            <div className="text-slate-400 font-bold uppercase tracking-widest text-xs">{t('bmi.your_bmi')}</div>
             <div className="text-6xl md:text-8xl font-black text-white font-mono tracking-tighter" aria-live="polite" aria-atomic="true">
               {bmi > 0 ? bmi.toFixed(1) : '0.0'}
             </div>
@@ -269,7 +271,7 @@ ${idealWeightRange ? `- Poids idéal estimé : ${idealWeightRange.low.toFixed(1)
                 <Info className="w-5 h-5" />
              </div>
              <p className="text-sm text-slate-500 dark:text-slate-400 leading-relaxed font-medium">
-               L'IMC est un indicateur. Il ne mesure pas la graisse corporelle et ne tient pas compte de la masse musculaire, de la structure osseuse ou de la répartition des graisses.
+               {t('bmi.disclaimer')}
              </p>
           </div>
         </div>
@@ -277,14 +279,14 @@ ${idealWeightRange ? `- Poids idéal estimé : ${idealWeightRange.low.toFixed(1)
 
       <div className="bg-slate-50 dark:bg-slate-900/50 p-8 rounded-[2.5rem] border border-slate-200 dark:border-slate-800">
         <h3 className="text-sm font-black uppercase tracking-widest text-slate-400 mb-8 px-2 flex items-center gap-2">
-          <Activity className="w-4 h-4" /> Classifications OMS
+          <Activity className="w-4 h-4" /> {t('bmi.oms_classification')}
         </h3>
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
           {[
-            { label: 'Insuffisance', range: '< 18.5', color: 'bg-blue-500' },
-            { label: 'Normal', range: '18.5 - 25', color: 'bg-emerald-500' },
-            { label: 'Surpoids', range: '25 - 30', color: 'bg-amber-500' },
-            { label: 'Obésité', range: '> 30', color: 'bg-rose-500' },
+            { label: t('bmi.underweight'), range: '< 18.5', color: 'bg-blue-500' },
+            { label: t('bmi.normal'), range: '18.5 - 25', color: 'bg-emerald-500' },
+            { label: t('bmi.overweight'), range: '25 - 30', color: 'bg-amber-500' },
+            { label: t('bmi.obesity'), range: '> 30', color: 'bg-rose-500' },
           ].map((item) => (
             <div key={item.label} className="p-4 bg-white dark:bg-slate-900 border border-slate-100 dark:border-slate-800 rounded-2xl flex items-center justify-between shadow-sm">
               <div>
@@ -303,12 +305,12 @@ ${idealWeightRange ? `- Poids idéal estimé : ${idealWeightRange.low.toFixed(1)
           <div className="w-12 h-12 bg-indigo-50 dark:bg-indigo-900/20 rounded-2xl flex items-center justify-center text-indigo-600">
             <BookOpen className="w-6 h-6" />
           </div>
-          <h3 className="text-lg font-black">Qu'est-ce que l'IMC ?</h3>
+          <h3 className="text-lg font-black">{t('bmi.what_is_bmi')}</h3>
           <p className="text-sm text-slate-500 dark:text-slate-400 leading-relaxed">
-            L'Indice de Masse Corporelle (IMC) est une mesure standard utilisée par l'Organisation Mondiale de la Santé (OMS) pour évaluer les risques pour la santé liés au poids.
+            {t('bmi.bmi_desc')}
           </p>
           <ul className="space-y-2">
-            {['Poids / Taille²', 'Standard OMS', 'Adulte (18-65 ans)'].map(item => (
+            {[t('bmi.formula_standard'), t('bmi.formula_oms'), t('bmi.formula_adult')].map(item => (
               <li key={item} className="flex items-center gap-2 text-sm font-bold text-slate-600 dark:text-slate-300">
                 <ChevronRight className="w-4 h-4 text-indigo-500" /> {item}
               </li>
@@ -320,9 +322,9 @@ ${idealWeightRange ? `- Poids idéal estimé : ${idealWeightRange.low.toFixed(1)
           <div className="w-12 h-12 bg-amber-50 dark:bg-amber-900/20 rounded-2xl flex items-center justify-center text-amber-600">
             <Scale className="w-6 h-6" />
           </div>
-          <h3 className="text-lg font-black">Poids Idéal</h3>
+          <h3 className="text-lg font-black">{t('bmi.ideal_weight_title')}</h3>
           <p className="text-sm text-slate-500 dark:text-slate-400 leading-relaxed">
-            Le "poids idéal" affiché correspond à la plage de poids où votre IMC se situerait entre 18.5 et 25. C'est une plage indicative pour une santé optimale.
+            {t('bmi.ideal_weight_desc')}
           </p>
         </div>
 
@@ -330,23 +332,23 @@ ${idealWeightRange ? `- Poids idéal estimé : ${idealWeightRange.low.toFixed(1)
           <div className="w-12 h-12 bg-indigo-50 dark:bg-indigo-900/20 rounded-2xl flex items-center justify-center text-indigo-600">
             <Activity className="w-6 h-6" />
           </div>
-          <h3 className="text-lg font-black">Nouvelle Formule (Oxon)</h3>
+          <h3 className="text-lg font-black">{t('bmi.new_formula_title')}</h3>
           <p className="text-sm text-slate-500 dark:text-slate-400 leading-relaxed">
-            La formule <code>1.3 * poids / taille^2.5</code> corrige le biais de la formule standard qui sous-estime la corpulence des personnes de petite taille et la surestime pour les personnes grandes.
+            {t('bmi.new_formula_desc')}
           </p>
         </div>
       </div>
 
       <div className="bg-slate-50 dark:bg-slate-900/50 p-8 rounded-[2rem] border border-slate-200 dark:border-slate-800">
-        <h4 className="font-black mb-4">Conseils de santé</h4>
+        <h4 className="font-black mb-4">{t('bmi.health_tips')}</h4>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           <div className="space-y-2">
-            <h5 className="font-bold text-sm text-emerald-600">Alimentation équilibrée</h5>
-            <p className="text-sm text-slate-500 dark:text-slate-400">Privilégiez les fruits, légumes et protéines maigres tout en limitant les produits transformés.</p>
+            <h5 className="font-bold text-sm text-emerald-600">{t('bmi.healthy_diet')}</h5>
+            <p className="text-sm text-slate-500 dark:text-slate-400">{t('bmi.healthy_diet_desc')}</p>
           </div>
           <div className="space-y-2">
-            <h5 className="font-bold text-sm text-indigo-600">Activité physique</h5>
-            <p className="text-sm text-slate-500 dark:text-slate-400">L'OMS recommande au moins 150 minutes d'activité physique modérée par semaine.</p>
+            <h5 className="font-bold text-sm text-indigo-600">{t('bmi.physical_activity')}</h5>
+            <p className="text-sm text-slate-500 dark:text-slate-400">{t('bmi.physical_activity_desc')}</p>
           </div>
         </div>
       </div>

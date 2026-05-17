@@ -1,7 +1,9 @@
 import { useState, useEffect, useCallback, useMemo } from 'react';
 import { Music, RotateCcw, Copy, Check } from 'lucide-react';
+import { useTranslation } from 'react-i18next';
 
 export function BPMCounter({ initialData, onStateChange }: { initialData?: any; onStateChange?: (state: any) => void }) {
+  const { t } = useTranslation();
   const [taps, setTaps] = useState<number[]>([]);
   const [bpm, setBpm] = useState<number | null>(initialData?.bpm || null);
   const [isAnimate, setIsAnimate] = useState(false);
@@ -70,7 +72,7 @@ export function BPMCounter({ initialData, onStateChange }: { initialData?: any; 
             : 'bg-white dark:bg-slate-800 border-indigo-100 dark:border-slate-700 text-slate-800 dark:text-white hover:border-indigo-200'
         }`}
         onClick={handleTap}
-        aria-label="Taper pour calculer le BPM"
+        aria-label={t('bpm.tap_label')}
       >
         <Music className={`w-12 h-12 mb-4 ${isAnimate ? 'text-white' : 'text-indigo-600'}`} />
         <div className="text-6xl font-black font-mono" aria-live="polite">
@@ -86,7 +88,7 @@ export function BPMCounter({ initialData, onStateChange }: { initialData?: any; 
 
       <div className="space-y-6">
         <p className="text-slate-500 dark:text-slate-400 font-medium">
-          Tapez sur le bouton, sur la barre d'espace ou sur Entrée au rythme de la musique.
+          {t('bpm.instructions')}
         </p>
 
         <div className="flex justify-center gap-4">
@@ -100,7 +102,7 @@ export function BPMCounter({ initialData, onStateChange }: { initialData?: any; 
               }`}
             >
               {copied ? <Check className="w-5 h-5" /> : <Copy className="w-5 h-5" />}
-              {copied ? 'Copié' : 'Copier'}
+              {copied ? t('common.copied') : t('common.copy')}
             </button>
           )}
           <button
@@ -108,13 +110,13 @@ export function BPMCounter({ initialData, onStateChange }: { initialData?: any; 
             className="flex items-center gap-2 px-6 py-3 text-rose-500 bg-rose-50 dark:bg-rose-500/10 hover:bg-rose-100 dark:hover:bg-rose-500/20 rounded-xl font-bold border border-transparent hover:border-rose-200 transition-all focus-visible:ring-2 focus-visible:ring-rose-500 focus-visible:outline-none"
           >
             <RotateCcw className="w-5 h-5" />
-            Réinitialiser
+            {t('bpm.reset')}
           </button>
         </div>
 
         {taps.length > 0 && (
           <div className="text-sm text-slate-400">
-            {taps.length} tap{taps.length > 1 ? 's' : ''} enregistré{taps.length > 1 ? 's' : ''}
+            {t('bpm.tap_count', { count: taps.length })}
           </div>
         )}
       </div>

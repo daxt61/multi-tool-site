@@ -1,9 +1,11 @@
 import { useState, useEffect } from 'react';
 import { Download, Trash2, QrCode, Wifi, ShieldCheck, Copy, Check, Eye, EyeOff } from 'lucide-react';
 
+const MAX_LENGTH = 100;
+
 export function WiFiGenerator({ initialData, onStateChange }: { initialData?: any; onStateChange?: (state: any) => void }) {
-  const [ssid, setSsid] = useState(initialData?.ssid || '');
-  const [password, setPassword] = useState(initialData?.password || '');
+  const [ssid, setSsid] = useState((initialData?.ssid || '').slice(0, MAX_LENGTH));
+  const [password, setPassword] = useState((initialData?.password || '').slice(0, MAX_LENGTH));
   const [encryption, setEncryption] = useState(initialData?.encryption || 'WPA');
   const [hidden, setHidden] = useState(initialData?.hidden || false);
   const [showPassword, setShowPassword] = useState(false);
@@ -13,7 +15,16 @@ export function WiFiGenerator({ initialData, onStateChange }: { initialData?: an
     onStateChange?.({ ssid, password, encryption, hidden });
   }, [ssid, password, encryption, hidden]);
 
-  const wifiString = `WIFI:S:${ssid};T:${encryption === 'none' ? 'nopass' : encryption};P:${password};H:${hidden};;`;
+  const escapeMecard = (val: string) => {
+    // Sentinel: Escape special characters (\, ;, :, ,, ") for MECARD format
+    return val.replace(/\\/g, '\\\\')
+              .replace(/;/g, '\\;')
+              .replace(/:/g, '\\:')
+              .replace(/,/g, '\\,')
+              .replace(/"/g, '\\"');
+  };
+
+  const wifiString = `WIFI:S:${escapeMecard(ssid)};T:${encryption === 'none' ? 'nopass' : encryption};P:${escapeMecard(password)};H:${hidden};;`;
 
   const qrCodeUrl = ssid
     ? `https://api.qrserver.com/v1/create-qr-code/?size=300x300&data=${encodeURIComponent(wifiString)}`
@@ -76,7 +87,8 @@ export function WiFiGenerator({ initialData, onStateChange }: { initialData?: an
                   id="ssid"
                   type="text"
                   value={ssid}
-                  onChange={(e) => setSsid(e.target.value)}
+                  maxLength={MAX_LENGTH}
+                  onChange={(e) => setSsid(e.target.value.slice(0, MAX_LENGTH))}
                   placeholder="Ex: MaBox_WiFi"
                   className="w-full p-4 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-2xl outline-none focus:ring-2 focus:ring-indigo-500/20 transition-all dark:text-white"
                 />
@@ -89,7 +101,8 @@ export function WiFiGenerator({ initialData, onStateChange }: { initialData?: an
                     id="password"
                     type={showPassword ? "text" : "password"}
                     value={password}
-                    onChange={(e) => setPassword(e.target.value)}
+                    maxLength={MAX_LENGTH}
+                    onChange={(e) => setPassword(e.target.value.slice(0, MAX_LENGTH))}
                     placeholder="Mot de passe du réseau"
                     className="w-full p-4 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-2xl outline-none focus:ring-2 focus:ring-indigo-500/20 transition-all dark:text-white pr-12"
                   />

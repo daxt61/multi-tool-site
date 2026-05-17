@@ -98,23 +98,29 @@ export function CURLConverter({ initialData, onStateChange }: { initialData?: an
     return code;
   };
 
+  const toPHPLiteral = (val: string) => {
+    // Sentinel: Use single quotes in PHP to prevent variable interpolation ($var)
+    // and only escape backslashes and single quotes.
+    return `'${val.replace(/\\/g, '\\\\').replace(/'/g, "\\'")}'`;
+  };
+
   const generatePHP = (url: string, method: string, headers: Record<string, string>, data: string | null) => {
     let code = `<?php\n\n$ch = curl_init();\n\n`;
-    code += `curl_setopt($ch, CURLOPT_URL, ${JSON.stringify(url)});\n`;
+    code += `curl_setopt($ch, CURLOPT_URL, ${toPHPLiteral(url)});\n`;
     code += `curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);\n`;
-    code += `curl_setopt($ch, CURLOPT_CUSTOMREQUEST, ${JSON.stringify(method)});\n`;
+    code += `curl_setopt($ch, CURLOPT_CUSTOMREQUEST, ${toPHPLiteral(method)});\n`;
 
     if (Object.keys(headers).length > 0) {
       code += `$headers = [\n`;
       Object.entries(headers).forEach(([k, v]) => {
-        code += `    ${JSON.stringify(k + ': ' + v)},\n`;
+        code += `    ${toPHPLiteral(k + ': ' + v)},\n`;
       });
       code += `];\n`;
       code += `curl_setopt($ch, CURLOPT_HTTPHEADER, $headers);\n`;
     }
 
     if (data) {
-      code += `curl_setopt($ch, CURLOPT_POSTFIELDS, ${JSON.stringify(data)});\n`;
+      code += `curl_setopt($ch, CURLOPT_POSTFIELDS, ${toPHPLiteral(data)});\n`;
     }
 
     code += `\n$response = curl_exec($ch);\ncurl_close($ch);\n\necho $response;`;

@@ -265,6 +265,9 @@ const JSONToProtobuf = lazy(() => import("./components/JSONToProtobuf").then(m =
 const JSObjectConverter = lazy(() => import("./components/JSObjectConverter").then(m => ({ default: m.JSObjectConverter })));
 const JSONToJoi = lazy(() => import("./components/JSONToJoi").then(m => ({ default: m.JSONToJoi })));
 const JSONToTOML = lazy(() => import("./components/JSONToTOML").then(m => ({ default: m.JSONToTOML })));
+const PrimeGenerator = lazy(() => import("./components/PrimeGenerator").then(m => ({ default: m.PrimeGenerator })));
+const TextToImage = lazy(() => import("./components/TextToImage").then(m => ({ default: m.TextToImage })));
+const JSONToAsciiTable = lazy(() => import("./components/JSONToAsciiTable").then(m => ({ default: m.JSONToAsciiTable })));
 
 // ⚡ Bolt Optimization: Pre-calculating tool map and search index for O(1) lookups and faster filtering
 const toolsMap: Record<string, Tool> = {};
@@ -1881,6 +1884,39 @@ const tools: Tool[] = [
     Component: JSONToTOML,
     category: "dev",
     keywords: ["toml", "config", "json", "convert"],
+  },
+  {
+    id: "prime-generator",
+    name: "Nombres Premiers",
+    nameEn: "Prime Generator",
+    icon: Hash,
+    description: "Générateur de nombres premiers dans un intervalle",
+    descriptionEn: "Prime number generator within a range",
+    Component: PrimeGenerator,
+    category: "calculators",
+    keywords: ["math", "prime", "primes", "generator", "numbers"],
+  },
+  {
+    id: "text-to-image",
+    name: "Texte en Image",
+    nameEn: "Text to Image",
+    icon: ImageIcon,
+    description: "Convertir du texte en image PNG ou JPEG",
+    descriptionEn: "Convert text to PNG or JPEG image",
+    Component: TextToImage,
+    category: "text",
+    keywords: ["image", "convert", "text", "canvas", "design"],
+  },
+  {
+    id: "json-to-ascii",
+    name: "JSON en ASCII Table",
+    nameEn: "JSON to ASCII Table",
+    icon: Table,
+    description: "Convertir du JSON en tableau ASCII formaté",
+    descriptionEn: "Convert JSON to formatted ASCII table",
+    Component: JSONToAsciiTable,
+    category: "dev",
+    keywords: ["json", "table", "ascii", "format", "developer"],
   },
 ];
 

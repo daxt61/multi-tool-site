@@ -157,6 +157,7 @@ ${idealWeightRange ? `- Poids idéal estimé : ${idealWeightRange.low.toFixed(1)
               <button
                 onClick={handleDownload}
                 disabled={bmi === 0}
+                aria-label="Télécharger le rapport IMC"
                 className="text-xs font-bold text-indigo-600 bg-indigo-50 dark:bg-indigo-500/10 hover:bg-indigo-100 dark:hover:bg-indigo-500/20 px-3 py-1.5 rounded-xl flex items-center gap-1 transition-all disabled:opacity-50 disabled:cursor-not-allowed focus-visible:ring-2 focus-visible:ring-indigo-500 focus-visible:outline-none"
               >
                 <Download className="w-3 h-3" /> Télécharger
@@ -164,6 +165,7 @@ ${idealWeightRange ? `- Poids idéal estimé : ${idealWeightRange.low.toFixed(1)
               <button
                 onClick={handleClear}
                 disabled={!weight && !height}
+                aria-label="Effacer les champs"
                 className="text-xs font-bold text-rose-500 bg-rose-50 dark:bg-rose-500/10 hover:bg-rose-100 dark:hover:bg-rose-500/20 px-3 py-1.5 rounded-xl flex items-center gap-1 transition-all disabled:opacity-50 disabled:cursor-not-allowed focus-visible:ring-2 focus-visible:ring-rose-500 focus-visible:outline-none"
               >
                 <Trash2 className="w-3 h-3" /> Effacer
@@ -254,7 +256,7 @@ ${idealWeightRange ? `- Poids idéal estimé : ${idealWeightRange.low.toFixed(1)
               {copied ? <Check className="w-5 h-5" /> : <Copy className="w-5 h-5" />}
             </button>
             <div className="text-slate-400 font-bold uppercase tracking-widest text-xs">Votre IMC</div>
-            <div className="text-6xl md:text-8xl font-black text-white font-mono tracking-tighter" aria-live="polite">
+            <div className="text-6xl md:text-8xl font-black text-white font-mono tracking-tighter" aria-live="polite" aria-atomic="true">
               {bmi > 0 ? bmi.toFixed(1) : '0.0'}
             </div>
             <div className={`px-6 py-2 rounded-full font-black text-sm uppercase tracking-widest ${category.color} text-white shadow-lg`}>

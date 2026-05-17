@@ -4,18 +4,124 @@ import { useTranslation } from 'react-i18next';
 
 const MAX_LENGTH = 100000; // 100KB
 
+type OutputLanguage = 'fetch' | 'axios' | 'python' | 'php';
+
 export function CURLConverter({ initialData, onStateChange }: { initialData?: any; onStateChange?: (state: any) => void }) {
   const { t } = useTranslation();
   const [input, setInput] = useState(initialData?.input || '');
   const [output, setOutput] = useState('');
+  const [language, setLanguage] = useState<OutputLanguage>(initialData?.language || 'fetch');
   const [error, setError] = useState<string | null>(null);
   const [copied, setCopied] = useState(false);
 
   useEffect(() => {
-    onStateChange?.({ input });
-  }, [input]);
+    onStateChange?.({ input, language });
+  }, [input, language, onStateChange]);
 
-  const parseCURL = useCallback((curl: string) => {
+  const generateFetch = (url: string, method: string, headers: Record<string, string>, data: string | null) => {
+    let code = `fetch(${JSON.stringify(url)}, {\n`;
+    code += `  method: ${JSON.stringify(method)},\n`;
+    if (Object.keys(headers).length > 0) {
+      code += `  headers: {\n`;
+      Object.entries(headers).forEach(([k, v]) => {
+        code += `    ${JSON.stringify(k)}: ${JSON.stringify(v)},\n`;
+      });
+      code += `  },\n`;
+    }
+    if (data) code += `  body: ${JSON.stringify(data)},\n`;
+    code += `})\n.then(response => response.json())\n.then(data => console.log(data))\n.catch(error => console.error('Error:', error));`;
+    return code;
+  };
+
+  const generateAxios = (url: string, method: string, headers: Record<string, string>, data: string | null) => {
+    let code = `axios({\n`;
+    code += `  method: ${JSON.stringify(method.toLowerCase())},\n`;
+    code += `  url: ${JSON.stringify(url)},\n`;
+    if (Object.keys(headers).length > 0) {
+      code += `  headers: {\n`;
+      Object.entries(headers).forEach(([k, v]) => {
+        code += `    ${JSON.stringify(k)}: ${JSON.stringify(v)},\n`;
+      });
+      code += `  },\n`;
+    }
+    if (data) {
+      try {
+        const jsonData = JSON.parse(data);
+        code += `  data: ${JSON.stringify(jsonData, null, 2).split('\n').join('\n  ')},\n`;
+      } catch {
+        code += `  data: ${JSON.stringify(data)},\n`;
+      }
+    }
+    code += `})\n.then(response => console.log(response.data))\n.catch(error => console.error(error));`;
+    return code;
+  };
+
+  const toPythonLiteral = (val: any): string => {
+    if (val === null) return 'None';
+    if (val === true) return 'True';
+    if (val === false) return 'False';
+    if (Array.isArray(val)) {
+      return `[${val.map(toPythonLiteral).join(', ')}]`;
+    }
+    if (typeof val === 'object') {
+      const entries = Object.entries(val).map(([k, v]) => `${JSON.stringify(k)}: ${toPythonLiteral(v)}`);
+      return `{${entries.join(', ')}}`;
+    }
+    return JSON.stringify(val);
+  };
+
+  const generatePython = (url: string, method: string, headers: Record<string, string>, data: string | null) => {
+    let code = `import requests\n\n`;
+    code += `url = ${JSON.stringify(url)}\n`;
+    if (Object.keys(headers).length > 0) {
+      code += `headers = {\n`;
+      Object.entries(headers).forEach(([k, v]) => {
+        code += `    ${JSON.stringify(k)}: ${JSON.stringify(v)},\n`;
+      });
+      code += `}\n`;
+    }
+    if (data) {
+      try {
+        const jsonData = JSON.parse(data);
+        code += `payload = ${toPythonLiteral(jsonData)}\n`;
+      } catch {
+        code += `payload = ${JSON.stringify(data)}\n`;
+      }
+    }
+
+    code += `response = requests.request(\n`;
+    code += `    method=${JSON.stringify(method)},\n`;
+    code += `    url=url,\n`;
+    if (Object.keys(headers).length > 0) code += `    headers=headers,\n`;
+    if (data) code += `    json=payload\n`;
+    code += `)\n\nprint(response.json())`;
+    return code;
+  };
+
+  const generatePHP = (url: string, method: string, headers: Record<string, string>, data: string | null) => {
+    let code = `<?php\n\n$ch = curl_init();\n\n`;
+    code += `curl_setopt($ch, CURLOPT_URL, ${JSON.stringify(url)});\n`;
+    code += `curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);\n`;
+    code += `curl_setopt($ch, CURLOPT_CUSTOMREQUEST, ${JSON.stringify(method)});\n`;
+
+    if (Object.keys(headers).length > 0) {
+      code += `$headers = [\n`;
+      Object.entries(headers).forEach(([k, v]) => {
+        code += `    ${JSON.stringify(k + ': ' + v)},\n`;
+      });
+      code += `];\n`;
+      code += `curl_setopt($ch, CURLOPT_HTTPHEADER, $headers);\n`;
+    }
+
+    if (data) {
+      code += `curl_setopt($ch, CURLOPT_POSTFIELDS, ${JSON.stringify(data)});\n`;
+    }
+
+    code += `\n$response = curl_exec($ch);\ncurl_close($ch);\n\necho $response;`;
+    return code;
+  };
+
+  const parseCURL = useCallback((curl: string, lang: OutputLanguage) => {
     if (!curl.trim()) {
       setOutput('');
       setError(null);
@@ -23,7 +129,6 @@ export function CURLConverter({ initialData, onStateChange }: { initialData?: an
     }
 
     try {
-      // Basic parser for demonstration
       const urlMatch = curl.match(/curl\s+.*?['"]?(https?:\/\/[^\s'"]+)['"]?/);
       if (!urlMatch) {
         throw new Error(t('curlconverter.error_invalid_curl'));
@@ -43,30 +148,17 @@ export function CURLConverter({ initialData, onStateChange }: { initialData?: an
       const dataMatch = curl.match(/(?:-d|--data|--data-raw)\s+['"]?([\s\S]+?)['"]?(?:\s+-[A-Z]|$)/);
       const data = dataMatch ? dataMatch[1] : null;
 
-      // Sentinel: Use JSON.stringify to safely escape all user-provided strings in the generated code.
-      let fetchCode = `fetch(${JSON.stringify(url)}, {\n`;
-      fetchCode += `  method: ${JSON.stringify(method)},\n`;
-
-      if (Object.keys(headers).length > 0) {
-        fetchCode += `  headers: {\n`;
-        Object.entries(headers).forEach(([k, v]) => {
-          fetchCode += `    ${JSON.stringify(k)}: ${JSON.stringify(v)},\n`;
-        });
-        fetchCode += `  },\n`;
+      let code = '';
+      switch (lang) {
+        case 'fetch': code = generateFetch(url, method, headers, data); break;
+        case 'axios': code = generateAxios(url, method, headers, data); break;
+        case 'python': code = generatePython(url, method, headers, data); break;
+        case 'php': code = generatePHP(url, method, headers, data); break;
       }
 
-      if (data) {
-        // Sentinel: Treat body data as a literal string to prevent code injection.
-        fetchCode += `  body: ${JSON.stringify(data)},\n`;
-      }
-
-      fetchCode += `})\n.then(response => response.json())\n.then(data => console.log(data))\n.catch(error => console.error('Erreur:', error));`;
-
-      setOutput(fetchCode);
+      setOutput(code);
       setError(null);
     } catch (e: any) {
-      // Sentinel: Enforce 'Fail-Secure' behavior by using a generic, safe error message
-      // that avoids potential leakage of internal error details or stack traces.
       setError(t('curlconverter.error_conversion'));
       setOutput('');
     }
@@ -77,9 +169,9 @@ export function CURLConverter({ initialData, onStateChange }: { initialData?: an
       setError(t('error.max_length', { max: MAX_LENGTH.toLocaleString() }));
       setOutput('');
     } else {
-      parseCURL(input);
+      parseCURL(input, language);
     }
-  }, [input, parseCURL, t]);
+  }, [input, language, parseCURL, t]);
 
   const handleCopy = () => {
     if (!output) return;
@@ -96,17 +188,37 @@ export function CURLConverter({ initialData, onStateChange }: { initialData?: an
 
   const handleDownload = () => {
     if (!output) return;
-    const blob = new Blob([output], { type: 'text/javascript' });
+    const extensions: Record<OutputLanguage, string> = { fetch: 'js', axios: 'js', python: 'py', php: 'php' };
+    const blob = new Blob([output], { type: 'text/plain' });
     const url = URL.createObjectURL(blob);
     const link = document.createElement('a');
     link.href = url;
-    link.download = 'fetch-request.js';
+    link.download = `request.${extensions[language]}`;
     link.click();
     URL.revokeObjectURL(url);
   };
 
   return (
     <div className="max-w-6xl mx-auto space-y-8">
+      <div className="flex flex-wrap gap-4 justify-between items-center bg-slate-50 dark:bg-slate-900/50 p-6 rounded-[2rem] border border-slate-200 dark:border-slate-800">
+        <div className="flex flex-wrap gap-2">
+          {(['fetch', 'axios', 'python', 'php'] as OutputLanguage[]).map((lang) => (
+            <button
+              key={lang}
+              onClick={() => setLanguage(lang)}
+              className={`px-4 py-2 rounded-xl text-sm font-bold transition-all focus-visible:ring-2 focus-visible:ring-indigo-500 focus-visible:outline-none capitalize ${
+                language === lang
+                  ? 'bg-indigo-600 text-white shadow-lg shadow-indigo-600/20'
+                  : 'bg-white dark:bg-slate-800 text-slate-500 hover:text-slate-900 dark:hover:text-slate-200'
+              }`}
+            >
+              {language === lang ? <Check className="w-4 h-4 inline mr-1" /> : null}
+              {lang === 'php' ? 'PHP cURL' : lang === 'python' ? 'Python Requests' : lang}
+            </button>
+          ))}
+        </div>
+      </div>
+
       {error && (
         <div className="bg-rose-50 dark:bg-rose-500/10 border border-rose-200 dark:border-rose-800 p-4 rounded-2xl flex items-center gap-3 text-rose-600 dark:text-rose-400 font-bold animate-in fade-in slide-in-from-top-2">
           <AlertCircle className="w-5 h-5" />
@@ -115,7 +227,6 @@ export function CURLConverter({ initialData, onStateChange }: { initialData?: an
       )}
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-        {/* Input */}
         <div className="space-y-4">
           <div className="flex justify-between items-center px-1">
             <label htmlFor="curl-input" className="text-xs font-black uppercase tracking-widest text-slate-400 flex items-center gap-2">
@@ -139,11 +250,10 @@ export function CURLConverter({ initialData, onStateChange }: { initialData?: an
           />
         </div>
 
-        {/* Output */}
         <div className="space-y-4">
           <div className="flex justify-between items-center px-1">
-            <label htmlFor="fetch-output" className="text-xs font-black uppercase tracking-widest text-slate-400 flex items-center gap-2">
-              <Code className="w-4 h-4 text-emerald-500" /> Fetch JavaScript
+            <label htmlFor="output-area" className="text-xs font-black uppercase tracking-widest text-slate-400 flex items-center gap-2">
+              <Code className="w-4 h-4 text-emerald-500" /> {language === 'python' ? 'Python' : language === 'php' ? 'PHP' : 'JavaScript'} Output
             </label>
             <div className="flex gap-2">
               <button
@@ -168,7 +278,7 @@ export function CURLConverter({ initialData, onStateChange }: { initialData?: an
             </div>
           </div>
           <textarea
-            id="fetch-output"
+            id="output-area"
             value={output}
             readOnly
             placeholder={t('curlconverter.placeholder_output')}
@@ -177,7 +287,6 @@ export function CURLConverter({ initialData, onStateChange }: { initialData?: an
         </div>
       </div>
 
-      {/* Info */}
       <div className="bg-indigo-50 dark:bg-indigo-900/10 p-8 rounded-[2.5rem] border border-indigo-100 dark:border-indigo-900/20 flex items-start gap-4">
          <div className="p-3 bg-white dark:bg-slate-800 text-indigo-600 rounded-2xl shadow-sm border border-slate-100 dark:border-slate-700">
             <Info className="w-6 h-6" />

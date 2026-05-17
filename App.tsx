@@ -163,6 +163,7 @@ const YAMLJSONConverter = lazy(() => import("./components/YAMLJSONConverter").th
 const CronGenerator = lazy(() => import("./components/CronGenerator").then(m => ({ default: m.CronGenerator })));
 const HTMLEntityConverter = lazy(() => import("./components/HTMLEntityConverter").then(m => ({ default: m.HTMLEntityConverter })));
 const JSONToTS = lazy(() => import("./components/JSONToTS").then(m => ({ default: m.JSONToTS })));
+const JSONToCPP = lazy(() => import("./components/JSONToCPP").then(m => ({ default: m.JSONToCPP })));
 const ListCleaner = lazy(() => import("./components/ListCleaner").then(m => ({ default: m.ListCleaner })));
 const JWTDecoder = lazy(() => import("./components/JWTDecoder").then(m => ({ default: m.JWTDecoder })));
 const CodeMinifier = lazy(() => import("./components/CodeMinifier").then(m => ({ default: m.CodeMinifier })));
@@ -233,6 +234,7 @@ const SecurityHeadersGenerator = lazy(() => import("./components/SecurityHeaders
 const WiFiGenerator = lazy(() => import("./components/WiFiGenerator").then(m => ({ default: m.WiFiGenerator })));
 const RobotsTxtGenerator = lazy(() => import("./components/RobotsTxtGenerator").then(m => ({ default: m.RobotsTxtGenerator })));
 const CSSTriangleGenerator = lazy(() => import("./components/CSSTriangleGenerator").then(m => ({ default: m.CSSTriangleGenerator })));
+const CSSGridGenerator = lazy(() => import("./components/CSSGridGenerator").then(m => ({ default: m.CSSGridGenerator })));
 const CSSBorderRadiusGenerator = lazy(() => import("./components/CSSBorderRadiusGenerator").then(m => ({ default: m.CSSBorderRadiusGenerator })));
 const JSONPathTester = lazy(() => import("./components/JSONPathTester").then(m => ({ default: m.JSONPathTester })));
 const SitemapGenerator = lazy(() => import("./components/SitemapGenerator").then(m => ({ default: m.SitemapGenerator })));
@@ -1196,6 +1198,17 @@ const tools: Tool[] = [
     category: "dev",
   },
   {
+    id: "json-to-cpp",
+    name: "JSON en C++",
+    nameEn: "JSON to C++",
+    icon: Code,
+    description: "Convertir du JSON en structures C++",
+    descriptionEn: "Convert JSON to C++ structs",
+    Component: JSONToCPP,
+    category: "dev",
+    keywords: ["cpp", "struct", "json", "types", "cplusplus"],
+  },
+  {
     id: "sql-formatter",
     name: "SQL Formatter",
     nameEn: "SQL Formatter",
@@ -1565,6 +1578,17 @@ const tools: Tool[] = [
     Component: CSSTriangleGenerator,
     category: "dev",
     keywords: ["css", "triangle", "shape", "design", "frontend", "pure css"],
+  },
+  {
+    id: "css-grid",
+    name: "Grid CSS",
+    nameEn: "CSS Grid",
+    icon: LayoutGrid,
+    description: "Générateur visuel de grille CSS (Grid Layout)",
+    descriptionEn: "Visual CSS Grid layout generator",
+    Component: CSSGridGenerator,
+    category: "dev",
+    keywords: ["css", "grid", "layout", "design", "frontend", "responsive"],
   },
   {
     id: "neumorphism-generator",

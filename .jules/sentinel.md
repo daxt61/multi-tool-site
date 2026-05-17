@@ -96,3 +96,13 @@
 **Vulnerability:** The UrlParser component generated cURL snippets by wrapping the user-provided URL in double quotes and only escaping double quotes. This allowed for command injection via shell expansion (e.g., using `$(...)` or ` ` `) when the snippet was pasted into a terminal.
 **Learning:** Double quotes in most shells still allow for variable and command expansion. Using single quotes is a more robust way to prevent the shell from interpreting the content, provided that single quotes themselves are correctly escaped.
 **Prevention:** When generating shell snippets, wrap user-controlled strings in single quotes and escape any existing single quotes by closing the string, adding an escaped quote, and re-opening (e.g., `url.replace(/'/g, "'\\''")`).
+
+## 2026-05-20 - [PHP Variable Interpolation in Code Generators]
+**Vulnerability:** Generators producing PHP snippets were using double quotes for string literals. In PHP, double quotes allow for variable interpolation (e.g., `"$var"`), which can lead to unintended execution or data leakage if the snippet is run in an environment with sensitive variables.
+**Learning:** When generating PHP code, always prefer single quotes for string literals unless interpolation is explicitly intended. Single quotes in PHP only require escaping the quote itself and the backslash.
+**Prevention:** Use a helper function to wrap strings in single quotes and escape single quotes and backslashes for all user-controlled data injected into PHP snippets.
+
+## 2026-05-20 - [MECARD Injection in WiFi QR Generation]
+**Vulnerability:** The WiFiGenerator was injecting raw SSID and Password strings into the MECARD format (`WIFI:S:SSID;...`). Lack of escaping allowed special characters like `;` and `:` to break the format or inject additional fields.
+**Learning:** The MECARD format used for WiFi QR codes requires specific escaping of characters (`;`, `:`, `"`, `,`, and `\`) using a backslash.
+**Prevention:** Implement a dedicated escaping function for MECARD components and enforce strict length limits on inputs to prevent buffer overflows in primitive QR scanners.

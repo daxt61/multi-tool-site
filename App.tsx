@@ -51,6 +51,7 @@ import {
   Signal,
   Info,
   Mail,
+  Hexagon,
   Shield,
   Receipt,
   TrendingUp,
@@ -260,6 +261,9 @@ const JSONToSwift = lazy(() => import("./components/JSONToSwift").then(m => ({ d
 const JSONToRuby = lazy(() => import("./components/JSONToRuby").then(m => ({ default: m.JSONToRuby })));
 const JSONToScala = lazy(() => import("./components/JSONToScala").then(m => ({ default: m.JSONToScala })));
 const URLExtractor = lazy(() => import("./components/URLExtractor").then(m => ({ default: m.URLExtractor })));
+const EmailExtractor = lazy(() => import("./components/EmailExtractor").then(m => ({ default: m.EmailExtractor })));
+const NumberExtractor = lazy(() => import("./components/NumberExtractor").then(m => ({ default: m.NumberExtractor })));
+const TextHexConverter = lazy(() => import("./components/TextHexConverter").then(m => ({ default: m.TextHexConverter })));
 const MarkdownToHTML = lazy(() => import("./components/MarkdownToHTML").then(m => ({ default: m.MarkdownToHTML })));
 const HTMLFormatter = lazy(() => import("./components/HTMLFormatter").then(m => ({ default: m.HTMLFormatter })));
 const PasswordStrengthMeter = lazy(() => import("./components/PasswordStrengthMeter").then(m => ({ default: m.PasswordStrengthMeter })));
@@ -711,6 +715,17 @@ const tools: Tool[] = [
     Component: NumberConverter,
     category: "converters",
     keywords: ["binaire", "hex", "décimal", "octal", "bigint", "base"],
+  },
+  {
+    id: "text-hex",
+    name: "Texte <> Hex",
+    nameEn: "Text <> Hex",
+    icon: Hexagon,
+    description: "Convertir du texte en hexadécimal et vice-versa",
+    descriptionEn: "Convert text to hexadecimal and vice versa",
+    Component: TextHexConverter,
+    category: "converters",
+    keywords: ["hex", "hexadecimal", "encoding", "decoding", "converter"],
   },
   {
     id: "dpi-calculator",
@@ -1833,6 +1848,28 @@ const tools: Tool[] = [
     Component: URLExtractor,
     category: "dev",
     keywords: ["url", "extract", "link", "regex", "crawler"],
+  },
+  {
+    id: "email-extractor",
+    name: "Extracteur d'emails",
+    nameEn: "Email Extractor",
+    icon: Mail,
+    description: "Extraire toutes les adresses e-mail d'un texte",
+    descriptionEn: "Extract all email addresses from a text",
+    Component: EmailExtractor,
+    category: "text",
+    keywords: ["email", "mail", "extract", "regex", "crawler"],
+  },
+  {
+    id: "number-extractor",
+    name: "Extracteur de nombres",
+    nameEn: "Number Extractor",
+    icon: Hash,
+    description: "Extraire tous les nombres d'un texte",
+    descriptionEn: "Extract all numbers from a text",
+    Component: NumberExtractor,
+    category: "text",
+    keywords: ["number", "extractor", "regex", "digits", "data cleaning"],
   },
   {
     id: "markdown-to-html",

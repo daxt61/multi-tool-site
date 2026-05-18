@@ -53,8 +53,10 @@ export function JSONToTS({ initialData, onStateChange }: { initialData?: any; on
         if (val === null || val === undefined) return 'any';
 
         if (Array.isArray(val)) {
-          const itemType = val.length > 0 ? getTSType(val[0], fieldName, depth + 1) : 'any';
-          return `${itemType}[]`;
+          if (val.length === 0) return 'any[]';
+          const types = new Set(val.map(v => getTSType(v, fieldName, depth + 1)));
+          if (types.size === 1) return `${Array.from(types)[0]}[]`;
+          return `(${Array.from(types).join(' | ')})[]`;
         }
 
         if (typeof val === 'object') {

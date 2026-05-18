@@ -42,6 +42,7 @@ export function JSONToSQL({ initialData, onStateChange }: { initialData?: any; o
           if (val === null) return 'NULL';
           if (typeof val === 'string') return `'${val.replace(/'/g, "''")}'`;
           if (typeof val === 'boolean') return val ? '1' : '0';
+          if (typeof val === 'object') return `'${JSON.stringify(val).replace(/'/g, "''")}'`;
           return val;
         });
         return `INSERT INTO ${sqlTableName} (${escapedColumns.join(', ')}) VALUES (${values.join(', ')});`;

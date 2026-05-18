@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { Table, Plus, RotateCcw, Copy, Check, Download, AlertCircle, Code } from 'lucide-react';
+import { Table, Plus, RotateCcw, Copy, Check, Download, AlertCircle, Code, FileSpreadsheet, X as CloseIcon } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 
 const MAX_ROWS = 50;
@@ -33,6 +33,8 @@ export function MarkdownTableGenerator({ initialData, onStateChange }: { initial
   const [copied, setCopied] = useState(false);
   const [copiedHtml, setCopiedHtml] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [isImporting, setIsImporting] = useState(false);
+  const [csvInput, setCsvInput] = useState('');
 
   useEffect(() => {
     onStateChange?.({ data, alignments });
@@ -170,6 +172,45 @@ export function MarkdownTableGenerator({ initialData, onStateChange }: { initial
     setAlignments(newAlignments);
   };
 
+  const handleImportCsv = () => {
+    try {
+      const lines = csvInput.trim().split('\n');
+      if (lines.length === 0 || (lines.length === 1 && !lines[0])) return;
+
+      const parseLine = (line: string) => {
+        const result = [];
+        let startValueIndex = 0;
+        let inQuotes = false;
+        for (let i = 0; i < line.length; i++) {
+          if (line[i] === '"') inQuotes = !inQuotes;
+          if (line[i] === ',' && !inQuotes) {
+            result.push(line.substring(startValueIndex, i));
+            startValueIndex = i + 1;
+          }
+        }
+        result.push(line.substring(startValueIndex));
+        return result.map(v => {
+          v = v.trim();
+          if (v.startsWith('"') && v.endsWith('"')) {
+            return v.substring(1, v.length - 1).replace(/""/g, '"');
+          }
+          return v;
+        }).slice(0, MAX_COLS);
+      };
+
+      const newData = lines.map(parseLine).slice(0, MAX_ROWS);
+      if (newData.length > 0) {
+        setData(newData);
+        setAlignments(Array(newData[0].length).fill('left'));
+        setIsImporting(false);
+        setCsvInput('');
+        setError(null);
+      }
+    } catch (e) {
+      setError(t('markdown.import_csv_error'));
+    }
+  };
+
   return (
     <div className="max-w-6xl mx-auto space-y-8">
       {error && (
@@ -192,6 +233,12 @@ export function MarkdownTableGenerator({ initialData, onStateChange }: { initial
             className="px-4 py-2 bg-slate-900 dark:bg-white text-white dark:text-slate-900 rounded-xl font-bold text-sm flex items-center gap-2 hover:opacity-90 transition-all"
           >
             <Plus className="w-4 h-4" /> {t('markdown.add_col')}
+          </button>
+          <button
+            onClick={() => setIsImporting(!isImporting)}
+            className={`px-4 py-2 rounded-xl font-bold text-sm flex items-center gap-2 transition-all ${isImporting ? 'bg-indigo-600 text-white' : 'bg-indigo-50 dark:bg-indigo-900/20 text-indigo-600'}`}
+          >
+            <FileSpreadsheet className="w-4 h-4" /> {t('markdown.import_csv')}
           </button>
           <button
             onClick={reset}
@@ -233,6 +280,30 @@ export function MarkdownTableGenerator({ initialData, onStateChange }: { initial
           </button>
         </div>
       </div>
+
+      {isImporting && (
+        <div className="bg-slate-50 dark:bg-slate-900/50 p-6 rounded-[2rem] border border-indigo-500/30 space-y-4 animate-in fade-in slide-in-from-top-4">
+          <div className="flex justify-between items-center">
+            <h4 className="text-xs font-black uppercase tracking-widest text-indigo-500">{t('markdown.import_csv_title')}</h4>
+            <button onClick={() => setIsImporting(false)} className="text-slate-400 hover:text-rose-500 transition-colors">
+              <CloseIcon className="w-5 h-5" />
+            </button>
+          </div>
+          <textarea
+            value={csvInput}
+            onChange={(e) => setCsvInput(e.target.value)}
+            placeholder="col1,col2,col3&#10;val1,val2,val3"
+            className="w-full h-32 p-4 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl outline-none focus:ring-2 focus:ring-indigo-500/20 font-mono text-sm dark:text-slate-300"
+          />
+          <button
+            onClick={handleImportCsv}
+            disabled={!csvInput.trim()}
+            className="w-full py-3 bg-indigo-600 text-white rounded-xl font-bold hover:bg-indigo-700 transition-all disabled:opacity-50"
+          >
+            {t('markdown.import_csv_btn', { count: csvInput.trim().split('\n').filter(Boolean).length })}
+          </button>
+        </div>
+      )}
 
       <div className="overflow-x-auto bg-slate-50 dark:bg-slate-900/50 p-6 rounded-[2.5rem] border border-slate-200 dark:border-slate-800">
         <table className="w-full border-separate border-spacing-2">

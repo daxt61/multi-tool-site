@@ -274,6 +274,7 @@ const JSONToTOML = lazy(() => import("./components/JSONToTOML").then(m => ({ def
 const PrimeGenerator = lazy(() => import("./components/PrimeGenerator").then(m => ({ default: m.PrimeGenerator })));
 const TextToImage = lazy(() => import("./components/TextToImage").then(m => ({ default: m.TextToImage })));
 const JSONToAsciiTable = lazy(() => import("./components/JSONToAsciiTable").then(m => ({ default: m.JSONToAsciiTable })));
+const UnicodeInspector = lazy(() => import("./components/UnicodeInspector").then(m => ({ default: m.UnicodeInspector })));
 
 // ⚡ Bolt Optimization: Pre-calculating tool map and search index for O(1) lookups and faster filtering
 const toolsMap: Record<string, Tool> = {};
@@ -1980,6 +1981,17 @@ const tools: Tool[] = [
     Component: JSONToAsciiTable,
     category: "dev",
     keywords: ["json", "table", "ascii", "format", "developer"],
+  },
+  {
+    id: "unicode-inspector",
+    name: "Inspecteur Unicode",
+    nameEn: "Unicode Inspector",
+    icon: FileSearch,
+    description: "Analyser les caractères d'un texte (hex, décimal, HTML)",
+    descriptionEn: "Inspect text characters (hex, decimal, HTML)",
+    Component: UnicodeInspector,
+    category: "text",
+    keywords: ["unicode", "hex", "encoding", "entity", "character", "inspect"],
   },
 ];
 

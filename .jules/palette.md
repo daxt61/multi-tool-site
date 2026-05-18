@@ -17,3 +17,7 @@
 ## 2025-06-15 - [ARIA Live Regions for Real-Time Results]
 **Learning:** Tools that perform real-time calculations (like Percentage or BMI calculators) require `aria-live="polite"` on the result containers. Using `aria-atomic="true"` ensures the entire result (including labels or units) is re-announced, providing necessary context that would be lost if only a single changing digit was announced.
 **Action:** Always implement `aria-live="polite"` and `aria-atomic="true"` on dynamic result displays to ensure screen reader users receive automatic and contextual updates as they type.
+
+## 2025-06-20 - [ARIA Live Regions & Localized Keyboard Hints]
+**Learning:** Interactive results that change based on user input (e.g., contrast ratios) require `aria-live="polite"` to be announced by screen readers. Furthermore, keyboard shortcuts (like 'S' for swapping colors) are hidden features unless explicitly documented in localized ARIA labels and titles.
+**Action:** Always wrap dynamic calculation results in an ARIA live region (`aria-live="polite"`, `aria-atomic="true"`) and ensure that interactive elements with keyboard shortcuts include the shortcut key (e.g., `(S)`) in their localized labels.

@@ -46,8 +46,22 @@ export function GradientGenerator() {
   };
 
   const handleRandomize = () => {
-    const randomHex = () => '#' + Math.floor(Math.random()*16777215).toString(16).padStart(6, '0');
-    setStops(stops.map(s => ({ ...s, color: randomHex() })));
+    // Sentinel: Use cryptographically secure random values instead of Math.random()
+    // to ensure high entropy and unpredictability for generated colors.
+    const generateSecureHex = () => {
+      const range = 16777216; // 0x1000000
+      const array = new Uint32Array(1);
+      const maxUint32 = 0xffffffff;
+      const limit = maxUint32 - (maxUint32 % range);
+      let randomValue;
+      do {
+        window.crypto.getRandomValues(array);
+        randomValue = array[0];
+      } while (randomValue >= limit);
+      return '#' + (randomValue % range).toString(16).padStart(6, '0');
+    };
+
+    setStops(stops.map(s => ({ ...s, color: generateSecureHex() })));
   };
 
   return (

@@ -34,7 +34,10 @@ export function JSONSchemaGenerator({ initialData, onStateChange }: { initialDat
     }
 
     if (type === 'object') {
-      const properties: any = {};
+      // Sentinel: Use Object.create(null) to prevent Prototype Pollution on the map object itself.
+      // This ensures that special keys like "__proto__" from user-provided objects do not
+      // poison the generator's local properties object.
+      const properties: any = Object.create(null);
       const required: string[] = [];
 
       Object.entries(obj).forEach(([key, value]) => {

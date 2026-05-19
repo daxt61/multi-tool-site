@@ -53,7 +53,15 @@ export function JSONCSVConverter({ initialData, onStateChange }: { initialData?:
       const array = Array.isArray(obj) ? obj : [obj];
       if (array.length === 0) return '';
 
-      const headers = Object.keys(array[0]);
+      // Collect all unique headers from all objects
+      const headersSet = new Set<string>();
+      array.forEach((row: any) => {
+        if (typeof row === 'object' && row !== null) {
+          Object.keys(row).forEach(key => headersSet.add(key));
+        }
+      });
+      const headers = Array.from(headersSet);
+
       const csvRows = [
         headers.join(','),
         ...array.map(row => headers.map(header => formatValue(row[header])).join(','))

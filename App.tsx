@@ -104,6 +104,7 @@ import {
   Wifi,
   FileSearch,
   Box,
+  Repeat,
 } from "lucide-react";
 const AdPlaceholder = lazy(() => import("./components/AdPlaceholder").then(m => ({ default: m.AdPlaceholder })));
 
@@ -275,6 +276,8 @@ const PrimeGenerator = lazy(() => import("./components/PrimeGenerator").then(m =
 const TextToImage = lazy(() => import("./components/TextToImage").then(m => ({ default: m.TextToImage })));
 const JSONToAsciiTable = lazy(() => import("./components/JSONToAsciiTable").then(m => ({ default: m.JSONToAsciiTable })));
 const UnicodeInspector = lazy(() => import("./components/UnicodeInspector").then(m => ({ default: m.UnicodeInspector })));
+const TextRepeater = lazy(() => import("./components/TextRepeater").then(m => ({ default: m.TextRepeater })));
+const PascalsTriangle = lazy(() => import("./components/PascalsTriangle").then(m => ({ default: m.PascalsTriangle })));
 
 // ⚡ Bolt Optimization: Pre-calculating tool map and search index for O(1) lookups and faster filtering
 const toolsMap: Record<string, Tool> = {};
@@ -1992,6 +1995,28 @@ const tools: Tool[] = [
     Component: UnicodeInspector,
     category: "text",
     keywords: ["unicode", "hex", "encoding", "entity", "character", "inspect"],
+  },
+  {
+    id: "text-repeater",
+    name: "Répétiteur de texte",
+    nameEn: "Text Repeater",
+    icon: Repeat,
+    description: "Répéter un texte plusieurs fois avec un séparateur",
+    descriptionEn: "Repeat text multiple times with a separator",
+    Component: TextRepeater,
+    category: "text",
+    keywords: ["repeat", "multiplier", "duplicate", "répéter", "spam", "test data"],
+  },
+  {
+    id: "pascals-triangle",
+    name: "Triangle de Pascal",
+    nameEn: "Pascal's Triangle",
+    icon: Triangle,
+    description: "Générer et visualiser le triangle de Pascal",
+    descriptionEn: "Generate and visualize Pascal's triangle",
+    Component: PascalsTriangle,
+    category: "calculators",
+    keywords: ["math", "triangle", "pascal", "binomial", "coefficient", "combinatorics"],
   },
 ];
 

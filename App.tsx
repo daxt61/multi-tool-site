@@ -2124,6 +2124,7 @@ function ThemeToggle({ navigate, location }: { navigate: any, location: any }) {
         onClick={toggleLanguage}
         className="px-3 py-2 rounded-lg bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 transition-colors text-xs font-bold text-slate-600 dark:text-slate-300 border border-slate-200 dark:border-slate-700 focus-visible:ring-2 focus-visible:ring-indigo-500 focus-visible:outline-none"
         aria-label={t("nav.lang_toggle")}
+        title={t("nav.lang_toggle")}
       >
         {i18nInstance.language === 'fr' ? 'EN' : 'FR'}
       </button>
@@ -2131,6 +2132,7 @@ function ThemeToggle({ navigate, location }: { navigate: any, location: any }) {
         onClick={() => setTheme(theme === "dark" ? "light" : "dark")}
         className="p-2 rounded-lg bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 transition-colors text-slate-600 dark:text-slate-300 border border-slate-200 dark:border-slate-700 focus-visible:ring-2 focus-visible:ring-indigo-500 focus-visible:outline-none"
         aria-label={t("nav.theme_toggle")}
+        title={t("nav.theme_toggle")}
       >
         {theme === "dark" ? <Sun className="w-5 h-5" /> : <Moon className="w-5 h-5" />}
       </button>
@@ -2304,17 +2306,25 @@ function MainApp() {
 
   // ⚡ Bolt Optimization: Pre-calculate tool counts per category for dashboard badges
   const categoryCounts = useMemo(() => {
+    const query = deferredSearchQuery.trim().toLowerCase();
+
+    // Filter tools by search query first if present
+    const searchableTools = query ? tools.filter(tool => {
+      const searchEntry = TOOL_SEARCH_INDEX.get(tool.id);
+      return searchEntry?.name.includes(query) || searchEntry?.description.includes(query);
+    }) : tools;
+
     const counts: Record<string, number> = {
-      all: tools.length,
-      favorites: favorites.length,
+      all: searchableTools.length,
+      favorites: searchableTools.filter(t => favoriteSet.has(t.id)).length,
     };
 
-    tools.forEach(tool => {
+    searchableTools.forEach(tool => {
       counts[tool.category] = (counts[tool.category] || 0) + 1;
     });
 
     return counts;
-  }, [favorites.length]);
+  }, [deferredSearchQuery, favoriteSet]);
 
   const filteredTools = useMemo(() => {
     const query = deferredSearchQuery.trim().toLowerCase();

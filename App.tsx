@@ -79,6 +79,7 @@ import {
   Star,
   Check,
   Plus,
+  Grid,
   Table,
   Eye,
   Braces,
@@ -282,6 +283,9 @@ const PascalsTriangle = lazy(() => import("./components/PascalsTriangle").then(m
 const TextSplitter = lazy(() => import("./components/TextSplitter").then(m => ({ default: m.TextSplitter })));
 const StringJoiner = lazy(() => import("./components/StringJoiner").then(m => ({ default: m.StringJoiner })));
 const JSONAnalyzer = lazy(() => import("./components/JSONAnalyzer").then(m => ({ default: m.JSONAnalyzer })));
+const WorldClock = lazy(() => import("./components/WorldClock").then(m => ({ default: m.WorldClock })));
+const Stopwatch = lazy(() => import("./components/Stopwatch").then(m => ({ default: m.Stopwatch })));
+const UnicodeTable = lazy(() => import("./components/UnicodeTable").then(m => ({ default: m.UnicodeTable })));
 
 // ⚡ Bolt Optimization: Pre-calculating tool map and search index for O(1) lookups and faster filtering
 const toolsMap: Record<string, Tool> = {};
@@ -2054,6 +2058,39 @@ const tools: Tool[] = [
     Component: JSONAnalyzer,
     category: "dev",
     keywords: ["json", "analyze", "stats", "structure", "depth", "keys"],
+  },
+  {
+    id: "world-clock",
+    name: "Horloge Mondiale",
+    nameEn: "World Clock",
+    icon: Globe,
+    description: "Suivre l'heure dans plusieurs villes",
+    descriptionEn: "Track time across multiple cities",
+    Component: WorldClock,
+    category: "other",
+    keywords: ["time", "timezone", "world", "clock", "heure", "fuseau"],
+  },
+  {
+    id: "stopwatch-pro",
+    name: "Chronomètre Pro",
+    nameEn: "Pro Stopwatch",
+    icon: Timer,
+    description: "Chronomètre de haute précision avec tours",
+    descriptionEn: "High precision stopwatch with laps",
+    Component: Stopwatch,
+    category: "other",
+    keywords: ["time", "precision", "laps", "timer", "sport"],
+  },
+  {
+    id: "unicode-table",
+    name: "Table Unicode",
+    nameEn: "Unicode Table",
+    icon: Grid,
+    description: "Référence Unicode et Emojis",
+    descriptionEn: "Unicode and Emoji reference",
+    Component: UnicodeTable,
+    category: "text",
+    keywords: ["unicode", "emoji", "characters", "symbols", "table"],
   },
 ];
 

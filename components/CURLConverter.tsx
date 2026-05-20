@@ -4,7 +4,7 @@ import { useTranslation } from 'react-i18next';
 
 const MAX_LENGTH = 100000; // 100KB
 
-type OutputLanguage = 'fetch' | 'axios' | 'python' | 'php';
+type OutputLanguage = 'fetch' | 'axios' | 'python' | 'php' | 'go' | 'ruby';
 
 export function CURLConverter({ initialData, onStateChange }: { initialData?: any; onStateChange?: (state: any) => void }) {
   const { t } = useTranslation();
@@ -127,6 +127,46 @@ export function CURLConverter({ initialData, onStateChange }: { initialData?: an
     return code;
   };
 
+  const generateGo = (url: string, method: string, headers: Record<string, string>, data: string | null) => {
+    let code = `package main\n\nimport (\n\t"fmt"\n\t"io"\n\t"net/http"\n`;
+    if (data) code += `\t"strings"\n`;
+    code += `)\n\nfunc main() {\n\tclient := &http.Client{}\n`;
+
+    if (data) {
+      code += `\tvar data = strings.NewReader(\`${data.replace(/`/g, '` + "`" + `')}\`)\n`;
+      code += `\treq, err := http.NewRequest("${method}", "${url}", data)\n`;
+    } else {
+      code += `\treq, err := http.NewRequest("${method}", "${url}", nil)\n`;
+    }
+
+    code += `\tif err != nil {\n\t\tpanic(err)\n\t}\n`;
+
+    Object.entries(headers).forEach(([k, v]) => {
+      code += `\treq.Header.Set("${k}", "${v}")\n`;
+    });
+
+    code += `\tresp, err := client.Do(req)\n\tif err != nil {\n\t\tpanic(err)\n\t}\n\tdefer resp.Body.Close()\n`;
+    code += `\tbodyText, err := io.ReadAll(resp.Body)\n\tif err != nil {\n\t\tpanic(err)\n\t}\n\tfmt.Printf("%s\\n", bodyText)\n}`;
+    return code;
+  };
+
+  const generateRuby = (url: string, method: string, headers: Record<string, string>, data: string | null) => {
+    let code = `require 'net/http'\nrequire 'uri'\n\n`;
+    code += `uri = URI.parse('${url}')\n`;
+    code += `request = Net::HTTP::${method.charAt(0).toUpperCase() + method.slice(1).toLowerCase()}.new(uri)\n`;
+
+    Object.entries(headers).forEach(([k, v]) => {
+      code += `request['${k}'] = '${v}'\n`;
+    });
+
+    if (data) {
+      code += `request.body = '${data.replace(/'/g, "\\'")}'\n`;
+    }
+
+    code += `\nresponse = Net::HTTP.start(uri.hostname, uri.port, use_ssl: uri.scheme == 'https') do |http|\n  http.request(request)\nend\n\nputs response.body`;
+    return code;
+  };
+
   const parseCURL = useCallback((curl: string, lang: OutputLanguage) => {
     if (!curl.trim()) {
       setOutput('');
@@ -160,6 +200,8 @@ export function CURLConverter({ initialData, onStateChange }: { initialData?: an
         case 'axios': code = generateAxios(url, method, headers, data); break;
         case 'python': code = generatePython(url, method, headers, data); break;
         case 'php': code = generatePHP(url, method, headers, data); break;
+        case 'go': code = generateGo(url, method, headers, data); break;
+        case 'ruby': code = generateRuby(url, method, headers, data); break;
       }
 
       setOutput(code);
@@ -194,7 +236,7 @@ export function CURLConverter({ initialData, onStateChange }: { initialData?: an
 
   const handleDownload = () => {
     if (!output) return;
-    const extensions: Record<OutputLanguage, string> = { fetch: 'js', axios: 'js', python: 'py', php: 'php' };
+    const extensions: Record<OutputLanguage, string> = { fetch: 'js', axios: 'js', python: 'py', php: 'php', go: 'go', ruby: 'rb' };
     const blob = new Blob([output], { type: 'text/plain' });
     const url = URL.createObjectURL(blob);
     const link = document.createElement('a');
@@ -208,7 +250,7 @@ export function CURLConverter({ initialData, onStateChange }: { initialData?: an
     <div className="max-w-6xl mx-auto space-y-8">
       <div className="flex flex-wrap gap-4 justify-between items-center bg-slate-50 dark:bg-slate-900/50 p-6 rounded-[2rem] border border-slate-200 dark:border-slate-800">
         <div className="flex flex-wrap gap-2">
-          {(['fetch', 'axios', 'python', 'php'] as OutputLanguage[]).map((lang) => (
+          {(['fetch', 'axios', 'python', 'php', 'go', 'ruby'] as OutputLanguage[]).map((lang) => (
             <button
               key={lang}
               onClick={() => setLanguage(lang)}

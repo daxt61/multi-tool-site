@@ -2,7 +2,7 @@ import { useState, useEffect, useMemo, useCallback } from 'react';
 import { Copy, Check, Trash2, ArrowUpDown, Info, Ruler, Download, Search, X } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 
-type ConversionCategory = 'length' | 'weight' | 'temperature' | 'area' | 'volume' | 'digital' | 'digital_si' | 'pressure' | 'energy' | 'speed' | 'time' | 'power' | 'frequency' | 'consumption' | 'angle' | 'torque' | 'force' | 'datarate' | 'illuminance' | 'luminance' | 'radiation' | 'magnetic' | 'acceleration' | 'density' | 'voltage' | 'current' | 'resistance' | 'capacitance' | 'typography' | 'cooking' | 'radioactivity';
+type ConversionCategory = 'length' | 'weight' | 'temperature' | 'area' | 'volume' | 'digital' | 'digital_si' | 'pressure' | 'energy' | 'speed' | 'time' | 'power' | 'frequency' | 'consumption' | 'angle' | 'torque' | 'force' | 'datarate' | 'illuminance' | 'luminance' | 'radiation' | 'magnetic' | 'acceleration' | 'density' | 'voltage' | 'current' | 'resistance' | 'capacitance' | 'typography' | 'cooking' | 'radioactivity' | 'charge' | 'magnetic_flux';
 
 interface ConversionUnit {
   name: string;
@@ -237,11 +237,25 @@ const CONVERSIONS: Record<ConversionCategory, Record<string, ConversionUnit>> = 
     'Bq': { name: 'Becquerel (Bq)', toBase: (v) => v, fromBase: (v) => v },
     'Ci': { name: 'Curie (Ci)', toBase: (v) => v * 3.7e10, fromBase: (v) => v / 3.7e10 },
     'Rd': { name: 'Rutherford (Rd)', toBase: (v) => v * 1e6, fromBase: (v) => v / 1e6 }
+  },
+  charge: {
+    'C': { name: 'Coulomb (C)', toBase: (v) => v, fromBase: (v) => v },
+    'mC': { name: 'Millicoulomb (mC)', toBase: (v) => v / 1000, fromBase: (v) => v * 1000 },
+    'uC': { name: 'Microcoulomb (µC)', toBase: (v) => v / 1000000, fromBase: (v) => v * 1000000 },
+    'nC': { name: 'Nanocoulomb (nC)', toBase: (v) => v / 1000000000, fromBase: (v) => v * 1000000000 },
+    'Ah': { name: 'Ampere-heure (Ah)', toBase: (v) => v * 3600, fromBase: (v) => v / 3600 },
+    'mAh': { name: 'Milliampere-heure (mAh)', toBase: (v) => v * 3.6, fromBase: (v) => v / 3.6 }
+  },
+  magnetic_flux: {
+    'Wb': { name: 'Weber (Wb)', toBase: (v) => v, fromBase: (v) => v },
+    'mWb': { name: 'Milliweber (mWb)', toBase: (v) => v / 1000, fromBase: (v) => v * 1000 },
+    'uWb': { name: 'Microweber (µWb)', toBase: (v) => v / 1000000, fromBase: (v) => v * 1000000 },
+    'Mx': { name: 'Maxwell (Mx)', toBase: (v) => v / 100000000, fromBase: (v) => v * 100000000 }
   }
 };
 
 const CATEGORIES_IDS: ConversionCategory[] = [
-  'length', 'weight', 'temperature', 'area', 'volume', 'digital', 'digital_si', 'speed', 'time', 'pressure', 'energy', 'power', 'frequency', 'consumption', 'angle', 'torque', 'force', 'datarate', 'illuminance', 'luminance', 'radiation', 'magnetic', 'acceleration', 'density', 'voltage', 'current', 'resistance', 'capacitance', 'typography', 'cooking', 'radioactivity'
+  'length', 'weight', 'temperature', 'area', 'volume', 'digital', 'digital_si', 'speed', 'time', 'pressure', 'energy', 'power', 'frequency', 'consumption', 'angle', 'torque', 'force', 'datarate', 'illuminance', 'luminance', 'radiation', 'magnetic', 'acceleration', 'density', 'voltage', 'current', 'resistance', 'capacitance', 'typography', 'cooking', 'radioactivity', 'charge', 'magnetic_flux'
 ];
 
 const convert = (value: string, from: string, to: string, cat: ConversionCategory) => {

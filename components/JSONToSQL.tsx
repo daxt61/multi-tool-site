@@ -4,7 +4,7 @@ import { useTranslation } from 'react-i18next';
 
 const MAX_LENGTH = 100000;
 
-type Dialect = 'standard' | 'mysql';
+type Dialect = 'standard' | 'mysql' | 'sqlserver' | 'oracle';
 
 export function JSONToSQL({ initialData, onStateChange }: { initialData?: any; onStateChange?: (state: any) => void }) {
   const { t } = useTranslation();
@@ -22,8 +22,14 @@ export function JSONToSQL({ initialData, onStateChange }: { initialData?: any; o
   }, [input, tableName, output, includeCreate, batchInsert, dialect]);
 
   const escapeIdentifier = (id: string, dialect: Dialect) => {
-    const escaped = id.replace(dialect === 'mysql' ? /`/g : /"/g, dialect === 'mysql' ? '``' : '""');
-    return dialect === 'mysql' ? `\`${escaped}\`` : `"${escaped}"`;
+    if (dialect === 'mysql') {
+      return `\`${id.replace(/`/g, '``')}\``;
+    } else if (dialect === 'sqlserver') {
+      return `[${id.replace(/\]/g, ']]')}]`;
+    } else if (dialect === 'oracle') {
+      return `"${id.replace(/"/g, '""').toUpperCase()}"`;
+    }
+    return `"${id.replace(/"/g, '""')}"`;
   };
 
   const inferType = (val: any) => {
@@ -186,6 +192,8 @@ export function JSONToSQL({ initialData, onStateChange }: { initialData?: any; o
               >
                 <option value="standard">{t('jsontosql.dialect_standard')}</option>
                 <option value="mysql">{t('jsontosql.dialect_mysql')}</option>
+                <option value="sqlserver">MS SQL Server</option>
+                <option value="oracle">Oracle</option>
               </select>
             </div>
           </div>

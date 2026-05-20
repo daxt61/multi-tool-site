@@ -21,3 +21,7 @@
 ## 2025-06-20 - [ARIA Live Regions & Localized Keyboard Hints]
 **Learning:** Interactive results that change based on user input (e.g., contrast ratios) require `aria-live="polite"` to be announced by screen readers. Furthermore, keyboard shortcuts (like 'S' for swapping colors) are hidden features unless explicitly documented in localized ARIA labels and titles.
 **Action:** Always wrap dynamic calculation results in an ARIA live region (`aria-live="polite"`, `aria-atomic="true"`) and ensure that interactive elements with keyboard shortcuts include the shortcut key (e.g., `(S)`) in their localized labels.
+
+## 2025-06-25 - [Dynamic Feedback & Contextual ARIA Results]
+**Learning:** In tools like the BMI Calculator, providing visual highlighting in reference grids (like WHO classifications) based on user input significantly reduces cognitive load. Furthermore, consolidating the numerical result and its textual label (e.g., "Normal") into a single ARIA live region ensures screen reader users receive the full context of their status in one announcement.
+**Action:** Use dynamic state-based highlighting for classification grids. Always wrap complex multi-part results in a single container with `aria-live="polite"` and `aria-atomic="true"`.

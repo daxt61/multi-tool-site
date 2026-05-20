@@ -1,8 +1,9 @@
-import { useState, useMemo, useEffect } from 'react';
+import { useState, useMemo, useEffect, useRef } from 'react';
 import { Activity, Info, Copy, Check, Trash2, HelpCircle, BookOpen, ChevronRight, Scale, Download } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 
 export function BMICalculator({ initialData, onStateChange }: { initialData?: any; onStateChange?: (state: any) => void }) {
+  const weightRef = useRef<HTMLInputElement>(null);
   const { t } = useTranslation();
   const [weight, setWeight] = useState(initialData?.weight || '70');
   const [height, setHeight] = useState(initialData?.height || '170');
@@ -66,11 +67,11 @@ export function BMICalculator({ initialData, onStateChange }: { initialData?: an
   }, [weight, height, unit]);
 
   const getCategory = () => {
-    if (bmi === 0) return { label: t('common.na'), color: 'bg-slate-200', text: 'text-slate-500' };
-    if (bmi < 18.5) return { label: t('bmi.underweight'), color: 'bg-blue-500', text: 'text-blue-500' };
-    if (bmi < 25) return { label: t('bmi.normal'), color: 'bg-emerald-500', text: 'text-emerald-500' };
-    if (bmi < 30) return { label: t('bmi.overweight'), color: 'bg-amber-500', text: 'text-amber-500' };
-    return { label: t('bmi.obesity'), color: 'bg-rose-500', text: 'text-rose-500' };
+    if (bmi === 0) return { id: 'na', label: t('common.na'), color: 'bg-slate-200', text: 'text-slate-500', glow: 'bg-indigo-500/10' };
+    if (bmi < 18.5) return { id: 'underweight', label: t('bmi.underweight'), color: 'bg-blue-500', text: 'text-blue-500', glow: 'bg-blue-500/20' };
+    if (bmi < 25) return { id: 'normal', label: t('bmi.normal'), color: 'bg-emerald-500', text: 'text-emerald-500', glow: 'bg-emerald-500/20' };
+    if (bmi < 30) return { id: 'overweight', label: t('bmi.overweight'), color: 'bg-amber-500', text: 'text-amber-500', glow: 'bg-amber-500/20' };
+    return { id: 'obesity', label: t('bmi.obesity'), color: 'bg-rose-500', text: 'text-rose-500', glow: 'bg-rose-500/20' };
   };
 
   const category = getCategory();
@@ -132,6 +133,7 @@ ${idealWeightRange ? `- ${t('bmi.ideal_weight')} : ${idealWeightRange.low.toFixe
   const handleClear = () => {
     setWeight('');
     setHeight('');
+    weightRef.current?.focus();
   };
 
   return (
@@ -196,6 +198,7 @@ ${idealWeightRange ? `- ${t('bmi.ideal_weight')} : ${idealWeightRange.low.toFixe
               <label htmlFor="weight" className="text-xs font-black uppercase tracking-widest text-slate-400 px-1 cursor-pointer">{t('bmi.weight')} ({unit === 'metric' ? 'kg' : 'lb'})</label>
               <input
                 id="weight"
+                ref={weightRef}
                 type="number"
                 value={weight}
                 onChange={(e) => setWeight(e.target.value)}
@@ -242,7 +245,7 @@ ${idealWeightRange ? `- ${t('bmi.ideal_weight')} : ${idealWeightRange.low.toFixe
 
         <div className="flex flex-col gap-6">
           <div className="flex-grow bg-slate-900 dark:bg-black p-10 rounded-[2.5rem] text-center flex flex-col items-center justify-center space-y-4 shadow-xl shadow-indigo-500/10 relative group overflow-hidden">
-             <div className="absolute top-0 right-0 w-32 h-32 bg-indigo-500/10 rounded-full -mr-16 -mt-16 blur-3xl"></div>
+             <div className={`absolute top-0 right-0 w-32 h-32 ${category.glow} rounded-full -mr-16 -mt-16 blur-3xl transition-colors duration-500`}></div>
 
             <button
               onClick={handleCopy}
@@ -257,12 +260,14 @@ ${idealWeightRange ? `- ${t('bmi.ideal_weight')} : ${idealWeightRange.low.toFixe
             >
               {copied ? <Check className="w-5 h-5" /> : <Copy className="w-5 h-5" />}
             </button>
-            <div className="text-slate-400 font-bold uppercase tracking-widest text-xs">{t('bmi.your_bmi')}</div>
-            <div className="text-6xl md:text-8xl font-black text-white font-mono tracking-tighter" aria-live="polite" aria-atomic="true">
-              {bmi > 0 ? bmi.toFixed(1) : '0.0'}
-            </div>
-            <div className={`px-6 py-2 rounded-full font-black text-sm uppercase tracking-widest ${category.color} text-white shadow-lg`}>
-              {category.label}
+            <div className="space-y-4 relative z-10" aria-live="polite" aria-atomic="true">
+              <div className="text-slate-400 font-bold uppercase tracking-widest text-xs">{t('bmi.your_bmi')}</div>
+              <div className="text-6xl md:text-8xl font-black text-white font-mono tracking-tighter">
+                {bmi > 0 ? bmi.toFixed(1) : '0.0'}
+              </div>
+              <div className={`px-6 py-2 rounded-full font-black text-sm uppercase tracking-widest ${category.color} text-white shadow-lg inline-block`}>
+                {category.label}
+              </div>
             </div>
           </div>
 
@@ -283,17 +288,24 @@ ${idealWeightRange ? `- ${t('bmi.ideal_weight')} : ${idealWeightRange.low.toFixe
         </h3>
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
           {[
-            { label: t('bmi.underweight'), range: '< 18.5', color: 'bg-blue-500' },
-            { label: t('bmi.normal'), range: '18.5 - 25', color: 'bg-emerald-500' },
-            { label: t('bmi.overweight'), range: '25 - 30', color: 'bg-amber-500' },
-            { label: t('bmi.obesity'), range: '> 30', color: 'bg-rose-500' },
+            { id: 'underweight', label: t('bmi.underweight'), range: '< 18.5', color: 'bg-blue-500' },
+            { id: 'normal', label: t('bmi.normal'), range: '18.5 - 25', color: 'bg-emerald-500' },
+            { id: 'overweight', label: t('bmi.overweight'), range: '25 - 30', color: 'bg-amber-500' },
+            { id: 'obesity', label: t('bmi.obesity'), range: '> 30', color: 'bg-rose-500' },
           ].map((item) => (
-            <div key={item.label} className="p-4 bg-white dark:bg-slate-900 border border-slate-100 dark:border-slate-800 rounded-2xl flex items-center justify-between shadow-sm">
+            <div
+              key={item.id}
+              className={`p-4 rounded-2xl flex items-center justify-between transition-all duration-500 border ${
+                category.id === item.id
+                  ? `bg-white dark:bg-slate-800 border-indigo-500 shadow-lg shadow-indigo-500/10 scale-[1.02] ring-2 ring-indigo-500/20`
+                  : 'bg-white dark:bg-slate-900 border-slate-100 dark:border-slate-800 opacity-60'
+              }`}
+            >
               <div>
-                <div className="text-[10px] font-black text-slate-400 uppercase mb-1 tracking-wider">{item.label}</div>
+                <div className={`text-[10px] font-black uppercase mb-1 tracking-wider ${category.id === item.id ? 'text-indigo-500' : 'text-slate-400'}`}>{item.label}</div>
                 <div className="font-mono font-black text-slate-900 dark:text-white">{item.range}</div>
               </div>
-              <div className={`w-3 h-3 rounded-full ${item.color}`}></div>
+              <div className={`w-3 h-3 rounded-full ${item.color} ${category.id === item.id ? 'animate-pulse' : ''}`}></div>
             </div>
           ))}
         </div>

@@ -78,6 +78,7 @@ import {
   Music,
   Star,
   Check,
+  Plus,
   Table,
   Eye,
   Braces,
@@ -278,6 +279,9 @@ const JSONToAsciiTable = lazy(() => import("./components/JSONToAsciiTable").then
 const UnicodeInspector = lazy(() => import("./components/UnicodeInspector").then(m => ({ default: m.UnicodeInspector })));
 const TextRepeater = lazy(() => import("./components/TextRepeater").then(m => ({ default: m.TextRepeater })));
 const PascalsTriangle = lazy(() => import("./components/PascalsTriangle").then(m => ({ default: m.PascalsTriangle })));
+const TextSplitter = lazy(() => import("./components/TextSplitter").then(m => ({ default: m.TextSplitter })));
+const StringJoiner = lazy(() => import("./components/StringJoiner").then(m => ({ default: m.StringJoiner })));
+const JSONAnalyzer = lazy(() => import("./components/JSONAnalyzer").then(m => ({ default: m.JSONAnalyzer })));
 
 // ⚡ Bolt Optimization: Pre-calculating tool map and search index for O(1) lookups and faster filtering
 const toolsMap: Record<string, Tool> = {};
@@ -2017,6 +2021,39 @@ const tools: Tool[] = [
     Component: PascalsTriangle,
     category: "calculators",
     keywords: ["math", "triangle", "pascal", "binomial", "coefficient", "combinatorics"],
+  },
+  {
+    id: "text-splitter",
+    name: "Découpeur de texte",
+    nameEn: "Text Splitter",
+    icon: Scissors,
+    description: "Diviser un texte par caractères, lignes ou délimiteur",
+    descriptionEn: "Split text by characters, lines or delimiter",
+    Component: TextSplitter,
+    category: "text",
+    keywords: ["split", "divide", "chunks", "text", "découper"],
+  },
+  {
+    id: "string-joiner",
+    name: "Joindre du texte",
+    nameEn: "String Joiner",
+    icon: Plus,
+    description: "Joindre des lignes de texte avec un séparateur personnalisé",
+    descriptionEn: "Join text lines with a custom separator",
+    Component: StringJoiner,
+    category: "text",
+    keywords: ["join", "concatenate", "lines", "separator", "joindre"],
+  },
+  {
+    id: "json-analyzer",
+    name: "Analyseur JSON",
+    nameEn: "JSON Analyzer",
+    icon: FileSearch,
+    description: "Analyse structurelle et statistiques de données JSON",
+    descriptionEn: "Structural analysis and statistics for JSON data",
+    Component: JSONAnalyzer,
+    category: "dev",
+    keywords: ["json", "analyze", "stats", "structure", "depth", "keys"],
   },
 ];
 

@@ -1,7 +1,9 @@
 import { useState, useMemo, useEffect } from 'react';
-import { Copy, Check, RefreshCw, Palette, Layers, Grid, Info, Download } from 'lucide-react';
+import { Copy, Check, RefreshCw, Palette, Layers, Download } from 'lucide-react';
+import { useTranslation } from 'react-i18next';
 
 export function ColorPaletteGenerator({ initialData, onStateChange }: { initialData?: any; onStateChange?: (state: any) => void }) {
+  const { t } = useTranslation();
   const [baseColor, setBaseColor] = useState(initialData?.baseColor || '#6366f1');
   const [copied, setCopied] = useState<string | null>(null);
 
@@ -56,22 +58,22 @@ export function ColorPaletteGenerator({ initialData, onStateChange }: { initialD
 
     return [
       {
-        name: 'Complémentaire',
+        name: t('palette.comp'),
         colors: generatePalette([0, 180]),
-        desc: 'Couleurs opposées sur le cercle chromatique.'
+        desc: t('palette.comp_desc')
       },
       {
-        name: 'Analogue',
+        name: t('palette.analogue'),
         colors: generatePalette([-30, 0, 30]),
-        desc: 'Couleurs adjacentes pour une harmonie douce.'
+        desc: t('palette.analogue_desc')
       },
       {
-        name: 'Triadique',
+        name: t('palette.triadic'),
         colors: generatePalette([0, 120, 240]),
-        desc: 'Trois couleurs équidistantes pour un contraste vibrant.'
+        desc: t('palette.triadic_desc')
       },
       {
-        name: 'Monochromatique',
+        name: t('palette.mono'),
         colors: [
           hslToHex(h, s, Math.max(l - 30, 10)),
           hslToHex(h, s, Math.max(l - 15, 20)),
@@ -79,15 +81,15 @@ export function ColorPaletteGenerator({ initialData, onStateChange }: { initialD
           hslToHex(h, s, Math.min(l + 15, 85)),
           hslToHex(h, s, Math.min(l + 30, 95)),
         ],
-        desc: 'Variations de luminosité d\'une seule teinte.'
+        desc: t('palette.mono_desc')
       },
       {
-        name: 'Tétradique',
+        name: t('palette.tetra'),
         colors: generatePalette([0, 90, 180, 270]),
-        desc: 'Quatre couleurs formant un rectangle, offrant une grande variété.'
+        desc: t('palette.tetra_desc')
       }
     ];
-  }, [baseColor]);
+  }, [baseColor, t]);
 
   const copyToClipboard = (hex: string) => {
     navigator.clipboard.writeText(hex);
@@ -96,7 +98,7 @@ export function ColorPaletteGenerator({ initialData, onStateChange }: { initialD
   };
 
   const handleDownload = () => {
-    let content = `Palette de couleurs basée sur ${baseColor.toUpperCase()}\n\n`;
+    let content = `Palette: ${baseColor.toUpperCase()}\n\n`;
     palettes.forEach(p => {
       content += `${p.name}:\n`;
       content += p.colors.map(c => c.toUpperCase()).join(', ') + '\n\n';
@@ -132,7 +134,7 @@ export function ColorPaletteGenerator({ initialData, onStateChange }: { initialD
       <div className="bg-slate-50 dark:bg-slate-900/50 p-8 rounded-[2.5rem] border border-slate-200 dark:border-slate-800 flex flex-col md:flex-row items-center justify-between gap-8">
         <div className="flex items-center gap-6">
           <div className="space-y-2">
-            <label htmlFor="baseColor" className="text-xs font-black uppercase tracking-widest text-slate-400 px-1">Couleur de base</label>
+            <label htmlFor="baseColor" className="text-xs font-black uppercase tracking-widest text-slate-400 px-1">{t('palette.base_color')}</label>
             <div className="flex items-center gap-3">
               <input
                 id="baseColor"
@@ -159,13 +161,13 @@ export function ColorPaletteGenerator({ initialData, onStateChange }: { initialD
             onClick={handleDownload}
             className="px-6 py-4 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-600 dark:text-slate-300 rounded-2xl font-bold transition-all hover:bg-slate-50 dark:hover:bg-slate-700 flex items-center gap-2"
           >
-            <Download className="w-5 h-5" /> Télécharger
+            <Download className="w-5 h-5" /> {t('common.download')}
           </button>
           <button
             onClick={generateRandom}
             className="px-8 py-4 bg-indigo-600 text-white rounded-2xl font-black text-lg shadow-xl shadow-indigo-600/20 hover:bg-indigo-700 transition-all active:scale-95 flex items-center gap-2"
           >
-            <RefreshCw className="w-5 h-5" /> Générer aléatoirement
+            <RefreshCw className="w-5 h-5" /> {t('palette.random')}
           </button>
         </div>
       </div>
@@ -219,9 +221,9 @@ export function ColorPaletteGenerator({ initialData, onStateChange }: { initialD
             <Layers className="w-6 h-6" />
          </div>
          <div className="space-y-2">
-            <h4 className="font-bold dark:text-white">Comment utiliser les palettes de couleurs ?</h4>
+            <h4 className="font-bold dark:text-white">{t('palette.about_title')}</h4>
             <p className="text-sm text-slate-500 dark:text-slate-400 leading-relaxed">
-              Choisissez une couleur de base et explorez les différentes harmonies générées automatiquement. La théorie des couleurs aide à créer des designs équilibrés et agréables à l'œil. Cliquez sur n'importe quelle couleur pour copier son code HEX dans votre presse-papiers.
+              {t('palette.about_text')}
             </p>
          </div>
       </div>

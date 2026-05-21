@@ -286,6 +286,7 @@ const JSONAnalyzer = lazy(() => import("./components/JSONAnalyzer").then(m => ({
 const WorldClock = lazy(() => import("./components/WorldClock").then(m => ({ default: m.WorldClock })));
 const Stopwatch = lazy(() => import("./components/Stopwatch").then(m => ({ default: m.Stopwatch })));
 const UnicodeTable = lazy(() => import("./components/UnicodeTable").then(m => ({ default: m.UnicodeTable })));
+const ASCIIArtGenerator = lazy(() => import("./components/ASCIIArtGenerator").then(m => ({ default: m.ASCIIArtGenerator })));
 
 // ⚡ Bolt Optimization: Pre-calculating tool map and search index for O(1) lookups and faster filtering
 const toolsMap: Record<string, Tool> = {};
@@ -2091,6 +2092,17 @@ const tools: Tool[] = [
     Component: UnicodeTable,
     category: "text",
     keywords: ["unicode", "emoji", "characters", "symbols", "table"],
+  },
+  {
+    id: "ascii-art",
+    name: "Art ASCII",
+    nameEn: "ASCII Art",
+    icon: Type,
+    description: "Générer des bannières de texte en ASCII",
+    descriptionEn: "Generate ASCII text banners",
+    Component: ASCIIArtGenerator,
+    category: "text",
+    keywords: ["ascii", "art", "banner", "text", "style"],
   },
 ];
 

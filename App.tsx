@@ -39,7 +39,7 @@ import {
   Calendar,
   FileCode,
   Link as LinkIcon,
-  Image as ImageIcon,
+  Image,
   Globe,
   CaseSensitive,
   Columns,
@@ -286,6 +286,10 @@ const JSONAnalyzer = lazy(() => import("./components/JSONAnalyzer").then(m => ({
 const WorldClock = lazy(() => import("./components/WorldClock").then(m => ({ default: m.WorldClock })));
 const Stopwatch = lazy(() => import("./components/Stopwatch").then(m => ({ default: m.Stopwatch })));
 const UnicodeTable = lazy(() => import("./components/UnicodeTable").then(m => ({ default: m.UnicodeTable })));
+const ImageEffects = lazy(() => import("./components/ImageEffects").then(m => ({ default: m.ImageEffects })));
+const SequenceGenerator = lazy(() => import("./components/SequenceGenerator").then(m => ({ default: m.SequenceGenerator })));
+const CSVMapper = lazy(() => import("./components/CSVMapper").then(m => ({ default: m.CSVMapper })));
+const ASCIIArtGenerator = lazy(() => import("./components/ASCIIArtGenerator").then(m => ({ default: m.ASCIIArtGenerator })));
 
 // ⚡ Bolt Optimization: Pre-calculating tool map and search index for O(1) lookups and faster filtering
 const toolsMap: Record<string, Tool> = {};
@@ -2091,6 +2095,50 @@ const tools: Tool[] = [
     Component: UnicodeTable,
     category: "text",
     keywords: ["unicode", "emoji", "characters", "symbols", "table"],
+  },
+  {
+    id: "image-effects",
+    name: "Effets Image",
+    nameEn: "Image Effects",
+    icon: Image,
+    description: "Pixelisation, flou et filtres noir & blanc",
+    descriptionEn: "Pixelation, blur and grayscale filters",
+    Component: ImageEffects,
+    category: "other",
+    keywords: ["image", "pixelate", "blur", "filter", "privacy", "pixelisation"],
+  },
+  {
+    id: "sequence-generator",
+    name: "Suites Numériques",
+    nameEn: "Number Sequences",
+    icon: Hash,
+    description: "Générer des suites arithmétiques, géométriques et Fibonacci",
+    descriptionEn: "Generate arithmetic, geometric and Fibonacci sequences",
+    Component: SequenceGenerator,
+    category: "calculators",
+    keywords: ["math", "sequence", "arithmetic", "geometric", "fibonacci", "series"],
+  },
+  {
+    id: "csv-mapper",
+    name: "Délimiteur CSV",
+    nameEn: "CSV Delimiter",
+    icon: Columns,
+    description: "Changer le délimiteur d'un fichier CSV (virgule, point-virgule, etc.)",
+    descriptionEn: "Change CSV file delimiter (comma, semicolon, etc.)",
+    Component: CSVMapper,
+    category: "dev",
+    keywords: ["csv", "delimiter", "mapping", "format", "spreadsheet"],
+  },
+  {
+    id: "ascii-art",
+    name: "Art ASCII",
+    nameEn: "ASCII Art",
+    icon: Type,
+    description: "Convertir du texte en bannières ASCII décoratives",
+    descriptionEn: "Convert text to decorative ASCII banners",
+    Component: ASCIIArtGenerator,
+    category: "text",
+    keywords: ["ascii", "art", "banner", "banner generator", "text", "style"],
   },
 ];
 

@@ -1,5 +1,6 @@
-import { useState, useMemo } from 'react';
-import { GraduationCap, Plus, Trash2, Calculator, Info, Check, Copy, RefreshCcw, TrendingUp } from 'lucide-react';
+import { useState, useMemo, useEffect } from 'react';
+import { GraduationCap, Plus, Trash2, Info, Check, Copy, TrendingUp } from 'lucide-react';
+import { useTranslation } from 'react-i18next';
 
 interface GradeRow {
   id: string;
@@ -14,12 +15,17 @@ const GPA_MAP: Record<string, number> = {
   'D+': 1.3, 'D': 1.0, 'F': 0.0
 };
 
-export function GPAConverter() {
-  const [rows, setRows] = useState<GradeRow[]>([
+export function GPAConverter({ initialData, onStateChange }: { initialData?: any; onStateChange?: (state: any) => void }) {
+  const { t } = useTranslation();
+  const [rows, setRows] = useState<GradeRow[]>(initialData?.rows || [
     { id: '1', letter: 'A', credits: '3' }
   ]);
-  const [scale, setScale] = useState<4 | 5>(4);
+  const [scale, setScale] = useState<4 | 5>(initialData?.scale || 4);
   const [copied, setCopied] = useState(false);
+
+  useEffect(() => {
+    onStateChange?.({ rows, scale });
+  }, [rows, scale, onStateChange]);
 
   const stats = useMemo(() => {
     let totalPoints = 0;
@@ -64,6 +70,10 @@ export function GPAConverter() {
     setTimeout(() => setCopied(false), 2000);
   };
 
+  const handleClear = () => {
+    setRows([{ id: crypto.randomUUID(), letter: 'A', credits: '3' }]);
+  };
+
   return (
     <div className="max-w-5xl mx-auto space-y-12">
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
@@ -72,18 +82,28 @@ export function GPAConverter() {
           <div className="bg-slate-50 dark:bg-slate-900/50 p-8 rounded-[2.5rem] border border-slate-200 dark:border-slate-800 space-y-6">
             <div className="flex justify-between items-center px-1">
               <h3 className="text-xs font-black uppercase tracking-widest text-slate-400 flex items-center gap-2">
-                <GraduationCap className="w-4 h-4 text-indigo-500" /> Vos Résultats
+                <GraduationCap className="w-4 h-4 text-indigo-500" /> {t('gpa.results_title')}
               </h3>
-              <div className="flex bg-slate-200 dark:bg-slate-800 p-1 rounded-xl">
-                {[4, 5].map((s) => (
-                  <button
-                    key={s}
-                    onClick={() => setScale(s as 4 | 5)}
-                    className={`px-3 py-1 rounded-lg text-xs font-bold transition-all ${scale === s ? 'bg-white dark:bg-slate-700 text-indigo-600 shadow-sm' : 'text-slate-500'}`}
-                  >
-                    Scale {s}.0
-                  </button>
-                ))}
+              <div className="flex items-center gap-4">
+                <div className="flex bg-slate-200 dark:bg-slate-800 p-1 rounded-xl">
+                  {[4, 5].map((s) => (
+                    <button
+                      key={s}
+                      onClick={() => setScale(s as 4 | 5)}
+                      aria-pressed={scale === s}
+                      className={`px-3 py-1 rounded-lg text-xs font-bold transition-all ${scale === s ? 'bg-white dark:bg-slate-700 text-indigo-600 shadow-sm' : 'text-slate-500'}`}
+                    >
+                      {t('gpa.scale', { scale: s })}
+                    </button>
+                  ))}
+                </div>
+                <button
+                  onClick={handleClear}
+                  className="text-xs font-bold text-rose-500 bg-rose-50 dark:bg-rose-500/10 hover:bg-rose-100 dark:hover:bg-rose-500/20 px-3 py-1.5 rounded-xl flex items-center gap-1 transition-all focus-visible:ring-2 focus-visible:ring-rose-500 focus-visible:outline-none"
+                  title={t('common.clear')}
+                >
+                  <Trash2 className="w-3 h-3" /> {t('common.clear')}
+                </button>
               </div>
             </div>
 
@@ -102,7 +122,7 @@ export function GPAConverter() {
                       type="number"
                       value={row.credits}
                       onChange={(e) => updateRow(row.id, 'credits', e.target.value)}
-                      placeholder="Credits"
+                      placeholder={t('gpa.credits')}
                       className="w-full p-4 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-2xl font-bold font-mono outline-none focus:border-indigo-500 transition-all dark:text-white"
                     />
                     <span className="absolute right-4 top-1/2 -translate-y-1/2 text-[10px] font-bold text-slate-400 uppercase">Cr.</span>
@@ -121,7 +141,7 @@ export function GPAConverter() {
               onClick={addRow}
               className="w-full py-4 border-2 border-dashed border-slate-200 dark:border-slate-800 rounded-2xl text-slate-400 font-bold hover:border-indigo-500 hover:text-indigo-500 transition-all flex items-center justify-center gap-2"
             >
-              <Plus className="w-5 h-5" /> Ajouter un cours
+              <Plus className="w-5 h-5" /> {t('gpa.add_course')}
             </button>
           </div>
 
@@ -130,14 +150,18 @@ export function GPAConverter() {
               <Info className="w-6 h-6" />
             </div>
             <p className="text-xs text-slate-500 dark:text-slate-400 leading-relaxed font-medium">
-              Le GPA (Grade Point Average) est une moyenne pondérée par les crédits. Chaque lettre correspond à un nombre de points précis. Ce convertisseur supporte les échelles standards de 4.0 et 5.0.
+              {t('gpa.about_text')}
             </p>
           </div>
         </div>
 
         {/* Results Section */}
         <div className="lg:col-span-5 space-y-8">
-          <div className="bg-slate-900 dark:bg-black p-10 rounded-[2.5rem] shadow-xl shadow-indigo-500/10 flex flex-col items-center justify-center space-y-4 min-h-[300px] relative overflow-hidden text-center">
+          <div
+            className="bg-slate-900 dark:bg-black p-10 rounded-[2.5rem] shadow-xl shadow-indigo-500/10 flex flex-col items-center justify-center space-y-4 min-h-[300px] relative overflow-hidden text-center"
+            aria-live="polite"
+            aria-atomic="true"
+          >
             <div className="absolute top-0 right-0 w-32 h-32 bg-indigo-500/10 rounded-full -mr-16 -mt-16 blur-3xl"></div>
 
             <button
@@ -149,7 +173,7 @@ export function GPAConverter() {
               {copied ? <Check className="w-5 h-5" /> : <Copy className="w-5 h-5" />}
             </button>
 
-            <div className="text-slate-400 font-bold uppercase tracking-widest text-xs">Votre GPA Global</div>
+            <div className="text-slate-400 font-bold uppercase tracking-widest text-xs">{t('gpa.global_gpa')}</div>
             <div className="text-7xl md:text-9xl font-black text-white font-mono tracking-tighter">
               {stats.gpa}
             </div>
@@ -161,7 +185,7 @@ export function GPAConverter() {
           <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 p-8 rounded-[2.5rem] space-y-4">
             <div className="flex justify-between items-center">
                <span className="text-sm font-bold text-slate-400 uppercase tracking-wider flex items-center gap-2">
-                  <TrendingUp className="w-4 h-4 text-emerald-500" /> Crédits Totaux
+                  <TrendingUp className="w-4 h-4 text-emerald-500" /> {t('gpa.total_credits')}
                </span>
                <span className="text-2xl font-black font-mono dark:text-white">{stats.totalCredits}</span>
             </div>

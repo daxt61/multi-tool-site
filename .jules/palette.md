@@ -25,3 +25,7 @@
 ## 2025-06-25 - [Dynamic Feedback & Contextual ARIA Results]
 **Learning:** In tools like the BMI Calculator, providing visual highlighting in reference grids (like WHO classifications) based on user input significantly reduces cognitive load. Furthermore, consolidating the numerical result and its textual label (e.g., "Normal") into a single ARIA live region ensures screen reader users receive the full context of their status in one announcement.
 **Action:** Use dynamic state-based highlighting for classification grids. Always wrap complex multi-part results in a single container with `aria-live="polite"` and `aria-atomic="true"`.
+
+## 2026-06-01 - [Interactive Groups & Focus Visibility]
+**Learning:** For utility buttons inside a `group` (like Copy/Download on a result card), using `group-hover:opacity-100` only covers mouse users. `focus-within:opacity-100` on the group container ensures the buttons become and stay visible when any button inside the group receives keyboard focus.
+**Action:** Always use `group-hover:opacity-100 focus-within:opacity-100` for toolbars that should be revealed on interaction.

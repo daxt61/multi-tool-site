@@ -67,6 +67,17 @@ export function HashGenerator({ initialData, onStateChange }: { initialData?: an
     setError(null);
   };
 
+  const handleCopyAll = () => {
+    const text = Object.entries(hashes)
+      .filter(([_, value]) => !!value)
+      .map(([algo, value]) => `${algo}: ${value}`)
+      .join('\n');
+    if (!text) return;
+    navigator.clipboard.writeText(text);
+    setCopied('all');
+    setTimeout(() => setCopied(null), 2000);
+  };
+
   return (
     <div className="max-w-4xl mx-auto space-y-8">
       {error && (
@@ -81,14 +92,27 @@ export function HashGenerator({ initialData, onStateChange }: { initialData?: an
           <label htmlFor="hash-input" className="block text-xs font-black uppercase tracking-widest text-slate-400 cursor-pointer">
             {t('hashgenerator.input_label')}
           </label>
-          <button
-            onClick={handleClear}
-            disabled={!inputText}
-            aria-label={t('common.clear')}
-            className="text-xs font-bold px-3 py-1 rounded-full text-rose-500 bg-rose-50 dark:bg-rose-500/10 hover:bg-rose-100 dark:hover:bg-rose-500/20 border border-transparent transition-all flex items-center gap-1 disabled:opacity-50 disabled:cursor-not-allowed focus-visible:ring-2 focus-visible:ring-rose-500 focus-visible:outline-none"
-          >
-            <Trash2 className="w-3 h-3" /> {t('common.clear')}
-          </button>
+          <div className="flex gap-2">
+            <button
+              onClick={handleCopyAll}
+              disabled={!Object.values(hashes).some(h => !!h)}
+              className={`text-xs font-bold px-3 py-1 rounded-full transition-all flex items-center gap-1 border focus-visible:ring-2 focus-visible:ring-indigo-500 focus-visible:outline-none ${
+                copied === 'all'
+                  ? 'bg-emerald-50 dark:bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border-emerald-200 dark:border-emerald-500/20'
+                  : 'text-indigo-500 bg-indigo-50 dark:bg-indigo-500/10 border-transparent hover:bg-indigo-100 dark:hover:bg-indigo-500/20 disabled:opacity-50 disabled:cursor-not-allowed'
+              }`}
+            >
+              {copied === 'all' ? <Check className="w-3 h-3" /> : <Copy className="w-3 h-3" />} {copied === 'all' ? t('common.copied') : t('hashgenerator.copy_all')}
+            </button>
+            <button
+              onClick={handleClear}
+              disabled={!inputText}
+              aria-label={t('common.clear')}
+              className="text-xs font-bold px-3 py-1 rounded-full text-rose-500 bg-rose-50 dark:bg-rose-500/10 hover:bg-rose-100 dark:hover:bg-rose-500/20 border border-transparent transition-all flex items-center gap-1 disabled:opacity-50 disabled:cursor-not-allowed focus-visible:ring-2 focus-visible:ring-rose-500 focus-visible:outline-none"
+            >
+              <Trash2 className="w-3 h-3" /> {t('common.clear')}
+            </button>
+          </div>
         </div>
         <textarea
           id="hash-input"

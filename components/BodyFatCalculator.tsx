@@ -1,9 +1,11 @@
 import { useState, useMemo, useEffect } from 'react';
-import { User, Ruler, Info, Check, Trash2, Heart, Activity, RotateCcw, Scale } from 'lucide-react';
+import { Info, Check, Trash2, Activity, RotateCcw, Scale } from 'lucide-react';
+import { useTranslation } from 'react-i18next';
 
 type Gender = 'male' | 'female';
 
 export function BodyFatCalculator({ initialData, onStateChange }: { initialData?: any; onStateChange?: (state: any) => void }) {
+  const { t } = useTranslation();
   const [gender, setGender] = useState<Gender>(initialData?.gender || 'male');
   const [weight, setWeight] = useState<string>(initialData?.weight || '75');
   const [height, setHeight] = useState<string>(initialData?.height || '180');
@@ -61,17 +63,17 @@ export function BodyFatCalculator({ initialData, onStateChange }: { initialData?
 
   const getCategory = (bf: number) => {
     if (gender === 'male') {
-      if (bf < 6) return { label: 'Essentiel', color: 'text-blue-500', bg: 'bg-blue-500' };
-      if (bf < 14) return { label: 'Athlète', color: 'text-emerald-500', bg: 'bg-emerald-500' };
-      if (bf < 18) return { label: 'Fitness', color: 'text-emerald-400', bg: 'bg-emerald-400' };
-      if (bf < 25) return { label: 'Moyen', color: 'text-amber-500', bg: 'bg-amber-500' };
-      return { label: 'Obèse', color: 'text-rose-500', bg: 'bg-rose-500' };
+      if (bf < 6) return { label: t('bodyfat.cat.essential'), color: 'text-blue-500', bg: 'bg-blue-500' };
+      if (bf < 14) return { label: t('bodyfat.cat.athlete'), color: 'text-emerald-500', bg: 'bg-emerald-500' };
+      if (bf < 18) return { label: t('bodyfat.cat.fitness'), color: 'text-emerald-400', bg: 'bg-emerald-400' };
+      if (bf < 25) return { label: t('bodyfat.cat.average'), color: 'text-amber-500', bg: 'bg-amber-500' };
+      return { label: t('bodyfat.cat.obese'), color: 'text-rose-500', bg: 'bg-rose-500' };
     } else {
-      if (bf < 14) return { label: 'Essentiel', color: 'text-blue-500', bg: 'bg-blue-500' };
-      if (bf < 21) return { label: 'Athlète', color: 'text-emerald-500', bg: 'bg-emerald-500' };
-      if (bf < 25) return { label: 'Fitness', color: 'text-emerald-400', bg: 'bg-emerald-400' };
-      if (bf < 32) return { label: 'Moyen', color: 'text-amber-500', bg: 'bg-amber-500' };
-      return { label: 'Obèse', color: 'text-rose-500', bg: 'bg-rose-500' };
+      if (bf < 14) return { label: t('bodyfat.cat.essential'), color: 'text-blue-500', bg: 'bg-blue-500' };
+      if (bf < 21) return { label: t('bodyfat.cat.athlete'), color: 'text-emerald-500', bg: 'bg-emerald-500' };
+      if (bf < 25) return { label: t('bodyfat.cat.fitness'), color: 'text-emerald-400', bg: 'bg-emerald-400' };
+      if (bf < 32) return { label: t('bodyfat.cat.average'), color: 'text-amber-500', bg: 'bg-amber-500' };
+      return { label: t('bodyfat.cat.obese'), color: 'text-rose-500', bg: 'bg-rose-500' };
     }
   };
 
@@ -117,20 +119,20 @@ export function BodyFatCalculator({ initialData, onStateChange }: { initialData?
                   onClick={() => handleUnitChange('metric')}
                   className={`flex-1 py-1.5 rounded-lg text-xs font-bold transition-all ${unit === 'metric' ? 'bg-white dark:bg-slate-700 text-indigo-600 shadow-sm' : 'text-slate-500'}`}
                 >
-                  Métrique
+                  {t('bodyfat.metric')}
                 </button>
                 <button
                   onClick={() => handleUnitChange('imperial')}
                   className={`flex-1 py-1.5 rounded-lg text-xs font-bold transition-all ${unit === 'imperial' ? 'bg-white dark:bg-slate-700 text-indigo-600 shadow-sm' : 'text-slate-500'}`}
                 >
-                  Impérial
+                  {t('bodyfat.imperial')}
                 </button>
               </div>
               <button
                 onClick={handleReset}
                 className="text-xs font-bold text-rose-500 bg-rose-50 dark:bg-rose-500/10 hover:bg-rose-100 dark:hover:bg-rose-500/20 px-3 py-1.5 rounded-xl flex items-center gap-1 transition-all"
               >
-                <RotateCcw className="w-3 h-3" /> Réinitialiser
+                <Trash2 className="w-3 h-3" /> {t('common.reset')}
               </button>
             </div>
 
@@ -138,38 +140,40 @@ export function BodyFatCalculator({ initialData, onStateChange }: { initialData?
               <div className="grid grid-cols-2 gap-3">
                 <button
                   onClick={() => setGender('male')}
+                  aria-pressed={gender === 'male'}
                   className={`py-4 rounded-2xl font-bold text-sm transition-all border ${gender === 'male' ? 'bg-indigo-600 text-white border-indigo-600 shadow-lg' : 'bg-white dark:bg-slate-800 text-slate-500 border-slate-200 dark:border-slate-700'}`}
                 >
-                  Homme
+                  {t('bodyfat.male')}
                 </button>
                 <button
                   onClick={() => setGender('female')}
+                  aria-pressed={gender === 'female'}
                   className={`py-4 rounded-2xl font-bold text-sm transition-all border ${gender === 'female' ? 'bg-indigo-600 text-white border-indigo-600 shadow-lg' : 'bg-white dark:bg-slate-800 text-slate-500 border-slate-200 dark:border-slate-700'}`}
                 >
-                  Femme
+                  {t('bodyfat.female')}
                 </button>
               </div>
 
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div className="space-y-2">
-                  <label htmlFor="height" className="text-xs font-bold text-slate-500 px-1">Taille ({unit === 'metric' ? 'cm' : 'in'})</label>
+                  <label htmlFor="height" className="text-xs font-bold text-slate-500 px-1">{t('bodyfat.height')} ({unit === 'metric' ? 'cm' : 'in'})</label>
                   <input id="height" type="number" value={height} onChange={(e) => setHeight(e.target.value)} className="w-full p-4 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-2xl text-xl font-black font-mono focus:border-indigo-500 outline-none transition-all dark:text-white" placeholder={unit === 'metric' ? '180' : '71'} />
                 </div>
                 <div className="space-y-2">
-                  <label htmlFor="weight" className="text-xs font-bold text-slate-500 px-1">Poids ({unit === 'metric' ? 'kg' : 'lb'})</label>
+                  <label htmlFor="weight" className="text-xs font-bold text-slate-500 px-1">{t('bodyfat.weight')} ({unit === 'metric' ? 'kg' : 'lb'})</label>
                   <input id="weight" type="number" value={weight} onChange={(e) => setWeight(e.target.value)} className="w-full p-4 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-2xl text-xl font-black font-mono focus:border-indigo-500 outline-none transition-all dark:text-white" placeholder={unit === 'metric' ? '75' : '165'} />
                 </div>
                 <div className="space-y-2">
-                  <label htmlFor="neck" className="text-xs font-bold text-slate-500 px-1">Tour de cou ({unit === 'metric' ? 'cm' : 'in'})</label>
+                  <label htmlFor="neck" className="text-xs font-bold text-slate-500 px-1">{t('bodyfat.neck')} ({unit === 'metric' ? 'cm' : 'in'})</label>
                   <input id="neck" type="number" value={neck} onChange={(e) => setNeck(e.target.value)} className="w-full p-4 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-2xl text-xl font-black font-mono focus:border-indigo-500 outline-none transition-all dark:text-white" placeholder={unit === 'metric' ? '38' : '15'} />
                 </div>
                 <div className="space-y-2">
-                  <label htmlFor="waist" className="text-xs font-bold text-slate-500 px-1">Tour de taille ({unit === 'metric' ? 'cm' : 'in'})</label>
+                  <label htmlFor="waist" className="text-xs font-bold text-slate-500 px-1">{t('bodyfat.waist')} ({unit === 'metric' ? 'cm' : 'in'})</label>
                   <input id="waist" type="number" value={waist} onChange={(e) => setWaist(e.target.value)} className="w-full p-4 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-2xl text-xl font-black font-mono focus:border-indigo-500 outline-none transition-all dark:text-white" placeholder={unit === 'metric' ? '85' : '33'} />
                 </div>
                 {gender === 'female' && (
                   <div className="space-y-2">
-                    <label htmlFor="hip" className="text-xs font-bold text-slate-500 px-1">Tour de hanches ({unit === 'metric' ? 'cm' : 'in'})</label>
+                    <label htmlFor="hip" className="text-xs font-bold text-slate-500 px-1">{t('bodyfat.hip')} ({unit === 'metric' ? 'cm' : 'in'})</label>
                     <input id="hip" type="number" value={hip} onChange={(e) => setHip(e.target.value)} className="w-full p-4 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-2xl text-xl font-black font-mono focus:border-indigo-500 outline-none transition-all dark:text-white" placeholder={unit === 'metric' ? '95' : '37'} />
                   </div>
                 )}
@@ -180,10 +184,14 @@ export function BodyFatCalculator({ initialData, onStateChange }: { initialData?
 
         {/* Results */}
         <div className="lg:col-span-5 space-y-8">
-          <div className="bg-slate-900 dark:bg-black p-10 rounded-[2.5rem] shadow-xl shadow-indigo-500/10 flex flex-col items-center justify-center space-y-4 min-h-[300px] relative overflow-hidden text-center">
+          <div
+            className="bg-slate-900 dark:bg-black p-10 rounded-[2.5rem] shadow-xl shadow-indigo-500/10 flex flex-col items-center justify-center space-y-4 min-h-[300px] relative overflow-hidden text-center"
+            aria-live="polite"
+            aria-atomic="true"
+          >
             <div className="absolute top-0 right-0 w-32 h-32 bg-indigo-500/10 rounded-full -mr-16 -mt-16 blur-3xl"></div>
 
-            <div className="text-slate-400 font-bold uppercase tracking-widest text-xs">Masse Grasse Estimée</div>
+            <div className="text-slate-400 font-bold uppercase tracking-widest text-xs">{t('bodyfat.estimated')}</div>
             <div className="text-6xl md:text-8xl font-black text-white font-mono tracking-tighter">
               {stats ? stats.bodyFat.toFixed(1) : "0.0"}
             </div>
@@ -204,7 +212,7 @@ export function BodyFatCalculator({ initialData, onStateChange }: { initialData?
                  <div className="p-2 bg-rose-50 dark:bg-rose-500/10 text-rose-500 rounded-lg">
                    <Activity className="w-4 h-4" />
                  </div>
-                 <span className="text-sm font-bold text-slate-500">Masse Grasse</span>
+                 <span className="text-sm font-bold text-slate-500">{t('bodyfat.fat_mass')}</span>
                </div>
                <span className="font-black font-mono text-lg dark:text-white">{stats ? stats.fatMass.toFixed(1) : "0.0"} {unit === 'metric' ? 'kg' : 'lb'}</span>
              </div>
@@ -213,7 +221,7 @@ export function BodyFatCalculator({ initialData, onStateChange }: { initialData?
                  <div className="p-2 bg-emerald-50 dark:bg-emerald-500/10 text-emerald-500 rounded-lg">
                    <Scale className="w-4 h-4" />
                  </div>
-                 <span className="text-sm font-bold text-slate-500">Masse Maigre</span>
+                 <span className="text-sm font-bold text-slate-500">{t('bodyfat.lean_mass')}</span>
                </div>
                <span className="font-black font-mono text-lg dark:text-white">{stats ? stats.leanMass.toFixed(1) : "0.0"} {unit === 'metric' ? 'kg' : 'lb'}</span>
              </div>
@@ -224,7 +232,7 @@ export function BodyFatCalculator({ initialData, onStateChange }: { initialData?
               <Info className="w-6 h-6" />
             </div>
             <p className="text-xs text-slate-500 dark:text-slate-400 leading-relaxed font-medium">
-              Cet outil utilise la méthode de la marine américaine (US Navy). Pour plus de précision, mesurez à jeun le matin. Les résultats sont des estimations basées sur des modèles statistiques.
+              {t('bodyfat.about_text')}
             </p>
           </div>
         </div>

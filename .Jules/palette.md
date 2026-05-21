@@ -17,3 +17,7 @@
 ## 2025-07-20 - [Dashboard Information Density & Contrast]
 **Learning:** Adding tool counts to category filters provides immediate value by informing users about tool distribution at a glance. Additionally, auditing secondary text contrast (e.g., changing text-slate-400 to text-slate-500) is a critical micro-UX step to ensure WCAG AA compliance for section headers and labels.
 **Action:** For collection-based dashboards, display item counts in filter badges and ensure all informational labels meet a minimum 4.5:1 contrast ratio.
+
+## 2025-07-25 - [Isolated Keyboard Shortcuts vs. Global Listeners]
+**Learning:** Component-specific keyboard shortcuts (like Escape to clear) must be implemented locally on the relevant input elements (e.g., via `onKeyDown`) rather than as global window listeners. Global listeners can cause unintended side effects, such as clearing a tool's state when a user tries to close a global search modal or clear a header input.
+**Action:** Always prefer local `onKeyDown` handlers for tool-specific shortcuts to ensure behavior isolation and avoid collisions with global UI elements.

@@ -36,6 +36,15 @@ export function JSONToSQL({ initialData, onStateChange }: { initialData?: any; o
     if (val === null) return 'TEXT';
     if (typeof val === 'number') return Number.isInteger(val) ? 'INTEGER' : 'DECIMAL';
     if (typeof val === 'boolean') return 'BOOLEAN';
+    if (typeof val === 'string') {
+      // Basic ISO date detection
+      if (/^\d{4}-\d{2}-\d{2}(T\d{2}:\d{2}:\d{2}(\.\d{3})?Z?)?$/.test(val)) {
+        return 'TIMESTAMP';
+      }
+      if (/^\d{4}-\d{2}-\d{2}$/.test(val)) {
+        return 'DATE';
+      }
+    }
     return 'TEXT';
   };
 

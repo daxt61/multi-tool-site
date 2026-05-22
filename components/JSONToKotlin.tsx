@@ -61,7 +61,10 @@ export function JSONToKotlin({ initialData, onStateChange }: { initialData?: any
 
           const fields = Object.entries(val).map(([key, value]) => {
             const type = getKotlinType(value, key, depth + 1);
-            return `    val ${key}: ${type}`;
+            const isKeyword = ['as', 'as?', 'break', 'class', 'continue', 'do', 'else', 'false', 'for', 'fun', 'if', 'in', 'interface', 'is', '!is', 'null', 'object', 'package', 'return', 'super', 'this', 'throw', 'true', 'try', 'typealias', 'typeof', 'val', 'var', 'when', 'while'].includes(key);
+            const isValidIdent = /^[a-zA-Z_][a-zA-Z0-9_]*$/.test(key) && !isKeyword;
+            const ident = isValidIdent ? key : `\`${key}\``;
+            return `    val ${ident}: ${type}`;
           });
 
           let classStr = `data class ${finalName}(\n`;
@@ -157,7 +160,7 @@ export function JSONToKotlin({ initialData, onStateChange }: { initialData?: any
           <div className="flex justify-between items-center px-1">
             <div className="flex items-center gap-2">
               <FileCode className="w-4 h-4 text-emerald-500" />
-              <label htmlFor="kotlin-output" className="text-xs font-black uppercase tracking-widest text-slate-400 cursor-pointer">Kotlin Data Classes</label>
+              <label htmlFor="kotlin-output" className="text-xs font-black uppercase tracking-widest text-slate-400 cursor-pointer">{t('jsontokotlin.output_label')}</label>
             </div>
             <div className="flex gap-2">
               <button
@@ -199,9 +202,9 @@ export function JSONToKotlin({ initialData, onStateChange }: { initialData?: any
       <div className="bg-indigo-50 dark:bg-indigo-900/10 p-8 rounded-[2.5rem] border border-indigo-100 dark:border-indigo-900/20 flex items-start gap-4">
         <Info className="w-6 h-6 text-indigo-500 mt-1" />
         <div className="space-y-2">
-          <h4 className="font-bold dark:text-white">À propos de la conversion JSON en Kotlin</h4>
+          <h4 className="font-bold dark:text-white">{t('jsontokotlin.about_title')}</h4>
           <p className="text-sm text-slate-500 dark:text-slate-400 leading-relaxed">
-            Cet outil génère des <code>data class</code> Kotlin à partir de vos données JSON. C'est idéal pour créer rapidement des modèles de données pour des applications Android ou des services backend Kotlin.
+            {t('jsontokotlin.about_text')}
           </p>
         </div>
       </div>

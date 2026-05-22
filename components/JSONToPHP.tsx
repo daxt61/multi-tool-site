@@ -60,7 +60,9 @@ export function JSONToPHP({ initialData, onStateChange }: { initialData?: any; o
 
           const fields = Object.entries(val).map(([key, value]) => {
             const type = getPHPType(value, key, depth + 1);
-            return `    public ${type} $${key};`;
+            const isValidIdent = /^[a-zA-Z_\x80-\xff][a-zA-Z0-9_\x80-\xff]*$/.test(key);
+            const ident = isValidIdent ? key : `{"${key}"}`;
+            return `    public ${type} $${ident};`;
           });
 
           let classStr = `class ${finalName} {\n`;

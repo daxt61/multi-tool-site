@@ -1004,6 +1004,12 @@ const resources = {
       "jsontophp.output_label": "PHP 8.1+ Classes",
       "jsontophp.about_title": "About JSON to PHP conversion",
       "jsontophp.about_text": "This tool generates PHP 8.1+ classes with typed properties from your JSON data. It is designed for recent PHP versions using native types.",
+      "jsontokotlin.output_label": "Kotlin Data Classes",
+      "jsontokotlin.about_title": "About JSON to Kotlin conversion",
+      "jsontokotlin.about_text": "This tool generates Kotlin data classes from your JSON data. It is ideal for quickly creating data models for Android applications or Kotlin backend services.",
+      "jsontorust.output_label": "Rust Serde Structs",
+      "jsontorust.about_title": "About JSON to Rust conversion",
+      "jsontorust.about_text": "This tool generates Rust structs with serde attributes for serialization and deserialization. Field names are converted to snake_case, and #[serde(rename = \"...\")] attributes are added where necessary.",
       "jsontotoml.about_title": "About JSON to TOML conversion",
       "jsontotoml.about_text": "This tool converts a JSON object into TOML (Tom's Obvious, Minimal Language) format. TOML is designed to be a minimal configuration file format that's easy to read due to obvious semantics.",
       "jsontotoml.error_object": "JSON must be a non-empty object",
@@ -1303,6 +1309,8 @@ const resources = {
       "colorextractor.waiting": "Upload an image to extract colors",
       "colorextractor.about_title": "About Color Extractor",
       "colorextractor.about_text": "This tool allows you to extract the most dominant colors from any image. It uses the Canvas API to process pixels locally on your device. The palette is useful for designers and developers who want to match a website's theme with a specific image.",
+      "csvmapper.input_delimiter": "Input Delimiter",
+      "csvmapper.output_delimiter": "Output Delimiter",
     }
   },
   fr: {
@@ -2306,6 +2314,12 @@ const resources = {
       "jsontophp.output_label": "Classes PHP 8.1+",
       "jsontophp.about_title": "À propos de la conversion JSON en PHP",
       "jsontophp.about_text": "Cet outil génère des classes PHP 8.1+ avec des propriétés typées à partir de vos données JSON. Il est conçu pour les versions récentes de PHP utilisant les types natifs.",
+      "jsontokotlin.output_label": "Classes de données Kotlin",
+      "jsontokotlin.about_title": "À propos de la conversion JSON en Kotlin",
+      "jsontokotlin.about_text": "Cet outil génère des data classes Kotlin à partir de vos données JSON. C'est idéal pour créer rapidement des modèles de données pour des applications Android ou des services backend Kotlin.",
+      "jsontorust.output_label": "Structures Rust (Serde)",
+      "jsontorust.about_title": "À propos de la conversion JSON en Rust",
+      "jsontorust.about_text": "Cet outil génère des structures Rust avec des attributs serde pour la sérialisation et la désérialisation. Les noms de champs sont convertis en snake_case, et des attributs #[serde(rename = \"...\")] sont ajoutés si nécessaire.",
       "jsontotoml.about_title": "À propos de la conversion JSON en TOML",
       "jsontotoml.about_text": "Cet outil convertit un objet JSON au format TOML (Tom's Obvious, Minimal Language). Le TOML est conçu pour être un format de fichier de configuration minimaliste et facile à lire grâce à une sémantique évidente.",
       "jsontotoml.error_object": "Le JSON doit être un objet non vide",
@@ -2605,6 +2619,8 @@ const resources = {
       "colorextractor.waiting": "Uploadez une image pour extraire sa palette",
       "colorextractor.about_title": "À propos de l'extracteur de couleurs",
       "colorextractor.about_text": "Cet outil vous permet d'extraire les couleurs dominantes de n'importe quelle image. Il utilise l'API Canvas pour traiter les pixels localement sur votre appareil. Cette palette est utile pour les designers et développeurs souhaitant accorder le thème d'un site avec une image spécifique.",
+      "csvmapper.input_delimiter": "Délimiteur d'entrée",
+      "csvmapper.output_delimiter": "Délimiteur de sortie",
     }
   }
 };

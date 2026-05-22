@@ -29,6 +29,7 @@ import {
   QrCode,
   Percent,
   FileType,
+  FileSpreadsheet,
   Fuel,
   DollarSign,
   Blend,
@@ -295,6 +296,7 @@ const SequenceGenerator = lazy(() => import("./components/SequenceGenerator").th
 const ImageEffects = lazy(() => import("./components/ImageEffects").then(m => ({ default: m.ImageEffects })));
 const BcryptGenerator = lazy(() => import("./components/BcryptGenerator").then(m => ({ default: m.BcryptGenerator })));
 const ColorExtractor = lazy(() => import("./components/ColorExtractor").then(m => ({ default: m.ColorExtractor })));
+const CSVMapper = lazy(() => import("./components/CSVMapper").then(m => ({ default: m.CSVMapper })));
 
 // ⚡ Bolt Optimization: Pre-calculating tool map and search index for O(1) lookups and faster filtering
 const toolsMap: Record<string, Tool> = {};
@@ -2166,6 +2168,17 @@ const tools: Tool[] = [
     Component: ColorExtractor,
     category: "converters",
     keywords: ["color", "image", "palette", "extraction", "design"],
+  },
+  {
+    id: "csv-mapper",
+    name: "Convertisseur CSV",
+    nameEn: "CSV Mapper",
+    icon: FileSpreadsheet,
+    description: "Convertir entre différents délimiteurs CSV (virgule, point-virgule, etc.)",
+    descriptionEn: "Convert between different CSV delimiters (comma, semicolon, etc.)",
+    Component: CSVMapper,
+    category: "dev",
+    keywords: ["csv", "delimiter", "mapping", "converter", "format"],
   },
 ];
 

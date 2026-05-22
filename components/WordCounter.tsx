@@ -86,23 +86,50 @@ export function WordCounter({ initialData, onStateChange }: { initialData?: any;
       ari = 4.71 * (charCount / wordCount) + 0.5 * (wordCount / sentenceCount) - 21.43;
     }
 
-    // Gunning Fog Index
-    // Fog = 0.4 * ((words/sentences) + 100 * (complex_words/words))
-    // Complex words: 3+ syllables
-    const getSyllables = (word: string) => {
+    // Improved Syllable counting algorithm
+    // Handles both English and French phonetics more accurately.
+    const countSyllables = (word: string) => {
       word = word.toLowerCase().replace(/[^a-zàâäéèêëîïôöùûüÿç]/g, '');
+      if (word.length === 0) return 0;
       if (word.length <= 3) return 1;
-      word = word.replace(/(?:[^laeiouy]|ed|es|e)$/, '');
-      word = word.replace(/^y/, '');
-      const matched = word.match(/[aeiouyàâäéèêëîïôöùûüÿ]{1,2}/g);
-      return matched ? matched.length : 1;
+
+      // English specific: remove silent 'e' at the end
+      if (word.endsWith('e')) {
+        word = word.slice(0, -1);
+      }
+
+      // French specific: handle common silent endings (not exhaustive but improves accuracy)
+      const silentEndings = ['ent', 'es', 's', 't'];
+      if (word.length > 5) {
+         silentEndings.forEach(end => {
+            if (word.endsWith(end)) {
+               // Only for verbs like 'mangent' (approximation)
+               if (end === 'ent' && word.match(/[aeiouyàâäéèêëîïôöùûüÿ]..ent$/)) {
+                  word = word.slice(0, -3);
+               }
+            }
+         });
+      }
+
+      const matched = word.match(/[aeiouyàâäéèêëîïôöùûüÿ]{1,3}/g);
+      let count = matched ? matched.length : 1;
+
+      // English specific: adjustments
+      if (word.endsWith('le') && word.length > 2 && !/[aeiouy]/.test(word[word.length-3])) count++;
+
+      return count;
     };
 
     let complexWords = 0;
+    let totalSyllables = 0;
     words.forEach((w: string) => {
-      if (getSyllables(w) >= 3) complexWords++;
+      const syl = countSyllables(w);
+      totalSyllables += syl;
+      if (syl >= 3) complexWords++;
     });
 
+    // Gunning Fog Index
+    // Fog = 0.4 * ((words/sentences) + 100 * (complex_words/words))
     let fog = 0;
     if (wordCount > 0 && sentenceCount > 0) {
       fog = 0.4 * ((wordCount / sentenceCount) + 100 * (complexWords / wordCount));
@@ -128,19 +155,6 @@ export function WordCounter({ initialData, onStateChange }: { initialData?: any;
 
     // Flesch Reading Ease (French Formula)
     // Score = 206.835 - (1.015 * ASL) - (84.6 * ASW)
-    const countSyllables = (word: string) => {
-      word = word.toLowerCase().replace(/[^a-zàâäéèêëîïôöùûüÿç]/g, '');
-      if (word.length <= 3) return 1;
-      word = word.replace(/(?:[^laeiouy]|ed|es|e)$/, '');
-      word = word.replace(/^y/, '');
-      const matched = word.match(/[aeiouyàâäéèêëîïôöùûüÿ]{1,2}/g);
-      return matched ? matched.length : 1;
-    };
-
-    let totalSyllables = 0;
-    words.forEach((w: string) => {
-      totalSyllables += countSyllables(w);
-    });
 
     let flesch = 0;
     if (wordCount > 0 && sentenceCount > 0) {

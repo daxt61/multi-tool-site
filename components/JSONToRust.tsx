@@ -26,10 +26,23 @@ export function JSONToRust({ initialData, onStateChange }: { initialData?: any; 
   };
 
   const toSnakeCase = (str: string) => {
-    return str
+    let result = str
       .replace(/([a-z])([A-Z])/g, '$1_$2')
       .replace(/[^a-z0-9]/gi, '_')
       .toLowerCase();
+
+    // Rust identifiers cannot start with a digit
+    if (/^[0-9]/.test(result)) {
+      result = 'f_' + result;
+    }
+
+    // Handle Rust keywords
+    const keywords = ['as', 'break', 'const', 'continue', 'crate', 'else', 'enum', 'extern', 'false', 'fn', 'for', 'if', 'impl', 'in', 'let', 'loop', 'match', 'mod', 'move', 'mut', 'pub', 'ref', 'return', 'self', 'Self', 'static', 'struct', 'super', 'trait', 'true', 'type', 'unsafe', 'use', 'where', 'while', 'async', 'await', 'dyn', 'abstract', 'become', 'box', 'do', 'final', 'macro', 'override', 'priv', 'typeof', 'unsized', 'virtual', 'yield', 'try'];
+    if (keywords.includes(result)) {
+      result = 'r#' + result;
+    }
+
+    return result;
   };
 
   const handleConvert = useCallback(() => {
@@ -172,7 +185,7 @@ export function JSONToRust({ initialData, onStateChange }: { initialData?: any; 
           <div className="flex justify-between items-center px-1">
             <div className="flex items-center gap-2">
               <FileCode className="w-4 h-4 text-emerald-500" />
-              <label htmlFor="rust-output" className="text-xs font-black uppercase tracking-widest text-slate-400 cursor-pointer">Rust Serde Structs</label>
+              <label htmlFor="rust-output" className="text-xs font-black uppercase tracking-widest text-slate-400 cursor-pointer">{t('jsontorust.output_label')}</label>
             </div>
             <div className="flex gap-2">
               <button
@@ -214,9 +227,9 @@ export function JSONToRust({ initialData, onStateChange }: { initialData?: any; 
       <div className="bg-indigo-50 dark:bg-indigo-900/10 p-8 rounded-[2.5rem] border border-indigo-100 dark:border-indigo-900/20 flex items-start gap-4">
         <Info className="w-6 h-6 text-indigo-500 mt-1" />
         <div className="space-y-2">
-          <h4 className="font-bold dark:text-white">À propos de la conversion JSON en Rust</h4>
+          <h4 className="font-bold dark:text-white">{t('jsontorust.about_title')}</h4>
           <p className="text-sm text-slate-500 dark:text-slate-400 leading-relaxed">
-            Cet outil génère des structures Rust avec des attributs <code>serde</code> pour la sérialisation et la désérialisation. Les noms de champs sont convertis en <code>snake_case</code>, et des attributs <code>#[serde(rename = "...")]</code> sont ajoutés si nécessaire.
+            {t('jsontorust.about_text')}
           </p>
         </div>
       </div>

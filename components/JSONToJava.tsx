@@ -78,11 +78,19 @@ export function JSONToJava({ initialData, onStateChange }: { initialData?: any; 
             finalName = className + counter++;
           }
 
-          const fields = Object.entries(val).map(([key, value]) => ({
-            name: toCamelCase(key),
-            type: getJavaType(value, key, depth + 1),
-            originalKey: key
-          }));
+          const fields = Object.entries(val).map(([key, value]) => {
+            let name = toCamelCase(key);
+            // Java keywords
+            const keywords = ['abstract', 'assert', 'boolean', 'break', 'byte', 'case', 'catch', 'char', 'class', 'const', 'continue', 'default', 'do', 'double', 'else', 'enum', 'extends', 'final', 'finally', 'float', 'for', 'goto', 'if', 'implements', 'import', 'instanceof', 'int', 'interface', 'long', 'native', 'new', 'package', 'private', 'protected', 'public', 'return', 'short', 'static', 'strictfp', 'super', 'switch', 'synchronized', 'this', 'throw', 'throws', 'transient', 'try', 'void', 'volatile', 'while', 'true', 'false', 'null'];
+            if (keywords.includes(name) || /^[0-9]/.test(name)) {
+              name = '_' + name;
+            }
+            return {
+              name: name,
+              type: getJavaType(value, key, depth + 1),
+              originalKey: key
+            };
+          });
 
           classes.push({ name: finalName, fields });
           classNames.add(finalName);

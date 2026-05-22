@@ -69,11 +69,15 @@ export function JSONToTS({ initialData, onStateChange }: { initialData?: any; on
             finalName = name + counter++;
           }
 
-          const fields = Object.entries(val).map(([key, value]) => ({
-            name: key,
-            type: getTSType(value, key, depth + 1),
-            isOptional: isOptional
-          }));
+          const fields = Object.entries(val).map(([key, value]) => {
+            const isValidIdent = /^[a-zA-Z_$][a-zA-Z0-9_$]*$/.test(key);
+            const name = isValidIdent ? key : `"${key}"`;
+            return {
+              name: name,
+              type: getTSType(value, key, depth + 1),
+              isOptional: isOptional
+            };
+          });
 
           interfaces.push({ name: finalName, fields });
           interfaceNames.add(finalName);

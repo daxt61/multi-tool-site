@@ -26,10 +26,23 @@ export function JSONToPython({ initialData, onStateChange }: { initialData?: any
   };
 
   const toSnakeCase = (str: string) => {
-    return str
+    let result = str
       .replace(/([a-z])([A-Z])/g, '$1_$2')
       .replace(/[^a-z0-9]/gi, '_')
       .toLowerCase();
+
+    // Python identifiers cannot start with a digit
+    if (/^[0-9]/.test(result)) {
+      result = 'f_' + result;
+    }
+
+    // Handle Python keywords
+    const keywords = ['False', 'None', 'True', 'and', 'as', 'assert', 'async', 'await', 'break', 'class', 'continue', 'def', 'del', 'elif', 'else', 'except', 'finally', 'for', 'from', 'global', 'if', 'import', 'in', 'is', 'lambda', 'nonlocal', 'not', 'or', 'pass', 'raise', 'return', 'try', 'while', 'with', 'yield'];
+    if (keywords.includes(result)) {
+      result += '_';
+    }
+
+    return result;
   };
 
   const handleConvert = useCallback(() => {

@@ -28,7 +28,7 @@ export function EmailExtractor({ initialData, onStateChange }: { initialData?: a
     setError(null);
 
     // Robust Email regex
-    const emailRegex = /[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}/gi;
+    const emailRegex = /\b[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}\b/gi;
     const matches = val.match(emailRegex);
     if (matches) {
       const uniqueEmails = Array.from(new Set(matches.map(e => e.toLowerCase())));

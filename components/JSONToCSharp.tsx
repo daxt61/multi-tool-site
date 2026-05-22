@@ -71,11 +71,19 @@ export function JSONToCSharp({ initialData, onStateChange }: { initialData?: any
             finalName = className + counter++;
           }
 
-          const fields = Object.entries(val).map(([key, value]) => ({
-            name: toPascalCase(key),
-            type: getCSharpType(value, key, depth + 1),
-            originalKey: key
-          }));
+          const fields = Object.entries(val).map(([key, value]) => {
+            let name = toPascalCase(key);
+            // C# keywords
+            const keywords = ['abstract', 'as', 'base', 'bool', 'break', 'byte', 'case', 'catch', 'char', 'checked', 'class', 'const', 'continue', 'decimal', 'default', 'delegate', 'do', 'double', 'else', 'enum', 'event', 'explicit', 'extern', 'false', 'finally', 'fixed', 'float', 'for', 'foreach', 'goto', 'if', 'implicit', 'in', 'int', 'interface', 'internal', 'is', 'lock', 'long', 'namespace', 'new', 'null', 'object', 'operator', 'out', 'override', 'params', 'private', 'protected', 'public', 'readonly', 'ref', 'return', 'sbyte', 'sealed', 'short', 'sizeof', 'stackalloc', 'static', 'string', 'struct', 'switch', 'this', 'throw', 'true', 'try', 'typeof', 'uint', 'ulong', 'unchecked', 'unsafe', 'ushort', 'using', 'virtual', 'void', 'volatile', 'while'];
+            if (keywords.includes(name.toLowerCase()) || /^[0-9]/.test(name)) {
+              name = '@' + name;
+            }
+            return {
+              name: name,
+              type: getCSharpType(value, key, depth + 1),
+              originalKey: key
+            };
+          });
 
           classes.push({ name: finalName, fields });
           classNames.add(finalName);

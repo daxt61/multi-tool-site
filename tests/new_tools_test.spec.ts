@@ -2,7 +2,7 @@ import { test, expect } from '@playwright/test';
 
 test.describe('New Tools Verification', () => {
   test('Text Repeater functionality', async ({ page }) => {
-    await page.goto('/en/outil/text-repeater');
+    await page.goto('http://localhost:5173/en/outil/text-repeater');
 
     // Check if the page loaded
     await expect(page.locator('h1')).toContainText('Text Repeater');
@@ -29,7 +29,7 @@ test.describe('New Tools Verification', () => {
   });
 
   test('Pascals Triangle functionality', async ({ page }) => {
-    await page.goto('/en/outil/pascals-triangle');
+    await page.goto('http://localhost:5173/en/outil/pascals-triangle');
 
     await expect(page.locator('h1')).toContainText("Pascal's Triangle");
 

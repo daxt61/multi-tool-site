@@ -1,7 +1,9 @@
 import { useState, useEffect, useMemo } from 'react';
 import { Clock, Copy, Check, Info, Trash2 } from 'lucide-react';
+import { useTranslation } from 'react-i18next';
 
 export function CronGenerator({ initialData, onStateChange }: { initialData?: any; onStateChange?: (state: any) => void }) {
+  const { t, i18n } = useTranslation();
   const [minutes, setMinutes] = useState(initialData?.minutes || '*');
   const [hours, setHours] = useState(initialData?.hours || '*');
   const [dayOfMonth, setDayOfMonth] = useState(initialData?.dayOfMonth || '*');
@@ -11,43 +13,48 @@ export function CronGenerator({ initialData, onStateChange }: { initialData?: an
   const [copied, setCopied] = useState(false);
 
   const humanDescription = useMemo(() => {
-    if (cron === '* * * * *') return "Toutes les minutes, tous les jours.";
+    const isEn = i18n.language === 'en';
+    if (cron === '* * * * *') return isEn ? "Every minute, every day." : "Toutes les minutes, tous les jours.";
 
-    const monthsArr = ['', 'janvier', 'février', 'mars', 'avril', 'mai', 'juin', 'juillet', 'août', 'septembre', 'octobre', 'novembre', 'décembre'];
-    const daysArr = ['dimanche', 'lundi', 'mardi', 'mercredi', 'jeudi', 'vendredi', 'samedi', 'dimanche'];
+    const monthsArr = isEn
+      ? ['', 'January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December']
+      : ['', 'janvier', 'février', 'mars', 'avril', 'mai', 'juin', 'juillet', 'août', 'septembre', 'octobre', 'novembre', 'décembre'];
+    const daysArr = isEn
+      ? ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday']
+      : ['dimanche', 'lundi', 'mardi', 'mercredi', 'jeudi', 'vendredi', 'samedi', 'dimanche'];
 
-    let res = "S'exécute ";
+    let res = isEn ? "Runs " : "S'exécute ";
 
     // Minutes
-    if (minutes === '*') res += "chaque minute ";
-    else if (minutes.startsWith('*/')) res += `toutes les ${minutes.slice(2)} minutes `;
-    else res += `à la minute ${minutes} `;
+    if (minutes === '*') res += isEn ? "every minute " : "chaque minute ";
+    else if (minutes.startsWith('*/')) res += isEn ? `every ${minutes.slice(2)} minutes ` : `toutes les ${minutes.slice(2)} minutes `;
+    else res += isEn ? `at minute ${minutes} ` : `à la minute ${minutes} `;
 
     // Hours
     if (hours === '*') {
-      if (minutes !== '*') res += "de chaque heure ";
-    } else if (hours.startsWith('*/')) res += `toutes les ${hours.slice(2)} heures `;
-    else res += `à ${hours}h `;
+      if (minutes !== '*') res += isEn ? "of every hour " : "de chaque heure ";
+    } else if (hours.startsWith('*/')) res += isEn ? `every ${hours.slice(2)} hours ` : `toutes les ${hours.slice(2)} heures `;
+    else res += isEn ? `at ${hours}:00 ` : `à ${hours}h `;
 
     // Day of Month
     if (dayOfMonth !== '*') {
-      res += `le ${dayOfMonth === 'L' ? 'dernier jour' : dayOfMonth} du mois `;
+      res += isEn ? `on day ${dayOfMonth === 'L' ? 'last' : dayOfMonth} of the month ` : `le ${dayOfMonth === 'L' ? 'dernier jour' : dayOfMonth} du mois `;
     }
 
     // Month
     if (month !== '*') {
       const mIdx = parseInt(month);
-      res += `en ${monthsArr[mIdx] || month} `;
+      res += isEn ? `in ${monthsArr[mIdx] || month} ` : `en ${monthsArr[mIdx] || month} `;
     }
 
     // Day of Week
     if (dayOfWeek !== '*') {
       const dIdx = parseInt(dayOfWeek);
-      res += `le ${daysArr[dIdx] || dayOfWeek} `;
+      res += isEn ? `on ${daysArr[dIdx] || dayOfWeek} ` : `le ${daysArr[dIdx] || dayOfWeek} `;
     }
 
     return res.trim() + ".";
-  }, [cron, minutes, hours, dayOfMonth, month, dayOfWeek]);
+  }, [cron, minutes, hours, dayOfMonth, month, dayOfWeek, i18n.language]);
 
   useEffect(() => {
     const newCron = `${minutes} ${hours} ${dayOfMonth} ${month} ${dayOfWeek}`;
@@ -62,12 +69,12 @@ export function CronGenerator({ initialData, onStateChange }: { initialData?: an
   };
 
   const presets = [
-    { name: 'Toutes les minutes', value: '* * * * *' },
-    { name: 'Toutes les 5 minutes', value: '*/5 * * * *' },
-    { name: 'Chaque heure', value: '0 * * * *' },
-    { name: 'Chaque jour à minuit', value: '0 0 * * *' },
-    { name: 'Chaque dimanche à minuit', value: '0 0 * * 0' },
-    { name: 'Le 1er de chaque mois à minuit', value: '0 0 1 * *' },
+    { name: t('cron.preset_every_minute'), value: '* * * * *' },
+    { name: t('cron.preset_every_5'), value: '*/5 * * * *' },
+    { name: t('cron.preset_every_hour'), value: '0 * * * *' },
+    { name: t('cron.preset_midnight'), value: '0 0 * * *' },
+    { name: t('cron.preset_sunday'), value: '0 0 * * 0' },
+    { name: t('cron.preset_monthly'), value: '0 0 1 * *' },
   ];
 
   const applyPreset = (value: string) => {
@@ -95,13 +102,13 @@ export function CronGenerator({ initialData, onStateChange }: { initialData?: an
           disabled={cron === '* * * * *'}
           className="text-xs font-bold text-rose-500 bg-rose-50 dark:bg-rose-500/10 hover:bg-rose-100 dark:hover:bg-rose-500/20 px-3 py-1.5 rounded-xl flex items-center gap-1 transition-all disabled:opacity-50 disabled:cursor-not-allowed focus-visible:ring-2 focus-visible:ring-rose-500 focus-visible:outline-none"
         >
-          <Trash2 className="w-3 h-3" /> Effacer
+          <Trash2 className="w-3 h-3" /> {t('common.clear')}
         </button>
       </div>
 
       <div className="bg-slate-900 dark:bg-black p-10 rounded-[2.5rem] shadow-xl shadow-indigo-500/10 text-center space-y-6">
         <div className="inline-flex items-center gap-2 px-4 py-1.5 bg-indigo-500/10 text-indigo-400 rounded-full text-xs font-black uppercase tracking-widest border border-indigo-500/20">
-          <Clock className="w-3 h-3" /> Expression Cron
+          <Clock className="w-3 h-3" /> {t('cron.expression_label')}
         </div>
         <div className="space-y-2">
           <div className="text-4xl md:text-6xl font-mono font-black text-white tracking-wider break-all">
@@ -118,17 +125,17 @@ export function CronGenerator({ initialData, onStateChange }: { initialData?: an
           }`}
         >
           {copied ? <Check className="w-6 h-6" /> : <Copy className="w-6 h-6" />}
-          {copied ? 'Copié' : 'Copier'}
+          {copied ? t('common.copied') : t('common.copy')}
         </button>
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-5 gap-4">
         {[
-          { id: 'cron-minute', label: 'Minute', value: minutes, setter: setMinutes, hint: '0-59, *, */n' },
-          { id: 'cron-hour', label: 'Heure', value: hours, setter: setHours, hint: '0-23, *, */n' },
-          { id: 'cron-dom', label: 'Jour (Mois)', value: dayOfMonth, setter: setDayOfMonth, hint: '1-31, *, L' },
-          { id: 'cron-month', label: 'Mois', value: month, setter: setMonth, hint: '1-12, *, JAN-DEC' },
-          { id: 'cron-dow', label: 'Jour (Semaine)', value: dayOfWeek, setter: setDayOfWeek, hint: '0-6, *, SUN-SAT' },
+          { id: 'cron-minute', label: t('cron.minute'), value: minutes, setter: setMinutes, hint: '0-59, *, */n' },
+          { id: 'cron-hour', label: t('cron.hour'), value: hours, setter: setHours, hint: '0-23, *, */n' },
+          { id: 'cron-dom', label: t('cron.day_month'), value: dayOfMonth, setter: setDayOfMonth, hint: '1-31, *, L' },
+          { id: 'cron-month', label: t('cron.month'), value: month, setter: setMonth, hint: '1-12, *, JAN-DEC' },
+          { id: 'cron-dow', label: t('cron.day_week'), value: dayOfWeek, setter: setDayOfWeek, hint: '0-6, *, SUN-SAT' },
         ].map((field) => (
           <div key={field.id} className="space-y-2">
             <label htmlFor={field.id} className="text-xs font-black uppercase tracking-widest text-slate-400 px-1 cursor-pointer">
@@ -147,7 +154,7 @@ export function CronGenerator({ initialData, onStateChange }: { initialData?: an
       </div>
 
       <div className="space-y-4">
-        <h4 className="text-xs font-black uppercase tracking-widest text-slate-400 px-1">Préréglages rapides</h4>
+        <h4 className="text-xs font-black uppercase tracking-widest text-slate-400 px-1">{t('cron.presets_title')}</h4>
         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3">
           {presets.map((preset) => (
             <button
@@ -167,9 +174,9 @@ export function CronGenerator({ initialData, onStateChange }: { initialData?: an
           <Info className="w-5 h-5" />
         </div>
         <div className="space-y-1">
-          <h5 className="font-bold text-amber-900 dark:text-amber-100">Comment ça marche ?</h5>
+          <h5 className="font-bold text-amber-900 dark:text-amber-100">{t('cron.how_title')}</h5>
           <p className="text-sm text-amber-700 dark:text-amber-300 leading-relaxed">
-            Cron est un utilitaire système qui permet d'exécuter des tâches à des moments précis. Les cinq champs représentent respectivement : Minute, Heure, Jour du mois, Mois et Jour de la semaine.
+            {t('cron.how_text')}
           </p>
         </div>
       </div>

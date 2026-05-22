@@ -293,6 +293,8 @@ const ASCIIArtGenerator = lazy(() => import("./components/ASCIIArtGenerator").th
 const NumberStatistics = lazy(() => import("./components/NumberStatistics").then(m => ({ default: m.NumberStatistics })));
 const SequenceGenerator = lazy(() => import("./components/SequenceGenerator").then(m => ({ default: m.SequenceGenerator })));
 const ImageEffects = lazy(() => import("./components/ImageEffects").then(m => ({ default: m.ImageEffects })));
+const BcryptGenerator = lazy(() => import("./components/BcryptGenerator").then(m => ({ default: m.BcryptGenerator })));
+const ColorExtractor = lazy(() => import("./components/ColorExtractor").then(m => ({ default: m.ColorExtractor })));
 
 // ⚡ Bolt Optimization: Pre-calculating tool map and search index for O(1) lookups and faster filtering
 const toolsMap: Record<string, Tool> = {};
@@ -2142,6 +2144,28 @@ const tools: Tool[] = [
     Component: ImageEffects,
     category: "other",
     keywords: ["image", "filter", "pixelate", "blur", "photo", "effects", "edit"],
+  },
+  {
+    id: "bcrypt-generator",
+    name: "Bcrypt Generator",
+    nameEn: "Bcrypt Generator",
+    icon: Shield,
+    description: "Générer et vérifier des hashes Bcrypt pour vos mots de passe",
+    descriptionEn: "Generate and verify Bcrypt hashes for your passwords",
+    Component: BcryptGenerator,
+    category: "dev",
+    keywords: ["security", "password", "hash", "bcrypt", "salt", "crypto"],
+  },
+  {
+    id: "color-extractor",
+    name: "Extracteur de Couleurs",
+    nameEn: "Color Extractor",
+    icon: Palette,
+    description: "Extraire la palette de couleurs d'une image",
+    descriptionEn: "Extract color palette from an image",
+    Component: ColorExtractor,
+    category: "converters",
+    keywords: ["color", "image", "palette", "extraction", "design"],
   },
 ];
 

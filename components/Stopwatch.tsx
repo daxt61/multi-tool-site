@@ -54,23 +54,43 @@ export function Stopwatch({ initialData, onStateChange }: { initialData?: any; o
     };
   };
 
-  const handleStartPause = () => setIsRunning(!isRunning);
+  const handleStartPause = useCallback(() => setIsRunning(prev => !prev), []);
 
-  const handleReset = () => {
+  const handleReset = useCallback(() => {
     setIsRunning(false);
     setTime(0);
     setLaps([]);
-  };
+  }, []);
 
-  const handleLap = () => {
+  const handleLap = useCallback(() => {
     const lastLapTime = laps.length > 0 ? laps[0].overallTime : 0;
     const newLap: Lap = {
       id: laps.length + 1,
       time: time - lastLapTime,
       overallTime: time
     };
-    setLaps([newLap, ...laps]);
-  };
+    setLaps(prev => [newLap, ...prev]);
+  }, [laps, time]);
+
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (document.activeElement?.tagName === "INPUT" || document.activeElement?.tagName === "TEXTAREA") {
+        return;
+      }
+
+      if (e.code === 'Space') {
+        e.preventDefault();
+        handleStartPause();
+      } else if (e.key.toLowerCase() === 'l') {
+        if (time > 0) handleLap();
+      } else if (e.key.toLowerCase() === 'r') {
+        if (time > 0) handleReset();
+      }
+    };
+
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [handleStartPause, handleLap, handleReset, time]);
 
   const handleDownload = () => {
     if (laps.length === 0) return;
@@ -102,7 +122,12 @@ export function Stopwatch({ initialData, onStateChange }: { initialData?: any; o
         </div>
 
         <div className="flex flex-col items-center gap-2">
-          <div className="flex items-baseline gap-2 font-mono font-black text-white">
+          <div
+            className="flex items-baseline gap-2 font-mono font-black text-white"
+            aria-label={`${times.h} hours, ${times.m} minutes, ${times.s} seconds, ${times.ms} milliseconds`}
+            role="timer"
+            aria-live="off"
+          >
             <span className="text-6xl md:text-8xl tabular-nums">{times.h}:{times.m}:{times.s}</span>
             <span className="text-3xl md:text-5xl text-indigo-500 tabular-nums">.{times.ms}</span>
           </div>
@@ -111,31 +136,38 @@ export function Stopwatch({ initialData, onStateChange }: { initialData?: any; o
         <div className="flex flex-wrap justify-center gap-4">
           <button
             onClick={handleStartPause}
-            className={`w-20 h-20 md:w-24 md:h-24 rounded-full flex items-center justify-center transition-all active:scale-95 shadow-xl ${
+            aria-label={isRunning ? t('timer.pause') : t('timer.start')}
+            title={`${isRunning ? t('timer.pause') : t('timer.start')} (Space)`}
+            className={`w-20 h-20 md:w-24 md:h-24 rounded-full flex flex-col items-center justify-center transition-all active:scale-95 shadow-xl focus-visible:ring-2 focus-visible:ring-indigo-500 focus-visible:ring-offset-4 focus-visible:ring-offset-slate-900 ${
               isRunning
                 ? 'bg-rose-500 text-white shadow-rose-500/20 hover:bg-rose-600'
                 : 'bg-emerald-500 text-white shadow-emerald-500/20 hover:bg-emerald-600'
             }`}
           >
             {isRunning ? <Pause className="w-8 h-8 md:w-10 md:h-10 fill-current" /> : <Play className="w-8 h-8 md:w-10 md:h-10 fill-current translate-x-0.5" />}
+            <kbd className="hidden sm:inline-flex mt-1 items-center justify-center px-1.5 py-0.5 border border-white/20 rounded text-[10px] font-bold bg-white/10">Space</kbd>
           </button>
 
           <button
             onClick={handleLap}
             disabled={time === 0}
-            className="w-20 h-20 md:w-24 md:h-24 bg-white/10 text-white rounded-full flex items-center justify-center transition-all active:scale-95 hover:bg-white/20 disabled:opacity-50 disabled:cursor-not-allowed border border-white/10"
-            title={t('stopwatch.lap', 'Lap')}
+            className="w-20 h-20 md:w-24 md:h-24 bg-white/10 text-white rounded-full flex flex-col items-center justify-center transition-all active:scale-95 hover:bg-white/20 disabled:opacity-50 disabled:cursor-not-allowed border border-white/10 focus-visible:ring-2 focus-visible:ring-indigo-500 focus-visible:ring-offset-4 focus-visible:ring-offset-slate-900"
+            title={`${t('stopwatch.lap', 'Lap')} (L)`}
+            aria-label={`${t('stopwatch.lap', 'Lap')} (L)`}
           >
             <Flag className="w-8 h-8 md:w-10 md:h-10" />
+            <kbd className="hidden sm:inline-flex mt-1 items-center justify-center w-5 h-5 border border-white/20 rounded text-[10px] font-bold bg-white/10">L</kbd>
           </button>
 
           <button
             onClick={handleReset}
             disabled={time === 0}
-            className="w-20 h-20 md:w-24 md:h-24 bg-white/10 text-white rounded-full flex items-center justify-center transition-all active:scale-95 hover:bg-white/20 disabled:opacity-50 disabled:cursor-not-allowed border border-white/10"
-            title={t('common.reset', 'Reset')}
+            className="w-20 h-20 md:w-24 md:h-24 bg-white/10 text-white rounded-full flex flex-col items-center justify-center transition-all active:scale-95 hover:bg-white/20 disabled:opacity-50 disabled:cursor-not-allowed border border-white/10 focus-visible:ring-2 focus-visible:ring-indigo-500 focus-visible:ring-offset-4 focus-visible:ring-offset-slate-900"
+            title={`${t('common.reset', 'Reset')} (R)`}
+            aria-label={`${t('common.reset', 'Reset')} (R)`}
           >
             <RotateCcw className="w-8 h-8 md:w-10 md:h-10" />
+            <kbd className="hidden sm:inline-flex mt-1 items-center justify-center w-5 h-5 border border-white/20 rounded text-[10px] font-bold bg-white/10">R</kbd>
           </button>
         </div>
       </div>

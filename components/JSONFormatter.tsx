@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback } from 'react';
-import { FileCode, Copy, Check, Trash2, AlertCircle, Maximize2, Minimize2, Download, SortAsc, Wrench } from 'lucide-react';
+import { FileCode, Copy, Check, Trash2, AlertCircle, Maximize2, Minimize2, Download, SortAsc, Wrench, ShieldCheck, Database } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 
 const MAX_LENGTH = 100000;
@@ -12,7 +12,9 @@ export function JSONFormatter({ initialData, onStateChange }: { initialData?: an
   const [sortKeys, setSortKeys] = useState(initialData?.sortKeys || false);
   const [error, setError] = useState('');
   const [copied, setCopied] = useState(false);
+  const [phpCopied, setPhpCopied] = useState(false);
   const [fixed, setFixed] = useState(false);
+  const [validated, setValidated] = useState(false);
 
   useEffect(() => {
     onStateChange?.({ input, output, indentSize, sortKeys });
@@ -74,6 +76,46 @@ export function JSONFormatter({ initialData, onStateChange }: { initialData?: an
       const formatted = JSON.stringify(parsed);
       setOutput(formatted);
       setError('');
+    } catch (e: any) {
+      setError(t('error.invalid_json') + ': ' + e.message);
+    }
+  };
+
+  const handleValidate = () => {
+    try {
+      if (!input.trim()) return;
+      JSON.parse(input);
+      setError('');
+      setValidated(true);
+      setTimeout(() => setValidated(false), 2000);
+    } catch (e: any) {
+      setError(t('error.invalid_json') + ': ' + e.message);
+    }
+  };
+
+  const handleCopyAsPHP = () => {
+    try {
+      if (!input.trim()) return;
+      const parsed = JSON.parse(input);
+
+      const toPHP = (obj: any): string => {
+        if (obj === null) return 'null';
+        if (typeof obj === 'string') return `'${obj.replace(/'/g, "\\'")}'`;
+        if (typeof obj === 'number' || typeof obj === 'boolean') return JSON.stringify(obj);
+        if (Array.isArray(obj)) {
+          return `[${obj.map(toPHP).join(', ')}]`;
+        }
+        if (typeof obj === 'object') {
+          const entries = Object.entries(obj).map(([k, v]) => `'${k.replace(/'/g, "\\'")}' => ${toPHP(v)}`);
+          return `[${entries.join(', ')}]`;
+        }
+        return 'null';
+      };
+
+      const phpArray = toPHP(parsed);
+      navigator.clipboard.writeText(phpArray);
+      setPhpCopied(true);
+      setTimeout(() => setPhpCopied(false), 2000);
     } catch (e: any) {
       setError(t('error.invalid_json') + ': ' + e.message);
     }
@@ -241,6 +283,30 @@ export function JSONFormatter({ initialData, onStateChange }: { initialData?: an
         >
           {fixed ? <Check className="w-4 h-4" /> : <Wrench className="w-4 h-4" />}
           {fixed ? t('jsonformatter.fixed_success') : t('jsonformatter.fix')}
+        </button>
+
+        <button
+          onClick={handleValidate}
+          className={`px-4 py-3 rounded-2xl text-sm font-bold transition-all flex items-center gap-2 border ${
+            validated
+              ? 'bg-emerald-50 dark:bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border-emerald-200 dark:border-emerald-500/20'
+              : 'text-slate-600 bg-white dark:bg-slate-900 border-slate-200 dark:border-slate-800 hover:border-indigo-500'
+          }`}
+        >
+          {validated ? <Check className="w-4 h-4" /> : <ShieldCheck className="w-4 h-4" />}
+          {validated ? t('jsonformatter.valid') : t('jsonformatter.validate')}
+        </button>
+
+        <button
+          onClick={handleCopyAsPHP}
+          className={`px-4 py-3 rounded-2xl text-sm font-bold transition-all flex items-center gap-2 border ${
+            phpCopied
+            ? 'bg-emerald-50 dark:bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border-emerald-200 dark:border-emerald-500/20'
+            : 'text-slate-600 bg-white dark:bg-slate-900 border-slate-200 dark:border-slate-800 hover:border-indigo-500'
+          }`}
+        >
+          {phpCopied ? <Check className="w-4 h-4" /> : <Database className="w-4 h-4" />}
+          {phpCopied ? t('common.copied') : t('jsonformatter.copy_php')}
         </button>
 
         <button

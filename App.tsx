@@ -79,6 +79,9 @@ import {
   Star,
   Check,
   Plus,
+  BarChart3,
+  Sigma,
+  Wand2,
   Grid,
   Table,
   Eye,
@@ -287,6 +290,9 @@ const WorldClock = lazy(() => import("./components/WorldClock").then(m => ({ def
 const Stopwatch = lazy(() => import("./components/Stopwatch").then(m => ({ default: m.Stopwatch })));
 const UnicodeTable = lazy(() => import("./components/UnicodeTable").then(m => ({ default: m.UnicodeTable })));
 const ASCIIArtGenerator = lazy(() => import("./components/ASCIIArtGenerator").then(m => ({ default: m.ASCIIArtGenerator })));
+const NumberStatistics = lazy(() => import("./components/NumberStatistics").then(m => ({ default: m.NumberStatistics })));
+const SequenceGenerator = lazy(() => import("./components/SequenceGenerator").then(m => ({ default: m.SequenceGenerator })));
+const ImageEffects = lazy(() => import("./components/ImageEffects").then(m => ({ default: m.ImageEffects })));
 
 // ⚡ Bolt Optimization: Pre-calculating tool map and search index for O(1) lookups and faster filtering
 const toolsMap: Record<string, Tool> = {};
@@ -2103,6 +2109,39 @@ const tools: Tool[] = [
     Component: ASCIIArtGenerator,
     category: "text",
     keywords: ["ascii", "art", "banner", "text", "style"],
+  },
+  {
+    id: "number-statistics",
+    name: "Statistiques",
+    nameEn: "Number Statistics",
+    icon: BarChart3,
+    description: "Calculer des statistiques à partir d'une liste de nombres",
+    descriptionEn: "Calculate statistics from a list of numbers",
+    Component: NumberStatistics,
+    category: "calculators",
+    keywords: ["math", "statistics", "mean", "median", "standard deviation", "sum", "statistiques", "moyenne"],
+  },
+  {
+    id: "sequence-generator",
+    name: "Suites Mathématiques",
+    nameEn: "Sequence Generator",
+    icon: Sigma,
+    description: "Générer des suites arithmétiques, géométriques ou de Fibonacci",
+    descriptionEn: "Generate arithmetic, geometric, or Fibonacci sequences",
+    Component: SequenceGenerator,
+    category: "calculators",
+    keywords: ["math", "sequence", "fibonacci", "arithmetic", "geometric", "suite"],
+  },
+  {
+    id: "image-effects",
+    name: "Effets Photo",
+    nameEn: "Image Effects",
+    icon: Wand2,
+    description: "Appliquer des filtres et effets sur vos images",
+    descriptionEn: "Apply filters and effects to your images",
+    Component: ImageEffects,
+    category: "other",
+    keywords: ["image", "filter", "pixelate", "blur", "photo", "effects", "edit"],
   },
 ];
 

@@ -49,8 +49,21 @@ export function CronGenerator({ initialData, onStateChange }: { initialData?: an
 
     // Day of Week
     if (dayOfWeek !== '*') {
-      const dIdx = parseInt(dayOfWeek);
-      res += isEn ? `on ${daysArr[dIdx] || dayOfWeek} ` : `le ${daysArr[dIdx] || dayOfWeek} `;
+      const parseDay = (val: string) => {
+        const d = parseInt(val);
+        return daysArr[d] || val;
+      };
+
+      if (dayOfWeek.includes('-')) {
+        const [start, end] = dayOfWeek.split('-');
+        res += isEn ? `from ${parseDay(start)} to ${parseDay(end)} ` : `du ${parseDay(start)} au ${parseDay(end)} `;
+      } else if (dayOfWeek.includes(',')) {
+        const list = dayOfWeek.split(',').map(parseDay);
+        const last = list.pop();
+        res += isEn ? `on ${list.join(', ')} and ${last} ` : `le ${list.join(', ')} et ${last} `;
+      } else {
+        res += isEn ? `on ${parseDay(dayOfWeek)} ` : `le ${parseDay(dayOfWeek)} `;
+      }
     }
 
     return res.trim() + ".";

@@ -43,6 +43,7 @@ export function RegExTester({ initialData, onStateChange }: { initialData?: any;
   const [error, setError] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(false);
   const [copied, setCopied] = useState(false);
+  const [matchesCopied, setMatchesCopied] = useState(false);
 
   const backdropRef = useRef<HTMLDivElement>(null);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
@@ -133,6 +134,14 @@ export function RegExTester({ initialData, onStateChange }: { initialData?: any;
     navigator.clipboard.writeText(regex);
     setCopied(true);
     setTimeout(() => setCopied(false), 2000);
+  };
+
+  const handleCopyMatches = () => {
+    if (matches.length === 0) return;
+    const list = matches.map(m => m.text).join('\n');
+    navigator.clipboard.writeText(list);
+    setMatchesCopied(true);
+    setTimeout(() => setMatchesCopied(false), 2000);
   };
 
   const renderHighlightedText = () => {
@@ -255,9 +264,22 @@ export function RegExTester({ initialData, onStateChange }: { initialData?: any;
           <div className="bg-white dark:bg-slate-900/40 p-6 rounded-[2.5rem] border border-slate-200 dark:border-slate-800 space-y-4 relative">
              <div className="flex justify-between items-center px-1">
               <label htmlFor="test-text" className="text-xs font-black uppercase tracking-widest text-slate-400">{t('regextester.test_text_input')}</label>
-              <div className="text-xs font-bold text-slate-400 flex items-center gap-2">
-                {isLoading && <Loader2 className="w-3 h-3 animate-spin text-indigo-500" />}
-                {t(matches.length === 1 ? 'regextester.matches_found_one' : 'regextester.matches_found_other', { count: matches.length })}
+              <div className="flex items-center gap-4">
+                <div className="text-xs font-bold text-slate-400 flex items-center gap-2">
+                  {isLoading && <Loader2 className="w-3 h-3 animate-spin text-indigo-500" />}
+                  {t(matches.length === 1 ? 'regextester.matches_found_one' : 'regextester.matches_found_other', { count: matches.length })}
+                </div>
+                {matches.length > 0 && (
+                  <button
+                    onClick={handleCopyMatches}
+                    className={`text-xs font-bold flex items-center gap-1 transition-all ${
+                      matchesCopied ? 'text-emerald-500' : 'text-indigo-500 hover:text-indigo-600'
+                    }`}
+                  >
+                    {matchesCopied ? <Check className="w-3 h-3" /> : <Copy className="w-3 h-3" />}
+                    {matchesCopied ? t('common.copied') : t('regextester.copy_matches')}
+                  </button>
+                )}
               </div>
             </div>
 

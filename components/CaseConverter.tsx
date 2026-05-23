@@ -36,6 +36,7 @@ export function CaseConverter({ initialData, onStateChange }: { initialData?: an
     'SCREAMING_SNAKE_CASE': (t: string) => t.toUpperCase().replace(/[\s-]+/g, '_'),
     'kebab-case': (t: string) => t.toLowerCase().replace(/[\s_]+/g, '-'),
     'SCREAMING-KEBAB-CASE': (t: string) => t.toUpperCase().replace(/[\s_]+/g, '-'),
+    'COBOL-CASE': (t: string) => t.toUpperCase().replace(/[\s_]+/g, '-'),
     'slugify': (t: string) => t.toLowerCase()
       .normalize('NFD')
       .replace(/[\u0300-\u036f]/g, '')

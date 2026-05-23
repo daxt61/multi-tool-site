@@ -2,7 +2,7 @@ import { useState, useEffect, useMemo, useCallback } from 'react';
 import { Copy, Check, Trash2, ArrowUpDown, Info, Ruler, Download, Search, X } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 
-type ConversionCategory = 'length' | 'weight' | 'temperature' | 'area' | 'volume' | 'digital' | 'digital_si' | 'pressure' | 'energy' | 'speed' | 'time' | 'power' | 'frequency' | 'consumption' | 'angle' | 'torque' | 'force' | 'datarate' | 'illuminance' | 'luminance' | 'radiation' | 'magnetic' | 'acceleration' | 'density' | 'voltage' | 'current' | 'resistance' | 'capacitance' | 'typography' | 'cooking' | 'radioactivity' | 'charge' | 'magnetic_flux';
+type ConversionCategory = 'length' | 'weight' | 'temperature' | 'area' | 'volume' | 'digital' | 'digital_si' | 'pressure' | 'energy' | 'speed' | 'time' | 'power' | 'frequency' | 'consumption' | 'angle' | 'torque' | 'force' | 'datarate' | 'illuminance' | 'luminance' | 'radiation' | 'magnetic' | 'acceleration' | 'density' | 'voltage' | 'current' | 'resistance' | 'capacitance' | 'typography' | 'cooking' | 'radioactivity' | 'charge' | 'magnetic_flux' | 'mass_flow';
 
 interface ConversionUnit {
   name: string;
@@ -251,11 +251,17 @@ const CONVERSIONS: Record<ConversionCategory, Record<string, ConversionUnit>> = 
     'mWb': { name: 'Milliweber (mWb)', toBase: (v) => v / 1000, fromBase: (v) => v * 1000 },
     'uWb': { name: 'Microweber (µWb)', toBase: (v) => v / 1000000, fromBase: (v) => v * 1000000 },
     'Mx': { name: 'Maxwell (Mx)', toBase: (v) => v / 100000000, fromBase: (v) => v * 100000000 }
+  },
+  mass_flow: {
+    'kg/s': { name: 'Kilogrammes par seconde', toBase: (v) => v, fromBase: (v) => v },
+    'kg/h': { name: 'Kilogrammes par heure', toBase: (v) => v / 3600, fromBase: (v) => v * 3600 },
+    'lb/s': { name: 'Livres par seconde', toBase: (v) => v * 0.453592, fromBase: (v) => v / 0.453592 },
+    'lb/h': { name: 'Livres par heure', toBase: (v) => (v * 0.453592) / 3600, fromBase: (v) => (v / 0.453592) * 3600 }
   }
 };
 
 const CATEGORIES_IDS: ConversionCategory[] = [
-  'length', 'weight', 'temperature', 'area', 'volume', 'digital', 'digital_si', 'speed', 'time', 'pressure', 'energy', 'power', 'frequency', 'consumption', 'angle', 'torque', 'force', 'datarate', 'illuminance', 'luminance', 'radiation', 'magnetic', 'acceleration', 'density', 'voltage', 'current', 'resistance', 'capacitance', 'typography', 'cooking', 'radioactivity', 'charge', 'magnetic_flux'
+  'length', 'weight', 'temperature', 'area', 'volume', 'digital', 'digital_si', 'speed', 'time', 'pressure', 'energy', 'power', 'frequency', 'consumption', 'angle', 'torque', 'force', 'datarate', 'illuminance', 'luminance', 'radiation', 'magnetic', 'acceleration', 'density', 'voltage', 'current', 'resistance', 'capacitance', 'typography', 'cooking', 'radioactivity', 'charge', 'magnetic_flux', 'mass_flow'
 ];
 
 const convert = (value: string, from: string, to: string, cat: ConversionCategory) => {

@@ -40,6 +40,27 @@ export function NanoIDGenerator({ initialData, onStateChange }: { initialData?: 
   }, []);
 
   useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (document.activeElement?.tagName === "INPUT" || document.activeElement?.tagName === "TEXTAREA") {
+        return;
+      }
+
+      const isBodyFocused = document.activeElement === document.body;
+      const isModifierPressed = e.metaKey || e.ctrlKey || e.altKey || e.shiftKey;
+
+      if (!isModifierPressed) {
+        if ((e.key.toLowerCase() === 'r') || (e.code === 'Space' && isBodyFocused)) {
+          e.preventDefault();
+          handleGenerate();
+        }
+      }
+    };
+
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [handleGenerate]);
+
+  useEffect(() => {
     onStateChange?.({ length, alphabet, count });
   }, [length, alphabet, count, onStateChange]);
 
@@ -95,7 +116,7 @@ export function NanoIDGenerator({ initialData, onStateChange }: { initialData?: 
                 <button
                   key={name}
                   onClick={() => setAlphabet(val)}
-                  className={`px-3 py-1.5 rounded-xl text-[10px] font-bold uppercase transition-all ${
+                  className={`px-3 py-1.5 rounded-xl text-[10px] font-bold uppercase transition-all focus-visible:ring-2 focus-visible:ring-indigo-500 focus-visible:outline-none ${
                     alphabet === val
                       ? 'bg-indigo-600 text-white'
                       : 'bg-slate-100 dark:bg-slate-800 text-slate-500 hover:bg-slate-200 dark:hover:bg-slate-700'
@@ -119,9 +140,12 @@ export function NanoIDGenerator({ initialData, onStateChange }: { initialData?: 
       <div className="flex justify-center">
         <button
           onClick={handleGenerate}
-          className="px-8 py-4 bg-indigo-600 text-white rounded-2xl font-black text-lg shadow-lg shadow-indigo-600/20 hover:bg-indigo-700 transition-all active:scale-95 flex items-center gap-2"
+          title={`${t('nanoid.generate')} (R)`}
+          aria-label={`${t('nanoid.generate')} (R)`}
+          className="px-8 py-4 bg-indigo-600 text-white rounded-2xl font-black text-lg shadow-lg shadow-indigo-600/20 hover:bg-indigo-700 transition-all active:scale-95 flex items-center gap-2 focus-visible:ring-2 focus-visible:ring-indigo-500 focus-visible:outline-none"
         >
           <RefreshCcw className="w-5 h-5" /> {t('nanoid.generate')}
+          <kbd className="hidden sm:inline-flex items-center justify-center w-5 h-5 border border-white/20 rounded text-[10px] font-bold bg-white/5 text-white/50 ml-1">R</kbd>
         </button>
       </div>
 
@@ -132,7 +156,7 @@ export function NanoIDGenerator({ initialData, onStateChange }: { initialData?: 
           {ids.length > 0 && (
             <button
               onClick={() => handleCopy(ids.join('\n'), 'all')}
-              className={`text-[10px] font-black uppercase tracking-widest px-3 py-1 rounded-lg transition-all flex items-center gap-1.5 border ${
+              className={`text-[10px] font-black uppercase tracking-widest px-3 py-1 rounded-lg transition-all flex items-center gap-1.5 border focus-visible:ring-2 focus-visible:ring-indigo-500 focus-visible:outline-none ${
                 copied === 'all'
                   ? 'bg-emerald-50 dark:bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border-emerald-200 dark:border-emerald-500/20'
                   : 'text-indigo-600 dark:text-indigo-400 border-transparent hover:bg-indigo-50 dark:hover:bg-indigo-900/20'
@@ -152,10 +176,11 @@ export function NanoIDGenerator({ initialData, onStateChange }: { initialData?: 
               <code className="font-mono text-sm dark:text-slate-300 break-all">{id}</code>
               <button
                 onClick={() => handleCopy(id, index)}
-                className={`p-2 rounded-xl transition-all ${
+                aria-label={t('common.copy')}
+                className={`p-2 rounded-xl transition-all focus-visible:ring-2 focus-visible:ring-indigo-500 focus-visible:outline-none ${
                   copied === index
-                    ? 'bg-emerald-50 dark:bg-emerald-500/10 text-emerald-600 dark:text-emerald-400'
-                    : 'text-slate-400 hover:text-indigo-500 opacity-0 group-hover:opacity-100'
+                    ? 'bg-emerald-50 dark:bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border-emerald-200 dark:border-emerald-500/20'
+                    : 'text-slate-400 hover:text-indigo-500 opacity-100 md:opacity-0 md:group-hover:opacity-100 md:focus-visible:opacity-100'
                 }`}
               >
                 {copied === index ? <Check className="w-4 h-4" /> : <Copy className="w-4 h-4" />}

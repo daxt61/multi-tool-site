@@ -297,6 +297,10 @@ const ImageEffects = lazy(() => import("./components/ImageEffects").then(m => ({
 const BcryptGenerator = lazy(() => import("./components/BcryptGenerator").then(m => ({ default: m.BcryptGenerator })));
 const ColorExtractor = lazy(() => import("./components/ColorExtractor").then(m => ({ default: m.ColorExtractor })));
 const CSVMapper = lazy(() => import("./components/CSVMapper").then(m => ({ default: m.CSVMapper })));
+const IPExtractor = lazy(() => import("./components/IPExtractor").then(m => ({ default: m.IPExtractor })));
+const HashExtractor = lazy(() => import("./components/HashExtractor").then(m => ({ default: m.HashExtractor })));
+const ImageToASCII = lazy(() => import("./components/ImageToASCII").then(m => ({ default: m.ImageToASCII })));
+const MatrixCalculator = lazy(() => import("./components/MatrixCalculator").then(m => ({ default: m.MatrixCalculator })));
 
 // ⚡ Bolt Optimization: Pre-calculating tool map and search index for O(1) lookups and faster filtering
 const toolsMap: Record<string, Tool> = {};
@@ -2179,6 +2183,50 @@ const tools: Tool[] = [
     Component: CSVMapper,
     category: "dev",
     keywords: ["csv", "delimiter", "mapping", "converter", "format"],
+  },
+  {
+    id: "ip-extractor",
+    name: "Extracteur d'IP",
+    nameEn: "IP Extractor",
+    icon: Globe,
+    description: "Extraire les adresses IPv4 et IPv6 d'un texte",
+    descriptionEn: "Extract IPv4 and IPv6 addresses from text",
+    Component: IPExtractor,
+    category: "text",
+    keywords: ["ip", "ipv4", "ipv6", "network", "extract", "regex"],
+  },
+  {
+    id: "hash-extractor",
+    name: "Extracteur de Hash",
+    nameEn: "Hash Extractor",
+    icon: Shield,
+    description: "Extraire les hashes MD5, SHA1, SHA256 et SHA512 d'un texte",
+    descriptionEn: "Extract MD5, SHA1, SHA256 and SHA512 hashes from text",
+    Component: HashExtractor,
+    category: "dev",
+    keywords: ["hash", "md5", "sha1", "sha256", "sha512", "crypto", "extract"],
+  },
+  {
+    id: "image-to-ascii",
+    name: "Image en ASCII",
+    nameEn: "Image to ASCII",
+    icon: ImageIcon,
+    description: "Convertir une image en art ASCII textuel",
+    descriptionEn: "Convert an image to textual ASCII art",
+    Component: ImageToASCII,
+    category: "text",
+    keywords: ["image", "ascii", "art", "canvas", "textual"],
+  },
+  {
+    id: "matrix-calculator",
+    name: "Calculatrice de Matrices",
+    nameEn: "Matrix Calculator",
+    icon: Grid,
+    description: "Effectuer des opérations sur les matrices (addition, multiplication, etc.)",
+    descriptionEn: "Perform matrix operations (addition, multiplication, etc.)",
+    Component: MatrixCalculator,
+    category: "calculators",
+    keywords: ["matrix", "math", "algebra", "determinant", "transpose", "calculation"],
   },
 ];
 

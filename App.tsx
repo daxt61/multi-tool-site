@@ -301,6 +301,8 @@ const IPExtractor = lazy(() => import("./components/IPExtractor").then(m => ({ d
 const HashExtractor = lazy(() => import("./components/HashExtractor").then(m => ({ default: m.HashExtractor })));
 const ImageToASCII = lazy(() => import("./components/ImageToASCII").then(m => ({ default: m.ImageToASCII })));
 const MatrixCalculator = lazy(() => import("./components/MatrixCalculator").then(m => ({ default: m.MatrixCalculator })));
+const DataURLGenerator = lazy(() => import("./components/DataURLGenerator").then(m => ({ default: m.DataURLGenerator })));
+const NanoIDGenerator = lazy(() => import("./components/NanoIDGenerator").then(m => ({ default: m.NanoIDGenerator })));
 
 // ⚡ Bolt Optimization: Pre-calculating tool map and search index for O(1) lookups and faster filtering
 const toolsMap: Record<string, Tool> = {};
@@ -2227,6 +2229,28 @@ const tools: Tool[] = [
     Component: MatrixCalculator,
     category: "calculators",
     keywords: ["matrix", "math", "algebra", "determinant", "transpose", "calculation"],
+  },
+  {
+    id: "data-url",
+    name: "Générateur Data URL",
+    nameEn: "Data URL Generator",
+    icon: FileUp,
+    description: "Convertir des fichiers en Data URL base64 avec aperçu",
+    descriptionEn: "Convert files to base64 Data URLs with preview",
+    Component: DataURLGenerator,
+    category: "dev",
+    keywords: ["data", "url", "base64", "inline", "embed", "image", "file"],
+  },
+  {
+    id: "nanoid",
+    name: "Générateur NanoID",
+    nameEn: "NanoID Generator",
+    icon: Fingerprint,
+    description: "Générer des identifiants uniques cryptographiquement sûrs",
+    descriptionEn: "Generate cryptographically secure unique identifiers",
+    Component: NanoIDGenerator,
+    category: "dev",
+    keywords: ["id", "nanoid", "unique", "identifier", "secure", "crypto", "random"],
   },
 ];
 

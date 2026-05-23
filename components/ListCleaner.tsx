@@ -13,6 +13,7 @@ export function ListCleaner({ initialData, onStateChange }: { initialData?: any;
   // States for interactive tools
   const [prefix, setPrefix] = useState('');
   const [suffix, setSuffix] = useState('');
+  const [filterText, setFilterText] = useState('');
   const [limit, setLimit] = useState(10);
 
   useEffect(() => {
@@ -121,6 +122,18 @@ export function ListCleaner({ initialData, onStateChange }: { initialData?: any;
     }
   };
 
+  const handleFilterKeep = () => {
+    if (filterText) {
+      processList(lines => lines.filter(line => line.includes(filterText)));
+    }
+  };
+
+  const handleFilterRemove = () => {
+    if (filterText) {
+      processList(lines => lines.filter(line => !line.includes(filterText)));
+    }
+  };
+
   const itemCount = text.split('\n').filter((l: string) => l.trim().length > 0).length;
 
   return (
@@ -225,6 +238,39 @@ export function ListCleaner({ initialData, onStateChange }: { initialData?: any;
               >
                 <Minus className="w-3.5 h-3.5" /> {t('listcleaner.remove')}
               </button>
+            </div>
+          </div>
+
+          {/* Filter List */}
+          <div className="p-6 bg-white dark:bg-slate-900/50 border border-slate-200 dark:border-slate-800 rounded-3xl space-y-4">
+            <div className="flex items-center gap-2 text-indigo-500 px-1">
+              <RefreshCcw className="w-4 h-4" />
+              <h3 className="font-black uppercase tracking-widest text-[10px] text-slate-400">{t('listcleaner.filter_title', 'Filtering')}</h3>
+            </div>
+            <div className="space-y-3">
+              <input
+                type="text"
+                value={filterText}
+                onChange={(e) => setFilterText(e.target.value)}
+                className="w-full px-3 py-2 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-sm outline-none focus:ring-2 focus:ring-indigo-500/20 transition-all"
+                placeholder={t('listcleaner.filter_placeholder', 'Contain text...')}
+              />
+              <div className="grid grid-cols-2 gap-2">
+                <button
+                  onClick={handleFilterKeep}
+                  disabled={!text || !filterText}
+                  className="px-3 py-2 bg-indigo-600 text-white text-[10px] font-bold rounded-xl hover:bg-indigo-700 transition-all disabled:opacity-50"
+                >
+                  {t('listcleaner.filter_keep', 'Keep')}
+                </button>
+                <button
+                  onClick={handleFilterRemove}
+                  disabled={!text || !filterText}
+                  className="px-3 py-2 bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 text-[10px] font-bold rounded-xl hover:bg-slate-200 dark:hover:bg-slate-700 transition-all disabled:opacity-50"
+                >
+                  {t('listcleaner.filter_remove', 'Remove')}
+                </button>
+              </div>
             </div>
           </div>
 

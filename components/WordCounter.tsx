@@ -1,10 +1,11 @@
-import { useState, useMemo, useDeferredValue, useEffect, useCallback } from 'react';
+import { useState, useMemo, useDeferredValue, useEffect, useCallback, useRef } from 'react';
 import { Copy, Check, Trash2, Hash, Type, FileText, AlignLeft, Clock, MessageSquare, BarChart3, Info, Star, AlertCircle, Download, Pilcrow } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 
 const MAX_LENGTH = 100000;
 
 export function WordCounter({ initialData, onStateChange }: { initialData?: any; onStateChange?: (state: any) => void }) {
+  const textareaRef = useRef<HTMLTextAreaElement>(null);
   const { t } = useTranslation();
   const [text, setText] = useState(initialData?.text || '');
   const [copied, setCopied] = useState(false);
@@ -272,7 +273,7 @@ export function WordCounter({ initialData, onStateChange }: { initialData?: any;
   return (
     <div className="max-w-5xl mx-auto space-y-8">
       {error && (
-        <div className="bg-rose-50 dark:bg-rose-500/10 border border-rose-200 dark:border-rose-800 p-4 rounded-2xl flex items-center gap-3 text-rose-600 dark:text-rose-400 font-bold animate-in fade-in slide-in-from-top-2">
+        <div role="alert" className="bg-rose-50 dark:bg-rose-500/10 border border-rose-200 dark:border-rose-800 p-4 rounded-2xl flex items-center gap-3 text-rose-600 dark:text-rose-400 font-bold animate-in fade-in slide-in-from-top-2">
           <AlertCircle className="w-5 h-5" />
           {error}
         </div>
@@ -316,9 +317,10 @@ export function WordCounter({ initialData, onStateChange }: { initialData?: any;
               onClick={() => {
                 setText('');
                 setError(null);
+                textareaRef.current?.focus();
               }}
               disabled={!text}
-              className="text-xs font-bold text-rose-500 bg-rose-50 dark:bg-rose-500/10 hover:bg-rose-100 dark:hover:bg-rose-500/20 px-3 py-1.5 rounded-xl flex items-center gap-1 transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+              className="text-xs font-bold text-rose-500 bg-rose-50 dark:bg-rose-500/10 hover:bg-rose-100 dark:hover:bg-rose-500/20 px-3 py-1.5 rounded-xl flex items-center gap-1 transition-all disabled:opacity-50 disabled:cursor-not-allowed focus-visible:ring-2 focus-visible:ring-rose-500 focus-visible:outline-none"
             >
               <Trash2 className="w-3 h-3" /> {t('common.clear')}
             </button>
@@ -326,6 +328,7 @@ export function WordCounter({ initialData, onStateChange }: { initialData?: any;
         </div>
         <textarea
           id="word-counter-input"
+          ref={textareaRef}
           value={text}
           onChange={(e) => {
             const val = e.target.value;
@@ -357,7 +360,13 @@ export function WordCounter({ initialData, onStateChange }: { initialData?: any;
         ].map((stat) => (
           <div key={stat.label} className="p-6 bg-white dark:bg-slate-900 border border-slate-100 dark:border-slate-800 rounded-2xl space-y-2">
             <div className="text-indigo-500 dark:text-indigo-400">{stat.icon}</div>
-            <div className="text-2xl font-black font-mono tracking-tight dark:text-white">{stat.value}</div>
+            <div
+              className="text-2xl font-black font-mono tracking-tight dark:text-white"
+              aria-live="polite"
+              aria-atomic="true"
+            >
+              {stat.value}
+            </div>
             <div className="text-xs font-bold text-slate-400 uppercase tracking-wider">{stat.label}</div>
           </div>
         ))}

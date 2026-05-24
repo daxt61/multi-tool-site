@@ -106,3 +106,8 @@
 **Vulnerability:** The WiFiGenerator was injecting raw SSID and Password strings into the MECARD format (`WIFI:S:SSID;...`). Lack of escaping allowed special characters like `;` and `:` to break the format or inject additional fields.
 **Learning:** The MECARD format used for WiFi QR codes requires specific escaping of characters (`;`, `:`, `"`, `,`, and `\`) using a backslash.
 **Prevention:** Implement a dedicated escaping function for MECARD components and enforce strict length limits on inputs to prevent buffer overflows in primitive QR scanners.
+
+## 2025-07-10 - [PHP Comment Breakout via Closing Tags]
+**Vulnerability:** Code generators for PHP that include user-controlled data in single-line comments (e.g., // Original key: ...) are vulnerable to breakout if the data contains the PHP closing tag ?>.
+**Learning:** In PHP, the closing tag ?> terminates the current PHP block, even if it appears inside a single-line comment. This allows an attacker to "break out" of the comment and the entire PHP code block to start a new one or execute plain HTML/content.
+**Prevention:** Always sanitize user-controlled data in PHP comments by neutralizing the closing tag (e.g., replacing ?> with ? >) in addition to removing or replacing newlines.

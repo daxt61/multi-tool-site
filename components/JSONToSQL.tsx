@@ -87,29 +87,29 @@ export function JSONToSQL({ initialData, onStateChange }: { initialData?: any; o
         result += `CREATE TABLE ${sqlTableName} (\n  ${columnDefs.join(',\n  ')}\n);\n\n`;
       }
 
+      const escapeValue = (val: any) => {
+        if (val === undefined || val === null) return 'NULL';
+        if (typeof val === 'boolean') return val ? '1' : '0';
+
+        let str = typeof val === 'object' ? JSON.stringify(val) : String(val);
+        let escaped = str.replace(/'/g, "''");
+        if (dialect === 'mysql') {
+          escaped = escaped.replace(/\\/g, '\\\\');
+        }
+
+        if (typeof val === 'number') return val;
+        return `'${escaped}'`;
+      };
+
       if (batchInsert && data.length > 0) {
         const allValues = data.map((row: any) => {
-          const values = columns.map(col => {
-            const val = row[col];
-            if (val === undefined || val === null) return 'NULL';
-            if (typeof val === 'string') return `'${val.replace(/'/g, "''")}'`;
-            if (typeof val === 'boolean') return val ? '1' : '0';
-            if (typeof val === 'object') return `'${JSON.stringify(val).replace(/'/g, "''")}'`;
-            return val;
-          });
+          const values = columns.map(col => escapeValue(row[col]));
           return `(${values.join(', ')})`;
         });
         result += `INSERT INTO ${sqlTableName} (${escapedColumns.join(', ')}) VALUES\n${allValues.join(',\n')};`;
       } else {
         const statements = data.map((row: any) => {
-          const values = columns.map(col => {
-            const val = row[col];
-            if (val === undefined || val === null) return 'NULL';
-            if (typeof val === 'string') return `'${val.replace(/'/g, "''")}'`;
-            if (typeof val === 'boolean') return val ? '1' : '0';
-            if (typeof val === 'object') return `'${JSON.stringify(val).replace(/'/g, "''")}'`;
-            return val;
-          });
+          const values = columns.map(col => escapeValue(row[col]));
           return `INSERT INTO ${sqlTableName} (${escapedColumns.join(', ')}) VALUES (${values.join(', ')});`;
         });
         result += statements.join('\n');

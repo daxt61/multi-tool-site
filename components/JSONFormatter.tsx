@@ -13,6 +13,7 @@ export function JSONFormatter({ initialData, onStateChange }: { initialData?: an
   const [error, setError] = useState('');
   const [copied, setCopied] = useState(false);
   const [phpCopied, setPhpCopied] = useState(false);
+  const [pythonCopied, setPythonCopied] = useState(false);
   const [csCopied, setCsCopied] = useState(false);
   const [javaCopied, setJavaCopied] = useState(false);
   const [fixed, setFixed] = useState(false);
@@ -49,6 +50,35 @@ export function JSONFormatter({ initialData, onStateChange }: { initialData?: an
       const formatted = JSON.stringify(parsed, null, indent);
       setOutput(formatted);
       setError('');
+    } catch (e: any) {
+      setError(t('error.invalid_json') + ': ' + e.message);
+    }
+  };
+
+  const handleCopyAsPython = () => {
+    try {
+      if (!input.trim()) return;
+      const parsed = JSON.parse(input);
+
+      const toPython = (obj: any): string => {
+        if (obj === null) return 'None';
+        if (typeof obj === 'boolean') return obj ? 'True' : 'False';
+        if (typeof obj === 'number') return JSON.stringify(obj);
+        if (typeof obj === 'string') return `'${obj.replace(/'/g, "\\'")}'`;
+        if (Array.isArray(obj)) {
+          return `[${obj.map(toPython).join(', ')}]`;
+        }
+        if (typeof obj === 'object') {
+          const entries = Object.entries(obj).map(([k, v]) => `'${k.replace(/'/g, "\\'")}': ${toPython(v)}`);
+          return `{${entries.join(', ')}}`;
+        }
+        return 'None';
+      };
+
+      const pythonDict = toPython(parsed);
+      navigator.clipboard.writeText(pythonDict);
+      setPythonCopied(true);
+      setTimeout(() => setPythonCopied(false), 2000);
     } catch (e: any) {
       setError(t('error.invalid_json') + ': ' + e.message);
     }
@@ -481,6 +511,18 @@ export function JSONFormatter({ initialData, onStateChange }: { initialData?: an
         >
           {phpCopied ? <Check className="w-4 h-4" /> : <Database className="w-4 h-4" />}
           {phpCopied ? t('common.copied') : t('jsonformatter.copy_php')}
+        </button>
+
+        <button
+          onClick={handleCopyAsPython}
+          className={`px-4 py-3 rounded-2xl text-sm font-bold transition-all flex items-center gap-2 border ${
+            pythonCopied
+            ? 'bg-emerald-50 dark:bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border border-emerald-200 dark:border-emerald-500/20'
+            : 'text-slate-600 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 hover:border-indigo-500'
+          }`}
+        >
+          {pythonCopied ? <Check className="w-4 h-4" /> : <Code className="w-4 h-4" />}
+          {pythonCopied ? t('common.copied') : t('jsonformatter.copy_python')}
         </button>
 
         <button

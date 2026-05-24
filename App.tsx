@@ -303,6 +303,7 @@ const ImageToASCII = lazy(() => import("./components/ImageToASCII").then(m => ({
 const MatrixCalculator = lazy(() => import("./components/MatrixCalculator").then(m => ({ default: m.MatrixCalculator })));
 const DataURLGenerator = lazy(() => import("./components/DataURLGenerator").then(m => ({ default: m.DataURLGenerator })));
 const NanoIDGenerator = lazy(() => import("./components/NanoIDGenerator").then(m => ({ default: m.NanoIDGenerator })));
+const MnemonicGenerator = lazy(() => import("./components/MnemonicGenerator").then(m => ({ default: m.MnemonicGenerator })));
 
 // ⚡ Bolt Optimization: Pre-calculating tool map and search index for O(1) lookups and faster filtering
 const toolsMap: Record<string, Tool> = {};
@@ -2251,6 +2252,17 @@ const tools: Tool[] = [
     Component: NanoIDGenerator,
     category: "dev",
     keywords: ["id", "nanoid", "unique", "identifier", "secure", "crypto", "random"],
+  },
+  {
+    id: "mnemonic-generator",
+    name: "Phrase Secrète",
+    nameEn: "Mnemonic Generator",
+    icon: Key,
+    description: "Générer une phrase de récupération BIP-39 sécurisée",
+    descriptionEn: "Generate a secure BIP-39 recovery phrase",
+    Component: MnemonicGenerator,
+    category: "dev",
+    keywords: ["crypto", "wallet", "seed", "mnemonic", "bip39", "security", "recovery"],
   },
 ];
 

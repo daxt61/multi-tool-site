@@ -304,6 +304,9 @@ const MatrixCalculator = lazy(() => import("./components/MatrixCalculator").then
 const DataURLGenerator = lazy(() => import("./components/DataURLGenerator").then(m => ({ default: m.DataURLGenerator })));
 const NanoIDGenerator = lazy(() => import("./components/NanoIDGenerator").then(m => ({ default: m.NanoIDGenerator })));
 const MnemonicGenerator = lazy(() => import("./components/MnemonicGenerator").then(m => ({ default: m.MnemonicGenerator })));
+const LSystemGenerator = lazy(() => import("./components/LSystemGenerator").then(m => ({ default: m.LSystemGenerator })));
+const BinaryBitCounter = lazy(() => import("./components/BinaryBitCounter").then(m => ({ default: m.BinaryBitCounter })));
+const DivisorsFinder = lazy(() => import("./components/DivisorsFinder").then(m => ({ default: m.DivisorsFinder })));
 
 // ⚡ Bolt Optimization: Pre-calculating tool map and search index for O(1) lookups and faster filtering
 const toolsMap: Record<string, Tool> = {};
@@ -2263,6 +2266,39 @@ const tools: Tool[] = [
     Component: MnemonicGenerator,
     category: "dev",
     keywords: ["crypto", "wallet", "seed", "mnemonic", "bip39", "security", "recovery"],
+  },
+  {
+    id: "l-system",
+    name: "Générateur L-System",
+    nameEn: "L-System Generator",
+    icon: Sparkles,
+    description: "Générer des fractales via des systèmes de Lindenmayer",
+    descriptionEn: "Generate fractals using Lindenmayer systems",
+    Component: LSystemGenerator,
+    category: "calculators",
+    keywords: ["fractal", "l-system", "math", "recursive", "turtle", "graphics"],
+  },
+  {
+    id: "bit-counter",
+    name: "Compteur de Bits",
+    nameEn: "Binary Bit Counter",
+    icon: Binary,
+    description: "Compter les 0 et 1 dans des données binaires",
+    descriptionEn: "Count zeros and ones in binary data",
+    Component: BinaryBitCounter,
+    category: "dev",
+    keywords: ["binary", "bit", "counter", "statistics", "data", "0101"],
+  },
+  {
+    id: "divisors-finder",
+    name: "Diviseurs d'un Nombre",
+    nameEn: "Divisors Finder",
+    icon: Calculator,
+    description: "Trouver tous les diviseurs et la factorisation première",
+    descriptionEn: "Find all divisors and prime factorization of a number",
+    Component: DivisorsFinder,
+    category: "calculators",
+    keywords: ["math", "divisors", "prime", "factorization", "number", "integers"],
   },
 ];
 

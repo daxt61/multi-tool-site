@@ -39,6 +39,17 @@ export function JSONToJava({ initialData, onStateChange }: { initialData?: any; 
     return pascal.charAt(0).toLowerCase() + pascal.slice(1);
   };
 
+  const escapeJavaString = (str: string) => {
+    // Sentinel: Escape backslashes, double quotes, and control characters to prevent breakout
+    // from the @JsonProperty or @SerializedName attribute which could lead to snippet injection.
+    return str
+      .replace(/\\/g, '\\\\')
+      .replace(/"/g, '\\"')
+      .replace(/\n/g, '\\n')
+      .replace(/\r/g, '\\r')
+      .replace(/\t/g, '\\t');
+  };
+
   const generateJava = useCallback(() => {
     if (!jsonInput.trim()) {
       setOutput('');
@@ -124,10 +135,11 @@ export function JSONToJava({ initialData, onStateChange }: { initialData?: any; 
         finalOutput += `public class ${javaClass.name} {\n`;
 
         javaClass.fields.forEach(field => {
+          const escapedKey = escapeJavaString(field.originalKey);
           if (annotation === 'jackson') {
-            finalOutput += `    @JsonProperty("${field.originalKey}")\n`;
+            finalOutput += `    @JsonProperty("${escapedKey}")\n`;
           } else if (annotation === 'gson') {
-            finalOutput += `    @SerializedName("${field.originalKey}")\n`;
+            finalOutput += `    @SerializedName("${escapedKey}")\n`;
           }
           finalOutput += `    private ${field.type} ${field.name};\n`;
         });

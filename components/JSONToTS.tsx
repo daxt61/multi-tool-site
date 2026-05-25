@@ -71,7 +71,9 @@ export function JSONToTS({ initialData, onStateChange }: { initialData?: any; on
 
           const fields = Object.entries(val).map(([key, value]) => {
             const isValidIdent = /^[a-zA-Z_$][a-zA-Z0-9_$]*$/.test(key);
-            const name = isValidIdent ? key : `"${key}"`;
+            // Sentinel: Escape double quotes and backslashes in keys to prevent breakout
+            // when they are used as property names in the generated interface.
+            const name = isValidIdent ? key : `"${key.replace(/\\/g, '\\\\').replace(/"/g, '\\"')}"`;
             return {
               name: name,
               type: getTSType(value, key, depth + 1),

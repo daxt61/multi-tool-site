@@ -13,38 +13,33 @@ export function CronGenerator({ initialData, onStateChange }: { initialData?: an
   const [copied, setCopied] = useState(false);
 
   const humanDescription = useMemo(() => {
-    const isEn = i18n.language === 'en';
-    if (cron === '* * * * *') return isEn ? "Every minute, every day." : "Toutes les minutes, tous les jours.";
+    if (cron === '* * * * *') return t('cron.desc_every_minute');
 
-    const monthsArr = isEn
-      ? ['', 'January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December']
-      : ['', 'janvier', 'février', 'mars', 'avril', 'mai', 'juin', 'juillet', 'août', 'septembre', 'octobre', 'novembre', 'décembre'];
-    const daysArr = isEn
-      ? ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday']
-      : ['dimanche', 'lundi', 'mardi', 'mercredi', 'jeudi', 'vendredi', 'samedi', 'dimanche'];
+    const monthsArr = ['', t('unit.symbol.time.january'), t('unit.symbol.time.february'), t('unit.symbol.time.march'), t('unit.symbol.time.april'), t('unit.symbol.time.may'), t('unit.symbol.time.june'), t('unit.symbol.time.july'), t('unit.symbol.time.august'), t('unit.symbol.time.september'), t('unit.symbol.time.october'), t('unit.symbol.time.november'), t('unit.symbol.time.december')];
+    const daysArr = [t('unit.symbol.time.sunday'), t('unit.symbol.time.monday'), t('unit.symbol.time.tuesday'), t('unit.symbol.time.wednesday'), t('unit.symbol.time.thursday'), t('unit.symbol.time.friday'), t('unit.symbol.time.saturday'), t('unit.symbol.time.sunday')];
 
-    let res = isEn ? "Runs " : "S'exécute ";
+    let res = t('cron.desc_runs') + " ";
 
     // Minutes
-    if (minutes === '*') res += isEn ? "every minute " : "chaque minute ";
-    else if (minutes.startsWith('*/')) res += isEn ? `every ${minutes.slice(2)} minutes ` : `toutes les ${minutes.slice(2)} minutes `;
-    else res += isEn ? `at minute ${minutes} ` : `à la minute ${minutes} `;
+    if (minutes === '*') res += t('cron.desc_every_minute_connect') + " ";
+    else if (minutes.startsWith('*/')) res += t('cron.desc_every_n_minutes', { count: minutes.slice(2) }) + " ";
+    else res += t('cron.desc_at_minute', { count: minutes }) + " ";
 
     // Hours
     if (hours === '*') {
-      if (minutes !== '*') res += isEn ? "of every hour " : "de chaque heure ";
-    } else if (hours.startsWith('*/')) res += isEn ? `every ${hours.slice(2)} hours ` : `toutes les ${hours.slice(2)} heures `;
-    else res += isEn ? `at ${hours}:00 ` : `à ${hours}h `;
+      if (minutes !== '*') res += t('cron.desc_every_hour_connect') + " ";
+    } else if (hours.startsWith('*/')) res += t('cron.desc_every_n_hours', { count: hours.slice(2) }) + " ";
+    else res += t('cron.desc_at_hour', { count: hours }) + " ";
 
     // Day of Month
     if (dayOfMonth !== '*') {
-      res += isEn ? `on day ${dayOfMonth === 'L' ? 'last' : dayOfMonth} of the month ` : `le ${dayOfMonth === 'L' ? 'dernier jour' : dayOfMonth} du mois `;
+      res += t('cron.desc_on_day', { day: dayOfMonth === 'L' ? t('cron.last_day') : dayOfMonth }) + " ";
     }
 
     // Month
     if (month !== '*') {
       const mIdx = parseInt(month);
-      res += isEn ? `in ${monthsArr[mIdx] || month} ` : `en ${monthsArr[mIdx] || month} `;
+      res += t('cron.desc_in_month', { month: monthsArr[mIdx] || month }) + " ";
     }
 
     // Day of Week
@@ -56,18 +51,18 @@ export function CronGenerator({ initialData, onStateChange }: { initialData?: an
 
       if (dayOfWeek.includes('-')) {
         const [start, end] = dayOfWeek.split('-');
-        res += isEn ? `from ${parseDay(start)} to ${parseDay(end)} ` : `du ${parseDay(start)} au ${parseDay(end)} `;
+        res += t('cron.desc_from_to', { start: parseDay(start), end: parseDay(end) }) + " ";
       } else if (dayOfWeek.includes(',')) {
         const list = dayOfWeek.split(',').map(parseDay);
         const last = list.pop();
-        res += isEn ? `on ${list.join(', ')} and ${last} ` : `le ${list.join(', ')} et ${last} `;
+        res += t('cron.desc_on_list', { list: list.join(', '), last }) + " ";
       } else {
-        res += isEn ? `on ${parseDay(dayOfWeek)} ` : `le ${parseDay(dayOfWeek)} `;
+        res += t('cron.desc_on_day_week', { day: parseDay(dayOfWeek) }) + " ";
       }
     }
 
     return res.trim() + ".";
-  }, [cron, minutes, hours, dayOfMonth, month, dayOfWeek, i18n.language]);
+  }, [cron, minutes, hours, dayOfMonth, month, dayOfWeek, t]);
 
   useEffect(() => {
     const newCron = `${minutes} ${hours} ${dayOfMonth} ${month} ${dayOfWeek}`;

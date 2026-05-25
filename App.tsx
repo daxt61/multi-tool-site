@@ -302,6 +302,7 @@ const HashExtractor = lazy(() => import("./components/HashExtractor").then(m => 
 const ImageToASCII = lazy(() => import("./components/ImageToASCII").then(m => ({ default: m.ImageToASCII })));
 const MatrixCalculator = lazy(() => import("./components/MatrixCalculator").then(m => ({ default: m.MatrixCalculator })));
 const DataURLGenerator = lazy(() => import("./components/DataURLGenerator").then(m => ({ default: m.DataURLGenerator })));
+const Base64ToPDF = lazy(() => import("./components/Base64ToPDF").then(m => ({ default: m.Base64ToPDF })));
 const NanoIDGenerator = lazy(() => import("./components/NanoIDGenerator").then(m => ({ default: m.NanoIDGenerator })));
 const MnemonicGenerator = lazy(() => import("./components/MnemonicGenerator").then(m => ({ default: m.MnemonicGenerator })));
 const LSystemGenerator = lazy(() => import("./components/LSystemGenerator").then(m => ({ default: m.LSystemGenerator })));
@@ -2246,6 +2247,17 @@ const tools: Tool[] = [
     Component: DataURLGenerator,
     category: "dev",
     keywords: ["data", "url", "base64", "inline", "embed", "image", "file"],
+  },
+  {
+    id: "base64-to-pdf",
+    name: "Base64 en PDF",
+    nameEn: "Base64 to PDF",
+    icon: FileText,
+    description: "Décoder du Base64 en document PDF avec aperçu",
+    descriptionEn: "Decode Base64 into a PDF document with preview",
+    Component: Base64ToPDF,
+    category: "dev",
+    keywords: ["base64", "pdf", "decode", "preview", "download", "file"],
   },
   {
     id: "nanoid",

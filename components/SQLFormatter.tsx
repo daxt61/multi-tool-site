@@ -1,10 +1,12 @@
 import { useState, useEffect } from 'react';
 import { Database, Copy, Check, Trash2, AlertCircle, FileCode, Download } from 'lucide-react';
 import { format } from 'sql-formatter';
+import { useTranslation } from 'react-i18next';
 
 const MAX_LENGTH = 100000;
 
 export function SQLFormatter({ initialData, onStateChange }: { initialData?: any; onStateChange?: (state: any) => void }) {
+  const { t } = useTranslation();
   const [input, setInput] = useState(initialData?.input || '');
   const [output, setOutput] = useState(initialData?.output || '');
   const [language, setLanguage] = useState(initialData?.language || 'sql');
@@ -13,7 +15,7 @@ export function SQLFormatter({ initialData, onStateChange }: { initialData?: any
 
   useEffect(() => {
     onStateChange?.({ input, output, language });
-  }, [input, output, language]);
+  }, [input, output, language, onStateChange]);
 
   const languages = [
     { id: 'sql', name: 'Standard SQL' },
@@ -30,7 +32,7 @@ export function SQLFormatter({ initialData, onStateChange }: { initialData?: any
       // Sentinel: Implement input length limit to mitigate client-side Denial of Service (DoS)
       // by preventing processing of excessively large data sets that could freeze the browser.
       if (input.length > MAX_LENGTH) {
-        setError(`L'entrée est trop longue. Limite de ${MAX_LENGTH.toLocaleString()} caractères.`);
+        setError(t('error.max_length', { max: MAX_LENGTH.toLocaleString() }));
         return;
       }
       const formatted = format(input, {
@@ -42,7 +44,7 @@ export function SQLFormatter({ initialData, onStateChange }: { initialData?: any
       setOutput(formatted);
       setError('');
     } catch (e: any) {
-      setError('Erreur de formatage : ' + e.message);
+      setError(t('sql.error_format') + ': ' + e.message);
     }
   };
 
@@ -102,16 +104,19 @@ export function SQLFormatter({ initialData, onStateChange }: { initialData?: any
           <div className="flex justify-between items-center px-1">
             <div className="flex items-center gap-2">
               <Database className="w-4 h-4 text-indigo-500" />
-              <label htmlFor="sql-input" className="text-xs font-black uppercase tracking-widest text-slate-400 cursor-pointer">Requête SQL</label>
+              <label htmlFor="sql-input" className="text-xs font-black uppercase tracking-widest text-slate-400 cursor-pointer">{t('sql.input_label')}</label>
             </div>
-            <button
-              onClick={handleClear}
-              disabled={!input && !output}
-              className="text-xs font-bold px-3 py-1 rounded-full text-rose-500 bg-rose-50 dark:bg-rose-500/10 hover:bg-rose-100 transition-all flex items-center gap-1 disabled:opacity-50 disabled:cursor-not-allowed focus-visible:ring-2 focus-visible:ring-rose-500 focus-visible:outline-none"
-              aria-label="Effacer le contenu"
-            >
-              <Trash2 className="w-3 h-3" /> Effacer
-            </button>
+            <div className="flex gap-2 items-center">
+              <kbd className="hidden sm:inline-flex items-center justify-center px-1.5 py-0.5 border border-rose-200 dark:border-rose-800 rounded text-[10px] font-bold text-rose-400 bg-white dark:bg-slate-900">Esc</kbd>
+              <button
+                onClick={handleClear}
+                disabled={!input && !output}
+                className="text-xs font-bold px-3 py-1 rounded-full text-rose-500 bg-rose-50 dark:bg-rose-500/10 hover:bg-rose-100 dark:hover:bg-rose-500/20 transition-all flex items-center gap-1 disabled:opacity-50 disabled:cursor-not-allowed focus-visible:ring-2 focus-visible:ring-rose-500 focus-visible:outline-none"
+                aria-label={t('common.clear')}
+              >
+                <Trash2 className="w-3 h-3" /> {t('common.clear')}
+              </button>
+            </div>
           </div>
           <textarea
             id="sql-input"
@@ -129,6 +134,8 @@ export function SQLFormatter({ initialData, onStateChange }: { initialData?: any
               if ((e.ctrlKey || e.metaKey) && e.key === 'Enter') {
                 e.preventDefault();
                 handleFormat();
+              } else if (e.key === 'Escape') {
+                handleClear();
               }
             }}
             placeholder="SELECT * FROM users WHERE id = 1;"
@@ -140,14 +147,14 @@ export function SQLFormatter({ initialData, onStateChange }: { initialData?: any
           <div className="flex justify-between items-center px-1">
             <div className="flex items-center gap-2">
               <FileCode className="w-4 h-4 text-emerald-500" />
-              <label htmlFor="sql-output" className="text-xs font-black uppercase tracking-widest text-slate-400 cursor-pointer">SQL Formaté</label>
+              <label htmlFor="sql-output" className="text-xs font-black uppercase tracking-widest text-slate-400 cursor-pointer">{t('sql.output_label')}</label>
             </div>
             <div className="flex gap-2">
               <button
                 onClick={handleDownload}
                 disabled={!output}
                 className="text-xs font-bold px-3 py-1 rounded-full text-indigo-500 bg-indigo-50 dark:bg-indigo-500/10 hover:bg-indigo-100 dark:hover:bg-indigo-500/20 transition-all flex items-center gap-1 disabled:opacity-50 disabled:cursor-not-allowed focus-visible:ring-2 focus-visible:ring-indigo-500 focus-visible:outline-none"
-                aria-label="Télécharger le SQL"
+                aria-label={t('common.download')}
               >
                 <Download className="w-3 h-3" />
               </button>
@@ -160,7 +167,7 @@ export function SQLFormatter({ initialData, onStateChange }: { initialData?: any
                     : 'text-slate-500 bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 disabled:opacity-50 disabled:cursor-not-allowed'
                 }`}
               >
-                {copied ? <Check className="w-3 h-3" /> : <Copy className="w-3 h-3" />} {copied ? 'Copié' : 'Copier'}
+                {copied ? <Check className="w-3 h-3" /> : <Copy className="w-3 h-3" />} {copied ? t('common.copied') : t('common.copy')}
               </button>
             </div>
           </div>
@@ -168,7 +175,7 @@ export function SQLFormatter({ initialData, onStateChange }: { initialData?: any
             id="sql-output"
             value={output}
             readOnly
-            placeholder="Le résultat formaté apparaîtra ici..."
+            placeholder={t('sql.placeholder_output')}
             className="w-full h-[400px] p-6 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-3xl outline-none font-mono text-sm leading-relaxed text-indigo-600 dark:text-indigo-400 resize-none"
           />
         </div>
@@ -179,7 +186,7 @@ export function SQLFormatter({ initialData, onStateChange }: { initialData?: any
           onClick={handleFormat}
           className="px-12 py-4 bg-indigo-600 text-white rounded-2xl font-black text-lg shadow-lg shadow-indigo-600/20 hover:bg-indigo-700 transition-all active:scale-95 flex items-center gap-2 focus-visible:ring-2 focus-visible:ring-indigo-500 focus-visible:outline-none"
         >
-          <Database className="w-5 h-5" /> Formater le SQL
+          <Database className="w-5 h-5" /> {t('sql.format_btn')}
           <kbd className="ml-2 hidden sm:inline-flex items-center gap-1 px-2 py-0.5 border border-white/20 rounded text-[10px] font-bold bg-white/10">
             Ctrl + Enter
           </kbd>

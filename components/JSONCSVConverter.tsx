@@ -182,19 +182,27 @@ export function JSONCSVConverter({ initialData, onStateChange }: { initialData?:
               >
                 {copied === 'json' ? <Check className="w-3 h-3" /> : <Copy className="w-3 h-3" />} {copied === 'json' ? t('common.copied') : t('common.copy')}
               </button>
-              <button
-                onClick={() => {setJsonInput(''); setCsvInput(''); setError('');}}
-                disabled={!jsonInput && !csvInput && !error}
-                className="text-xs font-bold text-rose-500 bg-rose-50 dark:bg-rose-500/10 hover:bg-rose-100 dark:hover:bg-rose-500/20 px-3 py-1.5 rounded-xl flex items-center gap-1 transition-all disabled:opacity-50 disabled:cursor-not-allowed"
-              >
-                <Trash2 className="w-3 h-3" /> {t('common.clear')}
-              </button>
+              <div className="flex gap-2 items-center">
+                <kbd className="hidden sm:inline-flex items-center justify-center px-1.5 py-0.5 border border-rose-200 dark:border-rose-800 rounded text-[10px] font-bold text-rose-400 bg-white dark:bg-slate-900">Esc</kbd>
+                <button
+                  onClick={() => {setJsonInput(''); setCsvInput(''); setError('');}}
+                  disabled={!jsonInput && !csvInput && !error}
+                  className="text-xs font-bold text-rose-500 bg-rose-50 dark:bg-rose-500/10 hover:bg-rose-100 dark:hover:bg-rose-500/20 px-3 py-1.5 rounded-xl flex items-center gap-1 transition-all disabled:opacity-50 disabled:cursor-not-allowed focus-visible:ring-2 focus-visible:ring-rose-500 focus-visible:outline-none"
+                >
+                  <Trash2 className="w-3 h-3" /> {t('common.clear')}
+                </button>
+              </div>
             </div>
           </div>
           <textarea
             id="json-input"
             value={jsonInput}
             onChange={(e) => handleJsonChange(e.target.value)}
+            onKeyDown={(e) => {
+              if (e.key === 'Escape') {
+                setJsonInput(''); setCsvInput(''); setError('');
+              }
+            }}
             placeholder='[{"id": 1, "name": "Test"}]'
             className={`w-full h-[400px] p-6 bg-slate-50 dark:bg-slate-900 border ${jsonInput.length > MAX_LENGTH ? 'border-rose-500 ring-rose-500/20' : 'border-slate-200 dark:border-slate-800 focus:ring-indigo-500/20'} rounded-3xl outline-none focus:ring-2 transition-all font-mono text-sm leading-relaxed dark:text-slate-300 resize-none`}
           />
@@ -231,6 +239,11 @@ export function JSONCSVConverter({ initialData, onStateChange }: { initialData?:
             id="csv-input"
             value={csvInput}
             onChange={(e) => handleCsvChange(e.target.value)}
+            onKeyDown={(e) => {
+              if (e.key === 'Escape') {
+                setJsonInput(''); setCsvInput(''); setError('');
+              }
+            }}
             placeholder='id,name\n1,Test'
             className={`w-full h-[400px] p-6 bg-slate-50 dark:bg-slate-900 border ${csvInput.length > MAX_LENGTH ? 'border-rose-500 ring-rose-500/20' : 'border-slate-200 dark:border-slate-800 focus:ring-indigo-500/20'} rounded-3xl outline-none focus:ring-2 transition-all font-mono text-sm leading-relaxed dark:text-slate-300 resize-none`}
           />

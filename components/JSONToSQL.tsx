@@ -5,6 +5,7 @@ import { useTranslation } from 'react-i18next';
 const MAX_LENGTH = 100000;
 
 type Dialect = 'standard' | 'mysql' | 'sqlserver' | 'oracle';
+type SQLMode = 'INSERT' | 'UPDATE';
 
 export function JSONToSQL({ initialData, onStateChange }: { initialData?: any; onStateChange?: (state: any) => void }) {
   const { t } = useTranslation();
@@ -14,12 +15,14 @@ export function JSONToSQL({ initialData, onStateChange }: { initialData?: any; o
   const [includeCreate, setIncludeCreate] = useState(initialData?.includeCreate ?? false);
   const [batchInsert, setBatchInsert] = useState(initialData?.batchInsert ?? false);
   const [dialect, setDialect] = useState<Dialect>(initialData?.dialect || 'standard');
+  const [mode, setMode] = useState<SQLMode>(initialData?.mode || 'INSERT');
+  const [whereColumns, setWhereColumns] = useState<string[]>(initialData?.whereColumns || ['id']);
   const [error, setError] = useState('');
   const [copied, setCopied] = useState(false);
 
   useEffect(() => {
-    onStateChange?.({ input, tableName, output, includeCreate, batchInsert, dialect });
-  }, [input, tableName, output, includeCreate, batchInsert, dialect]);
+    onStateChange?.({ input, tableName, output, includeCreate, batchInsert, dialect, mode, whereColumns });
+  }, [input, tableName, output, includeCreate, batchInsert, dialect, mode, whereColumns, onStateChange]);
 
   const escapeIdentifier = (id: string, dialect: Dialect) => {
     if (dialect === 'mysql') {
@@ -78,9 +81,8 @@ export function JSONToSQL({ initialData, onStateChange }: { initialData?: any; o
 
       let result = '';
 
-      if (includeCreate) {
+      if (includeCreate && mode === 'INSERT') {
         const columnDefs = columns.map(col => {
-          // Find first non-null value for this column to infer type
           const firstVal = data.find(row => row[col] !== undefined && row[col] !== null)?.[col];
           return `${escapeIdentifier(col, dialect)} ${inferType(firstVal)}`;
         });
@@ -101,16 +103,33 @@ export function JSONToSQL({ initialData, onStateChange }: { initialData?: any; o
         return `'${escaped}'`;
       };
 
-      if (batchInsert && data.length > 0) {
-        const allValues = data.map((row: any) => {
-          const values = columns.map(col => escapeValue(row[col]));
-          return `(${values.join(', ')})`;
-        });
-        result += `INSERT INTO ${sqlTableName} (${escapedColumns.join(', ')}) VALUES\n${allValues.join(',\n')};`;
+      if (mode === 'INSERT') {
+        if (batchInsert && data.length > 0) {
+          const allValues = data.map((row: any) => {
+            const values = columns.map(col => escapeValue(row[col]));
+            return `(${values.join(', ')})`;
+          });
+          result += `INSERT INTO ${sqlTableName} (${escapedColumns.join(', ')}) VALUES\n${allValues.join(',\n')};`;
+        } else {
+          const statements = data.map((row: any) => {
+            const values = columns.map(col => escapeValue(row[col]));
+            return `INSERT INTO ${sqlTableName} (${escapedColumns.join(', ')}) VALUES (${values.join(', ')});`;
+          });
+          result += statements.join('\n');
+        }
       } else {
+        // UPDATE Mode
         const statements = data.map((row: any) => {
-          const values = columns.map(col => escapeValue(row[col]));
-          return `INSERT INTO ${sqlTableName} (${escapedColumns.join(', ')}) VALUES (${values.join(', ')});`;
+          const setClause = columns
+            .filter(col => !whereColumns.includes(col))
+            .map(col => `${escapeIdentifier(col, dialect)} = ${escapeValue(row[col])}`)
+            .join(', ');
+
+          const whereClause = whereColumns
+            .map(col => `${escapeIdentifier(col, dialect)} = ${escapeValue(row[col])}`)
+            .join(' AND ');
+
+          return `UPDATE ${sqlTableName} SET ${setClause} WHERE ${whereClause};`;
         });
         result += statements.join('\n');
       }
@@ -148,6 +167,12 @@ export function JSONToSQL({ initialData, onStateChange }: { initialData?: any; o
     URL.revokeObjectURL(url);
   };
 
+  const toggleWhereColumn = (col: string) => {
+    setWhereColumns(prev =>
+      prev.includes(col) ? prev.filter(c => c !== col) : [...prev, col]
+    );
+  };
+
   return (
     <div className="max-w-6xl mx-auto space-y-8">
       {error && (
@@ -158,7 +183,7 @@ export function JSONToSQL({ initialData, onStateChange }: { initialData?: any; o
       )}
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-        <div className="space-y-4">
+        <div className="space-y-6">
           <div className="flex justify-between items-center px-1">
             <div className="flex items-center gap-2">
               <FileCode className="w-4 h-4 text-indigo-500" />
@@ -175,61 +200,115 @@ export function JSONToSQL({ initialData, onStateChange }: { initialData?: any; o
             </button>
           </div>
 
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-            <div className="space-y-2">
-              <label htmlFor="table-name" className="text-xs font-bold text-slate-500 px-1">
-                {t('jsontosql.table_name')}
-              </label>
-              <input
-                id="table-name"
-                type="text"
-                value={tableName}
-                onChange={(e) => setTableName(e.target.value)}
-                placeholder="users"
-                className="w-full p-3 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl outline-none focus:ring-2 focus:ring-indigo-500/20 transition-all dark:text-slate-300"
-              />
+          <div className="bg-white dark:bg-slate-900/40 p-6 rounded-3xl border border-slate-200 dark:border-slate-800 space-y-6">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <div className="space-y-2">
+                <label htmlFor="table-name" className="text-xs font-bold text-slate-500 px-1">
+                  {t('jsontosql.table_name')}
+                </label>
+                <input
+                  id="table-name"
+                  type="text"
+                  value={tableName}
+                  onChange={(e) => setTableName(e.target.value)}
+                  placeholder="users"
+                  className="w-full p-3 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl outline-none focus:ring-2 focus:ring-indigo-500/20 transition-all dark:text-slate-300"
+                />
+              </div>
+              <div className="space-y-2">
+                <label htmlFor="dialect-select" className="text-xs font-bold text-slate-500 px-1">
+                  {t('jsontosql.dialect')}
+                </label>
+                <select
+                  id="dialect-select"
+                  value={dialect}
+                  onChange={(e) => setDialect(e.target.value as Dialect)}
+                  className="w-full p-3 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl outline-none focus:ring-2 focus:ring-indigo-500/20 transition-all dark:text-slate-300 cursor-pointer"
+                >
+                  <option value="standard">{t('jsontosql.dialect_standard')}</option>
+                  <option value="mysql">{t('jsontosql.dialect_mysql')}</option>
+                  <option value="sqlserver">MS SQL Server</option>
+                  <option value="oracle">Oracle</option>
+                </select>
+              </div>
             </div>
-            <div className="space-y-2">
-              <label htmlFor="dialect-select" className="text-xs font-bold text-slate-500 px-1">
-                {t('jsontosql.dialect')}
-              </label>
-              <select
-                id="dialect-select"
-                value={dialect}
-                onChange={(e) => setDialect(e.target.value as Dialect)}
-                className="w-full p-3 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl outline-none focus:ring-2 focus:ring-indigo-500/20 transition-all dark:text-slate-300"
-              >
-                <option value="standard">{t('jsontosql.dialect_standard')}</option>
-                <option value="mysql">{t('jsontosql.dialect_mysql')}</option>
-                <option value="sqlserver">MS SQL Server</option>
-                <option value="oracle">Oracle</option>
-              </select>
-            </div>
-          </div>
 
-          <div className="flex flex-wrap gap-4 px-1">
-            <label className="flex items-center gap-2 cursor-pointer group">
-              <input
-                type="checkbox"
-                checked={includeCreate}
-                onChange={(e) => setIncludeCreate(e.target.checked)}
-                className="w-4 h-4 rounded border-slate-300 text-indigo-600 focus:ring-indigo-500"
-              />
-              <span className="text-sm font-medium text-slate-600 dark:text-slate-400 group-hover:text-slate-900 dark:group-hover:text-slate-200 transition-colors">
-                {t('jsontosql.include_create')}
-              </span>
-            </label>
-            <label className="flex items-center gap-2 cursor-pointer group">
-              <input
-                type="checkbox"
-                checked={batchInsert}
-                onChange={(e) => setBatchInsert(e.target.checked)}
-                className="w-4 h-4 rounded border-slate-300 text-indigo-600 focus:ring-indigo-500"
-              />
-              <span className="text-sm font-medium text-slate-600 dark:text-slate-400 group-hover:text-slate-900 dark:group-hover:text-slate-200 transition-colors">
-                {t('jsontosql.batch_insert')}
-              </span>
-            </label>
+            <div className="space-y-4">
+               <label className="text-xs font-bold text-slate-500 px-1 block">{t('jsontosql.mode')}</label>
+               <div className="flex bg-slate-100 dark:bg-slate-800 p-1 rounded-xl w-fit">
+                  {(['INSERT', 'UPDATE'] as const).map(m => (
+                    <button
+                      key={m}
+                      onClick={() => setMode(m)}
+                      className={`px-6 py-2 rounded-lg text-sm font-bold transition-all ${
+                        mode === m
+                          ? 'bg-white dark:bg-slate-700 text-indigo-600 dark:text-indigo-400 shadow-sm'
+                          : 'text-slate-500 hover:text-slate-700 dark:hover:text-slate-300'
+                      }`}
+                    >
+                      {m}
+                    </button>
+                  ))}
+               </div>
+            </div>
+
+            <div className="flex flex-wrap gap-4 px-1">
+              {mode === 'INSERT' ? (
+                <>
+                  <label className="flex items-center gap-2 cursor-pointer group">
+                    <input
+                      type="checkbox"
+                      checked={includeCreate}
+                      onChange={(e) => setIncludeCreate(e.target.checked)}
+                      className="w-4 h-4 rounded border-slate-300 text-indigo-600 focus:ring-indigo-500"
+                    />
+                    <span className="text-sm font-medium text-slate-600 dark:text-slate-400 group-hover:text-slate-900 dark:group-hover:text-slate-200 transition-colors">
+                      {t('jsontosql.include_create')}
+                    </span>
+                  </label>
+                  <label className="flex items-center gap-2 cursor-pointer group">
+                    <input
+                      type="checkbox"
+                      checked={batchInsert}
+                      onChange={(e) => setBatchInsert(e.target.checked)}
+                      className="w-4 h-4 rounded border-slate-300 text-indigo-600 focus:ring-indigo-500"
+                    />
+                    <span className="text-sm font-medium text-slate-600 dark:text-slate-400 group-hover:text-slate-900 dark:group-hover:text-slate-200 transition-colors">
+                      {t('jsontosql.batch_insert')}
+                    </span>
+                  </label>
+                </>
+              ) : (
+                <div className="space-y-3 w-full">
+                  <label className="text-xs font-bold text-slate-500 block">{t('jsontosql.where_columns')}</label>
+                  <div className="flex flex-wrap gap-2">
+                    {/* Infer columns from input for WHERE selection */}
+                    {(() => {
+                      try {
+                        const parsed = JSON.parse(input);
+                        const first = Array.isArray(parsed) ? parsed[0] : parsed;
+                        if (!first || typeof first !== 'object') return null;
+                        return Object.keys(first).map(col => (
+                          <button
+                            key={col}
+                            onClick={() => toggleWhereColumn(col)}
+                            className={`px-3 py-1 rounded-lg text-xs font-bold border transition-all ${
+                              whereColumns.includes(col)
+                                ? 'bg-indigo-50 dark:bg-indigo-900/30 border-indigo-200 dark:border-indigo-500/30 text-indigo-600 dark:text-indigo-400'
+                                : 'bg-slate-50 dark:bg-slate-800 border-slate-200 dark:border-slate-700 text-slate-500'
+                            }`}
+                          >
+                            {col}
+                          </button>
+                        ));
+                      } catch {
+                        return <p className="text-[10px] text-slate-400 italic">Enter valid JSON to select columns</p>;
+                      }
+                    })()}
+                  </div>
+                </div>
+              )}
+            </div>
           </div>
 
           <textarea
@@ -242,8 +321,8 @@ export function JSONToSQL({ initialData, onStateChange }: { initialData?: any; o
                 handleConvert();
               }
             }}
-            placeholder='[{"id": 1, "name": "John Doe"}]'
-            className="w-full h-[350px] p-6 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-3xl outline-none focus:ring-2 focus:ring-indigo-500/20 transition-all font-mono text-sm leading-relaxed dark:text-slate-300 resize-none"
+            placeholder='[{"id": 1, "name": "John Doe", "email": "john@example.com"}]'
+            className="w-full h-[300px] p-6 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-3xl outline-none focus:ring-2 focus:ring-indigo-500/20 transition-all font-mono text-sm leading-relaxed dark:text-slate-300 resize-none"
           />
         </div>
 
@@ -281,7 +360,7 @@ export function JSONToSQL({ initialData, onStateChange }: { initialData?: any; o
             value={output}
             readOnly
             placeholder={t('jsontosql.placeholder_output')}
-            className="w-full h-[450px] p-6 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-3xl outline-none font-mono text-sm leading-relaxed text-indigo-600 dark:text-indigo-400 resize-none"
+            className="w-full h-[550px] p-6 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-3xl outline-none font-mono text-sm leading-relaxed text-indigo-600 dark:text-indigo-400 resize-none"
           />
         </div>
       </div>

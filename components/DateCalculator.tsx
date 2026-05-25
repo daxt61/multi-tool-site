@@ -1,7 +1,9 @@
 import { useState, useEffect } from 'react';
 import { Calendar, History, Info, Trash2, Copy, Check, Download } from 'lucide-react';
+import { useTranslation } from 'react-i18next';
 
 export function DateCalculator({ initialData, onStateChange }: { initialData?: any; onStateChange?: (state: any) => void }) {
+  const { t, i18n } = useTranslation();
   const today = new Date().toISOString().split('T')[0];
   const [date1, setDate1] = useState(initialData?.date1 || today);
   const [date2, setDate2] = useState(initialData?.date2 || today);
@@ -9,21 +11,19 @@ export function DateCalculator({ initialData, onStateChange }: { initialData?: a
 
   useEffect(() => {
     onStateChange?.({ date1, date2, daysToAdd });
-  }, [date1, date2, daysToAdd]);
+  }, [date1, date2, daysToAdd, onStateChange]);
 
   const calculateDifference = () => {
     const d1 = new Date(date1);
     const d2 = new Date(date2);
 
     if (isNaN(d1.getTime()) || isNaN(d2.getTime())) {
-      return { totalDays: 0, years: 0, months: 0, days: 0 };
+      return { totalDays: 0, years: 0, months: 0, days: 0, workingDays: 0 };
     }
 
-    // Total days
     const diffTime = Math.abs(d2.getTime() - d1.getTime());
     const totalDays = Math.round(diffTime / (1000 * 60 * 60 * 24));
 
-    // Breakdown
     const start = d1 < d2 ? d1 : d2;
     const end = d1 < d2 ? d2 : d1;
 
@@ -42,7 +42,6 @@ export function DateCalculator({ initialData, onStateChange }: { initialData?: a
       months += 12;
     }
 
-    // Working days calculation (Mon-Fri)
     let workingDays = 0;
     const curDate = new Date(start);
     while (curDate < end) {
@@ -66,8 +65,7 @@ export function DateCalculator({ initialData, onStateChange }: { initialData?: a
     if (!date) return "";
     const d = new Date(date);
     if (isNaN(d.getTime())) return "";
-    const days = ['Dimanche', 'Lundi', 'Mardi', 'Mercredi', 'Jeudi', 'Vendredi', 'Samedi'];
-    return days[d.getDay()];
+    return d.toLocaleDateString(i18n.language, { weekday: 'long' });
   };
 
   const [copiedDiff, setCopiedDiff] = useState(false);
@@ -77,7 +75,7 @@ export function DateCalculator({ initialData, onStateChange }: { initialData?: a
   const newDate = addDaysToDate(date1, parseInt(daysToAdd) || 0);
 
   const handleCopyDiff = () => {
-    const text = `${diff.years}a ${diff.months}m ${diff.days}j (${diff.totalDays} jours, ${diff.workingDays} ouvrés)`;
+    const text = `${diff.years}${t('agecalculator.years').charAt(0)} ${diff.months}m ${diff.days}${t('agecalculator.days_short')} (${diff.totalDays} ${t('agecalculator.days')}, ${diff.workingDays} ${t('datecalc.working_days_short')})`;
     navigator.clipboard.writeText(text);
     setCopiedDiff(true);
     setTimeout(() => setCopiedDiff(false), 2000);
@@ -92,12 +90,12 @@ export function DateCalculator({ initialData, onStateChange }: { initialData?: a
   };
 
   const handleDownloadDiff = () => {
-    const content = `Différence entre deux dates :
-- Date de début : ${date1}
-- Date de fin : ${date2}
-- Résultat : ${diff.years} ans, ${diff.months} mois, ${diff.days} jours
-- Total jours : ${diff.totalDays}
-- Jours ouvrés (Lun-Ven) : ${diff.workingDays}`;
+    const content = `${t('datecalc.diff_title')} :
+- ${t('datecalc.start_date')} : ${date1}
+- ${t('datecalc.end_date')} : ${date2}
+- ${t('percentage.result')} : ${diff.years} ${t('agecalculator.years')}, ${diff.months} ${t('agecalculator.months')}, ${diff.days} ${t('agecalculator.days')}
+- ${t('agecalculator.stats_total_days')} : ${diff.totalDays}
+- ${t('datecalc.working_days')} : ${diff.workingDays}`;
 
     const blob = new Blob([content], { type: 'text/plain' });
     const url = URL.createObjectURL(blob);
@@ -110,10 +108,10 @@ export function DateCalculator({ initialData, onStateChange }: { initialData?: a
 
   const handleDownloadAdd = () => {
     if (!newDate) return;
-    const content = `Calcul de date :
-- Date de départ : ${date1}
-- Jours ajoutés/retirés : ${daysToAdd}
-- Nouvelle date : ${newDate} (${getDayOfWeek(newDate)})`;
+    const content = `${t('datecalc.add_title')} :
+- ${t('datecalc.start_date')} : ${date1}
+- ${t('datecalc.offset_label')} : ${daysToAdd}
+- ${t('datecalc.new_date')} : ${newDate} (${getDayOfWeek(newDate)})`;
 
     const blob = new Blob([content], { type: 'text/plain' });
     const url = URL.createObjectURL(blob);
@@ -131,28 +129,28 @@ export function DateCalculator({ initialData, onStateChange }: { initialData?: a
         <div className="flex justify-between items-center px-1">
           <div className="flex items-center gap-2 text-indigo-500">
             <History className="w-4 h-4" />
-            <label className="text-xs font-black uppercase tracking-widest text-slate-400">Différence entre deux dates</label>
+            <label className="text-xs font-black uppercase tracking-widest text-slate-400">{t('datecalc.diff_title')}</label>
           </div>
           <div className="flex gap-2">
             <button
               onClick={handleDownloadDiff}
               className="text-xs font-bold text-indigo-600 bg-indigo-50 dark:bg-indigo-900/20 hover:bg-indigo-100 dark:hover:bg-indigo-900/30 px-3 py-1.5 rounded-xl flex items-center gap-1 transition-all focus-visible:ring-2 focus-visible:ring-indigo-500 focus-visible:outline-none"
             >
-              <Download className="w-3 h-3" /> Télécharger
+              <Download className="w-3 h-3" /> {t('common.download')}
             </button>
             <button
               onClick={() => {setDate1(today); setDate2(today);}}
               disabled={date1 === today && date2 === today}
               className="text-xs font-bold text-rose-500 bg-rose-50 dark:bg-rose-500/10 hover:bg-rose-100 dark:hover:bg-rose-500/20 px-3 py-1.5 rounded-xl flex items-center gap-1 transition-all disabled:opacity-50 disabled:cursor-not-allowed focus-visible:ring-2 focus-visible:ring-rose-500 focus-visible:outline-none"
             >
-              <Trash2 className="w-3 h-3" /> Effacer
+              <Trash2 className="w-3 h-3" /> {t('common.clear')}
             </button>
           </div>
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           <div className="space-y-3">
-            <label htmlFor="date1" className="text-xs font-bold text-slate-400 px-1 uppercase tracking-widest cursor-pointer">Date de début</label>
+            <label htmlFor="date1" className="text-xs font-bold text-slate-400 px-1 uppercase tracking-widest cursor-pointer">{t('datecalc.start_date')}</label>
             <input
               id="date1"
               type="date"
@@ -160,10 +158,10 @@ export function DateCalculator({ initialData, onStateChange }: { initialData?: a
               onChange={(e) => setDate1(e.target.value)}
               className="w-full p-4 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-2xl text-xl font-black font-mono focus:border-indigo-500 outline-none transition-all dark:text-white"
             />
-            <div className="text-xs font-bold text-indigo-500 px-1">{getDayOfWeek(date1)}</div>
+            <div className="text-xs font-bold text-indigo-500 px-1 capitalize">{getDayOfWeek(date1)}</div>
           </div>
           <div className="space-y-3">
-            <label htmlFor="date2" className="text-xs font-bold text-slate-400 px-1 uppercase tracking-widest cursor-pointer">Date de fin</label>
+            <label htmlFor="date2" className="text-xs font-bold text-slate-400 px-1 uppercase tracking-widest cursor-pointer">{t('datecalc.end_date')}</label>
             <input
               id="date2"
               type="date"
@@ -171,7 +169,7 @@ export function DateCalculator({ initialData, onStateChange }: { initialData?: a
               onChange={(e) => setDate2(e.target.value)}
               className="w-full p-4 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-2xl text-xl font-black font-mono focus:border-indigo-500 outline-none transition-all dark:text-white"
             />
-            <div className="text-xs font-bold text-indigo-500 px-1">{getDayOfWeek(date2)}</div>
+            <div className="text-xs font-bold text-indigo-500 px-1 capitalize">{getDayOfWeek(date2)}</div>
           </div>
         </div>
 
@@ -180,34 +178,34 @@ export function DateCalculator({ initialData, onStateChange }: { initialData?: a
             onClick={handleCopyDiff}
             className={`absolute top-2 right-2 p-2 rounded-xl transition-all ${
               copiedDiff
-                ? 'bg-emerald-50 dark:bg-emerald-500/10 text-emerald-600 dark:text-emerald-400'
+                ? 'bg-emerald-50 dark:bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border border-emerald-200'
                 : 'text-slate-400 hover:text-indigo-500 bg-white dark:bg-slate-800 opacity-0 group-hover/diff:opacity-100 shadow-sm border border-slate-100 dark:border-slate-700'
             }`}
-            title="Copier le résultat"
+            title={t('common.copy')}
           >
             {copiedDiff ? <Check className="w-4 h-4" /> : <Copy className="w-4 h-4" />}
           </button>
           <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
             <div className="bg-white dark:bg-slate-800 p-6 rounded-2xl border border-slate-100 dark:border-slate-700 text-center">
-              <div className="text-xs font-bold text-slate-400 uppercase tracking-widest mb-1">Ans / Mois / Jours</div>
+              <div className="text-xs font-bold text-slate-400 uppercase tracking-widest mb-1">{t('agecalculator.years')} / {t('agecalculator.months')} / {t('agecalculator.days')}</div>
               <div className="text-2xl font-black text-indigo-600 dark:text-indigo-400 font-mono">
-                {diff.years}a {diff.months}m {diff.days}j
+                {diff.years}{t('agecalculator.years').charAt(0)} {diff.months}m {diff.days}{t('agecalculator.days_short')}
               </div>
             </div>
             <div className="bg-white dark:bg-slate-800 p-6 rounded-2xl border border-slate-100 dark:border-slate-700 text-center">
-              <div className="text-xs font-bold text-slate-400 uppercase tracking-widest mb-1">Total en Jours</div>
+              <div className="text-xs font-bold text-slate-400 uppercase tracking-widest mb-1">{t('agecalculator.stats_total_days')}</div>
               <div className="text-2xl font-black text-indigo-600 dark:text-indigo-400 font-mono">
-                {diff.totalDays} jours
+                {diff.totalDays} {t('agecalculator.days_short')}
               </div>
             </div>
             <div className="bg-white dark:bg-slate-800 p-6 rounded-2xl border border-slate-100 dark:border-slate-700 text-center">
-              <div className="text-xs font-bold text-slate-400 uppercase tracking-widest mb-1">Semaines</div>
+              <div className="text-xs font-bold text-slate-400 uppercase tracking-widest mb-1">{t('agecalculator.stats_total_weeks')}</div>
               <div className="text-2xl font-black text-indigo-600 dark:text-indigo-400 font-mono">
-                {(diff.totalDays / 7).toFixed(1)} sem.
+                {(diff.totalDays / 7).toFixed(1)} w
               </div>
             </div>
             <div className="bg-white dark:bg-slate-800 p-6 rounded-2xl border border-slate-100 dark:border-slate-700 text-center">
-              <div className="text-xs font-bold text-slate-400 uppercase tracking-widest mb-1">Jours Ouvrés</div>
+              <div className="text-xs font-bold text-slate-400 uppercase tracking-widest mb-1">{t('datecalc.working_days')}</div>
               <div className="text-2xl font-black text-indigo-600 dark:text-indigo-400 font-mono">
                 {diff.workingDays} j
               </div>
@@ -221,7 +219,7 @@ export function DateCalculator({ initialData, onStateChange }: { initialData?: a
         <div className="flex justify-between items-center px-1">
           <div className="flex items-center gap-2 text-indigo-500">
             <Calendar className="w-4 h-4" />
-            <label className="text-xs font-black uppercase tracking-widest text-slate-400">Ajouter ou soustraire du temps</label>
+            <label className="text-xs font-black uppercase tracking-widest text-slate-400">{t('datecalc.add_title')}</label>
           </div>
           <div className="flex gap-2">
             <button
@@ -229,21 +227,21 @@ export function DateCalculator({ initialData, onStateChange }: { initialData?: a
               disabled={!newDate}
               className="text-xs font-bold text-indigo-600 bg-indigo-50 dark:bg-indigo-900/20 hover:bg-indigo-100 dark:hover:bg-indigo-900/30 px-3 py-1.5 rounded-xl flex items-center gap-1 transition-all disabled:opacity-50 disabled:cursor-not-allowed focus-visible:ring-2 focus-visible:ring-indigo-500 focus-visible:outline-none"
             >
-              <Download className="w-3 h-3" /> Télécharger
+              <Download className="w-3 h-3" /> {t('common.download')}
             </button>
             <button
               onClick={() => {setDaysToAdd('30');}}
               disabled={daysToAdd === '30'}
               className="text-xs font-bold text-rose-500 bg-rose-50 dark:bg-rose-500/10 hover:bg-rose-100 dark:hover:bg-rose-500/20 px-3 py-1.5 rounded-xl flex items-center gap-1 transition-all disabled:opacity-50 disabled:cursor-not-allowed focus-visible:ring-2 focus-visible:ring-rose-500 focus-visible:outline-none"
             >
-              <Trash2 className="w-3 h-3" /> Effacer
+              <Trash2 className="w-3 h-3" /> {t('common.clear')}
             </button>
           </div>
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           <div className="space-y-3">
-             <label htmlFor="base-date" className="text-xs font-bold text-slate-400 px-1 uppercase tracking-widest cursor-pointer">Date de départ</label>
+             <label htmlFor="base-date" className="text-xs font-bold text-slate-400 px-1 uppercase tracking-widest cursor-pointer">{t('datecalc.start_date')}</label>
              <input
               id="base-date"
               type="date"
@@ -253,7 +251,7 @@ export function DateCalculator({ initialData, onStateChange }: { initialData?: a
             />
           </div>
           <div className="space-y-3">
-             <label htmlFor="days-offset" className="text-xs font-bold text-slate-400 px-1 uppercase tracking-widest cursor-pointer">Jours à ajouter/retirer</label>
+             <label htmlFor="days-offset" className="text-xs font-bold text-slate-400 px-1 uppercase tracking-widest cursor-pointer">{t('datecalc.offset_label')}</label>
              <div className="relative">
                 <input
                   id="days-offset"
@@ -275,15 +273,15 @@ export function DateCalculator({ initialData, onStateChange }: { initialData?: a
                 ? 'bg-emerald-500 text-white'
                 : 'text-white/40 hover:text-white hover:bg-white/10 opacity-0 group-hover/date:opacity-100'
             }`}
-            title="Copier la date"
+            title={t('common.copy')}
           >
             {copiedDate ? <Check className="w-5 h-5" /> : <Copy className="w-5 h-5" />}
           </button>
-          <div className="text-xs font-bold text-indigo-400 uppercase tracking-widest mb-2">Nouvelle Date</div>
+          <div className="text-xs font-bold text-indigo-400 uppercase tracking-widest mb-2">{t('datecalc.new_date')}</div>
           <div className="text-4xl font-black text-white font-mono tracking-tight">
             {newDate || "Invalid Date"}
           </div>
-          <div className="text-sm font-bold text-slate-500 mt-2 uppercase tracking-widest">
+          <div className="text-sm font-bold text-slate-500 mt-2 uppercase tracking-widest capitalize">
             {getDayOfWeek(newDate)}
           </div>
         </div>
@@ -294,7 +292,7 @@ export function DateCalculator({ initialData, onStateChange }: { initialData?: a
             <Info className="w-6 h-6" />
          </div>
          <p className="text-sm text-slate-500 dark:text-slate-400 leading-relaxed font-medium">
-           Ce calculateur permet de déterminer l'intervalle exact entre deux dates ou de projeter une date future en ajoutant un nombre de jours précis. Utile pour les délais de paiement, les périodes de préavis ou le suivi de projets.
+           {t('datecalc.about_text')}
          </p>
       </div>
     </div>

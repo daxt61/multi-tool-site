@@ -1,12 +1,16 @@
 import { useState, useMemo, useCallback, useEffect } from 'react';
-import { Palette, Type, Check, X, Info, Copy, RefreshCw } from 'lucide-react';
+import { Palette, Type, Check, X, Info, Copy, RotateCcw, ArrowUpDown, Download } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 
-export function ColorContrastChecker() {
+export function ColorContrastChecker({ initialData, onStateChange }: { initialData?: any; onStateChange?: (state: any) => void }) {
   const { t } = useTranslation();
-  const [foreground, setForeground] = useState('#FFFFFF');
-  const [background, setBackground] = useState('#4F46E5');
+  const [foreground, setForeground] = useState(initialData?.foreground || '#FFFFFF');
+  const [background, setBackground] = useState(initialData?.background || '#4F46E5');
   const [copied, setCopied] = useState<string | null>(null);
+
+  useEffect(() => {
+    onStateChange?.({ foreground, background });
+  }, [foreground, background, onStateChange]);
 
   const getLuminance = (hex: string) => {
     const rgb = hexToRgb(hex);
@@ -54,26 +58,75 @@ export function ColorContrastChecker() {
     setBackground(temp);
   }, [foreground, background]);
 
+  const handleReset = useCallback(() => {
+    setForeground('#FFFFFF');
+    setBackground('#4F46E5');
+  }, []);
+
+  const handleDownload = useCallback(() => {
+    const ratio = contrastRatio.toFixed(2);
+    const content = `${t('contrastchecker.ratio_title')}: ${ratio}:1
+${t('contrastchecker.foreground')}: ${foreground}
+${t('contrastchecker.background')}: ${background}
+
+WCAG 2.1 Compliance:
+- AA ${t('contrastchecker.normal_text')}: ${getStatus(contrastRatio, 4.5) ? 'PASS' : 'FAIL'}
+- AA ${t('contrastchecker.large_text')}: ${getStatus(contrastRatio, 3.0) ? 'PASS' : 'FAIL'}
+- AAA ${t('contrastchecker.normal_text_aaa')}: ${getStatus(contrastRatio, 7.0) ? 'PASS' : 'FAIL'}
+- AAA ${t('contrastchecker.large_text_aaa')}: ${getStatus(contrastRatio, 4.5) ? 'PASS' : 'FAIL'}`;
+
+    const blob = new Blob([content], { type: 'text/plain' });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    link.href = url;
+    link.download = `contrast-report-${Date.now()}.txt`;
+    link.click();
+    URL.revokeObjectURL(url);
+  }, [contrastRatio, foreground, background, t]);
+
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
       if (document.activeElement?.tagName === "INPUT" || document.activeElement?.tagName === "TEXTAREA" || document.activeElement?.tagName === "SELECT") {
         return;
       }
 
+      const isModifierPressed = e.altKey || e.ctrlKey || e.metaKey || e.shiftKey;
+      if (isModifierPressed) return;
+
       if (e.key.toLowerCase() === 's') {
         e.preventDefault();
         swapColors();
+      } else if (e.key.toLowerCase() === 'r') {
+        e.preventDefault();
+        handleReset();
       }
     };
 
     window.addEventListener('keydown', handleKeyDown);
     return () => window.removeEventListener('keydown', handleKeyDown);
-  }, [swapColors]);
+  }, [swapColors, handleReset]);
 
   const getStatus = (ratio: number, threshold: number) => ratio >= threshold;
 
   return (
-    <div className="max-w-5xl mx-auto space-y-12">
+    <div className="max-w-5xl mx-auto space-y-8">
+      <div className="flex justify-end items-center gap-2 px-1">
+        <button
+          onClick={handleDownload}
+          className="text-xs font-bold text-indigo-600 bg-indigo-50 dark:bg-indigo-500/10 hover:bg-indigo-100 dark:hover:bg-indigo-500/20 px-3 py-1.5 rounded-xl flex items-center gap-1 transition-all focus-visible:ring-2 focus-visible:ring-indigo-500 focus-visible:outline-none"
+        >
+          <Download className="w-3 h-3" /> {t('contrastchecker.download_report')}
+        </button>
+        <button
+          onClick={handleReset}
+          className="text-xs font-bold text-rose-500 bg-rose-50 dark:bg-rose-500/10 hover:bg-rose-100 dark:hover:bg-rose-500/20 px-3 py-1.5 rounded-xl flex items-center gap-1 transition-all focus-visible:ring-2 focus-visible:ring-rose-500 focus-visible:outline-none"
+          aria-label={t('common.reset')}
+        >
+          <RotateCcw className="w-3 h-3" /> {t('common.reset')}
+          <kbd className="ml-1 hidden sm:inline-flex items-center justify-center w-4 h-4 border border-rose-200 dark:border-rose-800 rounded text-[8px] font-bold bg-white/50 dark:bg-black/20">R</kbd>
+        </button>
+      </div>
+
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
         {/* Controls */}
         <div className="lg:col-span-5 space-y-6">
@@ -125,7 +178,7 @@ export function ColorContrastChecker() {
                   aria-label={t('contrastchecker.swap_aria')}
                   title={t('contrastchecker.swap_aria')}
                 >
-                  <RefreshCw className="w-5 h-5 transition-transform group-hover:rotate-180 duration-500" />
+                  <ArrowUpDown className="w-5 h-5 transition-transform group-hover:rotate-180 duration-500" />
                 </button>
                 <kbd className="hidden sm:inline-flex items-center justify-center w-5 h-5 border border-slate-200 dark:border-slate-800 rounded text-[10px] font-bold text-slate-400 bg-white dark:bg-slate-900">S</kbd>
               </div>

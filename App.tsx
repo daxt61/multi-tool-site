@@ -307,6 +307,8 @@ const MnemonicGenerator = lazy(() => import("./components/MnemonicGenerator").th
 const LSystemGenerator = lazy(() => import("./components/LSystemGenerator").then(m => ({ default: m.LSystemGenerator })));
 const BinaryBitCounter = lazy(() => import("./components/BinaryBitCounter").then(m => ({ default: m.BinaryBitCounter })));
 const DivisorsFinder = lazy(() => import("./components/DivisorsFinder").then(m => ({ default: m.DivisorsFinder })));
+const HMACGenerator = lazy(() => import("./components/HMACGenerator").then(m => ({ default: m.HMACGenerator })));
+const RSAGenerator = lazy(() => import("./components/RSAGenerator").then(m => ({ default: m.RSAGenerator })));
 
 // ⚡ Bolt Optimization: Pre-calculating tool map and search index for O(1) lookups and faster filtering
 const toolsMap: Record<string, Tool> = {};
@@ -2299,6 +2301,28 @@ const tools: Tool[] = [
     Component: DivisorsFinder,
     category: "calculators",
     keywords: ["math", "divisors", "prime", "factorization", "number", "integers"],
+  },
+  {
+    id: "hmac-generator",
+    name: "Générateur HMAC",
+    nameEn: "HMAC Generator",
+    icon: Shield,
+    description: "Générer des codes d'authentification de message (HMAC)",
+    descriptionEn: "Generate Hash-based Message Authentication Codes",
+    Component: HMACGenerator,
+    category: "dev",
+    keywords: ["hmac", "security", "hash", "sha256", "sha512", "crypto", "authentication"],
+  },
+  {
+    id: "rsa-generator",
+    name: "Générateur RSA",
+    nameEn: "RSA Generator",
+    icon: Key,
+    description: "Générer des paires de clés publiques et privées RSA",
+    descriptionEn: "Generate RSA public and private key pairs",
+    Component: RSAGenerator,
+    category: "dev",
+    keywords: ["rsa", "key", "pair", "public", "private", "crypto", "security", "pem"],
   },
 ];
 

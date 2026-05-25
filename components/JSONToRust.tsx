@@ -45,6 +45,17 @@ export function JSONToRust({ initialData, onStateChange }: { initialData?: any; 
     return result;
   };
 
+  const escapeRustString = (str: string) => {
+    // Sentinel: Escape backslashes, double quotes, and control characters to prevent breakout
+    // from the #[serde(rename = "...")] attribute which could lead to snippet injection.
+    return str
+      .replace(/\\/g, '\\\\')
+      .replace(/"/g, '\\"')
+      .replace(/\n/g, '\\n')
+      .replace(/\r/g, '\\r')
+      .replace(/\t/g, '\\t');
+  };
+
   const handleConvert = useCallback(() => {
     try {
       if (!input.trim()) {
@@ -84,7 +95,7 @@ export function JSONToRust({ initialData, onStateChange }: { initialData?: any; 
             const type = getRustType(value, key, depth + 1);
             let fieldStr = '';
             if (rustKey !== key) {
-              fieldStr += `    #[serde(rename = "${key}")]\n`;
+              fieldStr += `    #[serde(rename = "${escapeRustString(key)}")]\n`;
             }
             fieldStr += `    pub ${rustKey}: ${type},`;
             return fieldStr;

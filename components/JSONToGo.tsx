@@ -24,6 +24,17 @@ export function JSONToGo({ initialData, onStateChange }: { initialData?: any; on
       .join('');
   };
 
+  const escapeGoTag = (str: string) => {
+    // Sentinel: Escape backslashes, double quotes, and control characters to prevent breakout
+    // from the `json:"..."` tag which could lead to snippet injection.
+    return str
+      .replace(/\\/g, '\\\\')
+      .replace(/"/g, '\\"')
+      .replace(/\n/g, '\\n')
+      .replace(/\r/g, '\\r')
+      .replace(/\t/g, '\\t');
+  };
+
   const getType = (val: any, indent: string = '', depth: number = 0): string => {
     if (depth > MAX_DEPTH) return 'interface{}';
     if (val === null) return 'interface{}';
@@ -45,7 +56,7 @@ export function JSONToGo({ initialData, onStateChange }: { initialData?: any; on
           // Sentinel: Using Object.entries for safer iteration and enforcing depth limit to prevent stack overflow.
           Object.entries(val).forEach(([key, value]) => {
             const pascalKey = toPascalCase(key);
-            structStr += `${nextIndent}${pascalKey} ${getType(value, nextIndent, depth + 1)} \`json:"${key}"\`\n`;
+            structStr += `${nextIndent}${pascalKey} ${getType(value, nextIndent, depth + 1)} \`json:"${escapeGoTag(key)}"\`\n`;
           });
           structStr += `${indent}}`;
           return structStr;

@@ -1,5 +1,6 @@
 import { useState, useCallback, useMemo, useEffect } from 'react';
 import { Copy, Check, Trash2, RefreshCw, FileCode, FileSpreadsheet, Download, Settings2, Table } from 'lucide-react';
+import { useTranslation } from 'react-i18next';
 
 const FIRST_NAMES = ['Jean', 'Marie', 'Pierre', 'Anne', 'Thomas', 'Julie', 'Nicolas', 'Léa', 'Julien', 'Sarah', 'Benoît', 'Chloé', 'David', 'Emma', 'Éric', 'Inès', 'Hugo', 'Jade', 'Léo', 'Manon'];
 const LAST_NAMES = ['Martin', 'Bernard', 'Thomas', 'Petit', 'Robert', 'Richard', 'Durand', 'Dubois', 'Moreau', 'Laurent', 'Simon', 'Michel', 'Lefebvre', 'Leroy', 'Roux', 'David', 'Bertrand', 'Morel', 'Fournier', 'Girard'];
@@ -9,6 +10,7 @@ const COMPANIES = ['TechCorp', 'Innovate', 'GlobalSolutions', 'FutureSystems', '
 const DOMAINS = ['gmail.com', 'yahoo.fr', 'outlook.com', 'orange.fr', 'icloud.com', 'protonmail.com'];
 
 export function MockDataGenerator({ initialData, onStateChange }: { initialData?: any; onStateChange?: (state: any) => void }) {
+  const { t } = useTranslation();
   const [count, setCount] = useState(initialData?.count || 10);
   const [format, setFormat] = useState<'json' | 'csv'>(initialData?.format || 'json');
   const [generatedData, setGeneratedData] = useState<any[]>([]);
@@ -40,14 +42,14 @@ export function MockDataGenerator({ initialData, onStateChange }: { initialData?
       const firstName = FIRST_NAMES[secureRandomInt(FIRST_NAMES.length)];
       const lastName = LAST_NAMES[secureRandomInt(LAST_NAMES.length)];
       newData.push({
-        id: i + 1,
-        prenom: firstName,
-        nom: lastName,
-        email: `${firstName.toLowerCase()}.${lastName.toLowerCase()}@${DOMAINS[secureRandomInt(DOMAINS.length)]}`,
-        telephone: `0${secureRandomInt(9) + 1}${secureRandomInt(100000000).toString().padStart(8, '0')}`,
-        entreprise: COMPANIES[secureRandomInt(COMPANIES.length)],
-        ville: CITIES[secureRandomInt(CITIES.length)],
-        pays: COUNTRIES[secureRandomInt(COUNTRIES.length)],
+        [t('mockdata.id')]: i + 1,
+        [t('mockdata.firstname')]: firstName,
+        [t('mockdata.lastname')]: lastName,
+        [t('mockdata.email')]: `${firstName.toLowerCase()}.${lastName.toLowerCase()}@${DOMAINS[secureRandomInt(DOMAINS.length)]}`,
+        [t('mockdata.phone')]: `0${secureRandomInt(9) + 1}${secureRandomInt(100000000).toString().padStart(8, '0')}`,
+        [t('mockdata.company')]: COMPANIES[secureRandomInt(COMPANIES.length)],
+        [t('mockdata.city')]: CITIES[secureRandomInt(CITIES.length)],
+        [t('mockdata.country')]: COUNTRIES[secureRandomInt(COUNTRIES.length)],
       });
     }
     setGeneratedData(newData);
@@ -91,11 +93,11 @@ export function MockDataGenerator({ initialData, onStateChange }: { initialData?
         <div className="grid grid-cols-1 md:grid-cols-2 gap-8 items-end">
           <div className="space-y-4">
             <label className="text-xs font-black uppercase tracking-widest text-slate-400 flex items-center gap-2 px-1">
-              <Settings2 className="w-4 h-4 text-indigo-500" /> Configuration
+              <Settings2 className="w-4 h-4 text-indigo-500" /> {t('mockdata.config')}
             </label>
             <div className="grid grid-cols-2 gap-4">
               <div className="space-y-2">
-                <label htmlFor="mock-count" className="text-[10px] font-bold text-slate-400 uppercase">Quantité</label>
+                <label htmlFor="mock-count" className="text-[10px] font-bold text-slate-400 uppercase">{t('mockdata.quantity')}</label>
                 <input
                   id="mock-count"
                   type="number"
@@ -107,7 +109,7 @@ export function MockDataGenerator({ initialData, onStateChange }: { initialData?
                 />
               </div>
               <div className="space-y-2">
-                <span className="text-[10px] font-bold text-slate-400 uppercase">Format</span>
+                <span className="text-[10px] font-bold text-slate-400 uppercase">{t('mockdata.format')}</span>
                 <div className="flex bg-slate-100 dark:bg-slate-800 p-1 rounded-xl">
                   <button
                     onClick={() => setFormat('json')}
@@ -129,7 +131,7 @@ export function MockDataGenerator({ initialData, onStateChange }: { initialData?
             onClick={generateData}
             className="w-full h-[60px] bg-indigo-600 text-white rounded-2xl font-black text-lg shadow-xl shadow-indigo-600/20 hover:bg-indigo-700 transition-all active:scale-95 flex items-center justify-center gap-2"
           >
-            <RefreshCw className="w-5 h-5" /> Générer les données
+            <RefreshCw className="w-5 h-5" /> {t('mockdata.generate')}
           </button>
         </div>
       </div>
@@ -139,25 +141,25 @@ export function MockDataGenerator({ initialData, onStateChange }: { initialData?
           <div className="flex justify-between items-center px-1">
             <div className="flex items-center gap-2 text-xs font-black uppercase tracking-widest text-slate-400">
               {format === 'json' ? <FileCode className="w-4 h-4" /> : <FileSpreadsheet className="w-4 h-4" />}
-              Aperçu {format.toUpperCase()}
+              {t('mockdata.preview', { format: format.toUpperCase() })}
             </div>
             <div className="flex gap-2">
               <button
                 onClick={handleDownload}
-                className="text-xs font-bold px-4 py-2 rounded-xl bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 hover:bg-slate-200 transition-all flex items-center gap-2"
+                className="text-xs font-bold px-4 py-2 rounded-xl bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 hover:bg-slate-200 transition-all flex items-center gap-2 focus-visible:ring-2 focus-visible:ring-indigo-500 focus-visible:outline-none"
               >
-                <Download className="w-4 h-4" /> Télécharger
+                <Download className="w-4 h-4" /> {t('common.download')}
               </button>
               <button
                 onClick={handleCopy}
-                className={`text-xs font-bold px-4 py-2 rounded-xl transition-all flex items-center gap-2 border ${
+                className={`text-xs font-bold px-4 py-2 rounded-xl transition-all flex items-center gap-2 border focus-visible:ring-2 focus-visible:ring-indigo-500 focus-visible:outline-none ${
                   copied
                     ? "bg-emerald-50 dark:bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border-emerald-200 dark:border-emerald-500/20"
                     : "bg-indigo-600 text-white shadow-lg shadow-indigo-600/20 hover:bg-indigo-700 border-transparent"
                 }`}
               >
                 {copied ? <Check className="w-4 h-4" /> : <Copy className="w-4 h-4" />}
-                {copied ? 'Copié' : 'Copier'}
+                {copied ? t('common.copied') : t('common.copy')}
               </button>
             </div>
           </div>
@@ -170,7 +172,7 @@ export function MockDataGenerator({ initialData, onStateChange }: { initialData?
           {/* Table Preview */}
           <div className="pt-8 space-y-4">
              <div className="flex items-center gap-2 text-xs font-black uppercase tracking-widest text-slate-400">
-                <Table className="w-4 h-4" /> Aperçu Visuel
+                <Table className="w-4 h-4" /> {t('mockdata.visual_preview')}
              </div>
              <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-3xl overflow-hidden">
                 <div className="overflow-x-auto">
@@ -194,7 +196,7 @@ export function MockDataGenerator({ initialData, onStateChange }: { initialData?
                    </table>
                    {count > 5 && (
                       <div className="p-4 text-center text-xs font-bold text-slate-400 bg-slate-50/50 dark:bg-slate-800/30">
-                         + {count - 5} autres lignes générées...
+                         {t('mockdata.other_rows', { count: count - 5 })}
                       </div>
                    )}
                 </div>

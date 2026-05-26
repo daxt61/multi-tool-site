@@ -41,7 +41,19 @@ export function JSONToAsciiTable({ initialData, onStateChange }: { initialData?:
         return;
       }
 
-      const keys = Object.keys(data[0]);
+      const keysSet = new Set<string>();
+      data.forEach(row => {
+        if (typeof row === 'object' && row !== null) {
+          Object.keys(row).forEach(key => keysSet.add(key));
+        }
+      });
+      const keys = Array.from(keysSet);
+
+      if (keys.length === 0) {
+        setError(t('jsontoascii.error_array'));
+        return;
+      }
+
       const columnWidths = keys.map(key => {
         return Math.max(
           key.length,

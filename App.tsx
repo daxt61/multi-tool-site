@@ -54,6 +54,7 @@ import {
   Mail,
   Hexagon,
   Shield,
+  ShieldAlert,
   Receipt,
   TrendingUp,
   Landmark,
@@ -310,6 +311,9 @@ const BinaryBitCounter = lazy(() => import("./components/BinaryBitCounter").then
 const DivisorsFinder = lazy(() => import("./components/DivisorsFinder").then(m => ({ default: m.DivisorsFinder })));
 const HMACGenerator = lazy(() => import("./components/HMACGenerator").then(m => ({ default: m.HMACGenerator })));
 const RSAGenerator = lazy(() => import("./components/RSAGenerator").then(m => ({ default: m.RSAGenerator })));
+const ZalgoGenerator = lazy(() => import("./components/ZalgoGenerator").then(m => ({ default: m.ZalgoGenerator })));
+const UnicodeSpoofer = lazy(() => import("./components/UnicodeSpoofer").then(m => ({ default: m.UnicodeSpoofer })));
+const CSVColumnExtractor = lazy(() => import("./components/CSVColumnExtractor").then(m => ({ default: m.CSVColumnExtractor })));
 
 // ⚡ Bolt Optimization: Pre-calculating tool map and search index for O(1) lookups and faster filtering
 const toolsMap: Record<string, Tool> = {};
@@ -2335,6 +2339,39 @@ const tools: Tool[] = [
     Component: RSAGenerator,
     category: "dev",
     keywords: ["rsa", "key", "pair", "public", "private", "crypto", "security", "pem"],
+  },
+  {
+    id: "zalgo-text",
+    name: "Texte Zalgo",
+    nameEn: "Zalgo Text",
+    icon: Sparkles,
+    description: "Générer du texte glitché et effrayant (Zalgo)",
+    descriptionEn: "Generate glitchy and spooky Zalgo text",
+    Component: ZalgoGenerator,
+    category: "text",
+    keywords: ["zalgo", "glitch", "text", "unicode", "spooky", "void"],
+  },
+  {
+    id: "unicode-spoofer",
+    name: "Spoofing Unicode",
+    nameEn: "Unicode Spoofer",
+    icon: ShieldAlert,
+    description: "Remplacer des caractères par des homoglyphes Unicode visuellement similaires",
+    descriptionEn: "Replace characters with visually similar Unicode homoglyphs",
+    Component: UnicodeSpoofer,
+    category: "text",
+    keywords: ["unicode", "spoof", "homoglyph", "phishing", "deceptive", "characters"],
+  },
+  {
+    id: "csv-extractor",
+    name: "Extracteur CSV",
+    nameEn: "CSV Column Extractor",
+    icon: Columns,
+    description: "Extraire, réordonner et filtrer les colonnes d'un fichier CSV",
+    descriptionEn: "Extract, reorder and filter columns from a CSV file",
+    Component: CSVColumnExtractor,
+    category: "dev",
+    keywords: ["csv", "extract", "column", "data", "parser", "reorder"],
   },
 ];
 

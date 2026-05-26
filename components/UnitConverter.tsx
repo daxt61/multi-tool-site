@@ -1,4 +1,4 @@
-import { useState, useEffect, useMemo, useCallback } from 'react';
+import { useState, useEffect, useMemo, useCallback, useRef } from 'react';
 import { Copy, Check, Trash2, ArrowUpDown, Info, Ruler, Download, Search, X } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 
@@ -273,6 +273,7 @@ const convert = (value: string, from: string, to: string, cat: ConversionCategor
 };
 
 export function UnitConverter({ initialData, onStateChange }: { initialData?: any; onStateChange?: (state: any) => void }) {
+  const fromValueRef = useRef<HTMLInputElement>(null);
   const { t, i18n } = useTranslation();
 
   const formatter = useMemo(() => new Intl.NumberFormat(i18n.language === 'en' ? 'en-US' : 'fr-FR', {
@@ -323,16 +324,18 @@ export function UnitConverter({ initialData, onStateChange }: { initialData?: an
     setToValue(convert(fromValue, units[0], units[1], newCategory));
   };
 
-  const handleCopy = () => {
+  const handleCopy = useCallback(() => {
+    if (!fromValue) return;
     navigator.clipboard.writeText(String(toValue));
     setCopied(true);
     setTimeout(() => setCopied(false), 2000);
-  };
+  }, [toValue, fromValue]);
 
-  const handleClear = () => {
+  const handleClear = useCallback(() => {
     setFromValue('');
     setToValue(0);
-  };
+    fromValueRef.current?.focus();
+  }, []);
 
   const handleSwap = useCallback(() => {
     const newFromUnit = toUnit;
@@ -345,21 +348,39 @@ export function UnitConverter({ initialData, onStateChange }: { initialData?: an
     setToValue(convert(newFromValue, newFromUnit, newToUnit, category));
   }, [fromUnit, toUnit, toValue, category]);
 
+  const handleSwapRef = useRef(handleSwap);
+  const handleCopyRef = useRef(handleCopy);
+
+  useEffect(() => {
+    handleSwapRef.current = handleSwap;
+    handleCopyRef.current = handleCopy;
+  }, [handleSwap, handleCopy]);
+
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
-      if (document.activeElement?.tagName === "INPUT" || document.activeElement?.tagName === "TEXTAREA" || document.activeElement?.tagName === "SELECT") {
+      if (
+        document.activeElement?.tagName === "INPUT" ||
+        document.activeElement?.tagName === "TEXTAREA" ||
+        document.activeElement?.tagName === "SELECT" ||
+        document.activeElement?.getAttribute('contenteditable') === 'true'
+      ) {
         return;
       }
 
+      if (e.metaKey || e.ctrlKey || e.altKey || e.shiftKey) return;
+
       if (e.key.toLowerCase() === 's') {
         e.preventDefault();
-        handleSwap();
+        handleSwapRef.current();
+      } else if (e.key.toLowerCase() === 'c') {
+        e.preventDefault();
+        handleCopyRef.current();
       }
     };
 
     window.addEventListener('keydown', handleKeyDown);
     return () => window.removeEventListener('keydown', handleKeyDown);
-  }, [handleSwap]);
+  }, []);
 
   return (
     <div className="max-w-4xl mx-auto space-y-12">
@@ -421,22 +442,31 @@ export function UnitConverter({ initialData, onStateChange }: { initialData?: an
         <div className="space-y-4">
           <div className="flex justify-between items-center px-1">
             <label htmlFor="fromValue" className="text-xs font-black uppercase tracking-widest text-slate-400 cursor-pointer">{t('common.from')}</label>
-            <button
-              onClick={handleClear}
-              disabled={!fromValue}
-              className="text-xs font-bold text-rose-500 bg-rose-50 dark:bg-rose-500/10 hover:bg-rose-100 dark:hover:bg-rose-500/20 px-3 py-1.5 rounded-xl flex items-center gap-1 transition-all disabled:opacity-50 disabled:cursor-not-allowed focus-visible:ring-2 focus-visible:ring-rose-500 focus-visible:outline-none"
-            >
-              <Trash2 className="w-3 h-3" /> {t('common.clear')}
-            </button>
+            <div className="flex gap-2 items-center">
+              <kbd className="hidden sm:inline-flex items-center justify-center px-1.5 py-0.5 border border-rose-200 dark:border-rose-800 rounded text-[10px] font-bold text-rose-400 bg-white dark:bg-slate-900">Esc</kbd>
+              <button
+                onClick={handleClear}
+                disabled={!fromValue}
+                className="text-xs font-bold text-rose-500 bg-rose-50 dark:bg-rose-500/10 hover:bg-rose-100 dark:hover:bg-rose-500/20 px-3 py-1.5 rounded-xl flex items-center gap-1 transition-all disabled:opacity-50 disabled:cursor-not-allowed focus-visible:ring-2 focus-visible:ring-rose-500 focus-visible:outline-none"
+              >
+                <Trash2 className="w-3 h-3" /> {t('common.clear')}
+              </button>
+            </div>
           </div>
           <div className="flex flex-col gap-3 p-6 bg-slate-50 dark:bg-slate-900/50 rounded-3xl border border-slate-200 dark:border-slate-800 focus-within:ring-2 focus-within:ring-indigo-500 transition-all">
             <input
               id="fromValue"
+              ref={fromValueRef}
               type="number"
               value={fromValue}
               onChange={(e) => {
                 setFromValue(e.target.value);
                 setToValue(convert(e.target.value, fromUnit, toUnit, category));
+              }}
+              onKeyDown={(e) => {
+                if (e.key === 'Escape') {
+                  handleClear();
+                }
               }}
               className="bg-transparent text-4xl font-black font-mono outline-none dark:text-white"
               placeholder="0"
@@ -486,9 +516,11 @@ export function UnitConverter({ initialData, onStateChange }: { initialData?: an
                 onClick={handleCopy}
                 disabled={!fromValue}
                 className={`text-xs font-bold flex items-center gap-1 px-2 py-1 rounded-lg transition-all focus-visible:ring-2 focus-visible:ring-indigo-500 focus-visible:outline-none ${copied ? 'bg-emerald-50 dark:bg-emerald-500/10 text-emerald-600 dark:text-emerald-400' : 'text-indigo-500 bg-indigo-50 dark:bg-indigo-500/10 hover:bg-indigo-100'} disabled:opacity-50 disabled:cursor-not-allowed`}
+                title={`${t('common.copy')} (C)`}
               >
                 {copied ? <Check className="w-3 h-3" /> : <Copy className="w-3 h-3" />}
                 {copied ? t('common.copied') : t('common.copy')}
+                {!copied && <kbd className="hidden sm:inline-flex items-center justify-center w-4 h-4 border border-indigo-200 dark:border-indigo-800 rounded text-[10px] font-bold bg-white dark:bg-slate-900 ml-0.5">C</kbd>}
               </button>
             </div>
           </div>

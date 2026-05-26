@@ -314,6 +314,8 @@ const RSAGenerator = lazy(() => import("./components/RSAGenerator").then(m => ({
 const ZalgoGenerator = lazy(() => import("./components/ZalgoGenerator").then(m => ({ default: m.ZalgoGenerator })));
 const UnicodeSpoofer = lazy(() => import("./components/UnicodeSpoofer").then(m => ({ default: m.UnicodeSpoofer })));
 const CSVColumnExtractor = lazy(() => import("./components/CSVColumnExtractor").then(m => ({ default: m.CSVColumnExtractor })));
+const SQLToJSON = lazy(() => import("./components/SQLToJSON").then(m => ({ default: m.SQLToJSON })));
+const UAGenerator = lazy(() => import("./components/UAGenerator").then(m => ({ default: m.UAGenerator })));
 
 // ⚡ Bolt Optimization: Pre-calculating tool map and search index for O(1) lookups and faster filtering
 const toolsMap: Record<string, Tool> = {};
@@ -2372,6 +2374,28 @@ const tools: Tool[] = [
     Component: CSVColumnExtractor,
     category: "dev",
     keywords: ["csv", "extract", "column", "data", "parser", "reorder"],
+  },
+  {
+    id: "sql-to-json",
+    name: "SQL en JSON",
+    nameEn: "SQL to JSON",
+    icon: Database,
+    description: "Convertir des requêtes SQL INSERT en un tableau d'objets JSON",
+    descriptionEn: "Convert SQL INSERT statements into a JSON array of objects",
+    Component: SQLToJSON,
+    category: "dev",
+    keywords: ["sql", "json", "convert", "database", "insert"],
+  },
+  {
+    id: "ua-generator",
+    name: "Générateur de User Agent",
+    nameEn: "User Agent Generator",
+    icon: Monitor,
+    description: "Générer des chaînes User Agent aléatoires et réalistes",
+    descriptionEn: "Generate random and realistic User Agent strings",
+    Component: UAGenerator,
+    category: "dev",
+    keywords: ["user agent", "ua", "browser", "fingerprint", "testing"],
   },
 ];
 

@@ -316,6 +316,10 @@ const UnicodeSpoofer = lazy(() => import("./components/UnicodeSpoofer").then(m =
 const CSVColumnExtractor = lazy(() => import("./components/CSVColumnExtractor").then(m => ({ default: m.CSVColumnExtractor })));
 const SQLToJSON = lazy(() => import("./components/SQLToJSON").then(m => ({ default: m.SQLToJSON })));
 const UAGenerator = lazy(() => import("./components/UAGenerator").then(m => ({ default: m.UAGenerator })));
+const WordsToNumbers = lazy(() => import("./components/WordsToNumbers").then(m => ({ default: m.WordsToNumbers })));
+const PiGenerator = lazy(() => import("./components/PiGenerator").then(m => ({ default: m.PiGenerator })));
+const ImageColorReplacer = lazy(() => import("./components/ImageColorReplacer").then(m => ({ default: m.ImageColorReplacer })));
+const AverageTimeCalculator = lazy(() => import("./components/AverageTimeCalculator").then(m => ({ default: m.AverageTimeCalculator })));
 
 // ⚡ Bolt Optimization: Pre-calculating tool map and search index for O(1) lookups and faster filtering
 const toolsMap: Record<string, Tool> = {};
@@ -2396,6 +2400,50 @@ const tools: Tool[] = [
     Component: UAGenerator,
     category: "dev",
     keywords: ["user agent", "ua", "browser", "fingerprint", "testing"],
+  },
+  {
+    id: "words-to-numbers",
+    name: "Mots en Nombres",
+    nameEn: "Words to Numbers",
+    icon: FileText,
+    description: "Convertir des nombres écrits en anglais en chiffres",
+    descriptionEn: "Convert English written numbers into digits",
+    Component: WordsToNumbers,
+    category: "text",
+    keywords: ["convert", "words", "numbers", "english", "parsing"],
+  },
+  {
+    id: "pi-generator",
+    name: "Décimales de Pi",
+    nameEn: "Pi Digits",
+    icon: Hash,
+    description: "Générer et formater les décimales de Pi (π)",
+    descriptionEn: "Generate and format digits of Pi (π)",
+    Component: PiGenerator,
+    category: "calculators",
+    keywords: ["pi", "math", "constant", "digits", "geometry"],
+  },
+  {
+    id: "image-color-replacer",
+    name: "Remplacer Couleur Image",
+    nameEn: "Replace Image Color",
+    icon: ImageIcon,
+    description: "Remplacer une couleur dans une image par une autre",
+    descriptionEn: "Replace one color in an image with another color",
+    Component: ImageColorReplacer,
+    category: "other",
+    keywords: ["image", "color", "replace", "editor", "canvas", "pixel"],
+  },
+  {
+    id: "average-time",
+    name: "Moyenne de Temps",
+    nameEn: "Average Time",
+    icon: Clock,
+    description: "Calculer la moyenne de plusieurs horaires",
+    descriptionEn: "Calculate the average of multiple clock times",
+    Component: AverageTimeCalculator,
+    category: "calculators",
+    keywords: ["time", "average", "clock", "mean", "duration"],
   },
 ];
 

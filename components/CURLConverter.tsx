@@ -134,15 +134,15 @@ export function CURLConverter({ initialData, onStateChange }: { initialData?: an
 
     if (data) {
       code += `\tvar data = strings.NewReader(\`${data.replace(/`/g, '` + "`" + `')}\`)\n`;
-      code += `\treq, err := http.NewRequest("${method}", "${url}", data)\n`;
+      code += `\treq, err := http.NewRequest(${JSON.stringify(method)}, ${JSON.stringify(url)}, data)\n`;
     } else {
-      code += `\treq, err := http.NewRequest("${method}", "${url}", nil)\n`;
+      code += `\treq, err := http.NewRequest(${JSON.stringify(method)}, ${JSON.stringify(url)}, nil)\n`;
     }
 
     code += `\tif err != nil {\n\t\tpanic(err)\n\t}\n`;
 
     Object.entries(headers).forEach(([k, v]) => {
-      code += `\treq.Header.Set("${k}", "${v}")\n`;
+      code += `\treq.Header.Set(${JSON.stringify(k)}, ${JSON.stringify(v)})\n`;
     });
 
     code += `\tresp, err := client.Do(req)\n\tif err != nil {\n\t\tpanic(err)\n\t}\n\tdefer resp.Body.Close()\n`;
@@ -150,17 +150,24 @@ export function CURLConverter({ initialData, onStateChange }: { initialData?: an
     return code;
   };
 
+  const toRubyLiteral = (val: string) => {
+    return `'${val.replace(/\\/g, '\\\\').replace(/'/g, "\\'")}'`;
+  };
+
   const generateRuby = (url: string, method: string, headers: Record<string, string>, data: string | null) => {
     let code = `require 'net/http'\nrequire 'uri'\n\n`;
-    code += `uri = URI.parse('${url}')\n`;
-    code += `request = Net::HTTP::${method.charAt(0).toUpperCase() + method.slice(1).toLowerCase()}.new(uri)\n`;
+    code += `uri = URI.parse(${toRubyLiteral(url)})\n`;
+    // method is typically GET, POST, etc. but we should still be safe.
+    // Net::HTTP expects a class name like Get, Post, etc.
+    const rubyMethodClass = method.charAt(0).toUpperCase() + method.slice(1).toLowerCase();
+    code += `request = Net::HTTP::${rubyMethodClass.replace(/[^A-Za-z]/g, '')}.new(uri)\n`;
 
     Object.entries(headers).forEach(([k, v]) => {
-      code += `request['${k}'] = '${v}'\n`;
+      code += `request[${toRubyLiteral(k)}] = ${toRubyLiteral(v)}\n`;
     });
 
     if (data) {
-      code += `request.body = '${data.replace(/'/g, "\\'")}'\n`;
+      code += `request.body = ${toRubyLiteral(data)}\n`;
     }
 
     code += `\nresponse = Net::HTTP.start(uri.hostname, uri.port, use_ssl: uri.scheme == 'https') do |http|\n  http.request(request)\nend\n\nputs response.body`;

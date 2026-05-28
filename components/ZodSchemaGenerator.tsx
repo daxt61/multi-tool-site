@@ -41,7 +41,7 @@ export function ZodSchemaGenerator({ initialData, onStateChange }: { initialData
 
       entries.forEach(([key, value]) => {
         const valueSchema = generateZodSchema(value, nextIndent, depth + 1);
-        const safeKey = /^[a-z_$][a-z0-9_$]*$/i.test(key) ? key : `"${key}"`;
+        const safeKey = /^[a-z_$][a-z0-9_$]*$/i.test(key) ? key : JSON.stringify(key);
         result += `${nextIndent}${safeKey}: ${valueSchema},\n`;
       });
       result += `${indent}})`;

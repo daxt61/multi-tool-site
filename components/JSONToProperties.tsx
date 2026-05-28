@@ -4,7 +4,7 @@ import { useTranslation } from 'react-i18next';
 
 const MAX_LENGTH = 100000;
 
-export function JSONToTOML({ initialData, onStateChange }: { initialData?: any; onStateChange?: (state: any) => void }) {
+export function JSONToProperties({ initialData, onStateChange }: { initialData?: any; onStateChange?: (state: any) => void }) {
   const { t } = useTranslation();
   const [input, setInput] = useState(initialData?.input || '');
   const [output, setOutput] = useState(initialData?.output || '');
@@ -15,46 +15,31 @@ export function JSONToTOML({ initialData, onStateChange }: { initialData?: any; 
     onStateChange?.({ input, output });
   }, [input, output, onStateChange]);
 
-  const jsonToToml = (obj: any, prefix = ''): string => {
-    let toml = '';
-    const simpleEntries: [string, any][] = [];
-    const tableEntries: [string, any][] = [];
-    const arrayTableEntries: [string, any[]][] = [];
+  const jsonToProperties = (obj: any, prefix = ''): string => {
+    let props = '';
+
+    if (obj === null || obj === undefined) return '';
 
     for (const [key, value] of Object.entries(obj)) {
-      if (value === null || value === undefined) continue;
-      if (Array.isArray(value)) {
-        if (value.length > 0 && typeof value[0] === 'object' && !Array.isArray(value[0])) {
-          arrayTableEntries.push([key, value]);
-        } else {
-          simpleEntries.push([key, value]);
-        }
-      } else if (typeof value === 'object') {
-        tableEntries.push([key, value]);
+      const fullKey = prefix ? `${prefix}.${key}` : key;
+
+      if (value !== null && typeof value === 'object' && !Array.isArray(value)) {
+        props += jsonToProperties(value, fullKey);
+      } else if (Array.isArray(value)) {
+        value.forEach((item, index) => {
+          const arrayKey = `${fullKey}[${index}]`;
+          if (item !== null && typeof item === 'object' && !Array.isArray(item)) {
+            props += jsonToProperties(item, arrayKey);
+          } else {
+            props += `${arrayKey}=${String(item)}\n`;
+          }
+        });
       } else {
-        simpleEntries.push([key, value]);
+        props += `${fullKey}=${String(value)}\n`;
       }
     }
 
-    const formatKey = (k: string) => /^[A-Za-z_-][A-Za-z0-9_-]*$/.test(k) ? k : JSON.stringify(k);
-
-    for (const [key, value] of simpleEntries) {
-      toml += `${formatKey(key)} = ${JSON.stringify(value)}\n`;
-    }
-
-    for (const [key, value] of tableEntries) {
-      const newPrefix = prefix ? `${prefix}.${formatKey(key)}` : formatKey(key);
-      toml += `\n[${newPrefix}]\n${jsonToToml(value, newPrefix)}`;
-    }
-
-    for (const [key, value] of arrayTableEntries) {
-      const newPrefix = prefix ? `${prefix}.${formatKey(key)}` : formatKey(key);
-      for (const item of value) {
-        toml += `\n[[${newPrefix}]]\n${jsonToToml(item, newPrefix)}`;
-      }
-    }
-
-    return toml;
+    return props;
   };
 
   const handleConvert = useCallback(() => {
@@ -69,13 +54,13 @@ export function JSONToTOML({ initialData, onStateChange }: { initialData?: any; 
         return;
       }
       const parsed = JSON.parse(input);
-      if (typeof parsed !== 'object' || Array.isArray(parsed) || parsed === null) {
-        setError(t('jsontotoml.error_object'));
+      if (typeof parsed !== 'object' || parsed === null) {
+        setError(t('jsontotoml.error_object')); // Reusing object error
         setOutput('');
         return;
       }
 
-      const result = jsonToToml(parsed).trim();
+      const result = jsonToProperties(parsed).trim();
       setOutput(result);
       setError('');
     } catch (e: any) {
@@ -103,11 +88,11 @@ export function JSONToTOML({ initialData, onStateChange }: { initialData?: any; 
 
   const handleDownload = () => {
     if (!output) return;
-    const blob = new Blob([output], { type: 'text/x-toml' });
+    const blob = new Blob([output], { type: 'text/plain' });
     const url = URL.createObjectURL(blob);
     const link = document.createElement('a');
     link.href = url;
-    link.download = 'config.toml';
+    link.download = 'config.properties';
     document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);
@@ -126,7 +111,6 @@ export function JSONToTOML({ initialData, onStateChange }: { initialData?: any; 
             <button
               onClick={handleClear}
               disabled={!input && !output}
-              aria-label={t('common.clear')}
               className="text-xs font-bold px-3 py-1 rounded-full text-rose-500 bg-rose-50 dark:bg-rose-500/10 hover:bg-rose-100 dark:hover:bg-rose-500/20 border border-transparent transition-all flex items-center gap-1 disabled:opacity-50 disabled:cursor-not-allowed focus-visible:ring-2 focus-visible:ring-rose-500 focus-visible:outline-none"
             >
               <Trash2 className="w-3 h-3" /> {t('common.clear')}
@@ -136,7 +120,7 @@ export function JSONToTOML({ initialData, onStateChange }: { initialData?: any; 
             id="json-input"
             value={input}
             onChange={(e) => setInput(e.target.value)}
-            placeholder='{"title": "TOML Example", "owner": {"name": "Tom Preston-Werner"}}'
+            placeholder='{"server": {"port": 8080, "host": "localhost"}, "tags": ["prod", "web"]}'
             className="w-full h-[450px] p-6 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-3xl outline-none focus:ring-2 focus:ring-indigo-500/20 transition-all font-mono text-sm leading-relaxed dark:text-slate-300 resize-none"
           />
         </div>
@@ -145,13 +129,13 @@ export function JSONToTOML({ initialData, onStateChange }: { initialData?: any; 
           <div className="flex justify-between items-center px-1">
             <div className="flex items-center gap-2">
               <FileCode className="w-4 h-4 text-emerald-500" />
-              <label htmlFor="toml-output" className="text-xs font-black uppercase tracking-widest text-slate-400 cursor-pointer">TOML</label>
+              <label htmlFor="properties-output" className="text-xs font-black uppercase tracking-widest text-slate-400 cursor-pointer">Properties</label>
             </div>
             <div className="flex gap-2">
               <button
                 onClick={handleDownload}
                 disabled={!output}
-                className="text-xs font-bold px-3 py-1 rounded-full text-indigo-500 bg-indigo-50 dark:bg-indigo-500/10 hover:bg-indigo-100 transition-all flex items-center gap-1 disabled:opacity-50 focus-visible:ring-2 focus-visible:ring-indigo-500 focus-visible:outline-none"
+                className="text-xs font-bold px-3 py-1 rounded-full text-indigo-500 bg-indigo-50 dark:bg-indigo-900/10 hover:bg-indigo-100 transition-all flex items-center gap-1 disabled:opacity-50 focus-visible:ring-2 focus-visible:ring-indigo-500 focus-visible:outline-none"
               >
                 <Download className="w-3 h-3" /> {t('common.download')}
               </button>
@@ -169,10 +153,10 @@ export function JSONToTOML({ initialData, onStateChange }: { initialData?: any; 
             </div>
           </div>
           <textarea
-            id="toml-output"
+            id="properties-output"
             value={output}
             readOnly
-            className="w-full h-[450px] p-6 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-3xl outline-none font-mono text-sm leading-relaxed text-indigo-600 dark:text-indigo-400 resize-none"
+            className="w-full h-[450px] p-6 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-3xl outline-none font-mono text-sm leading-relaxed text-indigo-600 dark:text-indigo-400 resize-none shadow-inner"
           />
         </div>
       </div>
@@ -187,9 +171,9 @@ export function JSONToTOML({ initialData, onStateChange }: { initialData?: any; 
       <div className="bg-indigo-50 dark:bg-indigo-900/10 p-8 rounded-[2.5rem] border border-indigo-100 dark:border-indigo-900/20 flex items-start gap-4">
         <Info className="w-6 h-6 text-indigo-500 mt-1" />
         <div className="space-y-2">
-          <h4 className="font-bold dark:text-white">{t('jsontotoml.about_title')}</h4>
+          <h4 className="font-bold dark:text-white">{t('jsontoproperties.about_title')}</h4>
           <p className="text-sm text-slate-500 dark:text-slate-400 leading-relaxed">
-            {t('jsontotoml.about_text')}
+            {t('jsontoproperties.about_text')}
           </p>
         </div>
       </div>

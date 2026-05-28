@@ -329,6 +329,9 @@ const NumberTransformer = lazy(() => import("./components/NumberTransformer").th
 const NegabinaryConverter = lazy(() => import("./components/NegabinaryConverter").then(m => ({ default: m.NegabinaryConverter })));
 const CSSClampGenerator = lazy(() => import("./components/CSSClampGenerator").then(m => ({ default: m.CSSClampGenerator })));
 const Base64ToHex = lazy(() => import("./components/Base64ToHex").then(m => ({ default: m.Base64ToHex })));
+const JSONToProperties = lazy(() => import("./components/JSONToProperties").then(m => ({ default: m.JSONToProperties })));
+const TextShadowGenerator = lazy(() => import("./components/TextShadowGenerator").then(m => ({ default: m.TextShadowGenerator })));
+const CSSFormatter = lazy(() => import("./components/CSSFormatter").then(m => ({ default: m.CSSFormatter })));
 
 // ⚡ Bolt Optimization: Pre-calculating tool map and search index for O(1) lookups and faster filtering
 const toolsMap: Record<string, Tool> = {};
@@ -2530,6 +2533,39 @@ const tools: Tool[] = [
     Component: Base64ToHex,
     category: "dev",
     keywords: ["base64", "hex", "encoding", "decoding", "converter"],
+  },
+  {
+    id: "json-to-properties",
+    name: "JSON en Properties",
+    nameEn: "JSON to Properties",
+    icon: FileCode,
+    description: "Convertir du JSON en fichier de propriétés Java (.properties)",
+    descriptionEn: "Convert JSON to Java properties file format (.properties)",
+    Component: JSONToProperties,
+    category: "dev",
+    keywords: ["json", "properties", "java", "config", "flatten"],
+  },
+  {
+    id: "text-shadow",
+    name: "Text Shadow",
+    nameEn: "Text Shadow",
+    icon: Type,
+    description: "Générateur visuel d'ombres de texte CSS multi-couches",
+    descriptionEn: "Visual multi-layer CSS text-shadow generator",
+    Component: TextShadowGenerator,
+    category: "dev",
+    keywords: ["css", "text-shadow", "design", "ui", "frontend", "shadow"],
+  },
+  {
+    id: "css-formatter",
+    name: "Formateur CSS",
+    nameEn: "CSS Formatter",
+    icon: FileCode,
+    description: "Embellir, minifier et valider votre CSS",
+    descriptionEn: "Beautify, minify and validate your CSS",
+    Component: CSSFormatter,
+    category: "dev",
+    keywords: ["css", "format", "beautify", "minify", "frontend"],
   },
 ];
 

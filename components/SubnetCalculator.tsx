@@ -1,10 +1,16 @@
-import { useState, useMemo } from 'react';
-import { Network, Info, Hash, Globe, Server, ShieldCheck, Copy, Check } from 'lucide-react';
+import { useState, useMemo, useEffect } from 'react';
+import { Network, Info, Globe, Server, ShieldCheck, Copy, Check, Binary, Zap } from 'lucide-react';
+import { useTranslation } from 'react-i18next';
 
-export function SubnetCalculator() {
-  const [ip, setIp] = useState('192.168.1.1');
-  const [cidr, setCidr] = useState(24);
+export function SubnetCalculator({ initialData, onStateChange }: { initialData?: any; onStateChange?: (state: any) => void }) {
+  const { t } = useTranslation();
+  const [ip, setIp] = useState(initialData?.ip || '192.168.1.1');
+  const [cidr, setCidr] = useState(initialData?.cidr ?? 24);
   const [copied, setCopied] = useState<string | null>(null);
+
+  useEffect(() => {
+    onStateChange?.({ ip, cidr });
+  }, [ip, cidr, onStateChange]);
 
   const calculateSubnet = (ipStr: string, prefix: number) => {
     try {
@@ -13,8 +19,9 @@ export function SubnetCalculator() {
         return null;
       }
 
-      const ipNum = (parts[0] << 24) | (parts[1] << 16) | (parts[2] << 8) | parts[3];
+      const ipNum = ((parts[0] << 24) >>> 0) | (parts[1] << 16) | (parts[2] << 8) | parts[3];
       const mask = prefix === 0 ? 0 : (~0 << (32 - prefix)) >>> 0;
+      const wildcard = ~mask >>> 0;
 
       const networkNum = (ipNum & mask) >>> 0;
       const broadcastNum = (networkNum | ~mask) >>> 0;
@@ -30,10 +37,19 @@ export function SubnetCalculator() {
         num & 255
       ].join('.');
 
+      const toBinary = (num: number) => {
+        return (num >>> 0).toString(2).padStart(32, '0').match(/.{8}/g)!.join('.');
+      };
+
       return {
         network: toIp(networkNum),
+        networkBin: toBinary(networkNum),
         broadcast: toIp(broadcastNum),
+        broadcastBin: toBinary(broadcastNum),
         mask: toIp(mask),
+        maskBin: toBinary(mask),
+        wildcard: toIp(wildcard),
+        wildcardBin: toBinary(wildcard),
         cidr: prefix,
         firstHost: prefix === 31 ? toIp(networkNum) : (prefix === 32 ? toIp(networkNum) : toIp(networkNum + 1)),
         lastHost: prefix === 31 ? toIp(broadcastNum) : (prefix === 32 ? toIp(networkNum) : toIp(broadcastNum - 1)),
@@ -54,33 +70,33 @@ export function SubnetCalculator() {
   };
 
   return (
-    <div className="max-w-5xl mx-auto space-y-12">
+    <div className="max-w-6xl mx-auto space-y-12">
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
         {/* Input Controls */}
-        <div className="lg:col-span-5 space-y-6">
-          <div className="bg-slate-50 dark:bg-slate-900/50 p-8 rounded-[2.5rem] border border-slate-200 dark:border-slate-800 space-y-8">
+        <div className="lg:col-span-4 space-y-6">
+          <div className="bg-slate-50 dark:bg-slate-900/50 p-8 rounded-[2.5rem] border border-slate-200 dark:border-slate-800 space-y-8 shadow-sm">
             <div className="space-y-6">
               <div className="flex items-center gap-2 px-1">
                 <Globe className="w-4 h-4 text-indigo-500" />
-                <h3 className="text-xs font-black uppercase tracking-widest text-slate-400">Configuration IP</h3>
+                <h3 className="text-xs font-black uppercase tracking-widest text-slate-400">{t('subnet.config_title')}</h3>
               </div>
 
               <div className="space-y-4">
                 <div className="space-y-2">
-                  <label htmlFor="ip-input" className="text-xs font-bold text-slate-500 px-1">Adresse IP (v4)</label>
+                  <label htmlFor="ip-input" className="text-xs font-bold text-slate-500 px-1">{t('subnet.ip_address')}</label>
                   <input
                     id="ip-input"
                     type="text"
                     value={ip}
                     onChange={(e) => setIp(e.target.value)}
-                    placeholder="ex: 192.168.1.1"
+                    placeholder="e.g. 192.168.1.1"
                     className="w-full p-4 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-2xl text-xl font-black font-mono focus:border-indigo-500 outline-none transition-all dark:text-white"
                   />
                 </div>
 
                 <div className="space-y-2">
                   <div className="flex justify-between items-center px-1">
-                    <label htmlFor="cidr-input" className="text-xs font-bold text-slate-500">Masque CIDR</label>
+                    <label htmlFor="cidr-input" className="text-xs font-bold text-slate-500">{t('subnet.cidr_mask')}</label>
                     <span className="text-lg font-black text-indigo-600 dark:text-indigo-400 font-mono">/{cidr}</span>
                   </div>
                   <input
@@ -102,66 +118,88 @@ export function SubnetCalculator() {
             </div>
           </div>
 
-          <div className="bg-indigo-600 rounded-[2.5rem] p-8 text-white shadow-xl shadow-indigo-600/10 space-y-6">
-             <div className="flex items-center gap-3">
-              <Info className="w-6 h-6 opacity-50" />
-              <h4 className="text-xl font-black">Qu'est-ce que le CIDR ?</h4>
+          <div className="bg-indigo-600 rounded-[2.5rem] p-8 text-white shadow-xl shadow-indigo-600/10 space-y-4 relative overflow-hidden">
+            <div className="absolute top-0 right-0 w-32 h-32 bg-white/10 rounded-full blur-3xl -mr-16 -mt-16"></div>
+            <div className="flex items-center gap-3 relative z-10">
+              <Info className="w-5 h-5 opacity-50" />
+              <h4 className="text-lg font-black">{t('subnet.what_is_cidr')}</h4>
             </div>
-            <p className="text-indigo-100 text-sm font-medium leading-relaxed">
-              Le CIDR (Classless Inter-Domain Routing) est une méthode d'allocation d'adresses IP. Le nombre après le "/" indique combien de bits sont utilisés pour le réseau, le reste servant aux hôtes.
+            <p className="text-indigo-100 text-sm font-medium leading-relaxed relative z-10">
+              {t('subnet.cidr_desc')}
             </p>
           </div>
         </div>
 
         {/* Results */}
-        <div className="lg:col-span-7 space-y-6">
+        <div className="lg:col-span-8 space-y-6">
           {!results ? (
             <div className="bg-rose-50 dark:bg-rose-500/10 border border-rose-200 dark:border-rose-800 p-8 rounded-[2.5rem] text-center space-y-4">
               <div className="w-12 h-12 bg-white dark:bg-slate-800 rounded-full flex items-center justify-center mx-auto text-rose-500 shadow-sm">
                 <ShieldCheck className="w-6 h-6" />
               </div>
-              <p className="text-rose-600 dark:text-rose-400 font-bold">Adresse IP invalide. Veuillez vérifier le format (ex: 192.168.1.1).</p>
+              <p className="text-rose-600 dark:text-rose-400 font-bold">{t('subnet.error_invalid_ip')}</p>
             </div>
           ) : (
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              {[
-                { label: 'Adresse Réseau', value: results.network, icon: <Network className="w-4 h-4" /> },
-                { label: 'Adresse Broadcast', value: results.broadcast, icon: <Globe className="w-4 h-4" /> },
-                { label: 'Masque de sous-réseau', value: results.mask, icon: <ShieldCheck className="w-4 h-4" /> },
-                { label: 'Total des hôtes', value: results.totalHosts.toLocaleString(), icon: <Server className="w-4 h-4" /> },
-                { label: 'Premier Hôte', value: results.firstHost, icon: <Hash className="w-4 h-4" /> },
-                { label: 'Dernier Hôte', value: results.lastHost, icon: <Hash className="w-4 h-4" /> },
-              ].map((item, i) => (
-                <div key={i} className="bg-white dark:bg-slate-900/40 border border-slate-200 dark:border-slate-800 p-6 rounded-3xl space-y-3 group transition-all hover:border-indigo-500/30">
-                  <div className="flex justify-between items-center">
-                    <div className="flex items-center gap-2">
-                      <div className="p-1.5 bg-slate-50 dark:bg-slate-800 rounded-lg text-slate-400 group-hover:text-indigo-500 transition-colors">
-                        {item.icon}
+            <div className="space-y-4">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                {[
+                  { label: t('subnet.network_address'), value: results.network, bin: results.networkBin, icon: <Network className="w-4 h-4" /> },
+                  { label: t('subnet.broadcast_address'), value: results.broadcast, bin: results.broadcastBin, icon: <Globe className="w-4 h-4" /> },
+                  { label: t('subnet.subnet_mask'), value: results.mask, bin: results.maskBin, icon: <ShieldCheck className="w-4 h-4" /> },
+                  { label: t('subnet.wildcard_mask'), value: results.wildcard, bin: results.wildcardBin, icon: <Zap className="w-4 h-4" /> },
+                ].map((item, i) => (
+                  <div key={i} className="bg-white dark:bg-slate-900/40 border border-slate-200 dark:border-slate-800 p-6 rounded-3xl space-y-3 group transition-all hover:border-indigo-500/30 shadow-sm">
+                    <div className="flex justify-between items-center">
+                      <div className="flex items-center gap-2">
+                        <div className="p-1.5 bg-slate-50 dark:bg-slate-800 rounded-lg text-slate-400 group-hover:text-indigo-500 transition-colors">
+                          {item.icon}
+                        </div>
+                        <span className="text-[10px] font-black uppercase tracking-widest text-slate-400">{item.label}</span>
                       </div>
-                      <span className="text-[10px] font-black uppercase tracking-widest text-slate-400">{item.label}</span>
+                      <button
+                        onClick={() => handleCopy(item.value, item.label)}
+                        className={`p-1.5 rounded-lg transition-all ${copied === item.label ? 'bg-emerald-50 text-emerald-600' : 'text-slate-300 hover:text-slate-500 hover:bg-slate-50'}`}
+                      >
+                        {copied === item.label ? <Check className="w-4 h-4" /> : <Copy className="w-4 h-4" />}
+                      </button>
                     </div>
-                    <button
-                      onClick={() => handleCopy(item.value, item.label)}
-                      className={`p-1.5 rounded-lg transition-all ${copied === item.label ? 'bg-emerald-50 text-emerald-600' : 'text-slate-300 hover:text-slate-500 hover:bg-slate-50'}`}
-                    >
-                      {copied === item.label ? <Check className="w-4 h-4" /> : <Copy className="w-4 h-4" />}
-                    </button>
+                    <div>
+                      <div className="text-xl font-black font-mono dark:text-white truncate">
+                        {item.value}
+                      </div>
+                      <div className="text-[10px] font-mono text-slate-400 dark:text-slate-500 flex items-center gap-1 mt-1">
+                        <Binary className="w-3 h-3" /> {item.bin}
+                      </div>
+                    </div>
                   </div>
-                  <div className="text-xl font-black font-mono dark:text-white truncate">
-                    {item.value}
-                  </div>
-                </div>
-              ))}
+                ))}
+              </div>
 
-              <div className="md:col-span-2 bg-slate-900 dark:bg-slate-800 p-8 rounded-[2rem] text-white flex flex-col md:flex-row justify-between items-center gap-6">
-                <div>
-                  <p className="text-slate-400 text-[10px] font-black uppercase tracking-widest mb-1">Nombre d'hôtes utilisables</p>
-                  <h4 className="text-4xl font-black font-mono text-indigo-400">{results.numHosts.toLocaleString()}</h4>
+              <div className="bg-slate-900 dark:bg-black p-8 rounded-[2rem] text-white flex flex-col md:flex-row justify-between items-center gap-8 relative overflow-hidden">
+                <div className="absolute bottom-0 right-0 w-64 h-64 bg-indigo-500/5 rounded-full blur-3xl -mb-32 -mr-32"></div>
+
+                <div className="grid grid-cols-2 gap-8 w-full md:w-auto relative z-10">
+                   <div>
+                    <p className="text-slate-400 text-[10px] font-black uppercase tracking-widest mb-1">{t('subnet.usable_hosts')}</p>
+                    <h4 className="text-3xl font-black font-mono text-indigo-400">{results.numHosts.toLocaleString()}</h4>
+                  </div>
+                  <div>
+                    <p className="text-slate-400 text-[10px] font-black uppercase tracking-widest mb-1">{t('subnet.total_hosts')}</p>
+                    <h4 className="text-3xl font-black font-mono text-slate-400">{results.totalHosts.toLocaleString()}</h4>
+                  </div>
                 </div>
-                <div className="h-12 w-px bg-white/10 hidden md:block" />
-                <div className="text-right hidden md:block">
-                  <p className="text-slate-400 text-[10px] font-black uppercase tracking-widest mb-1">Notation CIDR</p>
-                  <h4 className="text-2xl font-black font-mono">{ip}/{results.cidr}</h4>
+
+                <div className="h-px w-full bg-white/10 md:h-12 md:w-px relative z-10" />
+
+                <div className="w-full md:w-auto space-y-4 relative z-10">
+                   <div className="flex justify-between items-center gap-4">
+                     <span className="text-[10px] font-black uppercase tracking-widest text-slate-400">{t('subnet.first_host')}</span>
+                     <span className="font-mono font-bold">{results.firstHost}</span>
+                   </div>
+                   <div className="flex justify-between items-center gap-4">
+                     <span className="text-[10px] font-black uppercase tracking-widest text-slate-400">{t('subnet.last_host')}</span>
+                     <span className="font-mono font-bold">{results.lastHost}</span>
+                   </div>
                 </div>
               </div>
             </div>
@@ -172,26 +210,26 @@ export function SubnetCalculator() {
       <div className="grid grid-cols-1 md:grid-cols-3 gap-8 pt-16 border-t border-slate-100 dark:border-slate-800">
         <div className="space-y-4">
           <h4 className="font-bold dark:text-white flex items-center gap-2">
-            <Info className="w-4 h-4 text-indigo-500" /> Guide d'utilisation
+            <Info className="w-4 h-4 text-indigo-500" /> {t('subnet.guide_title')}
           </h4>
           <p className="text-sm text-slate-500 dark:text-slate-400 leading-relaxed">
-            Saisissez une adresse IPv4 et ajustez le masque à l'aide du curseur CIDR. Les résultats se mettent à jour instantanément pour afficher toutes les informations du sous-réseau.
+            {t('subnet.guide_text')}
           </p>
         </div>
         <div className="space-y-4">
           <h4 className="font-bold dark:text-white flex items-center gap-2">
-            <Network className="w-4 h-4 text-indigo-500" /> Adresse Réseau
+            <Zap className="w-4 h-4 text-indigo-500" /> {t('subnet.wildcard_title')}
           </h4>
           <p className="text-sm text-slate-500 dark:text-slate-400 leading-relaxed">
-            L'adresse réseau est la première adresse du sous-réseau. Elle identifie le réseau lui-même et ne peut pas être attribuée à un hôte individuel.
+            {t('subnet.wildcard_text')}
           </p>
         </div>
         <div className="space-y-4">
           <h4 className="font-bold dark:text-white flex items-center gap-2">
-            <Globe className="w-4 h-4 text-indigo-500" /> Adresse Broadcast
+            <Binary className="w-4 h-4 text-indigo-500" /> {t('subnet.binary_title')}
           </h4>
           <p className="text-sm text-slate-500 dark:text-slate-400 leading-relaxed">
-            L'adresse de diffusion (broadcast) est la dernière adresse du sous-réseau. Elle permet d'envoyer des données à tous les hôtes du même réseau simultanément.
+            {t('subnet.binary_text')}
           </p>
         </div>
       </div>

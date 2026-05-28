@@ -42,6 +42,21 @@ export function ZalgoGenerator({ initialData, onStateChange }: { initialData?: a
     onStateChange?.({ input, intensity, up, mid, down });
   }, [input, intensity, up, mid, down, onStateChange]);
 
+  // Sentinel: Use cryptographically secure random values with rejection sampling
+  // to prevent bias and ensure high-quality entropy for transformations.
+  const getSecureRandom = useCallback((range: number): number => {
+    if (range <= 0) return 0;
+    const array = new Uint32Array(1);
+    const maxUint32 = 0xffffffff;
+    const limit = maxUint32 - (maxUint32 % range);
+    let randomVal;
+    do {
+      window.crypto.getRandomValues(array);
+      randomVal = array[0];
+    } while (randomVal >= limit);
+    return randomVal % range;
+  }, []);
+
   const generateZalgo = useCallback(() => {
     if (!input) {
       setOutput('');
@@ -57,21 +72,21 @@ export function ZalgoGenerator({ initialData, onStateChange }: { initialData?: a
         continue;
       }
 
-      const count = Math.floor(Math.random() * intensity);
+      const count = getSecureRandom(intensity);
 
       if (up) {
         for (let j = 0; j < count; j++) {
-          result += ZALGO_UP[Math.floor(Math.random() * ZALGO_UP.length)];
+          result += ZALGO_UP[getSecureRandom(ZALGO_UP.length)];
         }
       }
       if (mid) {
         for (let j = 0; j < Math.floor(count / 2); j++) {
-          result += ZALGO_MID[Math.floor(Math.random() * ZALGO_MID.length)];
+          result += ZALGO_MID[getSecureRandom(ZALGO_MID.length)];
         }
       }
       if (down) {
         for (let j = 0; j < count; j++) {
-          result += ZALGO_DOWN[Math.floor(Math.random() * ZALGO_DOWN.length)];
+          result += ZALGO_DOWN[getSecureRandom(ZALGO_DOWN.length)];
         }
       }
     }

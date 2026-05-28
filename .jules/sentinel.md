@@ -111,3 +111,8 @@
 **Vulnerability:** Code generators for PHP that include user-controlled data in single-line comments (e.g., // Original key: ...) are vulnerable to breakout if the data contains the PHP closing tag ?>.
 **Learning:** In PHP, the closing tag ?> terminates the current PHP block, even if it appears inside a single-line comment. This allows an attacker to "break out" of the comment and the entire PHP code block to start a new one or execute plain HTML/content.
 **Prevention:** Always sanitize user-controlled data in PHP comments by neutralizing the closing tag (e.g., replacing ?> with ? >) in addition to removing or replacing newlines.
+
+## 2025-07-15 - [Class Path Injection in Ruby Generators]
+**Vulnerability:** Generators producing Ruby snippets were interpolating user-provided HTTP methods directly into class names (e.g., `Net::HTTP::#{method.capitalize}.new`). A malicious method string could potentially reference unauthorized classes or break out of the intended namespace.
+**Learning:** In dynamic languages like Ruby, class names are not just strings; they are constants that can be resolved. Interpolating untrusted data into a constant path is a form of injection that can lead to logic bypass or unauthorized code execution.
+**Prevention:** Always sanitize or whitelist strings that will be used to construct class names or constant references. Stripping all non-alphabetic characters or using a strict whitelist ensures only intended classes (like `Get`, `Post`, `Put`) can be instantiated.

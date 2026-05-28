@@ -11,9 +11,9 @@ export function MarkdownTableGenerator({ initialData, onStateChange }: { initial
   const [data, setData] = useState<string[][]>(() => {
     // Sentinel: Validate and slice initialData to mitigate local DoS from massive tables.
     const rawData = initialData?.data || [
-      ['En-tête 1', 'En-tête 2', 'En-tête 3'],
-      ['Donnée 1', 'Donnée 2', 'Donnée 3'],
-      ['Donnée 4', 'Donnée 5', 'Donnée 6']
+      [t('markdown.header') + ' 1', t('markdown.header') + ' 2', t('markdown.header') + ' 3'],
+      [t('markdown.data') + ' 1', t('markdown.data') + ' 2', t('markdown.data') + ' 3'],
+      [t('markdown.data') + ' 4', t('markdown.data') + ' 5', t('markdown.data') + ' 6']
     ];
 
     if (!Array.isArray(rawData)) return [['']];
@@ -42,7 +42,7 @@ export function MarkdownTableGenerator({ initialData, onStateChange }: { initial
 
   const updateCell = (r: number, c: number, val: string) => {
     if (val.length > MAX_CELL_LENGTH) {
-      setError(`La cellule est limitée à ${MAX_CELL_LENGTH} caractères.`);
+      setError(t('error.max_length', { max: MAX_CELL_LENGTH }));
       return;
     }
     setError(null);
@@ -54,7 +54,7 @@ export function MarkdownTableGenerator({ initialData, onStateChange }: { initial
 
   const addRow = () => {
     if (data.length >= MAX_ROWS) {
-      setError(`Nombre maximal de lignes atteint (${MAX_ROWS}).`);
+      setError(t('markdown.error_max_rows', { max: MAX_ROWS }));
       return;
     }
     setError(null);
@@ -63,7 +63,7 @@ export function MarkdownTableGenerator({ initialData, onStateChange }: { initial
 
   const addCol = () => {
     if (data[0].length >= MAX_COLS) {
-      setError(`Nombre maximal de colonnes atteint (${MAX_COLS}).`);
+      setError(t('markdown.error_max_cols', { max: MAX_COLS }));
       return;
     }
     setError(null);
@@ -158,9 +158,9 @@ export function MarkdownTableGenerator({ initialData, onStateChange }: { initial
 
   const reset = () => {
     setData([
-      ['En-tête 1', 'En-tête 2', 'En-tête 3'],
-      ['Donnée 1', 'Donnée 2', 'Donnée 3'],
-      ['Donnée 4', 'Donnée 5', 'Donnée 6']
+      [t('markdown.header') + ' 1', t('markdown.header') + ' 2', t('markdown.header') + ' 3'],
+      [t('markdown.data') + ' 1', t('markdown.data') + ' 2', t('markdown.data') + ' 3'],
+      [t('markdown.data') + ' 4', t('markdown.data') + ' 5', t('markdown.data') + ' 6']
     ]);
     setAlignments(['left', 'left', 'left']);
     setError(null);
@@ -242,10 +242,9 @@ export function MarkdownTableGenerator({ initialData, onStateChange }: { initial
           </button>
           <button
             onClick={reset}
-            disabled={JSON.stringify(data) === JSON.stringify([['En-tête 1', 'En-tête 2', 'En-tête 3'],['Donnée 1', 'Donnée 2', 'Donnée 3'],['Donnée 4', 'Donnée 5', 'Donnée 6']])}
-            className="px-4 py-2 text-rose-500 bg-rose-50 dark:bg-rose-500/10 hover:bg-rose-100 dark:hover:bg-rose-500/20 rounded-xl font-bold text-sm flex items-center gap-2 transition-all disabled:opacity-50 disabled:cursor-not-allowed focus-visible:ring-2 focus-visible:ring-indigo-500 focus-visible:outline-none"
+            className="px-4 py-2 text-rose-500 bg-rose-50 dark:bg-rose-500/10 hover:bg-rose-100 dark:hover:bg-rose-500/20 rounded-xl font-bold text-sm flex items-center gap-2 transition-all focus-visible:ring-2 focus-visible:ring-indigo-500 focus-visible:outline-none"
           >
-            <RotateCcw className="w-4 h-4" /> Reset
+            <RotateCcw className="w-4 h-4" /> {t('common.reset')}
           </button>
         </div>
 
@@ -254,7 +253,7 @@ export function MarkdownTableGenerator({ initialData, onStateChange }: { initial
             onClick={handleDownload}
             className="px-4 py-2 bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 rounded-xl font-bold text-sm flex items-center gap-2 hover:bg-slate-200 transition-all focus-visible:ring-2 focus-visible:ring-indigo-500 focus-visible:outline-none"
           >
-            <Download className="w-4 h-4" /> Télécharger
+            <Download className="w-4 h-4" /> {t('common.download')}
           </button>
           <button
             onClick={copyHtmlToClipboard}
@@ -265,7 +264,7 @@ export function MarkdownTableGenerator({ initialData, onStateChange }: { initial
             }`}
           >
             {copiedHtml ? <Check className="w-4 h-4" /> : <Code className="w-4 h-4" />}
-            {copiedHtml ? 'Copié' : 'Copier HTML'}
+            {copiedHtml ? t('common.copied') : t('markdown.copy_html')}
           </button>
           <button
             onClick={copyToClipboard}
@@ -276,7 +275,7 @@ export function MarkdownTableGenerator({ initialData, onStateChange }: { initial
             }`}
           >
             {copied ? <Check className="w-4 h-4" /> : <Copy className="w-4 h-4" />}
-            {copied ? 'Copié' : 'Copier le Markdown'}
+            {copied ? t('common.copied') : t('markdown.copy_markdown')}
           </button>
         </div>
       </div>
@@ -379,7 +378,7 @@ export function MarkdownTableGenerator({ initialData, onStateChange }: { initial
       <div className="space-y-4">
         <div className="flex items-center gap-2 px-1">
           <Table className="w-4 h-4 text-indigo-500" />
-          <label className="text-xs font-black uppercase tracking-widest text-slate-400">Prévisualisation Markdown</label>
+          <label className="text-xs font-black uppercase tracking-widest text-slate-400">{t('markdown.preview_markdown')}</label>
         </div>
         <pre className="p-6 bg-slate-900 text-indigo-300 rounded-3xl font-mono text-sm overflow-x-auto selection:bg-indigo-500/30">
           {generateMarkdown()}

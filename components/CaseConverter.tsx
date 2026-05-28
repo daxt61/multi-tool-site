@@ -1,10 +1,11 @@
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useRef } from 'react';
 import { Copy, Check, Type, FileText, Trash2, AlertCircle, Download, LayoutGrid } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 
 const MAX_LENGTH = 100000;
 
 export function CaseConverter({ initialData, onStateChange }: { initialData?: any; onStateChange?: (state: any) => void }) {
+  const textareaRef = useRef<HTMLTextAreaElement>(null);
   const { t } = useTranslation();
   const [text, setText] = useState(initialData?.text || '');
   const [copied, setCopied] = useState('');
@@ -77,6 +78,7 @@ export function CaseConverter({ initialData, onStateChange }: { initialData?: an
   const handleClear = () => {
     setText('');
     setError(null);
+    textareaRef.current?.focus();
   };
 
   const handleDownload = (content: string, name: string) => {
@@ -108,7 +110,7 @@ export function CaseConverter({ initialData, onStateChange }: { initialData?: an
           <label htmlFor="case-text" className="text-xs font-black uppercase tracking-widest text-slate-400 flex items-center gap-2">
             <Type className="w-4 h-4 text-indigo-500" /> {t('caseconverter.your_text')}
           </label>
-          <div className="flex gap-2">
+          <div className="flex gap-2 items-center">
             <button
               onClick={handleDownloadOriginal}
               disabled={!text || !!error}
@@ -116,20 +118,29 @@ export function CaseConverter({ initialData, onStateChange }: { initialData?: an
             >
               <Download className="w-3 h-3" /> {t('common.download')}
             </button>
-            <button
-              onClick={handleClear}
-              disabled={!text}
-              className="text-xs font-bold px-3 py-1 rounded-full text-rose-500 bg-rose-50 dark:bg-rose-500/10 hover:bg-rose-100 dark:hover:bg-rose-500/20 transition-all flex items-center gap-1 disabled:opacity-50 disabled:cursor-not-allowed focus-visible:ring-2 focus-visible:ring-rose-500 focus-visible:outline-none"
-              aria-label={t('common.clear')}
-            >
-              <Trash2 className="w-3 h-3" /> {t('common.clear')}
-            </button>
+            <div className="flex gap-2 items-center">
+              <kbd className="hidden sm:inline-flex items-center justify-center px-1.5 py-0.5 border border-rose-200 dark:border-rose-800 rounded text-[10px] font-bold text-rose-400 bg-white dark:bg-slate-900">Esc</kbd>
+              <button
+                onClick={handleClear}
+                disabled={!text}
+                className="text-xs font-bold px-3 py-1 rounded-full text-rose-500 bg-rose-50 dark:bg-rose-500/10 hover:bg-rose-100 dark:hover:bg-rose-500/20 transition-all flex items-center gap-1 disabled:opacity-50 disabled:cursor-not-allowed focus-visible:ring-2 focus-visible:ring-rose-500 focus-visible:outline-none"
+                aria-label={t('common.clear')}
+              >
+                <Trash2 className="w-3 h-3" /> {t('common.clear')}
+              </button>
+            </div>
           </div>
         </div>
         <textarea
           id="case-text"
+          ref={textareaRef}
           value={text}
           onChange={(e) => handleTextChange(e.target.value)}
+          onKeyDown={(e) => {
+            if (e.key === 'Escape') {
+              handleClear();
+            }
+          }}
           placeholder={t('caseconverter.placeholder')}
           className={`w-full h-48 p-8 bg-slate-50 dark:bg-slate-900 border ${error ? 'border-rose-500 ring-rose-500/20' : 'border-slate-200 dark:border-slate-800'} rounded-[2.5rem] outline-none focus:ring-2 ${error ? 'focus:ring-rose-500/20' : 'focus:ring-indigo-500/20'} transition-all text-lg leading-relaxed dark:text-slate-300 resize-none`}
         />
@@ -137,7 +148,7 @@ export function CaseConverter({ initialData, onStateChange }: { initialData?: an
 
       <div className="flex items-center gap-2 px-1">
         <LayoutGrid className="w-4 h-4 text-indigo-500" />
-        <h3 className="text-xs font-black uppercase tracking-widest text-slate-400">Options de conversion</h3>
+        <h3 className="text-xs font-black uppercase tracking-widest text-slate-400">{t('caseconverter.options_title')}</h3>
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">

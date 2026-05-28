@@ -1,17 +1,19 @@
 import { useState, useMemo, useEffect } from 'react';
 import { Copy, Check, Trash2, Braces, FileCode, Info, AlertCircle, Download } from 'lucide-react';
+import { useTranslation } from 'react-i18next';
 
 const MAX_LENGTH = 100000;
 const MAX_DEPTH = 20;
 
 export function ZodSchemaGenerator({ initialData, onStateChange }: { initialData?: any; onStateChange?: (state: any) => void }) {
+  const { t } = useTranslation();
   const [jsonInput, setJsonInput] = useState(initialData?.jsonInput || '');
   const [copied, setCopied] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
     onStateChange?.({ jsonInput });
-  }, [jsonInput]);
+  }, [jsonInput, onStateChange]);
 
   const generateZodSchema = (obj: any, indent: string = '', depth: number = 0): string => {
     if (depth > MAX_DEPTH) {
@@ -19,7 +21,7 @@ export function ZodSchemaGenerator({ initialData, onStateChange }: { initialData
     }
 
     if (obj === null) {
-      return 'z.null()';
+      return 'z.any().nullable()';
     }
 
     const type = typeof obj;
@@ -33,9 +35,12 @@ export function ZodSchemaGenerator({ initialData, onStateChange }: { initialData
     if (type === 'object') {
       let result = 'z.object({\n';
       const nextIndent = indent + '  ';
-      Object.entries(obj).forEach(([key, value]) => {
+      const entries = Object.entries(obj);
+
+      if (entries.length === 0) return 'z.object({})';
+
+      entries.forEach(([key, value]) => {
         const valueSchema = generateZodSchema(value, nextIndent, depth + 1);
-        // Handle keys that need quotes
         const safeKey = /^[a-z_$][a-z0-9_$]*$/i.test(key) ? key : `"${key}"`;
         result += `${nextIndent}${safeKey}: ${valueSchema},\n`;
       });
@@ -60,7 +65,7 @@ export function ZodSchemaGenerator({ initialData, onStateChange }: { initialData
       const parsed = JSON.parse(jsonInput);
       setError(null);
       const schema = generateZodSchema(parsed);
-      return `import { z } from "zod";\n\nconst schema = ${schema};`;
+      return `import { z } from "zod";\n\nexport const schema = ${schema};\n\nexport type SchemaType = z.infer<typeof schema>;`;
     } catch (e: any) {
       setError(e.message);
       return '';
@@ -97,14 +102,14 @@ export function ZodSchemaGenerator({ initialData, onStateChange }: { initialData
         <div className="space-y-4">
           <div className="flex justify-between items-center px-1">
             <label htmlFor="json-input" className="text-xs font-black uppercase tracking-widest text-slate-400 flex items-center gap-2">
-              <Braces className="w-4 h-4 text-indigo-500" /> JSON d'entrée
+              <Braces className="w-4 h-4 text-indigo-500" /> {t('common.input')} JSON
             </label>
             <button
               onClick={handleClear}
               disabled={!jsonInput}
               className="text-xs font-bold px-3 py-1 rounded-full text-rose-500 bg-rose-50 dark:bg-rose-500/10 hover:bg-rose-100 dark:hover:bg-rose-500/20 transition-all flex items-center gap-1 disabled:opacity-50 disabled:cursor-not-allowed"
             >
-              <Trash2 className="w-3 h-3" /> Effacer
+              <Trash2 className="w-3 h-3" /> {t('common.clear')}
             </button>
           </div>
           <div className="relative group">
@@ -115,12 +120,12 @@ export function ZodSchemaGenerator({ initialData, onStateChange }: { initialData
                 const val = e.target.value;
                 setJsonInput(val);
                 if (val.length > MAX_LENGTH) {
-                  setError(`L'entrée est trop longue. Limite de ${MAX_LENGTH.toLocaleString()} caractères.`);
-                } else if (error?.startsWith("L'entrée est trop longue")) {
+                  setError(t('error.max_length', { max: MAX_LENGTH.toLocaleString() }));
+                } else {
                   setError(null);
                 }
               }}
-              placeholder='{ "nom": "Jean", "age": 30 }'
+              placeholder='{ "name": "John", "age": 30 }'
               className={`w-full h-[500px] p-6 bg-slate-50 dark:bg-slate-900 border ${error ? 'border-rose-500' : 'border-slate-200 dark:border-slate-800'} rounded-[2rem] outline-none focus:ring-2 ${error ? 'focus:ring-rose-500/20' : 'focus:ring-indigo-500/20'} transition-all font-mono text-sm dark:text-slate-300 resize-none`}
             />
             {error && (
@@ -136,13 +141,14 @@ export function ZodSchemaGenerator({ initialData, onStateChange }: { initialData
         <div className="space-y-4">
           <div className="flex justify-between items-center px-1">
             <label htmlFor="zod-output" className="text-xs font-black uppercase tracking-widest text-slate-400 flex items-center gap-2">
-              <FileCode className="w-4 h-4 text-indigo-500" /> Schéma Zod généré
+              <FileCode className="w-4 h-4 text-indigo-500" /> {t('zod.generated_schema')}
             </label>
             <div className="flex gap-2">
               <button
                 onClick={handleDownload}
                 disabled={!zodResult}
                 className="text-xs font-bold px-3 py-1 rounded-full text-indigo-500 bg-indigo-50 dark:bg-indigo-500/10 hover:bg-indigo-100 transition-all flex items-center gap-1 disabled:opacity-50"
+                title={t('common.download')}
               >
                 <Download className="w-3 h-3" />
               </button>
@@ -152,13 +158,13 @@ export function ZodSchemaGenerator({ initialData, onStateChange }: { initialData
                 className={`text-xs font-bold px-3 py-1 rounded-full transition-all flex items-center gap-1 ${copied ? 'bg-emerald-50 dark:bg-emerald-500/10 text-emerald-600 dark:text-emerald-400' : 'text-indigo-500 bg-indigo-50 dark:bg-indigo-500/10 hover:bg-indigo-100 dark:hover:bg-indigo-500/20'} disabled:opacity-50 disabled:cursor-not-allowed`}
               >
                 {copied ? <Check className="w-3 h-3" /> : <Copy className="w-3 h-3" />}
-                {copied ? 'Copié' : 'Copier'}
+                {copied ? t('common.copied') : t('common.copy')}
               </button>
             </div>
           </div>
           <div className="bg-slate-900 dark:bg-black rounded-[2rem] p-6 h-[500px] overflow-auto border border-slate-800 shadow-xl shadow-indigo-500/5">
             <pre className="text-sm font-mono text-emerald-400 leading-relaxed">
-              {zodResult || <span className="text-slate-600 italic">Le code Zod apparaîtra ici après avoir saisi un JSON valide...</span>}
+              {zodResult || <span className="text-slate-600 italic">{t('zod.waiting')}</span>}
             </pre>
           </div>
         </div>
@@ -170,9 +176,9 @@ export function ZodSchemaGenerator({ initialData, onStateChange }: { initialData
           <div className="w-12 h-12 bg-indigo-50 dark:bg-indigo-900/20 rounded-2xl flex items-center justify-center text-indigo-600">
             <Braces className="w-6 h-6" />
           </div>
-          <h3 className="text-lg font-black">Qu'est-ce que Zod ?</h3>
+          <h3 className="text-lg font-black">{t('zod.what_is_title')}</h3>
           <p className="text-sm text-slate-500 dark:text-slate-400 leading-relaxed">
-            Zod est une bibliothèque de déclaration et de validation de schéma TypeScript-first. Elle permet de définir des schémas de données robustes avec une inférence de type automatique.
+            {t('zod.what_is_text')}
           </p>
         </div>
 
@@ -180,9 +186,9 @@ export function ZodSchemaGenerator({ initialData, onStateChange }: { initialData
           <div className="w-12 h-12 bg-emerald-50 dark:bg-emerald-900/20 rounded-2xl flex items-center justify-center text-emerald-600">
             <Info className="w-6 h-6" />
           </div>
-          <h3 className="text-lg font-black">Comment ça marche ?</h3>
+          <h3 className="text-lg font-black">{t('zod.how_it_works_title')}</h3>
           <p className="text-sm text-slate-500 dark:text-slate-400 leading-relaxed">
-            L'outil analyse votre JSON et génère le code TypeScript correspondant en utilisant les primitives Zod (`z.string()`, `z.number()`, `z.object()`, etc.).
+            {t('zod.how_it_works_text')}
           </p>
         </div>
 
@@ -190,9 +196,9 @@ export function ZodSchemaGenerator({ initialData, onStateChange }: { initialData
           <div className="w-12 h-12 bg-amber-50 dark:bg-amber-900/20 rounded-2xl flex items-center justify-center text-amber-600">
             <FileCode className="w-6 h-6" />
           </div>
-          <h3 className="text-lg font-black">Avantages</h3>
+          <h3 className="text-lg font-black">{t('zod.advantages_title')}</h3>
           <p className="text-sm text-slate-500 dark:text-slate-400 leading-relaxed">
-            En utilisant Zod, vous bénéficiez d'une validation à l'exécution synchronisée avec vos types TypeScript, garantissant que vos données correspondent toujours à vos attentes.
+            {t('zod.advantages_text')}
           </p>
         </div>
       </div>

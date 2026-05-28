@@ -327,6 +327,8 @@ const ImageResizer = lazy(() => import("./components/ImageResizer").then(m => ({
 const EmojiToImage = lazy(() => import("./components/EmojiToImage").then(m => ({ default: m.EmojiToImage })));
 const NumberTransformer = lazy(() => import("./components/NumberTransformer").then(m => ({ default: m.NumberTransformer })));
 const NegabinaryConverter = lazy(() => import("./components/NegabinaryConverter").then(m => ({ default: m.NegabinaryConverter })));
+const CSSClampGenerator = lazy(() => import("./components/CSSClampGenerator").then(m => ({ default: m.CSSClampGenerator })));
+const Base64ToHex = lazy(() => import("./components/Base64ToHex").then(m => ({ default: m.Base64ToHex })));
 
 // ⚡ Bolt Optimization: Pre-calculating tool map and search index for O(1) lookups and faster filtering
 const toolsMap: Record<string, Tool> = {};
@@ -2506,6 +2508,28 @@ const tools: Tool[] = [
     Component: NegabinaryConverter,
     category: "calculators",
     keywords: ["negabinary", "binary", "base-2", "math", "converter"],
+  },
+  {
+    id: "css-clamp",
+    name: "Générateur CSS clamp()",
+    nameEn: "CSS clamp() Generator",
+    icon: Maximize,
+    description: "Générer des fonctions clamp() pour un design responsif",
+    descriptionEn: "Generate clamp() functions for responsive design",
+    Component: CSSClampGenerator,
+    category: "dev",
+    keywords: ["css", "clamp", "responsive", "typography", "fluid"],
+  },
+  {
+    id: "base64-to-hex",
+    name: "Base64 <> Hex",
+    nameEn: "Base64 <> Hex",
+    icon: ArrowLeftRight,
+    description: "Convertir entre Base64 et Hexadécimal",
+    descriptionEn: "Convert between Base64 and Hexadecimal",
+    Component: Base64ToHex,
+    category: "dev",
+    keywords: ["base64", "hex", "encoding", "decoding", "converter"],
   },
 ];
 

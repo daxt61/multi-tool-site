@@ -46,6 +46,7 @@ import {
   Columns,
   Monitor,
   Maximize,
+  Maximize2,
   Triangle,
   GraduationCap,
   Activity,
@@ -68,6 +69,7 @@ import {
   Send,
   Briefcase,
   Search,
+  Replace,
   Shuffle,
   MousePointer2,
   ArrowLeft,
@@ -320,6 +322,11 @@ const WordsToNumbers = lazy(() => import("./components/WordsToNumbers").then(m =
 const PiGenerator = lazy(() => import("./components/PiGenerator").then(m => ({ default: m.PiGenerator })));
 const ImageColorReplacer = lazy(() => import("./components/ImageColorReplacer").then(m => ({ default: m.ImageColorReplacer })));
 const AverageTimeCalculator = lazy(() => import("./components/AverageTimeCalculator").then(m => ({ default: m.AverageTimeCalculator })));
+const FindAndReplace = lazy(() => import("./components/FindAndReplace").then(m => ({ default: m.FindAndReplace })));
+const ImageResizer = lazy(() => import("./components/ImageResizer").then(m => ({ default: m.ImageResizer })));
+const EmojiToImage = lazy(() => import("./components/EmojiToImage").then(m => ({ default: m.EmojiToImage })));
+const NumberTransformer = lazy(() => import("./components/NumberTransformer").then(m => ({ default: m.NumberTransformer })));
+const NegabinaryConverter = lazy(() => import("./components/NegabinaryConverter").then(m => ({ default: m.NegabinaryConverter })));
 
 // ⚡ Bolt Optimization: Pre-calculating tool map and search index for O(1) lookups and faster filtering
 const toolsMap: Record<string, Tool> = {};
@@ -2444,6 +2451,61 @@ const tools: Tool[] = [
     Component: AverageTimeCalculator,
     category: "calculators",
     keywords: ["time", "average", "clock", "mean", "duration"],
+  },
+  {
+    id: "find-replace",
+    name: "Chercher & Remplacer",
+    nameEn: "Find and Replace",
+    icon: Replace,
+    description: "Rechercher et remplacer du texte avec RegEx",
+    descriptionEn: "Search and replace text with RegEx support",
+    Component: FindAndReplace,
+    category: "text",
+    keywords: ["find", "replace", "regex", "search", "text"],
+  },
+  {
+    id: "image-resizer",
+    name: "Redimensionner Image",
+    nameEn: "Image Resizer",
+    icon: Maximize2,
+    description: "Changer les dimensions d'une image",
+    descriptionEn: "Resize images to custom dimensions",
+    Component: ImageResizer,
+    category: "other",
+    keywords: ["resize", "image", "dimensions", "width", "height"],
+  },
+  {
+    id: "emoji-to-image",
+    name: "Emoji en Image",
+    nameEn: "Emoji to Image",
+    icon: Sparkles,
+    description: "Convertir des emojis en fichiers PNG/JPG",
+    descriptionEn: "Convert emojis into PNG/JPG image files",
+    Component: EmojiToImage,
+    category: "text",
+    keywords: ["emoji", "image", "convert", "icon"],
+  },
+  {
+    id: "number-transformer",
+    name: "Transformateur de Nombres",
+    nameEn: "Number Transformer",
+    icon: Hash,
+    description: "Inverser, incrémenter ou formater des nombres",
+    descriptionEn: "Reverse, increment or format lists of numbers",
+    Component: NumberTransformer,
+    category: "calculators",
+    keywords: ["number", "math", "format", "reverse", "increment"],
+  },
+  {
+    id: "negabinary-converter",
+    name: "Convertisseur Négabinaire",
+    nameEn: "Negabinary Converter",
+    icon: Binary,
+    description: "Convertir entre décimal et base -2",
+    descriptionEn: "Convert between decimal and base -2",
+    Component: NegabinaryConverter,
+    category: "calculators",
+    keywords: ["negabinary", "binary", "base-2", "math", "converter"],
   },
 ];
 

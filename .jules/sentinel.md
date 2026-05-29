@@ -116,3 +116,8 @@
 **Vulnerability:** Generators producing Ruby snippets were interpolating user-provided HTTP methods directly into class names (e.g., `Net::HTTP::#{method.capitalize}.new`). A malicious method string could potentially reference unauthorized classes or break out of the intended namespace.
 **Learning:** In dynamic languages like Ruby, class names are not just strings; they are constants that can be resolved. Interpolating untrusted data into a constant path is a form of injection that can lead to logic bypass or unauthorized code execution.
 **Prevention:** Always sanitize or whitelist strings that will be used to construct class names or constant references. Stripping all non-alphabetic characters or using a strict whitelist ensures only intended classes (like `Get`, `Post`, `Put`) can be instantiated.
+
+## 2026-05-29 - [Shared Cryptographically Secure Randomness]
+**Vulnerability:** Multiple components (UAGenerator, UnicodeSpoofer) were using `Math.random()`, which is predictable and biased. Verbatim duplication of secure random helpers across components led to maintainability issues.
+**Learning:** Standardizing security helpers in a shared utility directory (like `components/ui/`) promotes the DRY principle and ensures that critical logic, like rejection sampling for unbiased integers, is implemented correctly once and reused.
+**Prevention:** Implement a shared `getSecureRandomInt` utility using `window.crypto.getRandomValues()` and rejection sampling. Refactor all components requiring randomness to use this shared helper instead of local implementations or `Math.random()`.

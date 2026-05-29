@@ -1,6 +1,7 @@
 import { useState, useEffect, useCallback } from 'react';
 import { Monitor, RefreshCcw, Copy, Check, Info } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
+import { getSecureRandomInt } from './ui/crypto';
 
 interface UAPreset {
   name: string;
@@ -11,21 +12,21 @@ const PRESETS: Record<string, UAPreset> = {
   chrome_windows: {
     name: 'Chrome (Windows)',
     template: () => {
-      const ver = Math.floor(Math.random() * 10) + 110;
+      const ver = getSecureRandomInt(10) + 110;
       return `Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/${ver}.0.0.0 Safari/537.36`;
     }
   },
   chrome_mac: {
     name: 'Chrome (macOS)',
     template: () => {
-      const ver = Math.floor(Math.random() * 10) + 110;
+      const ver = getSecureRandomInt(10) + 110;
       return `Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/${ver}.0.0.0 Safari/537.36`;
     }
   },
   firefox_windows: {
     name: 'Firefox (Windows)',
     template: () => {
-      const ver = Math.floor(Math.random() * 10) + 110;
+      const ver = getSecureRandomInt(10) + 110;
       return `Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:${ver}.0) Gecko/20100101 Firefox/${ver}.0`;
     }
   },
@@ -38,7 +39,7 @@ const PRESETS: Record<string, UAPreset> = {
   chrome_android: {
     name: 'Chrome (Android)',
     template: () => {
-      const ver = Math.floor(Math.random() * 10) + 110;
+      const ver = getSecureRandomInt(10) + 110;
       return `Mozilla/5.0 (Linux; Android 13; SM-S901B) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/${ver}.0.0.0 Mobile Safari/537.36`;
     }
   },
@@ -51,7 +52,7 @@ const PRESETS: Record<string, UAPreset> = {
   edge_windows: {
     name: 'Edge (Windows)',
     template: () => {
-      const ver = Math.floor(Math.random() * 10) + 110;
+      const ver = getSecureRandomInt(10) + 110;
       return `Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/${ver}.0.0.0 Safari/537.36 Edg/${ver}.0.0.0`;
     }
   }

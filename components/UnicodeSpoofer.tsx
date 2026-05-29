@@ -1,6 +1,7 @@
 import { useState, useEffect, useCallback } from 'react';
 import { ShieldAlert, Copy, Check, Trash2, Download, Settings2, RefreshCcw } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
+import { getSecureRandomInt } from './ui/crypto';
 
 const MAX_LENGTH = 10000;
 
@@ -91,14 +92,17 @@ export function UnicodeSpoofer({ initialData, onStateChange }: { initialData?: a
       const char = input[i];
       const homoglyphs = HOMOGLYPH_MAP[char];
 
-      if (homoglyphs && Math.random() < spoofLevel) {
-        result += homoglyphs[Math.floor(Math.random() * homoglyphs.length)];
+      // Comparison with spoofLevel using secure randomness (0-999)
+      const shouldSpoof = getSecureRandomInt(1000) < (spoofLevel * 1000);
+
+      if (homoglyphs && shouldSpoof) {
+        result += homoglyphs[getSecureRandomInt(homoglyphs.length)];
       } else {
         result += char;
       }
     }
     setOutput(result);
-  }, [input, spoofLevel]);
+  }, [input, spoofLevel, getSecureRandomInt]);
 
   useEffect(() => {
     generateSpoof();

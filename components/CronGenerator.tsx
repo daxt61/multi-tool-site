@@ -1,4 +1,4 @@
-import { useState, useEffect, useMemo } from 'react';
+import { useState, useEffect, useMemo, useCallback } from 'react';
 import { Clock, Copy, Check, Info, Trash2 } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 
@@ -11,6 +11,58 @@ export function CronGenerator({ initialData, onStateChange }: { initialData?: an
   const [dayOfWeek, setDayOfWeek] = useState(initialData?.dayOfWeek || '*');
   const [cron, setCron] = useState('* * * * *');
   const [copied, setCopied] = useState(false);
+
+  const matchesCronField = useCallback((value: number, pattern: string, min: number, max: number): boolean => {
+    if (pattern === '*') return true;
+    if (pattern.startsWith('*/')) {
+      const step = parseInt(pattern.slice(2));
+      return value % step === 0;
+    }
+    if (pattern.includes(',')) {
+      return pattern.split(',').some(p => matchesCronField(value, p, min, max));
+    }
+    if (pattern.includes('-')) {
+      const [start, end] = pattern.split('-').map(Number);
+      return value >= start && value <= end;
+    }
+    return parseInt(pattern) === value;
+  }, []);
+
+  const nextRuns = useMemo(() => {
+    const runs: string[] = [];
+    let current = new Date();
+    current.setSeconds(0, 0);
+
+    // Safety limit to avoid infinite loops
+    const limit = new Date(current.getTime() + 24 * 60 * 60 * 1000); // 24 hours
+
+    while (runs.length < 3 && current < limit) {
+      current.setMinutes(current.getMinutes() + 1);
+
+      const m = current.getMinutes();
+      const h = current.getHours();
+      const dom = current.getDate();
+      const mon = current.getMonth() + 1;
+      const dow = current.getDay();
+
+      if (
+        matchesCronField(m, minutes, 0, 59) &&
+        matchesCronField(h, hours, 0, 23) &&
+        matchesCronField(dom, dayOfMonth, 1, 31) &&
+        matchesCronField(mon, month, 1, 12) &&
+        matchesCronField(dow, dayOfWeek, 0, 6)
+      ) {
+        runs.push(current.toLocaleString(i18n.language, {
+          weekday: 'short',
+          month: 'short',
+          day: 'numeric',
+          hour: '2-digit',
+          minute: '2-digit'
+        }));
+      }
+    }
+    return runs;
+  }, [minutes, hours, dayOfMonth, month, dayOfWeek, i18n.language, matchesCronField]);
 
   const humanDescription = useMemo(() => {
     if (cron === '* * * * *') return t('cron.desc_every_minute');
@@ -177,15 +229,35 @@ export function CronGenerator({ initialData, onStateChange }: { initialData?: an
         </div>
       </div>
 
-      <div className="bg-amber-50 dark:bg-amber-500/5 border border-amber-200 dark:border-amber-900/20 p-6 rounded-[2rem] flex gap-4">
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+        <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 p-8 rounded-[2.5rem] space-y-4">
+          <h4 className="text-xs font-black uppercase tracking-widest text-slate-400 flex items-center gap-2 px-1">
+            <Clock className="w-4 h-4 text-indigo-500" /> {t('cron.next_runs')}
+          </h4>
+          <div className="space-y-2">
+            {nextRuns.length > 0 ? (
+              nextRuns.map((run, i) => (
+                <div key={i} className="flex items-center gap-3 p-3 bg-slate-50 dark:bg-slate-950 rounded-xl font-mono text-sm border border-slate-100 dark:border-slate-800">
+                  <span className="w-6 h-6 rounded-full bg-indigo-100 dark:bg-indigo-900/30 text-indigo-600 dark:text-indigo-400 flex items-center justify-center text-[10px] font-black">{i + 1}</span>
+                  <span className="dark:text-slate-300">{run}</span>
+                </div>
+              ))
+            ) : (
+              <p className="text-sm text-slate-400 italic px-1">{t('cron.no_upcoming_runs')}</p>
+            )}
+          </div>
+        </div>
+
+        <div className="bg-amber-50 dark:bg-amber-500/5 border border-amber-200 dark:border-amber-900/20 p-8 rounded-[2.5rem] flex gap-4">
         <div className="shrink-0 w-10 h-10 bg-amber-100 dark:bg-amber-900/30 rounded-full flex items-center justify-center text-amber-600">
           <Info className="w-5 h-5" />
         </div>
-        <div className="space-y-1">
-          <h5 className="font-bold text-amber-900 dark:text-amber-100">{t('cron.how_title')}</h5>
-          <p className="text-sm text-amber-700 dark:text-amber-300 leading-relaxed">
-            {t('cron.how_text')}
-          </p>
+          <div className="space-y-1">
+            <h5 className="font-bold text-amber-900 dark:text-amber-100">{t('cron.how_title')}</h5>
+            <p className="text-sm text-amber-700 dark:text-amber-300 leading-relaxed">
+              {t('cron.how_text')}
+            </p>
+          </div>
         </div>
       </div>
     </div>

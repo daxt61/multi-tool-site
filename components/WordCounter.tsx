@@ -40,6 +40,8 @@ export function WordCounter({ initialData, onStateChange }: { initialData?: any;
         ariGrade: 'N/A',
         cli: 0,
         fog: 0,
+        avgWordLength: 0,
+        longestWord: 'N/A',
         topWords: [],
         topBigrams: [],
         charFreq: [] as [string, number][]
@@ -191,6 +193,9 @@ export function WordCounter({ initialData, onStateChange }: { initialData?: any;
       return acc;
     }, Object.create(null))).sort((a: any, b: any) => b[1] - a[1]).slice(0, 10) as [string, number][];
 
+    const avgWordLength = wordCount > 0 ? (words.reduce((sum: number, w: string) => sum + w.length, 0) / wordCount).toFixed(1) : 0;
+    const longestWord = words.length > 0 ? words.reduce((a: string, b: string) => a.length > b.length ? a : b, '') : 'N/A';
+
     return {
       characters: deferredText.length,
       charactersNoSpaces: charCount,
@@ -207,6 +212,8 @@ export function WordCounter({ initialData, onStateChange }: { initialData?: any;
       fog: fog.toFixed(1),
       flesch: flesch.toFixed(1),
       fleschLevel: getFleschLevel(flesch),
+      avgWordLength,
+      longestWord,
       topWords,
       topBigrams,
       charFreq
@@ -354,6 +361,8 @@ export function WordCounter({ initialData, onStateChange }: { initialData?: any;
           { icon: <AlignLeft className="w-4 h-4" />, label: t('wordcounter.stat.sentences'), value: stats.sentences },
           { icon: <Star className="w-4 h-4" />, label: t('wordcounter.stat.cli'), value: stats.cli },
           { icon: <Star className="w-4 h-4" />, label: t('wordcounter.stat.fog'), value: stats.fog },
+          { icon: <Type className="w-4 h-4" />, label: t('wordcounter.stat.avg_word_length'), value: stats.avgWordLength },
+          { icon: <Type className="w-4 h-4" />, label: t('wordcounter.stat.longest_word'), value: stats.longestWord },
           { icon: <Clock className="w-4 h-4" />, label: t('wordcounter.stat.reading'), value: formatTime(stats.readingTime) },
           { icon: <MessageSquare className="w-4 h-4" />, label: t('wordcounter.stat.speaking'), value: formatTime(stats.speakingTime) },
           { icon: <FileText className="w-4 h-4" />, label: t('wordcounter.stat.writing'), value: formatTime(stats.writingTime) },

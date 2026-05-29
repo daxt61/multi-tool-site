@@ -8,6 +8,7 @@ export function HashGenerator({ initialData, onStateChange }: { initialData?: an
   const { t } = useTranslation();
   const [inputText, setInputText] = useState(initialData?.inputText || '');
   const [hashes, setHashes] = useState<{ [key: string]: string }>(initialData?.hashes || {
+    'SHA-1': '',
     'SHA-256': '',
     'SHA-384': '',
     'SHA-512': '',
@@ -24,14 +25,14 @@ export function HashGenerator({ initialData, onStateChange }: { initialData?: an
 
     if (text.length > MAX_LENGTH) {
       setError(t('error.max_length', { max: MAX_LENGTH.toLocaleString() }));
-      setHashes({ 'SHA-256': '', 'SHA-384': '', 'SHA-512': '' });
+      setHashes({ 'SHA-1': '', 'SHA-256': '', 'SHA-384': '', 'SHA-512': '' });
       return;
     }
 
     setError(null);
 
     if (!text) {
-      setHashes({ 'SHA-256': '', 'SHA-384': '', 'SHA-512': '' });
+      setHashes({ 'SHA-1': '', 'SHA-256': '', 'SHA-384': '', 'SHA-512': '' });
       return;
     }
 
@@ -39,7 +40,7 @@ export function HashGenerator({ initialData, onStateChange }: { initialData?: an
       const encoder = new TextEncoder();
       const data = encoder.encode(text);
 
-      const hashAlgorithms = ['SHA-256', 'SHA-384', 'SHA-512'];
+      const hashAlgorithms = ['SHA-1', 'SHA-256', 'SHA-384', 'SHA-512'];
       const newHashes: { [key: string]: string } = {};
 
       for (const algo of hashAlgorithms) {
@@ -150,13 +151,25 @@ export function HashGenerator({ initialData, onStateChange }: { initialData?: an
         ))}
       </div>
 
-      <div className="bg-indigo-50 dark:bg-indigo-900/10 p-6 rounded-[2rem] flex items-start gap-4 border border-indigo-100 dark:border-indigo-900/20">
-        <Shield className="w-6 h-6 text-indigo-500 flex-shrink-0 mt-1" />
-        <div className="text-sm">
-          <p className="font-bold mb-1 text-slate-900 dark:text-white">{t('hashgenerator.security_note_title')}</p>
-          <p className="text-slate-500 dark:text-slate-400 leading-relaxed">
-            {t('hashgenerator.security_note_text')}
-          </p>
+      <div className="space-y-4">
+        <div className="bg-amber-50 dark:bg-amber-500/5 p-6 rounded-[2rem] flex items-start gap-4 border border-amber-200 dark:border-amber-900/20">
+          <AlertCircle className="w-6 h-6 text-amber-500 flex-shrink-0 mt-1" />
+          <div className="text-sm">
+            <p className="font-bold mb-1 text-amber-900 dark:text-amber-100">SHA-1 Security Warning</p>
+            <p className="text-amber-700 dark:text-amber-300 leading-relaxed">
+              {t('hashgenerator.sha1_warning')}
+            </p>
+          </div>
+        </div>
+
+        <div className="bg-indigo-50 dark:bg-indigo-900/10 p-6 rounded-[2rem] flex items-start gap-4 border border-indigo-100 dark:border-indigo-900/20">
+          <Shield className="w-6 h-6 text-indigo-500 flex-shrink-0 mt-1" />
+          <div className="text-sm">
+            <p className="font-bold mb-1 text-slate-900 dark:text-white">{t('hashgenerator.security_note_title')}</p>
+            <p className="text-slate-500 dark:text-slate-400 leading-relaxed">
+              {t('hashgenerator.security_note_text')}
+            </p>
+          </div>
         </div>
       </div>
     </div>

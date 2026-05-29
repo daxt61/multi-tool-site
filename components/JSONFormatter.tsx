@@ -1,10 +1,11 @@
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useRef } from 'react';
 import { FileCode, Copy, Check, Trash2, AlertCircle, Maximize2, Minimize2, Download, SortAsc, Wrench, ShieldCheck, Database, Code, Coffee } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 
 const MAX_LENGTH = 100000;
 
 export function JSONFormatter({ initialData, onStateChange }: { initialData?: any; onStateChange?: (state: any) => void }) {
+  const inputRef = useRef<HTMLTextAreaElement>(null);
   const { t } = useTranslation();
   const [input, setInput] = useState(initialData?.input || '');
   const [output, setOutput] = useState(initialData?.output || '');
@@ -39,7 +40,7 @@ export function JSONFormatter({ initialData, onStateChange }: { initialData?: an
       }, {});
   }, []);
 
-  const handlePrettify = () => {
+  const handlePrettify = useCallback(() => {
     try {
       if (!input.trim() || input.length > MAX_LENGTH) return;
       let parsed = JSON.parse(input);
@@ -53,9 +54,9 @@ export function JSONFormatter({ initialData, onStateChange }: { initialData?: an
     } catch (e: any) {
       setError(t('error.invalid_json') + ': ' + e.message);
     }
-  };
+  }, [input, sortKeys, sortObjectKeys, indentSize, t]);
 
-  const handleCopyAsPython = () => {
+  const handleCopyAsPython = useCallback(() => {
     try {
       if (!input.trim()) return;
       const parsed = JSON.parse(input);
@@ -82,9 +83,9 @@ export function JSONFormatter({ initialData, onStateChange }: { initialData?: an
     } catch (e: any) {
       setError(t('error.invalid_json') + ': ' + e.message);
     }
-  };
+  }, [input, t]);
 
-  const handleCopyAsJava = () => {
+  const handleCopyAsJava = useCallback(() => {
     try {
       if (!input.trim()) return;
       const parsed = JSON.parse(input);
@@ -173,9 +174,9 @@ export function JSONFormatter({ initialData, onStateChange }: { initialData?: an
     } catch (e: any) {
       setError(t('error.invalid_json') + ': ' + e.message);
     }
-  };
+  }, [input, t]);
 
-  const handleCopyAsCSharp = () => {
+  const handleCopyAsCSharp = useCallback(() => {
     try {
       if (!input.trim()) return;
       const parsed = JSON.parse(input);
@@ -253,9 +254,9 @@ export function JSONFormatter({ initialData, onStateChange }: { initialData?: an
     } catch (e: any) {
       setError(t('error.invalid_json') + ': ' + e.message);
     }
-  };
+  }, [input, t]);
 
-  const handleFix = () => {
+  const handleFix = useCallback(() => {
     try {
       const fixedInput = input
         .replace(/([{,]\s*)([a-zA-Z_][a-zA-Z0-9_]*)\s*:/g, '$1"$2":') // Unquoted keys
@@ -271,9 +272,9 @@ export function JSONFormatter({ initialData, onStateChange }: { initialData?: an
     } catch (e: any) {
       setError(t('jsonformatter.error_repair') + e.message);
     }
-  };
+  }, [input, indentSize, t]);
 
-  const handleMinify = () => {
+  const handleMinify = useCallback(() => {
     try {
       if (!input.trim() || input.length > MAX_LENGTH) return;
       const parsed = JSON.parse(input);
@@ -283,9 +284,9 @@ export function JSONFormatter({ initialData, onStateChange }: { initialData?: an
     } catch (e: any) {
       setError(t('error.invalid_json') + ': ' + e.message);
     }
-  };
+  }, [input, t]);
 
-  const handleValidate = () => {
+  const handleValidate = useCallback(() => {
     try {
       if (!input.trim()) return;
       JSON.parse(input);
@@ -295,9 +296,9 @@ export function JSONFormatter({ initialData, onStateChange }: { initialData?: an
     } catch (e: any) {
       setError(t('error.invalid_json') + ': ' + e.message);
     }
-  };
+  }, [input, t]);
 
-  const handleCopyAsPHP = () => {
+  const handleCopyAsPHP = useCallback(() => {
     try {
       if (!input.trim()) return;
       const parsed = JSON.parse(input);
@@ -323,20 +324,50 @@ export function JSONFormatter({ initialData, onStateChange }: { initialData?: an
     } catch (e: any) {
       setError(t('error.invalid_json') + ': ' + e.message);
     }
-  };
+  }, [input, t]);
 
-  const handleCopy = () => {
+  const handleCopy = useCallback(() => {
     if (!output) return;
     navigator.clipboard.writeText(output);
     setCopied(true);
     setTimeout(() => setCopied(false), 2000);
-  };
+  }, [output]);
 
-  const handleClear = () => {
+  const handleClear = useCallback(() => {
     setInput('');
     setOutput('');
     setError('');
-  };
+    inputRef.current?.focus();
+  }, []);
+
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      const activeElement = document.activeElement;
+      const isInputFocused =
+        activeElement instanceof HTMLInputElement ||
+        activeElement instanceof HTMLTextAreaElement ||
+        activeElement instanceof HTMLSelectElement ||
+        activeElement?.getAttribute("contenteditable") === "true";
+
+      if (isInputFocused) {
+        // Local Escape handler is handled by the textarea's onKeyDown
+        return;
+      }
+
+      if (e.metaKey || e.ctrlKey || e.altKey || e.shiftKey) return;
+
+      if (e.key === "Escape") {
+        e.preventDefault();
+        handleClear();
+      } else if (e.key.toLowerCase() === "c") {
+        e.preventDefault();
+        handleCopy();
+      }
+    };
+
+    window.addEventListener("keydown", handleKeyDown);
+    return () => window.removeEventListener("keydown", handleKeyDown);
+  }, [handleClear, handleCopy]);
 
   const handleInputChange = (val: string) => {
     setInput(val);
@@ -394,6 +425,7 @@ export function JSONFormatter({ initialData, onStateChange }: { initialData?: an
           </div>
           <textarea
             id="json-input"
+            ref={inputRef}
             autoFocus
             value={input}
             onChange={(e) => handleInputChange(e.target.value)}
@@ -401,8 +433,6 @@ export function JSONFormatter({ initialData, onStateChange }: { initialData?: an
               if ((e.ctrlKey || e.metaKey) && e.key === 'Enter') {
                 e.preventDefault();
                 handlePrettify();
-              } else if (e.key === 'Escape') {
-                handleClear();
               }
             }}
             placeholder='{"key": "value"}'
@@ -429,13 +459,14 @@ export function JSONFormatter({ initialData, onStateChange }: { initialData?: an
               <button
                 onClick={handleCopy}
                 disabled={!output}
-                className={`text-xs font-bold px-3 py-1 rounded-full transition-all flex items-center gap-1 border ${
+                className={`text-xs font-bold px-3 py-1 rounded-full transition-all flex items-center gap-1 border focus-visible:ring-2 focus-visible:ring-indigo-500 focus-visible:outline-none ${
                   copied
                     ? 'bg-emerald-50 dark:bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border-emerald-200 dark:border-emerald-500/20'
                     : 'text-slate-500 bg-slate-100 dark:bg-slate-800 border-transparent hover:bg-slate-200 dark:hover:bg-slate-700'
                 } disabled:opacity-50 disabled:cursor-not-allowed`}
               >
                 {copied ? <Check className="w-3 h-3" /> : <Copy className="w-3 h-3" />} {copied ? t('common.copied') : t('common.copy')}
+                {!copied && <kbd className="hidden sm:inline-flex items-center justify-center w-4 h-4 border border-slate-200 dark:border-slate-700 rounded text-[10px] font-bold bg-white/50 dark:bg-black/20 ml-1">C</kbd>}
               </button>
             </div>
           </div>
@@ -485,7 +516,8 @@ export function JSONFormatter({ initialData, onStateChange }: { initialData?: an
 
         <button
           onClick={handleFix}
-          className={`px-4 py-3 rounded-2xl text-sm font-bold transition-all flex items-center gap-2 border ${
+          disabled={!input.trim()}
+          className={`px-4 py-3 rounded-2xl text-sm font-bold transition-all flex items-center gap-2 border disabled:opacity-50 disabled:cursor-not-allowed focus-visible:ring-2 focus-visible:ring-indigo-500 focus-visible:outline-none ${
             fixed
               ? 'bg-emerald-50 dark:bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border-emerald-200 dark:border-emerald-500/20'
               : 'text-slate-600 bg-white dark:bg-slate-900 border-slate-200 dark:border-slate-800 hover:border-indigo-500'
@@ -497,7 +529,8 @@ export function JSONFormatter({ initialData, onStateChange }: { initialData?: an
 
         <button
           onClick={handleValidate}
-          className={`px-4 py-3 rounded-2xl text-sm font-bold transition-all flex items-center gap-2 border ${
+          disabled={!input.trim()}
+          className={`px-4 py-3 rounded-2xl text-sm font-bold transition-all flex items-center gap-2 border disabled:opacity-50 disabled:cursor-not-allowed focus-visible:ring-2 focus-visible:ring-indigo-500 focus-visible:outline-none ${
             validated
               ? 'bg-emerald-50 dark:bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border-emerald-200 dark:border-emerald-500/20'
               : 'text-slate-600 bg-white dark:bg-slate-900 border-slate-200 dark:border-slate-800 hover:border-indigo-500'
@@ -509,7 +542,8 @@ export function JSONFormatter({ initialData, onStateChange }: { initialData?: an
 
         <button
           onClick={handleCopyAsPHP}
-          className={`px-4 py-3 rounded-2xl text-sm font-bold transition-all flex items-center gap-2 border ${
+          disabled={!input.trim()}
+          className={`px-4 py-3 rounded-2xl text-sm font-bold transition-all flex items-center gap-2 border disabled:opacity-50 disabled:cursor-not-allowed focus-visible:ring-2 focus-visible:ring-indigo-500 focus-visible:outline-none ${
             phpCopied
             ? 'bg-emerald-50 dark:bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border-emerald-200 dark:border-emerald-500/20'
             : 'text-slate-600 bg-white dark:bg-slate-900 border-slate-200 dark:border-slate-800 hover:border-indigo-500'
@@ -521,7 +555,8 @@ export function JSONFormatter({ initialData, onStateChange }: { initialData?: an
 
         <button
           onClick={handleCopyAsPython}
-          className={`px-4 py-3 rounded-2xl text-sm font-bold transition-all flex items-center gap-2 border ${
+          disabled={!input.trim()}
+          className={`px-4 py-3 rounded-2xl text-sm font-bold transition-all flex items-center gap-2 border disabled:opacity-50 disabled:cursor-not-allowed focus-visible:ring-2 focus-visible:ring-indigo-500 focus-visible:outline-none ${
             pythonCopied
             ? 'bg-emerald-50 dark:bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border border-emerald-200 dark:border-emerald-500/20'
             : 'text-slate-600 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 hover:border-indigo-500'
@@ -533,7 +568,8 @@ export function JSONFormatter({ initialData, onStateChange }: { initialData?: an
 
         <button
           onClick={handleCopyAsCSharp}
-          className={`px-4 py-3 rounded-2xl text-sm font-bold transition-all flex items-center gap-2 border ${
+          disabled={!input.trim()}
+          className={`px-4 py-3 rounded-2xl text-sm font-bold transition-all flex items-center gap-2 border disabled:opacity-50 disabled:cursor-not-allowed focus-visible:ring-2 focus-visible:ring-indigo-500 focus-visible:outline-none ${
             csCopied
             ? 'bg-emerald-50 dark:bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border-emerald-200 dark:border-emerald-500/20'
             : 'text-slate-600 bg-white dark:bg-slate-900 border-slate-200 dark:border-slate-800 hover:border-indigo-500'
@@ -545,7 +581,8 @@ export function JSONFormatter({ initialData, onStateChange }: { initialData?: an
 
         <button
           onClick={handleCopyAsJava}
-          className={`px-4 py-3 rounded-2xl text-sm font-bold transition-all flex items-center gap-2 border ${
+          disabled={!input.trim()}
+          className={`px-4 py-3 rounded-2xl text-sm font-bold transition-all flex items-center gap-2 border disabled:opacity-50 disabled:cursor-not-allowed focus-visible:ring-2 focus-visible:ring-indigo-500 focus-visible:outline-none ${
             javaCopied
             ? 'bg-emerald-50 dark:bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border-emerald-200 dark:border-emerald-500/20'
             : 'text-slate-600 bg-white dark:bg-slate-900 border-slate-200 dark:border-slate-800 hover:border-indigo-500'
@@ -557,7 +594,8 @@ export function JSONFormatter({ initialData, onStateChange }: { initialData?: an
 
         <button
           onClick={handlePrettify}
-          className="px-8 py-4 bg-indigo-600 text-white rounded-2xl font-black text-lg shadow-lg shadow-indigo-600/20 hover:bg-indigo-700 transition-all active:scale-95 flex items-center gap-2"
+          disabled={!input.trim()}
+          className="px-8 py-4 bg-indigo-600 text-white rounded-2xl font-black text-lg shadow-lg shadow-indigo-600/20 hover:bg-indigo-700 transition-all active:scale-95 flex items-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed focus-visible:ring-2 focus-visible:ring-indigo-500 focus-visible:outline-none"
         >
           <Maximize2 className="w-5 h-5" /> {t('jsonformatter.beautify')}
           <kbd className="ml-2 hidden sm:inline-flex items-center gap-1 px-2 py-0.5 border border-white/20 rounded text-[10px] font-bold bg-white/10">
@@ -566,7 +604,8 @@ export function JSONFormatter({ initialData, onStateChange }: { initialData?: an
         </button>
         <button
           onClick={handleMinify}
-          className="px-8 py-4 bg-slate-900 dark:bg-white text-white dark:text-slate-900 rounded-2xl font-black text-lg shadow-lg transition-all active:scale-95 flex items-center gap-2"
+          disabled={!input.trim()}
+          className="px-8 py-4 bg-slate-900 dark:bg-white text-white dark:text-slate-900 rounded-2xl font-black text-lg shadow-lg transition-all active:scale-95 flex items-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed focus-visible:ring-2 focus-visible:ring-indigo-500 focus-visible:outline-none"
         >
           <Minimize2 className="w-5 h-5" /> {t('jsonformatter.minify')}
         </button>

@@ -1,13 +1,14 @@
-import { useState, useMemo, useEffect, useCallback } from 'react';
+import { useState, useMemo, useEffect, useCallback, useRef } from 'react';
 import {
   BarChart3, Copy, Check, Trash2, Download,
-  Hash, Calculator, Sigma, TrendingUp, AlertCircle
+  Hash, Calculator, Sigma, TrendingUp, AlertCircle, RotateCcw
 } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 
 const MAX_LENGTH = 100000;
 
 export function NumberStatistics({ initialData, onStateChange }: { initialData?: any; onStateChange?: (state: any) => void }) {
+  const inputRef = useRef<HTMLTextAreaElement>(null);
   const { t } = useTranslation();
   const [input, setInput] = useState(initialData?.input || '');
   const [copied, setCopied] = useState<string | null>(null);
@@ -78,7 +79,7 @@ export function NumberStatistics({ initialData, onStateChange }: { initialData?:
     setTimeout(() => setCopied(null), 2000);
   };
 
-  const handleDownload = () => {
+  const handleDownload = useCallback(() => {
     if (!input) return;
     const blob = new Blob([input], { type: 'text/plain' });
     const url = URL.createObjectURL(blob);
@@ -89,9 +90,9 @@ export function NumberStatistics({ initialData, onStateChange }: { initialData?:
     a.click();
     document.body.removeChild(a);
     URL.revokeObjectURL(url);
-  };
+  }, [input]);
 
-  const copyReport = () => {
+  const copyReport = useCallback(() => {
     if (!stats) return;
     const report = `${t('numstats.report_title')}:
 - ${t('numstats.count')}: ${stats.count}
@@ -106,7 +107,39 @@ export function NumberStatistics({ initialData, onStateChange }: { initialData?:
 - ${t('numstats.std_dev')}: ${stats.stdDev.toFixed(4)}`;
 
     handleCopy(report, 'report');
-  };
+  }, [stats, t, handleCopy]);
+
+  const handleClear = useCallback(() => {
+    setInput('');
+    setError(null);
+    inputRef.current?.focus();
+  }, []);
+
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      const activeElement = document.activeElement;
+      const isInputFocused =
+        activeElement instanceof HTMLInputElement ||
+        activeElement instanceof HTMLTextAreaElement ||
+        activeElement instanceof HTMLSelectElement ||
+        activeElement?.getAttribute("contenteditable") === "true";
+
+      if (isInputFocused) return;
+
+      if (e.metaKey || e.ctrlKey || e.altKey || e.shiftKey) return;
+
+      if (e.key === "Escape") {
+        e.preventDefault();
+        handleClear();
+      } else if (e.key.toLowerCase() === "c") {
+        e.preventDefault();
+        copyReport();
+      }
+    };
+
+    window.addEventListener("keydown", handleKeyDown);
+    return () => window.removeEventListener("keydown", handleKeyDown);
+  }, [handleClear, copyReport]);
 
   const formatNum = (n: number) => {
     if (Number.isInteger(n)) return n.toString();
@@ -132,21 +165,24 @@ export function NumberStatistics({ initialData, onStateChange }: { initialData?:
               <button
                 onClick={handleDownload}
                 disabled={!input}
-                className="text-xs font-bold px-3 py-1.5 rounded-xl text-indigo-600 bg-indigo-50 dark:bg-indigo-900/20 hover:bg-indigo-100 transition-all flex items-center gap-1 disabled:opacity-50"
+                className="text-xs font-bold px-3 py-1.5 rounded-xl text-indigo-600 bg-indigo-50 dark:bg-indigo-900/20 hover:bg-indigo-100 transition-all flex items-center gap-1 disabled:opacity-50 focus-visible:ring-2 focus-visible:ring-indigo-500 outline-none"
               >
                 <Download className="w-3.5 h-3.5" /> {t('common.download')}
               </button>
               <button
-                onClick={() => setInput('')}
+                onClick={handleClear}
                 disabled={!input}
-                className="text-xs font-bold text-rose-500 bg-rose-50 dark:bg-rose-500/10 hover:bg-rose-100 px-3 py-1.5 rounded-xl flex items-center gap-1 transition-all disabled:opacity-50"
+                className="text-xs font-bold text-rose-500 bg-rose-50 dark:bg-rose-500/10 hover:bg-rose-100 px-3 py-1.5 rounded-xl flex items-center gap-1 transition-all disabled:opacity-50 focus-visible:ring-2 focus-visible:ring-rose-500 outline-none"
+                aria-label={t('common.clear')}
               >
-                <Trash2 className="w-3.5 h-3.5" /> {t('common.clear')}
+                <RotateCcw className="w-3.5 h-3.5" /> {t('common.clear')}
+                <kbd className="ml-1 hidden sm:inline-flex items-center justify-center px-1.5 py-0.5 border border-rose-200 dark:border-rose-800 rounded text-[10px] font-bold bg-white/50 dark:bg-black/20">Esc</kbd>
               </button>
             </div>
           </div>
           <textarea
             id="num-input"
+            ref={inputRef}
             value={input}
             onChange={(e) => {
               setInput(e.target.value);
@@ -183,12 +219,14 @@ export function NumberStatistics({ initialData, onStateChange }: { initialData?:
                 </div>
                 <button
                   onClick={copyReport}
-                  className={`w-full py-3 rounded-xl font-black text-sm transition-all flex items-center justify-center gap-2 ${
+                  className={`w-full py-3 rounded-xl font-black text-sm transition-all flex items-center justify-center gap-2 focus-visible:ring-2 focus-visible:ring-white/50 outline-none ${
                     copied === 'report' ? 'bg-emerald-500' : 'bg-white/10 hover:bg-white/20'
                   }`}
+                  title={`${t('numstats.copy_report')} (C)`}
                 >
                   {copied === 'report' ? <Check className="w-4 h-4" /> : <Copy className="w-4 h-4" />}
                   {copied === 'report' ? t('common.copied') : t('numstats.copy_report')}
+                  {!copied && <kbd className="hidden sm:inline-flex items-center justify-center w-4 h-4 border border-white/20 rounded text-[10px] font-bold bg-white/10 ml-1">C</kbd>}
                 </button>
               </div>
             ) : (

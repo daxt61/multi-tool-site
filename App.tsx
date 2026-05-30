@@ -114,6 +114,7 @@ import {
   FileSearch,
   Box,
   Repeat,
+  RotateCw,
 } from "lucide-react";
 const AdPlaceholder = lazy(() => import("./components/AdPlaceholder").then(m => ({ default: m.AdPlaceholder })));
 
@@ -332,6 +333,9 @@ const Base64ToHex = lazy(() => import("./components/Base64ToHex").then(m => ({ d
 const JSONToProperties = lazy(() => import("./components/JSONToProperties").then(m => ({ default: m.JSONToProperties })));
 const TextShadowGenerator = lazy(() => import("./components/TextShadowGenerator").then(m => ({ default: m.TextShadowGenerator })));
 const CSSFormatter = lazy(() => import("./components/CSSFormatter").then(m => ({ default: m.CSSFormatter })));
+const FancyTextGenerator = lazy(() => import("./components/FancyTextGenerator").then(m => ({ default: m.FancyTextGenerator })));
+const ImageRotator = lazy(() => import("./components/ImageRotator").then(m => ({ default: m.ImageRotator })));
+const LifeCalendar = lazy(() => import("./components/LifeCalendar").then(m => ({ default: m.LifeCalendar })));
 
 // ⚡ Bolt Optimization: Pre-calculating tool map and search index for O(1) lookups and faster filtering
 const toolsMap: Record<string, Tool> = {};
@@ -2566,6 +2570,39 @@ const tools: Tool[] = [
     Component: CSSFormatter,
     category: "dev",
     keywords: ["css", "format", "beautify", "minify", "frontend"],
+  },
+  {
+    id: "fancy-text",
+    name: "Texte Stylé",
+    nameEn: "Fancy Text",
+    icon: Sparkles,
+    description: "Générer des styles de texte Unicode (Gras, Italique, Script...)",
+    descriptionEn: "Generate fancy Unicode text styles (Bold, Italic, Script...)",
+    Component: FancyTextGenerator,
+    category: "text",
+    keywords: ["fancy", "text", "unicode", "fonts", "style", "bold", "italic"],
+  },
+  {
+    id: "image-rotator",
+    name: "Rotation Image",
+    nameEn: "Image Rotator",
+    icon: RotateCw,
+    description: "Faire pivoter ou retourner une image localement",
+    descriptionEn: "Rotate or flip an image locally",
+    Component: ImageRotator,
+    category: "other",
+    keywords: ["rotate", "flip", "mirror", "image", "canvas", "pivoter"],
+  },
+  {
+    id: "life-calendar",
+    name: "Calendrier de Vie",
+    nameEn: "Life Calendar",
+    icon: Calendar,
+    description: "Visualiser votre vie en semaines (Memento Mori)",
+    descriptionEn: "Visualize your life in weeks (Memento Mori)",
+    Component: LifeCalendar,
+    category: "other",
+    keywords: ["life", "calendar", "weeks", "memento mori", "time", "visualization"],
   },
 ];
 

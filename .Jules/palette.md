@@ -21,3 +21,7 @@
 ## 2025-07-25 - [Isolated Keyboard Shortcuts vs. Global Listeners]
 **Learning:** Component-specific keyboard shortcuts (like Escape to clear) must be implemented locally on the relevant input elements (e.g., via `onKeyDown`) rather than as global window listeners. Global listeners can cause unintended side effects, such as clearing a tool's state when a user tries to close a global search modal or clear a header input.
 **Action:** Always prefer local `onKeyDown` handlers for tool-specific shortcuts to ensure behavior isolation and avoid collisions with global UI elements.
+
+## 2025-08-10 - [Hybrid Keyboard Shortcut Implementation]
+**Learning:** Combining local `onKeyDown` handlers (for inputs) with global window listeners (for blurred states) provides the most robust power-user experience. This ensures that 'Escape' can clear a field while typing, but also reset the tool's state even when the user is just navigating the page, provided that global listeners are gated by `isInputFocused` and modifier key checks.
+**Action:** Use a hybrid listener pattern for standard tool shortcuts (Escape/Clear, C/Copy) to ensure responsiveness regardless of the current focus target.

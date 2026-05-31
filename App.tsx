@@ -336,6 +336,11 @@ const CSSFormatter = lazy(() => import("./components/CSSFormatter").then(m => ({
 const FancyTextGenerator = lazy(() => import("./components/FancyTextGenerator").then(m => ({ default: m.FancyTextGenerator })));
 const ImageRotator = lazy(() => import("./components/ImageRotator").then(m => ({ default: m.ImageRotator })));
 const LifeCalendar = lazy(() => import("./components/LifeCalendar").then(m => ({ default: m.LifeCalendar })));
+const CSVToSQL = lazy(() => import("./components/CSVToSQL").then(m => ({ default: m.CSVToSQL })));
+const JSONToMarkdown = lazy(() => import("./components/JSONToMarkdown").then(m => ({ default: m.JSONToMarkdown })));
+const BinaryBitwise = lazy(() => import("./components/BinaryBitwise").then(m => ({ default: m.BinaryBitwise })));
+const CSVToXML = lazy(() => import("./components/CSVToXML").then(m => ({ default: m.CSVToXML })));
+const TextToOctal = lazy(() => import("./components/TextToOctal").then(m => ({ default: m.TextToOctal })));
 
 // ⚡ Bolt Optimization: Pre-calculating tool map and search index for O(1) lookups and faster filtering
 const toolsMap: Record<string, Tool> = {};
@@ -2603,6 +2608,61 @@ const tools: Tool[] = [
     Component: LifeCalendar,
     category: "other",
     keywords: ["life", "calendar", "weeks", "memento mori", "time", "visualization"],
+  },
+  {
+    id: "csv-to-sql",
+    name: "CSV en SQL",
+    nameEn: "CSV to SQL",
+    icon: Database,
+    description: "Convertir des fichiers CSV en instructions SQL INSERT",
+    descriptionEn: "Convert CSV files into SQL INSERT statements",
+    Component: CSVToSQL,
+    category: "dev",
+    keywords: ["csv", "sql", "insert", "database", "import"],
+  },
+  {
+    id: "json-to-markdown",
+    name: "JSON en Markdown",
+    nameEn: "JSON to Markdown",
+    icon: FileCode,
+    description: "Convertir des tableaux JSON en tableaux Markdown",
+    descriptionEn: "Convert JSON arrays into Markdown tables",
+    Component: JSONToMarkdown,
+    category: "dev",
+    keywords: ["json", "markdown", "table", "documentation"],
+  },
+  {
+    id: "binary-bitwise",
+    name: "Opérations Bit à Bit",
+    nameEn: "Bitwise Operations",
+    icon: Binary,
+    description: "Effectuer des opérations logiques binaires (AND, OR, XOR...)",
+    descriptionEn: "Perform binary logical operations (AND, OR, XOR...)",
+    Component: BinaryBitwise,
+    category: "dev",
+    keywords: ["binary", "bitwise", "logic", "and", "or", "xor", "not", "shift"],
+  },
+  {
+    id: "csv-to-xml",
+    name: "CSV en XML",
+    nameEn: "CSV to XML",
+    icon: FileCode,
+    description: "Transformer des données CSV en format XML structure",
+    descriptionEn: "Transform CSV data into structured XML format",
+    Component: CSVToXML,
+    category: "dev",
+    keywords: ["csv", "xml", "convert", "structure", "data"],
+  },
+  {
+    id: "text-to-octal",
+    name: "Texte en Octal",
+    nameEn: "Text to Octal",
+    icon: Hash,
+    description: "Convertir du texte en représentation octale (Base 8)",
+    descriptionEn: "Convert text into octal representation (Base 8)",
+    Component: TextToOctal,
+    category: "converters",
+    keywords: ["text", "octal", "base8", "encoding", "decoding"],
   },
 ];
 

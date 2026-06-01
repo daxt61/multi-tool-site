@@ -75,6 +75,7 @@ import {
   ArrowLeft,
   Database,
   ArrowLeftRight,
+  ArrowUpDown,
   X,
   Share2,
   Sun,
@@ -336,6 +337,8 @@ const CSSFormatter = lazy(() => import("./components/CSSFormatter").then(m => ({
 const FancyTextGenerator = lazy(() => import("./components/FancyTextGenerator").then(m => ({ default: m.FancyTextGenerator })));
 const ImageRotator = lazy(() => import("./components/ImageRotator").then(m => ({ default: m.ImageRotator })));
 const LifeCalendar = lazy(() => import("./components/LifeCalendar").then(m => ({ default: m.LifeCalendar })));
+const NumberSorter = lazy(() => import("./components/NumberSorter").then(m => ({ default: m.NumberSorter })));
+const ClockGenerator = lazy(() => import("./components/ClockGenerator").then(m => ({ default: m.ClockGenerator })));
 const CSVToSQL = lazy(() => import("./components/CSVToSQL").then(m => ({ default: m.CSVToSQL })));
 const JSONToMarkdown = lazy(() => import("./components/JSONToMarkdown").then(m => ({ default: m.JSONToMarkdown })));
 const BinaryBitwise = lazy(() => import("./components/BinaryBitwise").then(m => ({ default: m.BinaryBitwise })));
@@ -2663,6 +2666,28 @@ const tools: Tool[] = [
     Component: TextToOctal,
     category: "converters",
     keywords: ["text", "octal", "base8", "encoding", "decoding"],
+  },
+  {
+    id: "number-sorter",
+    name: "Trieur de Nombres",
+    nameEn: "Number Sorter",
+    icon: ArrowUpDown,
+    description: "Trier des listes de nombres selon divers critères (valeur, somme des chiffres...)",
+    descriptionEn: "Sort lists of numbers using various criteria (value, digit sum...)",
+    Component: NumberSorter,
+    category: "calculators",
+    keywords: ["sort", "numbers", "order", "math", "digit sum", "trier"],
+  },
+  {
+    id: "clock-generator",
+    name: "Générateur d'Horloge",
+    nameEn: "Clock Generator",
+    icon: Clock,
+    description: "Générer et personnaliser des horloges analogiques et numériques",
+    descriptionEn: "Generate and customize analog and digital clocks",
+    Component: ClockGenerator,
+    category: "other",
+    keywords: ["clock", "time", "analog", "digital", "generator", "horloge"],
   },
 ];
 

@@ -12,9 +12,67 @@ export function Stopwatch({ initialData, onStateChange }: { initialData?: any; o
   const { t } = useTranslation();
   const [time, setTime] = useState(0);
   const [isRunning, setIsRunning] = useState(false);
-  const [laps, setLaps] = useState<Lap[]>(initialData?.laps || []);
+  const [laps, setLaps] = useState<Lap[]>([]);
   const startTimeRef = useRef<number>(0);
   const requestRef = useRef<number>();
+
+  // Persistence: Prioritize initialData (shared via URL) then localStorage
+  useEffect(() => {
+    if (initialData?.laps) {
+      setLaps(initialData.laps);
+      setTime(initialData.time || 0);
+      setIsRunning(false); // Shared state usually shouldn't auto-start
+      startTimeRef.current = performance.now() - (initialData.time || 0);
+      return;
+    }
+
+    const saved = localStorage.getItem('stopwatch_state');
+    if (saved) {
+      try {
+        const { savedTime, savedLaps, savedIsRunning, lastTimestamp } = JSON.parse(saved);
+        setLaps(savedLaps || []);
+        setIsRunning(savedIsRunning || false);
+        if (savedIsRunning && lastTimestamp) {
+          const now = Date.now();
+          const elapsedSinceLast = now - lastTimestamp;
+          setTime(savedTime + elapsedSinceLast);
+          startTimeRef.current = performance.now() - (savedTime + elapsedSinceLast);
+        } else {
+          setTime(savedTime || 0);
+          startTimeRef.current = performance.now() - (savedTime || 0);
+        }
+      } catch (e) {
+        console.error('Failed to load stopwatch state', e);
+      }
+    }
+  }, []); // Only on mount
+
+  // Persistence: Save to localStorage on important transitions
+  const saveState = useCallback((currentTime: number, currentLaps: Lap[], running: boolean) => {
+    localStorage.setItem('stopwatch_state', JSON.stringify({
+      savedTime: currentTime,
+      savedLaps: currentLaps,
+      savedIsRunning: running,
+      lastTimestamp: running ? Date.now() : null
+    }));
+  }, []);
+
+  useEffect(() => {
+    // We only call onStateChange when strictly necessary to avoid parent re-renders at 60fps
+    // Using a timeout to debounce or just avoiding 'time' as dependency for the parent
+    onStateChange?.({ laps, time: isRunning ? time : Math.floor(time), isRunning });
+  }, [laps, isRunning, onStateChange]);
+
+  // Periodic save for crashes
+  useEffect(() => {
+    let interval: number;
+    if (isRunning) {
+      interval = window.setInterval(() => saveState(time, laps, isRunning), 5000);
+    }
+    return () => {
+      if (interval) clearInterval(interval);
+    };
+  }, [isRunning, time, laps, saveState]);
 
   const update = useCallback(() => {
     if (isRunning) {
@@ -37,8 +95,8 @@ export function Stopwatch({ initialData, onStateChange }: { initialData?: any; o
   }, [isRunning, update]);
 
   useEffect(() => {
-    onStateChange?.({ laps });
-  }, [laps, onStateChange]);
+    onStateChange?.({ laps, time, isRunning });
+  }, [laps, time, isRunning, onStateChange]);
 
   const formatTime = (ms: number) => {
     const hours = Math.floor(ms / 3600000);
@@ -54,12 +112,19 @@ export function Stopwatch({ initialData, onStateChange }: { initialData?: any; o
     };
   };
 
-  const handleStartPause = useCallback(() => setIsRunning(prev => !prev), []);
+  const handleStartPause = useCallback(() => {
+    setIsRunning(prev => {
+        const next = !prev;
+        saveState(time, laps, next);
+        return next;
+    });
+  }, [time, laps, saveState]);
 
   const handleReset = useCallback(() => {
     setIsRunning(false);
     setTime(0);
     setLaps([]);
+    localStorage.removeItem('stopwatch_state');
   }, []);
 
   const handleLap = useCallback(() => {
@@ -69,8 +134,12 @@ export function Stopwatch({ initialData, onStateChange }: { initialData?: any; o
       time: time - lastLapTime,
       overallTime: time
     };
-    setLaps(prev => [newLap, ...prev]);
-  }, [laps, time]);
+    setLaps(prev => {
+        const next = [newLap, ...prev];
+        saveState(time, next, isRunning);
+        return next;
+    });
+  }, [laps, time, isRunning, saveState]);
 
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {

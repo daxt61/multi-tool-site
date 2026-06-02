@@ -28,4 +28,17 @@ test.describe('New Inspired Tools', () => {
     await page.goto('http://localhost:5173/en/outil/image-color-replacer');
     await expect(page.locator('text=Upload an image to start')).toBeVisible();
   });
+
+  test('Palindrome Checker tool should be functional', async ({ page }) => {
+    await page.goto('http://localhost:5173/en/outil/palindrome-checker');
+    await page.waitForSelector('textarea#palindrome-input');
+
+    await page.fill('textarea#palindrome-input', 'Racecar');
+    await expect(page.locator('text=It\'s a palindrome!')).toBeVisible();
+  });
+
+  test('MAC Address Generator tool should be accessible', async ({ page }) => {
+    await page.goto('http://localhost:5173/en/outil/mac-generator');
+    await expect(page.locator('text=About MAC Addresses')).toBeVisible();
+  });
 });

@@ -1,6 +1,7 @@
 import { useState, useEffect, useCallback, useRef } from 'react';
 import { Copy, Check, Type, FileText, Trash2, AlertCircle, Download, LayoutGrid } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
+import { getSecureRandomInt } from './ui/crypto';
 
 const MAX_LENGTH = 100000;
 
@@ -18,10 +19,7 @@ export function CaseConverter({ initialData, onStateChange }: { initialData?: an
   // Sentinel: Use cryptographically secure random values instead of Math.random()
   // to ensure unbiased and unpredictable character selection for randomized cases.
   const getSecureRandomBoolean = useCallback(() => {
-    if (typeof window === 'undefined' || !window.crypto) return Math.random() > 0.5;
-    const array = new Uint8Array(1);
-    window.crypto.getRandomValues(array);
-    return array[0] > 127;
+    return getSecureRandomInt(2) === 1;
   }, []);
 
   const conversions = {

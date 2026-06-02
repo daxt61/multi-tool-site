@@ -344,6 +344,10 @@ const JSONToMarkdown = lazy(() => import("./components/JSONToMarkdown").then(m =
 const BinaryBitwise = lazy(() => import("./components/BinaryBitwise").then(m => ({ default: m.BinaryBitwise })));
 const CSVToXML = lazy(() => import("./components/CSVToXML").then(m => ({ default: m.CSVToXML })));
 const TextToOctal = lazy(() => import("./components/TextToOctal").then(m => ({ default: m.TextToOctal })));
+const MacAddressGenerator = lazy(() => import("./components/MacAddressGenerator").then(m => ({ default: m.MacAddressGenerator })));
+const PalindromeChecker = lazy(() => import("./components/PalindromeChecker").then(m => ({ default: m.PalindromeChecker })));
+const DogAgeConverter = lazy(() => import("./components/DogAgeConverter").then(m => ({ default: m.DogAgeConverter })));
+const LookAndSayGenerator = lazy(() => import("./components/LookAndSayGenerator").then(m => ({ default: m.LookAndSayGenerator })));
 
 // ⚡ Bolt Optimization: Pre-calculating tool map and search index for O(1) lookups and faster filtering
 const toolsMap: Record<string, Tool> = {};
@@ -2688,6 +2692,50 @@ const tools: Tool[] = [
     Component: ClockGenerator,
     category: "other",
     keywords: ["clock", "time", "analog", "digital", "generator", "horloge"],
+  },
+  {
+    id: "mac-generator",
+    name: "Adresses MAC",
+    nameEn: "MAC Address Generator",
+    icon: Network,
+    description: "Générer des adresses MAC aléatoires et formatées",
+    descriptionEn: "Generate random and formatted MAC addresses",
+    Component: MacAddressGenerator,
+    category: "dev",
+    keywords: ["mac", "network", "address", "generator", "random", "laa"],
+  },
+  {
+    id: "palindrome-checker",
+    name: "Palindrome",
+    nameEn: "Palindrome Checker",
+    icon: ArrowLeftRight,
+    description: "Vérifier si un mot ou une phrase est un palindrome",
+    descriptionEn: "Check if a word or phrase is a palindrome",
+    Component: PalindromeChecker,
+    category: "text",
+    keywords: ["palindrome", "text", "check", "reverse", "backwards"],
+  },
+  {
+    id: "dog-age",
+    name: "Âge de Chien",
+    nameEn: "Dog Age Converter",
+    icon: Heart,
+    description: "Convertir l'âge d'un chien en équivalent humain",
+    descriptionEn: "Convert a dog's age to human year equivalent",
+    Component: DogAgeConverter,
+    category: "calculators",
+    keywords: ["dog", "age", "years", "human", "animal", "converter"],
+  },
+  {
+    id: "look-and-say",
+    name: "Regarde et Dis",
+    nameEn: "Look and Say Generator",
+    icon: Hash,
+    description: "Générer les termes de la suite de Conway (Look-and-Say)",
+    descriptionEn: "Generate terms of the Look-and-Say (Conway) sequence",
+    Component: LookAndSayGenerator,
+    category: "calculators",
+    keywords: ["look-and-say", "conway", "sequence", "math", "logic"],
   },
 ];
 

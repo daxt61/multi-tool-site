@@ -91,7 +91,7 @@ export function PiGenerator({ initialData, onStateChange }: { initialData?: any;
                   id="pi-digits"
                   type="range"
                   min="0"
-                  max="1000"
+                  max="2000"
                   step="1"
                   value={digits}
                   onChange={(e) => setDigits(parseInt(e.target.value))}

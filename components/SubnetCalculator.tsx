@@ -1,8 +1,9 @@
-import { useState, useMemo, useEffect } from 'react';
-import { Network, Info, Globe, Server, ShieldCheck, Copy, Check, Binary, Zap } from 'lucide-react';
+import { useState, useMemo, useEffect, useCallback, useRef } from 'react';
+import { Network, Info, Globe, Server, ShieldCheck, Copy, Check, Binary, Zap, RotateCcw } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 
 export function SubnetCalculator({ initialData, onStateChange }: { initialData?: any; onStateChange?: (state: any) => void }) {
+  const inputRef = useRef<HTMLInputElement>(null);
   const { t } = useTranslation();
   const [ip, setIp] = useState(initialData?.ip || '192.168.1.1');
   const [cidr, setCidr] = useState(initialData?.cidr ?? 24);
@@ -11,6 +12,50 @@ export function SubnetCalculator({ initialData, onStateChange }: { initialData?:
   useEffect(() => {
     onStateChange?.({ ip, cidr });
   }, [ip, cidr, onStateChange]);
+
+  const handleReset = useCallback(() => {
+    setIp('192.168.1.1');
+    setCidr(24);
+    inputRef.current?.focus();
+  }, []);
+
+  const handleCopy = useCallback((text: string, id: string) => {
+    navigator.clipboard.writeText(text);
+    setCopied(id);
+    setTimeout(() => setCopied(null), 2000);
+  }, []);
+
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      const activeElement = document.activeElement;
+      const isInputFocused =
+        activeElement instanceof HTMLInputElement ||
+        activeElement instanceof HTMLTextAreaElement ||
+        activeElement instanceof HTMLSelectElement ||
+        activeElement?.getAttribute("contenteditable") === "true";
+
+      if (isInputFocused) {
+        // Local Escape handler on input will be added in JSX
+        return;
+      }
+
+      if (e.metaKey || e.ctrlKey || e.altKey || e.shiftKey) return;
+
+      if (e.key === "Escape") {
+        e.preventDefault();
+        handleReset();
+      } else if (e.key.toLowerCase() === "c") {
+        const results = calculateSubnet(ip, cidr);
+        if (results) {
+          e.preventDefault();
+          handleCopy(results.network, t('subnet.network_address'));
+        }
+      }
+    };
+
+    window.addEventListener("keydown", handleKeyDown);
+    return () => window.removeEventListener("keydown", handleKeyDown);
+  }, [handleReset, handleCopy, ip, cidr, t]);
 
   const calculateSubnet = (ipStr: string, prefix: number) => {
     try {
@@ -63,11 +108,6 @@ export function SubnetCalculator({ initialData, onStateChange }: { initialData?:
 
   const results = useMemo(() => calculateSubnet(ip, cidr), [ip, cidr]);
 
-  const handleCopy = (text: string, id: string) => {
-    navigator.clipboard.writeText(text);
-    setCopied(id);
-    setTimeout(() => setCopied(null), 2000);
-  };
 
   return (
     <div className="max-w-6xl mx-auto space-y-12">
@@ -76,9 +116,19 @@ export function SubnetCalculator({ initialData, onStateChange }: { initialData?:
         <div className="lg:col-span-4 space-y-6">
           <div className="bg-slate-50 dark:bg-slate-900/50 p-8 rounded-[2.5rem] border border-slate-200 dark:border-slate-800 space-y-8 shadow-sm">
             <div className="space-y-6">
-              <div className="flex items-center gap-2 px-1">
-                <Globe className="w-4 h-4 text-indigo-500" />
-                <h3 className="text-xs font-black uppercase tracking-widest text-slate-400">{t('subnet.config_title')}</h3>
+              <div className="flex items-center justify-between px-1">
+                <div className="flex items-center gap-2">
+                  <Globe className="w-4 h-4 text-indigo-500" />
+                  <h3 className="text-xs font-black uppercase tracking-widest text-slate-400">{t('subnet.config_title')}</h3>
+                </div>
+                <button
+                  onClick={handleReset}
+                  className="text-xs font-bold text-rose-500 bg-rose-50 dark:bg-rose-500/10 hover:bg-rose-100 dark:hover:bg-rose-500/20 px-3 py-1.5 rounded-xl flex items-center gap-1 transition-all focus-visible:ring-2 focus-visible:ring-rose-500 outline-none"
+                  aria-label={t('common.reset')}
+                >
+                  <RotateCcw className="w-3.5 h-3.5" /> {t('common.reset')}
+                  <kbd className="ml-1 hidden sm:inline-flex items-center justify-center px-1.5 py-0.5 border border-rose-200 dark:border-rose-800 rounded text-[10px] font-bold bg-white/50 dark:bg-black/20">Esc</kbd>
+                </button>
               </div>
 
               <div className="space-y-4">
@@ -86,9 +136,15 @@ export function SubnetCalculator({ initialData, onStateChange }: { initialData?:
                   <label htmlFor="ip-input" className="text-xs font-bold text-slate-500 px-1">{t('subnet.ip_address')}</label>
                   <input
                     id="ip-input"
+                    ref={inputRef}
                     type="text"
                     value={ip}
                     onChange={(e) => setIp(e.target.value)}
+                    onKeyDown={(e) => {
+                      if (e.key === 'Escape') {
+                        handleReset();
+                      }
+                    }}
                     placeholder="e.g. 192.168.1.1"
                     className="w-full p-4 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-2xl text-xl font-black font-mono focus:border-indigo-500 outline-none transition-all dark:text-white"
                   />
@@ -158,9 +214,13 @@ export function SubnetCalculator({ initialData, onStateChange }: { initialData?:
                       </div>
                       <button
                         onClick={() => handleCopy(item.value, item.label)}
-                        className={`p-1.5 rounded-lg transition-all ${copied === item.label ? 'bg-emerald-50 text-emerald-600' : 'text-slate-300 hover:text-slate-500 hover:bg-slate-50'}`}
+                        className={`p-1.5 rounded-lg transition-all flex items-center gap-1 ${copied === item.label ? 'bg-emerald-50 text-emerald-600' : 'text-slate-300 hover:text-slate-500 hover:bg-slate-50'} focus-visible:ring-2 focus-visible:ring-indigo-500 outline-none`}
+                        title={item.label === t('subnet.network_address') ? `${t('common.copy')} (C)` : t('common.copy')}
                       >
                         {copied === item.label ? <Check className="w-4 h-4" /> : <Copy className="w-4 h-4" />}
+                        {item.label === t('subnet.network_address') && !copied && (
+                          <kbd className="hidden sm:inline-flex items-center justify-center w-4 h-4 border border-slate-200 dark:border-slate-700 rounded text-[10px] font-bold bg-white/50 dark:bg-black/20 ml-0.5">C</kbd>
+                        )}
                       </button>
                     </div>
                     <div>

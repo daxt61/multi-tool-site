@@ -31,6 +31,7 @@ import {
   FileType,
   FileSpreadsheet,
   Fuel,
+  UserRound,
   DollarSign,
   Blend,
   PieChart,
@@ -348,6 +349,7 @@ const MacAddressGenerator = lazy(() => import("./components/MacAddressGenerator"
 const PalindromeChecker = lazy(() => import("./components/PalindromeChecker").then(m => ({ default: m.PalindromeChecker })));
 const DogAgeConverter = lazy(() => import("./components/DogAgeConverter").then(m => ({ default: m.DogAgeConverter })));
 const LookAndSayGenerator = lazy(() => import("./components/LookAndSayGenerator").then(m => ({ default: m.LookAndSayGenerator })));
+const VCardGenerator = lazy(() => import("./components/VCardGenerator").then(m => ({ default: m.VCardGenerator })));
 
 // ⚡ Bolt Optimization: Pre-calculating tool map and search index for O(1) lookups and faster filtering
 const toolsMap: Record<string, Tool> = {};
@@ -386,6 +388,17 @@ const categories: Category[] = [
 
 const tools: Tool[] = [
   // Business Tools
+  {
+    id: "vcard-generator",
+    name: "Carte de Visite",
+    nameEn: "vCard Generator",
+    icon: UserRound,
+    description: "Générer des fichiers vCard et codes QR de contact",
+    descriptionEn: "Generate vCard files and contact QR codes",
+    Component: VCardGenerator,
+    category: "business",
+    keywords: ["vcard", "contact", "qr", "business card", "vcf", "identity"],
+  },
   {
     id: "invoice-generator",
     name: "Factures",

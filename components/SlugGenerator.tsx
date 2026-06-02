@@ -1,7 +1,9 @@
 import { useState, useMemo, useEffect } from 'react';
 import { Link as LinkIcon, Copy, Check, Info, Settings, Trash2 } from 'lucide-react';
+import { useTranslation } from 'react-i18next';
 
 export function SlugGenerator({ initialData, onStateChange }: { initialData?: any; onStateChange?: (state: any) => void }) {
+  const { t } = useTranslation();
   const [text, setText] = useState(initialData?.text || '');
   const [lowercase, setLowercase] = useState(initialData?.lowercase ?? true);
   const [removeAccents, setRemoveAccents] = useState(initialData?.removeAccents ?? true);
@@ -51,9 +53,9 @@ export function SlugGenerator({ initialData, onStateChange }: { initialData?: an
       <div className="bg-slate-900 dark:bg-black p-8 md:p-12 rounded-[2.5rem] shadow-xl shadow-indigo-500/5 relative overflow-hidden group">
         <div className="flex flex-col md:flex-row items-center gap-8 relative z-10">
           <div className="flex-1 w-full text-center md:text-left">
-            <div className="text-xs font-black uppercase tracking-widest text-white/30 mb-4 px-1">Résultat du Slug</div>
+            <div className="text-xs font-black uppercase tracking-widest text-white/30 mb-4 px-1">{t('slug.result_label')}</div>
             <div className={`text-2xl md:text-4xl font-mono text-white outline-none tracking-tight break-all selection:bg-indigo-500/30 ${!slug ? 'opacity-20 italic' : 'opacity-100'}`}>
-              {slug || "votre-slug-apparaitra-ici"}
+              {slug || t('slug.placeholder')}
             </div>
           </div>
           <div className="flex gap-3">
@@ -65,7 +67,7 @@ export function SlugGenerator({ initialData, onStateChange }: { initialData?: an
               }`}
             >
               {copied ? <Check className="w-6 h-6" /> : <Copy className="w-6 h-6" />}
-              {copied ? 'Copié' : 'Copier'}
+              {copied ? t('common.copied') : t('common.copy')}
             </button>
           </div>
         </div>
@@ -77,21 +79,21 @@ export function SlugGenerator({ initialData, onStateChange }: { initialData?: an
           <div className="flex items-center justify-between px-1">
             <div className="flex items-center gap-2">
               <LinkIcon className="w-4 h-4 text-indigo-500" />
-              <h3 className="text-xs font-black uppercase tracking-widest text-slate-400">Texte Source</h3>
+              <h3 className="text-xs font-black uppercase tracking-widest text-slate-400">{t('slug.source_label')}</h3>
             </div>
             <button
               onClick={handleClear}
               disabled={!text}
               className="text-xs font-bold text-rose-500 bg-rose-50 dark:bg-rose-500/10 hover:bg-rose-100 dark:hover:bg-rose-500/20 px-3 py-1.5 rounded-xl flex items-center gap-1 transition-all disabled:opacity-50 disabled:cursor-not-allowed focus-visible:ring-2 focus-visible:ring-rose-500 focus-visible:outline-none"
             >
-              <Trash2 className="w-3 h-3" /> Effacer
+              <Trash2 className="w-3 h-3" /> {t('common.clear')}
             </button>
           </div>
           <textarea
             value={text}
             onChange={(e) => setText(e.target.value)}
             className="w-full h-48 p-6 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-3xl outline-none focus:ring-2 focus:ring-indigo-500/20 transition-all resize-none font-medium dark:text-slate-300"
-            placeholder="Saisissez un titre ou un texte à transformer en URL..."
+            placeholder={t('slug.input_placeholder')}
           />
         </section>
 
@@ -100,12 +102,12 @@ export function SlugGenerator({ initialData, onStateChange }: { initialData?: an
           <section className="bg-slate-50 dark:bg-slate-900/50 p-8 rounded-[2.5rem] border border-slate-200 dark:border-slate-800 space-y-6">
             <div className="flex items-center gap-2 px-1">
               <Settings className="w-4 h-4 text-indigo-500" />
-              <h3 className="text-xs font-black uppercase tracking-widest text-slate-400">Options de conversion</h3>
+              <h3 className="text-xs font-black uppercase tracking-widest text-slate-400">{t('slug.options_label')}</h3>
             </div>
             <div className="space-y-3">
               {[
-                { label: 'Tout en minuscules', state: lowercase, set: setLowercase },
-                { label: 'Supprimer les accents', state: removeAccents, set: setRemoveAccents },
+                { label: t('slug.lowercase_label'), state: lowercase, set: setLowercase },
+                { label: t('slug.accents_label'), state: removeAccents, set: setRemoveAccents },
               ].map((opt) => (
                 <button
                   key={opt.label}
@@ -130,10 +132,10 @@ export function SlugGenerator({ initialData, onStateChange }: { initialData?: an
           <section className="bg-white dark:bg-slate-900/40 p-8 rounded-[2.5rem] border border-slate-200 dark:border-slate-800 space-y-4">
             <div className="flex items-center gap-2 px-1">
               <Info className="w-4 h-4 text-indigo-500" />
-              <h3 className="text-xs font-black uppercase tracking-widest text-slate-400">Qu'est-ce qu'un Slug ?</h3>
+              <h3 className="text-xs font-black uppercase tracking-widest text-slate-400">{t('slug.about_title')}</h3>
             </div>
             <p className="text-sm text-slate-500 dark:text-slate-400 leading-relaxed px-1">
-              Un slug est la partie d'une URL qui identifie une page de manière lisible pour les humains et optimisée pour les moteurs de recherche (SEO). Il est généralement composé de mots séparés par des traits d'union.
+              {t('slug.about_text')}
             </p>
           </section>
         </div>

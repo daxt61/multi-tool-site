@@ -14,8 +14,9 @@ export function HMACGenerator({ initialData, onStateChange }: { initialData?: an
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    onStateChange?.({ message, secretKey, algorithm });
-  }, [message, secretKey, algorithm, onStateChange]);
+    // Sentinel: Never share the secretKey in the URL state.
+    onStateChange?.({ message, algorithm });
+  }, [message, algorithm, onStateChange]);
 
   const generateHMAC = useCallback(async () => {
     if (!message || !secretKey) {

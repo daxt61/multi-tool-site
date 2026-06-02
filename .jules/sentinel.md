@@ -121,3 +121,8 @@
 **Vulnerability:** Multiple components (UAGenerator, UnicodeSpoofer) were using `Math.random()`, which is predictable and biased. Verbatim duplication of secure random helpers across components led to maintainability issues.
 **Learning:** Standardizing security helpers in a shared utility directory (like `components/ui/`) promotes the DRY principle and ensures that critical logic, like rejection sampling for unbiased integers, is implemented correctly once and reused.
 **Prevention:** Implement a shared `getSecureRandomInt` utility using `window.crypto.getRandomValues()` and rejection sampling. Refactor all components requiring randomness to use this shared helper instead of local implementations or `Math.random()`.
+
+## 2025-07-20 - [Sensitive Data Leakage in Shareable URLs]
+**Vulnerability:** Security tools (RSA, HMAC, Bcrypt, Mnemonic) were leaking sensitive data (private keys, secret keys, passwords, phrases) into the browser's URL via the shared state synchronization mechanism. This exposed secrets in browser history and allowed inadvertent sharing of private material through plain links.
+**Learning:** In applications where internal state is automatically synchronized with the URL for sharing, developers must explicitly sanitize the state object to exclude sensitive fields. Not all state properties are suitable for persistence or sharing.
+**Prevention:** Implement a strict allowlist or blocklist for fields passed to state synchronization callbacks (like `onStateChange`). Ensure that only non-sensitive configuration parameters (e.g., key size, number of rounds, algorithms) are included in the shared state, while secrets are kept strictly local to the component's internal state.

@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { Shuffle, Copy, Check, RefreshCw, Hash, Type, AlignLeft, Trash2, Download, AlertCircle } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
+import { getSecureRandomInt } from './ui/crypto';
 
 const MAX_LENGTH = 100000;
 
@@ -21,7 +22,7 @@ export function RandomGenerator({ initialData, onStateChange }: { initialData?: 
 
   useEffect(() => {
     onStateChange?.({ min, max, strLength, includeUpper, includeLower, includeNumbers, list });
-  }, [min, max, strLength, includeUpper, includeLower, includeNumbers, list]);
+  }, [min, max, strLength, includeUpper, includeLower, includeNumbers, list, onStateChange]);
 
   const handleListChange = (val: string) => {
     setList(val);
@@ -41,28 +42,6 @@ export function RandomGenerator({ initialData, onStateChange }: { initialData?: 
   const [diceResult, setDiceResult] = useState<{ value: number, type: number } | null>(null);
   const [coinResult, setCoinResult] = useState<'pile' | 'face' | null>(null);
 
-  // Secure random generator using crypto.getRandomValues with rejection sampling
-  const getSecureRandom = (range: number): number => {
-    if (range <= 0) return 0;
-
-    const array = new Uint32Array(1);
-    if (range >= 0x100000000) {
-      window.crypto.getRandomValues(array);
-      return array[0];
-    }
-    const maxUint32 = 0xffffffff;
-
-    const limit = maxUint32 - (maxUint32 % range);
-
-    let randomVal;
-    do {
-      window.crypto.getRandomValues(array);
-      randomVal = array[0];
-    } while (randomVal >= limit);
-
-    return randomVal % range;
-  };
-
   const generateNumber = () => {
     let finalMin = min;
     let finalMax = max;
@@ -74,7 +53,7 @@ export function RandomGenerator({ initialData, onStateChange }: { initialData?: 
     }
     const range = finalMax - finalMin + 1;
     if (range <= 0) return;
-    const val = getSecureRandom(range) + finalMin;
+    const val = getSecureRandomInt(range) + finalMin;
     setRandomNumber(val);
   };
 
@@ -88,7 +67,7 @@ export function RandomGenerator({ initialData, onStateChange }: { initialData?: 
 
     let result = '';
     for (let i = 0; i < strLength; i++) {
-      result += charset.charAt(getSecureRandom(charset.length));
+      result += charset.charAt(getSecureRandomInt(charset.length));
     }
     setRandomString(result);
   };
@@ -99,7 +78,7 @@ export function RandomGenerator({ initialData, onStateChange }: { initialData?: 
     if (items.length === 0) return;
     const shuffled = [...items];
     for (let i = shuffled.length - 1; i > 0; i--) {
-      const j = getSecureRandom(i + 1);
+      const j = getSecureRandomInt(i + 1);
       [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
     }
     setShuffledList(shuffled);
@@ -111,7 +90,7 @@ export function RandomGenerator({ initialData, onStateChange }: { initialData?: 
     if (list.length > MAX_LENGTH) return;
     const items = list.split('\n').filter((i: string) => i.trim() !== '');
     if (items.length === 0) return;
-    const randomIndex = getSecureRandom(items.length);
+    const randomIndex = getSecureRandomInt(items.length);
     setWinner(items[randomIndex]);
     setShuffledList([]);
     setTeams([]);
@@ -125,7 +104,7 @@ export function RandomGenerator({ initialData, onStateChange }: { initialData?: 
     // Shuffle first
     const shuffled = [...items];
     for (let i = shuffled.length - 1; i > 0; i--) {
-      const j = getSecureRandom(i + 1);
+      const j = getSecureRandomInt(i + 1);
       [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
     }
 
@@ -141,12 +120,12 @@ export function RandomGenerator({ initialData, onStateChange }: { initialData?: 
   };
 
   const rollDice = (sides: number) => {
-    const val = getSecureRandom(sides) + 1;
+    const val = getSecureRandomInt(sides) + 1;
     setDiceResult({ value: val, type: sides });
   };
 
   const flipCoin = () => {
-    const val = getSecureRandom(2);
+    const val = getSecureRandomInt(2);
     setCoinResult(val === 0 ? 'pile' : 'face');
   };
 

@@ -1,6 +1,7 @@
 import { useState, useEffect, useCallback, useMemo } from 'react';
 import { Copy, RefreshCw, Check, Shield, ShieldAlert, ShieldCheck, Key, BookOpen, Trash2, Download, Eye, EyeOff, AlertCircle, Info, Activity } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
+import { getSecureRandomInt } from './ui/crypto';
 
 const WORDS_FR = [
   'bleu', 'rouge', 'vert', 'jaune', 'noir', 'blanc', 'orange', 'rose', 'gris', 'brun', 'violet', 'marron', 'argent', 'or', 'indigo', 'turquoise', 'beige', 'ocre', 'cyan', 'lime',
@@ -52,22 +53,6 @@ export function PasswordGenerator({ initialData, onStateChange }: { initialData?
   const [copiedHistoryAll, setCopiedHistoryAll] = useState(false);
   const [history, setHistory] = useState<string[]>([]);
 
-  const getSecureRandomIndex = useCallback((range: number) => {
-    const array = new Uint32Array(1);
-    if (range >= 0x100000000) {
-      window.crypto.getRandomValues(array);
-      return array[0];
-    }
-    const maxUint32 = 0xffffffff;
-    const limit = maxUint32 - (maxUint32 % range);
-    let randomVal;
-    do {
-      window.crypto.getRandomValues(array);
-      randomVal = array[0];
-    } while (randomVal >= limit);
-    return randomVal % range;
-  }, []);
-
   const generatePassword = useCallback(() => {
     if (mode === 'random') {
       let charset = '';
@@ -87,7 +72,7 @@ export function PasswordGenerator({ initialData, onStateChange }: { initialData?
 
       let newPassword = '';
       for (let i = 0; i < length; i++) {
-        newPassword += charset.charAt(getSecureRandomIndex(charset.length));
+        newPassword += charset.charAt(getSecureRandomInt(charset.length));
       }
       setPassword(newPassword);
       setHistory(prev => [newPassword, ...prev].slice(0, 5));
@@ -95,7 +80,7 @@ export function PasswordGenerator({ initialData, onStateChange }: { initialData?
       const selectedWords = [];
       const wordList = i18n.language === 'en' ? WORDS_EN : WORDS_FR;
       for (let i = 0; i < wordCount; i++) {
-        let word = wordList[getSecureRandomIndex(wordList.length)];
+        let word = wordList[getSecureRandomInt(wordList.length)];
         if (capitalizeWords) {
           word = word.charAt(0).toUpperCase() + word.slice(1);
         }
@@ -104,17 +89,17 @@ export function PasswordGenerator({ initialData, onStateChange }: { initialData?
 
       let res = selectedWords.join('-');
       if (addNumber) {
-        res += getSecureRandomIndex(10);
+        res += getSecureRandomInt(10);
       }
       if (addSymbol) {
         const symbols = '!@#$%^&*';
-        res += symbols.charAt(getSecureRandomIndex(symbols.length));
+        res += symbols.charAt(getSecureRandomInt(symbols.length));
       }
       setPassword(res);
       setHistory(prev => [res, ...prev].slice(0, 5));
     }
     setCopied(false);
-  }, [mode, includeUppercase, includeLowercase, includeNumbers, includeSymbols, excludeSimilar, length, wordCount, capitalizeWords, addNumber, addSymbol, getSecureRandomIndex, i18n.language]);
+  }, [mode, includeUppercase, includeLowercase, includeNumbers, includeSymbols, excludeSimilar, length, wordCount, capitalizeWords, addNumber, addSymbol, i18n.language]);
 
   useEffect(() => {
     generatePassword();

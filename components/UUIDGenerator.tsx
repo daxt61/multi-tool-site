@@ -1,14 +1,16 @@
 import { useState, useCallback, useEffect } from 'react';
 import { Copy, Check, RefreshCw, Trash2, Fingerprint, Download } from 'lucide-react';
+import { useTranslation } from 'react-i18next';
 
 export function UUIDGenerator({ initialData, onStateChange }: { initialData?: any; onStateChange?: (state: any) => void }) {
+  const { t } = useTranslation();
   const [uuids, setUuids] = useState<string[]>(initialData?.uuids || []);
   const [count, setCount] = useState(initialData?.count || 1);
   const [copiedIndex, setCopiedIndex] = useState<number | null>(null);
 
   useEffect(() => {
     onStateChange?.({ uuids, count });
-  }, [uuids, count]);
+  }, [uuids, count, onStateChange]);
 
   const generateUUID = () => {
     // Use the native and secure crypto.randomUUID if available
@@ -75,15 +77,15 @@ export function UUIDGenerator({ initialData, onStateChange }: { initialData?: an
           disabled={uuids.length === 0}
           className="text-xs font-bold text-indigo-600 bg-indigo-50 dark:bg-indigo-500/10 hover:bg-indigo-100 dark:hover:bg-indigo-500/20 px-3 py-1.5 rounded-xl flex items-center gap-1 transition-all disabled:opacity-50 disabled:cursor-not-allowed focus-visible:ring-2 focus-visible:ring-indigo-500 focus-visible:outline-none"
         >
-          <Download className="w-3 h-3" /> Télécharger
+          <Download className="w-3 h-3" /> {t('common.download')}
         </button>
         <button
           onClick={handleClear}
           disabled={uuids.length === 0}
-          aria-label="Effacer tout"
+          aria-label={t('common.clear')}
           className="text-xs font-bold text-rose-500 bg-rose-50 dark:bg-rose-500/10 hover:bg-rose-100 dark:hover:bg-rose-500/20 px-3 py-1.5 rounded-xl flex items-center gap-1 transition-all disabled:opacity-50 disabled:cursor-not-allowed focus-visible:ring-2 focus-visible:ring-rose-500 focus-visible:outline-none"
         >
-          <Trash2 className="w-3 h-3" /> Effacer
+          <Trash2 className="w-3 h-3" /> {t('common.clear')}
         </button>
       </div>
 
@@ -91,7 +93,7 @@ export function UUIDGenerator({ initialData, onStateChange }: { initialData?: an
         <div className="flex flex-col md:flex-row items-end gap-4 mb-6">
           <div className="flex-1 w-full">
             <label htmlFor="uuid-count" className="block text-xs font-black uppercase tracking-widest text-slate-400 mb-2 px-1 cursor-pointer">
-              Nombre d'UUIDs à générer
+              {t('uuid.count_label', 'Nombre d\'UUIDs à générer')}
             </label>
             <input
               id="uuid-count"
@@ -109,7 +111,7 @@ export function UUIDGenerator({ initialData, onStateChange }: { initialData?: an
               className="flex-1 md:flex-none px-8 py-4 bg-indigo-600 text-white rounded-2xl font-bold hover:bg-indigo-700 transition-all active:scale-95 flex items-center justify-center gap-2 shadow-lg shadow-indigo-600/20 focus-visible:ring-2 focus-visible:ring-indigo-500 focus-visible:outline-none group"
             >
               <RefreshCw className="w-5 h-5 transition-transform group-hover:rotate-180" />
-              Générer
+              {t('random.generate')}
             </button>
           </div>
         </div>
@@ -124,7 +126,7 @@ export function UUIDGenerator({ initialData, onStateChange }: { initialData?: an
             }`}
           >
             {copiedIndex === -1 ? <Check className="w-5 h-5" /> : <Copy className="w-5 h-5" />}
-            {copiedIndex === -1 ? 'Tous copiés !' : 'Copier tous les UUIDs'}
+            {copiedIndex === -1 ? t('common.copied') : t('passwordgenerator.copy_all')}
           </button>
         )}
       </div>
@@ -144,7 +146,7 @@ export function UUIDGenerator({ initialData, onStateChange }: { initialData?: an
                     ? 'bg-emerald-50 dark:bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border-emerald-200 dark:border-emerald-500/20'
                     : 'text-slate-400 hover:text-indigo-500 hover:bg-indigo-50 dark:hover:bg-indigo-500/10'
                 }`}
-                aria-label="Copier l'UUID"
+                aria-label={t('common.copy')}
               >
                 {copiedIndex === index ? (
                   <Check className="w-5 h-5" />
@@ -161,8 +163,8 @@ export function UUIDGenerator({ initialData, onStateChange }: { initialData?: an
             <Fingerprint className="w-8 h-8 transition-transform hover:scale-110" />
           </div>
           <div>
-            <h3 className="font-bold text-slate-900 dark:text-white">Aucun UUID généré</h3>
-            <p className="text-slate-500 dark:text-slate-400 text-sm">Cliquez sur "Générer" pour créer des identifiants uniques.</p>
+            <h3 className="font-bold text-slate-900 dark:text-white">{t('uuid.empty_title', 'Aucun UUID généré')}</h3>
+            <p className="text-slate-500 dark:text-slate-400 text-sm">{t('uuid.empty_hint', 'Cliquez sur "Générer" pour créer des identifiants uniques.')}</p>
           </div>
         </div>
       )}
@@ -172,10 +174,9 @@ export function UUIDGenerator({ initialData, onStateChange }: { initialData?: an
           <Fingerprint className="w-5 h-5" />
         </div>
         <div>
-          <p className="font-bold mb-1">Qu'est-ce qu'un UUID ?</p>
+          <p className="font-bold mb-1">{t('uuid.about_title', 'Qu\'est-ce qu\'un UUID ?')}</p>
           <p className="opacity-80 leading-relaxed">
-            Un UUID (Universally Unique Identifier) est un identifiant unique de 128 bits utilisé
-            pour identifier des informations de manière unique dans les systèmes informatiques sans coordination centrale.
+            {t('uuid.about_text', 'Un UUID (Universally Unique Identifier) est un identifiant unique de 128 bits utilisé pour identifier des informations de manière unique dans les systèmes informatiques sans coordination centrale.')}
           </p>
         </div>
       </div>

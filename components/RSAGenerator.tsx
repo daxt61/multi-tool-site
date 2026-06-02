@@ -12,8 +12,9 @@ export function RSAGenerator({ initialData, onStateChange }: { initialData?: any
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    onStateChange?.({ keySize, publicKey, privateKey });
-  }, [keySize, publicKey, privateKey, onStateChange]);
+    // Sentinel: Only share the configuration (keySize), never the generated keys.
+    onStateChange?.({ keySize });
+  }, [keySize, onStateChange]);
 
   const arrayBufferToPem = (buffer: ArrayBuffer, label: string) => {
     const base64 = btoa(String.fromCharCode(...new Uint8Array(buffer)));

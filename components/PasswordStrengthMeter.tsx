@@ -8,8 +8,9 @@ export function PasswordStrengthMeter({ initialData, onStateChange }: { initialD
   const [copied, setCopied] = useState(false);
 
   useEffect(() => {
-    onStateChange?.({ password });
-  }, [password]);
+    // Sentinel: Never share the password in the URL state.
+    onStateChange?.({});
+  }, [onStateChange]);
 
   const calculateEntropy = (pwd: string) => {
     if (!pwd) return 0;

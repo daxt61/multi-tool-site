@@ -2109,8 +2109,9 @@ export function MnemonicGenerator({ initialData, onStateChange }: { initialData?
   }, []);
 
   useEffect(() => {
-    onStateChange?.({ words, wordCount });
-  }, [words, wordCount, onStateChange]);
+    // Sentinel: Never share the mnemonic words in the URL state.
+    onStateChange?.({ wordCount });
+  }, [wordCount, onStateChange]);
 
   const handleCopy = () => {
     navigator.clipboard.writeText(words.join(' '));

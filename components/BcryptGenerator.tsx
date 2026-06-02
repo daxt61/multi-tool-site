@@ -22,8 +22,9 @@ export function BcryptGenerator({ initialData, onStateChange }: { initialData?: 
   const [verifying, setVerifying] = useState(false);
 
   useEffect(() => {
-    onStateChange?.({ password, rounds, checkPassword, checkHash });
-  }, [password, rounds, checkPassword, checkHash, onStateChange]);
+    // Sentinel: Never share passwords or hashes in the URL state.
+    onStateChange?.({ rounds });
+  }, [rounds, onStateChange]);
 
   const handleHash = async () => {
     if (!password) return;

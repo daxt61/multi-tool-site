@@ -110,6 +110,8 @@ import {
   Download,
   FileUp,
   Target,
+  ListOrdered,
+  WrapText,
   ImagePlus,
   SunDim,
   Wifi,
@@ -350,6 +352,10 @@ const PalindromeChecker = lazy(() => import("./components/PalindromeChecker").th
 const DogAgeConverter = lazy(() => import("./components/DogAgeConverter").then(m => ({ default: m.DogAgeConverter })));
 const LookAndSayGenerator = lazy(() => import("./components/LookAndSayGenerator").then(m => ({ default: m.LookAndSayGenerator })));
 const VCardGenerator = lazy(() => import("./components/VCardGenerator").then(m => ({ default: m.VCardGenerator })));
+const LineNumberAdder = lazy(() => import("./components/LineNumberAdder").then(m => ({ default: m.LineNumberAdder })));
+const TextWrapper = lazy(() => import("./components/TextWrapper").then(m => ({ default: m.TextWrapper })));
+const RandomIPGenerator = lazy(() => import("./components/RandomIPGenerator").then(m => ({ default: m.RandomIPGenerator })));
+const RandomDateGenerator = lazy(() => import("./components/RandomDateGenerator").then(m => ({ default: m.RandomDateGenerator })));
 
 // ⚡ Bolt Optimization: Pre-calculating tool map and search index for O(1) lookups and faster filtering
 const toolsMap: Record<string, Tool> = {};
@@ -2749,6 +2755,50 @@ const tools: Tool[] = [
     Component: LookAndSayGenerator,
     category: "calculators",
     keywords: ["look-and-say", "conway", "sequence", "math", "logic"],
+  },
+  {
+    id: "line-number-adder",
+    name: "Ajouter numéros de ligne",
+    nameEn: "Add Line Numbers",
+    icon: ListOrdered,
+    description: "Ajouter des numéros séquentiels à chaque ligne de texte",
+    descriptionEn: "Add sequential numbers to each line of text",
+    Component: LineNumberAdder,
+    category: "text",
+    keywords: ["line numbers", "counting", "prepend", "prefix", "format"],
+  },
+  {
+    id: "text-wrapper",
+    name: "Envelopper le texte",
+    nameEn: "Text Wrapper",
+    icon: WrapText,
+    description: "Envelopper les lignes de texte longues à une largeur spécifiée",
+    descriptionEn: "Wrap long lines of text at a specified width",
+    Component: TextWrapper,
+    category: "text",
+    keywords: ["wrap", "text", "lines", "width", "formatting"],
+  },
+  {
+    id: "random-ip-generator",
+    name: "IP Aléatoires",
+    nameEn: "Random IP Generator",
+    icon: Network,
+    description: "Générer une liste d'adresses IPv4 ou IPv6 aléatoires",
+    descriptionEn: "Generate a list of random IPv4 or IPv6 addresses",
+    Component: RandomIPGenerator,
+    category: "dev",
+    keywords: ["ip", "random", "ipv4", "ipv6", "network", "generator"],
+  },
+  {
+    id: "random-date-generator",
+    name: "Dates Aléatoires",
+    nameEn: "Random Date Generator",
+    icon: Calendar,
+    description: "Générer des dates aléatoires dans une plage spécifiée",
+    descriptionEn: "Generate random dates within a specified range",
+    Component: RandomDateGenerator,
+    category: "other",
+    keywords: ["random", "date", "generator", "time", "range"],
   },
 ];
 

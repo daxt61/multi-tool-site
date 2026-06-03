@@ -40,7 +40,7 @@ export function MacAddressGenerator({ initialData, onStateChange }: { initialDat
     return hex;
   }, [format, caseType]);
 
-  const generateMacs = () => {
+  const generateMacs = useCallback(() => {
     const newMacs = [];
     const safeCount = Math.min(Math.max(1, count), 100);
     for (let i = 0; i < safeCount; i++) {
@@ -48,24 +48,25 @@ export function MacAddressGenerator({ initialData, onStateChange }: { initialDat
     }
     setMacs(newMacs);
     setCopiedIndex(null);
-  };
+  }, [count, generateMac]);
 
-  const copyToClipboard = (mac: string, index: number) => {
+  const copyToClipboard = useCallback((mac: string, index: number) => {
     navigator.clipboard.writeText(mac);
     setCopiedIndex(index);
     setTimeout(() => setCopiedIndex(null), 2000);
-  };
+  }, []);
 
-  const copyAll = () => {
+  const copyAll = useCallback(() => {
+    if (macs.length === 0) return;
     navigator.clipboard.writeText(macs.join('\n'));
     setCopiedIndex(-1);
     setTimeout(() => setCopiedIndex(null), 2000);
-  };
+  }, [macs]);
 
-  const handleClear = () => {
+  const handleClear = useCallback(() => {
     setMacs([]);
     setCopiedIndex(null);
-  };
+  }, []);
 
   const handleDownload = useCallback(() => {
     if (macs.length === 0) return;
@@ -79,6 +80,34 @@ export function MacAddressGenerator({ initialData, onStateChange }: { initialDat
     document.body.removeChild(link);
     URL.revokeObjectURL(url);
   }, [macs]);
+
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      const activeElement = document.activeElement;
+      const isInputFocused =
+        activeElement instanceof HTMLInputElement ||
+        activeElement instanceof HTMLTextAreaElement ||
+        activeElement instanceof HTMLSelectElement ||
+        activeElement?.getAttribute("contenteditable") === "true";
+
+      if (isInputFocused) return;
+      if (e.metaKey || e.ctrlKey || e.altKey || e.shiftKey) return;
+
+      if (e.key === "Escape") {
+        e.preventDefault();
+        handleClear();
+      } else if (e.key.toLowerCase() === "c") {
+        e.preventDefault();
+        copyAll();
+      } else if (e.key.toLowerCase() === "r") {
+        e.preventDefault();
+        generateMacs();
+      }
+    };
+
+    window.addEventListener("keydown", handleKeyDown);
+    return () => window.removeEventListener("keydown", handleKeyDown);
+  }, [handleClear, copyAll, generateMacs]);
 
   return (
     <div className="max-w-4xl mx-auto space-y-8">
@@ -118,7 +147,7 @@ export function MacAddressGenerator({ initialData, onStateChange }: { initialDat
 
           <div className="space-y-2">
             <label className="block text-xs font-black uppercase tracking-widest text-slate-400 px-1">
-              Format
+              {t('mac.format')}
             </label>
             <div className="grid grid-cols-2 gap-2">
               {[
@@ -133,7 +162,7 @@ export function MacAddressGenerator({ initialData, onStateChange }: { initialDat
                   className={`px-3 py-2 rounded-xl text-xs font-bold border transition-all ${
                     format === f.id
                       ? 'bg-indigo-600 border-indigo-600 text-white shadow-lg shadow-indigo-600/20'
-                      : 'bg-white dark:bg-slate-800 border-slate-200 dark:border-slate-700 text-slate-600 dark:text-slate-400 hover:border-indigo-500/50'
+                      : 'bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-600 dark:text-slate-400 hover:border-indigo-500/50'
                   }`}
                 >
                   {f.label}
@@ -144,7 +173,7 @@ export function MacAddressGenerator({ initialData, onStateChange }: { initialDat
 
           <div className="space-y-2">
             <label className="block text-xs font-black uppercase tracking-widest text-slate-400 px-1">
-              {t('listcleaner.case', 'Casse')}
+              {t('listcleaner.case')}
             </label>
             <div className="grid grid-cols-2 gap-2">
               {[
@@ -157,7 +186,7 @@ export function MacAddressGenerator({ initialData, onStateChange }: { initialDat
                   className={`px-3 py-2 rounded-xl text-xs font-bold border transition-all ${
                     caseType === c.id
                       ? 'bg-indigo-600 border-indigo-600 text-white shadow-lg shadow-indigo-600/20'
-                      : 'bg-white dark:bg-slate-800 border-slate-200 dark:border-slate-700 text-slate-600 dark:text-slate-400 hover:border-indigo-500/50'
+                      : 'bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-600 dark:text-slate-400 hover:border-indigo-500/50'
                   }`}
                 >
                   {c.label}
@@ -170,9 +199,11 @@ export function MacAddressGenerator({ initialData, onStateChange }: { initialDat
         <button
           onClick={generateMacs}
           className="w-full py-4 bg-indigo-600 text-white rounded-2xl font-bold hover:bg-indigo-700 transition-all active:scale-[0.98] flex items-center justify-center gap-2 shadow-lg shadow-indigo-600/20 focus-visible:ring-2 focus-visible:ring-indigo-500 focus-visible:outline-none group"
+          title={t('random.generate') + ' (R)'}
         >
           <RefreshCw className="w-5 h-5 transition-transform group-hover:rotate-180" />
           {t('random.generate')}
+          <kbd className="hidden sm:inline-flex items-center justify-center w-5 h-5 border border-white/20 rounded text-[10px] font-bold bg-white/10 ml-1">R</kbd>
         </button>
 
         {macs.length > 1 && (
@@ -186,6 +217,11 @@ export function MacAddressGenerator({ initialData, onStateChange }: { initialDat
           >
             {copiedIndex === -1 ? <Check className="w-5 h-5" /> : <Copy className="w-5 h-5" />}
             {copiedIndex === -1 ? t('common.copied') : t('passwordgenerator.copy_all')}
+            <kbd className={`ml-1 hidden sm:inline-flex items-center justify-center w-5 h-5 border rounded text-[10px] font-bold ${
+              copiedIndex === -1
+                ? 'bg-emerald-500/10 border-emerald-500/20 text-emerald-600'
+                : 'bg-slate-100 border-slate-200 text-slate-400'
+            }`}>C</kbd>
           </button>
         )}
       </div>
@@ -222,8 +258,8 @@ export function MacAddressGenerator({ initialData, onStateChange }: { initialDat
             <Network className="w-8 h-8 transition-transform hover:scale-110" />
           </div>
           <div>
-            <h3 className="font-bold text-slate-900 dark:text-white">{t('macgenerator.empty_title', 'Aucune adresse MAC générée')}</h3>
-            <p className="text-slate-500 dark:text-slate-400 text-sm">{t('macgenerator.empty_hint', 'Cliquez sur "Générer" pour créer des adresses MAC aléatoires.')}</p>
+            <h3 className="font-bold text-slate-900 dark:text-white">{t('macgenerator.empty_title')}</h3>
+            <p className="text-slate-500 dark:text-slate-400 text-sm">{t('macgenerator.empty_hint')}</p>
           </div>
         </div>
       )}
@@ -233,9 +269,9 @@ export function MacAddressGenerator({ initialData, onStateChange }: { initialDat
           <Network className="w-5 h-5" />
         </div>
         <div>
-          <p className="font-bold mb-1">{t('macgenerator.about_title', 'À propos des adresses MAC')}</p>
+          <p className="font-bold mb-1">{t('macgenerator.about_title')}</p>
           <p className="opacity-80 leading-relaxed">
-            {t('macgenerator.about_text', 'Une adresse MAC (Media Access Control) est un identifiant unique attribué à une interface réseau pour les communications sur le segment de réseau physique. Ce générateur crée des adresses MAC aléatoires et valides, configurées comme des adresses administrées localement (LAA).')}
+            {t('macgenerator.about_text')}
           </p>
         </div>
       </div>

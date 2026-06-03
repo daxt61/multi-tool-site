@@ -119,6 +119,8 @@ import {
   Box,
   Repeat,
   RotateCw,
+  FolderTree,
+  MonitorPlay,
 } from "lucide-react";
 const AdPlaceholder = lazy(() => import("./components/AdPlaceholder").then(m => ({ default: m.AdPlaceholder })));
 
@@ -356,6 +358,8 @@ const LineNumberAdder = lazy(() => import("./components/LineNumberAdder").then(m
 const TextWrapper = lazy(() => import("./components/TextWrapper").then(m => ({ default: m.TextWrapper })));
 const RandomIPGenerator = lazy(() => import("./components/RandomIPGenerator").then(m => ({ default: m.RandomIPGenerator })));
 const RandomDateGenerator = lazy(() => import("./components/RandomDateGenerator").then(m => ({ default: m.RandomDateGenerator })));
+const ListToTree = lazy(() => import("./components/ListToTree").then(m => ({ default: m.ListToTree })));
+const ScreenRecorder = lazy(() => import("./components/ScreenRecorder").then(m => ({ default: m.ScreenRecorder })));
 
 // ⚡ Bolt Optimization: Pre-calculating tool map and search index for O(1) lookups and faster filtering
 const toolsMap: Record<string, Tool> = {};
@@ -2799,6 +2803,28 @@ const tools: Tool[] = [
     Component: RandomDateGenerator,
     category: "other",
     keywords: ["random", "date", "generator", "time", "range"],
+  },
+  {
+    id: "list-to-tree",
+    name: "Liste en Arbre",
+    nameEn: "List to Tree",
+    icon: FolderTree,
+    description: "Convertir une liste de chemins en arborescence visuelle",
+    descriptionEn: "Convert a list of paths into a visual directory tree",
+    Component: ListToTree,
+    category: "dev",
+    keywords: ["tree", "hierarchy", "paths", "visualize", "structure", "folder"],
+  },
+  {
+    id: "screen-recorder",
+    name: "Enregistreur d'Écran",
+    nameEn: "Screen Recorder",
+    icon: MonitorPlay,
+    description: "Enregistrer votre écran directement dans le navigateur",
+    descriptionEn: "Record your screen directly in the browser",
+    Component: ScreenRecorder,
+    category: "other",
+    keywords: ["record", "video", "capture", "screen", "webm"],
   },
 ];
 

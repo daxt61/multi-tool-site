@@ -5,24 +5,48 @@
 
 /**
  * Returns a cryptographically secure random integer between 0 and max (exclusive).
- * Uses rejection sampling to avoid modulo bias.
+ * Supports ranges up to Number.MAX_SAFE_INTEGER.
+ * Uses rejection sampling with bit-masking to ensure unbiased output and avoid infinite loops.
  */
 export const getSecureRandomInt = (max: number): number => {
-  if (max <= 0) return 0;
+  if (max <= 1) return 0;
 
   if (typeof window === 'undefined' || !window.crypto) {
     return Math.floor(Math.random() * max);
   }
 
-  const array = new Uint32Array(1);
-  const maxUint32 = 0xffffffff;
-  const limit = maxUint32 - (maxUint32 % max);
+  const bigMax = BigInt(max);
 
-  let randomValue;
-  do {
+  // Determine the bit length of max - 1
+  let bitLength = 0;
+  let tempMax = bigMax - 1n;
+  while (tempMax > 0n) {
+    tempMax >>= 1n;
+    bitLength++;
+  }
+
+  // Number of bytes required to represent the bit length
+  const byteLength = Math.ceil(bitLength / 8);
+  // Mask to ensure the random value is within the smallest power of 2 that is >= max
+  const mask = (1n << BigInt(bitLength)) - 1n;
+  const array = new Uint8Array(byteLength);
+
+  // Rejection sampling loop
+  while (true) {
     window.crypto.getRandomValues(array);
-    randomValue = array[0];
-  } while (randomValue >= limit);
 
-  return randomValue % max;
+    // Convert bytes to BigInt
+    let randomValue = 0n;
+    for (let i = 0; i < byteLength; i++) {
+      randomValue = (randomValue << 8n) | BigInt(array[i]);
+    }
+
+    // Apply bitmask
+    randomValue &= mask;
+
+    // Only return if the value is within the requested range
+    if (randomValue < bigMax) {
+      return Number(randomValue);
+    }
+  }
 };

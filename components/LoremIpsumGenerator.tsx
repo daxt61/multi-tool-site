@@ -1,5 +1,6 @@
 import { useState, useMemo, useCallback, useEffect } from 'react';
 import { Copy, Check, RefreshCw, Trash2, Type, Hash } from 'lucide-react';
+import { getSecureRandomInt } from './ui/crypto';
 
 export function LoremIpsumGenerator() {
   const [count, setCount] = useState(3);
@@ -8,18 +9,6 @@ export function LoremIpsumGenerator() {
   const [copied, setCopied] = useState(false);
   const [refreshTrigger, setRefreshTrigger] = useState(0);
 
-  // Sentinel: Use cryptographically secure random values instead of Math.random()
-  const secureRandomInt = (max: number) => {
-    const array = new Uint32Array(1);
-    const maxUint32 = 0xffffffff;
-    const limit = maxUint32 - (maxUint32 % max);
-    let randomValue;
-    do {
-      window.crypto.getRandomValues(array);
-      randomValue = array[0];
-    } while (randomValue >= limit);
-    return randomValue % max;
-  };
 
   const loremWords = [
     'lorem', 'ipsum', 'dolor', 'sit', 'amet', 'consectetur', 'adipiscing', 'elit',
@@ -33,16 +22,16 @@ export function LoremIpsumGenerator() {
   ];
 
   const generateSentence = () => {
-    const length = secureRandomInt(10) + 8;
+    const length = getSecureRandomInt(10) + 8;
     const words = [];
     for (let i = 0; i < length; i++) {
-      words.push(loremWords[secureRandomInt(loremWords.length)]);
+      words.push(loremWords[getSecureRandomInt(loremWords.length)]);
     }
     return words.join(' ').charAt(0).toUpperCase() + words.join(' ').slice(1) + '.';
   };
 
   const generateParagraph = () => {
-    const sentenceCount = secureRandomInt(4) + 4;
+    const sentenceCount = getSecureRandomInt(4) + 4;
     const sentences = [];
     for (let i = 0; i < sentenceCount; i++) {
       sentences.push(generateSentence());
@@ -56,7 +45,7 @@ export function LoremIpsumGenerator() {
       if (type === 'words') {
         const words = [];
         for (let i = 0; i < count; i++) {
-          words.push(loremWords[secureRandomInt(loremWords.length)]);
+          words.push(loremWords[getSecureRandomInt(loremWords.length)]);
         }
         return words.join(' ');
       } else if (type === 'sentences') {

@@ -356,6 +356,9 @@ const LineNumberAdder = lazy(() => import("./components/LineNumberAdder").then(m
 const TextWrapper = lazy(() => import("./components/TextWrapper").then(m => ({ default: m.TextWrapper })));
 const RandomIPGenerator = lazy(() => import("./components/RandomIPGenerator").then(m => ({ default: m.RandomIPGenerator })));
 const RandomDateGenerator = lazy(() => import("./components/RandomDateGenerator").then(m => ({ default: m.RandomDateGenerator })));
+const ColorBlindnessSimulator = lazy(() => import("./components/ColorBlindnessSimulator").then(m => ({ default: m.ColorBlindnessSimulator })));
+const ListToTree = lazy(() => import("./components/ListToTree").then(m => ({ default: m.ListToTree })));
+const ScreenRecorder = lazy(() => import("./components/ScreenRecorder").then(m => ({ default: m.ScreenRecorder })));
 
 // ⚡ Bolt Optimization: Pre-calculating tool map and search index for O(1) lookups and faster filtering
 const toolsMap: Record<string, Tool> = {};
@@ -2799,6 +2802,39 @@ const tools: Tool[] = [
     Component: RandomDateGenerator,
     category: "other",
     keywords: ["random", "date", "generator", "time", "range"],
+  },
+  {
+    id: "color-blindness",
+    name: "Simulateur Daltonisme",
+    nameEn: "Color Blindness Simulator",
+    icon: Eye,
+    description: "Visualiser des images avec différents types de daltonisme",
+    descriptionEn: "Visualize images with different types of color blindness",
+    Component: ColorBlindnessSimulator,
+    category: "other",
+    keywords: ["color", "blind", "vision", "accessibility", "simulator", "daltonisme"],
+  },
+  {
+    id: "list-to-tree",
+    name: "Liste vers Arbre",
+    nameEn: "List to Tree",
+    icon: Network,
+    description: "Convertir une liste de chemins en structure arborescente ASCII",
+    descriptionEn: "Convert a list of paths into an ASCII tree structure",
+    Component: ListToTree,
+    category: "dev",
+    keywords: ["tree", "ascii", "path", "folders", "documentation", "structure"],
+  },
+  {
+    id: "screen-recorder",
+    name: "Enregistreur d'Écran",
+    nameEn: "Screen Recorder",
+    icon: Monitor,
+    description: "Enregistrer votre écran ou une fenêtre directement depuis le navigateur",
+    descriptionEn: "Record your screen or a window directly from the browser",
+    Component: ScreenRecorder,
+    category: "other",
+    keywords: ["screen", "record", "video", "capture", "demo", "streaming"],
   },
 ];
 

@@ -1,5 +1,6 @@
-import { useState, useEffect } from 'react';
-import { Signal, Copy, Check, Trash2, Info, AlertCircle } from 'lucide-react';
+import { useState, useEffect, useRef } from 'react';
+import { Signal, Copy, Check, Trash2, Info, AlertCircle, Play, Square, Volume2 } from 'lucide-react';
+import { useTranslation } from 'react-i18next';
 
 const MAX_LENGTH = 100000;
 
@@ -25,8 +26,11 @@ const REVERSE_MORSE: Record<string, string> = Object.entries(MORSE_CODE).reduce(
 );
 
 export function MorseCodeConverter({ initialData, onStateChange }: { initialData?: any; onStateChange?: (state: any) => void }) {
+  const { t } = useTranslation();
   const [text, setText] = useState(initialData?.text || '');
   const [morse, setMorse] = useState(initialData?.morse || '');
+  const [isPlaying, setIsPlaying] = useState(false);
+  const isPlayingRef = useRef(false);
 
   useEffect(() => {
     onStateChange?.({ text, morse });
@@ -34,12 +38,68 @@ export function MorseCodeConverter({ initialData, onStateChange }: { initialData
   const [copied, setCopied] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
+  const togglePlay = async () => {
+    if (isPlaying) {
+      isPlayingRef.current = false;
+      setIsPlaying(false);
+      return;
+    }
+
+    if (!morse.trim()) return;
+
+    setIsPlaying(true);
+    isPlayingRef.current = true;
+
+    const audioCtx = new (window.AudioContext || (window as any).webkitAudioContext)();
+    const dot = 0.1;
+    const freq = 600;
+
+    const playTone = (duration: number, time: number) => {
+      const osc = audioCtx.createOscillator();
+      const gain = audioCtx.createGain();
+      osc.type = 'sine';
+      osc.frequency.setValueAtTime(freq, time);
+      gain.gain.setValueAtTime(0, time);
+      gain.gain.linearRampToValueAtTime(0.1, time + 0.01);
+      gain.gain.setValueAtTime(0.1, time + duration - 0.01);
+      gain.gain.linearRampToValueAtTime(0, time + duration);
+      osc.connect(gain);
+      gain.connect(audioCtx.destination);
+      osc.start(time);
+      osc.stop(time + duration);
+    };
+
+    let time = audioCtx.currentTime + 0.1;
+    const parts = morse.split('');
+
+    for (let i = 0; i < parts.length; i++) {
+      if (!isPlayingRef.current) break;
+      const char = parts[i];
+      if (char === '.') {
+        playTone(dot, time);
+        time += dot * 2;
+      } else if (char === '-') {
+        playTone(dot * 3, time);
+        time += dot * 4;
+      } else if (char === ' ') {
+        time += dot * 2;
+      } else if (char === '/') {
+        time += dot * 4;
+      }
+    }
+
+    const totalDuration = (time - audioCtx.currentTime) * 1000;
+    setTimeout(() => {
+      setIsPlaying(false);
+      isPlayingRef.current = false;
+      audioCtx.close();
+    }, totalDuration);
+  };
+
   const encode = (input: string) => {
     setText(input);
-    // Sentinel: Implement input length limit to mitigate client-side Denial of Service (DoS)
-    // by preventing expensive string operations on excessively large inputs.
     if (input.length > MAX_LENGTH) {
-      setError(`L'entrée est trop longue. Limite de ${MAX_LENGTH.toLocaleString()} caractères.`);
+      setError(t('error.max_length', { max: MAX_LENGTH.toLocaleString() }));
       return;
     }
     setError(null);
@@ -49,9 +109,8 @@ export function MorseCodeConverter({ initialData, onStateChange }: { initialData
 
   const decode = (input: string) => {
     setMorse(input);
-    // Sentinel: Implement input length limit to mitigate client-side Denial of Service (DoS).
     if (input.length > MAX_LENGTH) {
-      setError(`L'entrée est trop longue. Limite de ${MAX_LENGTH.toLocaleString()} caractères.`);
+      setError(t('error.max_length', { max: MAX_LENGTH.toLocaleString() }));
       return;
     }
     setError(null);
@@ -85,7 +144,7 @@ export function MorseCodeConverter({ initialData, onStateChange }: { initialData
         <div className="space-y-4">
           <div className="flex justify-between items-center px-1">
             <label htmlFor="normal-text" className="text-xs font-black uppercase tracking-widest text-slate-400 cursor-pointer">
-              Texte Normal
+              {t('morse.normal_text', 'Texte Normal')}
             </label>
             <button
               onClick={handleClear}
@@ -109,21 +168,35 @@ export function MorseCodeConverter({ initialData, onStateChange }: { initialData
         <div className="space-y-4">
           <div className="flex justify-between items-center px-1">
             <label htmlFor="morse-text" className="text-xs font-black uppercase tracking-widest text-slate-400 cursor-pointer">
-              Code Morse (. et -)
+              {t('morse.morse_text', 'Code Morse (. et -)')}
             </label>
-            <button
-              onClick={handleCopy}
-              disabled={!morse}
-              className={`text-xs font-bold px-3 py-1 rounded-full transition-all flex items-center gap-1 ${
-                copied
-                  ? 'bg-emerald-50 dark:bg-emerald-500/10 text-emerald-600 dark:text-emerald-400'
-                  : 'text-indigo-500 bg-indigo-50 dark:bg-indigo-500/10 hover:bg-indigo-100 dark:hover:bg-indigo-500/20'
-              } disabled:opacity-50 disabled:cursor-not-allowed`}
-              aria-label="Copier le code Morse"
-            >
-              {copied ? <Check className="w-3 h-3" /> : <Copy className="w-3 h-3" />}
-              {copied ? 'Copié' : 'Copier'}
-            </button>
+            <div className="flex gap-2">
+              <button
+                onClick={togglePlay}
+                disabled={!morse}
+                className={`text-xs font-bold px-3 py-1 rounded-full transition-all flex items-center gap-1 ${
+                  isPlaying
+                    ? 'bg-rose-500 text-white shadow-lg shadow-rose-500/20'
+                    : 'text-indigo-500 bg-indigo-50 dark:bg-indigo-500/10 hover:bg-indigo-100'
+                } disabled:opacity-50 disabled:cursor-not-allowed`}
+              >
+                {isPlaying ? <Square className="w-3 h-3 fill-current" /> : <Volume2 className="w-3 h-3" />}
+                {isPlaying ? t('common.stop', 'Arrêter') : t('common.play', 'Écouter')}
+              </button>
+              <button
+                onClick={handleCopy}
+                disabled={!morse}
+                className={`text-xs font-bold px-3 py-1 rounded-full transition-all flex items-center gap-1 ${
+                  copied
+                    ? 'bg-emerald-50 dark:bg-emerald-500/10 text-emerald-600 dark:text-emerald-400'
+                    : 'text-indigo-500 bg-indigo-50 dark:bg-indigo-500/10 hover:bg-indigo-100'
+                } disabled:opacity-50 disabled:cursor-not-allowed`}
+                aria-label="Copier le code Morse"
+              >
+                {copied ? <Check className="w-3 h-3" /> : <Copy className="w-3 h-3" />}
+                {copied ? t('common.copied') : t('common.copy')}
+              </button>
+            </div>
           </div>
           <textarea
             id="morse-text"

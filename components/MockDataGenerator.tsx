@@ -1,5 +1,6 @@
 import { useState, useCallback, useMemo, useEffect } from 'react';
 import { Copy, Check, Trash2, RefreshCw, FileCode, FileSpreadsheet, Download, Settings2, Table } from 'lucide-react';
+import { getSecureRandomInt } from './ui/crypto';
 
 const FIRST_NAMES = ['Jean', 'Marie', 'Pierre', 'Anne', 'Thomas', 'Julie', 'Nicolas', 'Léa', 'Julien', 'Sarah', 'Benoît', 'Chloé', 'David', 'Emma', 'Éric', 'Inès', 'Hugo', 'Jade', 'Léo', 'Manon'];
 const LAST_NAMES = ['Martin', 'Bernard', 'Thomas', 'Petit', 'Robert', 'Richard', 'Durand', 'Dubois', 'Moreau', 'Laurent', 'Simon', 'Michel', 'Lefebvre', 'Leroy', 'Roux', 'David', 'Bertrand', 'Morel', 'Fournier', 'Girard'];
@@ -18,36 +19,20 @@ export function MockDataGenerator({ initialData, onStateChange }: { initialData?
     onStateChange?.({ count, format });
   }, [count, format]);
 
-  // Sentinel: Use cryptographically secure random values instead of Math.random()
-  const secureRandomInt = useCallback((max: number) => {
-    if (typeof window === 'undefined' || !window.crypto) {
-      return Math.floor(Math.random() * max);
-    }
-    const array = new Uint32Array(1);
-    const maxUint32 = 0xffffffff;
-    const limit = maxUint32 - (maxUint32 % max);
-    let randomValue;
-    do {
-      window.crypto.getRandomValues(array);
-      randomValue = array[0];
-    } while (randomValue >= limit);
-    return randomValue % max;
-  }, []);
-
   const generateData = useCallback(() => {
     const newData = [];
     for (let i = 0; i < count; i++) {
-      const firstName = FIRST_NAMES[secureRandomInt(FIRST_NAMES.length)];
-      const lastName = LAST_NAMES[secureRandomInt(LAST_NAMES.length)];
+      const firstName = FIRST_NAMES[getSecureRandomInt(FIRST_NAMES.length)];
+      const lastName = LAST_NAMES[getSecureRandomInt(LAST_NAMES.length)];
       newData.push({
         id: i + 1,
         prenom: firstName,
         nom: lastName,
-        email: `${firstName.toLowerCase()}.${lastName.toLowerCase()}@${DOMAINS[secureRandomInt(DOMAINS.length)]}`,
-        telephone: `0${secureRandomInt(9) + 1}${secureRandomInt(100000000).toString().padStart(8, '0')}`,
-        entreprise: COMPANIES[secureRandomInt(COMPANIES.length)],
-        ville: CITIES[secureRandomInt(CITIES.length)],
-        pays: COUNTRIES[secureRandomInt(COUNTRIES.length)],
+        email: `${firstName.toLowerCase()}.${lastName.toLowerCase()}@${DOMAINS[getSecureRandomInt(DOMAINS.length)]}`,
+        telephone: `0${getSecureRandomInt(9) + 1}${getSecureRandomInt(100000000).toString().padStart(8, '0')}`,
+        entreprise: COMPANIES[getSecureRandomInt(COMPANIES.length)],
+        ville: CITIES[getSecureRandomInt(CITIES.length)],
+        pays: COUNTRIES[getSecureRandomInt(COUNTRIES.length)],
       });
     }
     setGeneratedData(newData);

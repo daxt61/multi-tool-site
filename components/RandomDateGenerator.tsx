@@ -39,13 +39,7 @@ export function RandomDateGenerator({ initialData, onStateChange }: { initialDat
     const range = end - start;
     const limit = Math.max(1, Math.min(1000, count));
     const newDates = Array.from({ length: limit }, () => {
-      // getSecureRandomInt handles values up to 2^32. For larger ranges (timestamps),
-      // we might need multiple calls or a different approach, but for most date ranges
-      // 2^32 milliseconds (~49 days) is not enough.
-      // However, start/end range for human dates is usually manageable.
-      // Let's use a simpler safe random for very large ranges if needed,
-      // but for this utility we'll scale getSecureRandomInt.
-      const randomMs = Math.floor(Math.random() * (range + 1));
+      const randomMs = getSecureRandomInt(range + 1);
       return formatDate(new Date(start + randomMs), format);
     });
 

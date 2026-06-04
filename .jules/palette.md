@@ -29,3 +29,7 @@
 ## 2026-06-01 - [Interactive Groups & Focus Visibility]
 **Learning:** For utility buttons inside a `group` (like Copy/Download on a result card), using `group-hover:opacity-100` only covers mouse users. `focus-within:opacity-100` on the group container ensures the buttons become and stay visible when any button inside the group receives keyboard focus.
 **Action:** Always use `group-hover:opacity-100 focus-within:opacity-100` for toolbars that should be revealed on interaction.
+
+## 2025-06-30 - [Tab Roles & Live Regions for Password Security]
+**Learning:** Mode selectors that switch between different generation logic (like Random vs. Passphrase) should follow ARIA tab patterns (`role="tablist"`, `role="tab"`) for clear navigation. Dynamic security indicators (strength bars) benefit from `aria-live="polite"` to provide immediate feedback to screen reader users as they modify settings.
+**Action:** Use standard ARIA tab roles for mutually exclusive configuration modes. Implement live regions for real-time status indicators in security-sensitive tools.

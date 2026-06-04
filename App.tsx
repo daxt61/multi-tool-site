@@ -360,6 +360,11 @@ const RandomIPGenerator = lazy(() => import("./components/RandomIPGenerator").th
 const RandomDateGenerator = lazy(() => import("./components/RandomDateGenerator").then(m => ({ default: m.RandomDateGenerator })));
 const ListToTree = lazy(() => import("./components/ListToTree").then(m => ({ default: m.ListToTree })));
 const ScreenRecorder = lazy(() => import("./components/ScreenRecorder").then(m => ({ default: m.ScreenRecorder })));
+const HexToImage = lazy(() => import("./components/HexToImage").then(m => ({ default: m.HexToImage })));
+const FractalTree = lazy(() => import("./components/FractalTree").then(m => ({ default: m.FractalTree })));
+const UnicodeNormalizer = lazy(() => import("./components/UnicodeNormalizer").then(m => ({ default: m.UnicodeNormalizer })));
+const IntegerPairGenerator = lazy(() => import("./components/IntegerPairGenerator").then(m => ({ default: m.IntegerPairGenerator })));
+const BinaryReverser = lazy(() => import("./components/BinaryReverser").then(m => ({ default: m.BinaryReverser })));
 
 // ⚡ Bolt Optimization: Pre-calculating tool map and search index for O(1) lookups and faster filtering
 const toolsMap: Record<string, Tool> = {};
@@ -2825,6 +2830,61 @@ const tools: Tool[] = [
     Component: ScreenRecorder,
     category: "other",
     keywords: ["record", "video", "capture", "screen", "webm"],
+  },
+  {
+    id: "hex-to-image",
+    name: "Hex en Image",
+    nameEn: "Hex to Image",
+    icon: ImageIcon,
+    description: "Convertir des octets hexadécimaux en image (pixels)",
+    descriptionEn: "Convert hexadecimal bytes into an image (pixels)",
+    Component: HexToImage,
+    category: "converters",
+    keywords: ["hex", "binary", "image", "pixels", "visualize", "data"],
+  },
+  {
+    id: "fractal-tree",
+    name: "Arbre Fractal",
+    nameEn: "Fractal Tree",
+    icon: Sparkles,
+    description: "Générateur interactif d'arbres fractals récursifs",
+    descriptionEn: "Interactive recursive fractal tree generator",
+    Component: FractalTree,
+    category: "calculators",
+    keywords: ["fractal", "tree", "recursive", "math", "art", "procedural"],
+  },
+  {
+    id: "unicode-normalizer",
+    name: "Normaliseur Unicode",
+    nameEn: "Unicode Normalizer",
+    icon: Type,
+    description: "Convertir du texte stylisé (Unicode) en texte brut ASCII",
+    descriptionEn: "Convert stylized Unicode text back to plain ASCII text",
+    Component: UnicodeNormalizer,
+    category: "text",
+    keywords: ["unicode", "normalize", "fancy text", "clean", "ascii"],
+  },
+  {
+    id: "integer-pair-generator",
+    name: "Paires d'Entiers",
+    nameEn: "Integer Pair Generator",
+    icon: Hash,
+    description: "Générer des paires de coordonnées (x, y) aléatoires",
+    descriptionEn: "Generate random integer coordinate pairs (x, y)",
+    Component: IntegerPairGenerator,
+    category: "calculators",
+    keywords: ["random", "integer", "pairs", "coordinates", "points", "math"],
+  },
+  {
+    id: "binary-reverser",
+    name: "Inverseur Binaire",
+    nameEn: "Binary Reverser",
+    icon: Binary,
+    description: "Inverser l'ordre des bits dans un nombre binaire",
+    descriptionEn: "Reverse the order of bits in a binary number",
+    Component: BinaryReverser,
+    category: "dev",
+    keywords: ["binary", "reverse", "bits", "alignment", "padding"],
   },
 ];
 

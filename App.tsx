@@ -360,6 +360,8 @@ const RandomIPGenerator = lazy(() => import("./components/RandomIPGenerator").th
 const RandomDateGenerator = lazy(() => import("./components/RandomDateGenerator").then(m => ({ default: m.RandomDateGenerator })));
 const ListToTree = lazy(() => import("./components/ListToTree").then(m => ({ default: m.ListToTree })));
 const ScreenRecorder = lazy(() => import("./components/ScreenRecorder").then(m => ({ default: m.ScreenRecorder })));
+const ColorBlindnessSimulator = lazy(() => import("./components/ColorBlindnessSimulator").then(m => ({ default: m.ColorBlindnessSimulator })));
+const BackdropFilterGenerator = lazy(() => import("./components/BackdropFilterGenerator").then(m => ({ default: m.BackdropFilterGenerator })));
 const HexToImage = lazy(() => import("./components/HexToImage").then(m => ({ default: m.HexToImage })));
 const FractalTree = lazy(() => import("./components/FractalTree").then(m => ({ default: m.FractalTree })));
 const UnicodeNormalizer = lazy(() => import("./components/UnicodeNormalizer").then(m => ({ default: m.UnicodeNormalizer })));
@@ -2885,6 +2887,28 @@ const tools: Tool[] = [
     Component: BinaryReverser,
     category: "dev",
     keywords: ["binary", "reverse", "bits", "alignment", "padding"],
+  },
+  {
+    id: "color-blindness",
+    name: "Simulateur de Daltonisme",
+    nameEn: "Color Blindness Simulator",
+    icon: Eye,
+    description: "Simulez l'apparence des images pour différents types de déficiences visuelles",
+    descriptionEn: "Simulate how images look for different types of color vision deficiency",
+    Component: ColorBlindnessSimulator,
+    category: "other",
+    keywords: ["color", "blindness", "accessibility", "simulation", "vision", "daltonisme"],
+  },
+  {
+    id: "backdrop-filter",
+    name: "Générateur Backdrop Filter",
+    nameEn: "Backdrop Filter Generator",
+    icon: Layers,
+    description: "Générateur visuel d'effets CSS backdrop-filter",
+    descriptionEn: "Visual generator for CSS backdrop-filter effects",
+    Component: BackdropFilterGenerator,
+    category: "dev",
+    keywords: ["css", "filter", "backdrop", "glassmorphism", "blur", "design"],
   },
 ];
 

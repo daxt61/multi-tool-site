@@ -36,7 +36,8 @@ const WORDS_EN = [
 export function PasswordGenerator({ initialData, onStateChange }: { initialData?: any; onStateChange?: (state: any) => void }) {
   const { t, i18n } = useTranslation();
   const [mode, setMode] = useState<'random' | 'passphrase'>(initialData?.mode || 'random');
-  const [password, setPassword] = useState('');
+  const [passwords, setPasswords] = useState<string[]>([]);
+  const [quantity, setQuantity] = useState(initialData?.quantity || 1);
   const [length, setLength] = useState(initialData?.length || 16);
   const [wordCount, setWordCount] = useState(initialData?.wordCount || 4);
   const [capitalizeWords, setCapitalizeWords] = useState(initialData?.capitalizeWords ?? false);
@@ -54,52 +55,56 @@ export function PasswordGenerator({ initialData, onStateChange }: { initialData?
   const [history, setHistory] = useState<string[]>([]);
 
   const generatePassword = useCallback(() => {
-    if (mode === 'random') {
-      let charset = '';
-      if (includeUppercase) charset += 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
-      if (includeLowercase) charset += 'abcdefghijklmnopqrstuvwxyz';
-      if (includeNumbers) charset += '0123456789';
-      if (includeSymbols) charset += '!@#$%^&*()_+-=[]{}|;:,.<>?';
+    const newPasswords: string[] = [];
+    const wordList = i18n.language === 'en' ? WORDS_EN : WORDS_FR;
 
-      if (excludeSimilar) {
-        charset = charset.replace(/[il1Lo0O]/g, '');
-      }
+    for (let q = 0; q < quantity; q++) {
+      if (mode === 'random') {
+        let charset = '';
+        if (includeUppercase) charset += 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
+        if (includeLowercase) charset += 'abcdefghijklmnopqrstuvwxyz';
+        if (includeNumbers) charset += '0123456789';
+        if (includeSymbols) charset += '!@#$%^&*()_+-=[]{}|;:,.<>?';
 
-      if (charset === '') {
-        setPassword('');
-        return;
-      }
-
-      let newPassword = '';
-      for (let i = 0; i < length; i++) {
-        newPassword += charset.charAt(getSecureRandomInt(charset.length));
-      }
-      setPassword(newPassword);
-      setHistory(prev => [newPassword, ...prev].slice(0, 5));
-    } else {
-      const selectedWords = [];
-      const wordList = i18n.language === 'en' ? WORDS_EN : WORDS_FR;
-      for (let i = 0; i < wordCount; i++) {
-        let word = wordList[getSecureRandomInt(wordList.length)];
-        if (capitalizeWords) {
-          word = word.charAt(0).toUpperCase() + word.slice(1);
+        if (excludeSimilar) {
+          charset = charset.replace(/[il1Lo0O]/g, '');
         }
-        selectedWords.push(word);
-      }
 
-      let res = selectedWords.join('-');
-      if (addNumber) {
-        res += getSecureRandomInt(10);
+        if (charset === '') {
+          setPasswords([]);
+          return;
+        }
+
+        let newPassword = '';
+        for (let i = 0; i < length; i++) {
+          newPassword += charset.charAt(getSecureRandomInt(charset.length));
+        }
+        newPasswords.push(newPassword);
+      } else {
+        const selectedWords = [];
+        for (let i = 0; i < wordCount; i++) {
+          let word = wordList[getSecureRandomInt(wordList.length)];
+          if (capitalizeWords) {
+            word = word.charAt(0).toUpperCase() + word.slice(1);
+          }
+          selectedWords.push(word);
+        }
+
+        let res = selectedWords.join('-');
+        if (addNumber) {
+          res += getSecureRandomInt(10);
+        }
+        if (addSymbol) {
+          const symbols = '!@#$%^&*';
+          res += symbols.charAt(getSecureRandomInt(symbols.length));
+        }
+        newPasswords.push(res);
       }
-      if (addSymbol) {
-        const symbols = '!@#$%^&*';
-        res += symbols.charAt(getSecureRandomInt(symbols.length));
-      }
-      setPassword(res);
-      setHistory(prev => [res, ...prev].slice(0, 5));
     }
+    setPasswords(newPasswords);
+    setHistory(prev => [...newPasswords, ...prev].slice(0, 10));
     setCopied(false);
-  }, [mode, includeUppercase, includeLowercase, includeNumbers, includeSymbols, excludeSimilar, length, wordCount, capitalizeWords, addNumber, addSymbol, i18n.language]);
+  }, [mode, quantity, includeUppercase, includeLowercase, includeNumbers, includeSymbols, excludeSimilar, length, wordCount, capitalizeWords, addNumber, addSymbol, i18n.language]);
 
   useEffect(() => {
     generatePassword();
@@ -107,20 +112,23 @@ export function PasswordGenerator({ initialData, onStateChange }: { initialData?
 
   useEffect(() => {
     onStateChange?.({
-      mode, length, wordCount, capitalizeWords, addNumber, addSymbol,
+      mode, quantity, length, wordCount, capitalizeWords, addNumber, addSymbol,
       includeUppercase, includeLowercase, includeNumbers, includeSymbols, excludeSimilar
     });
-  }, [mode, length, wordCount, capitalizeWords, addNumber, addSymbol, includeUppercase, includeLowercase, includeNumbers, includeSymbols, excludeSimilar, onStateChange]);
+  }, [mode, quantity, length, wordCount, capitalizeWords, addNumber, addSymbol, includeUppercase, includeLowercase, includeNumbers, includeSymbols, excludeSimilar, onStateChange]);
 
-  const copyToClipboard = useCallback(() => {
-    if (!password) return;
-    navigator.clipboard.writeText(password);
-    setCopied(true);
-    setTimeout(() => setCopied(false), 2000);
-  }, [password]);
+  const copyToClipboard = useCallback((text?: string) => {
+    const toCopy = text || passwords[0];
+    if (!toCopy) return;
+    navigator.clipboard.writeText(toCopy);
+    if (!text) {
+      setCopied(true);
+      setTimeout(() => setCopied(false), 2000);
+    }
+  }, [passwords]);
 
-  const entropy = useMemo(() => {
-    if (!password) return 0;
+  const calculateEntropy = useCallback((pwd: string) => {
+    if (!pwd) return 0;
     let charsetSize = 0;
     if (mode === 'random') {
       if (includeUppercase) charsetSize += 26;
@@ -128,28 +136,26 @@ export function PasswordGenerator({ initialData, onStateChange }: { initialData?
       if (includeNumbers) charsetSize += 10;
       if (includeSymbols) charsetSize += 26;
       if (excludeSimilar) charsetSize -= 7;
-      return Math.floor(password.length * Math.log2(Math.max(charsetSize, 1)));
+      return Math.floor(pwd.length * Math.log2(Math.max(charsetSize, 1)));
     } else {
-      // Passphrase entropy: log2(wordlist_size ^ word_count)
       const wordListSize = i18n.language === 'en' ? WORDS_EN.length : WORDS_FR.length;
       const baseEntropy = wordCount * Math.log2(wordListSize);
       const extraEntropy = (addNumber ? Math.log2(10) : 0) + (addSymbol ? Math.log2(8) : 0);
       return Math.floor(baseEntropy + extraEntropy);
     }
-  }, [password, mode, includeUppercase, includeLowercase, includeNumbers, includeSymbols, excludeSimilar, wordCount, addNumber, addSymbol, i18n.language]);
+  }, [mode, includeUppercase, includeLowercase, includeNumbers, includeSymbols, excludeSimilar, wordCount, addNumber, addSymbol, i18n.language]);
 
-  const strength = useMemo(() => {
-    if (!password) return { label: '', color: 'bg-slate-200', icon: <ShieldAlert />, feedback: '' };
-
+  const getStrength = useCallback((entropy: number) => {
+    if (entropy === 0) return { label: '', color: 'bg-slate-200', icon: <ShieldAlert />, feedback: '' };
     if (entropy < 40) return { label: t('passwordgenerator.strength.very_weak'), color: 'bg-rose-600', icon: <ShieldAlert className="w-4 h-4" />, feedback: t('passwordgenerator.feedback.very_weak') };
     if (entropy < 60) return { label: t('passwordgenerator.strength.weak'), color: 'bg-rose-400', icon: <ShieldAlert className="w-4 h-4" />, feedback: t('passwordgenerator.feedback.weak') };
     if (entropy < 80) return { label: t('passwordgenerator.strength.medium'), color: 'bg-amber-500', icon: <Shield className="w-4 h-4" />, feedback: t('passwordgenerator.feedback.medium') };
     if (entropy < 100) return { label: t('passwordgenerator.strength.strong'), color: 'bg-emerald-500', icon: <ShieldCheck className="w-4 h-4" />, feedback: t('passwordgenerator.feedback.strong') };
     return { label: t('passwordgenerator.strength.excellent'), color: 'bg-indigo-600', icon: <ShieldCheck className="w-4 h-4" />, feedback: t('passwordgenerator.feedback.excellent') };
-  }, [password, entropy, t]);
+  }, [t]);
 
   const handleClear = () => {
-    setPassword('');
+    setPasswords([]);
     setHistory([]);
   };
 
@@ -167,12 +173,12 @@ export function PasswordGenerator({ initialData, onStateChange }: { initialData?
   };
 
   const handleDownload = () => {
-    if (!password) return;
-    const blob = new Blob([password], { type: 'text/plain' });
+    if (passwords.length === 0) return;
+    const blob = new Blob([passwords.join('\n')], { type: 'text/plain' });
     const url = URL.createObjectURL(blob);
     const link = document.createElement('a');
     link.href = url;
-    link.download = `mot-de-passe-${Date.now()}.txt`;
+    link.download = `mots-de-passe-${Date.now()}.txt`;
     link.click();
     URL.revokeObjectURL(url);
   };
@@ -205,15 +211,22 @@ export function PasswordGenerator({ initialData, onStateChange }: { initialData?
     <div className="max-w-4xl mx-auto space-y-8">
       <div className="flex justify-end items-center gap-2 px-1">
         <button
+          onClick={() => copyToClipboard(passwords.join('\n'))}
+          disabled={passwords.length === 0}
+          className="text-xs font-bold text-indigo-600 bg-indigo-50 dark:bg-indigo-500/10 hover:bg-indigo-100 dark:hover:bg-indigo-500/20 px-3 py-1.5 rounded-xl flex items-center gap-1 transition-all disabled:opacity-50 disabled:cursor-not-allowed focus-visible:ring-2 focus-visible:ring-indigo-500 focus-visible:outline-none"
+        >
+          <Copy className="w-3 h-3" /> {t('passwordgenerator.copy_all')}
+        </button>
+        <button
           onClick={handleDownload}
-          disabled={!password}
+          disabled={passwords.length === 0}
           className="text-xs font-bold text-indigo-600 bg-indigo-50 dark:bg-indigo-500/10 hover:bg-indigo-100 dark:hover:bg-indigo-500/20 px-3 py-1.5 rounded-xl flex items-center gap-1 transition-all disabled:opacity-50 disabled:cursor-not-allowed focus-visible:ring-2 focus-visible:ring-indigo-500 focus-visible:outline-none"
         >
           <Download className="w-3 h-3" /> {t('common.download')}
         </button>
         <button
           onClick={handleClear}
-          disabled={!password}
+          disabled={passwords.length === 0}
           className="text-xs font-bold text-rose-500 bg-rose-50 dark:bg-rose-500/10 hover:bg-rose-100 dark:hover:bg-rose-500/20 px-3 py-1.5 rounded-xl flex items-center gap-1 transition-all disabled:opacity-50 disabled:cursor-not-allowed focus-visible:ring-2 focus-visible:ring-rose-500 focus-visible:outline-none"
         >
           <Trash2 className="w-3 h-3" /> {t('common.clear')}
@@ -248,97 +261,79 @@ export function PasswordGenerator({ initialData, onStateChange }: { initialData?
 
       {/* Display Area */}
       <div className="bg-slate-900 dark:bg-black p-8 md:p-12 rounded-[2.5rem] shadow-xl shadow-indigo-500/5 relative overflow-hidden group">
-        <div className="flex flex-col md:flex-row items-center gap-8 relative z-10">
-          <div className="flex-1 relative w-full">
-            <input
-              type={showPassword ? "text" : "password"}
-              value={password}
-              readOnly
-              id="password-output"
-              className={`w-full bg-transparent font-mono text-white outline-none tracking-tight text-center md:text-left selection:bg-indigo-500/30 ${
-                password.length > 30 ? 'text-2xl md:text-3xl' : 'text-3xl md:text-5xl'
-              } ${!showPassword ? 'text-transparent' : ''}`}
-            />
-            {!showPassword && password && (
-              <div className="absolute inset-y-0 left-0 right-0 pointer-events-none flex items-center justify-center md:justify-start">
-                 <div className="flex gap-1">
-                   {[...Array(Math.min(password.length, 12))].map((_, i) => (
-                     <div key={i} className="w-2 h-2 rounded-full bg-white/20" />
-                   ))}
-                   {password.length > 12 && <span className="text-white/20 font-mono text-xl leading-none">...</span>}
-                 </div>
-              </div>
-            )}
-          </div>
-          <div className="flex gap-3">
-            <button
-              onClick={() => setShowPassword(!showPassword)}
-              className="p-4 bg-white/10 hover:bg-white/20 text-white rounded-2xl transition-all active:scale-95 focus-visible:ring-2 focus-visible:ring-indigo-500 focus-visible:outline-none flex items-center gap-2"
-              title={showPassword ? `${t('passwordgenerator.hide')} (V)` : `${t('passwordgenerator.show')} (V)`}
-              aria-label={showPassword ? `${t('passwordgenerator.hide_aria')} (V)` : `${t('passwordgenerator.show_aria')} (V)`}
-            >
-              {showPassword ? <EyeOff className="w-6 h-6" /> : <Eye className="w-6 h-6" />}
-              <kbd className="hidden sm:inline-flex items-center justify-center w-5 h-5 border border-white/20 rounded text-[10px] font-bold bg-white/5 text-white/50">V</kbd>
-            </button>
-            <button
-              onClick={generatePassword}
-              className="p-4 bg-white/10 hover:bg-white/20 text-white rounded-2xl transition-all active:scale-95 focus-visible:ring-2 focus-visible:ring-indigo-500 focus-visible:outline-none group/regen flex items-center gap-2"
-              title={`${t('passwordgenerator.regenerate')} (R)`}
-              aria-label={`${t('passwordgenerator.regenerate_aria')} (R)`}
-            >
-              <RefreshCw className="w-6 h-6 transition-transform duration-500 group-hover/regen:rotate-180" />
-              <kbd className="hidden sm:inline-flex items-center justify-center w-5 h-5 border border-white/20 rounded text-[10px] font-bold bg-white/5 text-white/50">R</kbd>
-            </button>
-            <button
-              onClick={copyToClipboard}
-              className={`px-8 py-4 rounded-2xl transition-all active:scale-95 flex items-center gap-2 font-black text-lg border focus-visible:ring-2 focus-visible:ring-indigo-500 focus-visible:outline-none ${
-                copied
-                  ? 'bg-emerald-50 dark:bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border-emerald-200 dark:border-emerald-500/20'
-                  : 'bg-white text-slate-900 border-transparent hover:bg-slate-100'
-              }`}
-              title={`${t('common.copy')} (C)`}
-              aria-label={`${t('common.copy')} (C)`}
-            >
-              {copied ? <Check className="w-6 h-6" /> : <Copy className="w-6 h-6" />}
-              {copied ? t('common.copied') : t('common.copy')}
-              <kbd className={`ml-1 hidden sm:inline-flex items-center justify-center w-5 h-5 border rounded text-[10px] font-bold ${
-                copied
-                  ? 'bg-emerald-500/10 border-emerald-500/20 text-emerald-600'
-                  : 'bg-slate-100 border-slate-200 text-slate-400'
-              }`}>C</kbd>
-            </button>
-          </div>
-        </div>
+        {passwords.length > 0 && (
+          <div className="space-y-6 relative z-10">
+            {passwords.map((pwd, idx) => {
+              const entropyValue = calculateEntropy(pwd);
+              const strengthInfo = getStrength(entropyValue);
 
-        {password && (
-          <div className="mt-10 pt-10 border-t border-white/10 flex flex-col md:flex-row md:items-center justify-between gap-6">
-            <div className="flex flex-col gap-2">
-              <div className="flex items-center gap-4">
-                <div className={`flex items-center gap-2 px-4 py-1.5 rounded-full font-black text-xs uppercase tracking-widest text-white ${strength.color}`}>
-                  {strength.icon} {strength.label}
+              return (
+                <div key={idx} className="flex flex-col md:flex-row items-center gap-6 pb-6 border-b border-white/10 last:border-0 last:pb-0">
+                  <div className="flex-1 relative w-full">
+                    <input
+                      type={showPassword ? "text" : "password"}
+                      value={pwd}
+                      readOnly
+                      className={`w-full bg-transparent font-mono text-white outline-none tracking-tight text-center md:text-left selection:bg-indigo-500/30 ${
+                        pwd.length > 30 ? 'text-xl md:text-2xl' : 'text-2xl md:text-3xl'
+                      } ${!showPassword ? 'text-transparent' : ''}`}
+                    />
+                    {!showPassword && (
+                      <div className="absolute inset-y-0 left-0 right-0 pointer-events-none flex items-center justify-center md:justify-start">
+                         <div className="flex gap-1">
+                           {[...Array(Math.min(pwd.length, 12))].map((_, i) => (
+                             <div key={i} className="w-1.5 h-1.5 rounded-full bg-white/20" />
+                           ))}
+                           {pwd.length > 12 && <span className="text-white/20 font-mono text-lg leading-none">...</span>}
+                         </div>
+                      </div>
+                    )}
+                  </div>
+
+                  <div className="flex items-center gap-4 min-w-[200px]">
+                    <div className="flex-1">
+                      <div className={`flex items-center gap-2 px-3 py-1 rounded-full font-black text-[10px] uppercase tracking-widest text-white ${strengthInfo.color}`}>
+                        {strengthInfo.icon} {strengthInfo.label}
+                      </div>
+                    </div>
+                    <button
+                      onClick={() => copyToClipboard(pwd)}
+                      className="p-3 bg-white/10 hover:bg-white/20 text-white rounded-xl transition-all active:scale-95"
+                    >
+                      <Copy className="w-4 h-4" />
+                    </button>
+                  </div>
                 </div>
-                <div className="h-1.5 w-32 bg-white/10 rounded-full overflow-hidden">
-                  <div
-                    className={`h-full transition-all duration-700 ${strength.color}`}
-                    style={{ width: `${Math.min(entropy, 100)}%` }}
-                  />
-                </div>
-              </div>
-              <p className="text-xs text-white/40 font-medium">{strength.feedback}</p>
-            </div>
-            <div className="flex items-center gap-6">
-              <div className="text-center">
-                <div className="text-white font-mono text-xl font-black">{entropy}</div>
-                <div className="text-[10px] text-white/40 font-black uppercase tracking-widest">{t('passwordgenerator.entropy_bits')}</div>
-              </div>
-              <div className="text-right">
-                <div className="text-white/40 font-bold text-sm tracking-widest uppercase">
-                  {mode === 'random' ? t('passwordgenerator.char_count', { count: password.length }) : t('passwordgenerator.word_count_label', { count: wordCount })}
-                </div>
-              </div>
-            </div>
+              );
+            })}
           </div>
         )}
+
+        {passwords.length === 0 && (
+          <div className="text-center py-12">
+            <p className="text-white/20 font-bold italic">Generated passwords will appear here</p>
+          </div>
+        )}
+
+        <div className="mt-8 pt-8 border-t border-white/10 flex flex-wrap justify-center gap-4">
+          <button
+            onClick={() => setShowPassword(!showPassword)}
+            className="px-6 py-3 bg-white/10 hover:bg-white/20 text-white rounded-2xl transition-all active:scale-95 focus-visible:ring-2 focus-visible:ring-indigo-500 focus-visible:outline-none flex items-center gap-2"
+          >
+            {showPassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
+            <span className="text-sm font-bold">{showPassword ? t('passwordgenerator.hide') : t('passwordgenerator.show')}</span>
+            <kbd className="hidden sm:inline-flex items-center justify-center w-5 h-5 border border-white/20 rounded text-[10px] font-bold bg-white/5 text-white/50 ml-1">V</kbd>
+          </button>
+
+          <button
+            onClick={generatePassword}
+            className="px-8 py-3 bg-white text-slate-900 rounded-2xl transition-all active:scale-95 focus-visible:ring-2 focus-visible:ring-indigo-500 focus-visible:outline-none font-black flex items-center gap-2 group/regen"
+          >
+            <RefreshCw className="w-5 h-5 group-hover/regen:rotate-180 transition-transform duration-500" />
+            <span>{t('passwordgenerator.regenerate')}</span>
+            <kbd className="hidden sm:inline-flex items-center justify-center w-5 h-5 border border-slate-200 rounded text-[10px] font-bold bg-slate-100 text-slate-400 ml-1">R</kbd>
+          </button>
+        </div>
       </div>
 
       {history.length > 1 && (
@@ -387,6 +382,23 @@ export function PasswordGenerator({ initialData, onStateChange }: { initialData?
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
         {/* Settings */}
         <div className="bg-slate-50 dark:bg-slate-900/50 p-8 rounded-[2.5rem] border border-slate-200 dark:border-slate-800 space-y-8">
+          {/* Quantity Slider */}
+          <div className="space-y-6 pb-6 border-b border-slate-200 dark:border-slate-800">
+            <div className="flex justify-between items-center px-1">
+              <label htmlFor="password-quantity" className="text-xs font-black uppercase tracking-widest text-slate-400 cursor-pointer">{t('common.count')}</label>
+              <span className="text-2xl font-black font-mono text-indigo-600 dark:text-indigo-400">{quantity}</span>
+            </div>
+            <input
+              id="password-quantity"
+              type="range"
+              min="1"
+              max="50"
+              value={quantity}
+              onChange={(e) => setQuantity(Number(e.target.value))}
+              className="w-full h-2 bg-slate-200 dark:bg-slate-800 rounded-lg appearance-none cursor-pointer accent-indigo-600 focus-visible:ring-2 focus-visible:ring-indigo-500 focus-visible:outline-none"
+            />
+          </div>
+
           {mode === 'random' ? (
             <div className="space-y-6">
               <div className="flex justify-between items-center px-1">

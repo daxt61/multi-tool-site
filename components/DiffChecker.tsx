@@ -7,6 +7,7 @@ interface DiffItem {
   text: string;
   line1?: number;
   line2?: number;
+  chars?: { type: 'added' | 'removed' | 'unchanged', text: string }[];
 }
 
 export function DiffChecker({ initialData, onStateChange }: { initialData?: any; onStateChange?: (state: any) => void }) {
@@ -68,8 +69,62 @@ export function DiffChecker({ initialData, onStateChange }: { initialData?: any;
         i--;
       }
     }
-    return diff;
+
+    // Secondary pass for character-level diff on modified lines
+    const finalDiff: DiffItem[] = [];
+    for (let k = 0; k < diff.length; k++) {
+      const current = diff[k];
+      const next = diff[k + 1];
+
+      if (current.type === 'removed' && next?.type === 'added') {
+        // We have a modification (removed then added)
+        const charDiff1 = getCharDiff(current.text, next.text);
+
+        finalDiff.push({
+          ...current,
+          chars: charDiff1.filter(c => c.type !== 'added')
+        });
+        finalDiff.push({
+          ...next,
+          chars: charDiff1.filter(c => c.type !== 'removed')
+        });
+        k++; // Skip next
+      } else {
+        finalDiff.push(current);
+      }
+    }
+
+    return finalDiff;
   }, [text1, text2]);
+
+  function getCharDiff(s1: string, s2: string) {
+    const n = s1.length;
+    const m = s2.length;
+    const dp = Array.from({ length: n + 1 }, () => Array(m + 1).fill(0));
+
+    for (let i = 1; i <= n; i++) {
+      for (let j = 1; j <= m; j++) {
+        if (s1[i - 1] === s2[j - 1]) dp[i][j] = dp[i - 1][j - 1] + 1;
+        else dp[i][j] = Math.max(dp[i - 1][j], dp[i][j - 1]);
+      }
+    }
+
+    const res: { type: 'added' | 'removed' | 'unchanged', text: string }[] = [];
+    let i = n, j = m;
+    while (i > 0 || j > 0) {
+      if (i > 0 && j > 0 && s1[i - 1] === s2[j - 1]) {
+        res.unshift({ type: 'unchanged', text: s1[i - 1] });
+        i--; j--;
+      } else if (j > 0 && (i === 0 || dp[i][j - 1] >= dp[i - 1][j])) {
+        res.unshift({ type: 'added', text: s2[j - 1] });
+        j--;
+      } else {
+        res.unshift({ type: 'removed', text: s1[i - 1] });
+        i--;
+      }
+    }
+    return res;
+  }
 
   const splitDiffResult = useMemo(() => {
     const left: DiffItem[] = [];
@@ -225,7 +280,20 @@ export function DiffChecker({ initialData, onStateChange }: { initialData?: any;
                 <span className="w-6 select-none opacity-50 font-black flex-shrink-0">
                   {item.type === 'added' ? '+' : item.type === 'removed' ? '-' : ' '}
                 </span>
-                <span className="whitespace-pre-wrap break-all">{item.text || ' '}</span>
+                <span className="whitespace-pre-wrap break-all">
+                  {item.chars ? (
+                    item.chars.map((c, i) => (
+                      <span key={i} className={
+                        c.type === 'added' ? 'bg-emerald-200 dark:bg-emerald-500/30' :
+                        c.type === 'removed' ? 'bg-rose-200 dark:bg-rose-500/30' : ''
+                      }>
+                        {c.text}
+                      </span>
+                    ))
+                  ) : (
+                    item.text || ' '
+                  )}
+                </span>
               </div>
             ))
           ) : (
@@ -243,7 +311,17 @@ export function DiffChecker({ initialData, onStateChange }: { initialData?: any;
                    <span className="w-8 select-none opacity-50 font-mono text-[10px] text-right flex-shrink-0">
                      {item.line1 || ''}
                    </span>
-                   <span className="whitespace-pre overflow-x-auto no-scrollbar">{item.text || ' '}</span>
+                   <span className="whitespace-pre overflow-x-auto no-scrollbar">
+                     {item.chars ? (
+                        item.chars.map((c, i) => (
+                          <span key={i} className={c.type === 'removed' ? 'bg-rose-200 dark:bg-rose-500/40' : ''}>
+                            {c.text}
+                          </span>
+                        ))
+                     ) : (
+                       item.text || ' '
+                     )}
+                   </span>
                  </div>
                 ))}
               </div>
@@ -260,7 +338,17 @@ export function DiffChecker({ initialData, onStateChange }: { initialData?: any;
                    <span className="w-8 select-none opacity-50 font-mono text-[10px] text-right flex-shrink-0">
                      {item.line2 || ''}
                    </span>
-                   <span className="whitespace-pre overflow-x-auto no-scrollbar">{item.text || ' '}</span>
+                   <span className="whitespace-pre overflow-x-auto no-scrollbar">
+                     {item.chars ? (
+                        item.chars.map((c, i) => (
+                          <span key={i} className={c.type === 'added' ? 'bg-emerald-200 dark:bg-emerald-500/40' : ''}>
+                            {c.text}
+                          </span>
+                        ))
+                     ) : (
+                       item.text || ' '
+                     )}
+                   </span>
                  </div>
                 ))}
               </div>

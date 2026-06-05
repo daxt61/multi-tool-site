@@ -367,6 +367,9 @@ const FractalTree = lazy(() => import("./components/FractalTree").then(m => ({ d
 const UnicodeNormalizer = lazy(() => import("./components/UnicodeNormalizer").then(m => ({ default: m.UnicodeNormalizer })));
 const IntegerPairGenerator = lazy(() => import("./components/IntegerPairGenerator").then(m => ({ default: m.IntegerPairGenerator })));
 const BinaryReverser = lazy(() => import("./components/BinaryReverser").then(m => ({ default: m.BinaryReverser })));
+const LetterShuffler = lazy(() => import("./components/LetterShuffler").then(m => ({ default: m.LetterShuffler })));
+const DateSorter = lazy(() => import("./components/DateSorter").then(m => ({ default: m.DateSorter })));
+const RandomMatrixGenerator = lazy(() => import("./components/RandomMatrixGenerator").then(m => ({ default: m.RandomMatrixGenerator })));
 
 // ⚡ Bolt Optimization: Pre-calculating tool map and search index for O(1) lookups and faster filtering
 const toolsMap: Record<string, Tool> = {};
@@ -2909,6 +2912,39 @@ const tools: Tool[] = [
     Component: BackdropFilterGenerator,
     category: "dev",
     keywords: ["css", "filter", "backdrop", "glassmorphism", "blur", "design"],
+  },
+  {
+    id: "letter-shuffler",
+    name: "Mélangeur de Lettres",
+    nameEn: "Letter Shuffler",
+    icon: Shuffle,
+    description: "Mélanger les lettres à l'intérieur des mots",
+    descriptionEn: "Shuffle letters within words",
+    Component: LetterShuffler,
+    category: "text",
+    keywords: ["shuffle", "letters", "words", "anagram", "typoglycemia", "mélanger"],
+  },
+  {
+    id: "date-sorter",
+    name: "Trieur de Dates",
+    nameEn: "Date Sorter",
+    icon: Calendar,
+    description: "Trier une liste de dates par ordre chronologique",
+    descriptionEn: "Sort a list of dates chronologically",
+    Component: DateSorter,
+    category: "other",
+    keywords: ["date", "sort", "chronological", "order", "trier", "calendrier"],
+  },
+  {
+    id: "random-matrix",
+    name: "Matrice Aléatoire",
+    nameEn: "Random Matrix Generator",
+    icon: Grid,
+    description: "Générer des matrices avec des nombres aléatoires",
+    descriptionEn: "Generate matrices with random numbers",
+    Component: RandomMatrixGenerator,
+    category: "calculators",
+    keywords: ["matrix", "random", "math", "data", "algebra", "matrice"],
   },
 ];
 

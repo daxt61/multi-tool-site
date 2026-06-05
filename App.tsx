@@ -371,6 +371,7 @@ const BinaryReverser = lazy(() => import("./components/BinaryReverser").then(m =
 const LetterShuffler = lazy(() => import("./components/LetterShuffler").then(m => ({ default: m.LetterShuffler })));
 const DateSorter = lazy(() => import("./components/DateSorter").then(m => ({ default: m.DateSorter })));
 const RandomMatrixGenerator = lazy(() => import("./components/RandomMatrixGenerator").then(m => ({ default: m.RandomMatrixGenerator })));
+const HTTPHeaderParser = lazy(() => import("./components/HTTPHeaderParser").then(m => ({ default: m.HTTPHeaderParser })));
 
 // ⚡ Bolt Optimization: Pre-calculating tool map and search index for O(1) lookups and faster filtering
 const toolsMap: Record<string, Tool> = {};
@@ -2924,6 +2925,17 @@ const tools: Tool[] = [
     Component: BackdropFilterGenerator,
     category: "dev",
     keywords: ["css", "filter", "backdrop", "glassmorphism", "blur", "design"],
+  },
+  {
+    id: "http-header-parser",
+    name: "Analyseur d'En-têtes HTTP",
+    nameEn: "HTTP Header Parser",
+    icon: FileSearch,
+    description: "Analyser et structurer les en-têtes HTTP bruts",
+    descriptionEn: "Analyze and structure raw HTTP headers",
+    Component: HTTPHeaderParser,
+    category: "dev",
+    keywords: ["http", "header", "parser", "debug", "api", "request", "response"],
   },
   {
     id: "letter-shuffler",

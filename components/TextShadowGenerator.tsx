@@ -27,7 +27,7 @@ export function TextShadowGenerator({ initialData, onStateChange }: { initialDat
 
   const addShadow = () => {
     const newShadow: Shadow = {
-      id: Math.random().toString(36).substr(2, 9),
+      id: typeof crypto !== 'undefined' && crypto.randomUUID ? crypto.randomUUID() : Math.random().toString(36).substr(2, 9),
       x: 0,
       y: 0,
       blur: 5,

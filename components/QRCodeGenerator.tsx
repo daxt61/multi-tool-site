@@ -1,9 +1,10 @@
-import { useState, useEffect } from 'react';
-import { Download, Trash2, QrCode, Info, Palette, ShieldCheck } from 'lucide-react';
+import { useState, useEffect, useRef, useCallback } from 'react';
+import { Download, Trash2, QrCode, Info, Palette, ShieldCheck, ArrowLeftRight } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 
 export function QRCodeGenerator({ initialData, onStateChange }: { initialData?: any; onStateChange?: (state: any) => void }) {
   const { t } = useTranslation();
+  const textareaRef = useRef<HTMLTextAreaElement>(null);
   const [text, setText] = useState(initialData?.text || '');
   const [size, setSize] = useState(initialData?.size ?? 256);
   const [fgColor, setFgColor] = useState(initialData?.fgColor || '#000000');
@@ -44,9 +45,43 @@ export function QRCodeGenerator({ initialData, onStateChange }: { initialData?: 
     }
   };
 
-  const handleClear = () => {
+  const handleClear = useCallback(() => {
     setText('');
-  };
+    textareaRef.current?.focus();
+  }, []);
+
+  const handleSwapColors = useCallback(() => {
+    setFgColor(bgColor);
+    setBgColor(fgColor);
+  }, [fgColor, bgColor]);
+
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (
+        document.activeElement?.tagName === "INPUT" ||
+        document.activeElement?.tagName === "TEXTAREA" ||
+        document.activeElement?.getAttribute('contenteditable') === 'true'
+      ) {
+        if (e.key === 'Escape' && document.activeElement?.id === 'qr-text') {
+          handleClear();
+        }
+        return;
+      }
+
+      if (e.metaKey || e.ctrlKey || e.altKey || e.shiftKey) return;
+
+      if (e.key.toLowerCase() === 's') {
+        e.preventDefault();
+        handleSwapColors();
+      } else if (e.key === 'Escape') {
+        e.preventDefault();
+        handleClear();
+      }
+    };
+
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [handleClear, handleSwapColors]);
 
   return (
     <div className="max-w-5xl mx-auto space-y-12">
@@ -59,29 +94,45 @@ export function QRCodeGenerator({ initialData, onStateChange }: { initialData?: 
                 <label htmlFor="qr-text" className="text-xs font-black uppercase tracking-widest text-slate-400 flex items-center gap-2">
                   <QrCode className="w-4 h-4 text-indigo-500" /> {t('qrcode.label')}
                 </label>
-                <button
-                  onClick={handleClear}
-                  disabled={!text}
-                  className="text-xs font-bold text-rose-500 bg-rose-50 dark:bg-rose-500/10 hover:bg-rose-100 dark:hover:bg-rose-500/20 px-3 py-1 rounded-full transition-all flex items-center gap-1 disabled:opacity-50 disabled:cursor-not-allowed"
-                >
-                  <Trash2 className="w-3 h-3" /> {t('common.clear')}
-                </button>
+                <div className="flex gap-2 items-center">
+                  <kbd className="hidden sm:inline-flex items-center justify-center px-1.5 py-0.5 border border-rose-200 dark:border-rose-800 rounded text-[10px] font-bold text-rose-400 bg-white dark:bg-slate-900">Esc</kbd>
+                  <button
+                    onClick={handleClear}
+                    disabled={!text}
+                    className="text-xs font-bold text-rose-500 bg-rose-50 dark:bg-rose-500/10 hover:bg-rose-100 dark:hover:bg-rose-500/20 px-3 py-1.5 rounded-full transition-all flex items-center gap-1 disabled:opacity-50 disabled:cursor-not-allowed focus-visible:ring-2 focus-visible:ring-rose-500 focus-visible:outline-none"
+                  >
+                    <Trash2 className="w-3 h-3" /> {t('common.clear')}
+                  </button>
+                </div>
               </div>
               <textarea
                 id="qr-text"
+                ref={textareaRef}
                 value={text}
                 onChange={(e) => setText(e.target.value)}
                 placeholder={t('qrcode.placeholder')}
-                className="w-full h-40 p-6 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-[2rem] outline-none focus:ring-2 focus:ring-indigo-500/20 transition-all text-lg leading-relaxed dark:text-slate-300 resize-none"
+                className="w-full h-40 p-6 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-[2rem] outline-none focus-visible:ring-2 focus-visible:ring-indigo-500/20 transition-all text-lg leading-relaxed dark:text-slate-300 resize-none"
               />
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               {/* Colors */}
               <div className="space-y-4">
-                <label className="text-xs font-black uppercase tracking-widest text-slate-400 flex items-center gap-2 px-1">
-                  <Palette className="w-4 h-4 text-indigo-500" /> {t('colorconverter.colors') || 'Couleurs'}
-                </label>
+                <div className="flex justify-between items-center px-1">
+                  <label className="text-xs font-black uppercase tracking-widest text-slate-400 flex items-center gap-2">
+                    <Palette className="w-4 h-4 text-indigo-500" /> {t('common.color')}
+                  </label>
+                  <div className="flex gap-2 items-center">
+                    <kbd className="hidden sm:inline-flex items-center justify-center w-5 h-5 border border-indigo-200 dark:border-indigo-800 rounded text-[10px] font-bold text-indigo-400 bg-white dark:bg-slate-900">S</kbd>
+                    <button
+                      onClick={handleSwapColors}
+                      className="text-xs font-bold text-indigo-500 bg-indigo-50 dark:bg-indigo-500/10 hover:bg-indigo-100 dark:hover:bg-indigo-500/20 px-3 py-1.5 rounded-full transition-all flex items-center gap-1 focus-visible:ring-2 focus-visible:ring-indigo-500 focus-visible:outline-none"
+                      aria-label={t('qrcode.swap_aria')}
+                    >
+                      <ArrowLeftRight className="w-3 h-3" /> {t('common.swap') || 'Swap'}
+                    </button>
+                  </div>
+                </div>
                 <div className="flex gap-4">
                   <div className="flex-1 space-y-2">
                     <div className="text-[10px] font-bold text-slate-400 uppercase tracking-tighter">{t('qrcode.foreground')}</div>
@@ -89,7 +140,7 @@ export function QRCodeGenerator({ initialData, onStateChange }: { initialData?: 
                       type="color"
                       value={fgColor}
                       onChange={(e) => setFgColor(e.target.value)}
-                      className="w-full h-12 rounded-xl cursor-pointer border-2 border-white dark:border-slate-700 shadow-sm"
+                      className="w-full h-12 rounded-xl cursor-pointer border-2 border-white dark:border-slate-700 shadow-sm focus-visible:ring-2 focus-visible:ring-indigo-500 focus-visible:outline-none"
                     />
                   </div>
                   <div className="flex-1 space-y-2">
@@ -98,7 +149,7 @@ export function QRCodeGenerator({ initialData, onStateChange }: { initialData?: 
                       type="color"
                       value={bgColor}
                       onChange={(e) => setBgColor(e.target.value)}
-                      className="w-full h-12 rounded-xl cursor-pointer border-2 border-white dark:border-slate-700 shadow-sm"
+                      className="w-full h-12 rounded-xl cursor-pointer border-2 border-white dark:border-slate-700 shadow-sm focus-visible:ring-2 focus-visible:ring-indigo-500 focus-visible:outline-none"
                     />
                   </div>
                 </div>
@@ -115,7 +166,7 @@ export function QRCodeGenerator({ initialData, onStateChange }: { initialData?: 
                       key={level}
                       onClick={() => setEcc(level)}
                       aria-pressed={ecc === level}
-                      className={`py-3 rounded-xl font-bold text-sm transition-all border ${
+                      className={`py-3 rounded-xl font-bold text-sm transition-all border focus-visible:ring-2 focus-visible:ring-indigo-500 focus-visible:outline-none ${
                         ecc === level
                           ? 'bg-indigo-600 text-white border-indigo-600 shadow-md shadow-indigo-600/10'
                           : 'bg-white dark:bg-slate-800 text-slate-500 border-slate-200 dark:border-slate-700 hover:border-slate-300'
@@ -131,7 +182,7 @@ export function QRCodeGenerator({ initialData, onStateChange }: { initialData?: 
             {/* Size Slider */}
             <div className="space-y-4">
               <div className="flex justify-between items-center px-1">
-                <label htmlFor="qr-size" className="text-xs font-black uppercase tracking-widest text-slate-400">{t('unitprice.quantity') || 'Taille'}: {size}x{size} px</label>
+                <label htmlFor="qr-size" className="text-xs font-black uppercase tracking-widest text-slate-400">{t('qrcode.size')}: {size}x{size} px</label>
               </div>
               <input
                 id="qr-size"
@@ -175,7 +226,7 @@ export function QRCodeGenerator({ initialData, onStateChange }: { initialData?: 
           {text && (
             <button
               onClick={downloadQRCode}
-              className="w-full max-w-[320px] py-4 bg-indigo-600 text-white rounded-2xl font-black text-lg shadow-xl shadow-indigo-600/20 hover:bg-indigo-700 transition-all active:scale-95 flex items-center justify-center gap-2 animate-in fade-in slide-in-from-bottom-2 duration-300"
+              className="w-full max-w-[320px] py-4 bg-indigo-600 text-white rounded-2xl font-black text-lg shadow-xl shadow-indigo-600/20 hover:bg-indigo-700 transition-all active:scale-95 flex items-center justify-center gap-2 animate-in fade-in slide-in-from-bottom-2 duration-300 focus-visible:ring-2 focus-visible:ring-indigo-500 focus-visible:outline-none"
             >
               <Download className="w-5 h-5" />
               {t('common.download')} PNG

@@ -162,6 +162,7 @@ const PrivacyPolicy = lazy(() => import("./components/PrivacyPolicy").then(m => 
 const InvoiceGenerator = lazy(() => import("./components/InvoiceGenerator").then(m => ({ default: m.InvoiceGenerator })));
 const MarginCalculator = lazy(() => import("./components/MarginCalculator").then(m => ({ default: m.MarginCalculator })));
 const LoanCalculator = lazy(() => import("./components/LoanCalculator").then(m => ({ default: m.LoanCalculator })));
+const LoanComparison = lazy(() => import("./components/LoanComparison").then(m => ({ default: m.LoanComparison })));
 const SavingsCalculator = lazy(() => import("./components/SavingsCalculator").then(m => ({ default: m.SavingsCalculator })));
 const BudgetPlanner = lazy(() => import("./components/BudgetPlanner").then(m => ({ default: m.BudgetPlanner })));
 const VATCalculator = lazy(() => import("./components/VATCalculator").then(m => ({ default: m.VATCalculator })));
@@ -520,6 +521,17 @@ const tools: Tool[] = [
     Component: LoanCalculator,
     category: "budget",
     keywords: ["crédit", "immobilier", "taux", "mensualité", "banque"],
+  },
+  {
+    id: "loan-comparison",
+    name: "Comparateur de Prêts",
+    nameEn: "Loan Comparison",
+    icon: ArrowLeftRight,
+    description: "Comparez deux offres de prêt côte à côte",
+    descriptionEn: "Compare two loan offers side-by-side",
+    Component: LoanComparison,
+    category: "budget",
+    keywords: ["prêt", "crédit", "comparaison", "intérêts", "banque", "loan", "comparison"],
   },
   {
     id: "savings-calculator",

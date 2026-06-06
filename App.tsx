@@ -372,6 +372,9 @@ const LetterShuffler = lazy(() => import("./components/LetterShuffler").then(m =
 const DateSorter = lazy(() => import("./components/DateSorter").then(m => ({ default: m.DateSorter })));
 const RandomMatrixGenerator = lazy(() => import("./components/RandomMatrixGenerator").then(m => ({ default: m.RandomMatrixGenerator })));
 const HTTPHeaderParser = lazy(() => import("./components/HTTPHeaderParser").then(m => ({ default: m.HTTPHeaderParser })));
+const HilbertCurve = lazy(() => import("./components/HilbertCurve").then(m => ({ default: m.HilbertCurve })));
+const JSONObfuscator = lazy(() => import("./components/JSONObfuscator").then(m => ({ default: m.JSONObfuscator })));
+const WordShuffler = lazy(() => import("./components/WordShuffler").then(m => ({ default: m.WordShuffler })));
 
 // ⚡ Bolt Optimization: Pre-calculating tool map and search index for O(1) lookups and faster filtering
 const toolsMap: Record<string, Tool> = {};
@@ -2969,6 +2972,39 @@ const tools: Tool[] = [
     Component: RandomMatrixGenerator,
     category: "calculators",
     keywords: ["matrix", "random", "math", "data", "algebra", "matrice"],
+  },
+  {
+    id: "hilbert-curve",
+    name: "Courbe de Hilbert",
+    nameEn: "Hilbert Curve",
+    icon: Activity,
+    description: "Générateur de courbe fractale de Hilbert",
+    descriptionEn: "Hilbert space-filling curve generator",
+    Component: HilbertCurve,
+    category: "calculators",
+    keywords: ["fractal", "hilbert", "curve", "math", "space-filling", "algorithm"],
+  },
+  {
+    id: "json-obfuscator",
+    name: "Obfuscateur JSON",
+    nameEn: "JSON Obfuscator",
+    icon: ShieldAlert,
+    description: "Rendre le JSON difficile à lire en renommant les clés",
+    descriptionEn: "Make JSON hard to read by renaming keys",
+    Component: JSONObfuscator,
+    category: "dev",
+    keywords: ["json", "obfuscate", "security", "minify", "developer", "protection"],
+  },
+  {
+    id: "word-shuffler",
+    name: "Mélangeur de Mots",
+    nameEn: "Word Shuffler",
+    icon: Shuffle,
+    description: "Mélanger l'ordre des mots dans un texte",
+    descriptionEn: "Shuffle the order of words in a text",
+    Component: WordShuffler,
+    category: "text",
+    keywords: ["shuffle", "words", "text", "randomize", "anagram", "mélanger"],
   },
 ];
 

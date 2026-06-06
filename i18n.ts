@@ -2050,6 +2050,17 @@ const resources = {
       "headerparser.about_text": "This tool helps you quickly analyze and structure raw HTTP response or request headers. It extracts key-value pairs and presents them in a readable table or JSON format, making it easier to debug API communications, security headers (CSP, HSTS), or caching policies.",
       "headerparser.how_to_use_title": "How to use",
       "headerparser.how_to_use_text": "Simply copy the raw headers from your browser's 'Network' tab or any terminal output and paste them into the input field. The parser will automatically identify the headers and provide a structured visualization instantly.",
+      "hilbert.order": "Order (Complexity)",
+      "hilbert.stroke_width": "Line Thickness",
+      "hilbert.about_title": "About Hilbert Curve",
+      "hilbert.about_text": "The Hilbert curve is a continuous space-filling fractal curve first described by the German mathematician David Hilbert in 1891. It is a variant of a space-filling curve that fills a square grid by visiting every point exactly once without crossing itself. It has applications in image processing, data compression, and multidimensional indexing because it preserves locality well.",
+      "obfuscator.prefix": "Key Prefix",
+      "obfuscator.id_length": "ID Length",
+      "obfuscator.about_title": "About JSON Obfuscator",
+      "obfuscator.about_text": "This tool obfuscates JSON data by recursively renaming all object keys to random short strings. This is a form of basic security through obscurity, making the JSON structure difficult for humans to read while remaining valid JSON for machine processing. Note: This does not encrypt values, only renames the keys.",
+      "wordshuffler.placeholder": "Paste your text here to shuffle words...",
+      "wordshuffler.about_title": "About Word Shuffler",
+      "wordshuffler.about_text": "This tool shuffles the order of words in each line of your text. It's useful for creating anagrams at the word level, generating randomized sentences for testing, or simply scrambling text while keeping the line-by-line structure intact.",
     }
   },
   fr: {
@@ -4099,6 +4110,17 @@ const resources = {
       "headerparser.about_text": "Cet outil vous aide à analyser et structurer rapidement les en-têtes de requête ou de réponse HTTP bruts. Il extrait les paires clé-valeur et les présente dans un tableau lisible ou au format JSON, facilitant le débogage des communications API, des en-têtes de sécurité (CSP, HSTS) ou des politiques de cache.",
       "headerparser.how_to_use_title": "Comment utiliser",
       "headerparser.how_to_use_text": "Copiez simplement les en-têtes bruts depuis l'onglet 'Réseau' de votre navigateur ou toute sortie de terminal et collez-les dans le champ de saisie. L'analyseur identifiera automatiquement les en-têtes et fournira instantanément une visualisation structurée.",
+      "hilbert.order": "Ordre (Complexité)",
+      "hilbert.stroke_width": "Épaisseur du trait",
+      "hilbert.about_title": "À propos de la courbe de Hilbert",
+      "hilbert.about_text": "La courbe de Hilbert est une courbe fractale continue remplissant l'espace, décrite pour la première fois par le mathématicien allemand David Hilbert en 1891. C'est une variante de courbe qui remplit une grille carrée en visitant chaque point exactement une fois sans jamais se croiser. Elle est utilisée en traitement d'image, en compression de données et pour l'indexation multidimensionnelle car elle préserve bien la localité des données.",
+      "obfuscator.prefix": "Préfixe des clés",
+      "obfuscator.id_length": "Longueur de l'ID",
+      "obfuscator.about_title": "À propos de l'obfuscateur JSON",
+      "obfuscator.about_text": "Cet outil obfusque les données JSON en renommant récursivement toutes les clés d'objet par de courtes chaînes aléatoires. C'est une forme de sécurité basique par l'obscurité, rendant la structure JSON difficile à lire pour un humain tout en restant un JSON valide pour un traitement informatique. Note : cela ne crypte pas les valeurs, seulement les clés.",
+      "wordshuffler.placeholder": "Collez votre texte ici pour mélanger les mots...",
+      "wordshuffler.about_title": "À propos du mélangeur de mots",
+      "wordshuffler.about_text": "Cet outil mélange l'ordre des mots dans chaque ligne de votre texte. C'est utile pour créer des anagrammes au niveau des mots, générer des phrases aléatoires pour des tests, ou simplement brouiller un texte tout en conservant la structure ligne par ligne.",
     }
   }
 };

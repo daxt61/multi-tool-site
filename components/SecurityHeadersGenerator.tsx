@@ -1,5 +1,6 @@
-import { useState, useEffect, useMemo } from 'react';
-import { Shield, Copy, Check, Terminal, Server, Globe, Download, Info } from 'lucide-react';
+import { useState, useEffect, useMemo, useCallback, useRef } from 'react';
+import { Shield, Copy, Check, Terminal, Server, Globe, Download, Info, RotateCcw } from 'lucide-react';
+import { useTranslation, Trans } from 'react-i18next';
 
 interface HeadersState {
   csp: boolean;
@@ -12,6 +13,7 @@ interface HeadersState {
 }
 
 export function SecurityHeadersGenerator({ initialData, onStateChange }: { initialData?: any; onStateChange?: (state: any) => void }) {
+  const { t } = useTranslation();
   const [options, setOptions] = useState<HeadersState>(initialData?.options || {
     csp: true,
     hsts: true,
@@ -57,27 +59,88 @@ export function SecurityHeadersGenerator({ initialData, onStateChange }: { initi
     setTimeout(() => setCopied(''), 2000);
   };
 
+  const handleReset = useCallback(() => {
+    setOptions({
+      csp: true,
+      hsts: true,
+      xframe: true,
+      xss: true,
+      nosniff: true,
+      referrer: true,
+      permissions: true,
+    });
+  }, []);
+
   const toggleOption = (key: keyof HeadersState) => {
     setOptions(prev => ({ ...prev, [key]: !prev[key] }));
   };
+
+  const handleCopyRef = useRef(handleCopy);
+  const handleResetRef = useRef(handleReset);
+  const configsRef = useRef({ nginxConfig, apacheConfig, netlifyConfig });
+
+  useEffect(() => {
+    handleCopyRef.current = handleCopy;
+    handleResetRef.current = handleReset;
+    configsRef.current = { nginxConfig, apacheConfig, netlifyConfig };
+  }, [handleCopy, handleReset, nginxConfig, apacheConfig, netlifyConfig]);
+
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (
+        document.activeElement?.tagName === "INPUT" ||
+        document.activeElement?.tagName === "TEXTAREA" ||
+        document.activeElement?.tagName === "SELECT" ||
+        document.activeElement?.getAttribute('contenteditable') === 'true'
+      ) {
+        return;
+      }
+
+      if (e.metaKey || e.ctrlKey || e.altKey || e.shiftKey) return;
+
+      if (e.key === 'Escape') {
+        e.preventDefault();
+        handleResetRef.current();
+      } else if (e.key.toLowerCase() === 'c') {
+        e.preventDefault();
+        // Default to copying Netlify config as it's the main one displayed
+        handleCopyRef.current(configsRef.current.netlifyConfig, 'netlify');
+      }
+    };
+
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, []);
 
   return (
     <div className="max-w-6xl mx-auto space-y-8">
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
         {/* Options */}
         <div className="lg:col-span-1 bg-slate-50 dark:bg-slate-900/50 p-8 rounded-[2.5rem] border border-slate-200 dark:border-slate-800 space-y-6">
-          <div className="flex items-center gap-2 px-1">
-            <Shield className="w-4 h-4 text-indigo-500" />
-            <h3 className="text-xs font-black uppercase tracking-widest text-slate-400">En-têtes de sécurité</h3>
+          <div className="flex items-center justify-between px-1">
+            <div className="flex items-center gap-2">
+              <Shield className="w-4 h-4 text-indigo-500" />
+              <h3 className="text-xs font-black uppercase tracking-widest text-slate-400">{t('securityheaders.title')}</h3>
+            </div>
+            <div className="flex gap-2 items-center">
+              <kbd className="hidden sm:inline-flex items-center justify-center px-1.5 py-0.5 border border-rose-200 dark:border-rose-800 rounded text-[10px] font-bold text-rose-400 bg-white dark:bg-slate-900">Esc</kbd>
+              <button
+                onClick={handleReset}
+                className="text-xs font-bold text-rose-500 bg-rose-50 dark:bg-rose-500/10 hover:bg-rose-100 transition-all p-1.5 rounded-lg"
+                title={t('common.reset')}
+              >
+                <RotateCcw className="w-3.5 h-3.5" />
+              </button>
+            </div>
           </div>
           <div className="space-y-3">
             {[
-              { id: 'csp', label: 'CSP (Content Security Policy)', desc: 'Prévient les attaques XSS' },
-              { id: 'hsts', label: 'HSTS', desc: 'Force la connexion HTTPS' },
-              { id: 'xframe', label: 'X-Frame-Options', desc: 'Empêche le clickjacking' },
-              { id: 'nosniff', label: 'X-Content-Type-Options', desc: 'Empêche le reniflage de MIME' },
-              { id: 'referrer', label: 'Referrer-Policy', desc: 'Contrôle les infos de provenance' },
-              { id: 'permissions', label: 'Permissions-Policy', desc: 'Désactive les APIs navigateur' },
+              { id: 'csp', label: t('securityheaders.csp_label'), desc: t('securityheaders.csp_desc') },
+              { id: 'hsts', label: t('securityheaders.hsts_label'), desc: t('securityheaders.hsts_desc') },
+              { id: 'xframe', label: t('securityheaders.xframe_label'), desc: t('securityheaders.xframe_desc') },
+              { id: 'nosniff', label: t('securityheaders.nosniff_label'), desc: t('securityheaders.nosniff_desc') },
+              { id: 'referrer', label: t('securityheaders.referrer_label'), desc: t('securityheaders.referrer_desc') },
+              { id: 'permissions', label: t('securityheaders.permissions_label'), desc: t('securityheaders.permissions_desc') },
             ].map((opt) => (
               <button
                 key={opt.id}
@@ -153,12 +216,15 @@ export function SecurityHeadersGenerator({ initialData, onStateChange }: { initi
                 <Terminal className="w-4 h-4 text-slate-400" />
                 <span className="text-xs font-black uppercase tracking-widest text-slate-400">Netlify (netlify.toml)</span>
               </div>
-              <button
-                onClick={() => handleCopy(netlifyConfig, 'netlify')}
-                className={`p-2 rounded-xl transition-all ${copied === 'netlify' ? 'bg-emerald-50 text-emerald-600 dark:bg-emerald-500/10' : 'hover:bg-slate-100 dark:hover:bg-slate-800 text-slate-400'}`}
-              >
-                {copied === 'netlify' ? <Check className="w-4 h-4" /> : <Copy className="w-4 h-4" />}
-              </button>
+              <div className="flex items-center gap-2">
+                {!copied && <kbd className="hidden sm:inline-flex items-center justify-center px-1.5 py-0.5 border border-slate-200 dark:border-slate-700 rounded text-[10px] font-bold bg-white dark:bg-slate-900 text-slate-400">C</kbd>}
+                <button
+                  onClick={() => handleCopy(netlifyConfig, 'netlify')}
+                  className={`p-2 rounded-xl transition-all ${copied === 'netlify' ? 'bg-emerald-50 text-emerald-600 dark:bg-emerald-500/10' : 'hover:bg-slate-100 dark:hover:bg-slate-800 text-slate-400'}`}
+                >
+                  {copied === 'netlify' ? <Check className="w-4 h-4" /> : <Copy className="w-4 h-4" />}
+                </button>
+              </div>
             </div>
             <div className="bg-slate-900 dark:bg-black rounded-3xl p-8 border border-slate-800 shadow-xl shadow-indigo-500/5">
               <pre className="text-sm font-mono text-indigo-400 leading-relaxed">{netlifyConfig}</pre>
@@ -171,18 +237,20 @@ export function SecurityHeadersGenerator({ initialData, onStateChange }: { initi
       <div className="bg-indigo-50 dark:bg-indigo-900/10 p-8 rounded-[2.5rem] border border-indigo-100 dark:border-indigo-900/20 flex flex-col md:flex-row gap-8">
         <div className="flex-1 space-y-4">
           <h4 className="font-bold dark:text-white flex items-center gap-2">
-            <Shield className="w-4 h-4 text-indigo-500" /> Pourquoi ces en-têtes ?
+            <Shield className="w-4 h-4 text-indigo-500" /> {t('securityheaders.why_title')}
           </h4>
           <p className="text-sm text-slate-500 dark:text-slate-400 leading-relaxed">
-            Les en-têtes de sécurité HTTP indiquent au navigateur comment se comporter lors de l'interaction avec votre site. Ils constituent une première ligne de défense essentielle contre les vulnérabilités courantes comme le Cross-Site Scripting (XSS) et le détournement de session.
+            {t('securityheaders.why_text')}
           </p>
         </div>
         <div className="flex-1 space-y-4">
           <h4 className="font-bold dark:text-white flex items-center gap-2">
-            <Info className="w-4 h-4 text-indigo-500" /> Recommandations
+            <Info className="w-4 h-4 text-indigo-500" /> {t('securityheaders.recommendations_title')}
           </h4>
           <p className="text-sm text-slate-500 dark:text-slate-400 leading-relaxed">
-            Il est fortement conseillé d'utiliser au minimum <strong>HSTS</strong>, <strong>X-Content-Type-Options</strong> et une <strong>CSP</strong> basique. Testez toujours vos configurations dans un environnement de pré-production avant de les déployer.
+            <Trans i18nKey="securityheaders.recommendations_text">
+              Il est fortement conseillé d'utiliser au minimum <strong /> HSTS <strong /> X-Content-Type-Options <strong /> CSP basique. Testez toujours vos configurations dans un environnement de pré-production avant de les déployer.
+            </Trans>
           </p>
         </div>
       </div>

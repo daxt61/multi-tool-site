@@ -90,38 +90,38 @@ export function WordCounter({ initialData, onStateChange }: { initialData?: any;
       ari = 4.71 * (charCount / wordCount) + 0.5 * (wordCount / sentenceCount) - 21.43;
     }
 
-    // Improved Syllable counting algorithm
-    // Handles both English and French phonetics more accurately.
+    // Refined Syllable counting algorithm
+    // Improved for both English and French phonetics.
     const countSyllables = (word: string) => {
       word = word.toLowerCase().replace(/[^a-zàâäéèêëîïôöùûüÿç]/g, '');
       if (word.length === 0) return 0;
-      if (word.length <= 3) return 1;
+      if (word.length <= 2) return 1;
 
-      // English specific: remove silent 'e' at the end
+      // Handling French mute 'e' at the end of words
       if (word.endsWith('e')) {
-        word = word.slice(0, -1);
+        // If there's a vowel before the last consonant+e, it's often mute in French (e.g., 'table', 'pomme')
+        // Unless it's a very short word like 'le', 'de'
+        if (word.length > 3 && /[aeiouyàâäéèêëîïôöùûüÿ][bcdfghjklmnpqrstvwxz]e$/.test(word)) {
+           word = word.slice(0, -1);
+        }
       }
 
-      // French specific: handle common silent endings (not exhaustive but improves accuracy)
-      const silentEndings = ['ent', 'es', 's', 't'];
-      if (word.length > 5) {
-         silentEndings.forEach(end => {
-            if (word.endsWith(end)) {
-               // Only for verbs like 'mangent' (approximation)
-               if (end === 'ent' && word.match(/[aeiouyàâäéèêëîïôöùûüÿ]..ent$/)) {
-                  word = word.slice(0, -3);
-               }
-            }
-         });
+      // French specific: handle common silent endings '-ent' in verbs (3rd person plural)
+      if (word.endsWith('ent')) {
+        // Simple heuristic: if it's long enough and preceded by a vowel+consonant, it's likely a verb ending
+        if (word.length > 5 && /[aeiouyàâäéèêëîïôöùûüÿ][bcdfghjklmnpqrstvwxz]ent$/.test(word)) {
+          word = word.slice(0, -3);
+        }
       }
 
+      // French 'oi', 'ai', 'au', 'eu', 'ou', 'ei' etc are single syllables (diphthongs/monophthongs)
       const matched = word.match(/[aeiouyàâäéèêëîïôöùûüÿ]{1,3}/g);
       let count = matched ? matched.length : 1;
 
       // English specific: adjustments
       if (word.endsWith('le') && word.length > 2 && !/[aeiouy]/.test(word[word.length-3])) count++;
 
-      return count;
+      return Math.max(1, count);
     };
 
     let complexWords = 0;
@@ -204,6 +204,8 @@ export function WordCounter({ initialData, onStateChange }: { initialData?: any;
       paragraphs: paragraphCount,
       sentences: sentenceCount,
       readingTime: wordCount / 200,
+      readingTimeSlow: wordCount / 150,
+      readingTimeFast: wordCount / 250,
       speakingTime: wordCount / 130,
       writingTime: wordCount / 40,
       ari: ari > 0 ? ari.toFixed(1) : 0,
@@ -269,7 +271,7 @@ export function WordCounter({ initialData, onStateChange }: { initialData?: any;
 - Coleman-Liau Index: ${stats.cli}
 - Gunning Fog Index: ${stats.fog}
 - ${t('wordcounter.stat.flesch')}: ${stats.flesch} (${stats.fleschLevel})
-- ${t('wordcounter.stat.reading_time')}: ~${stats.readingTime.toFixed(1)} min
+- ${t('wordcounter.stat.reading_time')} (${t('wordcounter.reading_speed.average')}): ~${stats.readingTime.toFixed(1)} min
 - ${t('wordcounter.stat.speaking_time')}: ~${stats.speakingTime.toFixed(1)} min`;
 
     navigator.clipboard.writeText(report);
@@ -486,9 +488,30 @@ export function WordCounter({ initialData, onStateChange }: { initialData?: any;
       </div>
     )}
 
-      {/* Readability Score Display */}
-      <div className="bg-indigo-50 dark:bg-indigo-900/10 p-8 rounded-[2.5rem] border border-indigo-100 dark:border-indigo-900/20 grid grid-cols-1 md:grid-cols-2 gap-8">
-         <div className="space-y-4">
+      {/* Time & Readability Info */}
+      <div className="bg-indigo-50 dark:bg-indigo-900/10 p-8 rounded-[2.5rem] border border-indigo-100 dark:border-indigo-900/20 grid grid-cols-1 lg:grid-cols-3 gap-8">
+         <div className="space-y-6">
+            <h4 className="font-bold dark:text-white flex items-center gap-2">
+               <Clock className="w-4 h-4 text-indigo-500" /> {t('wordcounter.reading_time_title', 'Estimated Reading Time')}
+            </h4>
+            <div className="space-y-3">
+              {[
+                { label: t('wordcounter.reading_speed.slow'), speed: '150 wpm', value: formatTime(stats.readingTimeSlow || 0) },
+                { label: t('wordcounter.reading_speed.average'), speed: '200 wpm', value: formatTime(stats.readingTime || 0), primary: true },
+                { label: t('wordcounter.reading_speed.fast'), speed: '250 wpm', value: formatTime(stats.readingTimeFast || 0) },
+              ].map((r) => (
+                <div key={r.label} className={`flex justify-between items-center p-3 rounded-xl border ${r.primary ? 'bg-white dark:bg-slate-800 border-indigo-200 dark:border-indigo-500/30' : 'bg-transparent border-transparent'}`}>
+                  <div>
+                    <div className="text-xs font-black uppercase tracking-widest text-slate-400">{r.label}</div>
+                    <div className="text-[10px] font-bold text-indigo-500/50">{r.speed}</div>
+                  </div>
+                  <div className={`text-lg font-black font-mono ${r.primary ? 'text-indigo-600 dark:text-indigo-400' : 'text-slate-500'}`}>{r.value}</div>
+                </div>
+              ))}
+            </div>
+         </div>
+
+         <div className="space-y-4 lg:border-x lg:border-indigo-100 lg:dark:border-indigo-500/20 lg:px-8">
             <h4 className="font-bold dark:text-white flex items-center gap-2">
                <Star className="w-4 h-4 text-indigo-500" /> {t('wordcounter.flesch_title')}
             </h4>

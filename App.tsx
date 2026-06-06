@@ -368,6 +368,7 @@ const FractalTree = lazy(() => import("./components/FractalTree").then(m => ({ d
 const UnicodeNormalizer = lazy(() => import("./components/UnicodeNormalizer").then(m => ({ default: m.UnicodeNormalizer })));
 const IntegerPairGenerator = lazy(() => import("./components/IntegerPairGenerator").then(m => ({ default: m.IntegerPairGenerator })));
 const BinaryReverser = lazy(() => import("./components/BinaryReverser").then(m => ({ default: m.BinaryReverser })));
+const RegexCodeGenerator = lazy(() => import("./components/RegexCodeGenerator").then(m => ({ default: m.RegexCodeGenerator })));
 const LetterShuffler = lazy(() => import("./components/LetterShuffler").then(m => ({ default: m.LetterShuffler })));
 const DateSorter = lazy(() => import("./components/DateSorter").then(m => ({ default: m.DateSorter })));
 const RandomMatrixGenerator = lazy(() => import("./components/RandomMatrixGenerator").then(m => ({ default: m.RandomMatrixGenerator })));
@@ -3053,6 +3054,17 @@ const tools: Tool[] = [
     Component: Base64ToAudio,
     category: "dev",
     keywords: ["base64", "audio", "decode", "player", "mp3", "wav"],
+  },
+  {
+    id: "regex-code",
+    name: "Générateur Regex",
+    nameEn: "Regex Code Generator",
+    icon: Search,
+    description: "Générer des snippets de code pour utiliser des expressions régulières",
+    descriptionEn: "Generate code snippets to use regular expressions",
+    Component: RegexCodeGenerator,
+    category: "dev",
+    keywords: ["regex", "regexp", "code", "generator", "snippet", "pattern"],
   },
 ];
 

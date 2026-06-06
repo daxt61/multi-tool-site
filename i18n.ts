@@ -2061,6 +2061,18 @@ const resources = {
       "wordshuffler.placeholder": "Paste your text here to shuffle words...",
       "wordshuffler.about_title": "About Word Shuffler",
       "wordshuffler.about_text": "This tool shuffles the order of words in each line of your text. It's useful for creating anagrams at the word level, generating randomized sentences for testing, or simply scrambling text while keeping the line-by-line structure intact.",
+      "softshadow.layers": "Number of layers",
+      "softshadow.transparency": "Final transparency",
+      "softshadow.blur": "Maximum blur",
+      "softshadow.spread": "Spread",
+      "softshadow.about_title": "About Soft Shadows",
+      "softshadow.about_text": "This generator creates realistic and 'soft' box-shadows by layering multiple shadows with increasing opacities and blurs. This technique avoids the 'muddy' look of standard single CSS shadows and provides a more professional rendering similar to physical reality.",
+      "jsontopydantic.about_title": "About JSON to Pydantic",
+      "jsontopydantic.about_text": "Generate Pydantic V2 models from your JSON data. The tool automatically handles key conversion to snake_case (Python convention) and uses aliases to maintain compatibility with the original JSON. Nested objects are extracted into separate classes.",
+      "sqlminifier.about_title": "About SQL Minifier",
+      "sqlminifier.about_text": "Reduce the size of your SQL scripts by removing comments (single-line and multi-line) and compressing unnecessary spaces. Ideal for optimizing queries sent over networks or embedded in source code.",
+      "base64audio.about_title": "About Base64 to Audio",
+      "base64audio.about_text": "Convert Base64 encoded strings into a functional audio player. Supports MP3, WAV, and OGG formats. Useful for testing audio streams from APIs or databases without having to create a file manually.",
     }
   },
   fr: {
@@ -4121,6 +4133,18 @@ const resources = {
       "wordshuffler.placeholder": "Collez votre texte ici pour mélanger les mots...",
       "wordshuffler.about_title": "À propos du mélangeur de mots",
       "wordshuffler.about_text": "Cet outil mélange l'ordre des mots dans chaque ligne de votre texte. C'est utile pour créer des anagrammes au niveau des mots, générer des phrases aléatoires pour des tests, ou simplement brouiller un texte tout en conservant la structure ligne par ligne.",
+      "softshadow.layers": "Nombre de couches",
+      "softshadow.transparency": "Transparence finale",
+      "softshadow.blur": "Flou maximum",
+      "softshadow.spread": "Diffusion (Spread)",
+      "softshadow.about_title": "À propos des ombres douces",
+      "softshadow.about_text": "Ce générateur crée des ombres de texte ou de boîte réalistes et 'douces' en superposant plusieurs couches d'ombres avec des opacités et des flous croissants. Cette technique évite l'aspect 'sale' des ombres CSS uniques standards et donne un rendu plus professionnel proche de la réalité physique.",
+      "jsontopydantic.about_title": "À propos de JSON en Pydantic",
+      "jsontopydantic.about_text": "Générez des modèles Pydantic V2 à partir de vos données JSON. L'outil gère automatiquement la conversion des clés en snake_case (convention Python) et utilise des alias pour préserver la compatibilité avec le JSON d'origine. Les objets imbriqués sont extraits en classes distinctes.",
+      "sqlminifier.about_title": "À propos du minificateur SQL",
+      "sqlminifier.about_text": "Réduisez la taille de vos scripts SQL en supprimant les commentaires (mono-ligne et multi-lignes) et en compressant les espaces inutiles. Idéal pour optimiser les requêtes envoyées via réseau ou intégrées dans du code source.",
+      "base64audio.about_title": "À propos de Base64 en Audio",
+      "base64audio.about_text": "Convertissez des chaînes encodées en Base64 en un lecteur audio fonctionnel. Supporte les formats MP3, WAV et OGG. Pratique pour tester des flux audio provenant d'APIs ou de bases de données sans avoir à créer un fichier manuellement.",
     }
   }
 };

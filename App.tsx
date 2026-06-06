@@ -375,6 +375,10 @@ const HTTPHeaderParser = lazy(() => import("./components/HTTPHeaderParser").then
 const HilbertCurve = lazy(() => import("./components/HilbertCurve").then(m => ({ default: m.HilbertCurve })));
 const JSONObfuscator = lazy(() => import("./components/JSONObfuscator").then(m => ({ default: m.JSONObfuscator })));
 const WordShuffler = lazy(() => import("./components/WordShuffler").then(m => ({ default: m.WordShuffler })));
+const SoftShadowGenerator = lazy(() => import("./components/SoftShadowGenerator").then(m => ({ default: m.SoftShadowGenerator })));
+const JSONToPydantic = lazy(() => import("./components/JSONToPydantic").then(m => ({ default: m.JSONToPydantic })));
+const SQLMinifier = lazy(() => import("./components/SQLMinifier").then(m => ({ default: m.SQLMinifier })));
+const Base64ToAudio = lazy(() => import("./components/Base64ToAudio").then(m => ({ default: m.Base64ToAudio })));
 
 // ⚡ Bolt Optimization: Pre-calculating tool map and search index for O(1) lookups and faster filtering
 const toolsMap: Record<string, Tool> = {};
@@ -3005,6 +3009,50 @@ const tools: Tool[] = [
     Component: WordShuffler,
     category: "text",
     keywords: ["shuffle", "words", "text", "randomize", "anagram", "mélanger"],
+  },
+  {
+    id: "soft-shadow",
+    name: "Ombres Douces",
+    nameEn: "Soft Shadows",
+    icon: Layers,
+    description: "Générateur visuel d'ombres CSS multi-couches",
+    descriptionEn: "Visual multi-layer CSS box-shadow generator",
+    Component: SoftShadowGenerator,
+    category: "dev",
+    keywords: ["css", "shadow", "soft", "design", "ui", "frontend"],
+  },
+  {
+    id: "json-to-pydantic",
+    name: "JSON en Pydantic",
+    nameEn: "JSON to Pydantic",
+    icon: Code,
+    description: "Générer des modèles Pydantic (v2) à partir de JSON",
+    descriptionEn: "Generate Pydantic (v2) models from JSON",
+    Component: JSONToPydantic,
+    category: "dev",
+    keywords: ["python", "pydantic", "json", "types", "data validation"],
+  },
+  {
+    id: "sql-minifier",
+    name: "Minificateur SQL",
+    nameEn: "SQL Minifier",
+    icon: Scissors,
+    description: "Compresser et nettoyer vos requêtes SQL",
+    descriptionEn: "Compress and clean your SQL queries",
+    Component: SQLMinifier,
+    category: "dev",
+    keywords: ["sql", "minify", "compress", "clean", "developer"],
+  },
+  {
+    id: "base64-to-audio",
+    name: "Base64 en Audio",
+    nameEn: "Base64 to Audio",
+    icon: Music,
+    description: "Décoder du Base64 en lecteur audio interactif",
+    descriptionEn: "Decode Base64 into an interactive audio player",
+    Component: Base64ToAudio,
+    category: "dev",
+    keywords: ["base64", "audio", "decode", "player", "mp3", "wav"],
   },
 ];
 

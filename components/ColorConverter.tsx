@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback, useRef } from 'react';
 import { Copy, Check, Palette, Hash, Sliders, RotateCcw } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 
@@ -313,25 +313,62 @@ export function ColorConverter({ initialData, onStateChange }: {
 
   const { tints, shades } = generateShadesAndTints();
 
-  const handleReset = () => {
+  const handleReset = useCallback(() => {
     setHex(DEFAULT_COLORS.hex);
     setRgb(DEFAULT_COLORS.rgb);
     setHsl(DEFAULT_COLORS.hsl);
     setCmyk(DEFAULT_COLORS.cmyk);
     setOklch(DEFAULT_COLORS.oklch);
-  };
+  }, []);
 
-  const copyToClipboard = (text: string, id: string) => {
+  const copyToClipboard = useCallback((text: string, id: string) => {
     navigator.clipboard.writeText(text);
     setCopied(id);
     setTimeout(() => setCopied(''), 2000);
-  };
+  }, []);
+
+  const handleResetRef = useRef(handleReset);
+  const copyToClipboardRef = useRef(copyToClipboard);
+  const currentHexRef = useRef(hex);
+
+  useEffect(() => {
+    handleResetRef.current = handleReset;
+    copyToClipboardRef.current = copyToClipboard;
+    currentHexRef.current = hex;
+  }, [handleReset, copyToClipboard, hex]);
+
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (
+        document.activeElement?.tagName === "INPUT" ||
+        document.activeElement?.tagName === "TEXTAREA" ||
+        document.activeElement?.tagName === "SELECT" ||
+        document.activeElement?.getAttribute('contenteditable') === 'true'
+      ) {
+        return;
+      }
+
+      if (e.metaKey || e.ctrlKey || e.altKey || e.shiftKey) return;
+
+      if (e.key === 'Escape') {
+        e.preventDefault();
+        handleResetRef.current();
+      } else if (e.key.toLowerCase() === 'c') {
+        e.preventDefault();
+        copyToClipboardRef.current(currentHexRef.current, 'hex');
+      }
+    };
+
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, []);
 
   const isDefault = hex === DEFAULT_COLORS.hex;
 
   return (
     <div className="max-w-5xl mx-auto space-y-12">
-      <div className="flex justify-end items-center px-1">
+      <div className="flex justify-end items-center px-1 gap-2">
+        <kbd className="hidden sm:inline-flex items-center justify-center px-1.5 py-0.5 border border-rose-200 dark:border-rose-800 rounded text-[10px] font-bold text-rose-400 bg-white dark:bg-slate-900">Esc</kbd>
         <button
           onClick={handleReset}
           disabled={isDefault}
@@ -372,10 +409,12 @@ export function ColorConverter({ initialData, onStateChange }: {
               <span className="text-xs font-black uppercase tracking-widest text-slate-400">{format.label}</span>
               <button
                 onClick={() => copyToClipboard(format.value, format.id)}
-                className={`p-2 rounded-xl transition-all ${copied === format.id ? 'bg-emerald-50 dark:bg-emerald-500/10 text-emerald-600 dark:text-emerald-400' : 'text-slate-400 hover:text-indigo-500 bg-white dark:bg-slate-800 shadow-sm'}`}
-                aria-label={`Copier le format ${format.label}`}
+                className={`p-2 rounded-xl transition-all flex items-center gap-1.5 ${copied === format.id ? 'bg-emerald-50 dark:bg-emerald-500/10 text-emerald-600 dark:text-emerald-400' : 'text-slate-400 hover:text-indigo-500 bg-white dark:bg-slate-800 shadow-sm'}`}
+                aria-label={format.id === 'hex' ? `${t('common.copy')} (C)` : t('caseconverter.copy_as', { name: format.label })}
+                title={format.id === 'hex' ? `${t('common.copy')} (C)` : undefined}
               >
                 {copied === format.id ? <Check className="w-4 h-4" /> : <Copy className="w-4 h-4" />}
+                {format.id === 'hex' && !copied && <kbd className="hidden sm:inline-flex items-center justify-center w-4 h-4 border border-slate-200 dark:border-slate-700 rounded text-[10px] font-bold bg-slate-50 dark:bg-slate-900">C</kbd>}
               </button>
             </div>
             <div className="text-xl font-black font-mono truncate dark:text-white">
@@ -572,9 +611,10 @@ export function ColorConverter({ initialData, onStateChange }: {
                 <button
                   key={`tint-${i}`}
                   onClick={() => updateFromHex(color)}
-                  className="flex-1 hover:scale-y-110 transition-transform"
+                  className="flex-1 hover:scale-y-110 transition-transform focus-visible:ring-inset focus-visible:ring-2 focus-visible:ring-indigo-500 outline-none"
                   style={{ backgroundColor: color }}
                   title={color}
+                  aria-label={t('colorconverter.choose_color') + ' ' + color}
                 />
               ))}
               <div className="flex-1" style={{ backgroundColor: hex }} />
@@ -588,9 +628,10 @@ export function ColorConverter({ initialData, onStateChange }: {
                 <button
                   key={`shade-${i}`}
                   onClick={() => updateFromHex(color)}
-                  className="flex-1 hover:scale-y-110 transition-transform"
+                  className="flex-1 hover:scale-y-110 transition-transform focus-visible:ring-inset focus-visible:ring-2 focus-visible:ring-indigo-500 outline-none"
                   style={{ backgroundColor: color }}
                   title={color}
+                  aria-label={t('colorconverter.choose_color') + ' ' + color}
                 />
               ))}
             </div>
@@ -604,7 +645,7 @@ export function ColorConverter({ initialData, onStateChange }: {
           <Check className="w-4 h-4 text-indigo-500" /> {t('colorconverter.accessibility')}
         </h4>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-          <div className="p-6 rounded-3xl space-y-4" style={{ backgroundColor: hex, color: '#FFFFFF' }}>
+          <div className="p-6 rounded-3xl space-y-4" style={{ backgroundColor: hex, color: '#FFFFFF' }} aria-live="polite" aria-atomic="true">
              <div className="flex justify-between items-center">
                 <span className="text-xs font-bold uppercase tracking-widest opacity-80">{t('colorconverter.on_white')}</span>
                 <span className={`px-2 py-1 rounded-lg text-[10px] font-black uppercase tracking-widest ${contrastWhite >= 4.5 ? 'bg-emerald-500' : 'bg-rose-500'} text-white shadow-lg`}>
@@ -617,7 +658,7 @@ export function ColorConverter({ initialData, onStateChange }: {
              </p>
           </div>
 
-          <div className="p-6 rounded-3xl space-y-4" style={{ backgroundColor: hex, color: '#000000' }}>
+          <div className="p-6 rounded-3xl space-y-4" style={{ backgroundColor: hex, color: '#000000' }} aria-live="polite" aria-atomic="true">
              <div className="flex justify-between items-center">
                 <span className="text-xs font-bold uppercase tracking-widest opacity-80">{t('colorconverter.on_black')}</span>
                 <span className={`px-2 py-1 rounded-lg text-[10px] font-black uppercase tracking-widest ${contrastBlack >= 4.5 ? 'bg-emerald-500' : 'bg-rose-500'} text-white shadow-lg`}>

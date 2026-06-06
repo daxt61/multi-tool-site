@@ -4,7 +4,7 @@ import { useTranslation } from 'react-i18next';
 
 const MAX_LENGTH = 100000; // 100KB
 
-type OutputLanguage = 'fetch' | 'axios' | 'python' | 'php' | 'go' | 'ruby';
+type OutputLanguage = 'fetch' | 'axios' | 'python' | 'php' | 'go' | 'ruby' | 'java' | 'csharp';
 
 export function CURLConverter({ initialData, onStateChange }: { initialData?: any; onStateChange?: (state: any) => void }) {
   const { t } = useTranslation();
@@ -174,6 +174,48 @@ export function CURLConverter({ initialData, onStateChange }: { initialData?: an
     return code;
   };
 
+  const generateJavaOkHttp = (url: string, method: string, headers: Record<string, string>, data: string | null) => {
+    let code = `import okhttp3.*;\nimport java.io.IOException;\n\npublic class Main {\n`;
+    code += `  public static void main(String[] args) throws IOException {\n`;
+    code += `    OkHttpClient client = new OkHttpClient().newBuilder().build();\n`;
+
+    if (data) {
+      code += `    MediaType mediaType = MediaType.parse(${JSON.stringify(headers['Content-Type'] || 'text/plain')});\n`;
+      code += `    RequestBody body = RequestBody.create(mediaType, ${JSON.stringify(data)});\n`;
+    }
+
+    code += `    Request request = new Request.Builder()\n`;
+    code += `      .url(${JSON.stringify(url)})\n`;
+    code += `      .method(${JSON.stringify(method)}, ${data ? 'body' : 'null'})\n`;
+
+    Object.entries(headers).forEach(([k, v]) => {
+      code += `      .addHeader(${JSON.stringify(k)}, ${JSON.stringify(v)})\n`;
+    });
+
+    code += `      .build();\n`;
+    code += `    Response response = client.newCall(request).execute();\n`;
+    code += `    System.out.println(response.body().string());\n`;
+    code += `  }\n}`;
+    return code;
+  };
+
+  const generateCSharpRestSharp = (url: string, method: string, headers: Record<string, string>, data: string | null) => {
+    let code = `using RestSharp;\n\nvar client = new RestClient(${JSON.stringify(url)});\n`;
+    code += `var request = new RestRequest(Method.${method.toUpperCase()});\n`;
+
+    Object.entries(headers).forEach(([k, v]) => {
+      code += `request.AddHeader(${JSON.stringify(k)}, ${JSON.stringify(v)});\n`;
+    });
+
+    if (data) {
+      code += `request.AddParameter(${JSON.stringify(headers['Content-Type'] || 'text/plain')}, ${JSON.stringify(data)}, ParameterType.RequestBody);\n`;
+    }
+
+    code += `IRestResponse response = client.Execute(request);\n`;
+    code += `Console.WriteLine(response.Content);`;
+    return code;
+  };
+
   const parseCURL = useCallback((curl: string, lang: OutputLanguage) => {
     if (!curl.trim()) {
       setOutput('');
@@ -209,6 +251,8 @@ export function CURLConverter({ initialData, onStateChange }: { initialData?: an
         case 'php': code = generatePHP(url, method, headers, data); break;
         case 'go': code = generateGo(url, method, headers, data); break;
         case 'ruby': code = generateRuby(url, method, headers, data); break;
+        case 'java': code = generateJavaOkHttp(url, method, headers, data); break;
+        case 'csharp': code = generateCSharpRestSharp(url, method, headers, data); break;
       }
 
       setOutput(code);
@@ -243,7 +287,7 @@ export function CURLConverter({ initialData, onStateChange }: { initialData?: an
 
   const handleDownload = () => {
     if (!output) return;
-    const extensions: Record<OutputLanguage, string> = { fetch: 'js', axios: 'js', python: 'py', php: 'php', go: 'go', ruby: 'rb' };
+    const extensions: Record<OutputLanguage, string> = { fetch: 'js', axios: 'js', python: 'py', php: 'php', go: 'go', ruby: 'rb', java: 'java', csharp: 'cs' };
     const blob = new Blob([output], { type: 'text/plain' });
     const url = URL.createObjectURL(blob);
     const link = document.createElement('a');
@@ -257,7 +301,7 @@ export function CURLConverter({ initialData, onStateChange }: { initialData?: an
     <div className="max-w-6xl mx-auto space-y-8">
       <div className="flex flex-wrap gap-4 justify-between items-center bg-slate-50 dark:bg-slate-900/50 p-6 rounded-[2rem] border border-slate-200 dark:border-slate-800">
         <div className="flex flex-wrap gap-2">
-          {(['fetch', 'axios', 'python', 'php', 'go', 'ruby'] as OutputLanguage[]).map((lang) => (
+          {(['fetch', 'axios', 'python', 'php', 'go', 'ruby', 'java', 'csharp'] as OutputLanguage[]).map((lang) => (
             <button
               key={lang}
               onClick={() => setLanguage(lang)}
@@ -268,7 +312,7 @@ export function CURLConverter({ initialData, onStateChange }: { initialData?: an
               }`}
             >
               {language === lang ? <Check className="w-4 h-4 inline mr-1" /> : null}
-              {lang === 'php' ? 'PHP cURL' : lang === 'python' ? 'Python Requests' : lang}
+              {lang === 'php' ? 'PHP cURL' : lang === 'python' ? 'Python Requests' : lang === 'java' ? 'Java OkHttp' : lang === 'csharp' ? 'C# RestSharp' : lang}
             </button>
           ))}
         </div>
@@ -308,7 +352,7 @@ export function CURLConverter({ initialData, onStateChange }: { initialData?: an
         <div className="space-y-4">
           <div className="flex justify-between items-center px-1">
             <label htmlFor="output-area" className="text-xs font-black uppercase tracking-widest text-slate-400 flex items-center gap-2">
-              <Code className="w-4 h-4 text-emerald-500" /> {language === 'python' ? 'Python' : language === 'php' ? 'PHP' : 'JavaScript'} Output
+              <Code className="w-4 h-4 text-emerald-500" /> {language === 'python' ? 'Python' : language === 'php' ? 'PHP' : language === 'java' ? 'Java' : language === 'csharp' ? 'C#' : 'JavaScript'} Output
             </label>
             <div className="flex gap-2">
               <button

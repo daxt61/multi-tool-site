@@ -1,5 +1,5 @@
-import { useState, useEffect, useMemo } from 'react';
-import { FileSearch, Copy, Check, Trash2, Info, Braces, Layers, Hash, Type, ToggleLeft, List, AlertCircle } from 'lucide-react';
+import { useState, useEffect, useMemo, useCallback, useRef } from 'react';
+import { FileSearch, Copy, Check, Trash2, Info, Braces, Layers, Hash, Type, ToggleLeft, List, AlertCircle, RotateCcw } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 
 const MAX_LENGTH = 100000;
@@ -19,6 +19,7 @@ interface JsonStats {
 }
 
 export function JSONAnalyzer({ initialData, onStateChange }: { initialData?: any; onStateChange?: (state: any) => void }) {
+  const inputRef = useRef<HTMLTextAreaElement>(null);
   const { t } = useTranslation();
   const [input, setInput] = useState(initialData?.input || '');
   const [error, setError] = useState<string | null>(null);
@@ -83,7 +84,7 @@ export function JSONAnalyzer({ initialData, onStateChange }: { initialData?: any
     }
   }, [input, t]);
 
-  const handleCopy = () => {
+  const handleCopy = useCallback(() => {
     if (!stats) return;
     const report = `${t('jsonanalyzer.report_title')}
 --------------------
@@ -100,12 +101,46 @@ ${t('jsonanalyzer.type_dist')}:
     navigator.clipboard.writeText(report);
     setCopied(true);
     setTimeout(() => setCopied(false), 2000);
-  };
+  }, [stats, t]);
 
-  const handleClear = () => {
+  const handleReset = useCallback(() => {
     setInput('');
     setError(null);
-  };
+    inputRef.current?.focus();
+  }, []);
+
+  const handleCopyRef = useRef(handleCopy);
+  const handleResetRef = useRef(handleReset);
+
+  useEffect(() => {
+    handleCopyRef.current = handleCopy;
+    handleResetRef.current = handleReset;
+  }, [handleCopy, handleReset]);
+
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      const activeElement = document.activeElement;
+      const isInputFocused =
+        activeElement instanceof HTMLInputElement ||
+        activeElement instanceof HTMLTextAreaElement ||
+        activeElement instanceof HTMLSelectElement ||
+        activeElement?.getAttribute("contenteditable") === "true";
+
+      if (isInputFocused) return;
+      if (e.metaKey || e.ctrlKey || e.altKey || e.shiftKey) return;
+
+      if (e.key === "Escape") {
+        e.preventDefault();
+        handleResetRef.current();
+      } else if (e.key.toLowerCase() === "c") {
+        e.preventDefault();
+        handleCopyRef.current();
+      }
+    };
+
+    window.addEventListener("keydown", handleKeyDown);
+    return () => window.removeEventListener("keydown", handleKeyDown);
+  }, []);
 
   return (
     <div className="max-w-6xl mx-auto space-y-8">
@@ -123,16 +158,21 @@ ${t('jsonanalyzer.type_dist')}:
             <label htmlFor="json-input" className="text-xs font-black uppercase tracking-widest text-slate-400 flex items-center gap-2">
               <Braces className="w-4 h-4 text-indigo-500" /> {t('jsontosql.json_input')}
             </label>
-            <button
-              onClick={handleClear}
-              disabled={!input}
-              className="text-xs font-bold text-rose-500 bg-rose-50 dark:bg-rose-500/10 hover:bg-rose-100 dark:hover:bg-rose-500/20 px-3 py-1.5 rounded-xl flex items-center gap-1 transition-all disabled:opacity-50 disabled:cursor-not-allowed focus-visible:ring-2 focus-visible:ring-rose-500 focus-visible:outline-none"
-            >
-              <Trash2 className="w-3 h-3" /> {t('common.clear')}
-            </button>
+            <div className="flex gap-2 items-center">
+              <kbd className="hidden sm:inline-flex items-center justify-center px-1.5 py-0.5 border border-rose-200 dark:border-rose-800 rounded text-[10px] font-bold text-rose-400 bg-white dark:bg-slate-900">Esc</kbd>
+              <button
+                onClick={handleReset}
+                disabled={!input}
+                className="text-xs font-bold text-rose-500 bg-rose-50 dark:bg-rose-500/10 hover:bg-rose-100 dark:hover:bg-rose-500/20 px-3 py-1.5 rounded-xl flex items-center gap-1 transition-all disabled:opacity-50 disabled:cursor-not-allowed focus-visible:ring-2 focus-visible:ring-rose-500 focus-visible:outline-none"
+                aria-label={t('common.clear')}
+              >
+                <RotateCcw className="w-3 h-3" /> {t('common.reset')}
+              </button>
+            </div>
           </div>
           <textarea
             id="json-input"
+            ref={inputRef}
             value={input}
             onChange={(e) => setInput(e.target.value)}
             placeholder='{ "id": 1, "name": "Test" }'
@@ -147,14 +187,16 @@ ${t('jsonanalyzer.type_dist')}:
             <button
               onClick={handleCopy}
               disabled={!stats}
-              className={`text-xs font-bold px-3 py-1.5 rounded-xl transition-all border focus-visible:ring-2 focus-visible:ring-indigo-500 focus-visible:outline-none flex items-center gap-1 ${
+              className={`text-xs font-bold px-3 py-1.5 rounded-xl transition-all border focus-visible:ring-2 focus-visible:ring-indigo-500 focus-visible:outline-none flex items-center gap-1.5 ${
                 copied
                   ? 'bg-emerald-50 dark:bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border-emerald-200 dark:border-emerald-500/20'
                   : 'bg-white dark:bg-slate-800 text-indigo-600 dark:text-indigo-400 border-slate-200 dark:border-slate-700 hover:border-indigo-500/50'
               } disabled:opacity-50 disabled:cursor-not-allowed`}
+              title={`${t('jsonanalyzer.copy_report')} (C)`}
             >
               {copied ? <Check className="w-3 h-3" /> : <Copy className="w-3 h-3" />}
               {copied ? t('common.copied') : t('jsonanalyzer.copy_report')}
+              {!copied && <kbd className="hidden sm:inline-flex items-center justify-center w-4 h-4 border border-indigo-200 dark:border-indigo-800 rounded text-[10px] font-bold bg-white dark:bg-slate-900">C</kbd>}
             </button>
           </div>
 
@@ -170,7 +212,13 @@ ${t('jsonanalyzer.type_dist')}:
                   <item.icon className="w-3.5 h-3.5" />
                   <span className="text-[10px] font-black uppercase tracking-widest">{item.label}</span>
                 </div>
-                <div className="text-3xl font-black text-slate-900 dark:text-white tabular-nums">{item.value}</div>
+                <div
+                  className="text-3xl font-black text-slate-900 dark:text-white tabular-nums"
+                  aria-live="polite"
+                  aria-atomic="true"
+                >
+                  {item.value}
+                </div>
               </div>
             ))}
           </div>
@@ -193,7 +241,13 @@ ${t('jsonanalyzer.type_dist')}:
                         <type.icon className="w-3 h-3" />
                         {type.label}
                       </div>
-                      <span className="text-slate-900 dark:text-white">{type.value}</span>
+                      <span
+                        className="text-slate-900 dark:text-white"
+                        aria-live="polite"
+                        aria-atomic="true"
+                      >
+                        {type.value}
+                      </span>
                     </div>
                     <div className="h-1.5 w-full bg-slate-100 dark:bg-slate-800 rounded-full overflow-hidden">
                       <div

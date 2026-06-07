@@ -71,6 +71,7 @@ import {
   Briefcase,
   Search,
   Replace,
+  UserCircle,
   Shuffle,
   MousePointer2,
   ArrowLeft,
@@ -383,6 +384,8 @@ const Base64ToAudio = lazy(() => import("./components/Base64ToAudio").then(m => 
 const GCDLCMCalculator = lazy(() => import("./components/GCDLCMCalculator").then(m => ({ default: m.GCDLCMCalculator })));
 const GrayCodeConverter = lazy(() => import("./components/GrayCodeConverter").then(m => ({ default: m.GrayCodeConverter })));
 const TimeSequenceGenerator = lazy(() => import("./components/TimeSequenceGenerator").then(m => ({ default: m.TimeSequenceGenerator })));
+const SocialMediaBioGenerator = lazy(() => import("./components/SocialMediaBioGenerator").then(m => ({ default: m.SocialMediaBioGenerator })));
+const ListToChecklist = lazy(() => import("./components/ListToChecklist").then(m => ({ default: m.ListToChecklist })));
 
 // ⚡ Bolt Optimization: Pre-calculating tool map and search index for O(1) lookups and faster filtering
 const toolsMap: Record<string, Tool> = {};
@@ -3101,6 +3104,28 @@ const tools: Tool[] = [
     Component: TimeSequenceGenerator,
     category: "other",
     keywords: ["time", "sequence", "dates", "interval", "schedule", "suite", "temporelle"],
+  },
+  {
+    id: "social-media-bio",
+    name: "Générateur de Bio",
+    nameEn: "Bio Generator",
+    icon: UserCircle,
+    description: "Générer des bios créatives et professionnelles pour vos réseaux sociaux",
+    descriptionEn: "Generate creative and professional bios for your social media profiles",
+    Component: SocialMediaBioGenerator,
+    category: "text",
+    keywords: ["bio", "social media", "twitter", "instagram", "linkedin", "profile", "branding"],
+  },
+  {
+    id: "list-to-checklist",
+    name: "Liste en Checklist",
+    nameEn: "List to Checklist",
+    icon: ListChecks,
+    description: "Transformez vos listes en checklists Markdown, HTML ou textuelles",
+    descriptionEn: "Transform your lists into Markdown, HTML or text-based checklists",
+    Component: ListToChecklist,
+    category: "text",
+    keywords: ["list", "checklist", "markdown", "todo", "task", "format", "cleaning"],
   },
 ];
 

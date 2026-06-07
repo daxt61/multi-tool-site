@@ -1,9 +1,11 @@
 import { useState, useEffect, useCallback } from 'react';
 import { Lock, Unlock, Copy, Check, Trash2, Key, Info, AlertCircle } from 'lucide-react';
+import { useTranslation } from 'react-i18next';
 
 const MAX_LENGTH = 10000;
 
 export function VigenereCipher({ initialData, onStateChange }: { initialData?: any; onStateChange?: (state: any) => void }) {
+  const { t } = useTranslation();
   const [text, setText] = useState(initialData?.text || '');
   const [key, setKey] = useState(initialData?.key || '');
   const [mode, setMode] = useState<'encrypt' | 'decrypt'>(initialData?.mode || 'encrypt');
@@ -46,14 +48,15 @@ export function VigenereCipher({ initialData, onStateChange }: { initialData?: a
 
   useEffect(() => {
     if (text.length > MAX_LENGTH) {
-      setError(`Le texte est trop long (max ${MAX_LENGTH.toLocaleString()} caractères).`);
+      setError(t('error.max_length', { max: MAX_LENGTH.toLocaleString() }));
       setResult('');
       return;
     }
     setError(null);
     setResult(processText(text, key, mode === 'encrypt'));
-    onStateChange?.({ text, key, mode });
-  }, [text, key, mode, processText]);
+    // Sentinel: Never share the text or secret key in the URL state.
+    onStateChange?.({ mode });
+  }, [text, key, mode, processText, onStateChange]);
 
   const handleCopy = () => {
     if (!result) return;

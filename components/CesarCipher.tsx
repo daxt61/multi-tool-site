@@ -1,9 +1,11 @@
 import { useState, useEffect, useCallback } from 'react';
 import { Shield, Lock, Unlock, Copy, Check, Trash2, RefreshCw, Info, ArrowRight, AlertCircle } from 'lucide-react';
+import { useTranslation } from 'react-i18next';
 
 const MAX_LENGTH = 100000;
 
 export function CesarCipher({ initialData, onStateChange }: { initialData?: any; onStateChange?: (state: any) => void }) {
+  const { t } = useTranslation();
   const [text, setText] = useState(initialData?.text || '');
   const [shift, setShift] = useState(initialData?.shift ?? 3);
   const [isEncrypt, setIsEncrypt] = useState(initialData?.isEncrypt ?? true);
@@ -22,8 +24,9 @@ export function CesarCipher({ initialData, onStateChange }: { initialData?: any;
   const result = text.length <= MAX_LENGTH ? processText(text, shift, isEncrypt) : '';
 
   useEffect(() => {
-    onStateChange?.({ text, shift, isEncrypt });
-  }, [text, shift, isEncrypt]);
+    // Sentinel: Never share the text in the URL state.
+    onStateChange?.({ shift, isEncrypt });
+  }, [text, shift, isEncrypt, onStateChange]);
 
   const handleCopy = () => {
     if (!result) return;
@@ -40,7 +43,7 @@ export function CesarCipher({ initialData, onStateChange }: { initialData?: any;
   const handleTextChange = (val: string) => {
     setText(val);
     if (val.length > MAX_LENGTH) {
-      setError(`L'entrée est trop longue. Limite de ${MAX_LENGTH.toLocaleString()} caractères.`);
+      setError(t('error.max_length', { max: MAX_LENGTH.toLocaleString() }));
     } else {
       setError(null);
     }

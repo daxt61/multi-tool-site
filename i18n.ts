@@ -2115,6 +2115,12 @@ const resources = {
       "duration.mixed_ops_text": "You can mix additions and subtractions. This is ideal for calculating effective attendance time by subtracting break times from the total.",
       "duration.conversions_title": "Conversions",
       "duration.conversions_text": "In addition to the standard format, the tool automatically converts the total into decimal minutes and decimal hours, which is useful for payroll or invoicing software.",
+      "tool.gcd-lcm.name": "GCD & LCM Calculator",
+      "tool.gcd-lcm.description": "Calculate Greatest Common Divisor and Least Common Multiple",
+      "tool.gray-code.name": "Gray Code Converter",
+      "tool.gray-code.description": "Convert between standard binary and Gray code",
+      "tool.time-sequence.name": "Time Sequence Generator",
+      "tool.time-sequence.description": "Generate a sequence of dates and times at a fixed interval",
     }
   },
   fr: {
@@ -4229,6 +4235,12 @@ const resources = {
       "duration.mixed_ops_text": "Vous pouvez mélanger les additions et les soustractions. C'est idéal pour calculer un temps de présence effectif en soustrayant les temps de pause du total.",
       "duration.conversions_title": "Conversions",
       "duration.conversions_text": "En plus du format standard, l'outil convertit automatiquement le total en minutes décimales et en heures décimales, ce qui est utile pour les logiciels de paie ou de facturation.",
+      "tool.gcd-lcm.name": "PGCD & PPCM",
+      "tool.gcd-lcm.description": "Calculer le Plus Grand Commun Diviseur et le Plus Petit Commun Multiple",
+      "tool.gray-code.name": "Code Gray",
+      "tool.gray-code.description": "Convertir entre binaire standard et code Gray",
+      "tool.time-sequence.name": "Suite Temporelle",
+      "tool.time-sequence.description": "Générer une suite de dates et d'heures à intervalle régulier",
     }
   }
 };

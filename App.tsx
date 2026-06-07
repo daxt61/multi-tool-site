@@ -380,6 +380,9 @@ const SoftShadowGenerator = lazy(() => import("./components/SoftShadowGenerator"
 const JSONToPydantic = lazy(() => import("./components/JSONToPydantic").then(m => ({ default: m.JSONToPydantic })));
 const SQLMinifier = lazy(() => import("./components/SQLMinifier").then(m => ({ default: m.SQLMinifier })));
 const Base64ToAudio = lazy(() => import("./components/Base64ToAudio").then(m => ({ default: m.Base64ToAudio })));
+const GCDLCMCalculator = lazy(() => import("./components/GCDLCMCalculator").then(m => ({ default: m.GCDLCMCalculator })));
+const GrayCodeConverter = lazy(() => import("./components/GrayCodeConverter").then(m => ({ default: m.GrayCodeConverter })));
+const TimeSequenceGenerator = lazy(() => import("./components/TimeSequenceGenerator").then(m => ({ default: m.TimeSequenceGenerator })));
 
 // ⚡ Bolt Optimization: Pre-calculating tool map and search index for O(1) lookups and faster filtering
 const toolsMap: Record<string, Tool> = {};
@@ -3065,6 +3068,39 @@ const tools: Tool[] = [
     Component: RegexCodeGenerator,
     category: "dev",
     keywords: ["regex", "regexp", "code", "generator", "snippet", "pattern"],
+  },
+  {
+    id: "gcd-lcm",
+    name: "PGCD & PPCM",
+    nameEn: "GCD & LCM Calculator",
+    icon: CalcIcon,
+    description: "Calculer le Plus Grand Commun Diviseur et le Plus Petit Commun Multiple",
+    descriptionEn: "Calculate Greatest Common Divisor and Least Common Multiple",
+    Component: GCDLCMCalculator,
+    category: "calculators",
+    keywords: ["math", "gcd", "lcm", "pgcd", "ppcm", "diviseur", "multiple", "integers"],
+  },
+  {
+    id: "gray-code",
+    name: "Code Gray",
+    nameEn: "Gray Code Converter",
+    icon: Binary,
+    description: "Convertir entre binaire standard et code Gray",
+    descriptionEn: "Convert between standard binary and Gray code",
+    Component: GrayCodeConverter,
+    category: "dev",
+    keywords: ["binary", "gray code", "conversion", "reflected", "encoding", "binaire"],
+  },
+  {
+    id: "time-sequence",
+    name: "Suite Temporelle",
+    nameEn: "Time Sequence Generator",
+    icon: Calendar,
+    description: "Générer une suite de dates et d'heures à intervalle régulier",
+    descriptionEn: "Generate a sequence of dates and times at a fixed interval",
+    Component: TimeSequenceGenerator,
+    category: "other",
+    keywords: ["time", "sequence", "dates", "interval", "schedule", "suite", "temporelle"],
   },
 ];
 

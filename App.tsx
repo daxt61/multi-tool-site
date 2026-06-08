@@ -386,6 +386,8 @@ const GrayCodeConverter = lazy(() => import("./components/GrayCodeConverter").th
 const TimeSequenceGenerator = lazy(() => import("./components/TimeSequenceGenerator").then(m => ({ default: m.TimeSequenceGenerator })));
 const SocialMediaBioGenerator = lazy(() => import("./components/SocialMediaBioGenerator").then(m => ({ default: m.SocialMediaBioGenerator })));
 const ListToChecklist = lazy(() => import("./components/ListToChecklist").then(m => ({ default: m.ListToChecklist })));
+const ListToJSON = lazy(() => import("./components/ListToJSON").then(m => ({ default: m.ListToJSON })));
+const Base64ToFile = lazy(() => import("./components/Base64ToFile").then(m => ({ default: m.Base64ToFile })));
 
 // ⚡ Bolt Optimization: Pre-calculating tool map and search index for O(1) lookups and faster filtering
 const toolsMap: Record<string, Tool> = {};
@@ -3126,6 +3128,28 @@ const tools: Tool[] = [
     Component: ListToChecklist,
     category: "text",
     keywords: ["list", "checklist", "markdown", "todo", "task", "format", "cleaning"],
+  },
+  {
+    id: "list-to-json",
+    name: "Liste en JSON",
+    nameEn: "List to JSON",
+    icon: FileCode,
+    description: "Convertir une liste de texte en un tableau JSON",
+    descriptionEn: "Convert a text list into a JSON array",
+    Component: ListToJSON,
+    category: "dev",
+    keywords: ["list", "json", "array", "convert", "developer"],
+  },
+  {
+    id: "base64-to-file",
+    name: "Base64 en Fichier",
+    nameEn: "Base64 to File",
+    icon: FileType,
+    description: "Décoder du Base64 en n'importe quel type de fichier",
+    descriptionEn: "Decode Base64 into any file type",
+    Component: Base64ToFile,
+    category: "dev",
+    keywords: ["base64", "decode", "file", "download", "blob"],
   },
 ];
 

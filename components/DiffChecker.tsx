@@ -1,5 +1,5 @@
-import { useState, useMemo, useEffect, useCallback } from 'react';
-import { Split, ArrowRight, Trash2, Copy, Check, ArrowLeftRight, Info, Search, LayoutPanelLeft, LayoutList } from 'lucide-react';
+import { useState, useMemo, useEffect, useCallback, useRef } from 'react';
+import { Split, ArrowRight, Trash2, Copy, Check, ArrowLeftRight, Info, Search, LayoutPanelLeft, LayoutList, RotateCcw } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 
 interface DiffItem {
@@ -22,19 +22,6 @@ export function DiffChecker({ initialData, onStateChange }: { initialData?: any;
   }, [text1, text2, viewMode, onStateChange]);
 
   const MAX_LENGTH = 50000; // 50KB safety limit
-
-  const handleSwap = () => {
-    const t1 = text1;
-    setText1(text2);
-    setText2(t1);
-  };
-
-  const handleCopy = () => {
-    const result = diffResult.map(item => `${item.type === 'added' ? '+' : item.type === 'removed' ? '-' : ' '} ${item.text}`).join('\n');
-    navigator.clipboard.writeText(result);
-    setCopied(true);
-    setTimeout(() => setCopied(false), 2000);
-  };
 
   const diffResult = useMemo(() => {
     const lines1 = text1.slice(0, MAX_LENGTH).split('\n');
@@ -96,6 +83,63 @@ export function DiffChecker({ initialData, onStateChange }: { initialData?: any;
 
     return finalDiff;
   }, [text1, text2]);
+
+  const handleSwap = useCallback(() => {
+    const t1 = text1;
+    setText1(text2);
+    setText2(t1);
+  }, [text1, text2]);
+
+  const handleCopy = useCallback(() => {
+    const result = diffResult.map(item => `${item.type === 'added' ? '+' : item.type === 'removed' ? '-' : ' '} ${item.text}`).join('\n');
+    navigator.clipboard.writeText(result);
+    setCopied(true);
+    setTimeout(() => setCopied(false), 2000);
+  }, [diffResult]);
+
+  const handleReset = useCallback(() => {
+    setText1('');
+    setText2('');
+  }, []);
+
+  const handleSwapRef = useRef(handleSwap);
+  const handleCopyRef = useRef(handleCopy);
+  const handleResetRef = useRef(handleReset);
+
+  useEffect(() => {
+    handleSwapRef.current = handleSwap;
+    handleCopyRef.current = handleCopy;
+    handleResetRef.current = handleReset;
+  }, [handleSwap, handleCopy, handleReset]);
+
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (
+        document.activeElement?.tagName === "INPUT" ||
+        document.activeElement?.tagName === "TEXTAREA" ||
+        document.activeElement?.tagName === "SELECT" ||
+        document.activeElement?.getAttribute('contenteditable') === 'true'
+      ) {
+        return;
+      }
+
+      if (e.metaKey || e.ctrlKey || e.altKey || e.shiftKey) return;
+
+      if (e.key.toLowerCase() === 's') {
+        e.preventDefault();
+        handleSwapRef.current();
+      } else if (e.key.toLowerCase() === 'c') {
+        e.preventDefault();
+        handleCopyRef.current();
+      } else if (e.key === 'Escape') {
+        e.preventDefault();
+        handleResetRef.current();
+      }
+    };
+
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, []);
 
   function getCharDiff(s1: string, s2: string) {
     const n = s1.length;
@@ -164,13 +208,15 @@ export function DiffChecker({ initialData, onStateChange }: { initialData?: any;
         <div className="lg:col-span-5 space-y-4">
           <div className="flex justify-between items-center px-1">
             <label htmlFor="text1" className="text-xs font-black uppercase tracking-widest text-slate-400 cursor-pointer">{t('diffchecker.original_text')}</label>
-            <button
-              onClick={() => setText1('')}
-              className="text-xs font-bold text-rose-500 bg-rose-50 dark:bg-rose-500/10 hover:bg-rose-100 transition-all px-2 py-1 rounded-lg flex items-center gap-1 disabled:opacity-50"
-              disabled={!text1}
-            >
-              <Trash2 className="w-3 h-3" /> {t('common.clear')}
-            </button>
+            <div className="flex gap-2 items-center">
+              <kbd className="hidden sm:inline-flex items-center justify-center px-1.5 py-0.5 border border-rose-200 dark:border-rose-800 rounded text-[10px] font-bold text-rose-400 bg-white dark:bg-slate-900">Esc</kbd>
+              <button
+                onClick={handleReset}
+                className="text-xs font-bold text-rose-500 bg-rose-50 dark:bg-rose-500/10 hover:bg-rose-100 dark:hover:bg-rose-500/20 px-3 py-1.5 rounded-xl flex items-center gap-2 transition-all"
+              >
+                <RotateCcw className="w-4 h-4" /> {t('common.reset')}
+              </button>
+            </div>
           </div>
           <textarea
             id="text1"
@@ -181,26 +227,20 @@ export function DiffChecker({ initialData, onStateChange }: { initialData?: any;
           />
         </div>
 
-        <div className="lg:col-span-2 flex justify-center">
+        <div className="lg:col-span-2 flex flex-col items-center justify-center gap-2">
           <button
             onClick={handleSwap}
-            className="w-12 h-12 bg-indigo-600 text-white rounded-full flex items-center justify-center shadow-lg shadow-indigo-600/20 transition-all hover:scale-110 active:scale-95 group"
+            className="w-12 h-12 bg-indigo-600 text-white rounded-full flex items-center justify-center shadow-lg shadow-indigo-600/20 transition-all hover:scale-110 active:scale-95 group focus-visible:ring-2 focus-visible:ring-indigo-500 focus-visible:outline-none"
             aria-label={t('diffchecker.swap_aria')}
           >
             <ArrowLeftRight className="w-6 h-6 transition-transform group-hover:rotate-180 duration-500" />
           </button>
+          <kbd className="hidden sm:inline-flex items-center justify-center w-5 h-5 border border-slate-200 dark:border-slate-800 rounded text-[10px] font-bold text-slate-400 bg-white dark:bg-slate-900">S</kbd>
         </div>
 
         <div className="lg:col-span-5 space-y-4">
           <div className="flex justify-between items-center px-1">
             <label htmlFor="text2" className="text-xs font-black uppercase tracking-widest text-slate-400 cursor-pointer">{t('diffchecker.new_text')}</label>
-            <button
-              onClick={() => setText2('')}
-              className="text-xs font-bold text-rose-500 bg-rose-50 dark:bg-rose-500/10 hover:bg-rose-100 transition-all px-2 py-1 rounded-lg flex items-center gap-1 disabled:opacity-50"
-              disabled={!text2}
-            >
-              <Trash2 className="w-3 h-3" /> {t('common.clear')}
-            </button>
           </div>
           <textarea
             id="text2"
@@ -252,14 +292,15 @@ export function DiffChecker({ initialData, onStateChange }: { initialData?: any;
                 copied
                   ? 'bg-emerald-50 dark:bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border-emerald-200 dark:border-emerald-500/20'
                   : 'bg-white dark:bg-slate-800 text-slate-600 dark:text-slate-300 border-slate-200 dark:border-slate-700 hover:border-slate-300'
-              } disabled:opacity-50`}
+              } disabled:opacity-50 focus-visible:ring-2 focus-visible:ring-indigo-500 focus-visible:outline-none`}
             >
               {copied ? <Check className="w-3.5 h-3.5" /> : <Copy className="w-3.5 h-3.5" />}
               {copied ? t('common.copied') : t('diffchecker.copy_result')}
+              {!copied && <kbd className="hidden sm:inline-flex items-center justify-center w-4 h-4 border border-slate-200 dark:border-slate-700 rounded text-[10px] font-bold bg-white dark:bg-slate-800 ml-1">C</kbd>}
             </button>
           </div>
         </div>
-        <div className="p-4 md:p-8 font-mono text-sm space-y-1 overflow-x-auto max-h-[600px]">
+        <div className="p-4 md:p-8 font-mono text-sm space-y-1 overflow-x-auto max-h-[600px]" aria-live="polite" aria-atomic="true">
           {text1 === '' && text2 === '' ? (
             <div className="text-center py-12 px-4 space-y-3">
               <div className="w-12 h-12 bg-slate-100 dark:bg-slate-800 rounded-full flex items-center justify-center mx-auto text-slate-300">

@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { Percent, ArrowRight, Info, TrendingUp, Trash2, Copy, Check } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 
@@ -28,7 +28,7 @@ export function PercentageCalculator({ initialData, onStateChange }: { initialDa
   const afterIncrease = Number(valAfter) * (1 + Math.abs(Number(percentAfter)) / 100);
   const afterDecrease = Number(valAfter) * (1 - Math.abs(Number(percentAfter)) / 100);
 
-  const handleClear = () => {
+  const handleClear = useCallback(() => {
     setValue1('');
     setValue2('');
     setValue3('');
@@ -37,7 +37,17 @@ export function PercentageCalculator({ initialData, onStateChange }: { initialDa
     setFinalVal('');
     setValAfter('');
     setPercentAfter('');
-  };
+  }, []);
+
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') {
+        handleClear();
+      }
+    };
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [handleClear]);
 
   const copyToClipboard = (text: string, id: string) => {
     navigator.clipboard.writeText(text);
@@ -49,7 +59,8 @@ export function PercentageCalculator({ initialData, onStateChange }: { initialDa
 
   return (
     <div className="max-w-4xl mx-auto space-y-8">
-      <div className="flex justify-end px-1">
+      <div className="flex justify-end px-1 gap-2 items-center">
+        <kbd className="hidden sm:inline-flex items-center justify-center px-1.5 py-0.5 border border-rose-200 dark:border-rose-800 rounded text-[10px] font-bold text-rose-400 bg-white dark:bg-slate-900">Esc</kbd>
         <button
           onClick={handleClear}
           disabled={!hasContent}

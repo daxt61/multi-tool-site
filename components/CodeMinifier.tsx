@@ -143,16 +143,19 @@ export function CodeMinifier({ initialData, onStateChange }: { initialData?: any
         <div className="space-y-4">
           <div className="flex justify-between items-center px-1">
             <label htmlFor="minifier-input" className="text-xs font-black uppercase tracking-widest text-slate-400 cursor-pointer">{t('codeminifier.original_code')}</label>
-            <button
-              onClick={() => {
-                setInput('');
-                setError(null);
-              }}
-              disabled={!input}
-              className="text-xs font-bold text-rose-500 bg-rose-50 dark:bg-rose-500/10 hover:bg-rose-100 dark:hover:bg-rose-500/20 px-3 py-1 rounded-full flex items-center gap-1 transition-all disabled:opacity-50 disabled:cursor-not-allowed focus-visible:ring-2 focus-visible:ring-rose-500 focus-visible:outline-none"
-            >
-              <Trash2 className="w-3 h-3" /> {t('common.clear')}
-            </button>
+            <div className="flex gap-2 items-center">
+              <kbd className="hidden sm:inline-flex items-center justify-center px-1.5 py-0.5 border border-rose-200 dark:border-rose-800 rounded text-[10px] font-bold text-rose-400 bg-white dark:bg-slate-900">Esc</kbd>
+              <button
+                onClick={() => {
+                  setInput('');
+                  setError(null);
+                }}
+                disabled={!input}
+                className="text-xs font-bold text-rose-500 bg-rose-50 dark:bg-rose-500/10 hover:bg-rose-100 dark:hover:bg-rose-500/20 px-3 py-1 rounded-full flex items-center gap-1 transition-all disabled:opacity-50 disabled:cursor-not-allowed focus-visible:ring-2 focus-visible:ring-rose-500 focus-visible:outline-none"
+              >
+                <Trash2 className="w-3 h-3" /> {t('common.clear')}
+              </button>
+            </div>
           </div>
           <textarea
             id="minifier-input"
@@ -163,6 +166,12 @@ export function CodeMinifier({ initialData, onStateChange }: { initialData?: any
               if (val.length > MAX_LENGTH) {
                 setError(t('codeminifier.error_max_length', { max: MAX_LENGTH.toLocaleString() }));
               } else {
+                setError(null);
+              }
+            }}
+            onKeyDown={(e) => {
+              if (e.key === 'Escape') {
+                setInput('');
                 setError(null);
               }
             }}

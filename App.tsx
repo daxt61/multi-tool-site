@@ -388,6 +388,9 @@ const SocialMediaBioGenerator = lazy(() => import("./components/SocialMediaBioGe
 const ListToChecklist = lazy(() => import("./components/ListToChecklist").then(m => ({ default: m.ListToChecklist })));
 const ListToJSON = lazy(() => import("./components/ListToJSON").then(m => ({ default: m.ListToJSON })));
 const Base64ToFile = lazy(() => import("./components/Base64ToFile").then(m => ({ default: m.Base64ToFile })));
+const PalindromicNumberGenerator = lazy(() => import("./components/PalindromicNumberGenerator").then(m => ({ default: m.PalindromicNumberGenerator })));
+const ASCIIDecimalConverter = lazy(() => import("./components/ASCIIDecimalConverter").then(m => ({ default: m.ASCIIDecimalConverter })));
+const BinaryBitShifter = lazy(() => import("./components/BinaryBitShifter").then(m => ({ default: m.BinaryBitShifter })));
 
 // ⚡ Bolt Optimization: Pre-calculating tool map and search index for O(1) lookups and faster filtering
 const toolsMap: Record<string, Tool> = {};
@@ -3150,6 +3153,39 @@ const tools: Tool[] = [
     Component: Base64ToFile,
     category: "dev",
     keywords: ["base64", "decode", "file", "download", "blob"],
+  },
+  {
+    id: "palindromic-number-generator",
+    name: "Nombres Palindromes",
+    nameEn: "Palindromic Numbers",
+    icon: Hash,
+    description: "Générer des entiers symétriques dans un intervalle ou par longueur",
+    descriptionEn: "Generate symmetric integers within a range or by digit length",
+    Component: PalindromicNumberGenerator,
+    category: "calculators",
+    keywords: ["palindrome", "number", "symmetric", "math", "integer"],
+  },
+  {
+    id: "ascii-decimal",
+    name: "ASCII en Décimal",
+    nameEn: "ASCII to Decimal",
+    icon: Type,
+    description: "Convertir du texte en codes décimaux ASCII/Unicode et vice-versa",
+    descriptionEn: "Convert text to decimal ASCII/Unicode codes and vice versa",
+    Component: ASCIIDecimalConverter,
+    category: "text",
+    keywords: ["ascii", "decimal", "unicode", "text", "converter", "code"],
+  },
+  {
+    id: "binary-bit-shifter",
+    name: "Décalage de Bits",
+    nameEn: "Binary Bit Shifter",
+    icon: Binary,
+    description: "Effectuer des décalages logiques, arithmétiques ou des rotations circulaires sur des données binaires",
+    descriptionEn: "Perform logical and arithmetic shifts or circular rotations on binary data",
+    Component: BinaryBitShifter,
+    category: "dev",
+    keywords: ["binary", "bit", "shift", "rotate", "logic", "arithmetic", "circular"],
   },
 ];
 

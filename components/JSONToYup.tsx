@@ -1,11 +1,11 @@
 import { useState, useMemo, useEffect, useCallback, useRef } from 'react';
-import { Copy, Check, Trash2, Braces, FileCode, Info, AlertCircle, Download, RotateCcw } from 'lucide-react';
+import { Copy, Check, Trash2, Braces, FileCode, Info, AlertCircle, Download } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 
 const MAX_LENGTH = 100000;
 const MAX_DEPTH = 20;
 
-export function ZodSchemaGenerator({ initialData, onStateChange }: { initialData?: any; onStateChange?: (state: any) => void }) {
+export function JSONToYup({ initialData, onStateChange }: { initialData?: any; onStateChange?: (state: any) => void }) {
   const { t } = useTranslation();
   const inputRef = useRef<HTMLTextAreaElement>(null);
   const [jsonInput, setJsonInput] = useState(initialData?.jsonInput || '');
@@ -22,32 +22,32 @@ export function ZodSchemaGenerator({ initialData, onStateChange }: { initialData
     inputRef.current?.focus();
   }, []);
 
-  const generateZodSchema = (obj: any, indent: string = '', depth: number = 0): string => {
+  const generateYupSchema = (obj: any, indent: string = '', depth: number = 0): string => {
     if (depth > MAX_DEPTH) {
-      return 'z.any()';
+      return 'yup.mixed()';
     }
 
     if (obj === null) {
-      return 'z.any().nullable()';
+      return 'yup.mixed().nullable()';
     }
 
     const type = typeof obj;
 
     if (Array.isArray(obj)) {
-      if (obj.length === 0) return 'z.array(z.any())';
-      const itemSchema = generateZodSchema(obj[0], indent, depth + 1);
-      return `z.array(${itemSchema})`;
+      if (obj.length === 0) return 'yup.array().of(yup.mixed())';
+      const itemSchema = generateYupSchema(obj[0], indent, depth + 1);
+      return `yup.array().of(${itemSchema})`;
     }
 
     if (type === 'object') {
-      let result = 'z.object({\n';
+      let result = 'yup.object({\n';
       const nextIndent = indent + '  ';
       const entries = Object.entries(obj);
 
-      if (entries.length === 0) return 'z.object({})';
+      if (entries.length === 0) return 'yup.object({})';
 
       entries.forEach(([key, value]) => {
-        const valueSchema = generateZodSchema(value, nextIndent, depth + 1);
+        const valueSchema = generateYupSchema(value, nextIndent, depth + 1);
         const safeKey = /^[a-z_$][a-z0-9_$]*$/i.test(key) ? key : JSON.stringify(key);
         result += `${nextIndent}${safeKey}: ${valueSchema},\n`;
       });
@@ -55,14 +55,14 @@ export function ZodSchemaGenerator({ initialData, onStateChange }: { initialData
       return result;
     }
 
-    if (type === 'string') return 'z.string()';
-    if (type === 'number') return 'z.number()';
-    if (type === 'boolean') return 'z.boolean()';
+    if (type === 'string') return 'yup.string()';
+    if (type === 'number') return 'yup.number()';
+    if (type === 'boolean') return 'yup.boolean()';
 
-    return 'z.any()';
+    return 'yup.mixed()';
   };
 
-  const zodResult = useMemo(() => {
+  const yupResult = useMemo(() => {
     if (!jsonInput.trim()) {
       setError(null);
       return '';
@@ -71,8 +71,8 @@ export function ZodSchemaGenerator({ initialData, onStateChange }: { initialData
     try {
       const parsed = JSON.parse(jsonInput);
       setError(null);
-      const schema = generateZodSchema(parsed);
-      return `import { z } from "zod";\n\nexport const schema = ${schema};\n\nexport type SchemaType = z.infer<typeof schema>;`;
+      const schema = generateYupSchema(parsed);
+      return `import * as yup from "yup";\n\nexport const schema = ${schema};\n\nexport type SchemaType = yup.InferType<typeof schema>;`;
     } catch (e: any) {
       setError(e.message);
       return '';
@@ -80,11 +80,11 @@ export function ZodSchemaGenerator({ initialData, onStateChange }: { initialData
   }, [jsonInput]);
 
   const handleCopy = useCallback(() => {
-    if (!zodResult) return;
-    navigator.clipboard.writeText(zodResult);
+    if (!yupResult) return;
+    navigator.clipboard.writeText(yupResult);
     setCopied(true);
     setTimeout(() => setCopied(false), 2000);
-  }, [zodResult]);
+  }, [yupResult]);
 
   const handleClearRef = useRef(handleClear);
   const handleCopyRef = useRef(handleCopy);
@@ -120,8 +120,8 @@ export function ZodSchemaGenerator({ initialData, onStateChange }: { initialData
   }, []);
 
   const handleDownload = () => {
-    if (!zodResult) return;
-    const blob = new Blob([zodResult], { type: 'text/typescript' });
+    if (!yupResult) return;
+    const blob = new Blob([yupResult], { type: 'text/typescript' });
     const url = URL.createObjectURL(blob);
     const link = document.createElement('a');
     link.href = url;
@@ -179,13 +179,13 @@ export function ZodSchemaGenerator({ initialData, onStateChange }: { initialData
         {/* Output */}
         <div className="space-y-4">
           <div className="flex justify-between items-center px-1">
-            <label htmlFor="zod-output" className="text-xs font-black uppercase tracking-widest text-slate-400 flex items-center gap-2">
-              <FileCode className="w-4 h-4 text-indigo-500" /> {t('zod.generated_schema')}
+            <label htmlFor="yup-output" className="text-xs font-black uppercase tracking-widest text-slate-400 flex items-center gap-2">
+              <FileCode className="w-4 h-4 text-indigo-500" /> {t('yup.generated_schema')}
             </label>
             <div className="flex gap-2">
               <button
                 onClick={handleDownload}
-                disabled={!zodResult}
+                disabled={!yupResult}
                 className="text-xs font-bold px-3 py-1 rounded-full text-indigo-500 bg-indigo-50 dark:bg-indigo-500/10 hover:bg-indigo-100 transition-all flex items-center gap-1 disabled:opacity-50"
                 title={t('common.download')}
               >
@@ -193,7 +193,7 @@ export function ZodSchemaGenerator({ initialData, onStateChange }: { initialData
               </button>
               <button
                 onClick={handleCopy}
-                disabled={!zodResult}
+                disabled={!yupResult}
                 className={`text-xs font-bold px-3 py-1 rounded-full transition-all flex items-center gap-1 border focus-visible:ring-2 focus-visible:ring-indigo-500 focus-visible:outline-none ${copied ? 'bg-emerald-50 dark:bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border-emerald-200 dark:border-emerald-500/20' : 'text-indigo-500 bg-indigo-50 dark:bg-indigo-900/20 hover:bg-indigo-100 dark:hover:bg-indigo-500/20 border-transparent'} disabled:opacity-50 disabled:cursor-not-allowed`}
               >
                 {copied ? <Check className="w-3 h-3" /> : <Copy className="w-3 h-3" />}
@@ -202,9 +202,9 @@ export function ZodSchemaGenerator({ initialData, onStateChange }: { initialData
               </button>
             </div>
           </div>
-          <div className="bg-slate-900 dark:bg-black rounded-[2rem] p-6 h-[500px] overflow-auto border border-slate-800 shadow-xl shadow-indigo-500/5">
+          <div className="bg-slate-900 dark:bg-black rounded-[2.5rem] p-6 h-[500px] overflow-auto border border-slate-800 shadow-xl shadow-indigo-500/5">
             <pre className="text-sm font-mono text-emerald-400 leading-relaxed">
-              {zodResult || <span className="text-slate-600 italic">{t('zod.waiting')}</span>}
+              {yupResult || <span className="text-slate-600 italic">{t('yup.waiting')}</span>}
             </pre>
           </div>
         </div>
@@ -216,9 +216,9 @@ export function ZodSchemaGenerator({ initialData, onStateChange }: { initialData
           <div className="w-12 h-12 bg-indigo-50 dark:bg-indigo-900/20 rounded-2xl flex items-center justify-center text-indigo-600">
             <Braces className="w-6 h-6" />
           </div>
-          <h3 className="text-lg font-black">{t('zod.what_is_title')}</h3>
+          <h3 className="text-lg font-black">{t('yup.what_is_title')}</h3>
           <p className="text-sm text-slate-500 dark:text-slate-400 leading-relaxed">
-            {t('zod.what_is_text')}
+            {t('yup.what_is_text')}
           </p>
         </div>
 
@@ -226,9 +226,9 @@ export function ZodSchemaGenerator({ initialData, onStateChange }: { initialData
           <div className="w-12 h-12 bg-emerald-50 dark:bg-emerald-900/20 rounded-2xl flex items-center justify-center text-emerald-600">
             <Info className="w-6 h-6" />
           </div>
-          <h3 className="text-lg font-black">{t('zod.how_it_works_title')}</h3>
+          <h3 className="text-lg font-black">{t('yup.how_it_works_title')}</h3>
           <p className="text-sm text-slate-500 dark:text-slate-400 leading-relaxed">
-            {t('zod.how_it_works_text')}
+            {t('yup.how_it_works_text')}
           </p>
         </div>
 
@@ -236,9 +236,9 @@ export function ZodSchemaGenerator({ initialData, onStateChange }: { initialData
           <div className="w-12 h-12 bg-amber-50 dark:bg-amber-900/20 rounded-2xl flex items-center justify-center text-amber-600">
             <FileCode className="w-6 h-6" />
           </div>
-          <h3 className="text-lg font-black">{t('zod.advantages_title')}</h3>
+          <h3 className="text-lg font-black">{t('yup.advantages_title')}</h3>
           <p className="text-sm text-slate-500 dark:text-slate-400 leading-relaxed">
-            {t('zod.advantages_text')}
+            {t('yup.advantages_text')}
           </p>
         </div>
       </div>

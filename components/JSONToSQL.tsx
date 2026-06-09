@@ -1,5 +1,5 @@
-import { useState, useEffect } from 'react';
-import { FileCode, Copy, Check, Trash2, AlertCircle, Database, Download } from 'lucide-react';
+import { useState, useEffect, useCallback, useRef } from 'react';
+import { FileCode, Copy, Check, Trash2, AlertCircle, Database, Download, RotateCcw } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 
 const MAX_LENGTH = 100000;
@@ -40,18 +40,13 @@ export function JSONToSQL({ initialData, onStateChange }: { initialData?: any; o
     if (typeof val === 'number') return Number.isInteger(val) ? 'INTEGER' : 'DECIMAL';
     if (typeof val === 'boolean') return 'BOOLEAN';
     if (typeof val === 'string') {
-      // Basic ISO date detection
-      if (/^\d{4}-\d{2}-\d{2}(T\d{2}:\d{2}:\d{2}(\.\d{3})?Z?)?$/.test(val)) {
-        return 'TIMESTAMP';
-      }
-      if (/^\d{4}-\d{2}-\d{2}$/.test(val)) {
-        return 'DATE';
-      }
+      if (/^\d{4}-\d{2}-\d{2}(T\d{2}:\d{2}:\d{2}(\.\d{3})?Z?)?$/.test(val)) return 'TIMESTAMP';
+      if (/^\d{4}-\d{2}-\d{2}$/.test(val)) return 'DATE';
     }
     return 'TEXT';
   };
 
-  const handleConvert = () => {
+  const handleConvert = useCallback(() => {
     try {
       if (!input.trim()) return;
       if (input.length > MAX_LENGTH) {
@@ -67,7 +62,6 @@ export function JSONToSQL({ initialData, onStateChange }: { initialData?: any; o
         return;
       }
 
-      // Collect all unique columns from all objects
       const columnsSet = new Set<string>();
       data.forEach((row: any) => {
         if (typeof row === 'object' && row !== null) {
@@ -92,13 +86,9 @@ export function JSONToSQL({ initialData, onStateChange }: { initialData?: any; o
       const escapeValue = (val: any) => {
         if (val === undefined || val === null) return 'NULL';
         if (typeof val === 'boolean') return val ? '1' : '0';
-
         let str = typeof val === 'object' ? JSON.stringify(val) : String(val);
         let escaped = str.replace(/'/g, "''");
-        if (dialect === 'mysql') {
-          escaped = escaped.replace(/\\/g, '\\\\');
-        }
-
+        if (dialect === 'mysql') escaped = escaped.replace(/\\/g, '\\\\');
         if (typeof val === 'number') return val;
         return `'${escaped}'`;
       };
@@ -118,17 +108,14 @@ export function JSONToSQL({ initialData, onStateChange }: { initialData?: any; o
           result += statements.join('\n');
         }
       } else {
-        // UPDATE Mode
         const statements = data.map((row: any) => {
           const setClause = columns
             .filter(col => !whereColumns.includes(col))
             .map(col => `${escapeIdentifier(col, dialect)} = ${escapeValue(row[col])}`)
             .join(', ');
-
           const whereClause = whereColumns
             .map(col => `${escapeIdentifier(col, dialect)} = ${escapeValue(row[col])}`)
             .join(' AND ');
-
           return `UPDATE ${sqlTableName} SET ${setClause} WHERE ${whereClause};`;
         });
         result += statements.join('\n');
@@ -139,20 +126,62 @@ export function JSONToSQL({ initialData, onStateChange }: { initialData?: any; o
     } catch (e: any) {
       setError(t('error.invalid_json') + ': ' + e.message);
     }
-  };
+  }, [input, tableName, dialect, mode, includeCreate, batchInsert, whereColumns, t]);
 
-  const handleCopy = () => {
+  const handleClear = useCallback(() => {
+    setInput('');
+    setOutput('');
+    setError('');
+  }, []);
+
+  const handleCopy = useCallback(() => {
     if (!output) return;
     navigator.clipboard.writeText(output);
     setCopied(true);
     setTimeout(() => setCopied(false), 2000);
-  };
+  }, [output]);
 
-  const handleClear = () => {
-    setInput('');
-    setOutput('');
-    setError('');
-  };
+  const handleConvertRef = useRef(handleConvert);
+  const handleClearRef = useRef(handleClear);
+  const handleCopyRef = useRef(handleCopy);
+
+  useEffect(() => {
+    handleConvertRef.current = handleConvert;
+    handleClearRef.current = handleClear;
+    handleCopyRef.current = handleCopy;
+  }, [handleConvert, handleClear, handleCopy]);
+
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      const activeElement = document.activeElement;
+      const isInputFocused =
+        activeElement instanceof HTMLInputElement ||
+        activeElement instanceof HTMLTextAreaElement ||
+        activeElement instanceof HTMLSelectElement ||
+        activeElement?.getAttribute("contenteditable") === "true";
+
+      if (isInputFocused && !((e.ctrlKey || e.metaKey) && e.key === 'Enter') && e.key !== 'Escape') return;
+
+      if ((e.ctrlKey || e.metaKey) && e.key === 'Enter') {
+        e.preventDefault();
+        handleConvertRef.current();
+        return;
+      }
+
+      if (e.metaKey || e.ctrlKey || e.altKey || e.shiftKey) return;
+
+      if (e.key === "Escape") {
+        e.preventDefault();
+        handleClearRef.current();
+      } else if (e.key.toLowerCase() === "c") {
+        e.preventDefault();
+        handleCopyRef.current();
+      }
+    };
+
+    window.addEventListener("keydown", handleKeyDown);
+    return () => window.removeEventListener("keydown", handleKeyDown);
+  }, []);
 
   const handleDownload = () => {
     if (!output) return;
@@ -191,13 +220,16 @@ export function JSONToSQL({ initialData, onStateChange }: { initialData?: any; o
                 {t('jsontosql.json_input')}
               </label>
             </div>
-            <button
-              onClick={handleClear}
-              disabled={!input && !output}
-              className="text-xs font-bold px-3 py-1 rounded-full text-rose-500 bg-rose-50 dark:bg-rose-500/10 hover:bg-rose-100 dark:hover:bg-rose-500/20 transition-all flex items-center gap-1 disabled:opacity-50 disabled:cursor-not-allowed"
-            >
-              <Trash2 className="w-3 h-3" /> {t('common.clear')}
-            </button>
+            <div className="flex gap-2 items-center">
+              <kbd className="hidden sm:inline-flex items-center justify-center px-1.5 py-0.5 border border-rose-200 dark:border-rose-800 rounded text-[10px] font-bold text-rose-400 bg-white dark:bg-slate-900">Esc</kbd>
+              <button
+                onClick={handleClear}
+                disabled={!input && !output}
+                className="text-xs font-bold px-3 py-1 rounded-full text-rose-500 bg-rose-50 dark:bg-rose-500/10 hover:bg-rose-100 dark:hover:bg-rose-500/20 transition-all flex items-center gap-1 disabled:opacity-50 disabled:cursor-not-allowed focus-visible:ring-2 focus-visible:ring-rose-500 focus-visible:outline-none"
+              >
+                <Trash2 className="w-3 h-3" /> {t('common.clear')}
+              </button>
+            </div>
           </div>
 
           <div className="bg-white dark:bg-slate-900/40 p-6 rounded-3xl border border-slate-200 dark:border-slate-800 space-y-6">
@@ -282,7 +314,6 @@ export function JSONToSQL({ initialData, onStateChange }: { initialData?: any; o
                 <div className="space-y-3 w-full">
                   <label className="text-xs font-bold text-slate-500 block">{t('jsontosql.where_columns')}</label>
                   <div className="flex flex-wrap gap-2">
-                    {/* Infer columns from input for WHERE selection */}
                     {(() => {
                       try {
                         const parsed = JSON.parse(input);
@@ -315,12 +346,6 @@ export function JSONToSQL({ initialData, onStateChange }: { initialData?: any; o
             id="json-input"
             value={input}
             onChange={(e) => setInput(e.target.value)}
-            onKeyDown={(e) => {
-              if ((e.ctrlKey || e.metaKey) && e.key === 'Enter') {
-                e.preventDefault();
-                handleConvert();
-              }
-            }}
             placeholder='[{"id": 1, "name": "John Doe", "email": "john@example.com"}]'
             className="w-full h-[300px] p-6 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-3xl outline-none focus:ring-2 focus:ring-indigo-500/20 transition-all font-mono text-sm leading-relaxed dark:text-slate-300 resize-none"
           />
@@ -345,13 +370,14 @@ export function JSONToSQL({ initialData, onStateChange }: { initialData?: any; o
               <button
                 onClick={handleCopy}
                 disabled={!output}
-                className={`text-xs font-bold px-3 py-1 rounded-full transition-all flex items-center gap-1 ${
+                className={`text-xs font-bold px-3 py-1 rounded-full transition-all flex items-center gap-1 border focus-visible:ring-2 focus-visible:ring-indigo-500 focus-visible:outline-none ${
                   copied
                     ? 'bg-emerald-50 dark:bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border border-emerald-200 dark:border-emerald-500/20'
-                    : 'text-slate-500 bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 disabled:opacity-50 disabled:cursor-not-allowed'
+                    : 'text-slate-500 bg-slate-100 dark:bg-slate-800 border-transparent hover:bg-slate-200 dark:hover:bg-slate-700 disabled:opacity-50 disabled:cursor-not-allowed'
                 }`}
               >
                 {copied ? <Check className="w-3 h-3" /> : <Copy className="w-3 h-3" />} {copied ? t('common.copied') : t('common.copy')}
+                {!copied && <kbd className="hidden sm:inline-flex items-center justify-center w-4 h-4 border border-slate-200 dark:border-slate-700 rounded text-[10px] font-bold bg-white/50 dark:bg-black/20 ml-1">C</kbd>}
               </button>
             </div>
           </div>

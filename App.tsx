@@ -379,6 +379,7 @@ const JSONObfuscator = lazy(() => import("./components/JSONObfuscator").then(m =
 const WordShuffler = lazy(() => import("./components/WordShuffler").then(m => ({ default: m.WordShuffler })));
 const SoftShadowGenerator = lazy(() => import("./components/SoftShadowGenerator").then(m => ({ default: m.SoftShadowGenerator })));
 const JSONToPydantic = lazy(() => import("./components/JSONToPydantic").then(m => ({ default: m.JSONToPydantic })));
+const JSONToYup = lazy(() => import("./components/JSONToYup").then(m => ({ default: m.JSONToYup })));
 const SQLMinifier = lazy(() => import("./components/SQLMinifier").then(m => ({ default: m.SQLMinifier })));
 const Base64ToAudio = lazy(() => import("./components/Base64ToAudio").then(m => ({ default: m.Base64ToAudio })));
 const GCDLCMCalculator = lazy(() => import("./components/GCDLCMCalculator").then(m => ({ default: m.GCDLCMCalculator })));
@@ -1155,6 +1156,17 @@ const tools: Tool[] = [
     Component: ZodSchemaGenerator,
     category: "dev",
     keywords: ["typescript", "validation", "zod", "schema", "json"],
+  },
+  {
+    id: "yup-schema",
+    name: "Schéma Yup",
+    nameEn: "Yup Schema",
+    icon: ShieldCheck,
+    description: "Générer un schéma Yup à partir d'un JSON",
+    descriptionEn: "Generate a Yup schema from JSON",
+    Component: JSONToYup,
+    category: "dev",
+    keywords: ["javascript", "validation", "yup", "schema", "json"],
   },
   {
     id: "json-tree-viewer",

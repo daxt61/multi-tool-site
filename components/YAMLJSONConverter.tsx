@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback, useRef } from 'react';
 import { FileCode, Copy, Check, Trash2, AlertCircle, ArrowLeftRight, Download } from 'lucide-react';
 import yaml from 'js-yaml';
 import { useTranslation } from 'react-i18next';
@@ -14,7 +14,54 @@ export function YAMLJSONConverter({ initialData, onStateChange }: { initialData?
 
   useEffect(() => {
     onStateChange?.({ yamlInput, jsonInput });
-  }, [yamlInput, jsonInput]);
+  }, [yamlInput, jsonInput, onStateChange]);
+
+  const handleClear = useCallback(() => {
+    setYamlInput('');
+    setJsonInput('');
+    setError('');
+  }, []);
+
+  const handleCopyYaml = useCallback(() => {
+    if (!yamlInput) return;
+    navigator.clipboard.writeText(yamlInput);
+    setCopied('yaml');
+    setTimeout(() => setCopied(null), 2000);
+  }, [yamlInput]);
+
+  const handleCopyJson = useCallback(() => {
+    if (!jsonInput) return;
+    navigator.clipboard.writeText(jsonInput);
+    setCopied('json');
+    setTimeout(() => setCopied(null), 2000);
+  }, [jsonInput]);
+
+  const handleClearRef = useRef(handleClear);
+  useEffect(() => {
+    handleClearRef.current = handleClear;
+  }, [handleClear]);
+
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      const activeElement = document.activeElement;
+      const isInputFocused =
+        activeElement instanceof HTMLInputElement ||
+        activeElement instanceof HTMLTextAreaElement ||
+        activeElement instanceof HTMLSelectElement ||
+        activeElement?.getAttribute("contenteditable") === "true";
+
+      if (isInputFocused && e.key !== 'Escape') return;
+      if (e.metaKey || e.ctrlKey || e.altKey || e.shiftKey) return;
+
+      if (e.key === "Escape") {
+        e.preventDefault();
+        handleClearRef.current();
+      }
+    };
+
+    window.addEventListener("keydown", handleKeyDown);
+    return () => window.removeEventListener("keydown", handleKeyDown);
+  }, []);
 
   const convertYamlToJson = (val: string) => {
     try {
@@ -116,7 +163,7 @@ export function YAMLJSONConverter({ initialData, onStateChange }: { initialData?
                 <Download className="w-3 h-3" />
               </button>
               <button
-                onClick={() => copyToClipboard(yamlInput, 'yaml')}
+                onClick={handleCopyYaml}
                 disabled={!yamlInput}
                 className={`text-xs font-bold px-3 py-1 rounded-full transition-all flex items-center gap-1 border focus-visible:ring-2 focus-visible:ring-indigo-500 focus-visible:outline-none ${
                   copied === 'yaml'
@@ -126,14 +173,17 @@ export function YAMLJSONConverter({ initialData, onStateChange }: { initialData?
               >
                 {copied === 'yaml' ? <Check className="w-3 h-3" /> : <Copy className="w-3 h-3" />} {copied === 'yaml' ? t('common.copied') : t('common.copy')}
               </button>
-              <button
-                onClick={() => {setYamlInput(''); setJsonInput(''); setError('');}}
-                disabled={!yamlInput && !jsonInput}
-                aria-label={t('common.clear')}
-                className="text-xs font-bold px-3 py-1 rounded-full text-rose-500 bg-rose-50 dark:bg-rose-500/10 hover:bg-rose-100 dark:hover:bg-rose-500/20 border border-transparent transition-all flex items-center gap-1 disabled:opacity-50 disabled:cursor-not-allowed focus-visible:ring-2 focus-visible:ring-rose-500 focus-visible:outline-none"
-              >
-                <Trash2 className="w-3 h-3" />
-              </button>
+              <div className="flex gap-2 items-center">
+                <kbd className="hidden sm:inline-flex items-center justify-center px-1.5 py-0.5 border border-rose-200 dark:border-rose-800 rounded text-[10px] font-bold text-rose-400 bg-white dark:bg-slate-900">Esc</kbd>
+                <button
+                  onClick={handleClear}
+                  disabled={!yamlInput && !jsonInput}
+                  aria-label={t('common.clear')}
+                  className="text-xs font-bold px-3 py-1 rounded-full text-rose-500 bg-rose-50 dark:bg-rose-500/10 hover:bg-rose-100 dark:hover:bg-rose-500/20 border border-transparent transition-all flex items-center gap-1 disabled:opacity-50 disabled:cursor-not-allowed focus-visible:ring-2 focus-visible:ring-rose-500 focus-visible:outline-none"
+                >
+                  <Trash2 className="w-3 h-3" />
+                </button>
+              </div>
             </div>
           </div>
           <textarea
@@ -161,7 +211,7 @@ export function YAMLJSONConverter({ initialData, onStateChange }: { initialData?
                 <Download className="w-3 h-3" />
               </button>
               <button
-                onClick={() => copyToClipboard(jsonInput, 'json')}
+                onClick={handleCopyJson}
                 disabled={!jsonInput}
                 className={`text-xs font-bold px-3 py-1 rounded-full transition-all flex items-center gap-1 border focus-visible:ring-2 focus-visible:ring-indigo-500 focus-visible:outline-none ${
                   copied === 'json'

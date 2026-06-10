@@ -385,6 +385,8 @@ const Base64ToAudio = lazy(() => import("./components/Base64ToAudio").then(m => 
 const GCDLCMCalculator = lazy(() => import("./components/GCDLCMCalculator").then(m => ({ default: m.GCDLCMCalculator })));
 const GrayCodeConverter = lazy(() => import("./components/GrayCodeConverter").then(m => ({ default: m.GrayCodeConverter })));
 const TimeSequenceGenerator = lazy(() => import("./components/TimeSequenceGenerator").then(m => ({ default: m.TimeSequenceGenerator })));
+const JWTGenerator = lazy(() => import("./components/JWTGenerator").then(m => ({ default: m.JWTGenerator })));
+const FIRECalculator = lazy(() => import("./components/FIRECalculator").then(m => ({ default: m.FIRECalculator })));
 const SocialMediaBioGenerator = lazy(() => import("./components/SocialMediaBioGenerator").then(m => ({ default: m.SocialMediaBioGenerator })));
 const ListToChecklist = lazy(() => import("./components/ListToChecklist").then(m => ({ default: m.ListToChecklist })));
 const ListToJSON = lazy(() => import("./components/ListToJSON").then(m => ({ default: m.ListToJSON })));
@@ -482,6 +484,17 @@ const tools: Tool[] = [
     descriptionEn: "Return on investment calculator",
     Component: ROICalculator,
     category: "business",
+  },
+  {
+    id: "fire-calculator",
+    name: "Indépendance Financière (FIRE)",
+    nameEn: "FIRE Calculator",
+    icon: Target,
+    description: "Estimer quand vous pourrez prendre votre retraite grâce à la règle des 4%",
+    descriptionEn: "Estimate when you can retire using the 4% rule",
+    Component: FIRECalculator,
+    category: "budget",
+    keywords: ["fire", "retraite", "indépendance", "liberté", "épargne", "investir", "retirement"],
   },
   {
     id: "fuel-cost",
@@ -1210,6 +1223,17 @@ const tools: Tool[] = [
     descriptionEn: "Decode and analyze your JWT tokens",
     Component: JWTDecoder,
     category: "dev",
+  },
+  {
+    id: "jwt-generator",
+    name: "Générateur JWT",
+    nameEn: "JWT Generator",
+    icon: ShieldCheck,
+    description: "Générer et signer des jetons JSON Web Token localement",
+    descriptionEn: "Generate and sign JSON Web Tokens locally",
+    Component: JWTGenerator,
+    category: "dev",
+    keywords: ["jwt", "token", "auth", "security", "hmac", "sign"],
   },
   {
     id: "qr-code",

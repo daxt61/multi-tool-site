@@ -1,43 +1,70 @@
 import { useState, useCallback, useMemo, useEffect } from 'react';
-import { Copy, Check, Trash2, RefreshCw, FileCode, FileSpreadsheet, Download, Settings2, Table } from 'lucide-react';
+import { Copy, Check, Trash2, RefreshCw, FileCode, FileSpreadsheet, Download, Settings2, Table, Globe } from 'lucide-react';
 import { getSecureRandomInt } from './ui/crypto';
+import { useTranslation } from 'react-i18next';
 
-const FIRST_NAMES = ['Jean', 'Marie', 'Pierre', 'Anne', 'Thomas', 'Julie', 'Nicolas', 'Léa', 'Julien', 'Sarah', 'Benoît', 'Chloé', 'David', 'Emma', 'Éric', 'Inès', 'Hugo', 'Jade', 'Léo', 'Manon'];
-const LAST_NAMES = ['Martin', 'Bernard', 'Thomas', 'Petit', 'Robert', 'Richard', 'Durand', 'Dubois', 'Moreau', 'Laurent', 'Simon', 'Michel', 'Lefebvre', 'Leroy', 'Roux', 'David', 'Bertrand', 'Morel', 'Fournier', 'Girard'];
-const CITIES = ['Paris', 'Marseille', 'Lyon', 'Toulouse', 'Nice', 'Nantes', 'Montpellier', 'Strasbourg', 'Bordeaux', 'Lille'];
-const COUNTRIES = ['France', 'Belgique', 'Suisse', 'Canada', 'Luxembourg', 'Sénégal', 'Côte d\'Ivoire', 'Maroc', 'Algérie', 'Tunisie'];
+const DATA_ASSETS = {
+  fr: {
+    firstNames: ['Jean', 'Marie', 'Pierre', 'Anne', 'Thomas', 'Julie', 'Nicolas', 'Léa', 'Julien', 'Sarah', 'Benoît', 'Chloé', 'David', 'Emma', 'Éric', 'Inès', 'Hugo', 'Jade', 'Léo', 'Manon'],
+    lastNames: ['Martin', 'Bernard', 'Thomas', 'Petit', 'Robert', 'Richard', 'Durand', 'Dubois', 'Moreau', 'Laurent', 'Simon', 'Michel', 'Lefebvre', 'Leroy', 'Roux', 'David', 'Bertrand', 'Morel', 'Fournier', 'Girard'],
+    cities: ['Paris', 'Marseille', 'Lyon', 'Toulouse', 'Nice', 'Nantes', 'Montpellier', 'Strasbourg', 'Bordeaux', 'Lille'],
+    countries: ['France', 'Belgique', 'Suisse', 'Canada', 'Luxembourg', 'Sénégal', 'Côte d\'Ivoire', 'Maroc', 'Algérie', 'Tunisie'],
+    jobs: ['Développeur', 'Designer', 'Chef de Projet', 'Commercial', 'Comptable', 'Consultant', 'Marketing', 'RH', 'Directeur', 'Ingénieur'],
+    streets: ['Rue de la Paix', 'Avenue des Champs-Élysées', 'Boulevard Haussmann', 'Rue de Rivoli', 'Avenue Victor Hugo']
+  },
+  en: {
+    firstNames: ['James', 'Mary', 'Robert', 'Patricia', 'John', 'Jennifer', 'Michael', 'Linda', 'William', 'Elizabeth', 'David', 'Barbara', 'Richard', 'Susan', 'Joseph', 'Jessica', 'Thomas', 'Sarah', 'Charles', 'Karen'],
+    lastNames: ['Smith', 'Johnson', 'Williams', 'Brown', 'Jones', 'Garcia', 'Miller', 'Davis', 'Rodriguez', 'Martinez', 'Hernandez', 'Lopez', 'Gonzales', 'Wilson', 'Anderson', 'Thomas', 'Taylor', 'Moore', 'Jackson', 'Martin'],
+    cities: ['New York', 'London', 'Los Angeles', 'Chicago', 'Houston', 'Toronto', 'Sydney', 'San Francisco', 'Miami', 'Berlin'],
+    countries: ['USA', 'UK', 'Canada', 'Australia', 'Germany', 'France', 'Ireland', 'New Zealand', 'South Africa', 'India'],
+    jobs: ['Developer', 'Designer', 'Project Manager', 'Sales', 'Accountant', 'Consultant', 'Marketing', 'HR', 'Director', 'Engineer'],
+    streets: ['Wall Street', 'Broadway', 'Sunset Boulevard', 'Abbey Road', 'Oxford Street', 'Fifth Avenue']
+  }
+};
+
 const COMPANIES = ['TechCorp', 'Innovate', 'GlobalSolutions', 'FutureSystems', 'WebFlow', 'DataDynamics', 'CloudNine', 'SoftServe', 'SmartScale', 'NetWorks'];
-const DOMAINS = ['gmail.com', 'yahoo.fr', 'outlook.com', 'orange.fr', 'icloud.com', 'protonmail.com'];
+const DOMAINS = ['gmail.com', 'yahoo.com', 'outlook.com', 'icloud.com', 'protonmail.com', 'company.com'];
 
 export function MockDataGenerator({ initialData, onStateChange }: { initialData?: any; onStateChange?: (state: any) => void }) {
+  const { t, i18n } = useTranslation();
   const [count, setCount] = useState(initialData?.count || 10);
   const [format, setFormat] = useState<'json' | 'csv'>(initialData?.format || 'json');
+  const [locale, setLocale] = useState<'fr' | 'en'>(initialData?.locale || (i18n.language.startsWith('fr') ? 'fr' : 'en'));
   const [generatedData, setGeneratedData] = useState<any[]>([]);
   const [copied, setCopied] = useState(false);
 
   useEffect(() => {
-    onStateChange?.({ count, format });
-  }, [count, format]);
+    onStateChange?.({ count, format, locale });
+  }, [count, format, locale]);
 
   const generateData = useCallback(() => {
     const newData = [];
+    const assets = DATA_ASSETS[locale];
+
     for (let i = 0; i < count; i++) {
-      const firstName = FIRST_NAMES[getSecureRandomInt(FIRST_NAMES.length)];
-      const lastName = LAST_NAMES[getSecureRandomInt(LAST_NAMES.length)];
+      const firstName = assets.firstNames[getSecureRandomInt(assets.firstNames.length)];
+      const lastName = assets.lastNames[getSecureRandomInt(assets.lastNames.length)];
+      const birthDate = new Date();
+      birthDate.setFullYear(birthDate.getFullYear() - (18 + getSecureRandomInt(50)));
+      birthDate.setMonth(getSecureRandomInt(12));
+      birthDate.setDate(getSecureRandomInt(28) + 1);
+
       newData.push({
         id: i + 1,
-        prenom: firstName,
-        nom: lastName,
+        [locale === 'fr' ? 'prenom' : 'firstName']: firstName,
+        [locale === 'fr' ? 'nom' : 'lastName']: lastName,
         email: `${firstName.toLowerCase()}.${lastName.toLowerCase()}@${DOMAINS[getSecureRandomInt(DOMAINS.length)]}`,
-        telephone: `0${getSecureRandomInt(9) + 1}${getSecureRandomInt(100000000).toString().padStart(8, '0')}`,
-        entreprise: COMPANIES[getSecureRandomInt(COMPANIES.length)],
-        ville: CITIES[getSecureRandomInt(CITIES.length)],
-        pays: COUNTRIES[getSecureRandomInt(COUNTRIES.length)],
+        [locale === 'fr' ? 'date_naissance' : 'dateOfBirth']: birthDate.toISOString().split('T')[0],
+        [locale === 'fr' ? 'profession' : 'jobTitle']: assets.jobs[getSecureRandomInt(assets.jobs.length)],
+        [locale === 'fr' ? 'entreprise' : 'company']: COMPANIES[getSecureRandomInt(COMPANIES.length)],
+        [locale === 'fr' ? 'adresse' : 'address']: `${getSecureRandomInt(200) + 1} ${assets.streets[getSecureRandomInt(assets.streets.length)]}`,
+        [locale === 'fr' ? 'ville' : 'city']: assets.cities[getSecureRandomInt(assets.cities.length)],
+        [locale === 'fr' ? 'pays' : 'country']: assets.countries[getSecureRandomInt(assets.countries.length)],
       });
     }
     setGeneratedData(newData);
     setCopied(false);
-  }, [count]);
+  }, [count, locale]);
 
   const outputText = useMemo(() => {
     if (generatedData.length === 0) return '';
@@ -73,14 +100,14 @@ export function MockDataGenerator({ initialData, onStateChange }: { initialData?
   return (
     <div className="max-w-6xl mx-auto space-y-8">
       <div className="bg-slate-50 dark:bg-slate-900/50 p-8 rounded-[2.5rem] border border-slate-200 dark:border-slate-800 space-y-8">
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-8 items-end">
-          <div className="space-y-4">
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 items-end">
+          <div className="lg:col-span-2 space-y-4">
             <label className="text-xs font-black uppercase tracking-widest text-slate-400 flex items-center gap-2 px-1">
               <Settings2 className="w-4 h-4 text-indigo-500" /> Configuration
             </label>
-            <div className="grid grid-cols-2 gap-4">
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
               <div className="space-y-2">
-                <label htmlFor="mock-count" className="text-[10px] font-bold text-slate-400 uppercase">Quantité</label>
+                <label htmlFor="mock-count" className="text-[10px] font-bold text-slate-400 uppercase">{t('common.count')}</label>
                 <input
                   id="mock-count"
                   type="number"
@@ -108,13 +135,30 @@ export function MockDataGenerator({ initialData, onStateChange }: { initialData?
                   </button>
                 </div>
               </div>
+              <div className="space-y-2">
+                <span className="text-[10px] font-bold text-slate-400 uppercase">Langue / Locale</span>
+                <div className="flex bg-slate-100 dark:bg-slate-800 p-1 rounded-xl">
+                  <button
+                    onClick={() => setLocale('fr')}
+                    className={`flex-1 py-3 rounded-lg text-xs font-black transition-all ${locale === 'fr' ? 'bg-white dark:bg-slate-700 text-indigo-600 shadow-sm' : 'text-slate-500'}`}
+                  >
+                    Français
+                  </button>
+                  <button
+                    onClick={() => setLocale('en')}
+                    className={`flex-1 py-3 rounded-lg text-xs font-black transition-all ${locale === 'en' ? 'bg-white dark:bg-slate-700 text-indigo-600 shadow-sm' : 'text-slate-500'}`}
+                  >
+                    English
+                  </button>
+                </div>
+              </div>
             </div>
           </div>
           <button
             onClick={generateData}
             className="w-full h-[60px] bg-indigo-600 text-white rounded-2xl font-black text-lg shadow-xl shadow-indigo-600/20 hover:bg-indigo-700 transition-all active:scale-95 flex items-center justify-center gap-2"
           >
-            <RefreshCw className="w-5 h-5" /> Générer les données
+            <RefreshCw className="w-5 h-5" /> {t('random.generate')}
           </button>
         </div>
       </div>
@@ -124,14 +168,14 @@ export function MockDataGenerator({ initialData, onStateChange }: { initialData?
           <div className="flex justify-between items-center px-1">
             <div className="flex items-center gap-2 text-xs font-black uppercase tracking-widest text-slate-400">
               {format === 'json' ? <FileCode className="w-4 h-4" /> : <FileSpreadsheet className="w-4 h-4" />}
-              Aperçu {format.toUpperCase()}
+              {t('common.result')} ({format.toUpperCase()})
             </div>
             <div className="flex gap-2">
               <button
                 onClick={handleDownload}
                 className="text-xs font-bold px-4 py-2 rounded-xl bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 hover:bg-slate-200 transition-all flex items-center gap-2"
               >
-                <Download className="w-4 h-4" /> Télécharger
+                <Download className="w-4 h-4" /> {t('common.download')}
               </button>
               <button
                 onClick={handleCopy}
@@ -142,7 +186,7 @@ export function MockDataGenerator({ initialData, onStateChange }: { initialData?
                 }`}
               >
                 {copied ? <Check className="w-4 h-4" /> : <Copy className="w-4 h-4" />}
-                {copied ? 'Copié' : 'Copier'}
+                {copied ? t('common.copied') : t('common.copy')}
               </button>
             </div>
           </div>
@@ -155,11 +199,11 @@ export function MockDataGenerator({ initialData, onStateChange }: { initialData?
           {/* Table Preview */}
           <div className="pt-8 space-y-4">
              <div className="flex items-center gap-2 text-xs font-black uppercase tracking-widest text-slate-400">
-                <Table className="w-4 h-4" /> Aperçu Visuel
+                <Table className="w-4 h-4" /> {t('aspectratio.preview')}
              </div>
-             <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-3xl overflow-hidden">
+             <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-3xl overflow-hidden shadow-sm">
                 <div className="overflow-x-auto">
-                   <table className="w-full text-left border-collapse">
+                   <table className="w-full text-left border-collapse min-w-[800px]">
                       <thead>
                          <tr className="bg-slate-50 dark:bg-slate-800/50 border-b border-slate-100 dark:border-slate-800">
                             {Object.keys(generatedData[0]).map(key => (
@@ -179,7 +223,7 @@ export function MockDataGenerator({ initialData, onStateChange }: { initialData?
                    </table>
                    {count > 5 && (
                       <div className="p-4 text-center text-xs font-bold text-slate-400 bg-slate-50/50 dark:bg-slate-800/30">
-                         + {count - 5} autres lignes générées...
+                         + {count - 5} {t('cron.next_runs').toLowerCase()}...
                       </div>
                    )}
                 </div>

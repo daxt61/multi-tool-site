@@ -52,6 +52,10 @@ export function JSONToTS({ initialData, onStateChange }: { initialData?: any; on
         if (depth > MAX_DEPTH) return 'any';
         if (val === null || val === undefined) return 'any';
 
+        if (typeof val === 'string' && /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}/.test(val)) {
+          return 'Date';
+        }
+
         if (Array.isArray(val)) {
           if (val.length === 0) return 'any[]';
           const types = new Set(val.map(v => getTSType(v, fieldName, depth + 1)));

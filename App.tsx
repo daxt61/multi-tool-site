@@ -392,6 +392,8 @@ const Base64ToFile = lazy(() => import("./components/Base64ToFile").then(m => ({
 const PalindromicNumberGenerator = lazy(() => import("./components/PalindromicNumberGenerator").then(m => ({ default: m.PalindromicNumberGenerator })));
 const ASCIIDecimalConverter = lazy(() => import("./components/ASCIIDecimalConverter").then(m => ({ default: m.ASCIIDecimalConverter })));
 const BinaryBitShifter = lazy(() => import("./components/BinaryBitShifter").then(m => ({ default: m.BinaryBitShifter })));
+const CSVToAsciiTable = lazy(() => import("./components/CSVToAsciiTable").then(m => ({ default: m.CSVToAsciiTable })));
+const StringManipulator = lazy(() => import("./components/StringManipulator").then(m => ({ default: m.StringManipulator })));
 
 // ⚡ Bolt Optimization: Pre-calculating tool map and search index for O(1) lookups and faster filtering
 const toolsMap: Record<string, Tool> = {};
@@ -3198,6 +3200,28 @@ const tools: Tool[] = [
     Component: BinaryBitShifter,
     category: "dev",
     keywords: ["binary", "bit", "shift", "rotate", "logic", "arithmetic", "circular"],
+  },
+  {
+    id: "csv-to-ascii",
+    name: "CSV en ASCII Table",
+    nameEn: "CSV to ASCII Table",
+    icon: Table,
+    description: "Convertir des fichiers CSV en tableaux ASCII ou Unicode formatés",
+    descriptionEn: "Convert CSV files into formatted ASCII or Unicode tables",
+    Component: CSVToAsciiTable,
+    category: "dev",
+    keywords: ["csv", "table", "ascii", "unicode", "format", "grid"],
+  },
+  {
+    id: "string-manipulator",
+    name: "Manipulateur de Chaînes",
+    nameEn: "String Manipulator",
+    icon: Type,
+    description: "Ajouter du remplissage (padding) ou tronquer vos lignes de texte",
+    descriptionEn: "Add padding or truncate your text lines to a specific length",
+    Component: StringManipulator,
+    category: "text",
+    keywords: ["padding", "truncate", "length", "string", "text", "manipulate"],
   },
 ];
 

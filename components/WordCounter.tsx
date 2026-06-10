@@ -1,5 +1,5 @@
 import { useState, useMemo, useDeferredValue, useEffect, useCallback, useRef } from 'react';
-import { Copy, Check, Trash2, Hash, Type, FileText, AlignLeft, Clock, MessageSquare, BarChart3, Info, Star, AlertCircle, Download, Pilcrow } from 'lucide-react';
+import { Copy, Check, Trash2, Hash, Type, FileText, AlignLeft, Clock, MessageSquare, BarChart3, Info, Star, AlertCircle, Download, Pilcrow, RotateCcw } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 
 const MAX_LENGTH = 100000;
@@ -17,13 +17,8 @@ export function WordCounter({ initialData, onStateChange }: { initialData?: any;
     onStateChange?.({ text });
   }, [text]);
 
-  // ⚡ Bolt Optimization: useDeferredValue for text analysis
-  // This allows the input to remain responsive even with large texts by offloading the
-  // expensive regex-based calculations to a lower-priority transition.
   const deferredText = useDeferredValue(text);
 
-  // ⚡ Bolt Optimization: useMemo to avoid redundant calculations
-  // We consolidate string operations (trimming, splitting) to minimize CPU usage.
   const stats = useMemo(() => {
     if (deferredText.length > MAX_LENGTH) {
       return {
@@ -51,8 +46,6 @@ export function WordCounter({ initialData, onStateChange }: { initialData?: any;
     const words = trimmed === '' ? [] : trimmed.split(/\s+/);
     const wordCount = words.length;
 
-    // Sentinel: Use Object.create(null) to prevent Prototype Pollution
-    // from user-provided words (e.g., "constructor", "toString").
     const wordFreq: Record<string, number> = Object.create(null);
     words.forEach((w: string) => {
       const clean = w.toLowerCase().replace(/[.,/#!$%^&*;:{}=\-_`~()]/g, "");
@@ -65,7 +58,6 @@ export function WordCounter({ initialData, onStateChange }: { initialData?: any;
       .sort((a, b) => b[1] - a[1])
       .slice(0, 10);
 
-    // Bigram frequency
     const bigramFreq: Record<string, number> = Object.create(null);
     for (let i = 0; i < words.length - 1; i++) {
       const w1 = words[i].toLowerCase().replace(/[.,/#!$%^&*;:{}=\-_`~()]/g, "");
@@ -83,42 +75,31 @@ export function WordCounter({ initialData, onStateChange }: { initialData?: any;
     const charCount = deferredText.replace(/\s/g, '').length;
     const paragraphCount = trimmed === '' ? 0 : deferredText.split(/\n\s*\n/).filter((p: string) => p.trim().length > 0).length;
 
-    // Automated Readability Index (ARI)
-    // ARI = 4.71 * (characters/words) + 0.5 * (words/sentences) - 21.43
     let ari = 0;
     if (wordCount > 0 && sentenceCount > 0) {
       ari = 4.71 * (charCount / wordCount) + 0.5 * (wordCount / sentenceCount) - 21.43;
     }
 
-    // Refined Syllable counting algorithm
-    // Improved for both English and French phonetics.
     const countSyllables = (word: string) => {
       word = word.toLowerCase().replace(/[^a-zàâäéèêëîïôöùûüÿç]/g, '');
       if (word.length === 0) return 0;
       if (word.length <= 2) return 1;
 
-      // Handling French mute 'e' at the end of words
       if (word.endsWith('e')) {
-        // If there's a vowel before the last consonant+e, it's often mute in French (e.g., 'table', 'pomme')
-        // Unless it's a very short word like 'le', 'de'
         if (word.length > 3 && /[aeiouyàâäéèêëîïôöùûüÿ][bcdfghjklmnpqrstvwxz]e$/.test(word)) {
            word = word.slice(0, -1);
         }
       }
 
-      // French specific: handle common silent endings '-ent' in verbs (3rd person plural)
       if (word.endsWith('ent')) {
-        // Simple heuristic: if it's long enough and preceded by a vowel+consonant, it's likely a verb ending
         if (word.length > 5 && /[aeiouyàâäéèêëîïôöùûüÿ][bcdfghjklmnpqrstvwxz]ent$/.test(word)) {
           word = word.slice(0, -3);
         }
       }
 
-      // French 'oi', 'ai', 'au', 'eu', 'ou', 'ei' etc are single syllables (diphthongs/monophthongs)
       const matched = word.match(/[aeiouyàâäéèêëîïôöùûüÿ]{1,3}/g);
       let count = matched ? matched.length : 1;
 
-      // English specific: adjustments
       if (word.endsWith('le') && word.length > 2 && !/[aeiouy]/.test(word[word.length-3])) count++;
 
       return Math.max(1, count);
@@ -132,17 +113,11 @@ export function WordCounter({ initialData, onStateChange }: { initialData?: any;
       if (syl >= 3) complexWords++;
     });
 
-    // Gunning Fog Index
-    // Fog = 0.4 * ((words/sentences) + 100 * (complex_words/words))
     let fog = 0;
     if (wordCount > 0 && sentenceCount > 0) {
       fog = 0.4 * ((wordCount / sentenceCount) + 100 * (complexWords / wordCount));
     }
 
-    // Coleman-Liau Index
-    // CLI = 0.0588 * L - 0.296 * S - 15.8
-    // L = average number of letters per 100 words
-    // S = average number of sentences per 100 words
     let cli = 0;
     if (wordCount > 0) {
       const L = (charCount / wordCount) * 100;
@@ -167,9 +142,6 @@ export function WordCounter({ initialData, onStateChange }: { initialData?: any;
       if (rounded === 13) return t('wordcounter.ari.university');
       return t('wordcounter.ari.expert');
     };
-
-    // Flesch Reading Ease (French Formula)
-    // Score = 206.835 - (1.015 * ASL) - (84.6 * ASW)
 
     let flesch = 0;
     if (wordCount > 0 && sentenceCount > 0) {
@@ -220,7 +192,7 @@ export function WordCounter({ initialData, onStateChange }: { initialData?: any;
       topBigrams,
       charFreq
     };
-  }, [deferredText]);
+  }, [deferredText, t]);
 
   const formatTime = (minutes: number) => {
     if (minutes === 0) return "0s";
@@ -234,12 +206,12 @@ export function WordCounter({ initialData, onStateChange }: { initialData?: any;
     return secs > 0 ? t('wordcounter.time.minutes_seconds', { m: mins, s: secs }) : t('wordcounter.time.minutes', { count: mins });
   };
 
-  const handleCopy = () => {
+  const handleCopy = useCallback(() => {
     if (text.length > MAX_LENGTH) return;
     navigator.clipboard.writeText(text);
     setCopied(true);
     setTimeout(() => setCopied(false), 2000);
-  };
+  }, [text]);
 
   const handleCopyCharFreq = () => {
     if (stats.charFreq.length === 0) return;
@@ -260,7 +232,7 @@ export function WordCounter({ initialData, onStateChange }: { initialData?: any;
     URL.revokeObjectURL(url);
   }, [text]);
 
-  const handleCopyStats = () => {
+  const handleCopyStats = useCallback(() => {
     const report = `${t('wordcounter.report_title')}:
 - ${t('wordcounter.stat.characters')}: ${stats.characters}
 - ${t('wordcounter.stat.words')}: ${stats.words}
@@ -277,7 +249,47 @@ export function WordCounter({ initialData, onStateChange }: { initialData?: any;
     navigator.clipboard.writeText(report);
     setCopiedStats(true);
     setTimeout(() => setCopiedStats(false), 2000);
-  };
+  }, [stats, t]);
+
+  const handleClear = useCallback(() => {
+    setText('');
+    setError(null);
+    textareaRef.current?.focus();
+  }, []);
+
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      const activeElement = document.activeElement;
+      const isInputFocused =
+        activeElement instanceof HTMLInputElement ||
+        activeElement instanceof HTMLTextAreaElement ||
+        activeElement instanceof HTMLSelectElement ||
+        activeElement?.getAttribute("contenteditable") === "true";
+
+      if (isInputFocused && e.key === "Escape") {
+        e.preventDefault();
+        handleClear();
+        return;
+      }
+
+      if (isInputFocused) return;
+      if (e.metaKey || e.ctrlKey || e.altKey || e.shiftKey) return;
+
+      if (e.key === "Escape") {
+        e.preventDefault();
+        handleClear();
+      } else if (e.key.toLowerCase() === "c") {
+        e.preventDefault();
+        handleCopy();
+      } else if (e.key.toLowerCase() === "s") {
+        e.preventDefault();
+        handleCopyStats();
+      }
+    };
+
+    window.addEventListener("keydown", handleKeyDown);
+    return () => window.removeEventListener("keydown", handleKeyDown);
+  }, [handleClear, handleCopy, handleCopyStats]);
 
   return (
     <div className="max-w-5xl mx-auto space-y-8">
@@ -297,17 +309,18 @@ export function WordCounter({ initialData, onStateChange }: { initialData?: any;
               className={`text-xs font-bold px-3 py-1 rounded-full transition-all flex items-center gap-1 border ${
                 copiedStats
                   ? 'bg-emerald-50 dark:bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border-emerald-200 dark:border-emerald-500/20'
-                  : 'text-indigo-500 bg-indigo-50 dark:bg-indigo-500/10 border-transparent hover:bg-indigo-100 dark:hover:bg-indigo-500/20'
+                  : 'text-indigo-500 bg-indigo-50 dark:bg-indigo-900/20 border-transparent hover:bg-indigo-100 dark:hover:bg-indigo-500/20'
               } disabled:opacity-50 disabled:cursor-not-allowed`}
-              title={t('wordcounter.copy_stats')}
+              title={`${t('wordcounter.copy_stats')} (S)`}
             >
               {copiedStats ? <Check className="w-3 h-3" /> : <BarChart3 className="w-3 h-3" />}
               {copiedStats ? t('common.copied') : t('wordcounter.copy_stats_btn')}
+              {!copiedStats && <kbd className="hidden sm:inline-flex items-center justify-center px-1.5 py-0.5 border border-indigo-200 dark:border-indigo-800 rounded text-[10px] font-bold bg-white/50 dark:bg-black/20 ml-1">S</kbd>}
             </button>
             <button
               onClick={handleDownload}
               disabled={!text || text.length > MAX_LENGTH}
-              className="text-xs font-bold px-3 py-1 rounded-full text-indigo-500 bg-indigo-50 dark:bg-indigo-500/10 hover:bg-indigo-100 dark:hover:bg-indigo-500/20 transition-all flex items-center gap-1 disabled:opacity-50 disabled:cursor-not-allowed focus-visible:ring-2 focus-visible:ring-indigo-500 focus-visible:outline-none"
+              className="text-xs font-bold px-3 py-1 rounded-full text-indigo-500 bg-indigo-50 dark:bg-indigo-900/20 hover:bg-indigo-100 dark:hover:bg-indigo-500/20 transition-all flex items-center gap-1 disabled:opacity-50 disabled:cursor-not-allowed focus-visible:ring-2 focus-visible:ring-indigo-500 focus-visible:outline-none"
             >
               <Download className="w-3 h-3" /> {t('common.download')}
             </button>
@@ -319,19 +332,19 @@ export function WordCounter({ initialData, onStateChange }: { initialData?: any;
                   ? 'bg-emerald-50 dark:bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border-emerald-200 dark:border-emerald-500/20'
                   : 'text-slate-500 bg-slate-100 dark:bg-slate-800 border-transparent hover:bg-slate-200 dark:hover:bg-slate-700'
               } disabled:opacity-50 disabled:cursor-not-allowed`}
+              title={`${t('common.copy')} (C)`}
             >
               {copied ? <Check className="w-3 h-3" /> : <Copy className="w-3 h-3" />} {copied ? t('common.copied') : t('common.copy')}
+              {!copied && <kbd className="hidden sm:inline-flex items-center justify-center px-1.5 py-0.5 border border-slate-200 dark:border-slate-800 rounded text-[10px] font-bold bg-white/50 dark:bg-black/20 ml-1">C</kbd>}
             </button>
             <button
-              onClick={() => {
-                setText('');
-                setError(null);
-                textareaRef.current?.focus();
-              }}
+              onClick={handleClear}
               disabled={!text}
               className="text-xs font-bold text-rose-500 bg-rose-50 dark:bg-rose-500/10 hover:bg-rose-100 dark:hover:bg-rose-500/20 px-3 py-1.5 rounded-xl flex items-center gap-1 transition-all disabled:opacity-50 disabled:cursor-not-allowed focus-visible:ring-2 focus-visible:ring-rose-500 focus-visible:outline-none"
+              title={`${t('common.clear')} (Esc)`}
             >
-              <Trash2 className="w-3 h-3" /> {t('common.clear')}
+              <RotateCcw className="w-3 h-3" /> {t('common.clear')}
+              <kbd className="ml-1 hidden sm:inline-flex items-center justify-center px-1.5 py-0.5 border border-rose-200 dark:border-rose-800 rounded text-[10px] font-bold bg-white/50 dark:bg-black/20">Esc</kbd>
             </button>
           </div>
         </div>
@@ -347,6 +360,12 @@ export function WordCounter({ initialData, onStateChange }: { initialData?: any;
             } else {
               setError(null);
             }
+          }}
+          onKeyDown={(e) => {
+             if (e.key === 'Escape') {
+                e.preventDefault();
+                handleClear();
+             }
           }}
           placeholder={t('wordcounter.placeholder')}
           className={`w-full h-80 p-8 bg-slate-50 dark:bg-slate-900 border ${error ? 'border-rose-500 focus:ring-rose-500/20' : 'border-slate-200 dark:border-slate-800 focus:ring-indigo-500/20'} rounded-[2rem] outline-none focus:ring-2 transition-all text-lg leading-relaxed dark:text-slate-300`}

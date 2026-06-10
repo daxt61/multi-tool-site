@@ -609,14 +609,14 @@ const tools: Tool[] = [
   },
   {
     id: "currency-converter",
-    name: "Devises",
+    name: "Convertisseur de Devises",
     nameEn: "Currency Converter",
     icon: DollarSign,
-    description: "Convertisseur de devises en temps réel",
-    descriptionEn: "Real-time currency converter",
+    description: "Convertisseur de devises en temps réel avec taux de change actualisés",
+    descriptionEn: "Real-time currency converter with live exchange rates",
     Component: CurrencyConverter,
     category: "budget",
-    keywords: ["argent", "change", "taux", "dollar", "euro", "voyage"],
+    keywords: ["argent", "change", "taux", "dollar", "euro", "voyage", "currency", "exchange", "converter"],
   },
   {
     id: "unit-price-calculator",

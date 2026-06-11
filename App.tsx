@@ -396,6 +396,10 @@ const ASCIIDecimalConverter = lazy(() => import("./components/ASCIIDecimalConver
 const BinaryBitShifter = lazy(() => import("./components/BinaryBitShifter").then(m => ({ default: m.BinaryBitShifter })));
 const CSVToAsciiTable = lazy(() => import("./components/CSVToAsciiTable").then(m => ({ default: m.CSVToAsciiTable })));
 const StringManipulator = lazy(() => import("./components/StringManipulator").then(m => ({ default: m.StringManipulator })));
+const JSONFlattener = lazy(() => import("./components/JSONFlattener").then(m => ({ default: m.JSONFlattener })));
+const SierpinskiTriangle = lazy(() => import("./components/SierpinskiTriangle").then(m => ({ default: m.SierpinskiTriangle })));
+const JSONStringifier = lazy(() => import("./components/JSONStringifier").then(m => ({ default: m.JSONStringifier })));
+const HTMLStripper = lazy(() => import("./components/HTMLStripper").then(m => ({ default: m.HTMLStripper })));
 
 // ⚡ Bolt Optimization: Pre-calculating tool map and search index for O(1) lookups and faster filtering
 const toolsMap: Record<string, Tool> = {};
@@ -3246,6 +3250,50 @@ const tools: Tool[] = [
     Component: StringManipulator,
     category: "text",
     keywords: ["padding", "truncate", "length", "string", "text", "manipulate"],
+  },
+  {
+    id: "json-flattener",
+    name: "Aplatir JSON",
+    nameEn: "JSON Flattener",
+    icon: Braces,
+    description: "Convertir un JSON imbriqué en un objet à un seul niveau",
+    descriptionEn: "Convert nested JSON into a single-level object",
+    Component: JSONFlattener,
+    category: "dev",
+    keywords: ["json", "flatten", "nested", "object", "structure"],
+  },
+  {
+    id: "sierpinski-triangle",
+    name: "Triangle de Sierpinski",
+    nameEn: "Sierpinski Triangle",
+    icon: Triangle,
+    description: "Générer une fractale de triangle de Sierpinski récursive",
+    descriptionEn: "Generate a recursive Sierpinski triangle fractal",
+    Component: SierpinskiTriangle,
+    category: "calculators",
+    keywords: ["fractal", "sierpinski", "triangle", "math", "recursive"],
+  },
+  {
+    id: "json-stringifier",
+    name: "JSON en String",
+    nameEn: "JSON Stringifier",
+    icon: FileCode,
+    description: "Convertir un JSON en une chaîne de caractères échappée",
+    descriptionEn: "Convert JSON into an escaped string literal",
+    Component: JSONStringifier,
+    category: "dev",
+    keywords: ["json", "stringify", "escape", "string", "literal"],
+  },
+  {
+    id: "html-stripper",
+    name: "Nettoyeur HTML",
+    nameEn: "HTML Stripper",
+    icon: Scissors,
+    description: "Supprimer toutes les balises HTML pour ne garder que le texte brut",
+    descriptionEn: "Remove all HTML tags to keep only plain text",
+    Component: HTMLStripper,
+    category: "text",
+    keywords: ["html", "strip", "tags", "plain text", "clean"],
   },
 ];
 

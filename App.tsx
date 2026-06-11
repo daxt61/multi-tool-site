@@ -122,6 +122,7 @@ import {
   RotateCw,
   FolderTree,
   MonitorPlay,
+  Mic,
 } from "lucide-react";
 const AdPlaceholder = lazy(() => import("./components/AdPlaceholder").then(m => ({ default: m.AdPlaceholder })));
 
@@ -400,6 +401,9 @@ const JSONFlattener = lazy(() => import("./components/JSONFlattener").then(m => 
 const SierpinskiTriangle = lazy(() => import("./components/SierpinskiTriangle").then(m => ({ default: m.SierpinskiTriangle })));
 const JSONStringifier = lazy(() => import("./components/JSONStringifier").then(m => ({ default: m.JSONStringifier })));
 const HTMLStripper = lazy(() => import("./components/HTMLStripper").then(m => ({ default: m.HTMLStripper })));
+const SpeechToText = lazy(() => import("./components/SpeechToText").then(m => ({ default: m.SpeechToText })));
+const IBANGenerator = lazy(() => import("./components/IBANGenerator").then(m => ({ default: m.IBANGenerator })));
+const CreditCardGenerator = lazy(() => import("./components/CreditCardGenerator").then(m => ({ default: m.CreditCardGenerator })));
 
 // ⚡ Bolt Optimization: Pre-calculating tool map and search index for O(1) lookups and faster filtering
 const toolsMap: Record<string, Tool> = {};
@@ -3294,6 +3298,39 @@ const tools: Tool[] = [
     Component: HTMLStripper,
     category: "text",
     keywords: ["html", "strip", "tags", "plain text", "clean"],
+  },
+  {
+    id: "speech-to-text",
+    name: "Dictée Vocale",
+    nameEn: "Speech to Text",
+    icon: Mic,
+    description: "Convertir votre voix en texte en temps réel",
+    descriptionEn: "Convert your voice to text in real-time",
+    Component: SpeechToText,
+    category: "text",
+    keywords: ["speech", "voice", "transcript", "recognition", "dictation"],
+  },
+  {
+    id: "iban-generator",
+    name: "Générateur IBAN",
+    nameEn: "IBAN Generator",
+    icon: Landmark,
+    description: "Générer des numéros IBAN valides pour les tests",
+    descriptionEn: "Generate valid IBAN numbers for testing",
+    Component: IBANGenerator,
+    category: "dev",
+    keywords: ["iban", "bank", "account", "test", "finance"],
+  },
+  {
+    id: "credit-card-generator",
+    name: "Générateur de Carte",
+    nameEn: "Credit Card Generator",
+    icon: CreditCard,
+    description: "Générer des numéros de carte de crédit valides (Luhn)",
+    descriptionEn: "Generate valid credit card numbers (Luhn)",
+    Component: CreditCardGenerator,
+    category: "dev",
+    keywords: ["credit card", "luhn", "visa", "mastercard", "test"],
   },
 ];
 

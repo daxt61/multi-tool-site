@@ -3,6 +3,7 @@ import { FileCode, Copy, Check, Trash2, AlertCircle, Info, Download } from 'luci
 import { useTranslation } from 'react-i18next';
 
 const MAX_LENGTH = 100000;
+const MAX_DEPTH = 20;
 
 export function JSONToPydantic({ initialData, onStateChange }: { initialData?: any; onStateChange?: (state: any) => void }) {
   const { t } = useTranslation();
@@ -42,24 +43,27 @@ export function JSONToPydantic({ initialData, onStateChange }: { initialData?: a
       const models: string[] = [];
       const generatedModels = new Set<string>();
 
-      const getType = (val: any, name: string): string => {
+      const getType = (val: any, name: string, depth: number): string => {
+        if (depth > MAX_DEPTH) return 'Any';
         if (val === null) return 'Optional[Any]';
         if (typeof val === 'string') return 'str';
         if (typeof val === 'number') return Number.isInteger(val) ? 'int' : 'float';
         if (typeof val === 'boolean') return 'bool';
         if (Array.isArray(val)) {
-          const innerType = val.length > 0 ? getType(val[0], name) : 'Any';
+          const innerType = val.length > 0 ? getType(val[0], name, depth + 1) : 'Any';
           return `List[${innerType}]`;
         }
         if (typeof val === 'object') {
           const modelName = toPascalCase(name);
-          generateModel(val, modelName);
+          if (depth >= MAX_DEPTH) return 'Any';
+          generateModel(val, modelName, depth + 1);
           return modelName;
         }
         return 'Any';
       };
 
-      const generateModel = (obj: any, modelName: string) => {
+      const generateModel = (obj: any, modelName: string, depth: number) => {
+        if (depth > MAX_DEPTH) return;
         if (generatedModels.has(modelName)) return;
         generatedModels.add(modelName);
 
@@ -71,7 +75,7 @@ export function JSONToPydantic({ initialData, onStateChange }: { initialData?: a
         } else {
           entries.forEach(([key, value]) => {
             const snakeKey = toSnakeCase(key);
-            const type = getType(value, key);
+            const type = getType(value, key, depth);
             if (snakeKey !== key) {
               modelCode += `    ${snakeKey}: ${type} = Field(alias=${JSON.stringify(key)})\n`;
             } else {
@@ -85,10 +89,10 @@ export function JSONToPydantic({ initialData, onStateChange }: { initialData?: a
 
       if (Array.isArray(data)) {
         if (data.length > 0) {
-          getType(data[0], 'Item');
+          getType(data[0], 'Item', 0);
         }
       } else {
-        generateModel(data, 'Model');
+        generateModel(data, 'Model', 0);
       }
 
       const header = `from pydantic import BaseModel, Field\nfrom typing import List, Optional, Any\n\n`;

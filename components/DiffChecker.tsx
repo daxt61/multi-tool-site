@@ -15,11 +15,13 @@ export function DiffChecker({ initialData, onStateChange }: { initialData?: any;
   const [text1, setText1] = useState(initialData?.text1 || '');
   const [text2, setText2] = useState(initialData?.text2 || '');
   const [viewMode, setViewMode] = useState<'unified' | 'split'>(initialData?.viewMode || 'unified');
+  const [ignoreCase, setIgnoreCase] = useState(initialData?.ignoreCase || false);
+  const [ignoreWhitespace, setIgnoreWhitespace] = useState(initialData?.ignoreWhitespace || false);
   const [copied, setCopied] = useState(false);
 
   useEffect(() => {
-    onStateChange?.({ text1, text2, viewMode });
-  }, [text1, text2, viewMode, onStateChange]);
+    onStateChange?.({ text1, text2, viewMode, ignoreCase, ignoreWhitespace });
+  }, [text1, text2, viewMode, ignoreCase, ignoreWhitespace, onStateChange]);
 
   const MAX_LENGTH = 50000; // 50KB safety limit
 
@@ -27,13 +29,27 @@ export function DiffChecker({ initialData, onStateChange }: { initialData?: any;
     const lines1 = text1.slice(0, MAX_LENGTH).split('\n');
     const lines2 = text2.slice(0, MAX_LENGTH).split('\n');
 
+    const compareStrings = (s1: string, s2: string) => {
+      let t1 = s1;
+      let t2 = s2;
+      if (ignoreCase) {
+        t1 = t1.toLowerCase();
+        t2 = t2.toLowerCase();
+      }
+      if (ignoreWhitespace) {
+        t1 = t1.trim();
+        t2 = t2.trim();
+      }
+      return t1 === t2;
+    };
+
     const n = lines1.length;
     const m = lines2.length;
     const dp = Array.from({ length: n + 1 }, () => Array(m + 1).fill(0));
 
     for (let i = 1; i <= n; i++) {
       for (let j = 1; j <= m; j++) {
-        if (lines1[i - 1] === lines2[j - 1]) {
+        if (compareStrings(lines1[i - 1], lines2[j - 1])) {
           dp[i][j] = dp[i - 1][j - 1] + 1;
         } else {
           dp[i][j] = Math.max(dp[i - 1][j], dp[i][j - 1]);
@@ -44,7 +60,7 @@ export function DiffChecker({ initialData, onStateChange }: { initialData?: any;
     const diff: DiffItem[] = [];
     let i = n, j = m;
     while (i > 0 || j > 0) {
-      if (i > 0 && j > 0 && lines1[i - 1] === lines2[j - 1]) {
+      if (i > 0 && j > 0 && compareStrings(lines1[i - 1], lines2[j - 1])) {
         diff.unshift({ type: 'unchanged', text: lines1[i - 1], line1: i, line2: j });
         i--;
         j--;
@@ -82,7 +98,7 @@ export function DiffChecker({ initialData, onStateChange }: { initialData?: any;
     }
 
     return finalDiff;
-  }, [text1, text2]);
+  }, [text1, text2, ignoreCase, ignoreWhitespace]);
 
   const handleSwap = useCallback(() => {
     const t1 = text1;
@@ -142,13 +158,18 @@ export function DiffChecker({ initialData, onStateChange }: { initialData?: any;
   }, []);
 
   function getCharDiff(s1: string, s2: string) {
+    const compareChars = (c1: string, c2: string) => {
+      if (ignoreCase) return c1.toLowerCase() === c2.toLowerCase();
+      return c1 === c2;
+    };
+
     const n = s1.length;
     const m = s2.length;
     const dp = Array.from({ length: n + 1 }, () => Array(m + 1).fill(0));
 
     for (let i = 1; i <= n; i++) {
       for (let j = 1; j <= m; j++) {
-        if (s1[i - 1] === s2[j - 1]) dp[i][j] = dp[i - 1][j - 1] + 1;
+        if (compareChars(s1[i - 1], s2[j - 1])) dp[i][j] = dp[i - 1][j - 1] + 1;
         else dp[i][j] = Math.max(dp[i - 1][j], dp[i][j - 1]);
       }
     }
@@ -156,7 +177,7 @@ export function DiffChecker({ initialData, onStateChange }: { initialData?: any;
     const res: { type: 'added' | 'removed' | 'unchanged', text: string }[] = [];
     let i = n, j = m;
     while (i > 0 || j > 0) {
-      if (i > 0 && j > 0 && s1[i - 1] === s2[j - 1]) {
+      if (i > 0 && j > 0 && compareChars(s1[i - 1], s2[j - 1])) {
         res.unshift({ type: 'unchanged', text: s1[i - 1] });
         i--; j--;
       } else if (j > 0 && (i === 0 || dp[i][j - 1] >= dp[i - 1][j])) {
@@ -262,6 +283,31 @@ export function DiffChecker({ initialData, onStateChange }: { initialData?: any;
           </div>
 
           <div className="flex items-center gap-2">
+            <div className="flex items-center gap-4 mr-4">
+              <label className="flex items-center gap-2 cursor-pointer group">
+                <input
+                  type="checkbox"
+                  checked={ignoreCase}
+                  onChange={(e) => setIgnoreCase(e.target.checked)}
+                  className="w-4 h-4 rounded border-slate-300 text-indigo-600 focus:ring-indigo-500"
+                />
+                <span className="text-xs font-bold text-slate-500 group-hover:text-slate-700 dark:group-hover:text-slate-300 transition-colors">
+                  {t('diffchecker.ignore_case')}
+                </span>
+              </label>
+              <label className="flex items-center gap-2 cursor-pointer group">
+                <input
+                  type="checkbox"
+                  checked={ignoreWhitespace}
+                  onChange={(e) => setIgnoreWhitespace(e.target.checked)}
+                  className="w-4 h-4 rounded border-slate-300 text-indigo-600 focus:ring-indigo-500"
+                />
+                <span className="text-xs font-bold text-slate-500 group-hover:text-slate-700 dark:group-hover:text-slate-300 transition-colors">
+                  {t('diffchecker.ignore_whitespace')}
+                </span>
+              </label>
+            </div>
+
             <div className="flex bg-slate-100 dark:bg-slate-800 p-1 rounded-xl border border-slate-200 dark:border-slate-700">
               <button
                 onClick={() => setViewMode('unified')}

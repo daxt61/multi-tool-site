@@ -131,3 +131,8 @@
 **Vulnerability:** The shared `getSecureRandomInt` utility and its local duplicates were susceptible to an infinite loop Denial of Service (DoS) when a large range (`max >= 2^32`) was requested. The rejection sampling logic incorrectly calculated the limit, causing the loop to never terminate.
 **Learning:** Rejection sampling implementations for secure randomness must be type-aware and range-aware. Assuming 32-bit limits for all random requests in a 64-bit environment (JavaScript's `Number`) is a common pitfall that leads to both biased results and potential hangs.
 **Prevention:** Implement secure random utilities using `BigInt` and bit-masking to support the full range of safe integers. Always verify that rejection sampling conditions are reachable for any valid input `max`. Prefer a single, robust shared utility over local re-implementations.
+
+## 2026-05-15 - [Stack Overflow DoS in JSON-to-Pydantic Converter]
+**Vulnerability:** The JSONToPydantic component used unbounded recursion to process user-provided JSON, making it vulnerable to Stack Overflow Denial of Service (DoS) attacks with deeply nested inputs.
+**Learning:** Recursive functions that process untrusted or potentially large data structures must always implement a maximum depth limit. Even if the data is valid (e.g., from JSON.parse), the structure itself can be a weapon to crash the client.
+**Prevention:** Enforce a strict recursion depth limit (e.g., 20) in all recursive data processing functions. Return a safe fallback value or a clear error message once the limit is reached to protect the execution stack.

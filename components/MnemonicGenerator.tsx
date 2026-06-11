@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useRef } from 'react';
 import { RefreshCw, Copy, Check, Shield, AlertCircle, Eye, EyeOff, Download, List, Key } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 
@@ -2113,11 +2113,50 @@ export function MnemonicGenerator({ initialData, onStateChange }: { initialData?
     onStateChange?.({ wordCount });
   }, [wordCount, onStateChange]);
 
-  const handleCopy = () => {
+  const handleCopy = useCallback(() => {
+    if (words.length === 0) return;
     navigator.clipboard.writeText(words.join(' '));
     setCopied(true);
     setTimeout(() => setCopied(false), 2000);
-  };
+  }, [words]);
+
+  const generateMnemonicRef = useRef(generateMnemonic);
+  const handleCopyRef = useRef(handleCopy);
+  const wordCountRef = useRef(wordCount);
+
+  useEffect(() => {
+    generateMnemonicRef.current = generateMnemonic;
+    handleCopyRef.current = handleCopy;
+    wordCountRef.current = wordCount;
+  }, [generateMnemonic, handleCopy, wordCount]);
+
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (
+        document.activeElement?.tagName === "INPUT" ||
+        document.activeElement?.tagName === "TEXTAREA" ||
+        document.activeElement?.getAttribute('contenteditable') === 'true'
+      ) {
+        return;
+      }
+
+      if (e.metaKey || e.ctrlKey || e.altKey || e.shiftKey) return;
+
+      if (e.key.toLowerCase() === 'r') {
+        e.preventDefault();
+        generateMnemonicRef.current(wordCountRef.current);
+      } else if (e.key.toLowerCase() === 'c') {
+        e.preventDefault();
+        handleCopyRef.current();
+      } else if (e.key.toLowerCase() === 'v') {
+        e.preventDefault();
+        setShowMnemonic(prev => !prev);
+      }
+    };
+
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, []);
 
   const handleDownload = () => {
     const content = words.join(' ');
@@ -2170,16 +2209,21 @@ export function MnemonicGenerator({ initialData, onStateChange }: { initialData?
         <div className="flex items-center gap-2 w-full md:w-auto">
           <button
             onClick={() => setShowMnemonic(!showMnemonic)}
-            className="flex-1 md:flex-none flex items-center justify-center gap-2 px-6 py-3 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl text-sm font-bold text-slate-600 dark:text-slate-400 hover:border-indigo-500 transition-all focus-visible:ring-2 focus-visible:ring-indigo-500"
+            title={`${t('mnemonic.hide')} (V)`}
+            className="flex-1 md:flex-none flex items-center justify-center gap-2 px-6 py-3 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl text-sm font-bold text-slate-600 dark:text-slate-400 hover:border-indigo-500 transition-all focus-visible:ring-2 focus-visible:ring-indigo-500 group"
           >
             {showMnemonic ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
-            {showMnemonic ? t('mnemonic.hide') : t('mnemonic.show')}
+            <span>{showMnemonic ? t('mnemonic.hide') : t('mnemonic.show')}</span>
+            <kbd className="hidden sm:inline-flex items-center justify-center w-5 h-5 border border-slate-200 dark:border-slate-700 rounded text-[10px] font-bold bg-slate-50 dark:bg-slate-800 text-slate-400 ml-1 group-hover:border-indigo-200 transition-colors">V</kbd>
           </button>
           <button
             onClick={() => generateMnemonic(wordCount)}
-            className="flex-1 md:flex-none flex items-center justify-center gap-2 px-6 py-3 bg-indigo-600 text-white rounded-2xl text-sm font-black shadow-lg shadow-indigo-600/20 hover:bg-indigo-700 transition-all active:scale-95 focus-visible:ring-2 focus-visible:ring-indigo-500"
+            title={`${t('mnemonic.regenerate')} (R)`}
+            className="flex-1 md:flex-none flex items-center justify-center gap-2 px-6 py-3 bg-indigo-600 text-white rounded-2xl text-sm font-black shadow-lg shadow-indigo-600/20 hover:bg-indigo-700 transition-all active:scale-95 focus-visible:ring-2 focus-visible:ring-indigo-500 group"
           >
-            <RefreshCw className="w-4 h-4" /> {t('mnemonic.regenerate')}
+            <RefreshCw className="w-4 h-4" />
+            <span>{t('mnemonic.regenerate')}</span>
+            <kbd className="hidden sm:inline-flex items-center justify-center w-5 h-5 border border-white/20 rounded text-[10px] font-bold bg-white/10 text-white/70 ml-1 group-hover:bg-white/20 transition-colors">R</kbd>
           </button>
         </div>
       </div>
@@ -2208,14 +2252,20 @@ export function MnemonicGenerator({ initialData, onStateChange }: { initialData?
         <button
           onClick={handleCopy}
           disabled={!words.length}
+          title={`${t('mnemonic.copy_all')} (C)`}
           className={`px-8 py-4 rounded-2xl font-black text-lg transition-all flex items-center gap-3 border shadow-lg ${
             copied
               ? 'bg-emerald-50 dark:bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border-emerald-200 dark:border-emerald-500/20'
               : 'bg-slate-900 dark:bg-white text-white dark:text-slate-900 border-transparent hover:scale-105 active:scale-95'
-          } disabled:opacity-50`}
+          } disabled:opacity-50 group`}
         >
           {copied ? <Check className="w-6 h-6" /> : <Copy className="w-6 h-6" />}
-          {copied ? t('common.copied') : t('mnemonic.copy_all')}
+          <span>{copied ? t('common.copied') : t('mnemonic.copy_all')}</span>
+          {!copied && (
+            <kbd className="hidden sm:inline-flex items-center justify-center w-6 h-6 border rounded text-xs font-bold ml-1 transition-all bg-black/10 border-white/20 text-white/70 group-hover:bg-black/20 dark:bg-slate-100 dark:border-slate-200 dark:text-slate-400">
+              C
+            </kbd>
+          )}
         </button>
         <button
           onClick={handleDownload}

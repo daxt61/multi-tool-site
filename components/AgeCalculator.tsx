@@ -1,5 +1,5 @@
-import { useState, useMemo, useEffect } from 'react';
-import { Calendar, Clock, Heart, Baby, Gift, Info, Star, Trash2, Copy, Check, Download } from 'lucide-react';
+import { useState, useMemo, useEffect, useCallback, useRef } from 'react';
+import { Calendar, Clock, Heart, Baby, Gift, Info, Star, Trash2, Copy, Check, Download, RotateCcw } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 
 export function AgeCalculator({ initialData, onStateChange }: { initialData?: any; onStateChange?: (state: any) => void }) {
@@ -8,10 +8,11 @@ export function AgeCalculator({ initialData, onStateChange }: { initialData?: an
   const [copied, setCopied] = useState(false);
   const [copiedReport, setCopiedReport] = useState(false);
   const [currentTime, setCurrentTime] = useState(new Date());
+  const birthDateInputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
     onStateChange?.({ birthDate });
-  }, [birthDate]);
+  }, [birthDate, onStateChange]);
 
   useEffect(() => {
     const timer = setInterval(() => setCurrentTime(new Date()), 1000);
@@ -81,7 +82,7 @@ export function AgeCalculator({ initialData, onStateChange }: { initialData?: an
     return signs[index];
   }
 
-  const handleCopy = () => {
+  const handleCopy = useCallback(() => {
     if (!ageData) return;
     const parts = [];
     if (ageData.years > 0) parts.push(`${ageData.years} ${t('agecalculator.years').toLowerCase()}`);
@@ -98,9 +99,9 @@ export function AgeCalculator({ initialData, onStateChange }: { initialData?: an
     navigator.clipboard.writeText(text || `0 ${t('agecalculator.days').toLowerCase()}`);
     setCopied(true);
     setTimeout(() => setCopied(false), 2000);
-  };
+  }, [ageData, t]);
 
-  const getReportContent = () => {
+  const getReportContent = useCallback(() => {
     if (!ageData) return "";
     return `${t('agecalculator.report_title')} :
 - ${t('agecalculator.birth_date')} : ${birthDate}
@@ -113,9 +114,9 @@ ${t('agecalculator.life_stats')} :
 - ${t('agecalculator.stats_total_weeks')} : ${ageData.totalWeeks.toLocaleString()}
 - ${t('agecalculator.stats_total_days')} : ${ageData.totalDays.toLocaleString()}
 - ${t('agecalculator.stats_total_hours')} : ${ageData.totalHours.toLocaleString()}`;
-  };
+  }, [ageData, t, birthDate]);
 
-  const handleDownload = () => {
+  const handleDownload = useCallback(() => {
     const content = getReportContent();
     if (!content) return;
     const blob = new Blob([content], { type: 'text/plain' });
@@ -125,15 +126,63 @@ ${t('agecalculator.life_stats')} :
     link.download = `rapport-age-${Date.now()}.txt`;
     link.click();
     URL.revokeObjectURL(url);
-  };
+  }, [getReportContent]);
 
-  const handleCopyReport = () => {
+  const handleCopyReport = useCallback(() => {
     const content = getReportContent();
     if (!content) return;
     navigator.clipboard.writeText(content);
     setCopiedReport(true);
     setTimeout(() => setCopiedReport(false), 2000);
-  };
+  }, [getReportContent]);
+
+  const handleReset = useCallback(() => {
+    setBirthDate('');
+    birthDateInputRef.current?.focus();
+  }, []);
+
+  const handleResetRef = useRef(handleReset);
+  const handleCopyRef = useRef(handleCopy);
+  const handleCopyReportRef = useRef(handleCopyReport);
+  const handleDownloadRef = useRef(handleDownload);
+
+  useEffect(() => {
+    handleResetRef.current = handleReset;
+    handleCopyRef.current = handleCopy;
+    handleCopyReportRef.current = handleCopyReport;
+    handleDownloadRef.current = handleDownload;
+  }, [handleReset, handleCopy, handleCopyReport, handleDownload]);
+
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      const activeElement = document.activeElement;
+      const isInputFocused =
+        activeElement instanceof HTMLInputElement ||
+        activeElement instanceof HTMLTextAreaElement ||
+        activeElement instanceof HTMLSelectElement ||
+        activeElement?.getAttribute("contenteditable") === "true";
+
+      if (isInputFocused) return;
+      if (e.metaKey || e.ctrlKey || e.altKey || e.shiftKey) return;
+
+      if (e.key === "Escape") {
+        e.preventDefault();
+        handleResetRef.current();
+      } else if (e.key.toLowerCase() === "c") {
+        e.preventDefault();
+        handleCopyRef.current();
+      } else if (e.key.toLowerCase() === "r") {
+        e.preventDefault();
+        handleCopyReportRef.current();
+      } else if (e.key.toLowerCase() === "d") {
+        e.preventDefault();
+        handleDownloadRef.current();
+      }
+    };
+
+    window.addEventListener("keydown", handleKeyDown);
+    return () => window.removeEventListener("keydown", handleKeyDown);
+  }, []);
 
   return (
     <div className="max-w-5xl mx-auto space-y-12">
@@ -149,6 +198,7 @@ ${t('agecalculator.life_stats')} :
                 <button
                   onClick={handleCopyReport}
                   disabled={!ageData}
+                  title={`${t('common.copy')} (R)`}
                   className={`text-xs font-bold px-3 py-1.5 rounded-xl flex items-center gap-1 transition-all disabled:opacity-50 disabled:cursor-not-allowed focus-visible:ring-2 focus-visible:ring-indigo-500 focus-visible:outline-none ${
                     copiedReport
                       ? 'bg-emerald-50 dark:bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border border-emerald-200 dark:border-emerald-500/20'
@@ -156,26 +206,34 @@ ${t('agecalculator.life_stats')} :
                   }`}
                 >
                   {copiedReport ? <Check className="w-3 h-3" /> : <Copy className="w-3 h-3" />}
-                  {copiedReport ? t('common.copied') : t('common.copy')}
+                  <span className="hidden sm:inline">{copiedReport ? t('common.copied') : t('common.copy')}</span>
+                  {!copiedReport && <kbd className="hidden md:inline-flex items-center justify-center w-4 h-4 border border-indigo-200 dark:border-indigo-800 rounded text-[10px] font-bold bg-white dark:bg-slate-900 ml-1">R</kbd>}
                 </button>
                 <button
                   onClick={handleDownload}
                   disabled={!ageData}
+                  title={`${t('common.download')} (D)`}
                   className="text-xs font-bold text-indigo-600 bg-indigo-50 dark:bg-indigo-900/20 hover:bg-indigo-100 dark:hover:bg-indigo-900/30 px-3 py-1.5 rounded-xl flex items-center gap-1 transition-all disabled:opacity-50 disabled:cursor-not-allowed focus-visible:ring-2 focus-visible:ring-indigo-500 focus-visible:outline-none"
                 >
-                  <Download className="w-3 h-3" /> {t('common.download')}
+                  <Download className="w-3 h-3" />
+                  <span className="hidden sm:inline">{t('common.download')}</span>
+                  <kbd className="hidden md:inline-flex items-center justify-center w-4 h-4 border border-indigo-200 dark:border-indigo-800 rounded text-[10px] font-bold bg-white dark:bg-slate-900 ml-1">D</kbd>
                 </button>
                 <button
-                  onClick={() => setBirthDate('')}
+                  onClick={handleReset}
                   disabled={!birthDate}
+                  title={`${t('common.reset')} (Esc)`}
                   className="text-xs font-bold text-rose-500 bg-rose-50 dark:bg-rose-500/10 hover:bg-rose-100 dark:hover:bg-rose-500/20 px-3 py-1.5 rounded-xl flex items-center gap-1 transition-all disabled:opacity-50 disabled:cursor-not-allowed focus-visible:ring-2 focus-visible:ring-rose-500 focus-visible:outline-none"
                 >
-                  <Trash2 className="w-3 h-3" /> {t('common.clear')}
+                  <RotateCcw className="w-3 h-3" />
+                  <span className="hidden sm:inline">{t('common.reset')}</span>
+                  <kbd className="hidden md:inline-flex items-center justify-center px-1.5 py-0.5 border border-rose-200 dark:border-rose-800 rounded text-[10px] font-bold text-rose-400 bg-white dark:bg-slate-900 ml-1">Esc</kbd>
                 </button>
               </div>
             </div>
             <input
               id="birth-date"
+              ref={birthDateInputRef}
               type="date"
               value={birthDate}
               onChange={(e) => setBirthDate(e.target.value)}
@@ -226,7 +284,8 @@ ${t('agecalculator.life_stats')} :
              <button
                onClick={handleCopy}
                disabled={!ageData}
-               className={`absolute top-6 right-6 p-3 rounded-2xl transition-all z-20 focus-visible:ring-2 focus-visible:ring-indigo-500 focus-visible:outline-none ${
+               title={`${t('agecalculator.copy_age')} (C)`}
+               className={`absolute top-6 right-6 p-3 rounded-2xl transition-all z-20 focus-visible:ring-2 focus-visible:ring-indigo-500 focus-visible:outline-none flex items-center gap-2 ${
                  copied
                    ? 'bg-emerald-500 text-white'
                    : 'bg-slate-100 dark:bg-slate-800 text-slate-500 hover:text-indigo-500 md:opacity-0 md:group-hover:opacity-100 md:focus-visible:opacity-100'
@@ -234,6 +293,7 @@ ${t('agecalculator.life_stats')} :
                aria-label={t('agecalculator.copy_age')}
              >
                {copied ? <Check className="w-5 h-5" /> : <Copy className="w-5 h-5" />}
+               {!copied && <kbd className="hidden sm:inline-flex items-center justify-center w-5 h-5 border border-slate-200 dark:border-slate-800 rounded text-[10px] font-bold bg-white dark:bg-slate-900">C</kbd>}
              </button>
 
              <h3 className="text-xs font-black uppercase tracking-widest text-slate-500">{t('agecalculator.current_age')}</h3>

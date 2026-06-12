@@ -1,6 +1,7 @@
 import { useState, useCallback } from 'react';
 import { Landmark, Copy, Check, RefreshCw, Info } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
+import { getSecureRandomInt } from './ui/crypto';
 
 interface CountryConfig {
   code: string;
@@ -28,7 +29,7 @@ export function IBANGenerator() {
   const generateRandomDigits = (length: number) => {
     let res = '';
     for (let i = 0; i < length; i++) {
-      res += Math.floor(Math.random() * 10).toString();
+      res += getSecureRandomInt(10).toString();
     }
     return res;
   };
@@ -37,7 +38,7 @@ export function IBANGenerator() {
     const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
     let res = '';
     for (let i = 0; i < length; i++) {
-      res += chars.charAt(Math.floor(Math.random() * chars.length));
+      res += chars.charAt(getSecureRandomInt(chars.length));
     }
     return res;
   };

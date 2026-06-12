@@ -1,6 +1,7 @@
 import { useState, useCallback } from 'react';
 import { CreditCard, Copy, Check, RefreshCw, Info, Calendar, ShieldCheck } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
+import { getSecureRandomInt } from './ui/crypto';
 
 interface ProviderConfig {
   id: string;
@@ -26,7 +27,7 @@ export function CreditCardGenerator() {
   const generateLuhn = (prefix: string, length: number) => {
     let ccNumber = prefix;
     while (ccNumber.length < length - 1) {
-      ccNumber += Math.floor(Math.random() * 10).toString();
+      ccNumber += getSecureRandomInt(10).toString();
     }
 
     let sum = 0;
@@ -46,7 +47,7 @@ export function CreditCardGenerator() {
   };
 
   const handleGenerate = useCallback(() => {
-    const prefix = provider.prefixes[Math.floor(Math.random() * provider.prefixes.length)];
+    const prefix = provider.prefixes[getSecureRandomInt(provider.prefixes.length)];
     const number = generateLuhn(prefix, provider.length);
 
     // Format number
@@ -57,9 +58,9 @@ export function CreditCardGenerator() {
       formatted = number.match(/.{1,4}/g)?.join(' ') || number;
     }
 
-    const month = (Math.floor(Math.random() * 12) + 1).toString().padStart(2, '0');
-    const year = (new Date().getFullYear() + Math.floor(Math.random() * 5) + 1).toString().slice(-2);
-    const cvv = (Math.floor(Math.random() * (provider.id === 'amex' ? 9000 : 900)) + (provider.id === 'amex' ? 1000 : 100)).toString();
+    const month = (getSecureRandomInt(12) + 1).toString().padStart(2, '0');
+    const year = (new Date().getFullYear() + getSecureRandomInt(5) + 1).toString().slice(-2);
+    const cvv = (getSecureRandomInt(provider.id === 'amex' ? 9000 : 900) + (provider.id === 'amex' ? 1000 : 100)).toString();
 
     setCard({ number, formatted, expiry: `${month}/${year}`, cvv });
   }, [provider]);

@@ -1,11 +1,12 @@
-import { useState, useCallback, useEffect } from 'react';
-import { FileUp, Copy, Check, Trash2, FileCode, Image as ImageIcon, AlertCircle } from 'lucide-react';
+import { useState, useCallback, useEffect, useRef } from 'react';
+import { FileUp, Copy, Check, Trash2, FileCode, Image as ImageIcon, AlertCircle, RotateCcw } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 
 const MAX_FILE_SIZE = 5 * 1024 * 1024; // 5MB
 
 export function DataURLGenerator({ initialData, onStateChange }: { initialData?: any; onStateChange?: (state: any) => void }) {
   const { t } = useTranslation();
+  const fileInputRef = useRef<HTMLInputElement>(null);
   const [dataURL, setDataURL] = useState(initialData?.dataURL || '');
   const [fileName, setFileName] = useState(initialData?.fileName || '');
   const [fileSize, setFileSize] = useState(initialData?.fileSize || 0);
@@ -38,20 +39,58 @@ export function DataURLGenerator({ initialData, onStateChange }: { initialData?:
     reader.readAsDataURL(file);
   };
 
-  const handleCopy = () => {
+  const handleCopy = useCallback(() => {
     if (!dataURL) return;
     navigator.clipboard.writeText(dataURL);
     setCopied(true);
     setTimeout(() => setCopied(false), 2000);
-  };
+  }, [dataURL]);
 
-  const handleClear = () => {
+  const handleReset = useCallback(() => {
     setDataURL('');
     setFileName('');
     setFileSize(0);
     setMimeType('');
     setError(null);
-  };
+    if (fileInputRef.current) {
+      fileInputRef.current.value = '';
+    }
+  }, []);
+
+  // Keyboard Shortcuts
+  const handlersRef = useRef({ handleReset, handleCopy });
+  useEffect(() => {
+    handlersRef.current = { handleReset, handleCopy };
+  }, [handleReset, handleCopy]);
+
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      const isEditable =
+        document.activeElement?.tagName === "INPUT" ||
+        document.activeElement?.tagName === "TEXTAREA" ||
+        document.activeElement?.getAttribute('contenteditable') === 'true';
+
+      if (isEditable) {
+        if (e.key === 'Escape') {
+          handlersRef.current.handleReset();
+        }
+        return;
+      }
+
+      if (e.metaKey || e.ctrlKey || e.altKey || e.shiftKey) return;
+
+      if (e.key === 'Escape') {
+        e.preventDefault();
+        handlersRef.current.handleReset();
+      } else if (e.key.toLowerCase() === 'c') {
+        e.preventDefault();
+        handlersRef.current.handleCopy();
+      }
+    };
+
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, []);
 
   const formatFileSize = (bytes: number) => {
     if (bytes === 0) return '0 B';
@@ -83,6 +122,7 @@ export function DataURLGenerator({ initialData, onStateChange }: { initialData?:
           >
             <input
               type="file"
+              ref={fileInputRef}
               onChange={handleFileUpload}
               className="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-10"
               aria-label="Upload file"
@@ -131,25 +171,28 @@ export function DataURLGenerator({ initialData, onStateChange }: { initialData?:
           <label htmlFor="data-url-output" className="text-xs font-black uppercase tracking-widest text-slate-400">
             Data URL
           </label>
-          <div className="flex gap-2">
+          <div className="flex gap-2 items-center">
+            <kbd className="hidden md:inline-flex items-center justify-center w-6 h-6 border rounded text-xs font-bold ml-1 transition-all bg-black/10 border-white/20 text-white/70 group-hover:bg-black/20 dark:bg-slate-100 dark:border-slate-200 dark:text-slate-400">Esc</kbd>
+            <button
+              onClick={handleReset}
+              disabled={!dataURL}
+              className="text-xs font-bold text-rose-500 bg-rose-50 dark:bg-rose-500/10 hover:bg-rose-100 dark:hover:bg-rose-500/20 px-3 py-1.5 rounded-xl flex items-center gap-2 transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+            >
+              <RotateCcw className="w-4 h-4" /> <span className="hidden sm:inline">{t('common.reset')}</span>
+            </button>
+            <div className="w-px h-4 bg-slate-200 dark:bg-slate-800 mx-1 hidden md:block" />
+            <kbd className="hidden md:inline-flex items-center justify-center w-6 h-6 border rounded text-xs font-bold ml-1 transition-all bg-black/10 border-white/20 text-white/70 group-hover:bg-black/20 dark:bg-slate-100 dark:border-slate-200 dark:text-slate-400">C</kbd>
             <button
               onClick={handleCopy}
               disabled={!dataURL}
-              className={`text-xs font-bold px-4 py-2 rounded-full transition-all flex items-center gap-2 border ${
+              className={`text-xs font-bold px-3 py-1.5 rounded-xl transition-all flex items-center gap-2 border ${
                 copied
                   ? 'bg-emerald-50 dark:bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border-emerald-200 dark:border-emerald-500/20'
                   : 'text-slate-500 bg-slate-100 dark:bg-slate-800 border-transparent hover:bg-slate-200 dark:hover:bg-slate-700'
               } disabled:opacity-50 disabled:cursor-not-allowed`}
             >
-              {copied ? <Check className="w-3 h-3" /> : <Copy className="w-3 h-3" />}
+              {copied ? <Check className="w-4 h-4" /> : <Copy className="w-4 h-4" />}
               {copied ? t('common.copied') : t('common.copy')}
-            </button>
-            <button
-              onClick={handleClear}
-              disabled={!dataURL}
-              className="text-xs font-bold text-rose-500 bg-rose-50 dark:bg-rose-500/10 hover:bg-rose-100 dark:hover:bg-rose-500/20 px-4 py-2 rounded-full flex items-center gap-2 transition-all disabled:opacity-50 disabled:cursor-not-allowed"
-            >
-              <Trash2 className="w-3 h-3" /> {t('common.clear')}
             </button>
           </div>
         </div>

@@ -404,6 +404,8 @@ const HTMLStripper = lazy(() => import("./components/HTMLStripper").then(m => ({
 const SpeechToText = lazy(() => import("./components/SpeechToText").then(m => ({ default: m.SpeechToText })));
 const IBANGenerator = lazy(() => import("./components/IBANGenerator").then(m => ({ default: m.IBANGenerator })));
 const CreditCardGenerator = lazy(() => import("./components/CreditCardGenerator").then(m => ({ default: m.CreditCardGenerator })));
+const AtbashCipher = lazy(() => import("./components/AtbashCipher").then(m => ({ default: m.AtbashCipher })));
+const RailFenceCipher = lazy(() => import("./components/RailFenceCipher").then(m => ({ default: m.RailFenceCipher })));
 
 // ⚡ Bolt Optimization: Pre-calculating tool map and search index for O(1) lookups and faster filtering
 const toolsMap: Record<string, Tool> = {};
@@ -1013,6 +1015,28 @@ const tools: Tool[] = [
     descriptionEn: "Encrypt or decrypt text with the Vigenere cipher",
     Component: VigenereCipher,
     category: "text",
+  },
+  {
+    id: "atbash-cipher",
+    name: "Atbash",
+    nameEn: "Atbash Cipher",
+    icon: Shield,
+    description: "Chiffre Atbash pour l'inversion de l'alphabet",
+    descriptionEn: "Atbash cipher for alphabet reversal",
+    Component: AtbashCipher,
+    category: "text",
+    keywords: ["atbash", "cipher", "reverse", "alphabet", "encryption"],
+  },
+  {
+    id: "rail-fence-cipher",
+    name: "Rail Fence",
+    nameEn: "Rail Fence Cipher",
+    icon: Shuffle,
+    description: "Chiffre Rail Fence (zigzag) par transposition",
+    descriptionEn: "Rail Fence (zigzag) transposition cipher",
+    Component: RailFenceCipher,
+    category: "text",
+    keywords: ["rail fence", "cipher", "transposition", "zigzag", "encryption"],
   },
   {
     id: "text-formatter",

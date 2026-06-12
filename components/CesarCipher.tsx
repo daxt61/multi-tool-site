@@ -1,6 +1,7 @@
-import { useState, useEffect, useCallback } from 'react';
-import { Shield, Lock, Unlock, Copy, Check, Trash2, RefreshCw, Info, ArrowRight, AlertCircle } from 'lucide-react';
+import { useState, useEffect, useCallback, useRef } from 'react';
+import { Shield, Lock, Unlock, Copy, Check, Trash2, RefreshCw, Info, ArrowRight, AlertCircle, RotateCcw, Shuffle } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
+import { getSecureRandomInt } from './ui/crypto';
 
 const MAX_LENGTH = 100000;
 
@@ -28,17 +29,60 @@ export function CesarCipher({ initialData, onStateChange }: { initialData?: any;
     onStateChange?.({ shift, isEncrypt });
   }, [text, shift, isEncrypt, onStateChange]);
 
-  const handleCopy = () => {
+  const handleCopy = useCallback(() => {
     if (!result) return;
     navigator.clipboard.writeText(result);
     setCopied(true);
     setTimeout(() => setCopied(false), 2000);
-  };
+  }, [result]);
 
-  const handleClear = () => {
+  const handleReset = useCallback(() => {
     setText('');
+    setShift(3);
     setError(null);
-  };
+  }, []);
+
+  const handleRandomizeShift = useCallback(() => {
+    setShift(getSecureRandomInt(25) + 1);
+  }, []);
+
+  // Keyboard Shortcuts
+  const handlersRef = useRef({ handleReset, handleCopy, handleRandomizeShift });
+  useEffect(() => {
+    handlersRef.current = { handleReset, handleCopy, handleRandomizeShift };
+  }, [handleReset, handleCopy, handleRandomizeShift]);
+
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      const isEditable =
+        document.activeElement?.tagName === "INPUT" ||
+        document.activeElement?.tagName === "TEXTAREA" ||
+        document.activeElement?.getAttribute('contenteditable') === 'true';
+
+      if (isEditable) {
+        if (e.key === 'Escape') {
+          handlersRef.current.handleReset();
+        }
+        return;
+      }
+
+      if (e.metaKey || e.ctrlKey || e.altKey || e.shiftKey) return;
+
+      if (e.key === 'Escape') {
+        e.preventDefault();
+        handlersRef.current.handleReset();
+      } else if (e.key.toLowerCase() === 'c') {
+        e.preventDefault();
+        handlersRef.current.handleCopy();
+      } else if (e.key.toLowerCase() === 'r') {
+        e.preventDefault();
+        handlersRef.current.handleRandomizeShift();
+      }
+    };
+
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, []);
 
   const handleTextChange = (val: string) => {
     setText(val);
@@ -67,13 +111,16 @@ export function CesarCipher({ initialData, onStateChange }: { initialData?: any;
                 <Shield className="w-4 h-4" />
                 <h3 className="text-xs font-black uppercase tracking-widest text-slate-400">Configuration</h3>
               </div>
-              <button
-                onClick={handleClear}
-                disabled={!text}
-                className="text-xs font-bold text-rose-500 bg-rose-50 dark:bg-rose-500/10 hover:bg-rose-100 dark:hover:bg-rose-500/20 px-3 py-1.5 rounded-xl flex items-center gap-2 transition-all disabled:opacity-50 disabled:cursor-not-allowed"
-              >
-                <Trash2 className="w-4 h-4" /> Effacer
-              </button>
+              <div className="flex gap-2 items-center">
+                <kbd className="hidden md:inline-flex items-center justify-center w-6 h-6 border rounded text-xs font-bold ml-1 transition-all bg-black/10 border-white/20 text-white/70 group-hover:bg-black/20 dark:bg-slate-100 dark:border-slate-200 dark:text-slate-400">Esc</kbd>
+                <button
+                  onClick={handleReset}
+                  disabled={!text && shift === 3}
+                  className="text-xs font-bold text-rose-500 bg-rose-50 dark:bg-rose-500/10 hover:bg-rose-100 dark:hover:bg-rose-500/20 px-3 py-1.5 rounded-xl flex items-center gap-2 transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+                >
+                  <RotateCcw className="w-4 h-4" /> <span className="hidden sm:inline">{t('common.reset')}</span>
+                </button>
+              </div>
             </div>
 
             <div className="space-y-4">
@@ -86,7 +133,7 @@ export function CesarCipher({ initialData, onStateChange }: { initialData?: any;
                       : 'text-slate-500 hover:text-slate-900 dark:hover:text-slate-300'
                   }`}
                 >
-                  <Lock className="w-4 h-4" /> Chiffrer
+                  <Lock className="w-4 h-4" /> {t('common.encrypt')}
                 </button>
                 <button
                   onClick={() => setIsEncrypt(false)}
@@ -96,7 +143,7 @@ export function CesarCipher({ initialData, onStateChange }: { initialData?: any;
                       : 'text-slate-500 hover:text-slate-900 dark:hover:text-slate-300'
                   }`}
                 >
-                  <Unlock className="w-4 h-4" /> Déchiffrer
+                  <Unlock className="w-4 h-4" /> {t('common.decrypt')}
                 </button>
               </div>
             </div>
@@ -104,7 +151,19 @@ export function CesarCipher({ initialData, onStateChange }: { initialData?: any;
             <div className="space-y-6">
               <div className="flex justify-between items-center px-1">
                 <label htmlFor="shift-range" className="text-xs font-black uppercase tracking-widest text-slate-400 cursor-pointer">Décalage (Shift) : {shift}</label>
-                <span className="text-2xl font-black font-mono text-indigo-600 dark:text-indigo-400">{shift}</span>
+                <div className="flex gap-4 items-center">
+                  <div className="flex gap-1.5 items-center">
+                    <kbd className="hidden md:inline-flex items-center justify-center w-6 h-6 border rounded text-xs font-bold ml-1 transition-all bg-black/10 border-white/20 text-white/70 group-hover:bg-black/20 dark:bg-slate-100 dark:border-slate-200 dark:text-slate-400">R</kbd>
+                    <button
+                      onClick={handleRandomizeShift}
+                      className="p-1.5 text-indigo-500 hover:bg-indigo-50 dark:hover:bg-indigo-900/20 rounded-lg transition-colors"
+                      title={t('passwordgenerator.regenerate')}
+                    >
+                      <Shuffle className="w-4 h-4" />
+                    </button>
+                  </div>
+                  <span className="text-2xl font-black font-mono text-indigo-600 dark:text-indigo-400">{shift}</span>
+                </div>
               </div>
               <input
                 id="shift-range"
@@ -118,12 +177,12 @@ export function CesarCipher({ initialData, onStateChange }: { initialData?: any;
             </div>
 
             <div className="space-y-3">
-              <label htmlFor="input-text" className="text-xs font-black uppercase tracking-widest text-slate-400 px-1">Texte d'entrée</label>
+              <label htmlFor="input-text" className="text-xs font-black uppercase tracking-widest text-slate-400 px-1">{t('common.input')}</label>
               <textarea
                 id="input-text"
                 value={text}
                 onChange={(e) => handleTextChange(e.target.value)}
-                placeholder={isEncrypt ? "Entrez le texte à chiffrer..." : "Entrez le texte à déchiffrer..."}
+                placeholder={isEncrypt ? t('common.encrypt') + '...' : t('common.decrypt') + '...'}
                 className={`w-full h-48 p-6 bg-white dark:bg-slate-800 border ${error ? 'border-rose-500 ring-rose-500/20' : 'border-slate-200 dark:border-slate-700'} rounded-3xl outline-none focus:ring-2 ${error ? 'focus:ring-rose-500/20' : 'focus:ring-indigo-500/20'} transition-all text-lg leading-relaxed dark:text-slate-300 resize-none font-medium`}
               />
             </div>
@@ -136,19 +195,22 @@ export function CesarCipher({ initialData, onStateChange }: { initialData?: any;
             <div className="absolute top-0 right-0 w-32 h-32 bg-indigo-500/10 rounded-full -mr-16 -mt-16 blur-3xl"></div>
 
             <div className="flex justify-between items-center mb-6 relative z-10">
-              <h3 className="text-xs font-black uppercase tracking-widest text-slate-500">Résultat</h3>
-              <button
-                onClick={handleCopy}
-                disabled={!result}
-                className={`flex items-center gap-2 px-4 py-2 rounded-2xl text-sm font-bold transition-all border ${
-                  copied
-                    ? "bg-emerald-500 text-white border-emerald-500"
-                    : "bg-white/10 text-white/40 border-transparent hover:text-white hover:bg-white/20"
-                } disabled:opacity-0`}
-              >
-                {copied ? <Check className="w-4 h-4" /> : <Copy className="w-4 h-4" />}
-                {copied ? "Copié" : "Copier"}
-              </button>
+              <h3 className="text-xs font-black uppercase tracking-widest text-slate-500">{t('common.result')}</h3>
+              <div className="flex gap-2 items-center">
+                <kbd className="hidden md:inline-flex items-center justify-center w-6 h-6 border rounded text-xs font-bold ml-1 transition-all bg-white/10 border-white/20 text-white/40 group-hover:bg-white/20">C</kbd>
+                <button
+                  onClick={handleCopy}
+                  disabled={!result}
+                  className={`flex items-center gap-2 px-4 py-2 rounded-2xl text-sm font-bold transition-all border ${
+                    copied
+                      ? "bg-emerald-500 text-white border-emerald-500"
+                      : "bg-white/10 text-white/40 border-transparent hover:text-white hover:bg-white/20"
+                  } disabled:opacity-0`}
+                >
+                  {copied ? <Check className="w-4 h-4" /> : <Copy className="w-4 h-4" />}
+                  {copied ? t('common.copied') : t('common.copy')}
+                </button>
+              </div>
             </div>
 
             <div className="flex-grow font-mono text-xl text-white break-words overflow-y-auto max-h-[400px] no-scrollbar leading-relaxed">

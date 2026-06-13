@@ -12,8 +12,9 @@ export function WiFiGenerator({ initialData, onStateChange }: { initialData?: an
   const [copied, setCopied] = useState(false);
 
   useEffect(() => {
-    onStateChange?.({ ssid, password, encryption, hidden });
-  }, [ssid, password, encryption, hidden]);
+    // Sentinel: Never share the WiFi password in the URL state.
+    onStateChange?.({ ssid, encryption, hidden });
+  }, [ssid, encryption, hidden, onStateChange]);
 
   const escapeMecard = (val: string) => {
     // Sentinel: Escape special characters (\, ;, :, ,, ") for MECARD format

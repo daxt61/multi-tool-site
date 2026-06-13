@@ -245,6 +245,67 @@ export function SortingVisualizer({ initialData, onStateChange }: { initialData?
     isPausedRef.current = !isPaused;
   };
 
+  // Keyboard shortcuts using the "latest ref" pattern
+  const handlersRef = useRef({
+    startSort,
+    stopSort,
+    togglePause,
+    generateArray,
+    isSorting,
+    isPaused,
+    arraySize
+  });
+
+  useEffect(() => {
+    handlersRef.current = {
+      startSort,
+      stopSort,
+      togglePause,
+      generateArray,
+      isSorting,
+      isPaused,
+      arraySize
+    };
+  }, [startSort, stopSort, togglePause, generateArray, isSorting, isPaused, arraySize]);
+
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      const isEditable =
+        document.activeElement?.tagName === "INPUT" ||
+        document.activeElement?.tagName === "TEXTAREA" ||
+        document.activeElement?.tagName === "SELECT" ||
+        document.activeElement?.getAttribute('contenteditable') === 'true';
+
+      if (isEditable) return;
+
+      if (e.metaKey || e.ctrlKey || e.altKey || e.shiftKey) return;
+
+      const { isSorting, isPaused, startSort, stopSort, togglePause, generateArray, arraySize } = handlersRef.current;
+
+      if (e.code === 'Space') {
+        e.preventDefault();
+        if (!isSorting) {
+          startSort();
+        } else {
+          togglePause();
+        }
+      } else if (e.key === 'Escape') {
+        if (isSorting) {
+          e.preventDefault();
+          stopSort();
+        }
+      } else if (e.key.toLowerCase() === 's') {
+        if (!isSorting) {
+          e.preventDefault();
+          generateArray(arraySize);
+        }
+      }
+    };
+
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, []);
+
   return (
     <div className="max-w-6xl mx-auto space-y-8">
        {/* Controls */}
@@ -311,51 +372,59 @@ export function SortingVisualizer({ initialData, onStateChange }: { initialData?
                {!isSorting ? (
                  <button
                    onClick={startSort}
-                   className="px-8 py-3 bg-indigo-600 text-white rounded-2xl font-black flex items-center gap-2 hover:bg-indigo-700 transition-all shadow-lg shadow-indigo-600/20 active:scale-95"
+                   className="group px-8 py-3 bg-indigo-600 text-white rounded-2xl font-black flex items-center gap-2 hover:bg-indigo-700 transition-all shadow-lg shadow-indigo-600/20 active:scale-95 focus-visible:ring-2 focus-visible:ring-indigo-500 focus-visible:outline-none"
                  >
                    <Play className="w-5 h-5 fill-current" /> {t('common.play')}
+                   <kbd className="hidden md:inline-flex items-center justify-center px-1.5 py-0.5 border rounded text-[10px] font-bold ml-1 transition-all bg-white/10 border-white/20 text-white/70 group-hover:bg-white/20">Space</kbd>
                  </button>
                ) : (
                  <>
                    <button
                      onClick={togglePause}
-                     className="px-8 py-3 bg-amber-500 text-white rounded-2xl font-black flex items-center gap-2 hover:bg-amber-600 transition-all shadow-lg shadow-amber-500/20 active:scale-95"
+                     className="group px-8 py-3 bg-amber-500 text-white rounded-2xl font-black flex items-center gap-2 hover:bg-amber-600 transition-all shadow-lg shadow-amber-500/20 active:scale-95 focus-visible:ring-2 focus-visible:ring-amber-500 focus-visible:outline-none"
                    >
                      {isPaused ? <Play className="w-5 h-5 fill-current" /> : <Pause className="w-5 h-5 fill-current" />}
                      {isPaused ? t('common.play') : t('timer.pause')}
+                     <kbd className="hidden md:inline-flex items-center justify-center px-1.5 py-0.5 border rounded text-[10px] font-bold ml-1 transition-all bg-white/10 border-white/20 text-white/70 group-hover:bg-white/20">Space</kbd>
                    </button>
                    <button
                      onClick={stopSort}
-                     className="px-8 py-3 bg-rose-500 text-white rounded-2xl font-black flex items-center gap-2 hover:bg-rose-600 transition-all shadow-lg shadow-rose-500/20 active:scale-95"
+                     className="group px-8 py-3 bg-rose-500 text-white rounded-2xl font-black flex items-center gap-2 hover:bg-rose-600 transition-all shadow-lg shadow-rose-500/20 active:scale-95 focus-visible:ring-2 focus-visible:ring-rose-500 focus-visible:outline-none"
                    >
                      <RotateCcw className="w-5 h-5" /> {t('common.reset')}
+                     <kbd className="hidden md:inline-flex items-center justify-center px-1.5 py-0.5 border rounded text-[10px] font-bold ml-1 transition-all bg-white/10 border-white/20 text-white/70 group-hover:bg-white/20">Esc</kbd>
                    </button>
                  </>
                )}
                <button
                  onClick={() => generateArray(arraySize)}
                  disabled={isSorting}
-                 className="px-8 py-3 bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 rounded-2xl font-black flex items-center gap-2 hover:bg-slate-200 dark:hover:bg-slate-700 transition-all disabled:opacity-50"
+                 className="group px-8 py-3 bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 rounded-2xl font-black flex items-center gap-2 hover:bg-slate-200 dark:hover:bg-slate-700 transition-all disabled:opacity-50 focus-visible:ring-2 focus-visible:ring-indigo-500 focus-visible:outline-none"
                >
                  <Shuffle className="w-5 h-5" /> {t('random.shuffle')}
+                 <kbd className="hidden md:inline-flex items-center justify-center w-6 h-6 border rounded text-xs font-bold ml-1 transition-all bg-black/5 border-black/10 text-slate-400 group-hover:bg-black/10 dark:bg-white/5 dark:border-white/10 dark:text-slate-500 dark:group-hover:bg-white/10">S</kbd>
                </button>
             </div>
 
             <div className="grid grid-cols-2 gap-8 mt-6 md:mt-0">
                <div className="space-y-1">
                   <div className="text-[10px] font-black uppercase tracking-widest text-slate-400">{t('sorting.comparisons')}</div>
-                  <div className="text-3xl font-black font-mono text-indigo-600 dark:text-indigo-400">{stats.comparisons}</div>
+                  <div className="text-3xl font-black font-mono text-indigo-600 dark:text-indigo-400" aria-live="polite">{stats.comparisons}</div>
                </div>
                <div className="space-y-1">
                   <div className="text-[10px] font-black uppercase tracking-widest text-slate-400">{t('sorting.swaps')}</div>
-                  <div className="text-3xl font-black font-mono text-indigo-600 dark:text-indigo-400">{stats.swaps}</div>
+                  <div className="text-3xl font-black font-mono text-indigo-600 dark:text-indigo-400" aria-live="polite">{stats.swaps}</div>
                </div>
             </div>
           </div>
        </div>
 
        {/* Visualization Area */}
-       <div className="bg-slate-100 dark:bg-slate-950 p-8 rounded-[2.5rem] border border-slate-200 dark:border-slate-800 min-h-[400px] flex items-end justify-center gap-px overflow-hidden">
+       <div
+         className="bg-slate-100 dark:bg-slate-950 p-8 rounded-[2.5rem] border border-slate-200 dark:border-slate-800 min-h-[400px] flex items-end justify-center gap-px overflow-hidden"
+         role="img"
+         aria-label={t('tool.sorting-visualizer.description')}
+       >
           {array.map((bar, idx) => (
             <div
               key={idx}

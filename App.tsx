@@ -406,6 +406,7 @@ const IBANGenerator = lazy(() => import("./components/IBANGenerator").then(m => 
 const CreditCardGenerator = lazy(() => import("./components/CreditCardGenerator").then(m => ({ default: m.CreditCardGenerator })));
 const AtbashCipher = lazy(() => import("./components/AtbashCipher").then(m => ({ default: m.AtbashCipher })));
 const RailFenceCipher = lazy(() => import("./components/RailFenceCipher").then(m => ({ default: m.RailFenceCipher })));
+const SortingVisualizer = lazy(() => import("./components/SortingVisualizer").then(m => ({ default: m.SortingVisualizer })));
 
 // ⚡ Bolt Optimization: Pre-calculating tool map and search index for O(1) lookups and faster filtering
 const toolsMap: Record<string, Tool> = {};
@@ -3300,6 +3301,17 @@ const tools: Tool[] = [
     Component: SierpinskiTriangle,
     category: "calculators",
     keywords: ["fractal", "sierpinski", "triangle", "math", "recursive"],
+  },
+  {
+    id: "sorting-visualizer",
+    name: "Visualiseur de Tri",
+    nameEn: "Sorting Visualizer",
+    icon: BarChart3,
+    description: "Visualisation interactive des algorithmes de tri courants",
+    descriptionEn: "Interactive visualization of common sorting algorithms",
+    Component: SortingVisualizer,
+    category: "calculators",
+    keywords: ["sorting", "algorithm", "bubble", "selection", "insertion", "visualization"],
   },
   {
     id: "json-stringifier",

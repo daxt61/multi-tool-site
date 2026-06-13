@@ -2,7 +2,7 @@ import { useState, useEffect, useMemo, useCallback, useRef } from 'react';
 import { Copy, Check, Trash2, ArrowUpDown, Info, Ruler, Download, Search, X } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 
-type ConversionCategory = 'length' | 'weight' | 'temperature' | 'area' | 'volume' | 'digital' | 'digital_si' | 'pressure' | 'energy' | 'speed' | 'time' | 'power' | 'frequency' | 'consumption' | 'angle' | 'torque' | 'force' | 'datarate' | 'illuminance' | 'luminance' | 'radiation' | 'magnetic' | 'acceleration' | 'density' | 'voltage' | 'current' | 'resistance' | 'capacitance' | 'typography' | 'cooking' | 'radioactivity' | 'charge' | 'magnetic_flux' | 'mass_flow';
+type ConversionCategory = 'length' | 'weight' | 'temperature' | 'area' | 'volume' | 'digital' | 'digital_si' | 'pressure' | 'energy' | 'speed' | 'time' | 'power' | 'frequency' | 'consumption' | 'angle' | 'torque' | 'force' | 'datarate' | 'illuminance' | 'luminance' | 'radiation' | 'magnetic' | 'acceleration' | 'density' | 'voltage' | 'current' | 'resistance' | 'capacitance' | 'typography' | 'cooking' | 'radioactivity' | 'charge' | 'magnetic_flux' | 'mass_flow' | 'luminous_flux' | 'luminous_intensity';
 
 interface ConversionUnit {
   name: string;
@@ -257,11 +257,19 @@ const CONVERSIONS: Record<ConversionCategory, Record<string, ConversionUnit>> = 
     'kg/h': { name: 'Kilogrammes par heure', toBase: (v) => v / 3600, fromBase: (v) => v * 3600 },
     'lb/s': { name: 'Livres par seconde', toBase: (v) => v * 0.453592, fromBase: (v) => v / 0.453592 },
     'lb/h': { name: 'Livres par heure', toBase: (v) => (v * 0.453592) / 3600, fromBase: (v) => (v / 0.453592) * 3600 }
+  },
+  luminous_flux: {
+    'lm': { name: 'Lumen (lm)', toBase: (v) => v, fromBase: (v) => v },
+    'cd_sr': { name: 'Candela-stéradian (cd·sr)', toBase: (v) => v, fromBase: (v) => v }
+  },
+  luminous_intensity: {
+    'cd': { name: 'Candela (cd)', toBase: (v) => v, fromBase: (v) => v },
+    'cp': { name: 'Candlepower (cp)', toBase: (v) => v * 0.981, fromBase: (v) => v / 0.981 }
   }
 };
 
 const CATEGORIES_IDS: ConversionCategory[] = [
-  'length', 'weight', 'temperature', 'area', 'volume', 'digital', 'digital_si', 'speed', 'time', 'pressure', 'energy', 'power', 'frequency', 'consumption', 'angle', 'torque', 'force', 'datarate', 'illuminance', 'luminance', 'radiation', 'magnetic', 'acceleration', 'density', 'voltage', 'current', 'resistance', 'capacitance', 'typography', 'cooking', 'radioactivity', 'charge', 'magnetic_flux', 'mass_flow'
+  'length', 'weight', 'temperature', 'area', 'volume', 'digital', 'digital_si', 'speed', 'time', 'pressure', 'energy', 'power', 'frequency', 'consumption', 'angle', 'torque', 'force', 'datarate', 'illuminance', 'luminance', 'radiation', 'magnetic', 'acceleration', 'density', 'voltage', 'current', 'resistance', 'capacitance', 'typography', 'cooking', 'radioactivity', 'charge', 'magnetic_flux', 'mass_flow', 'luminous_flux', 'luminous_intensity'
 ];
 
 const convert = (value: string, from: string, to: string, cat: ConversionCategory) => {

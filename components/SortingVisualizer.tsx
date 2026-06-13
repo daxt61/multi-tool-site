@@ -4,7 +4,7 @@ import { useTranslation } from 'react-i18next';
 import { getSecureRandomInt } from './ui/crypto';
 
 // Types for the sorting state
-type Algorithm = 'bubble' | 'selection' | 'insertion';
+type Algorithm = 'bubble' | 'selection' | 'insertion' | 'merge' | 'quick';
 
 interface Bar {
   value: number;
@@ -80,6 +80,13 @@ export function SortingVisualizer({ initialData, onStateChange }: { initialData?
       if (indices.includes(idx)) return { ...bar, status };
       return bar;
     });
+    setArray(newArray);
+    arrayRef.current = newArray;
+  };
+
+  const updateBarValue = (idx: number, value: number, status: Bar['status']) => {
+    const newArray = [...arrayRef.current];
+    newArray[idx] = { value, status };
     setArray(newArray);
     arrayRef.current = newArray;
   };
@@ -200,6 +207,120 @@ export function SortingVisualizer({ initialData, onStateChange }: { initialData?
     }
   };
 
+  const mergeSort = async () => {
+    const n = arrayRef.current.length;
+    await mergeSortHelper(0, n - 1);
+  };
+
+  const mergeSortHelper = async (start: number, end: number) => {
+    if (start >= end) return;
+    if (!isSortingRef.current) return;
+
+    const mid = Math.floor((start + end) / 2);
+    await mergeSortHelper(start, mid);
+    await mergeSortHelper(mid + 1, end);
+    await merge(start, mid, end);
+  };
+
+  const merge = async (start: number, mid: number, end: number) => {
+    if (!isSortingRef.current) return;
+
+    const left = arrayRef.current.slice(start, mid + 1).map(b => b.value);
+    const right = arrayRef.current.slice(mid + 1, end + 1).map(b => b.value);
+
+    let i = 0, j = 0, k = start;
+
+    while (i < left.length && j < right.length) {
+      if (!isSortingRef.current) return;
+
+      updateBarStatus([k], 'comparing');
+      setStats(prev => ({ ...prev, comparisons: prev.comparisons + 1 }));
+      if (!(await sleep(speedRef.current))) return;
+
+      if (left[i] <= right[j]) {
+        updateBarValue(k, left[i], 'swapping');
+        i++;
+      } else {
+        updateBarValue(k, right[j], 'swapping');
+        j++;
+      }
+      if (!(await sleep(speedRef.current))) return;
+      updateBarStatus([k], 'idle');
+      k++;
+    }
+
+    while (i < left.length) {
+      if (!isSortingRef.current) return;
+      updateBarValue(k, left[i], 'swapping');
+      if (!(await sleep(speedRef.current))) return;
+      updateBarStatus([k], 'idle');
+      i++;
+      k++;
+    }
+
+    while (j < right.length) {
+      if (!isSortingRef.current) return;
+      updateBarValue(k, right[j], 'swapping');
+      if (!(await sleep(speedRef.current))) return;
+      updateBarStatus([k], 'idle');
+      j++;
+      k++;
+    }
+  };
+
+  const quickSort = async () => {
+    const n = arrayRef.current.length;
+    await quickSortHelper(0, n - 1);
+  };
+
+  const quickSortHelper = async (start: number, end: number) => {
+    if (start >= end) {
+      if (start === end) updateBarStatus([start], 'sorted');
+      return;
+    }
+    if (!isSortingRef.current) return;
+
+    const pivotIdx = await partition(start, end);
+    await quickSortHelper(start, pivotIdx - 1);
+    await quickSortHelper(pivotIdx + 1, end);
+  };
+
+  const partition = async (start: number, end: number) => {
+    const pivotValue = arrayRef.current[end].value;
+    updateBarStatus([end], 'comparing');
+    let i = start;
+
+    for (let j = start; j < end; j++) {
+      if (!isSortingRef.current) return i;
+
+      updateBarStatus([j], 'comparing');
+      setStats(prev => ({ ...prev, comparisons: prev.comparisons + 1 }));
+      if (!(await sleep(speedRef.current))) return i;
+
+      if (arrayRef.current[j].value < pivotValue) {
+        if (i !== j) {
+          updateBarStatus([i, j], 'swapping');
+          if (!(await sleep(speedRef.current))) return i;
+          swapBars(i, j);
+          if (!(await sleep(speedRef.current))) return i;
+          updateBarStatus([i, j], 'idle');
+        }
+        i++;
+      } else {
+        updateBarStatus([j], 'idle');
+      }
+    }
+
+    updateBarStatus([i, end], 'swapping');
+    if (!(await sleep(speedRef.current))) return i;
+    swapBars(i, end);
+    if (!(await sleep(speedRef.current))) return i;
+    updateBarStatus([end], 'idle');
+    updateBarStatus([i], 'sorted');
+
+    return i;
+  };
+
   const startSort = async () => {
     if (isSorting) return;
     setIsSorting(true);
@@ -218,6 +339,8 @@ export function SortingVisualizer({ initialData, onStateChange }: { initialData?
         case 'bubble': await bubbleSort(); break;
         case 'selection': await selectionSort(); break;
         case 'insertion': await insertionSort(); break;
+        case 'merge': await mergeSort(); break;
+        case 'quick': await quickSort(); break;
       }
     } catch (e) {
       console.error('Sorting interrupted', e);
@@ -329,6 +452,8 @@ export function SortingVisualizer({ initialData, onStateChange }: { initialData?
                   <option value="bubble">{t('sorting.algo.bubble')}</option>
                   <option value="selection">{t('sorting.algo.selection')}</option>
                   <option value="insertion">{t('sorting.algo.insertion')}</option>
+                  <option value="merge">{t('sorting.algo.merge')}</option>
+                  <option value="quick">{t('sorting.algo.quick')}</option>
                 </select>
               </div>
 
@@ -467,6 +592,14 @@ export function SortingVisualizer({ initialData, onStateChange }: { initialData?
              <div className="flex justify-between border-b border-slate-100 dark:border-slate-800 pb-1">
                 <span>{t('sorting.algo.insertion')}</span>
                 <span className="font-mono text-indigo-500">O(n²)</span>
+             </div>
+             <div className="flex justify-between border-b border-slate-100 dark:border-slate-800 pb-1">
+                <span>{t('sorting.algo.merge')}</span>
+                <span className="font-mono text-indigo-500">O(n log n)</span>
+             </div>
+             <div className="flex justify-between border-b border-slate-100 dark:border-slate-800 pb-1">
+                <span>{t('sorting.algo.quick')}</span>
+                <span className="font-mono text-indigo-500">O(n log n)</span>
              </div>
           </div>
         </div>

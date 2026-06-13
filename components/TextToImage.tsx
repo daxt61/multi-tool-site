@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef, useCallback } from 'react';
-import { Type, Download, Trash2, Sliders, Palette, Layout, ImageIcon, AlertCircle } from 'lucide-react';
+import { Type, Download, Trash2, Sliders, Palette, Layout, ImageIcon, AlertCircle, Sparkles } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 
 const MAX_LENGTH = 1000;
@@ -10,16 +10,33 @@ export function TextToImage({ initialData, onStateChange }: { initialData?: any;
   const [fontSize, setFontSize] = useState(initialData?.fontSize || 48);
   const [textColor, setTextColor] = useState(initialData?.textColor || '#000000');
   const [bgColor, setBgColor] = useState(initialData?.bgColor || '#ffffff');
+  const [bgColor2, setBgColor2] = useState(initialData?.bgColor2 || '#e2e8f0');
+  const [bgType, setBgType] = useState<'solid' | 'linear' | 'radial'>(initialData?.bgType || 'solid');
+  const [borderRadius, setBorderRadius] = useState(initialData?.borderRadius || 0);
   const [padding, setPadding] = useState(initialData?.padding || 40);
   const [fontFamily, setFontFamily] = useState(initialData?.fontFamily || 'sans-serif');
   const [alignment, setAlignment] = useState<'left' | 'center' | 'right'>(initialData?.alignment || 'center');
   const [format, setFormat] = useState<'png' | 'jpeg'>(initialData?.format || 'png');
+  const [shadowColor, setShadowColor] = useState(initialData?.shadowColor || 'rgba(0,0,0,0.5)');
+  const [shadowBlur, setShadowBlur] = useState(initialData?.shadowBlur || 0);
+  const [shadowOffsetX, setShadowOffsetX] = useState(initialData?.shadowOffsetX || 0);
+  const [shadowOffsetY, setShadowOffsetY] = useState(initialData?.shadowOffsetY || 0);
+
   const canvasRef = useRef<HTMLCanvasElement>(null);
 
   useEffect(() => {
-    onStateChange?.({ text, fontSize, textColor, bgColor, padding, fontFamily, alignment, format });
+    onStateChange?.({
+      text, fontSize, textColor, bgColor, bgColor2, bgType,
+      borderRadius, padding, fontFamily, alignment, format,
+      shadowColor, shadowBlur, shadowOffsetX, shadowOffsetY
+    });
     renderImage();
-  }, [text, fontSize, textColor, bgColor, padding, fontFamily, alignment, format, onStateChange]);
+  }, [
+    text, fontSize, textColor, bgColor, bgColor2, bgType,
+    borderRadius, padding, fontFamily, alignment, format,
+    shadowColor, shadowBlur, shadowOffsetX, shadowOffsetY,
+    onStateChange
+  ]);
 
   const renderImage = useCallback(() => {
     const canvas = canvasRef.current;
@@ -44,8 +61,44 @@ export function TextToImage({ initialData, onStateChange }: { initialData?: any;
     canvas.height = canvasHeight;
 
     // Background
-    ctx.fillStyle = bgColor;
-    ctx.fillRect(0, 0, canvasWidth, canvasHeight);
+    if (borderRadius > 0) {
+      ctx.beginPath();
+      const r = Math.min(borderRadius, canvasWidth / 2, canvasHeight / 2);
+      ctx.moveTo(r, 0);
+      ctx.lineTo(canvasWidth - r, 0);
+      ctx.quadraticCurveTo(canvasWidth, 0, canvasWidth, r);
+      ctx.lineTo(canvasWidth, canvasHeight - r);
+      ctx.quadraticCurveTo(canvasWidth, canvasHeight, canvasWidth - r, canvasHeight);
+      ctx.lineTo(r, canvasHeight);
+      ctx.quadraticCurveTo(0, canvasHeight, 0, canvasHeight - r);
+      ctx.lineTo(0, r);
+      ctx.quadraticCurveTo(0, 0, r, 0);
+      ctx.closePath();
+      ctx.clip();
+    }
+
+    if (bgType === 'solid') {
+      ctx.fillStyle = bgColor;
+      ctx.fillRect(0, 0, canvasWidth, canvasHeight);
+    } else if (bgType === 'linear') {
+      const gradient = ctx.createLinearGradient(0, 0, canvasWidth, canvasHeight);
+      gradient.addColorStop(0, bgColor);
+      gradient.addColorStop(1, bgColor2);
+      ctx.fillStyle = gradient;
+      ctx.fillRect(0, 0, canvasWidth, canvasHeight);
+    } else if (bgType === 'radial') {
+      const gradient = ctx.createRadialGradient(canvasWidth / 2, canvasHeight / 2, 0, canvasWidth / 2, canvasHeight / 2, Math.max(canvasWidth, canvasHeight) / 1.5);
+      gradient.addColorStop(0, bgColor);
+      gradient.addColorStop(1, bgColor2);
+      ctx.fillStyle = gradient;
+      ctx.fillRect(0, 0, canvasWidth, canvasHeight);
+    }
+
+    // Text Shadow
+    ctx.shadowColor = shadowColor;
+    ctx.shadowBlur = shadowBlur;
+    ctx.shadowOffsetX = shadowOffsetX;
+    ctx.shadowOffsetY = shadowOffsetY;
 
     // Text
     ctx.fillStyle = textColor;
@@ -62,7 +115,11 @@ export function TextToImage({ initialData, onStateChange }: { initialData?: any;
       const y = padding + (index * fontSize * 1.2);
       ctx.fillText(line, x, y);
     });
-  }, [text, fontSize, textColor, bgColor, padding, fontFamily, alignment]);
+  }, [
+    text, fontSize, textColor, bgColor, bgColor2, bgType,
+    borderRadius, padding, fontFamily, alignment,
+    shadowColor, shadowBlur, shadowOffsetX, shadowOffsetY
+  ]);
 
   const handleDownload = () => {
     const canvas = canvasRef.current;
@@ -78,7 +135,7 @@ export function TextToImage({ initialData, onStateChange }: { initialData?: any;
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
         {/* Controls */}
         <div className="lg:col-span-4 space-y-6">
-          <div className="bg-slate-50 dark:bg-slate-900/50 p-6 rounded-[2rem] border border-slate-200 dark:border-slate-800 space-y-6">
+          <div className="bg-slate-50 dark:bg-slate-900/50 p-6 rounded-[2rem] border border-slate-200 dark:border-slate-800 space-y-6 max-h-[80vh] overflow-y-auto no-scrollbar">
             <div className="space-y-4">
               <div className="flex justify-between items-center px-1">
                 <label htmlFor="text-input" className="text-xs font-black uppercase tracking-widest text-slate-400 flex items-center gap-2">
@@ -95,7 +152,7 @@ export function TextToImage({ initialData, onStateChange }: { initialData?: any;
                 id="text-input"
                 value={text}
                 onChange={(e) => setText(e.target.value.slice(0, MAX_LENGTH))}
-                className="w-full h-32 p-4 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-2xl outline-none focus:ring-2 focus:ring-indigo-500/20 transition-all text-sm resize-none dark:text-white"
+                className="w-full h-24 p-4 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-2xl outline-none focus:ring-2 focus:ring-indigo-500/20 transition-all text-sm resize-none dark:text-white"
                 placeholder={t('texttoimage.placeholder')}
               />
             </div>
@@ -125,6 +182,18 @@ export function TextToImage({ initialData, onStateChange }: { initialData?: any;
                     className="w-full p-3 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-sm outline-none focus:ring-2 focus:ring-indigo-500/20 dark:text-white"
                   />
                 </div>
+              </div>
+
+              <div className="space-y-2">
+                <label className="text-[10px] font-bold text-slate-400 uppercase px-1">{t('texttoimage.border_radius') || 'Arrondi'}</label>
+                <input
+                    type="range"
+                    min="0"
+                    max="200"
+                    value={borderRadius}
+                    onChange={(e) => setBorderRadius(parseInt(e.target.value))}
+                    className="w-full h-1.5 bg-slate-200 dark:bg-slate-700 rounded-lg appearance-none cursor-pointer accent-indigo-600"
+                />
               </div>
 
               <div className="space-y-2">
@@ -162,6 +231,22 @@ export function TextToImage({ initialData, onStateChange }: { initialData?: any;
                 <Palette className="w-4 h-4 text-indigo-500" />
                 <h4 className="text-xs font-black uppercase tracking-widest text-slate-400">{t('texttoimage.colors')}</h4>
               </div>
+
+              <div className="space-y-2">
+                 <label className="text-[10px] font-bold text-slate-400 uppercase px-1">{t('texttoimage.bg_type') || 'Type de fond'}</label>
+                 <div className="grid grid-cols-3 gap-2">
+                  {(['solid', 'linear', 'radial'] as const).map(type => (
+                    <button
+                      key={type}
+                      onClick={() => setBgType(type)}
+                      className={`py-2 rounded-lg text-[10px] font-black uppercase transition-all border ${bgType === type ? 'bg-indigo-600 border-indigo-600 text-white shadow-md' : 'bg-white dark:bg-slate-800 text-slate-500 border-slate-200 dark:border-slate-700'}`}
+                    >
+                      {type}
+                    </button>
+                  ))}
+                </div>
+              </div>
+
               <div className="grid grid-cols-2 gap-4">
                 <div className="space-y-2">
                   <label className="text-[10px] font-bold text-slate-400 uppercase px-1">{t('texttoimage.text_color')}</label>
@@ -181,7 +266,7 @@ export function TextToImage({ initialData, onStateChange }: { initialData?: any;
                   </div>
                 </div>
                 <div className="space-y-2">
-                  <label className="text-[10px] font-bold text-slate-400 uppercase px-1">{t('texttoimage.bg_color')}</label>
+                  <label className="text-[10px] font-bold text-slate-400 uppercase px-1">{bgType === 'solid' ? t('texttoimage.bg_color') : (t('texttoimage.color') + ' 1')}</label>
                   <div className="flex gap-2">
                     <input
                       type="color"
@@ -196,6 +281,50 @@ export function TextToImage({ initialData, onStateChange }: { initialData?: any;
                       className="flex-1 p-2 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg text-xs font-mono dark:text-white"
                     />
                   </div>
+                </div>
+                {bgType !== 'solid' && (
+                  <div className="space-y-2">
+                    <label className="text-[10px] font-bold text-slate-400 uppercase px-1">{t('texttoimage.color') + ' 2'}</label>
+                    <div className="flex gap-2">
+                      <input
+                        type="color"
+                        value={bgColor2}
+                        onChange={(e) => setBgColor2(e.target.value)}
+                        className="w-10 h-10 rounded-lg cursor-pointer border-0 p-0"
+                      />
+                      <input
+                        type="text"
+                        value={bgColor2}
+                        onChange={(e) => setBgColor2(e.target.value)}
+                        className="flex-1 p-2 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg text-xs font-mono dark:text-white"
+                      />
+                    </div>
+                  </div>
+                )}
+              </div>
+            </div>
+
+            <div className="space-y-4">
+              <div className="flex items-center gap-2 px-1">
+                <Sparkles className="w-4 h-4 text-indigo-500" />
+                <h4 className="text-xs font-black uppercase tracking-widest text-slate-400">{t('texttoimage.text_shadow') || 'Ombre du texte'}</h4>
+              </div>
+              <div className="grid grid-cols-2 gap-4">
+                <div className="space-y-2">
+                   <label className="text-[10px] font-bold text-slate-400 uppercase px-1">Blur</label>
+                   <input type="number" value={shadowBlur} onChange={e => setShadowBlur(parseInt(e.target.value) || 0)} className="w-full p-2 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg text-xs dark:text-white" />
+                </div>
+                <div className="space-y-2">
+                   <label className="text-[10px] font-bold text-slate-400 uppercase px-1">Color</label>
+                   <input type="text" value={shadowColor} onChange={e => setShadowColor(e.target.value)} className="w-full p-2 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg text-xs dark:text-white" />
+                </div>
+                <div className="space-y-2">
+                   <label className="text-[10px] font-bold text-slate-400 uppercase px-1">Offset X</label>
+                   <input type="number" value={shadowOffsetX} onChange={e => setShadowOffsetX(parseInt(e.target.value) || 0)} className="w-full p-2 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg text-xs dark:text-white" />
+                </div>
+                <div className="space-y-2">
+                   <label className="text-[10px] font-bold text-slate-400 uppercase px-1">Offset Y</label>
+                   <input type="number" value={shadowOffsetY} onChange={e => setShadowOffsetY(parseInt(e.target.value) || 0)} className="w-full p-2 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg text-xs dark:text-white" />
                 </div>
               </div>
             </div>
@@ -233,7 +362,7 @@ export function TextToImage({ initialData, onStateChange }: { initialData?: any;
             <h3 className="text-xs font-black uppercase tracking-widest text-slate-400">{t('texttoimage.preview')}</h3>
           </div>
           <div className="bg-slate-200 dark:bg-slate-950 p-8 rounded-[2.5rem] border border-slate-300 dark:border-slate-800 flex items-center justify-center min-h-[500px] overflow-auto">
-            <div className="shadow-2xl bg-white rounded-lg overflow-hidden">
+            <div className="shadow-2xl rounded-lg overflow-hidden">
               <canvas ref={canvasRef} className="max-w-full h-auto" />
             </div>
           </div>

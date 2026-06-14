@@ -411,6 +411,7 @@ const SortingVisualizer = lazy(() => import("./components/SortingVisualizer").th
 const MandelbrotSet = lazy(() => import("./components/MandelbrotSet").then(m => ({ default: m.MandelbrotSet })));
 const MazeGenerator = lazy(() => import("./components/MazeGenerator").then(m => ({ default: m.MazeGenerator })));
 const BinaryBitShuffler = lazy(() => import("./components/BinaryBitShuffler").then(m => ({ default: m.BinaryBitShuffler })));
+const ASCIITableToJson = lazy(() => import("./components/ASCIITableToJson").then(m => ({ default: m.ASCIITableToJson })));
 
 // ⚡ Bolt Optimization: Pre-calculating tool map and search index for O(1) lookups and faster filtering
 const toolsMap: Record<string, Tool> = {};
@@ -3404,6 +3405,17 @@ const tools: Tool[] = [
     Component: BinaryBitShuffler,
     category: "dev",
     keywords: ["binary", "bit", "shuffle", "randomize", "cryptography", "entropy"],
+  },
+  {
+    id: "ascii-table-to-json",
+    name: "Table ASCII en JSON",
+    nameEn: "ASCII Table to JSON",
+    icon: Table,
+    description: "Convertir des tableaux ASCII ou Markdown en données JSON structurées",
+    descriptionEn: "Convert ASCII or Markdown tables into structured JSON data",
+    Component: ASCIITableToJson,
+    category: "dev",
+    keywords: ["ascii", "markdown", "table", "json", "convert", "parse"],
   },
 ];
 

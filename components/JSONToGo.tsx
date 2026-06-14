@@ -1,9 +1,16 @@
-import { useState, useEffect, useCallback } from 'react';
-import { Copy, Check, Trash2, Code, Braces, AlertCircle, Info } from 'lucide-react';
+import { useState, useEffect, useCallback, useRef } from 'react';
+import { FileCode, Copy, Check, Trash2, Code, Braces, AlertCircle, Info } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 
 const MAX_LENGTH = 100000;
 const MAX_DEPTH = 20;
+
+// Go keywords that cannot be used as identifiers
+const GO_KEYWORDS = new Set([
+  'break', 'default', 'func', 'interface', 'select', 'case', 'defer', 'go', 'map', 'struct',
+  'chan', 'else', 'goto', 'package', 'switch', 'const', 'fallthrough', 'if', 'range', 'type',
+  'continue', 'for', 'import', 'return', 'var'
+]);
 
 export function JSONToGo({ initialData, onStateChange }: { initialData?: any; onStateChange?: (state: any) => void }) {
   const { t } = useTranslation();
@@ -17,16 +24,21 @@ export function JSONToGo({ initialData, onStateChange }: { initialData?: any; on
   }, [jsonInput, onStateChange]);
 
   const toPascalCase = (str: string) => {
-    return str
+    let result = str
       .replace(/[^a-z0-9]/gi, ' ')
       .split(' ')
+      .filter(Boolean)
       .map(word => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase())
       .join('');
+
+    if (!result) return 'Field';
+    if (/^[0-9]/.test(result)) return 'Field' + result;
+    if (GO_KEYWORDS.has(result.toLowerCase())) return 'Field' + result;
+
+    return result;
   };
 
   const escapeGoTag = (str: string) => {
-    // Sentinel: Escape backslashes, double quotes, and control characters to prevent breakout
-    // from the `json:"..."` tag which could lead to snippet injection.
     return str
       .replace(/\\/g, '\\\\')
       .replace(/"/g, '\\"')
@@ -35,7 +47,7 @@ export function JSONToGo({ initialData, onStateChange }: { initialData?: any; on
       .replace(/\t/g, '\\t');
   };
 
-  const getType = (val: any, indent: string = '', depth: number = 0): string => {
+  const getType = useCallback((val: any, indent: string = '', depth: number = 0): string => {
     if (depth > MAX_DEPTH) return 'interface{}';
     if (val === null) return 'interface{}';
 
@@ -53,7 +65,6 @@ export function JSONToGo({ initialData, onStateChange }: { initialData?: any; on
         } else {
           let structStr = 'struct {\n';
           const nextIndent = indent + '\t';
-          // Sentinel: Using Object.entries for safer iteration and enforcing depth limit to prevent stack overflow.
           Object.entries(val).forEach(([key, value]) => {
             const pascalKey = toPascalCase(key);
             structStr += `${nextIndent}${pascalKey} ${getType(value, nextIndent, depth + 1)} \`json:"${escapeGoTag(key)}"\`\n`;
@@ -64,7 +75,7 @@ export function JSONToGo({ initialData, onStateChange }: { initialData?: any; on
       default:
         return 'interface{}';
     }
-  };
+  }, []);
 
   const handleConvert = useCallback(() => {
     if (!jsonInput.trim()) {
@@ -95,18 +106,51 @@ export function JSONToGo({ initialData, onStateChange }: { initialData?: any; on
     handleConvert();
   }, [handleConvert]);
 
-  const handleCopy = () => {
+  const handleCopy = useCallback(() => {
     if (!output) return;
     navigator.clipboard.writeText(output);
     setCopied(true);
     setTimeout(() => setCopied(false), 2000);
-  };
+  }, [output]);
 
-  const handleClear = () => {
+  const handleClear = useCallback(() => {
     setJsonInput('');
     setOutput('');
     setError(null);
-  };
+  }, []);
+
+  const handlersRef = useRef({
+    handleCopy,
+    handleClear
+  });
+
+  useEffect(() => {
+    handlersRef.current = { handleCopy, handleClear };
+  }, [handleCopy, handleClear]);
+
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      const isEditable =
+        document.activeElement?.tagName === "INPUT" ||
+        document.activeElement?.tagName === "TEXTAREA" ||
+        document.activeElement?.tagName === "SELECT" ||
+        document.activeElement?.getAttribute('contenteditable') === 'true';
+
+      if (isEditable) return;
+      if (e.metaKey || e.ctrlKey || e.altKey || e.shiftKey) return;
+
+      if (e.key === 'Escape') {
+        e.preventDefault();
+        handlersRef.current.handleClear();
+      } else if (e.key.toLowerCase() === 'c') {
+        e.preventDefault();
+        handlersRef.current.handleCopy();
+      }
+    };
+
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, []);
 
   return (
     <div className="max-w-5xl mx-auto space-y-8">
@@ -117,23 +161,21 @@ export function JSONToGo({ initialData, onStateChange }: { initialData?: any; on
             <label htmlFor="json-input" className="text-xs font-black uppercase tracking-widest text-slate-400 flex items-center gap-2">
               <Braces className="w-4 h-4 text-indigo-500" /> {t('common.input')} (JSON)
             </label>
-            <button
-              onClick={handleClear}
-              disabled={!jsonInput}
-              className="text-xs font-bold text-rose-500 bg-rose-50 dark:bg-rose-500/10 hover:bg-rose-100 dark:hover:bg-rose-500/20 px-3 py-1.5 rounded-xl flex items-center gap-1 transition-all disabled:opacity-50 disabled:cursor-not-allowed focus-visible:ring-2 focus-visible:ring-rose-500 focus-visible:outline-none"
-            >
-              <Trash2 className="w-3 h-3" /> {t('common.clear')}
-            </button>
+            <div className="flex items-center gap-2">
+              <kbd className="hidden sm:inline-flex items-center justify-center px-1.5 py-0.5 border border-rose-200 dark:border-rose-800 rounded text-[10px] font-bold text-rose-400 bg-white dark:bg-slate-900">Esc</kbd>
+              <button
+                onClick={handleClear}
+                disabled={!jsonInput}
+                className="text-xs font-bold text-rose-500 bg-rose-50 dark:bg-rose-500/10 hover:bg-rose-100 dark:hover:bg-rose-500/20 px-3 py-1.5 rounded-xl flex items-center gap-1 transition-all disabled:opacity-50 disabled:cursor-not-allowed focus-visible:ring-2 focus-visible:ring-rose-500 focus-visible:outline-none"
+              >
+                <Trash2 className="w-3 h-3" /> {t('common.clear')}
+              </button>
+            </div>
           </div>
           <textarea
             id="json-input"
             value={jsonInput}
             onChange={(e) => setJsonInput(e.target.value)}
-            onKeyDown={(e) => {
-              if (e.key === 'Enter' && (e.ctrlKey || e.metaKey)) {
-                handleConvert();
-              }
-            }}
             placeholder='{"name": "John", "age": 30}'
             className={`w-full h-[500px] p-6 bg-slate-50 dark:bg-slate-900 border ${error ? 'border-rose-500' : 'border-slate-200 dark:border-slate-800'} rounded-3xl outline-none focus:ring-2 ${error ? 'focus:ring-rose-500/20' : 'focus:ring-indigo-500/20'} transition-all font-mono text-sm leading-relaxed dark:text-slate-300 resize-none`}
           />
@@ -151,11 +193,12 @@ export function JSONToGo({ initialData, onStateChange }: { initialData?: any; on
               className={`text-xs font-bold px-4 py-1.5 rounded-xl transition-all border focus-visible:ring-2 focus-visible:ring-indigo-500 focus-visible:outline-none flex items-center gap-2 ${
                 copied
                   ? 'bg-emerald-50 dark:bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border-emerald-200 dark:border-emerald-500/20'
-                  : 'bg-white dark:bg-slate-800 text-indigo-600 dark:text-indigo-400 border-slate-200 dark:border-slate-700 hover:border-indigo-500/50'
+                  : 'bg-white dark:bg-slate-800 text-indigo-600 dark:text-indigo-400 border-slate-200 dark:border-slate-700 hover:border-indigo-500/50 shadow-sm'
               } disabled:opacity-50 disabled:cursor-not-allowed`}
             >
               {copied ? <Check className="w-3 h-3" /> : <Copy className="w-3 h-3" />}
               {copied ? t('common.copied') : t('common.copy')}
+              {!copied && <kbd className="hidden sm:inline-flex items-center justify-center w-4 h-4 border border-indigo-200 dark:border-indigo-800 rounded text-[10px] font-bold bg-white dark:bg-slate-900 ml-1">C</kbd>}
             </button>
           </div>
           <div className="relative group">

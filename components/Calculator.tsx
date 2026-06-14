@@ -1,7 +1,9 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { History as HistoryIcon, Trash2, Delete, Calculator as CalcIcon, Copy, Check } from 'lucide-react';
+import { useTranslation } from 'react-i18next';
 
 export function Calculator({ initialData, onStateChange }: { initialData?: any; onStateChange?: (state: any) => void }) {
+  const { t } = useTranslation();
   const [display, setDisplay] = useState(initialData?.display || '0');
   const [previousValue, setPreviousValue] = useState<number | null>(initialData?.previousValue ?? null);
   const [operation, setOperation] = useState<string | null>(initialData?.operation ?? null);
@@ -9,6 +11,7 @@ export function Calculator({ initialData, onStateChange }: { initialData?: any; 
   const [isScientific, setIsScientific] = useState(false);
   const [isRadians, setIsRadians] = useState(false);
   const [copied, setCopied] = useState(false);
+  const [activeBtn, setActiveBtn] = useState<string | null>(null);
   const [history, setHistory] = useState<{ expression: string; result: string }[]>(() => {
     try {
       // Sentinel: Securely parse localStorage data to prevent app crashes (Local DoS).
@@ -246,27 +249,46 @@ export function Calculator({ initialData, onStateChange }: { initialData?: any; 
 
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
+      if (
+        document.activeElement?.tagName === "INPUT" ||
+        document.activeElement?.tagName === "TEXTAREA" ||
+        document.activeElement?.getAttribute('contenteditable') === 'true'
+      ) {
+        return;
+      }
+
+      let btnKey = e.key;
       if (e.key >= '0' && e.key <= '9') handleNumber(e.key);
-      if (e.key === '.') handleDecimal();
-      if (e.key === ',') handleDecimal();
-      if (e.key === '+') handleOperation('+');
-      if (e.key === '-') handleOperation('-');
-      if (e.key === '*') handleOperation('×');
-      if (e.key === '/') {
+      else if (e.key === '.' || e.key === ',') { handleDecimal(); btnKey = '.'; }
+      else if (e.key === '+') handleOperation('+');
+      else if (e.key === '-') handleOperation('-');
+      else if (e.key === '*') { handleOperation('×'); btnKey = '×'; }
+      else if (e.key === '/') {
         e.preventDefault();
         handleOperation('÷');
+        btnKey = '÷';
       }
-      if (e.key === 'Enter' || e.key === '=') {
+      else if (e.key === 'Enter' || e.key === '=') {
         e.preventDefault();
         handleEquals();
+        btnKey = '=';
       }
-      if (e.key === 'Backspace') handleBackspace();
-      if (e.key === 'Escape') handleClear();
+      else if (e.key === 'Backspace') { handleBackspace(); btnKey = '←'; }
+      else if (e.key === 'Escape') { handleClear(); btnKey = 'C'; }
+      else return;
+
+      setActiveBtn(btnKey);
     };
 
+    const handleKeyUp = () => setActiveBtn(null);
+
     window.addEventListener('keydown', handleKeyDown);
-    return () => window.removeEventListener('keydown', handleKeyDown);
-  }, [display, previousValue, operation, newNumber]);
+    window.addEventListener('keyup', handleKeyUp);
+    return () => {
+      window.removeEventListener('keydown', handleKeyDown);
+      window.removeEventListener('keyup', handleKeyUp);
+    };
+  }, [display, previousValue, operation, newNumber, handleNumber, handleDecimal, handleOperation, handleEquals, handleBackspace, handleClear]);
 
   const standardButtons = [
     ['C', '±', '÷', '×'],
@@ -305,27 +327,37 @@ export function Calculator({ initialData, onStateChange }: { initialData?: any; 
             aria-pressed={!isScientific}
             className={`px-4 py-2 rounded-lg text-sm font-bold transition-all focus-visible:ring-2 focus-visible:ring-indigo-500 focus-visible:outline-none ${!isScientific ? 'bg-white dark:bg-slate-700 text-indigo-600 dark:text-indigo-400 shadow-sm' : 'text-slate-500 hover:text-slate-900 dark:hover:text-slate-300'}`}
           >
-            Standard
+            {t('common.standard')}
           </button>
           <button
             onClick={() => setIsScientific(true)}
             aria-pressed={isScientific}
             className={`px-4 py-2 rounded-lg text-sm font-bold transition-all focus-visible:ring-2 focus-visible:ring-indigo-500 focus-visible:outline-none ${isScientific ? 'bg-white dark:bg-slate-700 text-indigo-600 dark:text-indigo-400 shadow-sm' : 'text-slate-500 hover:text-slate-900 dark:hover:text-slate-300'}`}
           >
-            Scientifique
+            {t('calculator.scientific')}
           </button>
         </div>
 
         <div className="flex bg-slate-100 dark:bg-slate-800 p-1 rounded-xl">
-          {['MC', 'MR', 'M+', 'M-'].map((m) => (
-            <button
-              key={m}
-              onClick={() => handleMemory(m)}
-              className="px-3 py-1.5 rounded-lg text-xs font-black text-slate-500 hover:text-indigo-600 hover:bg-white dark:hover:bg-slate-700 transition-all focus-visible:ring-2 focus-visible:ring-indigo-500 focus-visible:outline-none"
-            >
-              {m}
-            </button>
-          ))}
+          {['MC', 'MR', 'M+', 'M-'].map((m) => {
+             const getMemoryLabel = (id: string) => {
+               if (id === 'MC') return t('calculator.memory_clear');
+               if (id === 'MR') return t('calculator.memory_recall');
+               if (id === 'M+') return t('calculator.memory_add');
+               if (id === 'M-') return t('calculator.memory_subtract');
+               return id;
+             };
+             return (
+              <button
+                key={m}
+                onClick={() => handleMemory(m)}
+                aria-label={getMemoryLabel(m)}
+                className="px-3 py-1.5 rounded-lg text-xs font-black text-slate-500 hover:text-indigo-600 hover:bg-white dark:hover:bg-slate-700 transition-all focus-visible:ring-2 focus-visible:ring-indigo-500 focus-visible:outline-none"
+              >
+                {m}
+              </button>
+            );
+          })}
         </div>
 
         {isScientific && (
@@ -335,14 +367,14 @@ export function Calculator({ initialData, onStateChange }: { initialData?: any; 
               aria-pressed={!isRadians}
               className={`px-4 py-1.5 rounded-lg text-xs font-bold transition-all focus-visible:ring-2 focus-visible:ring-indigo-500 focus-visible:outline-none ${!isRadians ? 'bg-white dark:bg-slate-700 text-indigo-600 dark:text-indigo-400 shadow-sm' : 'text-slate-500'}`}
             >
-              DEG
+              {t('calculator.degrees')}
             </button>
             <button
               onClick={() => setIsRadians(true)}
               aria-pressed={isRadians}
               className={`px-4 py-1.5 rounded-lg text-xs font-bold transition-all focus-visible:ring-2 focus-visible:ring-indigo-500 focus-visible:outline-none ${isRadians ? 'bg-white dark:bg-slate-700 text-indigo-600 dark:text-indigo-400 shadow-sm' : 'text-slate-500'}`}
             >
-              RAD
+              {t('calculator.radians')}
             </button>
           </div>
         )}
@@ -360,17 +392,18 @@ export function Calculator({ initialData, onStateChange }: { initialData?: any; 
                   ? 'bg-emerald-50 dark:bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border-emerald-200 dark:border-emerald-500/20'
                   : 'bg-white dark:bg-slate-800 text-slate-500 border-slate-200 dark:border-slate-700 hover:text-indigo-500 hover:border-indigo-500/50'
               }`}
-              title="Copier le résultat"
+              title={t('common.copy')}
+              aria-label={t('common.copy')}
             >
               {copied ? <Check className="w-4 h-4" /> : <Copy className="w-4 h-4" />}
             </button>
             <div className="text-sm font-bold text-slate-400 dark:text-slate-500 mb-2 h-6 flex justify-between items-center px-1">
               <div className="flex items-center gap-2">
                 {memory !== 0 && (
-                  <span className="text-[10px] px-1.5 py-0.5 bg-indigo-50 dark:bg-indigo-500/10 text-indigo-600 dark:text-indigo-400 rounded-md font-black">M</span>
+                  <span className="text-[10px] px-1.5 py-0.5 bg-indigo-50 dark:bg-indigo-500/10 text-indigo-600 dark:text-indigo-400 rounded-md font-black" aria-label={t('calculator.memory')}>M</span>
                 )}
               </div>
-              <div className="flex items-center gap-2">
+              <div className="flex items-center gap-2" aria-hidden="true">
                 {previousValue !== null && operation && (
                   <>
                     <span>{isNaN(previousValue) ? 'Erreur' : previousValue}</span>
@@ -379,7 +412,12 @@ export function Calculator({ initialData, onStateChange }: { initialData?: any; 
                 )}
               </div>
             </div>
-            <div className="text-5xl md:text-6xl font-black font-mono tracking-tighter truncate dark:text-white">
+            <div
+              className="text-5xl md:text-6xl font-black font-mono tracking-tighter truncate dark:text-white"
+              aria-live="polite"
+              aria-atomic="true"
+              aria-label={t('calculator.display')}
+            >
               {display === 'NaN' || display === 'Infinity'
                 ? (display === 'NaN' ? 'Erreur' : 'Infini')
                 : display}
@@ -396,9 +434,24 @@ export function Calculator({ initialData, onStateChange }: { initialData?: any; 
                   gridTemplateColumns: `repeat(${isScientific ? 5 : 4}, minmax(0, 1fr))`
                 }}
               >
-                {row.map((btn) => (
+                {row.map((btn) => {
+                  const getAriaLabel = (label: string) => {
+                    if (label === 'C') return t('calculator.btn.clear');
+                    if (label === '←') return t('calculator.btn.backspace');
+                    if (label === '±') return t('calculator.btn.plus_minus');
+                    if (label === '=') return t('calculator.btn.equals');
+                    if (label === '+') return t('calculator.btn.plus');
+                    if (label === '-') return t('calculator.btn.minus');
+                    if (label === '×') return t('calculator.btn.multiply');
+                    if (label === '÷') return t('calculator.btn.divide');
+                    if (label === '.') return t('calculator.btn.decimal');
+                    return label;
+                  };
+
+                  return (
                   <button
                     key={btn}
+                    aria-label={getAriaLabel(btn)}
                     onClick={() => {
                       if (btn === 'C') handleClear();
                       else if (btn === '←') handleBackspace();
@@ -410,6 +463,8 @@ export function Calculator({ initialData, onStateChange }: { initialData?: any; 
                       else handleNumber(btn);
                     }}
                     className={`h-16 md:h-20 rounded-2xl text-xl font-bold transition-all active:scale-95 flex items-center justify-center focus-visible:ring-2 focus-visible:ring-indigo-500 focus-visible:outline-none ${
+                      activeBtn === btn ? 'ring-4 ring-indigo-500/50 scale-95' : ''
+                    } ${
                       btn === 'C'
                         ? 'bg-rose-50 text-rose-500 dark:bg-rose-500/10 dark:text-rose-400 hover:bg-rose-100 dark:hover:bg-rose-500/20'
                         : btn === '←'
@@ -423,7 +478,7 @@ export function Calculator({ initialData, onStateChange }: { initialData?: any; 
                   >
                     {btn === '←' ? <Delete className="w-6 h-6" /> : btn}
                   </button>
-                ))}
+                );})}
               </div>
             ))}
           </div>
@@ -433,13 +488,13 @@ export function Calculator({ initialData, onStateChange }: { initialData?: any; 
         <div className="lg:col-span-4 bg-slate-50 dark:bg-slate-900/50 rounded-[2rem] border border-slate-200 dark:border-slate-800 p-8">
           <div className="flex items-center justify-between mb-8 px-2">
             <h3 className="text-sm font-black uppercase tracking-widest text-slate-400 flex items-center gap-2">
-              <HistoryIcon className="w-4 h-4" /> Historique
+              <HistoryIcon className="w-4 h-4" /> {t('calculator.history')}
             </h3>
             {history.length > 0 && (
               <button
                 onClick={clearHistory}
                 className="text-rose-500 bg-rose-50 dark:bg-rose-500/10 hover:bg-rose-100 dark:hover:bg-rose-500/20 p-1.5 rounded-lg transition-all"
-                aria-label="Effacer l'historique"
+                aria-label={t('calculator.clear_history')}
               >
                 <Trash2 className="w-4 h-4" />
               </button>
@@ -452,7 +507,7 @@ export function Calculator({ initialData, onStateChange }: { initialData?: any; 
                 <div className="w-12 h-12 bg-slate-100 dark:bg-slate-800 rounded-full flex items-center justify-center mx-auto text-slate-300">
                   <CalcIcon className="w-6 h-6" />
                 </div>
-                <p className="text-sm font-medium text-slate-400">Aucun calcul récent</p>
+                <p className="text-sm font-medium text-slate-400">{t('calculator.no_history')}</p>
               </div>
             ) : (
               history.map((item, index) => (

@@ -360,6 +360,12 @@ export function JSONFormatter({ initialData, onStateChange }: { initialData?: an
       const structs: string[] = [];
       const structNames = new Set<string>();
 
+      const sanitizeGoIdentifier = (str: string) => {
+        let sanitized = toPascalCase(str);
+        if (/^[0-9]/.test(sanitized)) sanitized = 'Field' + sanitized;
+        return sanitized;
+      };
+
       const getGoType = (val: any, fieldName: string, depth: number): string => {
         if (val === null || val === undefined) return 'interface{}';
         if (depth > 20) return 'interface{}';
@@ -370,7 +376,7 @@ export function JSONFormatter({ initialData, onStateChange }: { initialData?: an
         }
 
         if (typeof val === 'object') {
-          let className = toPascalCase(fieldName);
+          let className = sanitizeGoIdentifier(fieldName);
           if (className === 'Root') className = 'RootObject';
 
           let finalName = className;
@@ -380,7 +386,7 @@ export function JSONFormatter({ initialData, onStateChange }: { initialData?: an
           }
 
           const fields = Object.entries(val).map(([key, value]) => {
-            let name = toPascalCase(key);
+            let name = sanitizeGoIdentifier(key);
             return `    ${name} ${getGoType(value, key, depth + 1)} \`json:"${key}"\``;
           });
 
@@ -427,6 +433,19 @@ export function JSONFormatter({ initialData, onStateChange }: { initialData?: an
       const structs: string[] = [];
       const structNames = new Set<string>();
 
+      const sanitizeRustIdentifier = (str: string) => {
+        let sanitized = toSnakeCase(str);
+        const keywords = ['as', 'break', 'const', 'continue', 'crate', 'else', 'enum', 'extern', 'false', 'fn', 'for', 'if', 'impl', 'in', 'let', 'loop', 'match', 'mod', 'move', 'mut', 'pub', 'ref', 'return', 'self', 'Self', 'static', 'struct', 'super', 'trait', 'true', 'type', 'unsafe', 'use', 'where', 'while', 'async', 'await', 'dyn', 'abstract', 'become', 'box', 'do', 'final', 'macro', 'override', 'priv', 'typeof', 'unsized', 'virtual', 'yield', 'try'];
+
+        if (/^[0-9]/.test(sanitized)) {
+          sanitized = `field_${sanitized}`;
+        } else if (keywords.includes(sanitized)) {
+          sanitized = `r#${sanitized}`;
+        }
+
+        return sanitized;
+      };
+
       const getRustType = (val: any, fieldName: string, depth: number): string => {
         if (val === null || val === undefined) return 'Option<serde_json::Value>';
         if (depth > 20) return 'serde_json::Value';
@@ -447,9 +466,9 @@ export function JSONFormatter({ initialData, onStateChange }: { initialData?: an
           }
 
           const fields = Object.entries(val).map(([key, value]) => {
-            const rustKey = toSnakeCase(key);
+            const rustKey = sanitizeRustIdentifier(key);
             const type = getRustType(value, key, depth + 1);
-            if (rustKey !== key) {
+            if (rustKey !== key || rustKey.startsWith('r#')) {
                return `    #[serde(rename = "${key}")]\n    pub ${rustKey}: ${type},`;
             }
             return `    pub ${rustKey}: ${type},`;

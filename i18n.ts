@@ -1221,6 +1221,7 @@ const resources = {
       "prime.count": "Count to find",
       "prime.generate": "Generate Primes",
       "prime.result": "Resulting Primes",
+      "prime.generating": "Generating primes...",
       "prime.placeholder": "Generated primes will appear here...",
       "prime.error_range": "Invalid range: Min must be less than Max",
       "prime.info_title": "What is a prime number?",
@@ -2433,6 +2434,9 @@ const resources = {
       "bitshuffler.how_title": "How it works?",
       "bitshuffler.how_desc": "The tool converts your input to binary, applies a cryptographically secure Fisher-Yates shuffle to the bit array, and displays the result.",
       "bitshuffler.reset_desc": "Quickly clear inputs or return to the initial state using the Reset button or the Escape key.",
+      "asciitable.about_title": "About ASCII Table to JSON",
+      "asciitable.about_text": "This tool allows you to convert plain text tables (ASCII or Markdown) into structured JSON data. It supports common table formats found in documentation, terminal outputs, and text files. The first row is assumed to be the header, and subsequent rows are treated as data objects.",
+      "asciitable.placeholder_output": "JSON result will appear here...",
     }
   },
   fr: {
@@ -3653,6 +3657,7 @@ const resources = {
       "prime.count": "Nombre à trouver",
       "prime.generate": "Générer les Nombres",
       "prime.result": "Nombres Premiers",
+      "prime.generating": "Génération en cours...",
       "prime.placeholder": "Les nombres premiers apparaîtront ici...",
       "prime.error_range": "Intervalle invalide : le Min doit être inférieur au Max",
       "prime.info_title": "Qu'est-ce qu'un nombre premier ?",
@@ -4865,6 +4870,9 @@ const resources = {
       "bitshuffler.how_title": "Comment ça marche ?",
       "bitshuffler.how_desc": "L'outil convertit votre entrée en binaire, applique un mélange de Fisher-Yates sécurisé au tableau de bits et affiche le résultat.",
       "bitshuffler.reset_desc": "Effacez rapidement les entrées ou revenez à l'état initial en utilisant le bouton Réinitialiser ou la touche Échap.",
+      "asciitable.about_title": "À propos de Table ASCII en JSON",
+      "asciitable.about_text": "Cet outil vous permet de convertir des tableaux en texte brut (ASCII ou Markdown) en données JSON structurées. Il prend en charge les formats de tableaux courants trouvés dans la documentation, les sorties de terminal et les fichiers texte. La première ligne est considérée comme l'en-tête, et les lignes suivantes sont traitées comme des objets de données.",
+      "asciitable.placeholder_output": "Le résultat JSON apparaîtra ici...",
     }
   }
 };

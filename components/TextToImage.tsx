@@ -1,8 +1,9 @@
 import { useState, useEffect, useRef, useCallback } from 'react';
-import { Type, Download, Trash2, Sliders, Palette, Layout, ImageIcon, AlertCircle, Sparkles } from 'lucide-react';
+import { Type, Download, Trash2, Sliders, Palette, Layout, ImageIcon, AlertCircle, Sparkles, Check, Copy } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 
 const MAX_LENGTH = 1000;
+const MAX_CANVAS_DIMENSION = 4096;
 
 export function TextToImage({ initialData, onStateChange }: { initialData?: any; onStateChange?: (state: any) => void }) {
   const { t } = useTranslation();
@@ -21,22 +22,9 @@ export function TextToImage({ initialData, onStateChange }: { initialData?: any;
   const [shadowBlur, setShadowBlur] = useState(initialData?.shadowBlur || 0);
   const [shadowOffsetX, setShadowOffsetX] = useState(initialData?.shadowOffsetX || 0);
   const [shadowOffsetY, setShadowOffsetY] = useState(initialData?.shadowOffsetY || 0);
+  const [copied, setCopied] = useState(false);
 
   const canvasRef = useRef<HTMLCanvasElement>(null);
-
-  useEffect(() => {
-    onStateChange?.({
-      text, fontSize, textColor, bgColor, bgColor2, bgType,
-      borderRadius, padding, fontFamily, alignment, format,
-      shadowColor, shadowBlur, shadowOffsetX, shadowOffsetY
-    });
-    renderImage();
-  }, [
-    text, fontSize, textColor, bgColor, bgColor2, bgType,
-    borderRadius, padding, fontFamily, alignment, format,
-    shadowColor, shadowBlur, shadowOffsetX, shadowOffsetY,
-    onStateChange
-  ]);
 
   const renderImage = useCallback(() => {
     const canvas = canvasRef.current;
@@ -54,8 +42,11 @@ export function TextToImage({ initialData, onStateChange }: { initialData?: any;
       if (metrics.width > maxWidth) maxWidth = metrics.width;
     });
 
-    const canvasWidth = maxWidth + padding * 2;
-    const canvasHeight = (lines.length * fontSize * 1.2) + padding * 2;
+    let canvasWidth = Math.min(maxWidth + padding * 2, MAX_CANVAS_DIMENSION);
+    let canvasHeight = Math.min((lines.length * fontSize * 1.2) + padding * 2, MAX_CANVAS_DIMENSION);
+
+    if (canvasWidth < 1) canvasWidth = 1;
+    if (canvasHeight < 1) canvasHeight = 1;
 
     canvas.width = canvasWidth;
     canvas.height = canvasHeight;
@@ -121,6 +112,20 @@ export function TextToImage({ initialData, onStateChange }: { initialData?: any;
     shadowColor, shadowBlur, shadowOffsetX, shadowOffsetY
   ]);
 
+  useEffect(() => {
+    onStateChange?.({
+      text, fontSize, textColor, bgColor, bgColor2, bgType,
+      borderRadius, padding, fontFamily, alignment, format,
+      shadowColor, shadowBlur, shadowOffsetX, shadowOffsetY
+    });
+    renderImage();
+  }, [
+    text, fontSize, textColor, bgColor, bgColor2, bgType,
+    borderRadius, padding, fontFamily, alignment, format,
+    shadowColor, shadowBlur, shadowOffsetX, shadowOffsetY,
+    onStateChange, renderImage
+  ]);
+
   const handleDownload = () => {
     const canvas = canvasRef.current;
     if (!canvas) return;
@@ -129,6 +134,76 @@ export function TextToImage({ initialData, onStateChange }: { initialData?: any;
     link.href = canvas.toDataURL(`image/${format}`);
     link.click();
   };
+
+  const handleCopyImage = useCallback(async () => {
+    const canvas = canvasRef.current;
+    if (!canvas) return;
+
+    try {
+      canvas.toBlob(async (blob) => {
+        if (!blob) return;
+        const item = new ClipboardItem({ 'image/png': blob });
+        await navigator.clipboard.write([item]);
+        setCopied(true);
+        setTimeout(() => setCopied(false), 2000);
+      }, 'image/png');
+    } catch (err) {
+      console.error('Failed to copy image: ', err);
+    }
+  }, []);
+
+  const handleClear = useCallback(() => {
+    setText('');
+  }, []);
+
+  const handleToggleAlignment = useCallback(() => {
+    setAlignment(prev => {
+        if (prev === 'left') return 'center';
+        if (prev === 'center') return 'right';
+        return 'left';
+    });
+  }, []);
+
+  const handlersRef = useRef({
+    handleCopyImage,
+    handleClear,
+    handleToggleAlignment
+  });
+
+  useEffect(() => {
+    handlersRef.current = {
+        handleCopyImage,
+        handleClear,
+        handleToggleAlignment
+    };
+  }, [handleCopyImage, handleClear, handleToggleAlignment]);
+
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      const isEditable =
+        document.activeElement?.tagName === "INPUT" ||
+        document.activeElement?.tagName === "TEXTAREA" ||
+        document.activeElement?.tagName === "SELECT" ||
+        document.activeElement?.getAttribute('contenteditable') === 'true';
+
+      if (isEditable) return;
+      if (e.metaKey || e.ctrlKey || e.altKey || e.shiftKey) return;
+
+      if (e.key === 'Escape') {
+        e.preventDefault();
+        handlersRef.current.handleClear();
+      } else if (e.key.toLowerCase() === 'c') {
+        e.preventDefault();
+        handlersRef.current.handleCopyImage();
+      } else if (e.key.toLowerCase() === 's') {
+        e.preventDefault();
+        handlersRef.current.handleToggleAlignment();
+      }
+    };
+
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, []);
 
   return (
     <div className="max-w-6xl mx-auto space-y-8">
@@ -141,12 +216,15 @@ export function TextToImage({ initialData, onStateChange }: { initialData?: any;
                 <label htmlFor="text-input" className="text-xs font-black uppercase tracking-widest text-slate-400 flex items-center gap-2">
                   <Type className="w-4 h-4 text-indigo-500" /> {t('texttoimage.text')}
                 </label>
-                <button
-                  onClick={() => setText('')}
-                  className="text-xs font-bold text-rose-500 hover:text-rose-600 transition-colors"
-                >
-                  {t('common.clear')}
-                </button>
+                <div className="flex items-center gap-2">
+                  <kbd className="hidden sm:inline-flex items-center justify-center px-1.5 py-0.5 border border-rose-200 dark:border-rose-800 rounded text-[10px] font-bold text-rose-400 bg-white dark:bg-slate-900">Esc</kbd>
+                  <button
+                    onClick={handleClear}
+                    className="text-xs font-bold text-rose-500 hover:text-rose-600 transition-colors"
+                  >
+                    {t('common.clear')}
+                  </button>
+                </div>
               </div>
               <textarea
                 id="text-input"
@@ -185,7 +263,7 @@ export function TextToImage({ initialData, onStateChange }: { initialData?: any;
               </div>
 
               <div className="space-y-2">
-                <label className="text-[10px] font-bold text-slate-400 uppercase px-1">{t('texttoimage.border_radius') || 'Arrondi'}</label>
+                <label className="text-[10px] font-bold text-slate-400 uppercase px-1">{t('texttoimage.border_radius')}</label>
                 <input
                     type="range"
                     min="0"
@@ -211,7 +289,10 @@ export function TextToImage({ initialData, onStateChange }: { initialData?: any;
               </div>
 
               <div className="space-y-2">
-                <label className="text-[10px] font-bold text-slate-400 uppercase px-1">{t('texttoimage.alignment')}</label>
+                <div className="flex justify-between items-center px-1">
+                    <label className="text-[10px] font-bold text-slate-400 uppercase">{t('texttoimage.alignment')}</label>
+                    <kbd className="hidden sm:inline-flex items-center justify-center w-5 h-5 border border-slate-200 dark:border-slate-800 rounded text-[10px] font-bold text-slate-400 bg-white dark:bg-slate-900">S</kbd>
+                </div>
                 <div className="grid grid-cols-3 gap-2">
                   {(['left', 'center', 'right'] as const).map(align => (
                     <button
@@ -233,7 +314,7 @@ export function TextToImage({ initialData, onStateChange }: { initialData?: any;
               </div>
 
               <div className="space-y-2">
-                 <label className="text-[10px] font-bold text-slate-400 uppercase px-1">{t('texttoimage.bg_type') || 'Type de fond'}</label>
+                 <label className="text-[10px] font-bold text-slate-400 uppercase px-1">{t('texttoimage.bg_type')}</label>
                  <div className="grid grid-cols-3 gap-2">
                   {(['solid', 'linear', 'radial'] as const).map(type => (
                     <button
@@ -307,7 +388,7 @@ export function TextToImage({ initialData, onStateChange }: { initialData?: any;
             <div className="space-y-4">
               <div className="flex items-center gap-2 px-1">
                 <Sparkles className="w-4 h-4 text-indigo-500" />
-                <h4 className="text-xs font-black uppercase tracking-widest text-slate-400">{t('texttoimage.text_shadow') || 'Ombre du texte'}</h4>
+                <h4 className="text-xs font-black uppercase tracking-widest text-slate-400">{t('texttoimage.text_shadow')}</h4>
               </div>
               <div className="grid grid-cols-2 gap-4">
                 <div className="space-y-2">
@@ -346,12 +427,26 @@ export function TextToImage({ initialData, onStateChange }: { initialData?: any;
                  </button>
                 ))}
               </div>
-              <button
-                onClick={handleDownload}
-                className="w-full py-4 bg-indigo-600 text-white rounded-2xl font-black text-lg hover:bg-indigo-700 transition-all shadow-lg shadow-indigo-600/20 active:scale-95 flex items-center justify-center gap-2"
-              >
-                <Download className="w-5 h-5" /> {t('common.download')}
-              </button>
+              <div className="flex flex-col gap-2">
+                <button
+                    onClick={handleCopyImage}
+                    className={`w-full py-3 rounded-2xl font-black transition-all flex items-center justify-center gap-2 border ${
+                    copied
+                        ? "bg-emerald-50 dark:bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border-emerald-200 dark:border-emerald-500/20"
+                        : "bg-white dark:bg-slate-800 text-indigo-600 dark:text-indigo-400 border-slate-200 dark:border-slate-700 hover:border-indigo-500/50 shadow-sm"
+                    }`}
+                >
+                    {copied ? <Check className="w-5 h-5" /> : <Copy className="w-5 h-5" />}
+                    {copied ? t('common.copied') : (t('common.copy') + ' Image')}
+                    {!copied && <kbd className="hidden md:inline-flex items-center justify-center w-5 h-5 border border-indigo-200 dark:border-indigo-800 rounded text-[10px] font-bold bg-white dark:bg-slate-900 ml-1">C</kbd>}
+                </button>
+                <button
+                    onClick={handleDownload}
+                    className="w-full py-4 bg-indigo-600 text-white rounded-2xl font-black text-lg hover:bg-indigo-700 transition-all shadow-lg shadow-indigo-600/20 active:scale-95 flex items-center justify-center gap-2"
+                >
+                    <Download className="w-5 h-5" /> {t('common.download')}
+                </button>
+              </div>
           </div>
         </div>
 

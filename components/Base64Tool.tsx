@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback, useRef } from 'react';
 import { Copy, Check, Trash2, ArrowRightLeft, FileCode, Type, Download, AlertCircle } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 
@@ -14,16 +14,7 @@ export function Base64Tool({ initialData, onStateChange }: { initialData?: any; 
     onStateChange?.({ text, base64, urlSafe });
   }, [text, base64, urlSafe]);
 
-  useEffect(() => {
-    if (text) {
-      setBase64(encode(text));
-    }
-  }, [urlSafe]);
-
-  const [copied, setCopied] = useState<'text' | 'base64' | null>(null);
-  const [error, setError] = useState<string | null>(null);
-
-  const encode = (input: string) => {
+  const encode = useCallback((input: string) => {
     try {
       if (!input) return '';
       const bytes = new TextEncoder().encode(input);
@@ -40,9 +31,9 @@ export function Base64Tool({ initialData, onStateChange }: { initialData?: any; 
     } catch (e) {
       return 'Error';
     }
-  };
+  }, [urlSafe]);
 
-  const decode = (input: string) => {
+  const decode = useCallback((input: string) => {
     try {
       if (!input) return '';
       let inputToDecode = input;
@@ -59,7 +50,16 @@ export function Base64Tool({ initialData, onStateChange }: { initialData?: any; 
     } catch (e) {
       return 'Error';
     }
-  };
+  }, [urlSafe]);
+
+  useEffect(() => {
+    if (text) {
+      setBase64(encode(text));
+    }
+  }, [urlSafe, encode, text]);
+
+  const [copied, setCopied] = useState<'text' | 'base64' | null>(null);
+  const [error, setError] = useState<string | null>(null);
 
   const handleTextChange = (value: string) => {
     if (value.length > MAX_LENGTH) {
@@ -85,12 +85,18 @@ export function Base64Tool({ initialData, onStateChange }: { initialData?: any; 
     setText(decode(value));
   };
 
-  const copyToClipboard = (val: string, type: 'text' | 'base64') => {
+  const copyToClipboard = useCallback((val: string, type: 'text' | 'base64') => {
     if (!val) return;
     navigator.clipboard.writeText(val);
     setCopied(type);
     setTimeout(() => setCopied(null), 2000);
-  };
+  }, []);
+
+  const handleClear = useCallback(() => {
+    setText('');
+    setBase64('');
+    setError(null);
+  }, []);
 
   const handleDownload = () => {
     if (!base64) return;
@@ -102,6 +108,46 @@ export function Base64Tool({ initialData, onStateChange }: { initialData?: any; 
     a.click();
     URL.revokeObjectURL(url);
   };
+
+  const handlersRef = useRef({
+    copyToClipboard,
+    handleClear,
+    text,
+    base64
+  });
+
+  useEffect(() => {
+    handlersRef.current = { copyToClipboard, handleClear, text, base64 };
+  }, [copyToClipboard, handleClear, text, base64]);
+
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      const isEditable =
+        document.activeElement?.tagName === "INPUT" ||
+        document.activeElement?.tagName === "TEXTAREA" ||
+        document.activeElement?.tagName === "SELECT" ||
+        document.activeElement?.getAttribute('contenteditable') === 'true';
+
+      if (isEditable) return;
+      if (e.metaKey || e.ctrlKey || e.altKey || e.shiftKey) return;
+
+      if (e.key === 'Escape') {
+        e.preventDefault();
+        handlersRef.current.handleClear();
+      } else if (e.key.toLowerCase() === 'c') {
+        e.preventDefault();
+        // Default to copying base64 if both exist, otherwise whatever is present
+        if (handlersRef.current.base64) {
+            handlersRef.current.copyToClipboard(handlersRef.current.base64, 'base64');
+        } else if (handlersRef.current.text) {
+            handlersRef.current.copyToClipboard(handlersRef.current.text, 'text');
+        }
+      }
+    };
+
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, []);
 
   return (
     <div className="max-w-6xl mx-auto space-y-8">
@@ -168,13 +214,16 @@ export function Base64Tool({ initialData, onStateChange }: { initialData?: any; 
                 >
                   {t('base64.url_safe')}
                 </button>
-                <button
-                  onClick={() => {setText(''); setBase64(''); setError(null);}}
-                  disabled={!text && !base64}
-                  className="text-xs font-bold px-3 py-1 rounded-full text-rose-500 bg-rose-50 dark:bg-rose-500/10 hover:bg-rose-100 dark:hover:bg-rose-500/20 transition-all flex items-center gap-1 disabled:opacity-50 disabled:cursor-not-allowed"
-                >
-                  <Trash2 className="w-3 h-3" />
-                </button>
+                <div className="flex items-center gap-1">
+                  <kbd className="hidden sm:inline-flex items-center justify-center px-1.5 py-0.5 border border-rose-200 dark:border-rose-800 rounded text-[10px] font-bold text-rose-400 bg-white dark:bg-slate-900">Esc</kbd>
+                  <button
+                    onClick={handleClear}
+                    disabled={!text && !base64}
+                    className="text-xs font-bold px-3 py-1 rounded-full text-rose-500 bg-rose-50 dark:bg-rose-500/10 hover:bg-rose-100 dark:hover:bg-rose-500/20 transition-all flex items-center gap-1 disabled:opacity-50 disabled:cursor-not-allowed"
+                  >
+                    <Trash2 className="w-3 h-3" />
+                  </button>
+                </div>
               </div>
             </div>
           </div>
@@ -208,11 +257,13 @@ export function Base64Tool({ initialData, onStateChange }: { initialData?: any; 
                 disabled={!base64}
                 className={`text-xs font-bold px-3 py-1.5 rounded-full transition-all flex items-center gap-1 border ${
                   copied === 'base64'
-                    ? 'bg-emerald-50 dark:bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border-emerald-200 dark:border-emerald-500/20'
-                    : 'text-slate-500 bg-slate-100 dark:bg-slate-800 border-transparent hover:bg-slate-200 dark:hover:bg-slate-700'
+                    ? 'bg-emerald-50 dark:bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border border-emerald-200 dark:border-emerald-500/20'
+                    : 'bg-white dark:bg-slate-800 text-indigo-600 dark:text-indigo-400 border-slate-200 dark:border-slate-700 hover:border-indigo-500/50 shadow-sm'
                 } disabled:opacity-50 disabled:cursor-not-allowed`}
               >
-                {copied === 'base64' ? <Check className="w-3 h-3" /> : <Copy className="w-3 h-3" />} {copied === 'base64' ? t('common.copied') : t('common.copy')}
+                {copied === 'base64' ? <Check className="w-3 h-3" /> : <Copy className="w-3 h-3" />}
+                {copied === 'base64' ? t('common.copied') : t('common.copy')}
+                {copied !== 'base64' && <kbd className="hidden sm:inline-flex items-center justify-center w-4 h-4 border border-indigo-200 dark:border-indigo-800 rounded text-[10px] font-bold bg-white dark:bg-slate-900 ml-1">C</kbd>}
               </button>
             </div>
           </div>

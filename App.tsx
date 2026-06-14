@@ -87,6 +87,7 @@ import {
   Check,
   Plus,
   BarChart3,
+  Grid3X3,
   Sigma,
   Wand2,
   Grid,
@@ -407,6 +408,9 @@ const CreditCardGenerator = lazy(() => import("./components/CreditCardGenerator"
 const AtbashCipher = lazy(() => import("./components/AtbashCipher").then(m => ({ default: m.AtbashCipher })));
 const RailFenceCipher = lazy(() => import("./components/RailFenceCipher").then(m => ({ default: m.RailFenceCipher })));
 const SortingVisualizer = lazy(() => import("./components/SortingVisualizer").then(m => ({ default: m.SortingVisualizer })));
+const MandelbrotSet = lazy(() => import("./components/MandelbrotSet").then(m => ({ default: m.MandelbrotSet })));
+const MazeGenerator = lazy(() => import("./components/MazeGenerator").then(m => ({ default: m.MazeGenerator })));
+const BinaryBitShuffler = lazy(() => import("./components/BinaryBitShuffler").then(m => ({ default: m.BinaryBitShuffler })));
 
 // ⚡ Bolt Optimization: Pre-calculating tool map and search index for O(1) lookups and faster filtering
 const toolsMap: Record<string, Tool> = {};
@@ -3367,6 +3371,39 @@ const tools: Tool[] = [
     Component: CreditCardGenerator,
     category: "dev",
     keywords: ["credit card", "luhn", "visa", "mastercard", "test"],
+  },
+  {
+    id: "mandelbrot-set",
+    name: "Ensemble de Mandelbrot",
+    nameEn: "Mandelbrot Set",
+    icon: Sparkles,
+    description: "Explorer et visualiser la fractale de l'ensemble de Mandelbrot",
+    descriptionEn: "Explore and visualize the Mandelbrot set fractal",
+    Component: MandelbrotSet,
+    category: "calculators",
+    keywords: ["fractal", "mandelbrot", "math", "visualization", "infinite", "zoom"],
+  },
+  {
+    id: "maze-generator",
+    name: "Générateur de Labyrinthe",
+    nameEn: "Maze Generator",
+    icon: Grid3X3,
+    description: "Générer des labyrinthes parfaits via l'algorithme de backtracking",
+    descriptionEn: "Generate perfect mazes using the recursive backtracking algorithm",
+    Component: MazeGenerator,
+    category: "calculators",
+    keywords: ["maze", "generator", "algorithm", "backtracking", "random", "labyrinthe"],
+  },
+  {
+    id: "bit-shuffler",
+    name: "Mélangeur de Bits",
+    nameEn: "Binary Bit Shuffler",
+    icon: Shuffle,
+    description: "Mélanger aléatoirement les bits d'un texte ou d'une chaîne binaire",
+    descriptionEn: "Randomly shuffle bits within text or binary strings",
+    Component: BinaryBitShuffler,
+    category: "dev",
+    keywords: ["binary", "bit", "shuffle", "randomize", "cryptography", "entropy"],
   },
 ];
 

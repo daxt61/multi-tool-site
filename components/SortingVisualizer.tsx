@@ -4,7 +4,7 @@ import { useTranslation } from 'react-i18next';
 import { getSecureRandomInt } from './ui/crypto';
 
 // Types for the sorting state
-type Algorithm = 'bubble' | 'selection' | 'insertion' | 'merge' | 'quick';
+type Algorithm = 'bubble' | 'selection' | 'insertion' | 'merge' | 'quick' | 'heap';
 
 interface Bar {
   value: number;
@@ -268,6 +268,74 @@ export function SortingVisualizer({ initialData, onStateChange }: { initialData?
     }
   };
 
+  const heapSort = async () => {
+    const n = arrayRef.current.length;
+
+    // Build heap
+    for (let i = Math.floor(n / 2) - 1; i >= 0; i--) {
+      await heapify(n, i);
+    }
+
+    // Extract elements from heap
+    for (let i = n - 1; i > 0; i--) {
+      if (!isSortingRef.current) return;
+
+      updateBarStatus([0, i], 'swapping');
+      if (!(await sleep(speedRef.current))) return;
+      swapBars(0, i);
+      if (!(await sleep(speedRef.current))) return;
+
+      const newArray = [...arrayRef.current];
+      newArray[i].status = 'sorted';
+      setArray(newArray);
+      arrayRef.current = newArray;
+
+      await heapify(i, 0);
+    }
+
+    // Mark the last remaining element (index 0) as sorted
+    const finalArray = [...arrayRef.current];
+    finalArray[0].status = 'sorted';
+    setArray(finalArray);
+    arrayRef.current = finalArray;
+  };
+
+  const heapify = async (n: number, i: number) => {
+    if (!isSortingRef.current) return;
+
+    let largest = i;
+    const l = 2 * i + 1;
+    const r = 2 * i + 2;
+
+    updateBarStatus([i], 'comparing');
+    if (l < n) updateBarStatus([l], 'comparing');
+    if (r < n) updateBarStatus([r], 'comparing');
+    setStats(prev => ({ ...prev, comparisons: prev.comparisons + 1 }));
+    if (!(await sleep(speedRef.current))) return;
+
+    if (l < n && arrayRef.current[l].value > arrayRef.current[largest].value) {
+      largest = l;
+    }
+
+    if (r < n && arrayRef.current[r].value > arrayRef.current[largest].value) {
+      largest = r;
+    }
+
+    if (largest !== i) {
+      updateBarStatus([i, largest], 'swapping');
+      if (!(await sleep(speedRef.current))) return;
+      swapBars(i, largest);
+      if (!(await sleep(speedRef.current))) return;
+
+      updateBarStatus([i, largest], 'idle');
+      await heapify(n, largest);
+    } else {
+      updateBarStatus([i], 'idle');
+      if (l < n) updateBarStatus([l], 'idle');
+      if (r < n) updateBarStatus([r], 'idle');
+    }
+  };
+
   const quickSort = async () => {
     const n = arrayRef.current.length;
     await quickSortHelper(0, n - 1);
@@ -341,6 +409,7 @@ export function SortingVisualizer({ initialData, onStateChange }: { initialData?
         case 'insertion': await insertionSort(); break;
         case 'merge': await mergeSort(); break;
         case 'quick': await quickSort(); break;
+        case 'heap': await heapSort(); break;
       }
     } catch (e) {
       console.error('Sorting interrupted', e);
@@ -454,6 +523,7 @@ export function SortingVisualizer({ initialData, onStateChange }: { initialData?
                   <option value="insertion">{t('sorting.algo.insertion')}</option>
                   <option value="merge">{t('sorting.algo.merge')}</option>
                   <option value="quick">{t('sorting.algo.quick')}</option>
+                  <option value="heap">{t('sorting.algo.heap')}</option>
                 </select>
               </div>
 
@@ -599,6 +669,10 @@ export function SortingVisualizer({ initialData, onStateChange }: { initialData?
              </div>
              <div className="flex justify-between border-b border-slate-100 dark:border-slate-800 pb-1">
                 <span>{t('sorting.algo.quick')}</span>
+                <span className="font-mono text-indigo-500">O(n log n)</span>
+             </div>
+             <div className="flex justify-between border-b border-slate-100 dark:border-slate-800 pb-1">
+                <span>{t('sorting.algo.heap')}</span>
                 <span className="font-mono text-indigo-500">O(n log n)</span>
              </div>
           </div>

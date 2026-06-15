@@ -1,5 +1,6 @@
-import { useState, useMemo, useDeferredValue } from 'react';
+import { useState, useMemo, useDeferredValue, useEffect, useCallback } from 'react';
 import { Copy, Check, Trash2, Type, Info, MessageSquare, Volume2 } from 'lucide-react';
+import { useTranslation } from 'react-i18next';
 
 const NATO_ALPHABET: Record<string, string> = {
   'A': 'Alfa', 'B': 'Bravo', 'C': 'Charlie', 'D': 'Delta', 'E': 'Echo',
@@ -16,6 +17,7 @@ const NATO_ALPHABET: Record<string, string> = {
 };
 
 export function NatoPhoneticTranslator() {
+  const { t } = useTranslation();
   const [text, setText] = useState('');
   const [copied, setCopied] = useState(false);
   const deferredText = useDeferredValue(text);
@@ -29,38 +31,69 @@ export function NatoPhoneticTranslator() {
       .join(' ');
   }, [deferredText]);
 
-  const handleCopy = () => {
+  const handleCopy = useCallback(() => {
     if (!phoneticOutput) return;
     navigator.clipboard.writeText(phoneticOutput.replace(/•/g, ' '));
     setCopied(true);
     setTimeout(() => setCopied(false), 2000);
-  };
+  }, [phoneticOutput]);
 
-  const handleClear = () => {
+  const handleClear = useCallback(() => {
     setText('');
     setCopied(false);
-  };
+  }, []);
+
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      const activeElement = document.activeElement;
+      const isInputFocused =
+        activeElement instanceof HTMLInputElement ||
+        activeElement instanceof HTMLTextAreaElement ||
+        activeElement instanceof HTMLSelectElement ||
+        activeElement?.getAttribute("contenteditable") === "true";
+
+      if (isInputFocused && e.key !== 'Escape') return;
+
+      if (e.metaKey || e.ctrlKey || e.altKey || e.shiftKey) return;
+
+      if (e.key === "Escape") {
+        e.preventDefault();
+        handleClear();
+      } else if (e.key.toLowerCase() === "c") {
+        if (!isInputFocused) {
+          e.preventDefault();
+          handleCopy();
+        }
+      }
+    };
+
+    window.addEventListener("keydown", handleKeyDown);
+    return () => window.removeEventListener("keydown", handleKeyDown);
+  }, [handleClear, handleCopy]);
 
   return (
     <div className="max-w-5xl mx-auto space-y-8">
       <div className="space-y-4">
         <div className="flex justify-between items-center px-1">
           <label htmlFor="nato-input" className="text-xs font-black uppercase tracking-widest text-slate-400 cursor-pointer">
-            Texte à traduire
+            {t('nato.input_label')}
           </label>
-          <button
-            onClick={handleClear}
-            disabled={!text}
-            className="text-xs font-bold px-3 py-1.5 rounded-full text-rose-500 bg-rose-50 dark:bg-rose-500/10 hover:bg-rose-100 dark:hover:bg-rose-500/20 transition-all flex items-center gap-1 disabled:opacity-50 disabled:cursor-not-allowed"
-          >
-            <Trash2 className="w-3 h-3" /> Effacer
-          </button>
+          <div className="flex gap-2 items-center">
+            <kbd className="hidden sm:inline-flex items-center justify-center px-1.5 py-0.5 border border-rose-200 dark:border-rose-800 rounded text-[10px] font-bold text-rose-400 bg-white dark:bg-slate-900">Esc</kbd>
+            <button
+              onClick={handleClear}
+              disabled={!text}
+              className="text-xs font-bold px-3 py-1.5 rounded-full text-rose-500 bg-rose-50 dark:bg-rose-500/10 hover:bg-rose-100 dark:hover:bg-rose-500/20 transition-all flex items-center gap-1 disabled:opacity-50 disabled:cursor-not-allowed focus-visible:ring-2 focus-visible:ring-rose-500 focus-visible:outline-none"
+            >
+              <Trash2 className="w-3 h-3" /> {t('common.clear')}
+            </button>
+          </div>
         </div>
         <textarea
           id="nato-input"
           value={text}
           onChange={(e) => setText(e.target.value)}
-          placeholder="Entrez votre texte ici (ex: SOS)..."
+          placeholder={t('nato.placeholder')}
           className="w-full h-32 p-6 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-3xl outline-none focus:ring-2 focus:ring-indigo-500/20 transition-all text-xl font-bold dark:text-slate-300"
         />
       </div>
@@ -68,27 +101,28 @@ export function NatoPhoneticTranslator() {
       <div className="space-y-4">
         <div className="flex justify-between items-center px-1">
           <h3 className="text-xs font-black uppercase tracking-widest text-slate-400 flex items-center gap-2">
-            <Volume2 className="w-4 h-4 text-indigo-500" /> Alphabet Phonétique de l'OTAN
+            <Volume2 className="w-4 h-4 text-indigo-500" /> {t('nato.output_label')}
           </h3>
           {phoneticOutput && (
             <button
               onClick={handleCopy}
-              className={`text-xs font-bold px-4 py-1.5 rounded-full transition-all flex items-center gap-2 ${
+              className={`text-xs font-bold px-4 py-1.5 rounded-full transition-all flex items-center gap-2 border focus-visible:ring-2 focus-visible:ring-indigo-500 focus-visible:outline-none ${
                 copied
-                  ? 'bg-emerald-50 dark:bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border border-emerald-200 dark:border-emerald-500/20'
+                  ? 'bg-emerald-50 dark:bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border-emerald-200 dark:border-emerald-500/20'
                   : 'bg-indigo-600 text-white shadow-lg shadow-indigo-600/20 hover:bg-indigo-700'
               }`}
             >
               {copied ? <Check className="w-3.5 h-3.5" /> : <Copy className="w-3.5 h-3.5" />}
-              {copied ? 'Copié' : 'Copier'}
+              {copied ? t('common.copied') : t('common.copy')}
+              {!copied && <kbd className="hidden sm:inline-flex items-center justify-center w-4 h-4 border border-white/20 rounded text-[10px] font-bold bg-white/10 ml-1">C</kbd>}
             </button>
           )}
         </div>
 
-        <div className="min-h-48 p-8 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-[2.5rem] shadow-sm flex flex-wrap gap-x-4 gap-y-3 items-center justify-center text-center">
+        <div className="min-h-48 p-8 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-[2.5rem] shadow-sm flex flex-wrap gap-x-4 gap-y-3 items-center justify-center text-center" aria-live="polite">
           {text.trim() === '' ? (
             <div className="text-slate-300 dark:text-slate-700 font-black italic text-xl">
-              La traduction apparaîtra ici mot par mot
+              {t('nato.waiting')}
             </div>
           ) : (
             phoneticOutput.split(' ').map((word, i) => (
@@ -114,9 +148,9 @@ export function NatoPhoneticTranslator() {
           <div className="w-12 h-12 bg-indigo-50 dark:bg-indigo-900/20 rounded-2xl flex items-center justify-center text-indigo-600">
             <MessageSquare className="w-6 h-6" />
           </div>
-          <h3 className="text-lg font-black">C'est quoi ?</h3>
+          <h3 className="text-lg font-black">{t('nato.about_title')}</h3>
           <p className="text-sm text-slate-500 dark:text-slate-400 leading-relaxed">
-            L'alphabet phonétique de l'OTAN est un code utilisé par les armées et les services d'urgence pour épeler des mots sans erreur de compréhension, notamment lors de transmissions radio difficiles.
+            {t('nato.about_text')}
           </p>
         </div>
 
@@ -124,9 +158,9 @@ export function NatoPhoneticTranslator() {
           <div className="w-12 h-12 bg-emerald-50 dark:bg-emerald-900/20 rounded-2xl flex items-center justify-center text-emerald-600">
             <Type className="w-6 h-6" />
           </div>
-          <h3 className="text-lg font-black">Universalité</h3>
+          <h3 className="text-lg font-black">{t('nato.universality_title')}</h3>
           <p className="text-sm text-slate-500 dark:text-slate-400 leading-relaxed">
-            Aussi appelé Alphabet Phonétique International (API), il utilise des mots choisis pour être intelligibles quel que soit l'accent de l'émetteur ou du récepteur.
+            {t('nato.universality_text')}
           </p>
         </div>
 
@@ -134,9 +168,9 @@ export function NatoPhoneticTranslator() {
           <div className="w-12 h-12 bg-amber-50 dark:bg-amber-900/20 rounded-2xl flex items-center justify-center text-amber-600">
             <Info className="w-6 h-6" />
           </div>
-          <h3 className="text-lg font-black">Usage courant</h3>
+          <h3 className="text-lg font-black">{t('nato.usage_title')}</h3>
           <p className="text-sm text-slate-500 dark:text-slate-400 leading-relaxed">
-            On l'utilise aujourd'hui dans l'aviation civile, la marine, les télécommunications et même au téléphone pour épeler un nom ou une adresse e-mail complexe.
+            {t('nato.usage_text')}
           </p>
         </div>
       </div>

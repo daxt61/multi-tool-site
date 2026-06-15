@@ -384,6 +384,7 @@ const JSONToPydantic = lazy(() => import("./components/JSONToPydantic").then(m =
 const JSONToYup = lazy(() => import("./components/JSONToYup").then(m => ({ default: m.JSONToYup })));
 const SQLMinifier = lazy(() => import("./components/SQLMinifier").then(m => ({ default: m.SQLMinifier })));
 const Base64ToAudio = lazy(() => import("./components/Base64ToAudio").then(m => ({ default: m.Base64ToAudio })));
+const Base64ToVideo = lazy(() => import("./components/Base64ToVideo").then(m => ({ default: m.Base64ToVideo })));
 const GCDLCMCalculator = lazy(() => import("./components/GCDLCMCalculator").then(m => ({ default: m.GCDLCMCalculator })));
 const GrayCodeConverter = lazy(() => import("./components/GrayCodeConverter").then(m => ({ default: m.GrayCodeConverter })));
 const TimeSequenceGenerator = lazy(() => import("./components/TimeSequenceGenerator").then(m => ({ default: m.TimeSequenceGenerator })));
@@ -3142,6 +3143,17 @@ const tools: Tool[] = [
     Component: Base64ToAudio,
     category: "dev",
     keywords: ["base64", "audio", "decode", "player", "mp3", "wav"],
+  },
+  {
+    id: "base64-to-video",
+    name: "Base64 en Vidéo",
+    nameEn: "Base64 to Video",
+    icon: MonitorPlay,
+    description: "Décoder du Base64 en lecteur vidéo interactif",
+    descriptionEn: "Decode Base64 into an interactive video player",
+    Component: Base64ToVideo,
+    category: "dev",
+    keywords: ["base64", "video", "decode", "player", "mp4", "webm"],
   },
   {
     id: "regex-code",

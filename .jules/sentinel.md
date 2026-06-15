@@ -136,3 +136,8 @@
 **Vulnerability:** The JSONToPydantic component used unbounded recursion to process user-provided JSON, making it vulnerable to Stack Overflow Denial of Service (DoS) attacks with deeply nested inputs.
 **Learning:** Recursive functions that process untrusted or potentially large data structures must always implement a maximum depth limit. Even if the data is valid (e.g., from JSON.parse), the structure itself can be a weapon to crash the client.
 **Prevention:** Enforce a strict recursion depth limit (e.g., 20) in all recursive data processing functions. Return a safe fallback value or a clear error message once the limit is reached to protect the execution stack.
+
+## 2025-07-30 - [Client-side DoS in Palindromic Number Generator]
+**Vulnerability:** The PalindromicNumberGenerator performed range searches using a synchronous loop. Large range inputs (e.g., 1 to 10,000,000) would block the browser's main thread, causing the UI to hang and making the application unresponsive.
+**Learning:** Even simple search loops can become DoS vectors if they iterate over large user-controlled ranges without yielding control. Standard input limits are necessary, but for valid large-scale computations, asynchronous processing is required to maintain application stability.
+**Prevention:** Use an asynchronous chunking pattern (via `setTimeout(resolve, 0)`) for any search or generation logic that might exceed a few milliseconds of execution time. Implement a cancellation mechanism (e.g., `isGeneratingRef`) to allow users to stop long-running processes.

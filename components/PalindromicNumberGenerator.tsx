@@ -1,8 +1,11 @@
 import { useState, useEffect, useMemo, useCallback, useRef } from 'react';
-import { Hash, Copy, Check, Trash2, Download, AlertCircle, RefreshCw, Settings2, Info } from 'lucide-react';
+import { Hash, Copy, Check, Trash2, Download, AlertCircle, RefreshCw, Settings2, Info, Square } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
+import { getSecureRandomInt } from './ui/crypto';
 
 const MAX_RESULTS = 5000;
+const MAX_RANGE_SPAN = 2000000;
+const CHUNK_SIZE = 10000;
 
 type Mode = 'range' | 'length';
 
@@ -17,6 +20,8 @@ export function PalindromicNumberGenerator({ initialData, onStateChange }: { ini
   const [results, setResults] = useState<string[]>([]);
   const [copied, setCopied] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [isGenerating, setIsGenerating] = useState(false);
+  const isGeneratingRef = useRef(false);
 
   useEffect(() => {
     onStateChange?.({ mode, min, max, length, quantity, separator });
@@ -26,24 +31,43 @@ export function PalindromicNumberGenerator({ initialData, onStateChange }: { ini
     return n === n.split('').reverse().join('');
   };
 
-  const generateByRange = useCallback(() => {
-    const list: string[] = [];
+  const generateByRange = useCallback(async () => {
     const start = Math.min(min, max);
     const end = Math.max(min, max);
 
+    if (end - start > MAX_RANGE_SPAN) {
+      setError(`Range too large (max ${MAX_RANGE_SPAN.toLocaleString()})`);
+      return;
+    }
+
+    setError(null);
+    setIsGenerating(true);
+    isGeneratingRef.current = true;
+    const list: string[] = [];
+
     for (let i = start; i <= end; i++) {
+      if (!isGeneratingRef.current) break;
+
       const s = i.toString();
       if (isPalindrome(s)) {
         list.push(s);
       }
       if (list.length >= MAX_RESULTS) break;
+
+      if (i > start && (i - start) % CHUNK_SIZE === 0) {
+        setResults([...list]);
+        await new Promise((resolve) => setTimeout(resolve, 0));
+      }
     }
-    setResults(list);
-    if (list.length >= MAX_RESULTS) {
-      setError(t('palindromic.limit_reached', { max: MAX_RESULTS }));
-    } else {
-      setError(null);
+
+    if (isGeneratingRef.current) {
+      setResults(list);
+      if (list.length >= MAX_RESULTS) {
+        setError(t('palindromic.limit_reached', { max: MAX_RESULTS }));
+      }
     }
+    setIsGenerating(false);
+    isGeneratingRef.current = false;
   }, [min, max, t]);
 
   const generateByLength = useCallback(() => {
@@ -64,7 +88,7 @@ export function PalindromicNumberGenerator({ initialData, onStateChange }: { ini
 
     while (list.length < quantity && attempts < maxAttempts) {
       attempts++;
-      const prefix = Math.floor(Math.random() * (maxPrefix - minPrefix + 1)) + minPrefix;
+      const prefix = getSecureRandomInt(maxPrefix - minPrefix + 1) + minPrefix;
       const s = prefix.toString();
       let p = s;
 
@@ -85,6 +109,11 @@ export function PalindromicNumberGenerator({ initialData, onStateChange }: { ini
   }, [length, quantity, t]);
 
   const handleGenerate = () => {
+    if (isGenerating) {
+      isGeneratingRef.current = false;
+      setIsGenerating(false);
+      return;
+    }
     if (mode === 'range') {
       generateByRange();
     } else {
@@ -132,13 +161,15 @@ export function PalindromicNumberGenerator({ initialData, onStateChange }: { ini
             <div className="flex bg-slate-100 dark:bg-slate-800 p-1 rounded-2xl border border-slate-200 dark:border-slate-700">
               <button
                 onClick={() => setMode('range')}
-                className={`flex-1 py-2 rounded-xl text-xs font-bold transition-all ${mode === 'range' ? 'bg-white dark:bg-slate-900 text-indigo-600 shadow-sm' : 'text-slate-500 hover:text-slate-700'}`}
+                disabled={isGenerating}
+                className={`flex-1 py-2 rounded-xl text-xs font-bold transition-all ${mode === 'range' ? 'bg-white dark:bg-slate-900 text-indigo-600 shadow-sm' : 'text-slate-500 hover:text-slate-700'} disabled:opacity-50`}
               >
                 {t('palindromic.mode_range')}
               </button>
               <button
                 onClick={() => setMode('length')}
-                className={`flex-1 py-2 rounded-xl text-xs font-bold transition-all ${mode === 'length' ? 'bg-white dark:bg-slate-900 text-indigo-600 shadow-sm' : 'text-slate-500 hover:text-slate-700'}`}
+                disabled={isGenerating}
+                className={`flex-1 py-2 rounded-xl text-xs font-bold transition-all ${mode === 'length' ? 'bg-white dark:bg-slate-900 text-indigo-600 shadow-sm' : 'text-slate-500 hover:text-slate-700'} disabled:opacity-50`}
               >
                 {t('palindromic.mode_length')}
               </button>
@@ -152,8 +183,9 @@ export function PalindromicNumberGenerator({ initialData, onStateChange }: { ini
                     <input
                       type="number"
                       value={min}
+                      disabled={isGenerating}
                       onChange={(e) => setMin(parseInt(e.target.value) || 0)}
-                      className="w-full p-4 bg-white dark:bg-slate-950 border border-slate-200 dark:border-slate-700 rounded-2xl font-mono font-bold outline-none focus:ring-2 focus:ring-indigo-500/20 transition-all dark:text-white"
+                      className="w-full p-4 bg-white dark:bg-slate-950 border border-slate-200 dark:border-slate-700 rounded-2xl font-mono font-bold outline-none focus:ring-2 focus:ring-indigo-500/20 transition-all dark:text-white disabled:opacity-50"
                     />
                   </div>
                   <div className="space-y-2">
@@ -161,8 +193,9 @@ export function PalindromicNumberGenerator({ initialData, onStateChange }: { ini
                     <input
                       type="number"
                       value={max}
+                      disabled={isGenerating}
                       onChange={(e) => setMax(parseInt(e.target.value) || 0)}
-                      className="w-full p-4 bg-white dark:bg-slate-950 border border-slate-200 dark:border-slate-700 rounded-2xl font-mono font-bold outline-none focus:ring-2 focus:ring-indigo-500/20 transition-all dark:text-white"
+                      className="w-full p-4 bg-white dark:bg-slate-950 border border-slate-200 dark:border-slate-700 rounded-2xl font-mono font-bold outline-none focus:ring-2 focus:ring-indigo-500/20 transition-all dark:text-white disabled:opacity-50"
                     />
                   </div>
                 </>
@@ -175,8 +208,9 @@ export function PalindromicNumberGenerator({ initialData, onStateChange }: { ini
                       min="1"
                       max="15"
                       value={length}
+                      disabled={isGenerating}
                       onChange={(e) => setLength(parseInt(e.target.value) || 1)}
-                      className="w-full p-4 bg-white dark:bg-slate-950 border border-slate-200 dark:border-slate-700 rounded-2xl font-mono font-bold outline-none focus:ring-2 focus:ring-indigo-500/20 transition-all dark:text-white"
+                      className="w-full p-4 bg-white dark:bg-slate-950 border border-slate-200 dark:border-slate-700 rounded-2xl font-mono font-bold outline-none focus:ring-2 focus:ring-indigo-500/20 transition-all dark:text-white disabled:opacity-50"
                     />
                   </div>
                   <div className="space-y-2">
@@ -186,8 +220,9 @@ export function PalindromicNumberGenerator({ initialData, onStateChange }: { ini
                       min="1"
                       max="1000"
                       value={quantity}
+                      disabled={isGenerating}
                       onChange={(e) => setQuantity(parseInt(e.target.value) || 1)}
-                      className="w-full p-4 bg-white dark:bg-slate-950 border border-slate-200 dark:border-slate-700 rounded-2xl font-mono font-bold outline-none focus:ring-2 focus:ring-indigo-500/20 transition-all dark:text-white"
+                      className="w-full p-4 bg-white dark:bg-slate-950 border border-slate-200 dark:border-slate-700 rounded-2xl font-mono font-bold outline-none focus:ring-2 focus:ring-indigo-500/20 transition-all dark:text-white disabled:opacity-50"
                     />
                   </div>
                 </>
@@ -197,8 +232,9 @@ export function PalindromicNumberGenerator({ initialData, onStateChange }: { ini
                 <label className="text-[10px] font-black uppercase tracking-widest text-slate-500 px-1">{t('stringjoiner.separator')}</label>
                 <select
                   value={separator}
+                  disabled={isGenerating}
                   onChange={(e) => setSeparator(e.target.value)}
-                  className="w-full p-4 bg-white dark:bg-slate-950 border border-slate-200 dark:border-slate-700 rounded-2xl font-bold outline-none focus:ring-2 focus:ring-indigo-500/20 transition-all dark:text-white appearance-none cursor-pointer"
+                  className="w-full p-4 bg-white dark:bg-slate-950 border border-slate-200 dark:border-slate-700 rounded-2xl font-bold outline-none focus:ring-2 focus:ring-indigo-500/20 transition-all dark:text-white appearance-none cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
                 >
                   <option value="\n">{t('listcleaner.remove_empty_lines')} (New line)</option>
                   <option value=", ">Comma (, )</option>
@@ -210,10 +246,14 @@ export function PalindromicNumberGenerator({ initialData, onStateChange }: { ini
 
             <button
               onClick={handleGenerate}
-              className="w-full py-4 bg-indigo-600 text-white rounded-2xl font-black flex items-center justify-center gap-2 hover:bg-indigo-700 active:scale-95 transition-all shadow-lg shadow-indigo-600/20"
+              className={`w-full py-4 rounded-2xl font-black flex items-center justify-center gap-2 active:scale-95 transition-all shadow-lg ${
+                isGenerating
+                  ? 'bg-rose-500 hover:bg-rose-600 text-white shadow-rose-600/20'
+                  : 'bg-indigo-600 hover:bg-indigo-700 text-white shadow-indigo-600/20'
+              }`}
             >
-              <RefreshCw className="w-5 h-5" />
-              {t('random.generate')}
+              {isGenerating ? <Square className="w-5 h-5 fill-current" /> : <RefreshCw className="w-5 h-5" />}
+              {isGenerating ? t('common.stop') : t('random.generate')}
             </button>
           </div>
         </div>

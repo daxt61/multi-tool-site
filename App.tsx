@@ -412,6 +412,7 @@ const MandelbrotSet = lazy(() => import("./components/MandelbrotSet").then(m => 
 const MazeGenerator = lazy(() => import("./components/MazeGenerator").then(m => ({ default: m.MazeGenerator })));
 const BinaryBitShuffler = lazy(() => import("./components/BinaryBitShuffler").then(m => ({ default: m.BinaryBitShuffler })));
 const ASCIITableToJson = lazy(() => import("./components/ASCIITableToJson").then(m => ({ default: m.ASCIITableToJson })));
+const WatermarkGenerator = lazy(() => import("./components/WatermarkGenerator").then(m => ({ default: m.WatermarkGenerator })));
 
 // ⚡ Bolt Optimization: Pre-calculating tool map and search index for O(1) lookups and faster filtering
 const toolsMap: Record<string, Tool> = {};
@@ -3416,6 +3417,17 @@ const tools: Tool[] = [
     Component: ASCIITableToJson,
     category: "dev",
     keywords: ["ascii", "markdown", "table", "json", "convert", "parse"],
+  },
+  {
+    id: "watermark-generator",
+    name: "Générateur de Filigrane",
+    nameEn: "Watermark Generator",
+    icon: ImageIcon,
+    description: "Ajouter des filigranes de texte ou d'image sur vos images",
+    descriptionEn: "Add text or image watermarks to your images",
+    Component: WatermarkGenerator,
+    category: "other",
+    keywords: ["watermark", "image", "overlay", "copyright", "protection", "filigrane"],
   },
 ];
 

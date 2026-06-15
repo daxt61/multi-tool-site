@@ -5,7 +5,7 @@ import { useTranslation } from 'react-i18next';
 const MAX_LENGTH = 100000;
 
 type Dialect = 'standard' | 'mysql' | 'sqlserver' | 'oracle';
-type SQLMode = 'INSERT' | 'UPDATE';
+type SQLMode = 'INSERT' | 'UPDATE' | 'UPSERT';
 
 export function JSONToSQL({ initialData, onStateChange }: { initialData?: any; onStateChange?: (state: any) => void }) {
   const { t } = useTranslation();
@@ -107,7 +107,7 @@ export function JSONToSQL({ initialData, onStateChange }: { initialData?: any; o
           });
           result += statements.join('\n');
         }
-      } else {
+      } else if (mode === 'UPDATE') {
         const statements = data.map((row: any) => {
           const setClause = columns
             .filter(col => !whereColumns.includes(col))
@@ -117,6 +117,34 @@ export function JSONToSQL({ initialData, onStateChange }: { initialData?: any; o
             .map(col => `${escapeIdentifier(col, dialect)} = ${escapeValue(row[col])}`)
             .join(' AND ');
           return `UPDATE ${sqlTableName} SET ${setClause} WHERE ${whereClause};`;
+        });
+        result += statements.join('\n');
+      } else if (mode === 'UPSERT') {
+        const statements = data.map((row: any) => {
+          const values = columns.map(col => escapeValue(row[col]));
+          const nonWhereColumns = columns.filter(col => !whereColumns.includes(col));
+
+          if (dialect === 'mysql') {
+            const updateClause = nonWhereColumns
+              .map(col => `${escapeIdentifier(col, dialect)} = VALUES(${escapeIdentifier(col, dialect)})`)
+              .join(', ');
+            return `INSERT INTO ${sqlTableName} (${escapedColumns.join(', ')}) VALUES (${values.join(', ')}) ON DUPLICATE KEY UPDATE ${updateClause};`;
+          } else if (dialect === 'standard') {
+            const updateClause = nonWhereColumns
+              .map(col => `${escapeIdentifier(col, dialect)} = EXCLUDED.${escapeIdentifier(col, dialect)}`)
+              .join(', ');
+            const conflictTarget = whereColumns.map(col => escapeIdentifier(col, dialect)).join(', ');
+            return `INSERT INTO ${sqlTableName} (${escapedColumns.join(', ')}) VALUES (${values.join(', ')}) ON CONFLICT (${conflictTarget}) DO UPDATE SET ${updateClause};`;
+          } else {
+            // MERGE for SQL Server and Oracle
+            const sourceValues = columns.map((col, i) => `${values[i]} AS ${escapeIdentifier(col, dialect)}`).join(', ');
+            const onClause = whereColumns.map(col => `target.${escapeIdentifier(col, dialect)} = source.${escapeIdentifier(col, dialect)}`).join(' AND ');
+            const updateSet = nonWhereColumns.map(col => `${escapeIdentifier(col, dialect)} = source.${escapeIdentifier(col, dialect)}`).join(', ');
+            const insertCols = columns.map(col => escapeIdentifier(col, dialect)).join(', ');
+            const insertVals = columns.map(col => `source.${escapeIdentifier(col, dialect)}`).join(', ');
+
+            return `MERGE INTO ${sqlTableName} AS target\nUSING (SELECT ${sourceValues}) AS source\nON (${onClause})\nWHEN MATCHED THEN\n  UPDATE SET ${updateSet}\nWHEN NOT MATCHED THEN\n  INSERT (${insertCols}) VALUES (${insertVals});`;
+          }
         });
         result += statements.join('\n');
       }
@@ -268,7 +296,7 @@ export function JSONToSQL({ initialData, onStateChange }: { initialData?: any; o
             <div className="space-y-4">
                <label className="text-xs font-bold text-slate-500 px-1 block">{t('jsontosql.mode')}</label>
                <div className="flex bg-slate-100 dark:bg-slate-800 p-1 rounded-xl w-fit">
-                  {(['INSERT', 'UPDATE'] as const).map(m => (
+                  {(['INSERT', 'UPDATE', 'UPSERT'] as const).map(m => (
                     <button
                       key={m}
                       onClick={() => setMode(m)}
@@ -312,7 +340,9 @@ export function JSONToSQL({ initialData, onStateChange }: { initialData?: any; o
                 </>
               ) : (
                 <div className="space-y-3 w-full">
-                  <label className="text-xs font-bold text-slate-500 block">{t('jsontosql.where_columns')}</label>
+                  <label className="text-xs font-bold text-slate-500 block">
+                    {mode === 'UPDATE' ? t('jsontosql.where_columns') : t('jsontosql.conflict_target')}
+                  </label>
                   <div className="flex flex-wrap gap-2">
                     {(() => {
                       try {

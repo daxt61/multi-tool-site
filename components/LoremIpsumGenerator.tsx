@@ -1,8 +1,10 @@
 import { useState, useMemo, useCallback, useEffect } from 'react';
 import { Copy, Check, RefreshCw, Trash2, Type, Hash } from 'lucide-react';
+import { useTranslation } from 'react-i18next';
 import { getSecureRandomInt } from './ui/crypto';
 
 export function LoremIpsumGenerator() {
+  const { t } = useTranslation();
   const [count, setCount] = useState(3);
   const [type, setType] = useState<'paragraphs' | 'sentences' | 'words'>('paragraphs');
   const [useHtml, setUseHtml] = useState(false);
@@ -121,7 +123,7 @@ export function LoremIpsumGenerator() {
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
           <div className="space-y-2">
             <label htmlFor="lorem-count" className="text-xs font-black uppercase tracking-widest text-slate-400 px-1">
-              Nombre
+              {t('lorem.count')}
             </label>
             <input
               id="lorem-count"
@@ -135,7 +137,7 @@ export function LoremIpsumGenerator() {
           </div>
           <div className="space-y-2">
             <label htmlFor="lorem-type" className="text-xs font-black uppercase tracking-widest text-slate-400 px-1">
-              Type
+              {t('lorem.type')}
             </label>
             <div className="flex gap-2">
               <select
@@ -144,9 +146,9 @@ export function LoremIpsumGenerator() {
                 onChange={(e) => setType(e.target.value as any)}
                 className="flex-1 p-4 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-2xl font-bold focus:ring-2 focus:ring-indigo-500/20 outline-none transition-all dark:text-white cursor-pointer"
               >
-                <option value="paragraphs">Paragraphes</option>
-                <option value="sentences">Phrases</option>
-                <option value="words">Mots</option>
+                <option value="paragraphs">{t('lorem.paragraphs')}</option>
+                <option value="sentences">{t('lorem.sentences')}</option>
+                <option value="words">{t('lorem.words')}</option>
               </select>
               {type === 'paragraphs' && (
                 <button
@@ -167,16 +169,16 @@ export function LoremIpsumGenerator() {
         <div className="flex flex-col sm:flex-row gap-4">
           <button
             onClick={handleRegenerate}
-            title="Régénérer (R)"
+            title={`${t('lorem.regenerate')} (R)`}
             className="flex-1 py-4 bg-white dark:bg-slate-800 text-slate-600 dark:text-slate-300 border border-slate-200 dark:border-slate-700 rounded-2xl hover:bg-slate-50 dark:hover:bg-slate-700 transition-all flex items-center justify-center gap-2 font-black active:scale-95 focus-visible:ring-2 focus-visible:ring-indigo-500 focus-visible:outline-none group/regen"
           >
             <RefreshCw className="w-5 h-5 transition-transform duration-500 group-hover/regen:rotate-180" />
-            Régénérer
+            {t('lorem.regenerate')}
           </button>
           <button
             onClick={copyToClipboard}
             disabled={!text}
-            title="Copier le texte (C)"
+            title={`${t('lorem.copy')} (C)`}
             className={`flex-[2] py-4 rounded-2xl transition-all flex items-center justify-center gap-2 font-black active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed border focus-visible:ring-2 focus-visible:ring-indigo-500 focus-visible:outline-none ${
               copied
                 ? 'bg-emerald-50 dark:bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border-emerald-200 dark:border-emerald-500/20'
@@ -184,12 +186,12 @@ export function LoremIpsumGenerator() {
             }`}
           >
             {copied ? <Check className="w-5 h-5" /> : <Copy className="w-5 h-5" />}
-            {copied ? 'Copié !' : 'Copier le texte'}
+            {copied ? t('lorem.copied') : t('lorem.copy')}
           </button>
           <button
             onClick={() => {setCount(0); setRefreshTrigger(prev => prev + 1);}}
             disabled={!text}
-            aria-label="Effacer le texte"
+            aria-label={t('lorem.clear')}
             className="p-4 bg-rose-50 dark:bg-rose-500/10 text-rose-500 border border-rose-200 dark:border-rose-800 rounded-2xl hover:bg-rose-100 dark:hover:bg-rose-500/20 transition-all active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed focus-visible:ring-2 focus-visible:ring-rose-500 focus-visible:outline-none"
           >
             <Trash2 className="w-5 h-5" />
@@ -203,7 +205,7 @@ export function LoremIpsumGenerator() {
             <Type className="w-5 h-5" />
           </div>
           <div>
-            <div className="text-[10px] font-black uppercase tracking-widest text-slate-400">Mots</div>
+            <div className="text-[10px] font-black uppercase tracking-widest text-slate-400">{t('lorem.words')}</div>
             <div className="text-xl font-black dark:text-white">{stats.words}</div>
           </div>
         </div>
@@ -212,7 +214,7 @@ export function LoremIpsumGenerator() {
             <Hash className="w-5 h-5" />
           </div>
           <div>
-            <div className="text-[10px] font-black uppercase tracking-widest text-slate-400">Caractères</div>
+            <div className="text-[10px] font-black uppercase tracking-widest text-slate-400">{t('wordcounter.stat.characters')}</div>
             <div className="text-xl font-black dark:text-white">{stats.chars}</div>
           </div>
         </div>
@@ -226,7 +228,7 @@ export function LoremIpsumGenerator() {
         ) : (
           <div className="flex flex-col items-center justify-center h-40 text-slate-400">
             <Type className="w-12 h-12 mb-4 opacity-10" />
-            <p className="font-medium">Aucun texte généré</p>
+            <p className="font-medium">{t('lorem.empty')}</p>
           </div>
         )}
       </div>

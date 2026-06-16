@@ -15,16 +15,41 @@ export function RegexCodeGenerator({ initialData, onStateChange }: { initialData
     onStateChange?.({ pattern, flags, language });
   }, [pattern, flags, language, onStateChange]);
 
+  const toPHPLiteral = (val: string) => {
+    // Sentinel: Use single quotes in PHP to prevent variable interpolation ($var)
+    // and only escape backslashes and single quotes.
+    return `'${val.replace(/\\/g, '\\\\').replace(/'/g, "\\'")}'`;
+  };
+
+  const toRubyLiteral = (val: string) => {
+    // Sentinel: Use single quotes in Ruby to prevent variable interpolation (#{})
+    // and only escape backslashes and single quotes.
+    return `'${val.replace(/\\/g, '\\\\').replace(/'/g, "\\'")}'`;
+  };
+
+  const toJavaLiteral = (val: string) => {
+    // Sentinel: Escape double quotes and backslashes for Java/C# string literals.
+    return `"${val.replace(/\\/g, '\\\\').replace(/"/g, '\\"')}"`;
+  };
+
   const generateCode = (pat: string, flg: string, lang: OutputLanguage) => {
     if (!pat) return '';
 
-    // Escape backslashes for string literals where needed
-    const escapedPat = pat.replace(/\\/g, '\\\\').replace(/"/g, '\\"');
-    const rawPat = pat.replace(/`/g, '` + "`" + `');
+    // Sentinel: Use safe literal generation for each language to prevent snippet injection.
+    const jsPat = JSON.stringify(pat);
+    const jsFlags = JSON.stringify(flg);
+    const pyPat = JSON.stringify(pat);
+    const rbPat = toRubyLiteral(pat);
+    const rbFlags = toRubyLiteral(flg);
+    const phpPat = toPHPLiteral(pat);
+    const phpFlags = toPHPLiteral(flg);
+    const javaPat = toJavaLiteral(pat);
+    const goPat = `\`${pat.replace(/`/g, '` + "`" + `')}\``;
+    const csPat = `@"${pat.replace(/"/g, '""')}"`;
 
     switch (lang) {
       case 'javascript':
-        return `const regex = /${pat}/${flg};\nconst str = 'example string';\nlet m;\n\nwhile ((m = regex.exec(str)) !== null) {\n  if (m.index === regex.lastIndex) {\n    regex.lastIndex++;\n  }\n  m.forEach((match, groupIndex) => {\n    console.log(\`Found match, group \${groupIndex}: \${match}\`);\n  });\n}`;
+        return `const regex = new RegExp(${jsPat}, ${jsFlags});\nconst str = 'example string';\nlet m;\n\nwhile ((m = regex.exec(str)) !== null) {\n  if (m.index === regex.lastIndex) {\n    regex.lastIndex++;\n  }\n  m.forEach((match, groupIndex) => {\n    console.log(\`Found match, group \${groupIndex}: \${match}\`);\n  });\n}`;
 
       case 'python':
         const pyFlags = flg.split('').map(f => {
@@ -33,19 +58,19 @@ export function RegexCodeGenerator({ initialData, onStateChange }: { initialData
           if (f === 's') return 're.DOTALL';
           return null;
         }).filter(Boolean).join(' | ') || '0';
-        const pyPat = pat.replace(/"/g, '\\"');
-        return `import re\n\nregex = r"${pyPat}"\ntest_str = "example string"\n\nmatches = re.finditer(regex, test_str, ${pyFlags})\n\nfor matchNum, match in enumerate(matches, start=1):\n    print(f"Match {matchNum} was found at {match.start()}-{match.end()}: {match.group()}")\n    for groupNum in range(0, len(match.groups())):\n        groupNum = groupNum + 1\n        print(f"Group {groupNum} found at {match.start(groupNum)}-{match.end(groupNum)}: {match.group(groupNum)}")`;
+        return `import re\n\nregex = re.compile(${pyPat}, ${pyFlags})\ntest_str = "example string"\n\nmatches = regex.finditer(test_str)\n\nfor matchNum, match in enumerate(matches, start=1):\n    print(f"Match {matchNum} was found at {match.start()}-{match.end()}: {match.group()}")\n    for groupNum in range(0, len(match.groups())):\n        groupNum = groupNum + 1\n        print(f"Group {groupNum} found at {match.start(groupNum)}-{match.end(groupNum)}: {match.group(groupNum)}")`;
 
       case 'php':
-        const phpFlags = flg.includes('i') ? 'i' : '';
-        return `<?php\n\n$regex = '/${escapedPat.replace(/\//g, '\\/')}/${flg}';\n$str = 'example string';\n\npreg_match_all($regex, $str, $matches, PREG_SET_ORDER, 0);\n\nforeach ($matches as $match) {\n    echo "Found match: " . $match[0] . "\\n";\n}`;
+        // Note: For PHP we still need delimiters for preg_match_all. We use # as it's less common in patterns.
+        // We escape the delimiter in the pattern.
+        const phpRegex = `'#' . ${toPHPLiteral(pat.replace(/#/g, '\\#'))} . '#${flg.replace(/[^imsuxADJSU]/g, '')}'`;
+        return `<?php\n\n$regex = ${phpRegex};\n$str = 'example string';\n\npreg_match_all($regex, $str, $matches, PREG_SET_ORDER, 0);\n\nforeach ($matches as $match) {\n    echo "Found match: " . $match[0] . "\\n";\n}`;
 
       case 'go':
-        return `package main\n\nimport (\n\t"fmt"\n\t"regexp"\n)\n\nfunc main() {\n\tvar re = regexp.MustCompile(\`${rawPat}\`)\n\tstr := "example string"\n\n\tmatches := re.FindAllStringSubmatch(str, -1)\n\tfor _, match := range matches {\n\t\tfmt.Println("Found match:", match[0])\n\t}\n}`;
+        return `package main\n\nimport (\n\t"fmt"\n\t"regexp"\n)\n\nfunc main() {\n\tvar re = regexp.MustCompile(${goPat})\n\tstr := "example string"\n\n\tmatches := re.FindAllStringSubmatch(str, -1)\n\tfor _, match := range matches {\n\t\tfmt.Println("Found match:", match[0])\n\t}\n}`;
 
       case 'ruby':
-        const rbFlags = flg.includes('i') ? 'i' : '';
-        return `regex = /${pat}/${flg}\nstr = 'example string'\n\nstr.scan(regex) do |match|\n  puts "Found match: #{match}"\nend`;
+        return `regex = Regexp.new(${rbPat}, ${rbFlags}.include?('i') ? Regexp::IGNORECASE : 0)\nstr = 'example string'\n\nstr.scan(regex) do |match|\n  puts "Found match: #{match}"\nend`;
 
       case 'java':
         let javaFlags = '';
@@ -53,14 +78,14 @@ export function RegexCodeGenerator({ initialData, onStateChange }: { initialData
         if (flg.includes('m')) javaFlags += 'Pattern.MULTILINE | ';
         if (flg.includes('s')) javaFlags += 'Pattern.DOTALL | ';
         javaFlags = javaFlags.endsWith('| ') ? javaFlags.slice(0, -3) : '0';
-        return `import java.util.regex.Matcher;\nimport java.util.regex.Pattern;\n\npublic class Main {\n    public static void main(String[] args) {\n        final String regex = "${escapedPat}";\n        final String string = "example string";\n\n        final Pattern pattern = Pattern.compile(regex, ${javaFlags});\n        final Matcher matcher = pattern.matcher(string);\n\n        while (matcher.find()) {\n            System.out.println("Full match: " + matcher.group(0));\n            for (int i = 1; i <= matcher.groupCount(); i++) {\n                System.out.println("Group " + i + ": " + matcher.group(i));\n            }\n        }\n    }\n}`;
+        return `import java.util.regex.Matcher;\nimport java.util.regex.Pattern;\n\npublic class Main {\n    public static void main(String[] args) {\n        final String regex = ${javaPat};\n        final String string = "example string";\n\n        final Pattern pattern = Pattern.compile(regex, ${javaFlags});\n        final Matcher matcher = pattern.matcher(string);\n\n        while (matcher.find()) {\n            System.out.println("Full match: " + matcher.group(0));\n            for (int i = 1; i <= matcher.groupCount(); i++) {\n                System.out.println("Group " + i + ": " + matcher.group(i));\n            }\n        }\n    }\n}`;
 
       case 'csharp':
         let csFlags = 'RegexOptions.None';
         if (flg.includes('i')) csFlags += ' | RegexOptions.IgnoreCase';
         if (flg.includes('m')) csFlags += ' | RegexOptions.Multiline';
         if (flg.includes('s')) csFlags += ' | RegexOptions.Singleline';
-        return `using System;\nusing System.Text.RegularExpressions;\n\npublic class Program\n{\n    public static void Main()\n    {\n        string pattern = @"${pat.replace(/"/g, '""')}";\n        string input = "example string";\n        RegexOptions options = ${csFlags};\n\n        foreach (Match m in Regex.Matches(input, pattern, options))\n        {\n            Console.WriteLine("Found '{0}' at value {1}", m.Value, m.Index);\n        }\n    }\n}`;
+        return `using System;\nusing System.Text.RegularExpressions;\n\npublic class Program\n{\n    public static void Main()\n    {\n        string pattern = ${csPat};\n        string input = "example string";\n        RegexOptions options = ${csFlags};\n\n        foreach (Match m in Regex.Matches(input, pattern, options))\n        {\n            Console.WriteLine("Found '{0}' at value {1}", m.Value, m.Index);\n        }\n    }\n}`;
 
       default:
         return '';
@@ -236,7 +261,7 @@ export function RegexCodeGenerator({ initialData, onStateChange }: { initialData
           </div>
           <div className="bg-slate-900 dark:bg-black rounded-[2rem] p-8 border border-slate-800 h-[450px] overflow-auto group">
             {output ? (
-              <pre className="text-sm font-mono text-indigo-400 leading-relaxed whitespace-pre-wrap">{output}</pre>
+              <pre id="regex-output" className="text-sm font-mono text-indigo-400 leading-relaxed whitespace-pre-wrap">{output}</pre>
             ) : (
               <div className="h-full flex flex-col items-center justify-center text-slate-600 space-y-4">
                 <Terminal className="w-12 h-12 opacity-10" />

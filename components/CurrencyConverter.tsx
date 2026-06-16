@@ -96,7 +96,10 @@ export function CurrencyConverter({ initialData, onStateChange }: { initialData?
   const result = useMemo(() => {
     const num = parseFloat(amount);
     if (isNaN(num)) return 0;
-    return (num / rates[fromCurrency]) * rates[toCurrency];
+    const fromRate = rates[fromCurrency];
+    const toRate = rates[toCurrency];
+    if (!fromRate || !toRate || fromRate === 0) return 0;
+    return (num / fromRate) * toRate;
   }, [amount, rates, fromCurrency, toCurrency]);
 
   const handleCopy = useCallback(() => {

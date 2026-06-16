@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback, useRef } from 'react';
-import { Signal, Copy, Check, Trash2, Info, AlertCircle, Play, Square } from 'lucide-react';
+import { Signal, Copy, Check, Trash2, Info, AlertCircle, Play, Square, Circle } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 
 const MAX_LENGTH = 100000;
@@ -29,6 +29,7 @@ export function MorseCodeConverter({ initialData, onStateChange }: { initialData
   const [copied, setCopied] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [isPlaying, setIsPlaying] = useState(false);
+  const [isSignaling, setIsSignaling] = useState(false);
   const stopPlaybackRef = useRef(false);
   const audioCtxRef = useRef<AudioContext | null>(null);
 
@@ -98,6 +99,7 @@ export function MorseCodeConverter({ initialData, onStateChange }: { initialData
 
     const playTone = (duration: number) => {
       return new Promise<void>((resolve) => {
+        setIsSignaling(true);
         const osc = ctx.createOscillator();
         const gain = ctx.createGain();
         osc.connect(gain);
@@ -112,7 +114,10 @@ export function MorseCodeConverter({ initialData, onStateChange }: { initialData
 
         osc.start(now);
         osc.stop(now + duration);
-        osc.onended = () => resolve();
+        osc.onended = () => {
+          setIsSignaling(false);
+          resolve();
+        };
       });
     };
 
@@ -243,6 +248,17 @@ export function MorseCodeConverter({ initialData, onStateChange }: { initialData
             placeholder={t('morse.placeholder_morse')}
             className="w-full h-64 p-6 bg-slate-50 dark:bg-slate-900/50 border border-slate-200 dark:border-slate-800 rounded-[2rem] outline-none focus:ring-2 focus:ring-indigo-500/20 transition-all font-mono text-lg leading-relaxed text-indigo-600 dark:text-indigo-400 resize-none"
           />
+        </div>
+      </div>
+
+      {/* Visual Signaling */}
+      <div className="flex justify-center">
+        <div className={`p-12 rounded-full transition-all duration-75 border-4 ${
+          isSignaling
+            ? 'bg-indigo-500 border-indigo-400 shadow-[0_0_50px_rgba(99,102,241,0.5)] scale-110'
+            : 'bg-slate-100 dark:bg-slate-900 border-slate-200 dark:border-slate-800 opacity-50 scale-100'
+        }`}>
+          <Circle className={`w-12 h-12 transition-all ${isSignaling ? 'text-white fill-current' : 'text-slate-300 dark:text-slate-700'}`} />
         </div>
       </div>
 

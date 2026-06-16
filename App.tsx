@@ -78,6 +78,7 @@ import {
   Database,
   ArrowLeftRight,
   ArrowUpDown,
+  ArrowUp,
   X,
   Share2,
   Sun,
@@ -3703,6 +3704,19 @@ function MainApp() {
   const location = useLocation();
   const { t, i18n: i18nInstance } = useTranslation();
   const [commandOpen, setCommandOpen] = useState(false);
+  const [showBackToTop, setShowBackToTop] = useState(false);
+
+  useEffect(() => {
+    const handleScroll = () => {
+      setShowBackToTop(window.scrollY > 400);
+    };
+    window.addEventListener("scroll", handleScroll);
+    return () => window.removeEventListener("scroll", handleScroll);
+  }, []);
+
+  const scrollToTop = () => {
+    window.scrollTo({ top: 0, behavior: "smooth" });
+  };
 
   const handleToolVisit = useCallback((id: string) => {
     // Sentinel: Validate tool ID before adding to recent history.
@@ -3962,6 +3976,17 @@ function MainApp() {
       </div>
 
       <div className="container mx-auto px-4 py-8 max-w-6xl relative">
+        {/* Back to Top */}
+        <button
+          onClick={scrollToTop}
+          className={`fixed bottom-8 right-8 z-[60] p-4 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl shadow-xl transition-all duration-300 transform ${
+            showBackToTop ? "translate-y-0 opacity-100" : "translate-y-20 opacity-0 pointer-events-none"
+          } hover:border-indigo-500 hover:text-indigo-600 focus-visible:ring-2 focus-visible:ring-indigo-500 focus-visible:outline-none group`}
+          aria-label={t("common.back_to_top") || "Back to top"}
+        >
+          <ArrowUp className="w-6 h-6 transition-transform group-hover:-translate-y-1" />
+        </button>
+
         {/* Nav Header */}
         <header className="flex justify-between items-center mb-16">
           <Link

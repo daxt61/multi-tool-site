@@ -41,6 +41,7 @@ export function RegExTester({ initialData, onStateChange }: { initialData?: any;
   const [testText, setTestText] = useState(initialData?.testText || t('regextester.test_text_placeholder'));
   const [matches, setMatches] = useState<MatchResult[]>([]);
   const [error, setError] = useState<string | null>(null);
+  const [showFullHelp, setShowFullHelp] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [copied, setCopied] = useState(false);
   const [matchesCopied, setMatchesCopied] = useState(false);
@@ -340,31 +341,67 @@ export function RegExTester({ initialData, onStateChange }: { initialData?: any;
           </div>
 
           <div className="bg-indigo-600 rounded-[2.5rem] p-10 text-white shadow-xl shadow-indigo-600/10 space-y-6">
-            <div className="flex items-center gap-3">
-              <Info className="w-6 h-6 opacity-50" />
-              <h3 className="text-xl font-black">{t('regextester.quick_help')}</h3>
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-3">
+                <Info className="w-6 h-6 opacity-50" />
+                <h3 className="text-xl font-black">{t('regextester.quick_help')}</h3>
+              </div>
+              <button
+                onClick={() => setShowFullHelp(!showFullHelp)}
+                className="text-xs font-bold px-3 py-1 bg-white/10 hover:bg-white/20 rounded-lg transition-all"
+              >
+                {showFullHelp ? t('common.less') || 'Less' : t('common.more') || 'More'}
+              </button>
             </div>
             <div className="space-y-4 text-indigo-100 text-sm font-medium leading-relaxed">
               <div className="flex gap-3">
-                <code className="bg-white/10 px-2 py-0.5 rounded text-white">.</code>
+                <code className="bg-white/10 px-2 py-0.5 rounded text-white min-w-[2.5rem] text-center">.</code>
                 <span>{t('regextester.help_dot')}</span>
               </div>
               <div className="flex gap-3">
-                <code className="bg-white/10 px-2 py-0.5 rounded text-white">\d</code>
+                <code className="bg-white/10 px-2 py-0.5 rounded text-white min-w-[2.5rem] text-center">\d</code>
                 <span>{t('regextester.help_digit')}</span>
               </div>
               <div className="flex gap-3">
-                <code className="bg-white/10 px-2 py-0.5 rounded text-white">\w</code>
+                <code className="bg-white/10 px-2 py-0.5 rounded text-white min-w-[2.5rem] text-center">\w</code>
                 <span>{t('regextester.help_word')}</span>
               </div>
               <div className="flex gap-3">
-                <code className="bg-white/10 px-2 py-0.5 rounded text-white">+</code>
+                <code className="bg-white/10 px-2 py-0.5 rounded text-white min-w-[2.5rem] text-center">+</code>
                 <span>{t('regextester.help_plus')}</span>
               </div>
               <div className="flex gap-3">
-                <code className="bg-white/10 px-2 py-0.5 rounded text-white">*</code>
+                <code className="bg-white/10 px-2 py-0.5 rounded text-white min-w-[2.5rem] text-center">*</code>
                 <span>{t('regextester.help_star')}</span>
               </div>
+              {showFullHelp && (
+                <div className="space-y-4 pt-2 border-t border-white/10 animate-in fade-in slide-in-from-top-2 duration-300">
+                  <div className="flex gap-3">
+                    <code className="bg-white/10 px-2 py-0.5 rounded text-white min-w-[2.5rem] text-center">?</code>
+                    <span>{t('regextester.help_question')}</span>
+                  </div>
+                  <div className="flex gap-3">
+                    <code className="bg-white/10 px-2 py-0.5 rounded text-white min-w-[2.5rem] text-center">\b</code>
+                    <span>{t('regextester.help_boundary')}</span>
+                  </div>
+                  <div className="flex gap-3">
+                    <code className="bg-white/10 px-2 py-0.5 rounded text-white min-w-[2.5rem] text-center">^</code>
+                    <span>{t('regextester.help_start')}</span>
+                  </div>
+                  <div className="flex gap-3">
+                    <code className="bg-white/10 px-2 py-0.5 rounded text-white min-w-[2.5rem] text-center">$</code>
+                    <span>{t('regextester.help_end')}</span>
+                  </div>
+                  <div className="flex gap-3">
+                    <code className="bg-white/10 px-2 py-0.5 rounded text-white min-w-[2.5rem] text-center">( )</code>
+                    <span>{t('regextester.help_group')}</span>
+                  </div>
+                  <div className="flex gap-3">
+                    <code className="bg-white/10 px-2 py-0.5 rounded text-white min-w-[2.5rem] text-center">[ ]</code>
+                    <span>{t('regextester.help_range')}</span>
+                  </div>
+                </div>
+              )}
             </div>
           </div>
         </div>

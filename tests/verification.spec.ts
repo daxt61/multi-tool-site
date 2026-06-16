@@ -1,38 +1,60 @@
 import { test, expect } from '@playwright/test';
 
-test('verify new tools and upgraded password generator', async ({ page }) => {
-  await page.goto('http://localhost:5173/');
+test('verify back to top button visibility', async ({ page }) => {
+  await page.goto('http://localhost:5173/en');
 
-  // Check if new tools are present in the search
-  await page.fill('#tool-search', 'WhatsApp');
-  await expect(page.getByRole('heading', { name: 'Lien WhatsApp' })).toBeVisible();
+  // Initially hidden
+  const backToTop = page.locator('button[aria-label="Back to Top"]');
+  await expect(backToTop).toHaveClass(/opacity-0/);
 
-  await page.fill('#tool-search', 'Security');
-  await expect(page.getByRole('heading', { name: 'Headers Sécurité' })).toBeVisible();
+  // Scroll down
+  await page.evaluate(() => window.scrollTo(0, 1000));
+  await page.waitForTimeout(500);
 
-  // Verify WhatsApp Link Generator
-  await page.goto('http://localhost:5173/fr/outil/whatsapp-link');
-  await page.fill('#phone-number', '33612345678');
-  await page.fill('#message', 'Hello World');
-  await expect(page.getByText('https://wa.me/33612345678?text=Hello%20World')).toBeVisible();
-  await page.screenshot({ path: 'whatsapp-tool.png' });
+  // Now visible
+  await expect(backToTop).toHaveClass(/opacity-100/);
+  await page.screenshot({ path: 'verification/back_to_top.png' });
 
-  // Verify Security Headers Generator
-  await page.goto('http://localhost:5173/fr/outil/security-headers');
-  await expect(page.getByText('CSP (Content Security Policy)')).toBeVisible();
-  await page.screenshot({ path: 'security-headers-tool.png' });
+  // Click and check scroll
+  await backToTop.click();
+  await page.waitForTimeout(1000);
+  const scrollY = await page.evaluate(() => window.scrollY);
+  expect(scrollY).toBeLessThan(100);
+});
 
-  // Verify Upgraded Password Generator
-  await page.goto('http://localhost:5173/fr/outil/password-generator');
-  const passwordInput = page.locator('input[type="password"]');
-  await expect(passwordInput).toBeVisible();
+test('verify case converter new styles', async ({ page }) => {
+  await page.goto('http://localhost:5173/en/outil/case-converter');
+  await page.fill('#case-text', 'Hello World 123');
+  await page.waitForTimeout(1000);
 
-  // Toggle visibility
-  await page.click('button[aria-label^="Afficher le mot de passe"]');
-  const visiblePasswordInput = page.locator('input[type="text"]');
-  await expect(visiblePasswordInput).toBeVisible();
+  const strikethrough = page.locator('div.group', { has: page.locator('span:has-text("Strikethrough")') }).locator('div.font-mono');
+  await expect(strikethrough).toContainText('H̶e̶l̶l̶o̶ ̶W̶o̶r̶l̶d̶ ̶1̶2̶3̶');
 
-  // Check that some strength feedback is visible
-  await expect(page.locator('p.text-white\\/40.font-medium')).toBeVisible();
-  await page.screenshot({ path: 'password-tool.png' });
+  const bubble = page.locator('div.group', { has: page.locator('span:has-text("Bubble")') }).locator('div.font-mono');
+  await expect(bubble).toContainText('Ⓗⓔⓛⓛⓞ Ⓦⓞⓡⓛⓓ ①②③');
+
+  await page.screenshot({ path: 'verification/case_styles.png' });
+});
+
+test('verify regex quick help toggle', async ({ page }) => {
+  await page.goto('http://localhost:5173/en/outil/regex-tester');
+
+  await expect(page.locator('text=Word boundary')).not.toBeVisible();
+
+  await page.click('button:has-text("More")');
+  await expect(page.locator('text=Word boundary')).toBeVisible();
+
+  await page.screenshot({ path: 'verification/regex_help.png' });
+});
+
+test('verify morse visual signaling', async ({ page }) => {
+  await page.goto('http://localhost:5173/en/outil/morse-code');
+  await page.fill('#normal-text', 'S'); // '...'
+
+  const indicator = page.locator('div.rounded-full.border-4');
+  await page.click('button:has-text("Play")');
+
+  // Indicator should light up at least once during playback
+  await expect(indicator).toHaveClass(/bg-indigo-500/, { timeout: 5000 });
+  await page.screenshot({ path: 'verification/morse_visual.png' });
 });

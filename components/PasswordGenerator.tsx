@@ -48,6 +48,7 @@ export function PasswordGenerator({ initialData, onStateChange }: { initialData?
   const [includeNumbers, setIncludeNumbers] = useState(initialData?.includeNumbers ?? true);
   const [includeSymbols, setIncludeSymbols] = useState(initialData?.includeSymbols ?? true);
   const [excludeSimilar, setExcludeSimilar] = useState(initialData?.excludeSimilar ?? false);
+  const [excludeAmbiguous, setExcludeAmbiguous] = useState(initialData?.excludeAmbiguous ?? false);
   const [showPassword, setShowPassword] = useState(false);
   const [copied, setCopied] = useState(false);
   const [copiedHistoryIndex, setCopiedHistoryIndex] = useState<number | null>(null);
@@ -68,6 +69,10 @@ export function PasswordGenerator({ initialData, onStateChange }: { initialData?
 
         if (excludeSimilar) {
           charset = charset.replace(/[il1Lo0O]/g, '');
+        }
+
+        if (excludeAmbiguous) {
+          charset = charset.replace(/[{}[\]()/\\\'"`~,;:.<>]/g, '');
         }
 
         if (charset === '') {
@@ -113,9 +118,9 @@ export function PasswordGenerator({ initialData, onStateChange }: { initialData?
   useEffect(() => {
     onStateChange?.({
       mode, quantity, length, wordCount, capitalizeWords, addNumber, addSymbol,
-      includeUppercase, includeLowercase, includeNumbers, includeSymbols, excludeSimilar
+      includeUppercase, includeLowercase, includeNumbers, includeSymbols, excludeSimilar, excludeAmbiguous
     });
-  }, [mode, quantity, length, wordCount, capitalizeWords, addNumber, addSymbol, includeUppercase, includeLowercase, includeNumbers, includeSymbols, excludeSimilar, onStateChange]);
+  }, [mode, quantity, length, wordCount, capitalizeWords, addNumber, addSymbol, includeUppercase, includeLowercase, includeNumbers, includeSymbols, excludeSimilar, excludeAmbiguous, onStateChange]);
 
   const copyToClipboard = useCallback((text?: string) => {
     const toCopy = text || passwords[0];
@@ -136,6 +141,7 @@ export function PasswordGenerator({ initialData, onStateChange }: { initialData?
       if (includeNumbers) charsetSize += 10;
       if (includeSymbols) charsetSize += 26;
       if (excludeSimilar) charsetSize -= 7;
+      if (excludeAmbiguous) charsetSize -= 20; // Estimated Ambiguous chars count
       return Math.floor(pwd.length * Math.log2(Math.max(charsetSize, 1)));
     } else {
       const wordListSize = i18n.language === 'en' ? WORDS_EN.length : WORDS_FR.length;
@@ -172,13 +178,19 @@ export function PasswordGenerator({ initialData, onStateChange }: { initialData?
     setTimeout(() => setCopiedHistoryAll(false), 2000);
   };
 
-  const handleDownload = () => {
+  const handleDownload = (format: 'txt' | 'json' = 'txt') => {
     if (passwords.length === 0) return;
-    const blob = new Blob([passwords.join('\n')], { type: 'text/plain' });
+    const content = format === 'json'
+      ? JSON.stringify({ passwords, timestamp: new Date().toISOString() }, null, 2)
+      : passwords.join('\n');
+    const type = format === 'json' ? 'application/json' : 'text/plain';
+    const ext = format === 'json' ? 'json' : 'txt';
+
+    const blob = new Blob([content], { type });
     const url = URL.createObjectURL(blob);
     const link = document.createElement('a');
     link.href = url;
-    link.download = `mots-de-passe-${Date.now()}.txt`;
+    link.download = `mots-de-passe-${Date.now()}.${ext}`;
     link.click();
     URL.revokeObjectURL(url);
   };
@@ -219,15 +231,25 @@ export function PasswordGenerator({ initialData, onStateChange }: { initialData?
         >
           <Copy className="w-3 h-3" /> {t('passwordgenerator.copy_all')}
         </button>
-        <button
-          onClick={handleDownload}
-          disabled={passwords.length === 0}
-          aria-label={t('common.download')}
-          title={t('common.download')}
-          className="text-xs font-bold text-indigo-600 bg-indigo-50 dark:bg-indigo-500/10 hover:bg-indigo-100 dark:hover:bg-indigo-500/20 px-3 py-1.5 rounded-xl flex items-center gap-1 transition-all disabled:opacity-50 disabled:cursor-not-allowed focus-visible:ring-2 focus-visible:ring-indigo-500 focus-visible:outline-none"
-        >
-          <Download className="w-3 h-3" /> {t('common.download')}
-        </button>
+        <div className="flex items-center gap-1 bg-slate-100 dark:bg-slate-800 p-0.5 rounded-xl border border-slate-200 dark:border-slate-700">
+          <div className="px-2 text-slate-400">
+            <Download className="w-3 h-3" />
+          </div>
+          <button
+            onClick={() => handleDownload('txt')}
+            disabled={passwords.length === 0}
+            className="text-[10px] font-black uppercase tracking-widest text-slate-500 hover:text-indigo-600 hover:bg-white dark:hover:bg-slate-700 px-3 py-1.5 rounded-lg transition-all disabled:opacity-50"
+          >
+            TXT
+          </button>
+          <button
+            onClick={() => handleDownload('json')}
+            disabled={passwords.length === 0}
+            className="text-[10px] font-black uppercase tracking-widest text-slate-500 hover:text-indigo-600 hover:bg-white dark:hover:bg-slate-700 px-3 py-1.5 rounded-lg transition-all disabled:opacity-50"
+          >
+            JSON
+          </button>
+        </div>
         <button
           onClick={handleClear}
           disabled={passwords.length === 0}
@@ -462,6 +484,7 @@ export function PasswordGenerator({ initialData, onStateChange }: { initialData?
                 { label: t('passwordgenerator.numbers'), state: includeNumbers, setState: setIncludeNumbers },
                 { label: t('passwordgenerator.symbols'), state: includeSymbols, setState: setIncludeSymbols },
                 { label: t('passwordgenerator.exclude_similar'), state: excludeSimilar, setState: setExcludeSimilar },
+                { label: t('passwordgenerator.exclude_ambiguous'), state: excludeAmbiguous, setState: setExcludeAmbiguous },
               ].map((opt) => (
                 <button
                   key={opt.label}

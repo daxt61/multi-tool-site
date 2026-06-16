@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback } from 'react';
-import { History as HistoryIcon, Trash2, Delete, Calculator as CalcIcon, Copy, Check } from 'lucide-react';
+import { History as HistoryIcon, Trash2, Delete, Calculator as CalcIcon, Copy, Check, Download } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 
 export function Calculator({ initialData, onStateChange }: { initialData?: any; onStateChange?: (state: any) => void }) {
@@ -163,6 +163,10 @@ export function Calculator({ initialData, onStateChange }: { initialData?: any; 
       }
       case 'π': result = Math.PI; break;
       case 'e': result = Math.E; break;
+      case 'G': result = 6.67430e-11; break;
+      case 'c': result = 299792458; break;
+      case 'h': result = 6.62607015e-34; break;
+      case 'Φ': result = 1.618033988749895; break;
       default: return;
     }
 
@@ -217,6 +221,18 @@ export function Calculator({ initialData, onStateChange }: { initialData?: any; 
     setPreviousValue(null);
     setOperation(null);
     setNewNumber(true);
+  };
+
+  const handleDownloadHistory = () => {
+    if (history.length === 0) return;
+    const content = history.map(item => `${item.expression} = ${item.result}`).join('\n');
+    const blob = new Blob([content], { type: 'text/plain' });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    link.href = url;
+    link.download = `calculator-history-${Date.now()}.txt`;
+    link.click();
+    URL.revokeObjectURL(url);
   };
 
   const handleBackspace = () => {
@@ -300,18 +316,18 @@ export function Calculator({ initialData, onStateChange }: { initialData?: any; 
 
   const scientificButtons = [
     ['sin', 'cos', 'tan', 'abs', 'n!'],
-    ['log', 'ln', '√', 'exp', 'π'],
-    ['C', '±', '÷', '×', 'e'],
-    ['7', '8', '9', '-', 'x²'],
-    ['4', '5', '6', '+', 'x^y'],
-    ['1', '2', '3', '.', '←'],
-    ['0', '=']
+    ['log', 'ln', '√', 'exp', 'Φ'],
+    ['G', 'c', 'h', 'π', 'e'],
+    ['C', '±', '÷', '×', 'x²'],
+    ['7', '8', '9', '-', 'x^y'],
+    ['4', '5', '6', '+', '.'],
+    ['1', '2', '3', '0', '←'],
+    ['=']
   ];
 
   const getColSpan = (btn: string, isScientific: boolean) => {
     if (isScientific) {
-      if (btn === '0') return 'col-span-3';
-      if (btn === '=') return 'col-span-2';
+      if (btn === '=') return 'col-span-5';
     } else {
       if (btn === '0') return 'col-span-2';
     }
@@ -445,6 +461,10 @@ export function Calculator({ initialData, onStateChange }: { initialData?: any; 
                     if (label === '×') return t('calculator.btn.multiply');
                     if (label === '÷') return t('calculator.btn.divide');
                     if (label === '.') return t('calculator.btn.decimal');
+                    if (label === 'Φ') return t('calculator.btn.phi');
+                    if (label === 'G') return t('calculator.btn.g');
+                    if (label === 'c') return t('calculator.btn.speed_light');
+                    if (label === 'h') return t('calculator.btn.planck');
                     return label;
                   };
 
@@ -458,7 +478,7 @@ export function Calculator({ initialData, onStateChange }: { initialData?: any; 
                       else if (btn === '±') handleToggleSign();
                       else if (btn === '=') handleEquals();
                       else if (['+', '-', '×', '÷', 'x^y'].includes(btn)) handleOperation(btn);
-                      else if (['sin', 'cos', 'tan', 'log', 'ln', '√', 'x²', 'π', 'e', 'exp', 'abs', 'n!'].includes(btn)) handleScientificAction(btn);
+                      else if (['sin', 'cos', 'tan', 'log', 'ln', '√', 'x²', 'π', 'e', 'G', 'c', 'h', 'Φ', 'exp', 'abs', 'n!'].includes(btn)) handleScientificAction(btn);
                       else if (btn === '.') handleDecimal();
                       else handleNumber(btn);
                     }}
@@ -490,15 +510,27 @@ export function Calculator({ initialData, onStateChange }: { initialData?: any; 
             <h3 className="text-sm font-black uppercase tracking-widest text-slate-400 flex items-center gap-2">
               <HistoryIcon className="w-4 h-4" /> {t('calculator.history')}
             </h3>
-            {history.length > 0 && (
-              <button
-                onClick={clearHistory}
-                className="text-rose-500 bg-rose-50 dark:bg-rose-500/10 hover:bg-rose-100 dark:hover:bg-rose-500/20 p-1.5 rounded-lg transition-all"
-                aria-label={t('calculator.clear_history')}
-              >
-                <Trash2 className="w-4 h-4" />
-              </button>
-            )}
+            <div className="flex gap-2">
+              {history.length > 0 && (
+                <button
+                  onClick={handleDownloadHistory}
+                  className="text-indigo-500 bg-indigo-50 dark:bg-indigo-500/10 hover:bg-indigo-100 dark:hover:bg-indigo-500/20 p-1.5 rounded-lg transition-all"
+                  aria-label={t('common.download')}
+                  title={t('common.download')}
+                >
+                  <Download className="w-4 h-4" />
+                </button>
+              )}
+              {history.length > 0 && (
+                <button
+                  onClick={clearHistory}
+                  className="text-rose-500 bg-rose-50 dark:bg-rose-500/10 hover:bg-rose-100 dark:hover:bg-rose-500/20 p-1.5 rounded-lg transition-all"
+                  aria-label={t('calculator.clear_history')}
+                >
+                  <Trash2 className="w-4 h-4" />
+                </button>
+              )}
+            </div>
           </div>
 
           <div className="space-y-4">

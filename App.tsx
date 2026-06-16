@@ -124,6 +124,8 @@ import {
   FolderTree,
   MonitorPlay,
   Mic,
+  Beaker,
+  PenTool,
 } from "lucide-react";
 const AdPlaceholder = lazy(() => import("./components/AdPlaceholder").then(m => ({ default: m.AdPlaceholder })));
 
@@ -414,6 +416,8 @@ const MazeGenerator = lazy(() => import("./components/MazeGenerator").then(m => 
 const BinaryBitShuffler = lazy(() => import("./components/BinaryBitShuffler").then(m => ({ default: m.BinaryBitShuffler })));
 const ASCIITableToJson = lazy(() => import("./components/ASCIITableToJson").then(m => ({ default: m.ASCIITableToJson })));
 const WatermarkGenerator = lazy(() => import("./components/WatermarkGenerator").then(m => ({ default: m.WatermarkGenerator })));
+const PeriodicTable = lazy(() => import("./components/PeriodicTable").then(m => ({ default: m.PeriodicTable })));
+const TextToHandwriting = lazy(() => import("./components/TextToHandwriting").then(m => ({ default: m.TextToHandwriting })));
 
 // ⚡ Bolt Optimization: Pre-calculating tool map and search index for O(1) lookups and faster filtering
 const toolsMap: Record<string, Tool> = {};
@@ -3440,6 +3444,28 @@ const tools: Tool[] = [
     Component: WatermarkGenerator,
     category: "other",
     keywords: ["watermark", "image", "overlay", "copyright", "protection", "filigrane"],
+  },
+  {
+    id: "periodic-table",
+    name: "Tableau Périodique",
+    nameEn: "Periodic Table",
+    icon: Beaker,
+    description: "Exploration interactive des éléments chimiques",
+    descriptionEn: "Interactive exploration of chemical elements",
+    Component: PeriodicTable,
+    category: "other",
+    keywords: ["chemistry", "science", "elements", "atom", "mendeleiev", "chimie"],
+  },
+  {
+    id: "text-to-handwriting",
+    name: "Texte en Écriture",
+    nameEn: "Text to Handwriting",
+    icon: PenTool,
+    description: "Convertir du texte en simulation d'écriture manuscrite",
+    descriptionEn: "Convert text into handwriting simulation",
+    Component: TextToHandwriting,
+    category: "text",
+    keywords: ["handwriting", "canvas", "font", "manuscrit", "écriture", "lettre"],
   },
 ];
 

@@ -1,9 +1,10 @@
-import { useState, useMemo, useEffect } from 'react';
+import { useState, useMemo, useEffect, useCallback, useRef } from 'react';
 import { Link as LinkIcon, Copy, Check, Info, Settings, Trash2 } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 
 export function SlugGenerator({ initialData, onStateChange }: { initialData?: any; onStateChange?: (state: any) => void }) {
   const { t } = useTranslation();
+  const inputRef = useRef<HTMLTextAreaElement>(null);
   const [text, setText] = useState(initialData?.text || '');
   const [lowercase, setLowercase] = useState(initialData?.lowercase ?? true);
   const [removeAccents, setRemoveAccents] = useState(initialData?.removeAccents ?? true);
@@ -11,7 +12,7 @@ export function SlugGenerator({ initialData, onStateChange }: { initialData?: an
 
   useEffect(() => {
     onStateChange?.({ text, lowercase, removeAccents });
-  }, [text, lowercase, removeAccents]);
+  }, [text, lowercase, removeAccents, onStateChange]);
 
   const slug = useMemo(() => {
     if (!text) return '';
@@ -35,17 +36,57 @@ export function SlugGenerator({ initialData, onStateChange }: { initialData?: an
     return result;
   }, [text, lowercase, removeAccents]);
 
-  const handleCopy = () => {
+  const handleCopy = useCallback(() => {
     if (!slug) return;
     navigator.clipboard.writeText(slug);
     setCopied(true);
     setTimeout(() => setCopied(false), 2000);
-  };
+  }, [slug]);
 
-  const handleClear = () => {
+  const handleClear = useCallback(() => {
     setText('');
     setCopied(false);
-  };
+    inputRef.current?.focus();
+  }, []);
+
+  const handleCopyRef = useRef(handleCopy);
+  const handleClearRef = useRef(handleClear);
+
+  useEffect(() => {
+    handleCopyRef.current = handleCopy;
+    handleClearRef.current = handleClear;
+  }, [handleCopy, handleClear]);
+
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      const activeElement = document.activeElement;
+      const isInputFocused =
+        activeElement instanceof HTMLInputElement ||
+        activeElement instanceof HTMLTextAreaElement ||
+        activeElement instanceof HTMLSelectElement ||
+        activeElement?.getAttribute("contenteditable") === "true";
+
+      if (isInputFocused && e.key === "Escape") {
+        e.preventDefault();
+        handleClearRef.current();
+        return;
+      }
+
+      if (isInputFocused) return;
+      if (e.metaKey || e.ctrlKey || e.altKey || e.shiftKey) return;
+
+      if (e.key === "Escape") {
+        e.preventDefault();
+        handleClearRef.current();
+      } else if (e.key.toLowerCase() === "c") {
+        e.preventDefault();
+        handleCopyRef.current();
+      }
+    };
+
+    window.addEventListener("keydown", handleKeyDown);
+    return () => window.removeEventListener("keydown", handleKeyDown);
+  }, []);
 
   return (
     <div className="max-w-4xl mx-auto space-y-8">
@@ -54,7 +95,11 @@ export function SlugGenerator({ initialData, onStateChange }: { initialData?: an
         <div className="flex flex-col md:flex-row items-center gap-8 relative z-10">
           <div className="flex-1 w-full text-center md:text-left">
             <div className="text-xs font-black uppercase tracking-widest text-white/30 mb-4 px-1">{t('slug.result_label')}</div>
-            <div className={`text-2xl md:text-4xl font-mono text-white outline-none tracking-tight break-all selection:bg-indigo-500/30 ${!slug ? 'opacity-20 italic' : 'opacity-100'}`}>
+            <div
+              className={`text-2xl md:text-4xl font-mono text-white outline-none tracking-tight break-all selection:bg-indigo-500/30 ${!slug ? 'opacity-20 italic' : 'opacity-100'}`}
+              aria-live="polite"
+              aria-atomic="true"
+            >
               {slug || t('slug.placeholder')}
             </div>
           </div>
@@ -62,12 +107,16 @@ export function SlugGenerator({ initialData, onStateChange }: { initialData?: an
             <button
               onClick={handleCopy}
               disabled={!slug}
-              className={`px-8 py-4 rounded-2xl transition-all active:scale-95 flex items-center gap-2 font-black text-lg disabled:opacity-50 disabled:scale-100 focus-visible:ring-2 focus-visible:ring-indigo-500 focus-visible:outline-none ${
+              title={`${t('common.copy')} (C)`}
+              className={`px-8 py-4 rounded-2xl transition-all active:scale-95 flex items-center gap-2 font-black text-lg disabled:opacity-50 disabled:scale-100 focus-visible:ring-2 focus-visible:ring-indigo-500 focus-visible:outline-none group ${
                 copied ? 'bg-emerald-50 dark:bg-emerald-500/10 text-emerald-600 dark:text-emerald-400' : 'bg-white text-slate-900 hover:bg-slate-100'
               }`}
             >
               {copied ? <Check className="w-6 h-6" /> : <Copy className="w-6 h-6" />}
-              {copied ? t('common.copied') : t('common.copy')}
+              <span>{copied ? t('common.copied') : t('common.copy')}</span>
+              {!copied && (
+                <kbd className="hidden sm:inline-flex items-center justify-center w-6 h-6 border rounded text-xs font-bold ml-1 transition-all bg-black/5 border-black/10 text-slate-400 group-hover:bg-black/10 dark:bg-white/5 dark:border-white/10 dark:text-slate-500 dark:group-hover:bg-white/10">C</kbd>
+              )}
             </button>
           </div>
         </div>
@@ -81,17 +130,27 @@ export function SlugGenerator({ initialData, onStateChange }: { initialData?: an
               <LinkIcon className="w-4 h-4 text-indigo-500" />
               <h3 className="text-xs font-black uppercase tracking-widest text-slate-400">{t('slug.source_label')}</h3>
             </div>
-            <button
-              onClick={handleClear}
-              disabled={!text}
-              className="text-xs font-bold text-rose-500 bg-rose-50 dark:bg-rose-500/10 hover:bg-rose-100 dark:hover:bg-rose-500/20 px-3 py-1.5 rounded-xl flex items-center gap-1 transition-all disabled:opacity-50 disabled:cursor-not-allowed focus-visible:ring-2 focus-visible:ring-rose-500 focus-visible:outline-none"
-            >
-              <Trash2 className="w-3 h-3" /> {t('common.clear')}
-            </button>
+            <div className="flex items-center gap-2">
+              <kbd className="hidden sm:inline-flex items-center justify-center px-1.5 py-0.5 border border-rose-200 dark:border-rose-800 rounded text-[10px] font-bold text-rose-400 bg-white dark:bg-slate-900">Esc</kbd>
+              <button
+                onClick={handleClear}
+                disabled={!text}
+                className="text-xs font-bold text-rose-500 bg-rose-50 dark:bg-rose-500/10 hover:bg-rose-100 dark:hover:bg-rose-500/20 px-3 py-1.5 rounded-xl flex items-center gap-1 transition-all disabled:opacity-50 disabled:cursor-not-allowed focus-visible:ring-2 focus-visible:ring-rose-500 focus-visible:outline-none"
+              >
+                <Trash2 className="w-3 h-3" /> {t('common.clear')}
+              </button>
+            </div>
           </div>
           <textarea
+            ref={inputRef}
             value={text}
             onChange={(e) => setText(e.target.value)}
+            onKeyDown={(e) => {
+              if (e.key === 'Escape') {
+                e.preventDefault();
+                handleClear();
+              }
+            }}
             className="w-full h-48 p-6 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-3xl outline-none focus:ring-2 focus:ring-indigo-500/20 transition-all resize-none font-medium dark:text-slate-300"
             placeholder={t('slug.input_placeholder')}
           />

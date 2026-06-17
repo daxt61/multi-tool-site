@@ -376,6 +376,10 @@ const IntegerPairGenerator = lazy(() => import("./components/IntegerPairGenerato
 const BinaryReverser = lazy(() => import("./components/BinaryReverser").then(m => ({ default: m.BinaryReverser })));
 const RegexCodeGenerator = lazy(() => import("./components/RegexCodeGenerator").then(m => ({ default: m.RegexCodeGenerator })));
 const LetterShuffler = lazy(() => import("./components/LetterShuffler").then(m => ({ default: m.LetterShuffler })));
+const LevenshteinDistance = lazy(() => import("./components/LevenshteinDistance").then(m => ({ default: m.LevenshteinDistance })));
+const TextGrep = lazy(() => import("./components/TextGrep").then(m => ({ default: m.TextGrep })));
+const PunycodeConverter = lazy(() => import("./components/PunycodeConverter").then(m => ({ default: m.PunycodeConverter })));
+const PlayfairCipher = lazy(() => import("./components/PlayfairCipher").then(m => ({ default: m.PlayfairCipher })));
 const DateSorter = lazy(() => import("./components/DateSorter").then(m => ({ default: m.DateSorter })));
 const RandomMatrixGenerator = lazy(() => import("./components/RandomMatrixGenerator").then(m => ({ default: m.RandomMatrixGenerator })));
 const HTTPHeaderParser = lazy(() => import("./components/HTTPHeaderParser").then(m => ({ default: m.HTTPHeaderParser })));
@@ -3467,6 +3471,50 @@ const tools: Tool[] = [
     Component: TextToHandwriting,
     category: "text",
     keywords: ["handwriting", "canvas", "font", "manuscrit", "écriture", "lettre"],
+  },
+  {
+    id: "levenshtein-distance",
+    name: "Distance de Levenshtein",
+    nameEn: "Levenshtein Distance",
+    icon: Activity,
+    description: "Calculer la similarité et la distance d'édition entre deux textes",
+    descriptionEn: "Calculate similarity and edit distance between two strings",
+    Component: LevenshteinDistance,
+    category: "text",
+    keywords: ["distance", "similarity", "levenshtein", "edit", "comparison", "text"],
+  },
+  {
+    id: "text-grep",
+    name: "Text Grep",
+    nameEn: "Text Grep",
+    icon: Search,
+    description: "Filtrer les lignes de texte par motif ou RegEx",
+    descriptionEn: "Filter text lines by pattern or Regular Expression",
+    Component: TextGrep,
+    category: "text",
+    keywords: ["grep", "filter", "search", "regex", "lines", "extract"],
+  },
+  {
+    id: "punycode-converter",
+    name: "Convertisseur Punycode",
+    nameEn: "Punycode Converter",
+    icon: Globe,
+    description: "Convertir entre noms de domaine Unicode (IDN) et Punycode",
+    descriptionEn: "Convert between Unicode domain names (IDN) and Punycode",
+    Component: PunycodeConverter,
+    category: "dev",
+    keywords: ["punycode", "idn", "domain", "unicode", "ascii", "dns"],
+  },
+  {
+    id: "playfair-cipher",
+    name: "Chiffre Playfair",
+    nameEn: "Playfair Cipher",
+    icon: Shield,
+    description: "Chiffrer et déchiffrer du texte avec le chiffre Playfair",
+    descriptionEn: "Encrypt and decrypt text using the Playfair cipher",
+    Component: PlayfairCipher,
+    category: "text",
+    keywords: ["playfair", "cipher", "encryption", "classic", "cryptography", "matrix"],
   },
 ];
 

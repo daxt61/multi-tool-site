@@ -28,7 +28,15 @@ export function SQLToJSON({ initialData, onStateChange }: { initialData?: any; o
       let match;
 
       while ((match = insertRegex.exec(input)) !== null) {
-        const columns = match[2].split(',').map(c => c.trim().replace(/[`"\[\]]/g, ''));
+        const columns = match[2].split(',').map(c => {
+          const name = c.trim().replace(/[`"\[\]]/g, '');
+          const lower = name.toLowerCase();
+          // Sentinel: Sanitize dangerous keys to prevent Prototype Pollution
+          if (lower === '__proto__' || lower === 'constructor' || lower === 'prototype') {
+            return `_${name}`;
+          }
+          return name;
+        });
         const valuesSection = match[3].trim();
 
         const rows: string[] = [];
@@ -92,7 +100,8 @@ export function SQLToJSON({ initialData, onStateChange }: { initialData?: any; o
             }
             rowValues.push(rawVals.substring(valStart).trim());
 
-            const obj: any = {};
+            // Sentinel: Use Object.create(null) to prevent Prototype Pollution
+            const obj: any = Object.create(null);
             columns.forEach((col, idx) => {
               let val = rowValues[idx];
               if (val === undefined) return;

@@ -146,3 +146,8 @@
 **Vulnerability:** The RegexCodeGenerator component was vulnerable to snippet injection by directly interpolating user-provided patterns into regex literals (e.g., `/${pat}/`) or double-quoted strings. Malicious inputs could break out of these delimiters to execute arbitrary logic in the environment where the snippet was run.
 **Learning:** Tools that generate code snippets must treat all user-controlled data as potentially malicious "payloads." Relying on regex literals or double-quoted strings is risky due to language-specific interpolation (like PHP's `$var` or Ruby's `#{}`) and breakout characters (like `/` in JS regex).
 **Prevention:** Use safe constructors (e.g., `new RegExp(pattern, flags)` in JS) and ensure all injected data is wrapped in language-appropriate safe string literals (e.g., `JSON.stringify()` for JS/Python, or single-quoted literals with escaped backslashes and quotes for PHP/Ruby).
+
+## 2025-08-05 - [Prototype Pollution in SQL-to-JSON Converter]
+**Vulnerability:** The SQLToJSON component was vulnerable to Prototype Pollution by using user-provided SQL column names (e.g., `__proto__`) as keys for plain objects.
+**Learning:** Tools that parse structured data into JavaScript objects must treat all keys as untrusted. Mapping SQL column names directly to object properties without sanitization allows for prototype chain manipulation.
+**Prevention:** Always use `Object.create(null)` for objects that will store arbitrary user-controlled keys, and explicitly sanitize dangerous keys (`__proto__`, `constructor`, `prototype`) by prefixing them.

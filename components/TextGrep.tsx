@@ -1,11 +1,12 @@
-import React, { useState, useMemo, useEffect } from 'react';
+import React, { useState, useMemo, useEffect, useCallback, useRef } from 'react';
 import { useTranslation } from 'react-i18next';
-import { Search, Copy, Check, Trash2, Info, Filter, CaseSensitive, Ban, Download } from 'lucide-react';
+import { Search, Copy, Check, Trash2, Info, Filter, CaseSensitive, Ban, Download, RotateCcw } from 'lucide-react';
 
 const MAX_LENGTH = 100000;
 
 export function TextGrep({ initialData, onStateChange }: { initialData?: any; onStateChange?: (state: any) => void }) {
   const { t } = useTranslation();
+  const patternInputRef = useRef<HTMLInputElement>(null);
   const [text, setText] = useState(initialData?.text || '');
   const [pattern, setPattern] = useState(initialData?.pattern || '');
   const [caseSensitive, setCaseSensitive] = useState(initialData?.caseSensitive ?? false);
@@ -45,14 +46,14 @@ export function TextGrep({ initialData, onStateChange }: { initialData?: any; on
     }
   }, [text, pattern, caseSensitive, invertMatch, useRegex, t]);
 
-  const handleCopy = () => {
+  const handleCopy = useCallback(() => {
     if (filteredLines.length === 0) return;
     navigator.clipboard.writeText(filteredLines.join('\n'));
     setCopied(true);
     setTimeout(() => setCopied(false), 2000);
-  };
+  }, [filteredLines]);
 
-  const handleDownload = () => {
+  const handleDownload = useCallback(() => {
     if (filteredLines.length === 0) return;
     const blob = new Blob([filteredLines.join('\n')], { type: 'text/plain' });
     const url = URL.createObjectURL(blob);
@@ -61,12 +62,50 @@ export function TextGrep({ initialData, onStateChange }: { initialData?: any; on
     link.download = `grep-results-${Date.now()}.txt`;
     link.click();
     URL.revokeObjectURL(url);
-  };
+  }, [filteredLines]);
 
-  const handleClear = () => {
+  const handleClear = useCallback(() => {
     setText('');
     setPattern('');
-  };
+    patternInputRef.current?.focus();
+  }, []);
+
+  const handlersRef = useRef({ handleClear, handleCopy, handleDownload });
+  useEffect(() => {
+    handlersRef.current = { handleClear, handleCopy, handleDownload };
+  }, [handleClear, handleCopy, handleDownload]);
+
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      const activeElement = document.activeElement;
+      const isEditable =
+        activeElement instanceof HTMLInputElement ||
+        activeElement instanceof HTMLTextAreaElement ||
+        activeElement?.getAttribute('contenteditable') === 'true';
+
+      if (isEditable && e.key === 'Escape') {
+        handlersRef.current.handleClear();
+        return;
+      }
+
+      if (isEditable) return;
+      if (e.metaKey || e.ctrlKey || e.altKey || e.shiftKey) return;
+
+      if (e.key === 'Escape') {
+        e.preventDefault();
+        handlersRef.current.handleClear();
+      } else if (e.key.toLowerCase() === 'c') {
+        e.preventDefault();
+        handlersRef.current.handleCopy();
+      } else if (e.key.toLowerCase() === 'd') {
+        e.preventDefault();
+        handlersRef.current.handleDownload();
+      }
+    };
+
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, []);
 
   return (
     <div className="max-w-6xl mx-auto space-y-8">
@@ -82,6 +121,7 @@ export function TextGrep({ initialData, onStateChange }: { initialData?: any; on
             </div>
             <div className="relative">
               <input
+                ref={patternInputRef}
                 type="text"
                 value={pattern}
                 onChange={(e) => setPattern(e.target.value)}
@@ -135,12 +175,16 @@ export function TextGrep({ initialData, onStateChange }: { initialData?: any; on
                 <label className="text-xs font-black uppercase tracking-widest text-slate-400">
                   {t('grep.input_text', 'Input Text')}
                 </label>
-                <button
-                  onClick={handleClear}
-                  className="text-xs font-bold text-rose-500 hover:bg-rose-50 dark:hover:bg-rose-500/10 px-2 py-1 rounded-lg"
-                >
-                  {t('common.clear')}
-                </button>
+                <div className="flex items-center gap-2">
+                  <kbd className="hidden md:inline-flex items-center justify-center w-6 h-6 border rounded text-xs font-bold ml-1 transition-all bg-black/10 border-white/20 text-white/70 group-hover:bg-black/20 dark:bg-slate-100 dark:border-slate-200 dark:text-slate-400">Esc</kbd>
+                  <button
+                    onClick={handleClear}
+                    aria-label={t('grep.clear_aria')}
+                    className="text-xs font-bold text-rose-500 bg-rose-50 dark:bg-rose-500/10 hover:bg-rose-100 dark:hover:bg-rose-500/20 px-3 py-1.5 rounded-xl flex items-center gap-2 transition-all"
+                  >
+                    <RotateCcw className="w-4 h-4" /> <span className="hidden sm:inline">{t('common.clear')}</span>
+                  </button>
+                </div>
               </div>
               <textarea
                 value={text}
@@ -156,28 +200,39 @@ export function TextGrep({ initialData, onStateChange }: { initialData?: any; on
                   <label className="text-xs font-black uppercase tracking-widest text-slate-400">
                     {t('grep.matching_lines', 'Matching Lines')}
                   </label>
-                  <span className="px-2 py-0.5 bg-indigo-100 dark:bg-indigo-900/30 text-indigo-600 dark:text-indigo-400 text-[10px] font-black rounded-md">
+                  <span
+                    className="px-2 py-0.5 bg-indigo-100 dark:bg-indigo-900/30 text-indigo-600 dark:text-indigo-400 text-[10px] font-black rounded-md"
+                    aria-live="polite"
+                    aria-atomic="true"
+                  >
                     {filteredLines.length}
                   </span>
                 </div>
-                <div className="flex gap-2">
+                <div className="flex gap-2 items-center">
                   <button
                     onClick={handleDownload}
                     disabled={filteredLines.length === 0}
-                    className="p-1.5 text-slate-400 hover:text-indigo-500 transition-colors disabled:opacity-50"
+                    aria-label={t('grep.download_aria')}
+                    className="p-1.5 text-slate-400 hover:text-indigo-500 transition-colors disabled:opacity-50 group flex items-center gap-1"
                   >
                     <Download className="w-4 h-4" />
+                    <kbd className="hidden md:inline-flex items-center justify-center w-5 h-5 border rounded text-[10px] font-bold transition-all bg-black/5 border-black/10 text-slate-400 group-hover:bg-black/10 dark:bg-white/5 dark:border-white/10 dark:text-slate-500 dark:group-hover:bg-white/10">D</kbd>
                   </button>
                   <button
                     onClick={handleCopy}
                     disabled={filteredLines.length === 0}
-                    className={`p-1.5 rounded-lg transition-colors ${copied ? 'text-emerald-500' : 'text-slate-400 hover:text-indigo-500'} disabled:opacity-50`}
+                    aria-label={t('grep.copy_aria')}
+                    className={`p-1.5 rounded-lg transition-colors ${copied ? 'text-emerald-500' : 'text-slate-400 hover:text-indigo-500'} disabled:opacity-50 group flex items-center gap-1`}
                   >
                     {copied ? <Check className="w-4 h-4" /> : <Copy className="w-4 h-4" />}
+                    {!copied && <kbd className="hidden md:inline-flex items-center justify-center w-5 h-5 border rounded text-[10px] font-bold transition-all bg-black/5 border-black/10 text-slate-400 group-hover:bg-black/10 dark:bg-white/5 dark:border-white/10 dark:text-slate-500 dark:group-hover:bg-white/10">C</kbd>}
                   </button>
                 </div>
               </div>
-              <div className="w-full h-96 p-6 bg-slate-900 text-indigo-100 border border-slate-800 rounded-3xl overflow-auto font-mono text-sm leading-relaxed">
+              <div
+                className="w-full h-96 p-6 bg-slate-900 text-indigo-100 border border-slate-800 rounded-3xl overflow-auto font-mono text-sm leading-relaxed"
+                aria-live="polite"
+              >
                 {filteredLines.length > 0 ? (
                   filteredLines.map((line: string, i: number) => (
                     <div key={i} className="whitespace-pre group">

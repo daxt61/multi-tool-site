@@ -160,16 +160,16 @@ export function WatermarkGenerator({ initialData, onStateChange }: { initialData
     draw();
   }, [draw]);
 
-  const handleDownload = () => {
+  const handleDownload = useCallback(() => {
     const canvas = canvasRef.current;
-    if (!canvas) return;
+    if (!canvas || !mainImage) return;
     const link = document.createElement('a');
     link.download = 'watermarked-image.png';
     link.href = canvas.toDataURL('image/png');
     link.click();
-  };
+  }, [mainImage]);
 
-  const resetSettings = () => {
+  const resetSettings = useCallback(() => {
     setSettings({
       type: 'text',
       text: 'WATERMARK',
@@ -182,7 +182,37 @@ export function WatermarkGenerator({ initialData, onStateChange }: { initialData
       color: '#ffffff',
       size: 40,
     });
-  };
+  }, []);
+
+  const handlersRef = useRef({ handleDownload, resetSettings });
+  useEffect(() => {
+    handlersRef.current = { handleDownload, resetSettings };
+  }, [handleDownload, resetSettings]);
+
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      const isEditable =
+        document.activeElement?.tagName === "INPUT" ||
+        document.activeElement?.tagName === "TEXTAREA" ||
+        document.activeElement?.tagName === "SELECT" ||
+        document.activeElement?.getAttribute('contenteditable') === 'true';
+
+      if (isEditable && e.key !== "Escape") return;
+
+      if (e.metaKey || e.ctrlKey || e.altKey || e.shiftKey) return;
+
+      if (e.key === "Escape") {
+        e.preventDefault();
+        handlersRef.current.resetSettings();
+      } else if (e.key.toLowerCase() === "d") {
+        e.preventDefault();
+        handlersRef.current.handleDownload();
+      }
+    };
+
+    window.addEventListener("keydown", handleKeyDown);
+    return () => window.removeEventListener("keydown", handleKeyDown);
+  }, []);
 
   return (
     <div className="max-w-6xl mx-auto space-y-8">
@@ -406,16 +436,22 @@ export function WatermarkGenerator({ initialData, onStateChange }: { initialData
           <div className="flex gap-4">
              <button
                 onClick={resetSettings}
-                className="px-6 py-4 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 text-slate-600 dark:text-slate-400 rounded-2xl font-black flex items-center gap-2 hover:bg-slate-50 dark:hover:bg-slate-800 transition-all active:scale-95"
+                className="group px-6 py-4 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 text-slate-600 dark:text-slate-400 rounded-2xl font-black flex items-center gap-2 hover:bg-slate-50 dark:hover:bg-slate-800 transition-all active:scale-95 focus-visible:ring-2 focus-visible:ring-indigo-500 focus-visible:outline-none"
+                title={`${t('common.reset')} (Esc)`}
              >
-                <RotateCcw className="w-5 h-5" /> {t('common.reset')}
+                <RotateCcw className="w-5 h-5" />
+                <span className="hidden sm:inline">{t('common.reset')}</span>
+                <kbd className="hidden md:inline-flex items-center justify-center px-1.5 py-0.5 border border-slate-200 dark:border-slate-700 rounded text-[10px] font-bold bg-white dark:bg-slate-800 ml-1">Esc</kbd>
              </button>
              <button
                 onClick={handleDownload}
                 disabled={!mainImage}
-                className="flex-1 px-6 py-4 bg-indigo-600 text-white rounded-2xl font-black text-lg shadow-lg shadow-indigo-600/20 hover:bg-indigo-700 transition-all active:scale-95 disabled:opacity-50 disabled:grayscale flex items-center justify-center gap-2"
+                className="group flex-1 px-6 py-4 bg-indigo-600 text-white rounded-2xl font-black text-lg shadow-lg shadow-indigo-600/20 hover:bg-indigo-700 transition-all active:scale-95 disabled:opacity-50 disabled:grayscale flex items-center justify-center gap-2 focus-visible:ring-2 focus-visible:ring-indigo-500 focus-visible:outline-none"
+                title={`${t('watermark.download')} (D)`}
              >
-                <Download className="w-6 h-6" /> {t('watermark.download')}
+                <Download className="w-6 h-6" />
+                <span>{t('watermark.download')}</span>
+                <kbd className="hidden md:inline-flex items-center justify-center w-6 h-6 border border-white/20 rounded text-xs font-bold ml-2 bg-white/10">D</kbd>
              </button>
           </div>
         </div>

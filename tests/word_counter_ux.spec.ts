@@ -1,7 +1,7 @@
 import { test, expect } from '@playwright/test';
 
-test('Word Counter UX improvements', async ({ page }) => {
-  await page.goto('/fr/outil/word-counter');
+test('Word Counter UX improvements', async ({ page, baseURL }) => {
+  await page.goto(`${baseURL || 'http://localhost:5173'}/fr/outil/word-counter`);
 
   const textarea = page.locator('#word-counter-input');
 

@@ -1,5 +1,5 @@
 import { useState, useMemo, useDeferredValue, useEffect, useCallback, useRef } from 'react';
-import { Copy, Check, Trash2, Hash, Type, FileText, AlignLeft, Clock, MessageSquare, BarChart3, Info, Star, AlertCircle, Download, Pilcrow, RotateCcw } from 'lucide-react';
+import { Copy, Check, Trash2, Hash, Type, FileText, AlignLeft, Clock, MessageSquare, BarChart3, Info, Star, AlertCircle, Download, Pilcrow, RotateCcw, Twitter, Linkedin, Instagram } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 
 const MAX_LENGTH = 100000;
@@ -9,6 +9,12 @@ export function WordCounter({ initialData, onStateChange }: { initialData?: any;
   const { t } = useTranslation();
   const [text, setText] = useState(initialData?.text || '');
   const [copied, setCopied] = useState(false);
+
+  const PLATFORM_LIMITS = useMemo(() => [
+    { id: 'twitter', name: 'X (Twitter)', limit: 280, icon: <Twitter className="w-3 h-3" /> },
+    { id: 'linkedin', name: 'LinkedIn', limit: 3000, icon: <Linkedin className="w-3 h-3" /> },
+    { id: 'instagram', name: 'Instagram Bio', limit: 150, icon: <Instagram className="w-3 h-3" /> },
+  ], []);
   const [copiedStats, setCopiedStats] = useState(false);
   const [copiedCharFreq, setCopiedCharFreq] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -372,34 +378,77 @@ export function WordCounter({ initialData, onStateChange }: { initialData?: any;
         />
       </div>
 
-      <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-8 gap-4">
-        {[
-          { icon: <Hash className="w-4 h-4" />, label: t('wordcounter.stat.characters'), value: stats.characters },
-          { icon: <Hash className="w-4 h-4" />, label: t('wordcounter.stat.characters_no_spaces'), value: stats.charactersNoSpaces },
-          { icon: <Type className="w-4 h-4" />, label: t('wordcounter.stat.words'), value: stats.words },
-          { icon: <FileText className="w-4 h-4" />, label: t('wordcounter.stat.lines'), value: stats.lines },
-          { icon: <Pilcrow className="w-4 h-4" />, label: t('wordcounter.stat.paragraphs'), value: stats.paragraphs },
-          { icon: <AlignLeft className="w-4 h-4" />, label: t('wordcounter.stat.sentences'), value: stats.sentences },
-          { icon: <Star className="w-4 h-4" />, label: t('wordcounter.stat.cli'), value: stats.cli },
-          { icon: <Star className="w-4 h-4" />, label: t('wordcounter.stat.fog'), value: stats.fog },
-          { icon: <Type className="w-4 h-4" />, label: t('wordcounter.stat.avg_word_length'), value: stats.avgWordLength },
-          { icon: <Type className="w-4 h-4" />, label: t('wordcounter.stat.longest_word'), value: stats.longestWord },
-          { icon: <Clock className="w-4 h-4" />, label: t('wordcounter.stat.reading'), value: formatTime(stats.readingTime) },
-          { icon: <MessageSquare className="w-4 h-4" />, label: t('wordcounter.stat.speaking'), value: formatTime(stats.speakingTime) },
-          { icon: <FileText className="w-4 h-4" />, label: t('wordcounter.stat.writing'), value: formatTime(stats.writingTime) },
-        ].map((stat) => (
-          <div key={stat.label} className="p-6 bg-white dark:bg-slate-900 border border-slate-100 dark:border-slate-800 rounded-2xl space-y-2">
-            <div className="text-indigo-500 dark:text-indigo-400">{stat.icon}</div>
-            <div
-              className="text-2xl font-black font-mono tracking-tight dark:text-white"
-              aria-live="polite"
-              aria-atomic="true"
-            >
-              {stat.value}
-            </div>
-            <div className="text-xs font-bold text-slate-400 uppercase tracking-wider">{stat.label}</div>
+      <div className="grid grid-cols-1 lg:grid-cols-4 gap-8">
+        <div className="lg:col-span-3 space-y-6">
+          <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-4">
+            {[
+              { icon: <Hash className="w-4 h-4" />, label: t('wordcounter.stat.characters'), value: stats.characters },
+              { icon: <Hash className="w-4 h-4" />, label: t('wordcounter.stat.characters_no_spaces'), value: stats.charactersNoSpaces },
+              { icon: <Type className="w-4 h-4" />, label: t('wordcounter.stat.words'), value: stats.words },
+              { icon: <FileText className="w-4 h-4" />, label: t('wordcounter.stat.lines'), value: stats.lines },
+              { icon: <Pilcrow className="w-4 h-4" />, label: t('wordcounter.stat.paragraphs'), value: stats.paragraphs },
+              { icon: <AlignLeft className="w-4 h-4" />, label: t('wordcounter.stat.sentences'), value: stats.sentences },
+            ].map((stat) => (
+              <div key={stat.label} className="p-4 bg-white dark:bg-slate-900 border border-slate-100 dark:border-slate-800 rounded-2xl space-y-2">
+                <div className="text-indigo-500 dark:text-indigo-400">{stat.icon}</div>
+                <div className="text-xl font-black font-mono tracking-tight dark:text-white" aria-live="polite" aria-atomic="true">
+                  {stat.value}
+                </div>
+                <div className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">{stat.label}</div>
+              </div>
+            ))}
           </div>
-        ))}
+
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+            {[
+              { icon: <Star className="w-4 h-4" />, label: t('wordcounter.stat.cli'), value: stats.cli },
+              { icon: <Star className="w-4 h-4" />, label: t('wordcounter.stat.fog'), value: stats.fog },
+              { icon: <Type className="w-4 h-4" />, label: t('wordcounter.stat.avg_word_length'), value: stats.avgWordLength },
+              { icon: <Type className="w-4 h-4" />, label: t('wordcounter.stat.longest_word'), value: stats.longestWord },
+            ].map((stat) => (
+              <div key={stat.label} className="p-4 bg-white dark:bg-slate-900 border border-slate-100 dark:border-slate-800 rounded-2xl space-y-2">
+                <div className="text-indigo-500 dark:text-indigo-400">{stat.icon}</div>
+                <div className="text-xl font-black font-mono tracking-tight dark:text-white" aria-live="polite" aria-atomic="true">
+                  {stat.value}
+                </div>
+                <div className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">{stat.label}</div>
+              </div>
+            ))}
+          </div>
+        </div>
+
+        <div className="bg-slate-50 dark:bg-slate-900/50 p-6 rounded-3xl border border-slate-200 dark:border-slate-800 space-y-6">
+          <h3 className="text-xs font-black uppercase tracking-widest text-slate-400 flex items-center gap-2">
+            <MessageSquare className="w-4 h-4" /> {t('wordcounter.social_title')}
+          </h3>
+          <div className="space-y-4">
+            {PLATFORM_LIMITS.map(platform => {
+              const percentage = Math.min(100, (stats.characters / platform.limit) * 100);
+              const isOver = stats.characters > platform.limit;
+              return (
+                <div key={platform.id} className="space-y-1.5">
+                  <div className="flex justify-between items-end">
+                    <div className="flex items-center gap-2">
+                      <span className="w-6 h-6 flex items-center justify-center bg-white dark:bg-slate-800 rounded-lg border border-slate-200 dark:border-slate-700 text-indigo-500">
+                        {platform.icon}
+                      </span>
+                      <span className="text-xs font-bold dark:text-slate-300">{platform.name}</span>
+                    </div>
+                    <span className={`text-[10px] font-mono font-bold ${isOver ? 'text-rose-500' : 'text-slate-500'}`}>
+                      {stats.characters} / {platform.limit}
+                    </span>
+                  </div>
+                  <div className="h-1.5 w-full bg-slate-200 dark:bg-slate-800 rounded-full overflow-hidden">
+                    <div
+                      className={`h-full transition-all duration-500 ${isOver ? 'bg-rose-500' : percentage > 90 ? 'bg-amber-500' : 'bg-indigo-500'}`}
+                      style={{ width: `${percentage}%` }}
+                    />
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+        </div>
       </div>
 
       <div className="flex flex-wrap gap-3">

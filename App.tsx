@@ -304,6 +304,8 @@ const PascalsTriangle = lazy(() => import("./components/PascalsTriangle").then(m
 const TextSplitter = lazy(() => import("./components/TextSplitter").then(m => ({ default: m.TextSplitter })));
 const StringJoiner = lazy(() => import("./components/StringJoiner").then(m => ({ default: m.StringJoiner })));
 const JSONAnalyzer = lazy(() => import("./components/JSONAnalyzer").then(m => ({ default: m.JSONAnalyzer })));
+const JSONToExcel = lazy(() => import("./components/JSONToExcel").then(m => ({ default: m.JSONToExcel })));
+const CSSShadowPalette = lazy(() => import("./components/CSSShadowPalette").then(m => ({ default: m.CSSShadowPalette })));
 const WorldClock = lazy(() => import("./components/WorldClock").then(m => ({ default: m.WorldClock })));
 const Stopwatch = lazy(() => import("./components/Stopwatch").then(m => ({ default: m.Stopwatch })));
 const UnicodeTable = lazy(() => import("./components/UnicodeTable").then(m => ({ default: m.UnicodeTable })));
@@ -3504,6 +3506,28 @@ const tools: Tool[] = [
     Component: PunycodeConverter,
     category: "dev",
     keywords: ["punycode", "idn", "domain", "unicode", "ascii", "dns"],
+  },
+  {
+    id: "json-to-excel",
+    name: "JSON en Excel/CSV",
+    nameEn: "JSON to Excel/CSV",
+    icon: FileSpreadsheet,
+    description: "Convertir du JSON en fichier Excel ou CSV avec aplatissement automatique",
+    descriptionEn: "Convert JSON to Excel or CSV file with automatic flattening",
+    Component: JSONToExcel,
+    category: "dev",
+    keywords: ["json", "excel", "csv", "convert", "export", "flatten"],
+  },
+  {
+    id: "css-shadow-palette",
+    name: "Palette d'Ombres CSS",
+    nameEn: "CSS Shadow Palette",
+    icon: Layers,
+    description: "Galerie d'ombres CSS prêtes à l'emploi et personnalisables",
+    descriptionEn: "Gallery of ready-to-use and customizable CSS shadows",
+    Component: CSSShadowPalette,
+    category: "dev",
+    keywords: ["css", "shadow", "box-shadow", "design", "ui", "tailwind"],
   },
   {
     id: "playfair-cipher",

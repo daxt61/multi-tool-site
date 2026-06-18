@@ -5,7 +5,7 @@ test.describe('New and Upgraded Tools', () => {
     await page.goto('http://localhost:5173/en/outil/bpm-counter');
     await expect(page.getByText('Consistency', { exact: true })).toBeVisible();
     await expect(page.getByText('History', { exact: true })).toBeVisible();
-    await expect(page.getByText('Metronome', { exact: true })).toBeVisible();
+    await expect(page.getByRole('button', { name: 'Metronome' })).toBeVisible();
   });
 
   test('JSON to Excel tool loads', async ({ page }) => {

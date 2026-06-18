@@ -151,3 +151,8 @@
 **Vulnerability:** The SQLToJSON component was vulnerable to Prototype Pollution by using user-provided SQL column names (e.g., `__proto__`) as keys for plain objects.
 **Learning:** Tools that parse structured data into JavaScript objects must treat all keys as untrusted. Mapping SQL column names directly to object properties without sanitization allows for prototype chain manipulation.
 **Prevention:** Always use `Object.create(null)` for objects that will store arbitrary user-controlled keys, and explicitly sanitize dangerous keys (`__proto__`, `constructor`, `prototype`) by prefixing them.
+
+## 2025-08-10 - [Consistent Prototype Pollution Mitigation]
+**Vulnerability:** The ASCIITableToJson component was vulnerable to Prototype Pollution, similar to previous findings in SQLToJSON, because the mitigation pattern was not applied consistently across all data transformation tools.
+**Learning:** Security fixes for specific patterns (like dynamic key assignment) must be audited across the entire codebase. Vulnerabilities often cluster in components performing similar logical operations (e.g., converters, parsers).
+**Prevention:** When implementing a security fix for a pattern, grep the codebase for similar logic (e.g., `obj[key] = ...`) to ensure the fix is applied globally.

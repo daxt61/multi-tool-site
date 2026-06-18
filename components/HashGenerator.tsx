@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback, useRef } from 'react';
 import { Shield, Copy, Check, Trash2, AlertCircle } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 
@@ -13,10 +13,11 @@ export function HashGenerator({ initialData, onStateChange }: { initialData?: an
     'SHA-384': '',
     'SHA-512': '',
   });
+  const textareaRef = useRef<HTMLTextAreaElement>(null);
 
   useEffect(() => {
     onStateChange?.({ inputText, hashes });
-  }, [inputText, hashes]);
+  }, [inputText, hashes, onStateChange]);
   const [copied, setCopied] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
 
@@ -62,11 +63,12 @@ export function HashGenerator({ initialData, onStateChange }: { initialData?: an
     setTimeout(() => setCopied(null), 2000);
   };
 
-  const handleClear = () => {
+  const handleClear = useCallback(() => {
     setInputText('');
-    setHashes({ 'SHA-256': '', 'SHA-384': '', 'SHA-512': '' });
+    setHashes({ 'SHA-1': '', 'SHA-256': '', 'SHA-384': '', 'SHA-512': '' });
     setError(null);
-  };
+    textareaRef.current?.focus();
+  }, []);
 
   const handleCopyAll = () => {
     const text = Object.entries(hashes)
@@ -79,6 +81,31 @@ export function HashGenerator({ initialData, onStateChange }: { initialData?: an
     setTimeout(() => setCopied(null), 2000);
   };
 
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (
+        document.activeElement?.tagName === "INPUT" ||
+        document.activeElement?.tagName === "TEXTAREA"
+      ) {
+        if (e.key === 'Escape') {
+          e.preventDefault();
+          handleClear();
+        }
+        return;
+      }
+
+      if (e.metaKey || e.ctrlKey || e.altKey || e.shiftKey) return;
+
+      if (e.key === 'Escape') {
+        e.preventDefault();
+        handleClear();
+      }
+    };
+
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [handleClear]);
+
   return (
     <div className="max-w-4xl mx-auto space-y-8">
       {error && (
@@ -89,34 +116,38 @@ export function HashGenerator({ initialData, onStateChange }: { initialData?: an
       )}
 
       <div className="space-y-4">
-        <div className="flex justify-between items-center">
+        <div className="flex justify-between items-center px-1">
           <label htmlFor="hash-input" className="block text-xs font-black uppercase tracking-widest text-slate-400 cursor-pointer">
             {t('hashgenerator.input_label')}
           </label>
-          <div className="flex gap-2">
+          <div className="flex gap-2 items-center">
             <button
               onClick={handleCopyAll}
               disabled={!Object.values(hashes).some(h => !!h)}
               className={`text-xs font-bold px-3 py-1 rounded-full transition-all flex items-center gap-1 border focus-visible:ring-2 focus-visible:ring-indigo-500 focus-visible:outline-none ${
                 copied === 'all'
                   ? 'bg-emerald-50 dark:bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border-emerald-200 dark:border-emerald-500/20'
-                  : 'text-indigo-500 bg-indigo-50 dark:bg-indigo-500/10 border-transparent hover:bg-indigo-100 dark:hover:bg-indigo-500/20 disabled:opacity-50 disabled:cursor-not-allowed'
+                  : 'text-indigo-500 bg-indigo-50 dark:bg-indigo-900/20 border-transparent hover:bg-indigo-100 dark:hover:bg-indigo-500/20 disabled:opacity-50 disabled:cursor-not-allowed'
               }`}
             >
               {copied === 'all' ? <Check className="w-3 h-3" /> : <Copy className="w-3 h-3" />} {copied === 'all' ? t('common.copied') : t('hashgenerator.copy_all')}
             </button>
-            <button
-              onClick={handleClear}
-              disabled={!inputText}
-              aria-label={t('common.clear')}
-              className="text-xs font-bold px-3 py-1 rounded-full text-rose-500 bg-rose-50 dark:bg-rose-500/10 hover:bg-rose-100 dark:hover:bg-rose-500/20 border border-transparent transition-all flex items-center gap-1 disabled:opacity-50 disabled:cursor-not-allowed focus-visible:ring-2 focus-visible:ring-rose-500 focus-visible:outline-none"
-            >
-              <Trash2 className="w-3 h-3" /> {t('common.clear')}
-            </button>
+            <div className="flex gap-2 items-center">
+              <kbd className="hidden sm:inline-flex items-center justify-center px-1.5 py-0.5 border border-rose-200 dark:border-rose-800 rounded text-[10px] font-bold text-rose-400 bg-white dark:bg-slate-900">Esc</kbd>
+              <button
+                onClick={handleClear}
+                disabled={!inputText}
+                aria-label={t('common.clear')}
+                className="text-xs font-bold px-3 py-1 rounded-full text-rose-500 bg-rose-50 dark:bg-rose-500/10 hover:bg-rose-100 dark:hover:bg-rose-500/20 border border-transparent transition-all flex items-center gap-1 disabled:opacity-50 disabled:cursor-not-allowed focus-visible:ring-2 focus-visible:ring-rose-500 focus-visible:outline-none"
+              >
+                <Trash2 className="w-3 h-3" /> {t('common.clear')}
+              </button>
+            </div>
           </div>
         </div>
         <textarea
           id="hash-input"
+          ref={textareaRef}
           value={inputText}
           onChange={(e) => generateHashes(e.target.value)}
           placeholder={t('hashgenerator.input_placeholder')}
@@ -136,7 +167,7 @@ export function HashGenerator({ initialData, onStateChange }: { initialData?: an
                 disabled={!hash}
                 className={`text-xs font-bold px-3 py-1 rounded-full transition-all flex items-center gap-1 border focus-visible:ring-2 focus-visible:ring-indigo-500 focus-visible:outline-none ${
                   copied === algo
-                    ? 'bg-emerald-50 dark:bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border border-emerald-200 dark:border-emerald-500/20'
+                    ? 'bg-emerald-50 dark:bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border-emerald-200 dark:border-emerald-500/20'
                     : 'text-slate-500 bg-slate-100 dark:bg-slate-800 border-transparent hover:bg-slate-200 dark:hover:bg-slate-700 disabled:opacity-50 disabled:cursor-not-allowed'
                 }`}
                 aria-label={copied === algo ? t('common.copied') : `${t('common.copy')} ${algo}`}

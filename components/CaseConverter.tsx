@@ -22,7 +22,13 @@ export function CaseConverter({ initialData, onStateChange }: { initialData?: an
     return getSecureRandomInt(2) === 1;
   }, []);
 
-  const conversions = {
+  const bubbleMap: Record<string, string> = {
+    'a': 'ⓐ', 'b': 'ⓑ', 'c': 'ⓒ', 'd': 'ⓓ', 'e': 'ⓔ', 'f': 'ⓕ', 'g': 'ⓖ', 'h': 'ⓗ', 'i': 'ⓘ', 'j': 'ⓙ', 'k': 'ⓚ', 'l': 'ⓛ', 'm': 'ⓜ', 'n': 'ⓝ', 'o': 'ⓞ', 'p': 'ⓟ', 'q': 'ⓠ', 'r': 'ⓡ', 's': 'ⓢ', 't': 'ⓣ', 'u': 'ⓤ', 'v': 'ⓥ', 'w': 'ⓦ', 'x': 'ⓧ', 'y': 'ⓨ', 'z': 'ⓩ',
+    'A': 'Ⓐ', 'B': 'Ⓑ', 'C': 'Ⓒ', 'D': 'Ⓓ', 'E': 'Ⓔ', 'F': 'Ⓕ', 'G': 'Ⓖ', 'H': 'Ⓗ', 'I': 'Ⓘ', 'J': 'Ⓙ', 'K': 'Ⓚ', 'L': 'Ⓛ', 'M': 'Ⓜ', 'N': 'Ⓝ', 'O': 'Ⓞ', 'P': 'Ⓟ', 'Q': 'Ⓠ', 'R': 'Ⓡ', 'S': 'Ⓢ', 'T': 'Ⓣ', 'U': 'Ⓤ', 'V': 'Ⓥ', 'W': 'Ⓦ', 'X': 'Ⓧ', 'Y': 'Ⓨ', 'Z': 'Ⓩ',
+    '0': '⓪', '1': '①', '2': '②', '3': '③', '4': '④', '5': '⑤', '6': '⑥', '7': '⑦', '8': '⑧', '9': '⑨'
+  };
+
+  const conversions: Record<string, (t: string) => string> = {
     'camelCase': (t: string) => {
       const words = t.toLowerCase().split(/[\s_-]+/);
       return words[0] + words.slice(1).map(w => w.charAt(0).toUpperCase() + w.slice(1)).join('');
@@ -57,14 +63,7 @@ export function CaseConverter({ initialData, onStateChange }: { initialData?: an
     'aLtErNaTiNg CaSe': (t: string) => t.split('').map((c, i) => i % 2 === 0 ? c.toLowerCase() : c.toUpperCase()).join(''),
     'iNVERSE cASE': (t: string) => t.split('').map(c => c === c.toUpperCase() ? c.toLowerCase() : c.toUpperCase()).join(''),
     'Strikethrough': (t: string) => t.split('').map(c => c + '\u0336').join(''),
-    'Bubble': (t: string) => {
-      const bubbleMap: Record<string, string> = {
-        'a': 'ⓐ', 'b': 'ⓑ', 'c': 'ⓒ', 'd': 'ⓓ', 'e': 'ⓔ', 'f': 'ⓕ', 'g': 'ⓖ', 'h': 'ⓗ', 'i': 'ⓘ', 'j': 'ⓙ', 'k': 'ⓚ', 'l': 'ⓛ', 'm': 'ⓜ', 'n': 'ⓝ', 'o': 'ⓞ', 'p': 'ⓟ', 'q': 'ⓠ', 'r': 'ⓡ', 's': 'ⓢ', 't': 'ⓣ', 'u': 'ⓤ', 'v': 'ⓥ', 'w': 'ⓦ', 'x': 'ⓧ', 'y': 'ⓨ', 'z': 'ⓩ',
-        'A': 'Ⓐ', 'B': 'Ⓑ', 'C': 'Ⓒ', 'D': 'Ⓓ', 'E': 'Ⓔ', 'F': 'Ⓕ', 'G': 'Ⓖ', 'H': 'Ⓗ', 'I': 'Ⓘ', 'J': 'Ⓙ', 'K': 'Ⓚ', 'L': 'Ⓛ', 'M': 'Ⓜ', 'N': 'Ⓝ', 'O': 'Ⓞ', 'P': 'Ⓟ', 'Q': 'Ⓠ', 'R': 'Ⓡ', 'S': 'Ⓢ', 'T': 'Ⓣ', 'U': 'Ⓤ', 'V': 'Ⓥ', 'W': 'Ⓦ', 'X': 'Ⓧ', 'Y': 'Ⓨ', 'Z': 'Ⓩ',
-        '0': '⓪', '1': '①', '2': '②', '3': '③', '4': '④', '5': '⑤', '6': '⑥', '7': '⑦', '8': '⑧', '9': '⑨'
-      };
-      return t.split('').map(c => bubbleMap[c] || c).join('');
-    }
+    'Bubble': (t: string) => t.split('').map(c => bubbleMap[c] || c).join('')
   };
 
   const copyToClipboard = (converted: string, type: string) => {
@@ -82,11 +81,11 @@ export function CaseConverter({ initialData, onStateChange }: { initialData?: an
     }
   };
 
-  const handleClear = () => {
+  const handleClear = useCallback(() => {
     setText('');
     setError(null);
     textareaRef.current?.focus();
-  };
+  }, []);
 
   const handleDownload = (content: string, name: string) => {
     if (!content || error) return;
@@ -99,9 +98,43 @@ export function CaseConverter({ initialData, onStateChange }: { initialData?: an
     URL.revokeObjectURL(url);
   };
 
+  const handleDownloadAll = useCallback(() => {
+    if (!text || error) return;
+    let content = `Case Variations for: ${text}\n\n`;
+    Object.entries(conversions).forEach(([name, converter]) => {
+      content += `${name.toUpperCase()}\n${converter(text)}\n\n`;
+    });
+    handleDownload(content, 'all-variations');
+  }, [text, error, conversions]);
+
   const handleDownloadOriginal = useCallback(() => {
     handleDownload(text, 'texte-original');
   }, [text, error]);
+
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (
+        document.activeElement?.tagName === "INPUT" ||
+        document.activeElement?.tagName === "TEXTAREA"
+      ) {
+        if (e.key === 'Escape') {
+          e.preventDefault();
+          handleClear();
+        }
+        return;
+      }
+
+      if (e.metaKey || e.ctrlKey || e.altKey || e.shiftKey) return;
+
+      if (e.key === 'Escape') {
+        e.preventDefault();
+        handleClear();
+      }
+    };
+
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [handleClear]);
 
   return (
     <div className="max-w-6xl mx-auto space-y-8">
@@ -118,6 +151,13 @@ export function CaseConverter({ initialData, onStateChange }: { initialData?: an
             <Type className="w-4 h-4 text-indigo-500" /> {t('caseconverter.your_text')}
           </label>
           <div className="flex gap-2 items-center">
+            <button
+              onClick={handleDownloadAll}
+              disabled={!text || !!error}
+              className="text-xs font-bold px-3 py-1 rounded-full text-indigo-600 bg-indigo-50 dark:bg-indigo-500/10 hover:bg-indigo-100 dark:hover:bg-indigo-500/20 transition-all flex items-center gap-1 disabled:opacity-50 disabled:cursor-not-allowed focus-visible:ring-2 focus-visible:ring-indigo-500 focus-visible:outline-none"
+            >
+              <Download className="w-3 h-3" /> {t('caseconverter.download_all')}
+            </button>
             <button
               onClick={handleDownloadOriginal}
               disabled={!text || !!error}
@@ -143,11 +183,6 @@ export function CaseConverter({ initialData, onStateChange }: { initialData?: an
           ref={textareaRef}
           value={text}
           onChange={(e) => handleTextChange(e.target.value)}
-          onKeyDown={(e) => {
-            if (e.key === 'Escape') {
-              handleClear();
-            }
-          }}
           placeholder={t('caseconverter.placeholder')}
           className={`w-full h-48 p-8 bg-slate-50 dark:bg-slate-900 border ${error ? 'border-rose-500 ring-rose-500/20' : 'border-slate-200 dark:border-slate-800'} rounded-[2.5rem] outline-none focus:ring-2 ${error ? 'focus:ring-rose-500/20' : 'focus:ring-indigo-500/20'} transition-all text-lg leading-relaxed dark:text-slate-300 resize-none`}
         />
@@ -180,7 +215,7 @@ export function CaseConverter({ initialData, onStateChange }: { initialData?: an
                   <button
                     onClick={() => copyToClipboard(converted, name)}
                     disabled={!text}
-                    className={`p-2 rounded-xl transition-all ${copied === name ? 'bg-emerald-50 dark:bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border border-emerald-200 dark:border-emerald-500/20' : 'text-slate-400 hover:text-indigo-500 bg-slate-50 dark:bg-slate-800 border border-transparent'} disabled:opacity-50 disabled:cursor-not-allowed focus-visible:ring-2 focus-visible:ring-indigo-500 focus-visible:outline-none`}
+                    className={`p-2 rounded-xl transition-all ${copied === name ? 'bg-emerald-50 dark:bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border-emerald-200 dark:border-emerald-500/20' : 'text-slate-400 hover:text-indigo-500 bg-slate-50 dark:bg-slate-800 border border-transparent'} disabled:opacity-50 disabled:cursor-not-allowed focus-visible:ring-2 focus-visible:ring-indigo-500 focus-visible:outline-none`}
                     aria-label={t('caseconverter.copy_as', { name })}
                   >
                     {copied === name ? (

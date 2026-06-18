@@ -57,12 +57,23 @@ export function ASCIITableToJson({ initialData, onStateChange }: { initialData?:
         return line.trim().split(/\s{2,}|\t/).map(cell => cell.trim());
       };
 
-      const headers = parseRow(dataLines[0]);
+      const rawHeaders = parseRow(dataLines[0]);
+      const headers = rawHeaders.map((h, i) => {
+        const name = h || `field_${i}`;
+        const lower = name.toLowerCase();
+        // Sentinel: Sanitize dangerous keys to prevent Prototype Pollution
+        if (lower === '__proto__' || lower === 'constructor' || lower === 'prototype') {
+          return `_${name}`;
+        }
+        return name;
+      });
+
       const result = [];
 
       for (let i = 1; i < dataLines.length; i++) {
         const cells = parseRow(dataLines[i]);
-        const obj: Record<string, any> = {};
+        // Sentinel: Use Object.create(null) to prevent Prototype Pollution
+        const obj: any = Object.create(null);
 
         headers.forEach((header, index) => {
           let value: any = cells[index] || '';
@@ -72,7 +83,7 @@ export function ASCIITableToJson({ initialData, onStateChange }: { initialData?:
           else if (value.toLowerCase() === 'null') value = null;
           else if (!isNaN(Number(value)) && value !== '') value = Number(value);
 
-          obj[header || `field_${index}`] = value;
+          obj[header] = value;
         });
         result.push(obj);
       }

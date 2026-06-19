@@ -75,22 +75,30 @@ export function DiffChecker({ initialData, onStateChange }: { initialData?: any;
 
     // Secondary pass for character-level diff on modified lines
     const finalDiff: DiffItem[] = [];
+    const MAX_CHAR_DIFF_LENGTH = 2000;
+
     for (let k = 0; k < diff.length; k++) {
       const current = diff[k];
       const next = diff[k + 1];
 
       if (current.type === 'removed' && next?.type === 'added') {
         // We have a modification (removed then added)
-        const charDiff1 = getCharDiff(current.text, next.text);
+        // Only perform char-level diff if lines are not too long to avoid performance hits
+        if (current.text.length + next.text.length < MAX_CHAR_DIFF_LENGTH) {
+          const charDiff1 = getCharDiff(current.text, next.text);
 
-        finalDiff.push({
-          ...current,
-          chars: charDiff1.filter(c => c.type !== 'added')
-        });
-        finalDiff.push({
-          ...next,
-          chars: charDiff1.filter(c => c.type !== 'removed')
-        });
+          finalDiff.push({
+            ...current,
+            chars: charDiff1.filter(c => c.type !== 'added')
+          });
+          finalDiff.push({
+            ...next,
+            chars: charDiff1.filter(c => c.type !== 'removed')
+          });
+        } else {
+          finalDiff.push(current);
+          finalDiff.push(next);
+        }
         k++; // Skip next
       } else {
         finalDiff.push(current);
@@ -177,15 +185,27 @@ export function DiffChecker({ initialData, onStateChange }: { initialData?: any;
     const res: { type: 'added' | 'removed' | 'unchanged', text: string }[] = [];
     let i = n, j = m;
     while (i > 0 || j > 0) {
+      let type: 'added' | 'removed' | 'unchanged';
+      let char: string;
+
       if (i > 0 && j > 0 && compareChars(s1[i - 1], s2[j - 1])) {
-        res.unshift({ type: 'unchanged', text: s1[i - 1] });
+        type = 'unchanged';
+        char = s1[i - 1];
         i--; j--;
       } else if (j > 0 && (i === 0 || dp[i][j - 1] >= dp[i - 1][j])) {
-        res.unshift({ type: 'added', text: s2[j - 1] });
+        type = 'added';
+        char = s2[j - 1];
         j--;
       } else {
-        res.unshift({ type: 'removed', text: s1[i - 1] });
+        type = 'removed';
+        char = s1[i - 1];
         i--;
+      }
+
+      if (res.length > 0 && res[0].type === type) {
+        res[0].text = char + res[0].text;
+      } else {
+        res.unshift({ type, text: char });
       }
     }
     return res;

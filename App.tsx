@@ -89,10 +89,10 @@ import {
   Check,
   Plus,
   BarChart3,
-  Grid3X3,
   Sigma,
   Wand2,
   Grid,
+  Grid3X3,
   Table,
   Eye,
   Braces,
@@ -128,6 +128,7 @@ import {
   Mic,
   Beaker,
   PenTool,
+  Zap,
 } from "lucide-react";
 const AdPlaceholder = lazy(() => import("./components/AdPlaceholder").then(m => ({ default: m.AdPlaceholder })));
 
@@ -429,6 +430,9 @@ const TextToHandwriting = lazy(() => import("./components/TextToHandwriting").th
 const SentenceManipulator = lazy(() => import("./components/SentenceManipulator").then(m => ({ default: m.SentenceManipulator })));
 const TextColumnizer = lazy(() => import("./components/TextColumnizer").then(m => ({ default: m.TextColumnizer })));
 const UTF8Validator = lazy(() => import("./components/UTF8Validator").then(m => ({ default: m.UTF8Validator })));
+const GameOfLife = lazy(() => import("./components/GameOfLife").then(m => ({ default: m.GameOfLife })));
+const PasswordAnalyzer = lazy(() => import("./components/PasswordAnalyzer").then(m => ({ default: m.PasswordAnalyzer })));
+const ReactionTimeTester = lazy(() => import("./components/ReactionTimeTester").then(m => ({ default: m.ReactionTimeTester })));
 
 // ⚡ Bolt Optimization: Pre-calculating tool map and search index for O(1) lookups and faster filtering
 const toolsMap: Record<string, Tool> = {};
@@ -3576,6 +3580,39 @@ const tools: Tool[] = [
     Component: UTF8Validator,
     category: "dev",
     keywords: ["utf8", "validate", "encoding", "bytes", "hex", "base64"],
+  },
+  {
+    id: "game-of-life",
+    name: "Jeu de la Vie",
+    nameEn: "Game of Life",
+    icon: Grid3X3,
+    description: "Visualiseur interactif de l'automate cellulaire de Conway",
+    descriptionEn: "Interactive visualizer for Conway's cellular automaton",
+    Component: GameOfLife,
+    category: "other",
+    keywords: ["conway", "game of life", "simulation", "cellular automaton", "math"],
+  },
+  {
+    id: "password-analyzer",
+    name: "Analyseur de Password",
+    nameEn: "Password Analyzer",
+    icon: ShieldAlert,
+    description: "Analyse complète de la sécurité et de l'entropie des mots de passe",
+    descriptionEn: "Comprehensive security and entropy analysis for passwords",
+    Component: PasswordAnalyzer,
+    category: "dev",
+    keywords: ["password", "security", "entropy", "checker", "analyzer"],
+  },
+  {
+    id: "reaction-time",
+    name: "Temps de Réaction",
+    nameEn: "Reaction Time",
+    icon: Zap,
+    description: "Testez votre vitesse de réaction en millisecondes",
+    descriptionEn: "Test your reaction speed in milliseconds",
+    Component: ReactionTimeTester,
+    category: "other",
+    keywords: ["reaction", "time", "test", "speed", "human"],
   },
 ];
 

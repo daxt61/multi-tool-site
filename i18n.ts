@@ -2609,6 +2609,12 @@ const resources = {
       "utf8.stats": "Byte Analysis",
       "utf8.about_title": "About UTF-8",
       "utf8.about_text": "UTF-8 is a variable-width character encoding used for electronic communication. This tool checks if a byte sequence correctly follows the rules of the UTF-8 standard, identifying illegal lead or continuation bytes.",
+      "tool.game-of-life.name": "Game of Life",
+      "tool.game-of-life.description": "Interactive visualizer for Conway's cellular automaton",
+      "tool.password-analyzer.name": "Password Analyzer",
+      "tool.password-analyzer.description": "Comprehensive security and entropy analysis for passwords",
+      "tool.reaction-time.name": "Reaction Time",
+      "tool.reaction-time.description": "Test your reaction speed in milliseconds",
     }
   },
   fr: {
@@ -5217,6 +5223,12 @@ const resources = {
       "utf8.stats": "Analyse des Octets",
       "utf8.about_title": "À propos de l'UTF-8",
       "utf8.about_text": "L'UTF-8 est un codage de caractères à largeur variable utilisé pour la communication électronique. Cet outil vérifie si une séquence d'octets respecte correctement les règles de la norme UTF-8, en identifiant les octets de tête ou de continuation illégaux.",
+      "tool.game-of-life.name": "Jeu de la Vie",
+      "tool.game-of-life.description": "Visualiseur interactif de l'automate cellulaire de Conway",
+      "tool.password-analyzer.name": "Analyseur de mot de passe",
+      "tool.password-analyzer.description": "Analyse complète de la sécurité et de l'entropie des mots de passe",
+      "tool.reaction-time.name": "Temps de Réaction",
+      "tool.reaction-time.description": "Testez votre vitesse de réaction en millisecondes",
     }
   }
 };

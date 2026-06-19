@@ -281,10 +281,10 @@ export function MorseCodeConverter({ initialData, onStateChange }: { initialData
       <div className="grid grid-cols-1 md:grid-cols-3 gap-8 pt-16 border-t border-slate-100 dark:border-slate-800">
         <div className="space-y-4">
           <h4 className="font-bold dark:text-white flex items-center gap-2">
-            <Info className="w-4 h-4 text-indigo-500" /> {t('unit.guide_title')}
+            <Info className="w-4 h-4 text-indigo-500" /> {t('common.options')}
           </h4>
           <p className="text-sm text-slate-500 dark:text-slate-400 leading-relaxed">
-            {t('wordcounter.guide_text')}
+            {t('morse.guide_text')}
           </p>
         </div>
         <div className="space-y-4">

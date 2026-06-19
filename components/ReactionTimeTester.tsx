@@ -73,28 +73,28 @@ export function ReactionTimeTester() {
             {gameState === 'waiting' && (
               <>
                 <Zap className="w-20 h-20 mb-6 animate-pulse" />
-                <h2 className="text-3xl font-black mb-2">Reaction Time Test</h2>
-                <p className="text-indigo-100 font-bold">When the red box turns green, click as fast as you can.</p>
-                <span className="mt-8 px-6 py-2 bg-white/20 rounded-full text-sm font-black uppercase tracking-widest">Click anywhere to start</span>
+                <h2 className="text-3xl font-black mb-2">{t('reaction.waiting_title')}</h2>
+                <p className="text-indigo-100 font-bold">{t('reaction.waiting_desc')}</p>
+                <span className="mt-8 px-6 py-2 bg-white/20 rounded-full text-sm font-black uppercase tracking-widest">{t('reaction.click_to_start')}</span>
               </>
             )}
             {gameState === 'ready' && (
               <>
                 <Timer className="w-20 h-20 mb-6 animate-spin-slow" />
-                <h2 className="text-4xl font-black">Wait for green...</h2>
+                <h2 className="text-4xl font-black">{t('reaction.wait_green')}</h2>
               </>
             )}
             {gameState === 'clicked' && (
               <>
                 <Zap className="w-24 h-24 mb-6 fill-current" />
-                <h2 className="text-6xl font-black uppercase tracking-tighter">CLICK!</h2>
+                <h2 className="text-6xl font-black uppercase tracking-tighter">{t('reaction.click_now')}</h2>
               </>
             )}
             {gameState === 'too-early' && (
               <>
                 <Award className="w-20 h-20 mb-6 opacity-50" />
-                <h2 className="text-4xl font-black mb-2">Too early!</h2>
-                <p className="text-indigo-100 font-bold">Click to try again.</p>
+                <h2 className="text-4xl font-black mb-2">{t('reaction.too_early')}</h2>
+                <p className="text-indigo-100 font-bold">{t('reaction.click_try_again')}</p>
               </>
             )}
             {gameState === 'finished' && (
@@ -102,12 +102,12 @@ export function ReactionTimeTester() {
                 <div className="text-8xl font-black font-mono mb-4 tabular-nums">
                   {reactionTime}<span className="text-2xl ml-2">ms</span>
                 </div>
-                <h2 className="text-2xl font-bold mb-8">Great job!</h2>
+                <h2 className="text-2xl font-bold mb-8">{t('reaction.great_job')}</h2>
                 <button
                   onClick={(e) => { e.stopPropagation(); startTest(); }}
                   className="flex items-center gap-2 px-8 py-4 bg-white text-indigo-600 rounded-2xl font-black shadow-xl hover:bg-slate-50 transition-all"
                 >
-                  <RefreshCcw className="w-5 h-5" /> Try Again
+                  <RefreshCcw className="w-5 h-5" /> {t('reaction.try_again')}
                 </button>
               </>
             )}
@@ -119,13 +119,13 @@ export function ReactionTimeTester() {
           <div className="bg-slate-50 dark:bg-slate-900/50 rounded-[2.5rem] border border-slate-200 dark:border-slate-800 p-8 space-y-8">
             <div className="grid grid-cols-2 gap-4">
               <div className="space-y-1">
-                <span className="text-[10px] font-black uppercase tracking-widest text-slate-400">Average</span>
+                <span className="text-[10px] font-black uppercase tracking-widest text-slate-400">{t('reaction.average')}</span>
                 <div className="text-2xl font-black font-mono text-indigo-600 dark:text-indigo-400">
                   {average ? `${average}ms` : '---'}
                 </div>
               </div>
               <div className="space-y-1">
-                <span className="text-[10px] font-black uppercase tracking-widest text-slate-400">Best</span>
+                <span className="text-[10px] font-black uppercase tracking-widest text-slate-400">{t('reaction.best')}</span>
                 <div className="text-2xl font-black font-mono text-emerald-500">
                   {best ? `${best}ms` : '---'}
                 </div>
@@ -134,15 +134,15 @@ export function ReactionTimeTester() {
 
             <div className="space-y-4">
               <h3 className="text-xs font-black uppercase tracking-widest text-slate-400 flex items-center gap-2 px-1">
-                <History className="w-4 h-4" /> Recent History
+                <History className="w-4 h-4" /> {t('reaction.recent_history')}
               </h3>
               <div className="space-y-2">
                 {history.length === 0 ? (
-                  <p className="text-sm text-slate-400 italic px-1">No tests completed yet.</p>
+                  <p className="text-sm text-slate-400 italic px-1">{t('reaction.no_history')}</p>
                 ) : (
                   history.map((time, i) => (
                     <div key={i} className="flex items-center justify-between p-3 bg-white dark:bg-slate-800 rounded-xl border border-slate-100 dark:border-slate-700 animate-in slide-in-from-right-2 duration-300">
-                      <span className="text-xs font-bold text-slate-400">Trial {history.length - i}</span>
+                      <span className="text-xs font-bold text-slate-400">{t('common.count')} {history.length - i}</span>
                       <span className="font-black font-mono text-slate-700 dark:text-slate-300">{time}ms</span>
                     </div>
                   ))
@@ -155,7 +155,7 @@ export function ReactionTimeTester() {
                 onClick={() => setHistory([])}
                 className="w-full py-3 text-xs font-bold text-rose-500 hover:bg-rose-50 dark:hover:bg-rose-500/10 rounded-xl transition-all"
               >
-                Clear History
+                {t('reaction.clear_history')}
               </button>
             )}
           </div>
@@ -166,18 +166,18 @@ export function ReactionTimeTester() {
       <div className="grid grid-cols-1 md:grid-cols-3 gap-8 pt-8 border-t border-slate-100 dark:border-slate-800">
         <div className="space-y-4">
           <h4 className="font-bold dark:text-white flex items-center gap-2">
-            <Info className="w-4 h-4 text-indigo-500" /> About Human Reaction
+            <Info className="w-4 h-4 text-indigo-500" /> {t('reaction.about_title')}
           </h4>
           <p className="text-sm text-slate-500 dark:text-slate-400 leading-relaxed">
-            The average human reaction time is about 273 milliseconds. This test measures the time it takes for a signal to go from your eyes to your brain and then to your finger.
+            {t('reaction.about_desc')}
           </p>
         </div>
         <div className="space-y-4">
           <h4 className="font-bold dark:text-white flex items-center gap-2">
-            <Zap className="w-4 h-4 text-indigo-500" /> Tips for Speed
+            <Zap className="w-4 h-4 text-indigo-500" /> {t('reaction.tips_title')}
           </h4>
           <p className="text-sm text-slate-500 dark:text-slate-400 leading-relaxed">
-            Ensure you have a stable connection and a high-refresh-rate monitor for the best results. Using a physical mouse is usually faster than a laptop trackpad.
+            {t('reaction.tips_desc')}
           </p>
         </div>
         <div className="space-y-4">

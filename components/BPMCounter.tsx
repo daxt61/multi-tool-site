@@ -135,6 +135,22 @@ export function BPMCounter({ initialData, onStateChange }: { initialData?: any; 
     }
   };
 
+  const handleDownloadCSV = () => {
+    if (history.length === 0) return;
+    let csv = `Time,BPM\n`;
+    history.forEach(h => {
+      csv += `${new Date(h.time).toISOString()},${h.bpm}\n`;
+    });
+
+    const blob = new Blob([csv], { type: 'text/csv' });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    link.href = url;
+    link.download = `bpm-history-${Date.now()}.csv`;
+    link.click();
+    URL.revokeObjectURL(url);
+  };
+
   const reset = () => {
     setTaps([]);
     setBpm(null);
@@ -261,7 +277,14 @@ export function BPMCounter({ initialData, onStateChange }: { initialData?: any; 
               <BarChart2 className="w-4 h-4 text-indigo-500" /> {t('bpm.history')}
             </div>
             {history.length > 1 ? (
-              <ResponsiveContainer width="100%" height="100%">
+              <>
+                <button
+                  onClick={handleDownloadCSV}
+                  className="absolute top-6 right-8 text-xs font-bold text-indigo-600 dark:text-indigo-400 hover:underline z-10"
+                >
+                  {t('bpm.export_csv')}
+                </button>
+                <ResponsiveContainer width="100%" height="100%">
                 <LineChart data={history} margin={{ top: 40, right: 10, left: -20, bottom: 0 }}>
                   <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#334155" opacity={0.1} />
                   <XAxis dataKey="time" hide />
@@ -288,7 +311,8 @@ export function BPMCounter({ initialData, onStateChange }: { initialData?: any; 
                     animationDuration={300}
                   />
                 </LineChart>
-              </ResponsiveContainer>
+                </ResponsiveContainer>
+              </>
             ) : (
               <div className="h-full flex items-center justify-center text-slate-400 text-sm font-medium italic">
                 {t('bpm.waiting_history')}

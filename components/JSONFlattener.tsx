@@ -16,10 +16,14 @@ export function JSONFlattener({ initialData, onStateChange }: { initialData?: an
     onStateChange?.({ input, separator, flattenArrays });
   }, [input, separator, flattenArrays, onStateChange]);
 
-  const flatten = useCallback((obj: any, prefix = '', res: Record<string, any> = {}) => {
+  const flatten = useCallback((obj: any, prefix = '', res: Record<string, any> = Object.create(null)) => {
     for (const key in obj) {
       if (Object.prototype.hasOwnProperty.call(obj, key)) {
-        const propName = prefix ? `${prefix}${separator}${key}` : key;
+        const lowerKey = key.toLowerCase();
+        // Sentinel: Sanitize dangerous keys to prevent Prototype Pollution
+        const safeKey = (lowerKey === '__proto__' || lowerKey === 'constructor' || lowerKey === 'prototype') ? `_${key}` : key;
+        const propName = prefix ? `${prefix}${separator}${safeKey}` : safeKey;
+
         if (typeof obj[key] === 'object' && obj[key] !== null && (!Array.isArray(obj[key]) || flattenArrays)) {
           flatten(obj[key], propName, res);
         } else {

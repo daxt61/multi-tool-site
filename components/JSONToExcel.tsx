@@ -21,13 +21,17 @@ export function JSONToExcel({ initialData, onStateChange }: { initialData?: any;
   const flattenObject = (obj: any, prefix = '') => {
     return Object.keys(obj).reduce((acc: any, k) => {
       const pre = prefix.length ? prefix + '.' : '';
+      const lowerKey = k.toLowerCase();
+      // Sentinel: Sanitize dangerous keys to prevent Prototype Pollution
+      const safeKey = (lowerKey === '__proto__' || lowerKey === 'constructor' || lowerKey === 'prototype') ? `_${k}` : k;
+
       if (typeof obj[k] === 'object' && obj[k] !== null && !Array.isArray(obj[k])) {
-        Object.assign(acc, flattenObject(obj[k], pre + k));
+        Object.assign(acc, flattenObject(obj[k], pre + safeKey));
       } else {
-        acc[pre + k] = obj[k];
+        acc[pre + safeKey] = obj[k];
       }
       return acc;
-    }, {});
+    }, Object.create(null));
   };
 
   const convertToCSV = useCallback(() => {

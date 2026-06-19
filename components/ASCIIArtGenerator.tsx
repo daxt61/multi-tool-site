@@ -184,7 +184,7 @@ export function ASCIIArtGenerator({ initialData, onStateChange }: { initialData?
                 type="text"
                 value={text}
                 onChange={(e) => setText(e.target.value.replace(/[^a-zA-Z\s]/g, '').slice(0, 20))}
-                placeholder="HELLO"
+                placeholder={t('ascii_art.input_placeholder')}
                 className="w-full p-4 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-2xl font-bold outline-none focus:border-indigo-500 transition-all dark:text-white"
               />
               <p className="text-[10px] text-slate-400 italic">{t('ascii_art.hint')}</p>

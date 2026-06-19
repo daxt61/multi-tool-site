@@ -134,6 +134,7 @@ export function SortingVisualizer({ initialData, onStateChange }: { initialData?
     const n = arrayRef.current.length;
 
     for (let i = 0; i < n; i++) {
+      if (!isSortingRef.current) return;
       let minIdx = i;
       updateBarStatus([i], 'comparing');
 
@@ -154,6 +155,7 @@ export function SortingVisualizer({ initialData, onStateChange }: { initialData?
         }
       }
 
+      if (!isSortingRef.current) return;
       if (minIdx !== i) {
         updateBarStatus([i, minIdx], 'swapping');
         if (!(await sleep(speedRef.current))) return;
@@ -161,6 +163,7 @@ export function SortingVisualizer({ initialData, onStateChange }: { initialData?
         if (!(await sleep(speedRef.current))) return;
       }
 
+      if (!isSortingRef.current) return;
       const newArray = [...arrayRef.current];
       newArray[i].status = 'sorted';
       if (minIdx !== i) newArray[minIdx].status = 'idle';
@@ -173,9 +176,11 @@ export function SortingVisualizer({ initialData, onStateChange }: { initialData?
     const n = arrayRef.current.length;
 
     // First element is sorted by definition in visualization
+    if (!isSortingRef.current) return;
     updateBarStatus([0], 'sorted');
 
     for (let i = 1; i < n; i++) {
+      if (!isSortingRef.current) return;
       let j = i;
       updateBarStatus([i], 'swapping');
       if (!(await sleep(speedRef.current))) return;
@@ -193,6 +198,7 @@ export function SortingVisualizer({ initialData, onStateChange }: { initialData?
         if (!(await sleep(speedRef.current))) return;
 
         // After swap, mark the previous one as sorted if it was part of the sorted sublist
+        if (!isSortingRef.current) return;
         const newArr = [...arrayRef.current];
         newArr[j].status = 'sorted';
         setArray(newArr);
@@ -200,6 +206,7 @@ export function SortingVisualizer({ initialData, onStateChange }: { initialData?
 
         j--;
       }
+      if (!isSortingRef.current) return;
       const finalArr = [...arrayRef.current];
       finalArr[j].status = 'sorted';
       setArray(finalArr);
@@ -285,6 +292,7 @@ export function SortingVisualizer({ initialData, onStateChange }: { initialData?
       swapBars(0, i);
       if (!(await sleep(speedRef.current))) return;
 
+      if (!isSortingRef.current) return;
       const newArray = [...arrayRef.current];
       newArray[i].status = 'sorted';
       setArray(newArray);
@@ -294,6 +302,7 @@ export function SortingVisualizer({ initialData, onStateChange }: { initialData?
     }
 
     // Mark the last remaining element (index 0) as sorted
+    if (!isSortingRef.current) return;
     const finalArray = [...arrayRef.current];
     finalArray[0].status = 'sorted';
     setArray(finalArray);
@@ -383,6 +392,7 @@ export function SortingVisualizer({ initialData, onStateChange }: { initialData?
     if (!(await sleep(speedRef.current))) return i;
     swapBars(i, end);
     if (!(await sleep(speedRef.current))) return i;
+    if (!isSortingRef.current) return i;
     updateBarStatus([end], 'idle');
     updateBarStatus([i], 'sorted');
 

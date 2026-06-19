@@ -180,6 +180,24 @@ export function Stopwatch({ initialData, onStateChange }: { initialData?: any; o
     URL.revokeObjectURL(url);
   };
 
+  const handleDownloadCSV = () => {
+    if (laps.length === 0) return;
+    let csv = `Lap,Time,Overall Time\n`;
+    laps.forEach(lap => {
+      const lt = formatTime(lap.time);
+      const ot = formatTime(lap.overallTime);
+      csv += `${lap.id},"${lt.h}:${lt.m}:${lt.s}.${lt.ms}","${ot.h}:${ot.m}:${ot.s}.${ot.ms}"\n`;
+    });
+
+    const blob = new Blob([csv], { type: 'text/csv' });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    link.href = url;
+    link.download = `stopwatch-laps-${Date.now()}.csv`;
+    link.click();
+    URL.revokeObjectURL(url);
+  };
+
   const times = formatTime(time);
 
   return (
@@ -247,21 +265,29 @@ export function Stopwatch({ initialData, onStateChange }: { initialData?: any; o
           <h3 className="text-xs font-black uppercase tracking-widest text-slate-400 flex items-center gap-2">
             <List className="w-4 h-4 text-indigo-500" /> {t('stopwatch.laps_count', { count: laps.length })}
           </h3>
-          <div className="flex gap-2">
+          <div className="flex flex-wrap gap-2">
             {laps.length > 0 && (
-              <button
-                onClick={handleDownload}
-                className="text-xs font-bold text-indigo-600 bg-indigo-50 dark:bg-indigo-900/20 hover:bg-indigo-100 dark:hover:bg-indigo-900/30 px-3 py-1.5 rounded-xl flex items-center gap-1 transition-all"
-              >
-                <Download className="w-3.5 h-3.5" /> {t('common.download', 'Export')}
-              </button>
+              <>
+                <button
+                  onClick={handleDownload}
+                  className="text-xs font-bold text-indigo-600 bg-indigo-50 dark:bg-indigo-900/20 hover:bg-indigo-100 dark:hover:bg-indigo-900/30 px-3 py-1.5 rounded-xl flex items-center gap-1 transition-all"
+                >
+                  <Download className="w-3.5 h-3.5" /> {t('common.download')}
+                </button>
+                <button
+                  onClick={handleDownloadCSV}
+                  className="text-xs font-bold text-indigo-600 bg-indigo-50 dark:bg-indigo-900/20 hover:bg-indigo-100 dark:hover:bg-indigo-900/30 px-3 py-1.5 rounded-xl flex items-center gap-1 transition-all"
+                >
+                  <Download className="w-3.5 h-3.5" /> {t('stopwatch.export_csv')}
+                </button>
+              </>
             )}
             <button
               onClick={() => setLaps([])}
               disabled={laps.length === 0}
               className="text-xs font-bold text-rose-500 bg-rose-50 dark:bg-rose-500/10 hover:bg-rose-100 dark:hover:bg-rose-500/20 px-3 py-1.5 rounded-xl flex items-center gap-1 transition-all disabled:opacity-50"
             >
-              <Trash2 className="w-3.5 h-3.5" /> {t('common.clear', 'Clear Laps')}
+              <Trash2 className="w-3.5 h-3.5" /> {t('common.clear')}
             </button>
           </div>
         </div>
@@ -308,18 +334,18 @@ export function Stopwatch({ initialData, onStateChange }: { initialData?: any; o
       <div className="grid grid-cols-1 md:grid-cols-2 gap-8 pt-8 border-t border-slate-100 dark:border-slate-800">
          <div className="space-y-3">
             <h4 className="font-black flex items-center gap-2 dark:text-white uppercase tracking-tight">
-               <Timer className="w-4 h-4 text-indigo-500" /> {t('stopwatch.how_it_works', 'High Precision')}
+               <Timer className="w-4 h-4 text-indigo-500" /> {t('stopwatch.how_it_works')}
             </h4>
             <p className="text-sm text-slate-500 dark:text-slate-400 leading-relaxed">
-               This stopwatch uses the <code>performance.now()</code> API to provide sub-millisecond precision. Laps are calculated relative to the previous lap for accurate split times.
+               {t('stopwatch.how_it_works_desc')}
             </p>
          </div>
          <div className="space-y-3">
             <h4 className="font-black flex items-center gap-2 dark:text-white uppercase tracking-tight">
-               <Download className="w-4 h-4 text-indigo-500" /> {t('stopwatch.export_title', 'Export Data')}
+               <Download className="w-4 h-4 text-indigo-500" /> {t('stopwatch.export_title')}
             </h4>
             <p className="text-sm text-slate-500 dark:text-slate-400 leading-relaxed">
-               Easily export your lap times to a text file for further analysis. Perfect for tracking sports performance or debugging time-sensitive processes.
+               {t('stopwatch.export_desc')}
             </p>
          </div>
       </div>

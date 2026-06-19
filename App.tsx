@@ -71,6 +71,7 @@ import {
   Briefcase,
   Search,
   Replace,
+  AlignLeft,
   UserCircle,
   Shuffle,
   MousePointer2,
@@ -425,6 +426,9 @@ const ASCIITableToJson = lazy(() => import("./components/ASCIITableToJson").then
 const WatermarkGenerator = lazy(() => import("./components/WatermarkGenerator").then(m => ({ default: m.WatermarkGenerator })));
 const PeriodicTable = lazy(() => import("./components/PeriodicTable").then(m => ({ default: m.PeriodicTable })));
 const TextToHandwriting = lazy(() => import("./components/TextToHandwriting").then(m => ({ default: m.TextToHandwriting })));
+const SentenceManipulator = lazy(() => import("./components/SentenceManipulator").then(m => ({ default: m.SentenceManipulator })));
+const TextColumnizer = lazy(() => import("./components/TextColumnizer").then(m => ({ default: m.TextColumnizer })));
+const UTF8Validator = lazy(() => import("./components/UTF8Validator").then(m => ({ default: m.UTF8Validator })));
 
 // ⚡ Bolt Optimization: Pre-calculating tool map and search index for O(1) lookups and faster filtering
 const toolsMap: Record<string, Tool> = {};
@@ -3539,6 +3543,39 @@ const tools: Tool[] = [
     Component: PlayfairCipher,
     category: "text",
     keywords: ["playfair", "cipher", "encryption", "classic", "cryptography", "matrix"],
+  },
+  {
+    id: "sentence-manipulator",
+    name: "Manipulateur de Phrases",
+    nameEn: "Sentence Manipulator",
+    icon: AlignLeft,
+    description: "Trier, inverser ou dédoublonner les phrases dans un texte",
+    descriptionEn: "Sort, reverse or deduplicate sentences in a text",
+    Component: SentenceManipulator,
+    category: "text",
+    keywords: ["sentence", "phrases", "sort", "reverse", "deduplicate", "text"],
+  },
+  {
+    id: "text-columnizer",
+    name: "Mise en Colonnes",
+    nameEn: "Text Columnizer",
+    icon: Columns,
+    description: "Organiser une liste d'éléments en plusieurs colonnes alignées",
+    descriptionEn: "Arrange a list of items into multiple aligned columns",
+    Component: TextColumnizer,
+    category: "text",
+    keywords: ["columns", "layout", "grid", "list", "format", "text"],
+  },
+  {
+    id: "utf8-validator",
+    name: "Validateur UTF-8",
+    nameEn: "UTF-8 Validator",
+    icon: ShieldCheck,
+    description: "Vérifier si une séquence d'octets ou un texte est un UTF-8 valide",
+    descriptionEn: "Verify if a byte sequence or text is valid UTF-8",
+    Component: UTF8Validator,
+    category: "dev",
+    keywords: ["utf8", "validate", "encoding", "bytes", "hex", "base64"],
   },
 ];
 

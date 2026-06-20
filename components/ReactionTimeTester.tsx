@@ -1,6 +1,7 @@
 import { useState, useEffect, useCallback, useRef } from 'react';
-import { Zap, Timer, RefreshCcw, History, Award, Info, Shield, Check } from 'lucide-react';
+import { Zap, Timer, RefreshCcw, History, Award, Info, Shield, Check, Share2 } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
+import { toast } from 'sonner';
 import { getSecureRandomInt } from './ui/crypto';
 
 type GameState = 'waiting' | 'ready' | 'clicked' | 'too-early' | 'finished';
@@ -39,8 +40,24 @@ export function ReactionTimeTester() {
     }
   }, [gameState, startTime, startTest]);
 
+  const handleClickRef = useRef(handleClick);
   useEffect(() => {
+    handleClickRef.current = handleClick;
+  }, [handleClick]);
+
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (document.activeElement?.tagName === "INPUT" || document.activeElement?.tagName === "TEXTAREA") {
+        return;
+      }
+      if (e.code === 'Space' || e.key === 'Enter') {
+        e.preventDefault();
+        handleClickRef.current();
+      }
+    };
+    window.addEventListener('keydown', handleKeyDown);
     return () => {
+      window.removeEventListener('keydown', handleKeyDown);
       if (timerRef.current) clearTimeout(timerRef.current);
     };
   }, []);
@@ -52,6 +69,17 @@ export function ReactionTimeTester() {
   const best = history.length > 0
     ? Math.min(...history)
     : null;
+
+  const handleShare = useCallback(() => {
+    if (!reactionTime) return;
+    const text = t('reaction.share_text', {
+      time: reactionTime,
+      url: window.location.href
+    });
+    navigator.clipboard.writeText(text).then(() => {
+      toast.success(t('tool.config_copied'));
+    });
+  }, [reactionTime, t]);
 
   const getBackground = () => {
     switch (gameState) {
@@ -103,12 +131,20 @@ export function ReactionTimeTester() {
                   {reactionTime}<span className="text-2xl ml-2">ms</span>
                 </div>
                 <h2 className="text-2xl font-bold mb-8">{t('reaction.great_job')}</h2>
-                <button
-                  onClick={(e) => { e.stopPropagation(); startTest(); }}
-                  className="flex items-center gap-2 px-8 py-4 bg-white text-indigo-600 rounded-2xl font-black shadow-xl hover:bg-slate-50 transition-all"
-                >
-                  <RefreshCcw className="w-5 h-5" /> {t('reaction.try_again')}
-                </button>
+                <div className="flex flex-wrap justify-center gap-4">
+                  <button
+                    onClick={(e) => { e.stopPropagation(); startTest(); }}
+                    className="flex items-center gap-2 px-8 py-4 bg-white text-indigo-600 rounded-2xl font-black shadow-xl hover:bg-slate-50 transition-all"
+                  >
+                    <RefreshCcw className="w-5 h-5" /> {t('reaction.try_again')}
+                  </button>
+                  <button
+                    onClick={(e) => { e.stopPropagation(); handleShare(); }}
+                    className="flex items-center gap-2 px-8 py-4 bg-indigo-500 text-white rounded-2xl font-black shadow-xl hover:bg-indigo-400 transition-all"
+                  >
+                    <Share2 className="w-5 h-5" /> {t('common.share') || 'Share'}
+                  </button>
+                </div>
               </>
             )}
           </button>

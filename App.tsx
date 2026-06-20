@@ -130,6 +130,7 @@ import {
   Beaker,
   PenTool,
   Zap,
+  Barcode,
 } from "lucide-react";
 import { Toaster } from "./components/ui/sonner";
 import { toast } from "sonner";
@@ -439,6 +440,7 @@ const JuliaSet = lazy(() => import("./components/JuliaSet").then(m => ({ default
 const DuplicateLineFinder = lazy(() => import("./components/DuplicateLineFinder").then(m => ({ default: m.DuplicateLineFinder })));
 const ImageBorderGenerator = lazy(() => import("./components/ImageBorderGenerator").then(m => ({ default: m.ImageBorderGenerator })));
 const ReactionTimeTester = lazy(() => import("./components/ReactionTimeTester").then(m => ({ default: m.ReactionTimeTester })));
+const BarcodeGenerator = lazy(() => import("./components/BarcodeGenerator").then(m => ({ default: m.BarcodeGenerator })));
 
 // ⚡ Bolt Optimization: Pre-calculating tool map and search index for O(1) lookups and faster filtering
 const toolsMap: Record<string, Tool> = {};
@@ -1310,6 +1312,17 @@ const tools: Tool[] = [
     Component: QRCodeGenerator,
     category: "dev",
     keywords: ["code", "image", "url", "lien", "scanner"],
+  },
+  {
+    id: "barcode-generator",
+    name: "Code-barres",
+    nameEn: "Barcode Generator",
+    icon: Barcode,
+    description: "Générateur de code-barres Code 128",
+    descriptionEn: "Code 128 barcode generator",
+    Component: BarcodeGenerator,
+    category: "dev",
+    keywords: ["barcode", "code128", "ean", "upc", "scanner", "inventory"],
   },
   {
     id: "uuid-generator",

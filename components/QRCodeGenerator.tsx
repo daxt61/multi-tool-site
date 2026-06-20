@@ -18,29 +18,33 @@ export function QRCodeGenerator({ initialData, onStateChange }: { initialData?: 
   const cleanFg = fgColor.replace('#', '');
   const cleanBg = bgColor.replace('#', '');
 
-  const qrCodeUrl = text 
-    ? `https://api.qrserver.com/v1/create-qr-code/?size=${size}x${size}&data=${encodeURIComponent(text)}&color=${cleanFg}&bgcolor=${cleanBg}&ecc=${ecc}`
-    : '';
+  const getQrUrl = (format: 'png' | 'svg' = 'png') => {
+    if (!text) return '';
+    return `https://api.qrserver.com/v1/create-qr-code/?size=${size}x${size}&data=${encodeURIComponent(text)}&color=${cleanFg}&bgcolor=${cleanBg}&ecc=${ecc}${format === 'svg' ? '&format=svg' : ''}`;
+  };
 
-  const downloadQRCode = async () => {
-    if (!qrCodeUrl) return;
+  const qrCodeUrl = getQrUrl('png');
+
+  const downloadQRCode = async (format: 'png' | 'svg' = 'png') => {
+    const url = getQrUrl(format);
+    if (!url) return;
     
     try {
-      const response = await fetch(qrCodeUrl);
+      const response = await fetch(url);
       const blob = await response.blob();
-      const url = window.URL.createObjectURL(blob);
+      const blobUrl = window.URL.createObjectURL(blob);
       const link = document.createElement('a');
-      link.href = url;
-      link.download = `qrcode-${Date.now()}.png`;
+      link.href = blobUrl;
+      link.download = `qrcode-${Date.now()}.${format}`;
       document.body.appendChild(link);
       link.click();
       document.body.removeChild(link);
-      window.URL.revokeObjectURL(url);
+      window.URL.revokeObjectURL(blobUrl);
     } catch (e) {
       const link = document.createElement('a');
-      link.href = qrCodeUrl;
+      link.href = url;
       link.target = '_blank';
-      link.download = `qrcode-${Date.now()}.png`;
+      link.download = `qrcode-${Date.now()}.${format}`;
       link.click();
     }
   };
@@ -224,13 +228,22 @@ export function QRCodeGenerator({ initialData, onStateChange }: { initialData?: 
           </div>
 
           {text && (
-            <button
-              onClick={downloadQRCode}
-              className="w-full max-w-[320px] py-4 bg-indigo-600 text-white rounded-2xl font-black text-lg shadow-xl shadow-indigo-600/20 hover:bg-indigo-700 transition-all active:scale-95 flex items-center justify-center gap-2 animate-in fade-in slide-in-from-bottom-2 duration-300 focus-visible:ring-2 focus-visible:ring-indigo-500 focus-visible:outline-none"
-            >
-              <Download className="w-5 h-5" />
-              {t('common.download')} PNG
-            </button>
+            <div className="w-full max-w-[320px] space-y-3 animate-in fade-in slide-in-from-bottom-2 duration-300">
+              <button
+                onClick={() => downloadQRCode('png')}
+                className="w-full py-4 bg-indigo-600 text-white rounded-2xl font-black text-lg shadow-xl shadow-indigo-600/20 hover:bg-indigo-700 transition-all active:scale-95 flex items-center justify-center gap-2 focus-visible:ring-2 focus-visible:ring-indigo-500 focus-visible:outline-none"
+              >
+                <Download className="w-5 h-5" />
+                {t('common.download')} PNG
+              </button>
+              <button
+                onClick={() => downloadQRCode('svg')}
+                className="w-full py-3 bg-white dark:bg-slate-800 text-indigo-600 dark:text-indigo-400 border border-slate-200 dark:border-slate-700 rounded-2xl font-bold text-sm shadow-lg hover:bg-slate-50 dark:hover:bg-slate-700/50 transition-all active:scale-95 flex items-center justify-center gap-2 focus-visible:ring-2 focus-visible:ring-indigo-500 focus-visible:outline-none"
+              >
+                <Download className="w-4 h-4" />
+                {t('common.download')} SVG
+              </button>
+            </div>
           )}
 
           <div className="bg-indigo-50 dark:bg-indigo-900/10 border border-indigo-100 dark:border-indigo-900/20 p-6 rounded-3xl w-full max-w-[320px]">

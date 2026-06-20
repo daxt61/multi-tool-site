@@ -32,23 +32,48 @@ export function VCardGenerator({ initialData, onStateChange }: { initialData?: a
   };
 
   const vCardString = useMemo(() => {
+    // Sentinel: Escape special characters in vCard values to prevent Property Injection
+    // and ensure the generated file follows RFC 6350 / RFC 2426 standards.
+    const escapeVCardValue = (val: string) => {
+      return val
+        .replace(/\\/g, '\\\\')
+        .replace(/;/g, '\\;')
+        .replace(/,/g, '\\,')
+        .replace(/\n/g, '\\n')
+        .replace(/\r/g, '');
+    };
+
+    const eFN = escapeVCardValue(formData.firstName);
+    const eLN = escapeVCardValue(formData.lastName);
+    const eOrg = escapeVCardValue(formData.organization);
+    const eTitle = escapeVCardValue(formData.jobTitle);
+    const eMobile = escapeVCardValue(formData.phoneMobile);
+    const eWorkPhone = escapeVCardValue(formData.phoneWork);
+    const eEmailPerso = escapeVCardValue(formData.emailPersonal);
+    const eEmailWork = escapeVCardValue(formData.emailWork);
+    const eWeb = escapeVCardValue(formData.website);
+    const eStreet = escapeVCardValue(formData.street);
+    const eCity = escapeVCardValue(formData.city);
+    const ePost = escapeVCardValue(formData.postcode);
+    const eCountry = escapeVCardValue(formData.country);
+
     const lines = [
       'BEGIN:VCARD',
       'VERSION:3.0',
-      `N:${formData.lastName};${formData.firstName};;;`,
-      `FN:${formData.firstName} ${formData.lastName}`.trim(),
+      `N:${eLN};${eFN};;;`,
+      `FN:${eFN} ${eLN}`.trim(),
     ];
 
-    if (formData.organization) lines.push(`ORG:${formData.organization}`);
-    if (formData.jobTitle) lines.push(`TITLE:${formData.jobTitle}`);
-    if (formData.phoneMobile) lines.push(`TEL;TYPE=CELL,VOICE:${formData.phoneMobile}`);
-    if (formData.phoneWork) lines.push(`TEL;TYPE=WORK,VOICE:${formData.phoneWork}`);
-    if (formData.emailPersonal) lines.push(`EMAIL;TYPE=HOME,INTERNET:${formData.emailPersonal}`);
-    if (formData.emailWork) lines.push(`EMAIL;TYPE=WORK,INTERNET:${formData.emailWork}`);
-    if (formData.website) lines.push(`URL:${formData.website}`);
+    if (eOrg) lines.push(`ORG:${eOrg}`);
+    if (eTitle) lines.push(`TITLE:${eTitle}`);
+    if (eMobile) lines.push(`TEL;TYPE=CELL,VOICE:${eMobile}`);
+    if (eWorkPhone) lines.push(`TEL;TYPE=WORK,VOICE:${eWorkPhone}`);
+    if (eEmailPerso) lines.push(`EMAIL;TYPE=HOME,INTERNET:${eEmailPerso}`);
+    if (eEmailWork) lines.push(`EMAIL;TYPE=WORK,INTERNET:${eEmailWork}`);
+    if (eWeb) lines.push(`URL:${eWeb}`);
 
-    if (formData.street || formData.city || formData.postcode || formData.country) {
-      lines.push(`ADR;TYPE=WORK:;;${formData.street};${formData.city};;${formData.postcode};${formData.country}`);
+    if (eStreet || eCity || ePost || eCountry) {
+      lines.push(`ADR;TYPE=WORK:;;${eStreet};${eCity};;${ePost};${eCountry}`);
     }
 
     lines.push('END:VCARD');

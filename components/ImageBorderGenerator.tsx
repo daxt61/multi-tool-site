@@ -8,14 +8,15 @@ export function ImageBorderGenerator({ initialData, onStateChange }: { initialDa
   const [borderWidth, setBorderWidth] = useState(initialData?.borderWidth ?? 20);
   const [borderColor, setBorderColor] = useState(initialData?.borderColor || '#ffffff');
   const [borderRadius, setCornerRadius] = useState(initialData?.borderRadius ?? 0);
+  const [innerRadius, setInnerRadius] = useState(initialData?.innerRadius ?? 0);
   const [padding, setPadding] = useState(initialData?.padding ?? 0);
 
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const containerRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
-    onStateChange?.({ borderWidth, borderColor, borderRadius, padding });
-  }, [borderWidth, borderColor, borderRadius, padding, onStateChange]);
+    onStateChange?.({ borderWidth, borderColor, borderRadius, padding, innerRadius });
+  }, [borderWidth, borderColor, borderRadius, padding, innerRadius, onStateChange]);
 
   const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -39,39 +40,54 @@ export function ImageBorderGenerator({ initialData, onStateChange }: { initialDa
     img.crossOrigin = "anonymous";
     img.src = image;
     img.onload = () => {
+      const dpr = window.devicePixelRatio || 1;
       const totalWidth = img.width + (borderWidth + padding) * 2;
       const totalHeight = img.height + (borderWidth + padding) * 2;
 
-      canvas.width = totalWidth;
-      canvas.height = totalHeight;
+      canvas.width = totalWidth * dpr;
+      canvas.height = totalHeight * dpr;
+      ctx.scale(dpr, dpr);
 
       // Draw background/border
       ctx.fillStyle = borderColor;
 
-      // Use clip for rounded corners if radius > 0
-      if (borderRadius > 0) {
+      const drawRoundedRect = (x: number, y: number, w: number, h: number, r: number) => {
+        r = Math.min(r, w / 2, h / 2);
         ctx.beginPath();
-        const r = Math.min(borderRadius, totalWidth / 2, totalHeight / 2);
-        ctx.moveTo(r, 0);
-        ctx.lineTo(totalWidth - r, 0);
-        ctx.quadraticCurveTo(totalWidth, 0, totalWidth, r);
-        ctx.lineTo(totalWidth, totalHeight - r);
-        ctx.quadraticCurveTo(totalWidth, totalHeight, totalWidth - r, totalHeight);
-        ctx.lineTo(r, totalHeight);
-        ctx.quadraticCurveTo(0, totalHeight, 0, totalHeight - r);
-        ctx.lineTo(0, r);
-        ctx.quadraticCurveTo(0, 0, r, 0);
+        ctx.moveTo(x + r, y);
+        ctx.lineTo(x + w - r, y);
+        ctx.quadraticCurveTo(x + w, y, x + w, y + r);
+        ctx.lineTo(x + w, y + h - r);
+        ctx.quadraticCurveTo(x + w, y + h, x + w - r, y + h);
+        ctx.lineTo(x + r, y + h);
+        ctx.quadraticCurveTo(x, y + h, x, y + h - r);
+        ctx.lineTo(x, y + r);
+        ctx.quadraticCurveTo(x, y, x + r, y);
         ctx.closePath();
+      };
+
+      if (borderRadius > 0) {
+        drawRoundedRect(0, 0, totalWidth, totalHeight, borderRadius);
         ctx.fill();
-        ctx.clip();
       } else {
         ctx.fillRect(0, 0, totalWidth, totalHeight);
       }
 
-      // Draw the image centered
-      ctx.drawImage(img, borderWidth + padding, borderWidth + padding);
+      // Draw the image centered with inner radius
+      const imgX = borderWidth + padding;
+      const imgY = borderWidth + padding;
+
+      if (innerRadius > 0) {
+        ctx.save();
+        drawRoundedRect(imgX, imgY, img.width, img.height, innerRadius);
+        ctx.clip();
+        ctx.drawImage(img, imgX, imgY);
+        ctx.restore();
+      } else {
+        ctx.drawImage(img, imgX, imgY);
+      }
     };
-  }, [image, borderWidth, borderColor, borderRadius, padding]);
+  }, [image, borderWidth, borderColor, borderRadius, padding, innerRadius]);
 
   useEffect(() => {
     draw();
@@ -134,6 +150,23 @@ export function ImageBorderGenerator({ initialData, onStateChange }: { initialDa
                     max="200"
                     value={borderWidth}
                     onChange={(e) => setBorderWidth(parseInt(e.target.value))}
+                    className="w-full h-1.5 bg-slate-200 dark:bg-slate-700 rounded-lg appearance-none cursor-pointer accent-indigo-600"
+                  />
+                </div>
+
+                <div className="space-y-3">
+                  <div className="flex justify-between items-center px-1">
+                    <label className="text-[10px] font-bold text-slate-400 uppercase flex items-center gap-1.5">
+                       <Maximize className="w-3 h-3" /> {t('image_border.inner_radius', 'Inner Radius')}
+                    </label>
+                    <span className="text-[10px] font-mono font-bold text-indigo-500">{innerRadius}px</span>
+                  </div>
+                  <input
+                    type="range"
+                    min="0"
+                    max="200"
+                    value={innerRadius}
+                    onChange={(e) => setInnerRadius(parseInt(e.target.value))}
                     className="w-full h-1.5 bg-slate-200 dark:bg-slate-700 rounded-lg appearance-none cursor-pointer accent-indigo-600"
                   />
                 </div>
@@ -222,10 +255,11 @@ export function ImageBorderGenerator({ initialData, onStateChange }: { initialDa
             >
               <canvas
                 ref={canvasRef}
-                className="max-w-full h-auto shadow-2xl rounded-[inherit]"
+                className="shadow-2xl rounded-[inherit]"
                 style={{
                   maxWidth: '100%',
                   maxHeight: '70vh',
+                  height: 'auto',
                   objectFit: 'contain'
                 }}
               />

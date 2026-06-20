@@ -131,6 +131,8 @@ import {
   PenTool,
   Zap,
 } from "lucide-react";
+import { Toaster } from "./components/ui/sonner";
+import { toast } from "sonner";
 const AdPlaceholder = lazy(() => import("./components/AdPlaceholder").then(m => ({ default: m.AdPlaceholder })));
 
 
@@ -4025,6 +4027,7 @@ function MainApp() {
             localStorage.setItem("favorites", JSON.stringify(combined));
             return combined;
           });
+          toast.success(t("tool.favorites_imported", { count: validIds.length }));
           e.target.value = ''; // Reset input
         }
       } catch (err) {
@@ -4032,21 +4035,25 @@ function MainApp() {
       }
     };
     reader.readAsText(file);
-  }, []);
+  }, [t]);
 
   const toggleFavorite = useCallback((e: React.MouseEvent, id: string) => {
     e.stopPropagation();
     // Sentinel: Validate tool ID before toggling favorite status.
     if (!Object.prototype.hasOwnProperty.call(toolsMap, id)) return;
 
+    let isRemoving = false;
     setFavorites(prev => {
-      const newFavs = prev.includes(id)
+      isRemoving = prev.includes(id);
+      const newFavs = isRemoving
         ? prev.filter(f => f !== id)
         : [...prev, id].slice(0, 100); // Sentinel: Enforce max 100 favorites limit.
+
       localStorage.setItem("favorites", JSON.stringify(newFavs));
       return newFavs;
     });
-  }, []);
+    toast.success(isRemoving ? t("tool.favorite_removed") : t("tool.favorite_added"));
+  }, [t]);
 
   const handleToolSelect = useCallback((id: string) => {
     const currentLang = i18nInstance.language || 'fr';
@@ -4478,6 +4485,7 @@ function ToolView({ favorites, toggleFavorite, onVisit }: {
     url.searchParams.delete('data');
     navigator.clipboard.writeText(url.toString());
     setLinkCopied(true);
+    toast.success(t("tool.link_copied"));
     setTimeout(() => setLinkCopied(false), 2000);
   };
 
@@ -4491,6 +4499,7 @@ function ToolView({ favorites, toggleFavorite, onVisit }: {
     url.searchParams.set('data', data);
     navigator.clipboard.writeText(url.toString());
     setShareCopied(true);
+    toast.success(t("tool.config_copied"));
     setTimeout(() => setShareCopied(false), 2000);
   };
 
@@ -4629,6 +4638,7 @@ export default function App() {
   return (
     <ThemeProvider attribute="class" defaultTheme="system" enableSystem>
       <MainApp />
+      <Toaster />
       <Analytics />
       <SpeedInsights />
     </ThemeProvider>

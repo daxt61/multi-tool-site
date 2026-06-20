@@ -70,6 +70,7 @@ import {
   Send,
   Briefcase,
   Search,
+  Frame,
   Replace,
   AlignLeft,
   UserCircle,
@@ -432,6 +433,9 @@ const TextColumnizer = lazy(() => import("./components/TextColumnizer").then(m =
 const UTF8Validator = lazy(() => import("./components/UTF8Validator").then(m => ({ default: m.UTF8Validator })));
 const GameOfLife = lazy(() => import("./components/GameOfLife").then(m => ({ default: m.GameOfLife })));
 const PasswordAnalyzer = lazy(() => import("./components/PasswordAnalyzer").then(m => ({ default: m.PasswordAnalyzer })));
+const JuliaSet = lazy(() => import("./components/JuliaSet").then(m => ({ default: m.JuliaSet })));
+const DuplicateLineFinder = lazy(() => import("./components/DuplicateLineFinder").then(m => ({ default: m.DuplicateLineFinder })));
+const ImageBorderGenerator = lazy(() => import("./components/ImageBorderGenerator").then(m => ({ default: m.ImageBorderGenerator })));
 const ReactionTimeTester = lazy(() => import("./components/ReactionTimeTester").then(m => ({ default: m.ReactionTimeTester })));
 
 // ⚡ Bolt Optimization: Pre-calculating tool map and search index for O(1) lookups and faster filtering
@@ -3602,6 +3606,39 @@ const tools: Tool[] = [
     Component: PasswordAnalyzer,
     category: "dev",
     keywords: ["password", "security", "entropy", "checker", "analyzer"],
+  },
+  {
+    id: "julia-set",
+    name: "Ensemble de Julia",
+    nameEn: "Julia Set",
+    icon: Zap,
+    description: "Explorer et visualiser la fractale de l'ensemble de Julia",
+    descriptionEn: "Explore and visualize the Julia set fractal",
+    Component: JuliaSet,
+    category: "calculators",
+    keywords: ["fractal", "julia", "math", "visualization", "infinite", "complex"],
+  },
+  {
+    id: "duplicate-finder",
+    name: "Doublons de Lignes",
+    nameEn: "Duplicate Finder",
+    icon: Search,
+    description: "Détecter, compter et filtrer les lignes en double dans un texte",
+    descriptionEn: "Detect, count and filter duplicate lines in a text",
+    Component: DuplicateLineFinder,
+    category: "text",
+    keywords: ["duplicates", "cleanup", "lines", "filter", "unique"],
+  },
+  {
+    id: "image-border",
+    name: "Bordure d'Image",
+    nameEn: "Image Border",
+    icon: Frame,
+    description: "Ajouter des bordures et des arrondis personnalisables à vos images",
+    descriptionEn: "Add customizable borders and rounded corners to your images",
+    Component: ImageBorderGenerator,
+    category: "other",
+    keywords: ["border", "image", "frame", "padding", "design"],
   },
   {
     id: "reaction-time",

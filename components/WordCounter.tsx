@@ -14,6 +14,9 @@ export function WordCounter({ initialData, onStateChange }: { initialData?: any;
     { id: 'twitter', name: 'X (Twitter)', limit: 280, icon: <Twitter className="w-3 h-3" /> },
     { id: 'linkedin', name: 'LinkedIn', limit: 3000, icon: <Linkedin className="w-3 h-3" /> },
     { id: 'instagram', name: 'Instagram Bio', limit: 150, icon: <Instagram className="w-3 h-3" /> },
+    { id: 'mastodon', name: 'Mastodon', limit: 500, icon: <MessageSquare className="w-3 h-3" /> },
+    { id: 'threads', name: 'Threads', limit: 500, icon: <MessageSquare className="w-3 h-3" /> },
+    { id: 'discord', name: 'Discord', limit: 2000, icon: <MessageSquare className="w-3 h-3" /> },
   ], []);
   const [copiedStats, setCopiedStats] = useState(false);
   const [copiedCharFreq, setCopiedCharFreq] = useState(false);

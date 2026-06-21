@@ -415,6 +415,8 @@ const BinaryBitShifter = lazy(() => import("./components/BinaryBitShifter").then
 const CSVToAsciiTable = lazy(() => import("./components/CSVToAsciiTable").then(m => ({ default: m.CSVToAsciiTable })));
 const StringManipulator = lazy(() => import("./components/StringManipulator").then(m => ({ default: m.StringManipulator })));
 const JSONFlattener = lazy(() => import("./components/JSONFlattener").then(m => ({ default: m.JSONFlattener })));
+const JSONUnflattener = lazy(() => import("./components/JSONUnflattener").then(m => ({ default: m.JSONUnflattener })));
+const JSONSortKeys = lazy(() => import("./components/JSONSortKeys").then(m => ({ default: m.JSONSortKeys })));
 const SierpinskiTriangle = lazy(() => import("./components/SierpinskiTriangle").then(m => ({ default: m.SierpinskiTriangle })));
 const JSONStringifier = lazy(() => import("./components/JSONStringifier").then(m => ({ default: m.JSONStringifier })));
 const HTMLStripper = lazy(() => import("./components/HTMLStripper").then(m => ({ default: m.HTMLStripper })));
@@ -3346,6 +3348,28 @@ const tools: Tool[] = [
     Component: JSONFlattener,
     category: "dev",
     keywords: ["json", "flatten", "nested", "object", "structure"],
+  },
+  {
+    id: "json-unflattener",
+    name: "Déplier JSON",
+    nameEn: "JSON Unflattener",
+    icon: Braces,
+    description: "Convertir un objet JSON plat en une structure imbriquée",
+    descriptionEn: "Convert a flat JSON object back into a nested structure",
+    Component: JSONUnflattener,
+    category: "dev",
+    keywords: ["json", "unflatten", "nested", "object", "structure", "expand"],
+  },
+  {
+    id: "json-sort-keys",
+    name: "Trier Clés JSON",
+    nameEn: "JSON Sort Keys",
+    icon: Braces,
+    description: "Trier récursivement les clés d'un objet JSON",
+    descriptionEn: "Recursively sort keys of a JSON object",
+    Component: JSONSortKeys,
+    category: "dev",
+    keywords: ["json", "sort", "keys", "alphabetical", "order", "recursive"],
   },
   {
     id: "sierpinski-triangle",

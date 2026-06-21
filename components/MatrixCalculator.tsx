@@ -14,7 +14,7 @@ export function MatrixCalculator({ initialData, onStateChange }: { initialData?:
   const [matrixA, setMatrixA] = useState<Matrix>(initialData?.matrixA || Array(3).fill(0).map(() => Array(3).fill(0)));
   const [matrixB, setMatrixB] = useState<Matrix>(initialData?.matrixB || Array(3).fill(0).map(() => Array(3).fill(0)));
   const [result, setResult] = useState<Matrix | number | null>(null);
-  const [operation, setOperation] = useState<'add' | 'sub' | 'mul' | 'detA' | 'detB' | 'transA' | 'transB'>(initialData?.operation || 'add');
+  const [operation, setOperation] = useState<'add' | 'sub' | 'mul' | 'detA' | 'detB' | 'transA' | 'transB' | 'invA' | 'invB' | 'adjA' | 'adjB'>(initialData?.operation || 'add');
 
   const [copied, setCopied] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -57,7 +57,7 @@ export function MatrixCalculator({ initialData, onStateChange }: { initialData?:
     setMatrixB(newMatrix);
   };
 
-  const calculateDeterminant = (m: Matrix): number => {
+  const calculateDeterminant = useCallback((m: Matrix): number => {
     const size = m.length;
     if (size !== m[0].length) return 0;
     if (size === 1) return m[0][0];
@@ -70,7 +70,59 @@ export function MatrixCalculator({ initialData, onStateChange }: { initialData?:
     // Simple expansion for 4x4 and 5x5 is complex, limit det to 3x3 for now or implement generic
     setError(t('matrix.error_det_limit'));
     return 0;
-  };
+  }, [t]);
+
+  const calculateAdjugate = useCallback((m: Matrix): Matrix => {
+    const size = m.length;
+    const adj = Array(size).fill(0).map(() => Array(size).fill(0));
+
+    if (size === 1) {
+      adj[0][0] = 1;
+      return adj;
+    }
+
+    if (size === 2) {
+      adj[0][0] = m[1][1];
+      adj[0][1] = -m[0][1];
+      adj[1][0] = -m[1][0];
+      adj[1][1] = m[0][0];
+      return adj;
+    }
+
+    if (size === 3) {
+      for (let i = 0; i < 3; i++) {
+        for (let j = 0; j < 3; j++) {
+          const minor: number[][] = [];
+          for (let r = 0; r < 3; r++) {
+            if (r === i) continue;
+            const row: number[] = [];
+            for (let c = 0; c < 3; c++) {
+              if (c === j) continue;
+              row.push(m[r][c]);
+            }
+            minor.push(row);
+          }
+          const detMinor = minor[0][0] * minor[1][1] - minor[0][1] * minor[1][0];
+          const sign = (i + j) % 2 === 0 ? 1 : -1;
+          adj[j][i] = sign * detMinor;
+        }
+      }
+      return adj;
+    }
+
+    setError(t('matrix.error_det_limit'));
+    return adj;
+  }, [t]);
+
+  const calculateInverse = useCallback((m: Matrix): Matrix | null => {
+    const det = calculateDeterminant(m);
+    if (Math.abs(det) < 1e-10) {
+      setError(t('matrix.error_singular'));
+      return null;
+    }
+    const adj = calculateAdjugate(m);
+    return adj.map(row => row.map(val => val / det));
+  }, [calculateDeterminant, calculateAdjugate, t]);
 
   const calculate = () => {
     setError(null);
@@ -126,6 +178,34 @@ export function MatrixCalculator({ initialData, onStateChange }: { initialData?:
           break;
         case 'transB':
           setResult(Array(colsB).fill(0).map((_, j) => Array(rowsB).fill(0).map((_, i) => matrixB[i][j])));
+          break;
+        case 'adjA':
+          if (rowsA !== colsA) {
+            setError(t('matrix.error_square'));
+            return;
+          }
+          setResult(calculateAdjugate(matrixA));
+          break;
+        case 'adjB':
+          if (rowsB !== colsB) {
+            setError(t('matrix.error_square'));
+            return;
+          }
+          setResult(calculateAdjugate(matrixB));
+          break;
+        case 'invA':
+          if (rowsA !== colsA) {
+            setError(t('matrix.error_square'));
+            return;
+          }
+          setResult(calculateInverse(matrixA));
+          break;
+        case 'invB':
+          if (rowsB !== colsB) {
+            setError(t('matrix.error_square'));
+            return;
+          }
+          setResult(calculateInverse(matrixB));
           break;
       }
     } catch (e) {
@@ -235,6 +315,10 @@ export function MatrixCalculator({ initialData, onStateChange }: { initialData?:
           { id: 'detB', label: 'det(B)' },
           { id: 'transA', label: 'Aᵀ' },
           { id: 'transB', label: 'Bᵀ' },
+          { id: 'adjA', label: 'adj(A)' },
+          { id: 'adjB', label: 'adj(B)' },
+          { id: 'invA', label: 'A⁻¹' },
+          { id: 'invB', label: 'B⁻¹' },
         ].map((op) => (
           <button
             key={op.id}

@@ -443,6 +443,8 @@ const DuplicateLineFinder = lazy(() => import("./components/DuplicateLineFinder"
 const ImageBorderGenerator = lazy(() => import("./components/ImageBorderGenerator").then(m => ({ default: m.ImageBorderGenerator })));
 const ReactionTimeTester = lazy(() => import("./components/ReactionTimeTester").then(m => ({ default: m.ReactionTimeTester })));
 const BarcodeGenerator = lazy(() => import("./components/BarcodeGenerator").then(m => ({ default: m.BarcodeGenerator })));
+const Base32Converter = lazy(() => import("./components/Base32Converter").then(m => ({ default: m.Base32Converter })));
+const ColorNameFinder = lazy(() => import("./components/ColorNameFinder").then(m => ({ default: m.ColorNameFinder })));
 
 // ⚡ Bolt Optimization: Pre-calculating tool map and search index for O(1) lookups and faster filtering
 const toolsMap: Record<string, Tool> = {};
@@ -3689,6 +3691,28 @@ const tools: Tool[] = [
     Component: ReactionTimeTester,
     category: "other",
     keywords: ["reaction", "time", "test", "speed", "human"],
+  },
+  {
+    id: "base32-converter",
+    name: "Convertisseur Base32",
+    nameEn: "Base32 Converter",
+    icon: Binary,
+    description: "Encoder et décoder des données au format Base32 (RFC 4648)",
+    descriptionEn: "Encode and decode data in Base32 format (RFC 4648)",
+    Component: Base32Converter,
+    category: "dev",
+    keywords: ["base32", "encoding", "decoding", "rfc4648", "binary"],
+  },
+  {
+    id: "color-name-finder",
+    name: "Nom de Couleur",
+    nameEn: "Color Name Finder",
+    icon: Search,
+    description: "Trouver le nom CSS standard le plus proche pour n'importe quelle couleur",
+    descriptionEn: "Find the closest standard CSS color name for any input color",
+    Component: ColorNameFinder,
+    category: "converters",
+    keywords: ["color", "name", "css", "match", "design", "palette"],
   },
 ];
 

@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { Play, Pause, RotateCcw, Timer, Flag, Download, Trash2, List } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
+import { toast } from 'sonner';
 
 interface Lap {
   id: number;
@@ -57,12 +58,6 @@ export function Stopwatch({ initialData, onStateChange }: { initialData?: any; o
     }));
   }, []);
 
-  useEffect(() => {
-    // We only call onStateChange when strictly necessary to avoid parent re-renders at 60fps
-    // Using a timeout to debounce or just avoiding 'time' as dependency for the parent
-    onStateChange?.({ laps, time: isRunning ? time : Math.floor(time), isRunning });
-  }, [laps, isRunning, onStateChange]);
-
   // Periodic save for crashes
   useEffect(() => {
     let interval: number;
@@ -95,8 +90,11 @@ export function Stopwatch({ initialData, onStateChange }: { initialData?: any; o
   }, [isRunning, update]);
 
   useEffect(() => {
-    onStateChange?.({ laps, time, isRunning });
-  }, [laps, time, isRunning, onStateChange]);
+    // Sync with parent state for sharing/persistence
+    // We omit 'time' from dependencies to avoid 60fps re-renders of the parent App component
+    // while the stopwatch is running. The state is synced on start/pause and lap.
+    onStateChange?.({ laps, time: Math.floor(time), isRunning });
+  }, [laps, isRunning, onStateChange]);
 
   const formatTime = (ms: number) => {
     const hours = Math.floor(ms / 3600000);
@@ -141,6 +139,16 @@ export function Stopwatch({ initialData, onStateChange }: { initialData?: any; o
     });
   }, [laps, time, isRunning, saveState]);
 
+  const handleCopyTime = useCallback(() => {
+    const { h, m, s, ms } = formatTime(time);
+    const formatted = `${h}:${m}:${s}.${ms}`;
+    navigator.clipboard.writeText(formatted);
+    toast.success(t('common.copied'));
+  }, [time, t]);
+
+  const handleCopyTimeRef = useRef(handleCopyTime);
+  useEffect(() => { handleCopyTimeRef.current = handleCopyTime; }, [handleCopyTime]);
+
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
       if (document.activeElement?.tagName === "INPUT" || document.activeElement?.tagName === "TEXTAREA") {
@@ -154,6 +162,11 @@ export function Stopwatch({ initialData, onStateChange }: { initialData?: any; o
         if (time > 0) handleLap();
       } else if (e.key.toLowerCase() === 'r') {
         if (time > 0) handleReset();
+      } else if (e.key.toLowerCase() === 'c') {
+        if (time > 0) {
+          e.preventDefault();
+          handleCopyTimeRef.current();
+        }
       }
     };
 

@@ -81,10 +81,11 @@ export function JSONToAsciiTable({ initialData, onStateChange }: { initialData?:
         });
         result += bot;
       } else if (style === 'markdown') {
-        result += '| ' + keys.join(' | ') + ' |\n';
+        const escape = (s: string) => s.replace(/\|/g, '\\|');
+        result += '| ' + keys.map(escape).join(' | ') + ' |\n';
         result += '| ' + columnWidths.map(w => '-'.repeat(Math.max(3, w))).join(' | ') + ' |\n';
         data.forEach(row => {
-          result += '| ' + keys.map(key => String(row[key] ?? '')).join(' | ') + ' |\n';
+          result += '| ' + keys.map(key => escape(String(row[key] ?? ''))).join(' | ') + ' |\n';
         });
       }
 

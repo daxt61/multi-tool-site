@@ -42,7 +42,10 @@ export function JSONToJoi({ initialData, onStateChange }: { initialData?: any; o
         if (typeof val === 'object') {
           const keys = Object.entries(val).map(([key, value]) => {
             const schema = getJoiSchema(value, depth + 1);
-            return `  ${key}: ${schema}`;
+            // Sentinel: Sanitize keys to prevent breakout from the schema object literal.
+            const isValidIdent = /^[a-zA-Z_$][a-zA-Z0-9_$]*$/.test(key);
+            const safeKey = isValidIdent ? key : JSON.stringify(key);
+            return `  ${safeKey}: ${schema}`;
           });
 
           if (keys.length === 0) return 'Joi.object()';

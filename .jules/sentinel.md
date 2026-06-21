@@ -161,3 +161,8 @@
 **Vulnerability:** The VCardGenerator component was vulnerable to Property Injection (CRLF injection) by directly interpolating unvalidated user input into the vCard string. A malicious user could inject newlines (\n) or semicolons (;) to add unauthorized properties (like TEL or EMAIL) or break the file format.
 **Learning:** Any tool that generates structured text formats (vCard, MECARD, etc.) via string concatenation must strictly escape special characters that have semantic meaning in that format. Newlines are particularly dangerous as they often signify the end of a record or property.
 **Prevention:** Always implement format-specific escaping for user-controlled data. For vCard/MECARD, this includes escaping backslashes, semicolons, commas, and converting literal newlines into the escaped sequence \n.
+
+## 2026-06-21 - [Snippet Injection in Schema Generators]
+**Vulnerability:** Multiple JSON-to-code generators (Mongoose, Joi, Protobuf) were vulnerable to Snippet Injection by interpolating user-controlled JSON keys directly into code templates. Malicious keys could break out of property name contexts to inject unauthorized options or syntax.
+**Learning:** Code generators that derive identifiers or property names from external data must treat those strings as potentially malicious payloads. Simple string interpolation is insufficient; language-specific escaping or strict identifier filtering is required.
+**Prevention:** For JavaScript/TypeScript generators, use `JSON.stringify()` for property names that aren't verified identifiers. For other formats like Protobuf, strictly whitelist alphanumeric characters and underscores for field names to ensure syntax integrity.

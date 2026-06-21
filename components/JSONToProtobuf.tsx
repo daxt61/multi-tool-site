@@ -61,7 +61,14 @@ export function JSONToProtobuf({ initialData, onStateChange }: { initialData?: a
 
           const fields = Object.entries(val).map(([key, value], index) => {
             const type = getProtoType(value, key, depth + 1);
-            return `  ${type} ${key} = ${index + 1};`;
+            // Sentinel: Sanitize field names to ensure they are valid Protobuf identifiers.
+            // Protobuf identifiers must start with a letter and can contain letters, digits, and underscores.
+            let safeKey = key.replace(/[^a-zA-Z0-9_]/g, '_');
+            if (/^[0-9]/.test(safeKey)) safeKey = 'f_' + safeKey;
+            if (!safeKey) safeKey = `field_${index + 1}`;
+
+            const comment = safeKey !== key ? ` // Original JSON key: ${key.replace(/\n/g, ' ')}` : '';
+            return `  ${type} ${safeKey} = ${index + 1};${comment}`;
           });
 
           let messageStr = `message ${finalName} {\n`;

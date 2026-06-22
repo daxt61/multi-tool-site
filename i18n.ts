@@ -2704,6 +2704,15 @@ const resources = {
       "ascii_art.input_placeholder": "Type something...",
       "morse.guide_text": "Type normal text in the left field to get its Morse code version. You can also paste Morse code in the right field to translate it back to readable text. The signal light and sound will follow the Morse code patterns.",
       "bpm.export_csv": "Export CSV",
+      "transparent_image.color_to_remove": "Color to make transparent",
+      "transparent_image.about_title": "About Transparent Image Maker",
+      "transparent_image.about_text": "This tool allows you to remove a specific color from an image, making it transparent. It is particularly useful for creating transparent backgrounds for logos or icons. You can select the color to remove by using the color picker or by clicking directly on the image preview.",
+      "imagecropper.about_title": "About Image Cropper",
+      "imagecropper.about_text": "Crop your images to any size or use fixed aspect ratios. Drag the crop area to move it, and use the handle at the bottom-right corner to resize. This tool works entirely in your browser, ensuring your images stay private.",
+      "scientific.notation": "Scientific Notation",
+      "scientific.error_invalid_notation": "Invalid scientific notation",
+      "scientific.about_title": "About Scientific Notation",
+      "scientific.about_text": "Scientific notation is a way of expressing numbers that are too large or too small to be conveniently written in decimal form. It is commonly used by scientists, mathematicians, and engineers. This tool allows you to convert any decimal number into scientific notation (E-notation) and vice-versa, with adjustable decimal precision.",
     }
   },
   fr: {
@@ -5407,6 +5416,15 @@ const resources = {
       "ascii_art.input_placeholder": "Tapez quelque chose...",
       "morse.guide_text": "Tapez du texte normal dans le champ de gauche pour obtenir sa version en code Morse. Vous pouvez également coller du code Morse dans le champ de droite pour le traduire en texte lisible. Le signal lumineux et sonore suivra les motifs du code Morse.",
       "bpm.export_csv": "Exporter CSV",
+      "transparent_image.color_to_remove": "Couleur à rendre transparente",
+      "transparent_image.about_title": "À propos du Créateur d'Image Transparente",
+      "transparent_image.about_text": "Cet outil vous permet de supprimer une couleur spécifique d'une image, la rendant transparente. C'est particulièrement utile pour créer des fonds transparents pour des logos ou des icônes. Vous pouvez sélectionner la couleur à supprimer à l'aide du sélecteur de couleurs ou en cliquant directement sur l'aperçu de l'image.",
+      "imagecropper.about_title": "À propos du Recadreur d'Image",
+      "imagecropper.about_text": "Recadrez vos images à n'importe quelle taille ou utilisez des formats prédéfinis. Faites glisser la zone de recadrage pour la déplacer et utilisez la poignée dans le coin inférieur droit pour redimensionner. Cet outil fonctionne entièrement dans votre navigateur, garantissant la confidentialité de vos images.",
+      "scientific.notation": "Notation Scientifique",
+      "scientific.error_invalid_notation": "Notation scientifique invalide",
+      "scientific.about_title": "À propos de la Notation Scientifique",
+      "scientific.about_text": "La notation scientifique est un moyen d'exprimer des nombres trop grands ou trop petits pour être écrits de manière pratique sous forme décimale. Elle est couramment utilisée par les scientifiques, les mathématiciens et les ingénieurs. Cet outil vous permet de convertir n'importe quel nombre décimal en notation scientifique (notation E) et vice-versa, avec une précision réglable.",
     }
   }
 };

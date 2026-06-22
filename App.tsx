@@ -449,6 +449,10 @@ const ColorNameFinder = lazy(() => import("./components/ColorNameFinder").then(m
 const TransparentImageMaker = lazy(() => import("./components/TransparentImageMaker").then(m => ({ default: m.TransparentImageMaker })));
 const ImageCropper = lazy(() => import("./components/ImageCropper").then(m => ({ default: m.ImageCropper })));
 const ScientificNotationConverter = lazy(() => import("./components/ScientificNotationConverter").then(m => ({ default: m.ScientificNotationConverter })));
+const CSSFilterGenerator = lazy(() => import("./components/CSSFilterGenerator").then(m => ({ default: m.CSSFilterGenerator })));
+const CubicBezierGenerator = lazy(() => import("./components/CubicBezierGenerator").then(m => ({ default: m.CubicBezierGenerator })));
+const SVGToCSS = lazy(() => import("./components/SVGToCSS").then(m => ({ default: m.SVGToCSS })));
+const LorentzAttractor = lazy(() => import("./components/LorentzAttractor").then(m => ({ default: m.LorentzAttractor })));
 
 // ⚡ Bolt Optimization: Pre-calculating tool map and search index for O(1) lookups and faster filtering
 const toolsMap: Record<string, Tool> = {};
@@ -3750,6 +3754,50 @@ const tools: Tool[] = [
     Component: ScientificNotationConverter,
     category: "calculators",
     keywords: ["scientific", "notation", "e-notation", "math", "exponent"],
+  },
+  {
+    id: "css-filter",
+    name: "Générateur de Filtres",
+    nameEn: "CSS Filter Generator",
+    icon: Wand2,
+    description: "Générateur visuel de filtres CSS avec prévisualisation",
+    descriptionEn: "Visual CSS filter generator with real-time preview",
+    Component: CSSFilterGenerator,
+    category: "dev",
+    keywords: ["css", "filter", "blur", "brightness", "contrast", "sepia", "grayscale"],
+  },
+  {
+    id: "cubic-bezier",
+    name: "Courbes de Bézier",
+    nameEn: "Cubic Bezier Generator",
+    icon: MousePointer2,
+    description: "Générateur interactif de courbes de Bézier pour les transitions CSS",
+    descriptionEn: "Interactive cubic bezier curve generator for CSS transitions",
+    Component: CubicBezierGenerator,
+    category: "dev",
+    keywords: ["css", "bezier", "animation", "transition", "easing", "timing"],
+  },
+  {
+    id: "svg-to-css",
+    name: "SVG vers CSS",
+    nameEn: "SVG to CSS",
+    icon: FileCode,
+    description: "Convertir du SVG en Data URI pour background-image CSS",
+    descriptionEn: "Convert SVG to Data URI for CSS background-image",
+    Component: SVGToCSS,
+    category: "dev",
+    keywords: ["svg", "css", "background", "data uri", "base64", "encode"],
+  },
+  {
+    id: "lorentz-attractor",
+    name: "Attracteur de Lorentz",
+    nameEn: "Lorentz Attractor",
+    icon: Activity,
+    description: "Visualisation interactive de l'attracteur chaotique de Lorentz",
+    descriptionEn: "Interactive visualization of the chaotic Lorentz attractor",
+    Component: LorentzAttractor,
+    category: "calculators",
+    keywords: ["chaos", "math", "attractor", "lorentz", "simulation", "fractal"],
   },
 ];
 

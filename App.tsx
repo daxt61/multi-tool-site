@@ -71,6 +71,7 @@ import {
   Briefcase,
   Search,
   Frame,
+  Crop,
   Replace,
   AlignLeft,
   UserCircle,
@@ -445,6 +446,9 @@ const ReactionTimeTester = lazy(() => import("./components/ReactionTimeTester").
 const BarcodeGenerator = lazy(() => import("./components/BarcodeGenerator").then(m => ({ default: m.BarcodeGenerator })));
 const Base32Converter = lazy(() => import("./components/Base32Converter").then(m => ({ default: m.Base32Converter })));
 const ColorNameFinder = lazy(() => import("./components/ColorNameFinder").then(m => ({ default: m.ColorNameFinder })));
+const TransparentImageMaker = lazy(() => import("./components/TransparentImageMaker").then(m => ({ default: m.TransparentImageMaker })));
+const ImageCropper = lazy(() => import("./components/ImageCropper").then(m => ({ default: m.ImageCropper })));
+const ScientificNotationConverter = lazy(() => import("./components/ScientificNotationConverter").then(m => ({ default: m.ScientificNotationConverter })));
 
 // ⚡ Bolt Optimization: Pre-calculating tool map and search index for O(1) lookups and faster filtering
 const toolsMap: Record<string, Tool> = {};
@@ -3713,6 +3717,39 @@ const tools: Tool[] = [
     Component: ColorNameFinder,
     category: "converters",
     keywords: ["color", "name", "css", "match", "design", "palette"],
+  },
+  {
+    id: "transparent-image",
+    name: "Image Transparente",
+    nameEn: "Transparent Image Maker",
+    icon: Droplets,
+    description: "Rendre une couleur spécifique d'une image transparente",
+    descriptionEn: "Make a specific color in an image transparent",
+    Component: TransparentImageMaker,
+    category: "other",
+    keywords: ["transparent", "background", "png", "remove color", "alpha"],
+  },
+  {
+    id: "image-cropper",
+    name: "Recadrer Image",
+    nameEn: "Image Cropper",
+    icon: Crop,
+    description: "Recadrer vos images à n'importe quelle taille ou format",
+    descriptionEn: "Crop your images to any size or aspect ratio",
+    Component: ImageCropper,
+    category: "other",
+    keywords: ["crop", "resize", "image", "cut", "aspect ratio"],
+  },
+  {
+    id: "scientific-notation",
+    name: "Notation Scientifique",
+    nameEn: "Scientific Notation Converter",
+    icon: Binary,
+    description: "Convertir entre notation décimale et scientifique",
+    descriptionEn: "Convert between decimal and scientific notation",
+    Component: ScientificNotationConverter,
+    category: "calculators",
+    keywords: ["scientific", "notation", "e-notation", "math", "exponent"],
   },
 ];
 

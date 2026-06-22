@@ -1,10 +1,30 @@
 import { useState, useEffect, useCallback, useRef } from 'react';
-import { Play, Pause, RotateCcw, SkipForward, Grid, Info, Shield, Check, Trash2 } from 'lucide-react';
+import { Play, Pause, RotateCcw, SkipForward, Grid, Info, Shield, Trash2, LayoutGrid } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import { getSecureRandomInt } from './ui/crypto';
 
 const COLS = 40;
 const ROWS = 30;
+
+const PRESETS: Record<string, number[][]> = {
+  glider: [[1, 2], [2, 3], [3, 1], [3, 2], [3, 3]],
+  pulsar: [
+    [2, 4], [2, 5], [2, 6], [2, 10], [2, 11], [2, 12],
+    [7, 4], [7, 5], [7, 6], [7, 10], [7, 11], [7, 12],
+    [9, 4], [9, 5], [9, 6], [9, 10], [9, 11], [9, 12],
+    [14, 4], [14, 5], [14, 6], [14, 10], [14, 11], [14, 12],
+    [4, 2], [5, 2], [6, 2], [10, 2], [11, 2], [12, 2],
+    [4, 7], [5, 7], [6, 7], [10, 7], [11, 7], [12, 7],
+    [4, 9], [5, 9], [6, 9], [10, 9], [11, 9], [12, 9],
+    [4, 14], [5, 14], [6, 14], [10, 14], [11, 14], [12, 14]
+  ],
+  gosper: [
+    [5, 1], [5, 2], [6, 1], [6, 2],
+    [5, 11], [6, 11], [7, 11], [4, 12], [8, 12], [3, 13], [9, 13], [3, 14], [9, 14], [6, 15], [4, 16], [8, 16], [5, 17], [6, 17], [7, 17], [6, 18],
+    [3, 21], [4, 21], [5, 21], [3, 22], [4, 22], [5, 22], [2, 23], [6, 23], [1, 25], [2, 25], [6, 25], [7, 25],
+    [3, 35], [4, 35], [3, 36], [4, 36]
+  ]
+};
 
 export function GameOfLife() {
   const { t } = useTranslation();
@@ -97,6 +117,21 @@ export function GameOfLife() {
     setGeneration(0);
   };
 
+  const applyPreset = (key: string) => {
+    handleClear();
+    const newGrid = Array(ROWS).fill(0).map(() => Array(COLS).fill(0));
+    const points = PRESETS[key];
+    const offsetI = Math.floor(ROWS / 4);
+    const offsetJ = Math.floor(COLS / 4);
+
+    points.forEach(([r, c]) => {
+      if (r + offsetI < ROWS && c + offsetJ < COLS) {
+        newGrid[r + offsetI][c + offsetJ] = 1;
+      }
+    });
+    setGrid(newGrid);
+  };
+
   const handleNextStep = () => {
     setRunning(true);
     runningRef.current = true;
@@ -169,6 +204,21 @@ export function GameOfLife() {
             />
           </div>
         </div>
+      </div>
+
+      <div className="flex flex-wrap gap-2 justify-center">
+         <div className="flex items-center gap-2 mr-4 text-xs font-black uppercase tracking-widest text-slate-400">
+           <LayoutGrid className="w-3 h-3" /> Presets:
+         </div>
+         {Object.keys(PRESETS).map(key => (
+           <button
+             key={key}
+             onClick={() => applyPreset(key)}
+             className="px-4 py-1.5 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-full text-xs font-bold hover:border-indigo-500/50 transition-all"
+           >
+             {key.charAt(0).toUpperCase() + key.slice(1)}
+           </button>
+         ))}
       </div>
 
       <div className="flex justify-center bg-white dark:bg-slate-950 p-4 rounded-[2.5rem] border border-slate-200 dark:border-slate-800 shadow-inner overflow-hidden">

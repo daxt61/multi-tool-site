@@ -53,7 +53,7 @@ export function JSONToMongoose({ initialData, onStateChange }: { initialData?: a
           const subFields = Object.entries(val).map(([key, value]) => {
             // Sentinel: Sanitize keys to prevent breakout from the schema object literal.
             const isValidIdent = /^[a-zA-Z_$][a-zA-Z0-9_$]*$/.test(key);
-            const safeKey = isValidIdent ? key : JSON.stringify(key);
+            const safeKey = isValidIdent ? key : JSON.stringify(key).replace(/<\/script>/g, '<\\/script>');
             return `  ${safeKey}: ${getMongooseType(value, key, depth + 1)}`;
           }).join(',\n');
           return `{\n${subFields}\n  }`;

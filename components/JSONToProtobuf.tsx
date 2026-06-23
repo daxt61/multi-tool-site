@@ -65,9 +65,10 @@ export function JSONToProtobuf({ initialData, onStateChange }: { initialData?: a
             // Protobuf identifiers must start with a letter and can contain letters, digits, and underscores.
             let safeKey = key.replace(/[^a-zA-Z0-9_]/g, '_');
             if (/^[0-9]/.test(safeKey)) safeKey = 'f_' + safeKey;
-            if (!safeKey) safeKey = `field_${index + 1}`;
+            if (!safeKey || safeKey === '_') safeKey = `field_${index + 1}`;
 
-            const comment = safeKey !== key ? ` // Original JSON key: ${key.replace(/\n/g, ' ')}` : '';
+            const safeCommentKey = key.replace(/[\n\r\t\v\f]/g, ' ').replace(/\*\//g, '* /');
+            const comment = safeKey !== key ? ` // Original JSON key: ${safeCommentKey}` : '';
             return `  ${type} ${safeKey} = ${index + 1};${comment}`;
           });
 

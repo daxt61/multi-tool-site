@@ -82,7 +82,9 @@ export function JSONToPython({ initialData, onStateChange }: { initialData?: any
           const fields = Object.entries(val).map(([key, value]) => {
             const pythonKey = toSnakeCase(key);
             const type = getPythonType(value, key, depth + 1);
-            return `    ${pythonKey}: ${type}`;
+            const safeCommentKey = key.replace(/[\n\r\t\v\f]/g, ' ').replace(/#/g, '');
+            const comment = pythonKey !== key ? `  # Original JSON key: ${safeCommentKey}` : '';
+            return `    ${pythonKey}: ${type}${comment}`;
           });
 
           let classStr = `@dataclass\nclass ${finalName}:\n`;

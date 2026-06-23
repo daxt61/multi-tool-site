@@ -79,7 +79,10 @@ export function MorseCodeConverter({ initialData, onStateChange }: { initialData
     setText('');
     setMorse('');
     setError(null);
-  }, []);
+    if (stopPlaybackRef.current === false && isPlaying) {
+      stopPlaybackRef.current = true;
+    }
+  }, [isPlaying]);
 
   const playMorse = async () => {
     if (!morse) return;
@@ -188,7 +191,7 @@ export function MorseCodeConverter({ initialData, onStateChange }: { initialData
               <button
                 onClick={handleClear}
                 disabled={!text && !morse}
-                className="text-xs font-bold text-rose-500 bg-rose-50 dark:bg-rose-500/10 hover:bg-rose-100 dark:hover:bg-rose-500/20 px-3 py-1 rounded-full transition-all flex items-center gap-1 disabled:opacity-50 disabled:cursor-not-allowed focus-visible:ring-2 focus-visible:ring-rose-500 focus-visible:outline-none"
+                className="text-xs font-bold text-rose-500 bg-rose-50 dark:bg-rose-500/10 hover:bg-rose-100 dark:hover:bg-rose-500/20 px-3 py-1.5 rounded-xl transition-all flex items-center gap-1 disabled:opacity-50 disabled:cursor-not-allowed focus-visible:ring-2 focus-visible:ring-rose-500 focus-visible:outline-none"
               >
                 <Trash2 className="w-3 h-3" /> {t('common.clear')}
               </button>
@@ -213,26 +216,26 @@ export function MorseCodeConverter({ initialData, onStateChange }: { initialData
               <button
                 onClick={playMorse}
                 disabled={!morse}
-                className={`text-xs font-bold px-3 py-1 rounded-full transition-all flex items-center gap-1 border focus-visible:ring-2 focus-visible:outline-none ${
+                className={`text-xs font-bold px-4 py-2 rounded-xl transition-all flex items-center gap-1 border focus-visible:ring-2 focus-visible:outline-none ${
                   isPlaying
-                    ? 'text-rose-600 bg-rose-50 dark:bg-rose-500/10 border-rose-200 hover:bg-rose-100 focus-visible:ring-rose-500'
-                    : 'text-emerald-600 bg-emerald-50 dark:bg-emerald-500/10 border-transparent hover:bg-emerald-100 focus-visible:ring-emerald-500'
+                    ? 'text-rose-600 bg-rose-50 dark:bg-rose-500/10 border-rose-200 hover:bg-rose-100 focus-visible:ring-rose-500 shadow-lg shadow-rose-500/10'
+                    : 'text-indigo-600 bg-indigo-50 dark:bg-indigo-500/10 border-transparent hover:bg-indigo-100 focus-visible:ring-indigo-500'
                 } disabled:opacity-50`}
                 title={(isPlaying ? t('common.stop') : t('common.play')) + ' (P)'}
               >
                 {isPlaying ? <Square className="w-3 h-3 fill-current" /> : <Play className="w-3 h-3 fill-current" />}
                 {isPlaying ? t('common.stop') : t('common.play')}
                 <kbd className={`hidden sm:inline-flex items-center justify-center w-4 h-4 border rounded text-[10px] font-bold bg-white/50 dark:bg-black/20 ml-1 ${
-                  isPlaying ? 'border-rose-200' : 'border-emerald-200'
+                  isPlaying ? 'border-rose-200' : 'border-indigo-200'
                 }`}>P</kbd>
               </button>
               <button
                 onClick={handleCopy}
                 disabled={!morse}
-                className={`text-xs font-bold px-3 py-1 rounded-full transition-all flex items-center gap-1 border focus-visible:ring-2 focus-visible:ring-indigo-500 focus-visible:outline-none ${
+                className={`text-xs font-bold px-4 py-2 rounded-xl transition-all flex items-center gap-1 border focus-visible:ring-2 focus-visible:ring-indigo-500 focus-visible:outline-none ${
                   copied
                     ? 'bg-emerald-50 dark:bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border-emerald-200 dark:border-emerald-500/20'
-                    : 'text-indigo-500 bg-indigo-50 dark:bg-indigo-500/10 border-transparent hover:bg-indigo-100 dark:hover:bg-indigo-500/20'
+                    : 'text-slate-500 bg-slate-100 dark:bg-slate-800 border-transparent hover:bg-slate-200'
                 } disabled:opacity-50 disabled:cursor-not-allowed`}
               >
                 {copied ? <Check className="w-3 h-3" /> : <Copy className="w-3 h-3" />}

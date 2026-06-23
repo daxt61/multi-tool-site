@@ -71,11 +71,10 @@ export function JSONToGraphQL({ initialData, onStateChange }: { initialData?: an
             // GraphQL identifiers must match /[_A-Za-z][_0-9A-Za-z]*/.
             let safeKey = key.replace(/[^a-zA-Z0-9_]/g, '_');
             if (/^[0-9]/.test(safeKey)) safeKey = 'f_' + safeKey;
-            if (!safeKey) safeKey = 'unnamed_field';
+            if (!safeKey || safeKey === '_') safeKey = 'unnamed_field';
 
             // Sentinel: Sanitize original key in comment to prevent breakout from single-line comment
-            // and handle various control characters.
-            const safeCommentKey = key.replace(/[\n\r\t]/g, ' ');
+            const safeCommentKey = key.replace(/[\n\r\t\v\f]/g, ' ').replace(/#/g, '');
             const comment = safeKey !== key ? ` # Original JSON key: ${safeCommentKey}` : '';
 
             return {

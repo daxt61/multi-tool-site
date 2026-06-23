@@ -72,7 +72,7 @@ export function JSONToDart({ initialData, onStateChange }: { initialData?: any; 
           const fields = Object.entries(val).map(([key, value]) => {
             const type = getDartType(value, key, depth + 1);
             const ident = toCamelCase(key);
-            const safeCommentKey = key.replace(/\n/g, ' ').replace(/\r/g, '').replace(/\*\//g, '* /');
+            const safeCommentKey = key.replace(/[\n\r\t\v\f]/g, ' ').replace(/\*\//g, '* /');
             const comment = ident !== key ? ` // Original key: ${safeCommentKey}` : '';
             return `  final ${type}? ${ident};${comment}`;
           });

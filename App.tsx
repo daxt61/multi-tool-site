@@ -459,6 +459,7 @@ const GraphemeExtractor = lazy(() => import("./components/GraphemeExtractor").th
 const NumberRounding = lazy(() => import("./components/NumberRounding").then(m => ({ default: m.NumberRounding })));
 const WordSearchGenerator = lazy(() => import("./components/WordSearchGenerator").then(m => ({ default: m.WordSearchGenerator })));
 const SVGPathVisualizer = lazy(() => import("./components/SVGPathVisualizer").then(m => ({ default: m.SVGPathVisualizer })));
+const RandomUserGenerator = lazy(() => import("./components/RandomUserGenerator").then(m => ({ default: m.RandomUserGenerator })));
 
 // ⚡ Bolt Optimization: Pre-calculating tool map and search index for O(1) lookups and faster filtering
 const toolsMap: Record<string, Tool> = {};
@@ -3870,6 +3871,17 @@ const tools: Tool[] = [
     Component: SVGPathVisualizer,
     category: "dev",
     keywords: ["svg", "path", "vector", "graphics", "d attribute", "coordinates"],
+  },
+  {
+    id: "random-user",
+    name: "Générateur d'Utilisateurs",
+    nameEn: "Random User Generator",
+    icon: UserCircle,
+    description: "Générer des profils d'utilisateurs fictifs pour les tests",
+    descriptionEn: "Generate realistic mock user profiles for testing",
+    Component: RandomUserGenerator,
+    category: "dev",
+    keywords: ["user", "mock", "profile", "data", "test", "identity"],
   },
 ];
 

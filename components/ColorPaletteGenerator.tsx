@@ -73,6 +73,11 @@ export function ColorPaletteGenerator({ initialData, onStateChange }: { initialD
         desc: t('palette.triadic_desc')
       },
       {
+        name: t('palette.split_comp'),
+        colors: generatePalette([0, 150, 210]),
+        desc: t('palette.split_comp_desc')
+      },
+      {
         name: t('palette.mono'),
         colors: [
           hslToHex(h, s, Math.max(l - 30, 10)),
@@ -85,8 +90,13 @@ export function ColorPaletteGenerator({ initialData, onStateChange }: { initialD
       },
       {
         name: t('palette.tetra'),
-        colors: generatePalette([0, 90, 180, 270]),
+        colors: generatePalette([0, 60, 180, 240]),
         desc: t('palette.tetra_desc')
+      },
+      {
+        name: t('palette.square'),
+        colors: generatePalette([0, 90, 180, 270]),
+        desc: t('palette.square_desc')
       }
     ];
   }, [baseColor, t]);

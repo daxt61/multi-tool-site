@@ -457,6 +457,8 @@ const IntegerPartitions = lazy(() => import("./components/IntegerPartitions").th
 const HexEndianness = lazy(() => import("./components/HexEndianness").then(m => ({ default: m.HexEndianness })));
 const GraphemeExtractor = lazy(() => import("./components/GraphemeExtractor").then(m => ({ default: m.GraphemeExtractor })));
 const NumberRounding = lazy(() => import("./components/NumberRounding").then(m => ({ default: m.NumberRounding })));
+const WordSearchGenerator = lazy(() => import("./components/WordSearchGenerator").then(m => ({ default: m.WordSearchGenerator })));
+const SVGPathVisualizer = lazy(() => import("./components/SVGPathVisualizer").then(m => ({ default: m.SVGPathVisualizer })));
 
 // ⚡ Bolt Optimization: Pre-calculating tool map and search index for O(1) lookups and faster filtering
 const toolsMap: Record<string, Tool> = {};
@@ -3846,6 +3848,28 @@ const tools: Tool[] = [
     Component: NumberRounding,
     category: "calculators",
     keywords: ["math", "round", "floor", "ceil", "trunc", "precision", "numbers"],
+  },
+  {
+    id: "word-search",
+    name: "Mots Mêlés",
+    nameEn: "Word Search",
+    icon: Grid3X3,
+    description: "Générateur de grilles de mots mêlés personnalisées",
+    descriptionEn: "Custom word search puzzle generator",
+    Component: WordSearchGenerator,
+    category: "other",
+    keywords: ["word", "search", "puzzle", "grid", "letters", "game"],
+  },
+  {
+    id: "svg-visualizer",
+    name: "Visualiseur SVG",
+    nameEn: "SVG Visualizer",
+    icon: PenTool,
+    description: "Visualiser et inspecter les tracés SVG (attribut d)",
+    descriptionEn: "Visualize and inspect SVG paths (d attribute)",
+    Component: SVGPathVisualizer,
+    category: "dev",
+    keywords: ["svg", "path", "vector", "graphics", "d attribute", "coordinates"],
   },
 ];
 

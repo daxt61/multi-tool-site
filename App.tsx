@@ -453,6 +453,10 @@ const CSSFilterGenerator = lazy(() => import("./components/CSSFilterGenerator").
 const CubicBezierGenerator = lazy(() => import("./components/CubicBezierGenerator").then(m => ({ default: m.CubicBezierGenerator })));
 const SVGToCSS = lazy(() => import("./components/SVGToCSS").then(m => ({ default: m.SVGToCSS })));
 const LorentzAttractor = lazy(() => import("./components/LorentzAttractor").then(m => ({ default: m.LorentzAttractor })));
+const IntegerPartitions = lazy(() => import("./components/IntegerPartitions").then(m => ({ default: m.IntegerPartitions })));
+const HexEndianness = lazy(() => import("./components/HexEndianness").then(m => ({ default: m.HexEndianness })));
+const GraphemeExtractor = lazy(() => import("./components/GraphemeExtractor").then(m => ({ default: m.GraphemeExtractor })));
+const NumberRounding = lazy(() => import("./components/NumberRounding").then(m => ({ default: m.NumberRounding })));
 
 // ⚡ Bolt Optimization: Pre-calculating tool map and search index for O(1) lookups and faster filtering
 const toolsMap: Record<string, Tool> = {};
@@ -3798,6 +3802,50 @@ const tools: Tool[] = [
     Component: LorentzAttractor,
     category: "calculators",
     keywords: ["chaos", "math", "attractor", "lorentz", "simulation", "fractal"],
+  },
+  {
+    id: "integer-partitions",
+    name: "Partitions d'Entier",
+    nameEn: "Integer Partitions",
+    icon: Plus,
+    description: "Générer toutes les partitions d'un entier sous forme de somme",
+    descriptionEn: "Generate all partitions of an integer as a sum",
+    Component: IntegerPartitions,
+    category: "calculators",
+    keywords: ["math", "partition", "sum", "integer", "number theory"],
+  },
+  {
+    id: "hex-endianness",
+    name: "Endianness Hex",
+    nameEn: "Hex Endianness",
+    icon: ArrowLeftRight,
+    description: "Convertir des données hex entre formats Big-Endian et Little-Endian",
+    descriptionEn: "Convert hex data between Big-Endian and Little-Endian formats",
+    Component: HexEndianness,
+    category: "dev",
+    keywords: ["hex", "endianness", "big-endian", "little-endian", "bytes", "swap"],
+  },
+  {
+    id: "grapheme-extractor",
+    name: "Extracteur de Graphèmes",
+    nameEn: "Grapheme Extractor",
+    icon: Type,
+    description: "Extraire les caractères perçus par l'utilisateur (graphèmes) du texte",
+    descriptionEn: "Extract user-perceived characters (graphemes) from text",
+    Component: GraphemeExtractor,
+    category: "text",
+    keywords: ["unicode", "grapheme", "character", "split", "emoji", "symbols"],
+  },
+  {
+    id: "number-rounding",
+    name: "Arrondi de Nombres",
+    nameEn: "Number Rounding",
+    icon: Ruler,
+    description: "Arrondir des listes de nombres avec précision et méthode personnalisées",
+    descriptionEn: "Round lists of numbers with custom precision and method",
+    Component: NumberRounding,
+    category: "calculators",
+    keywords: ["math", "round", "floor", "ceil", "trunc", "precision", "numbers"],
   },
 ];
 

@@ -33,3 +33,7 @@
 ## 2025-06-30 - [Tab Roles & Live Regions for Password Security]
 **Learning:** Mode selectors that switch between different generation logic (like Random vs. Passphrase) should follow ARIA tab patterns (`role="tablist"`, `role="tab"`) for clear navigation. Dynamic security indicators (strength bars) benefit from `aria-live="polite"` to provide immediate feedback to screen reader users as they modify settings.
 **Action:** Use standard ARIA tab roles for mutually exclusive configuration modes. Implement live regions for real-time status indicators in security-sensitive tools.
+
+## 2025-08-15 - [OS-Aware Keyboard Shortcut Hints]
+**Learning:** Hardcoding platform-specific shortcuts (like 'Ctrl+K') in translation files creates a confusing experience for Mac users who expect '⌘K'. Dynamic label construction improves both clarity and perceived polish.
+**Action:** Use a centralized platform detection logic to dynamically append the correct modifier (⌘ or Ctrl) to localized accessibility labels and visual hints.

@@ -4108,6 +4108,7 @@ function MainApp() {
   const { t, i18n: i18nInstance } = useTranslation();
   const [commandOpen, setCommandOpen] = useState(false);
   const [showBackToTop, setShowBackToTop] = useState(false);
+  const isMac = useMemo(() => typeof navigator !== 'undefined' && /Mac|iPod|iPhone|iPad/.test(navigator.userAgent), []);
 
   useEffect(() => {
     const handleScroll = () => {
@@ -4415,11 +4416,11 @@ function MainApp() {
             <button
               onClick={() => setCommandOpen(true)}
               className="p-2 rounded-lg bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 transition-colors text-slate-600 dark:text-slate-300 border border-slate-200 dark:border-slate-700 focus-visible:ring-2 focus-visible:ring-indigo-500 focus-visible:outline-none flex items-center gap-2 group"
-              aria-label={t("nav.search_label")}
+              aria-label={`${t("nav.search_label")} (${isMac ? '⌘K' : 'Ctrl+K'})`}
             >
               <Search className="w-5 h-5" />
               <kbd className="hidden lg:inline-flex items-center gap-1 px-1.5 py-0.5 border border-slate-300 dark:border-slate-600 rounded text-[10px] font-bold bg-white dark:bg-slate-900 group-hover:border-indigo-500 transition-colors">
-                K
+                {isMac ? '⌘' : 'Ctrl'} K
               </kbd>
             </button>
             <ThemeToggle navigate={navigate} location={location} />
@@ -4607,7 +4608,7 @@ function MainApp() {
                           setSelectedCategory(null);
                         }
                       }}
-                      className="px-6 py-2 bg-slate-900 dark:bg-white text-white dark:text-slate-900 rounded-xl font-bold transition-all"
+                      className="px-6 py-2 bg-slate-900 dark:bg-white text-white dark:text-slate-900 rounded-xl font-bold transition-all focus-visible:ring-2 focus-visible:ring-indigo-500 focus-visible:outline-none"
                     >
                       {selectedCategory === "favorites" && !searchQuery ? t("category.all") : t("search.clear")}
                     </button>

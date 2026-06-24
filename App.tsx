@@ -460,6 +460,7 @@ const NumberRounding = lazy(() => import("./components/NumberRounding").then(m =
 const WordSearchGenerator = lazy(() => import("./components/WordSearchGenerator").then(m => ({ default: m.WordSearchGenerator })));
 const SVGPathVisualizer = lazy(() => import("./components/SVGPathVisualizer").then(m => ({ default: m.SVGPathVisualizer })));
 const RandomUserGenerator = lazy(() => import("./components/RandomUserGenerator").then(m => ({ default: m.RandomUserGenerator })));
+const PathfindingVisualizer = lazy(() => import("./components/PathfindingVisualizer").then(m => ({ default: m.PathfindingVisualizer })));
 
 // ⚡ Bolt Optimization: Pre-calculating tool map and search index for O(1) lookups and faster filtering
 const toolsMap: Record<string, Tool> = {};
@@ -3882,6 +3883,17 @@ const tools: Tool[] = [
     Component: RandomUserGenerator,
     category: "dev",
     keywords: ["user", "mock", "profile", "data", "test", "identity"],
+  },
+  {
+    id: "pathfinding",
+    name: "Visualiseur de Chemin",
+    nameEn: "Pathfinding Visualizer",
+    icon: Target,
+    description: "Visualisation interactive d'algorithmes de recherche de chemin (Dijkstra, A*, etc.)",
+    descriptionEn: "Interactive visualization of pathfinding algorithms (Dijkstra, A*, etc.)",
+    Component: PathfindingVisualizer,
+    category: "calculators",
+    keywords: ["pathfinding", "algorithm", "dijkstra", "astar", "grid", "search", "maze"],
   },
 ];
 

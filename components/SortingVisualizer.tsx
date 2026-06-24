@@ -1,10 +1,10 @@
 import React, { useState, useEffect, useCallback, useRef } from 'react';
-import { Play, RotateCcw, Shuffle, Info, Settings2, BarChart3, Pause } from 'lucide-react';
+import { Play, RotateCcw, Shuffle, Info, Settings2, BarChart3, Pause, FastForward, StepForward } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import { getSecureRandomInt } from './ui/crypto';
 
 // Types for the sorting state
-type Algorithm = 'bubble' | 'selection' | 'insertion' | 'merge' | 'quick' | 'heap';
+type Algorithm = 'bubble' | 'selection' | 'insertion' | 'merge' | 'quick' | 'heap' | 'shell' | 'cocktail';
 
 interface Bar {
   value: number;
@@ -24,10 +24,13 @@ export function SortingVisualizer({ initialData, onStateChange }: { initialData?
   const [array, setArray] = useState<Bar[]>([]);
   const [isSorting, setIsSorting] = useState(false);
   const [isPaused, setIsPaused] = useState(false);
+  const [isStepMode, setIsStepMode] = useState(false);
   const [stats, setStats] = useState({ comparisons: 0, swaps: 0 });
 
   const isSortingRef = useRef(false);
   const isPausedRef = useRef(false);
+  const isStepModeRef = useRef(false);
+  const stepTriggerRef = useRef<(() => void) | null>(null);
   const arrayRef = useRef<Bar[]>([]);
   const speedRef = useRef(speed);
 
@@ -65,7 +68,12 @@ export function SortingVisualizer({ initialData, onStateChange }: { initialData?
           resolve(false);
           return;
         }
-        if (isPausedRef.current) {
+        if (isStepModeRef.current) {
+           stepTriggerRef.current = () => {
+              stepTriggerRef.current = null;
+              resolve(true);
+           };
+        } else if (isPausedRef.current) {
           setTimeout(check, 100);
         } else {
           setTimeout(() => resolve(true), ms);
@@ -104,16 +112,12 @@ export function SortingVisualizer({ initialData, onStateChange }: { initialData?
   // Sorting Algorithms
   const bubbleSort = async () => {
     const n = arrayRef.current.length;
-    const arr = [...arrayRef.current];
-
     for (let i = 0; i < n; i++) {
       for (let j = 0; j < n - i - 1; j++) {
         if (!isSortingRef.current) return;
-
         updateBarStatus([j, j + 1], 'comparing');
         setStats(prev => ({ ...prev, comparisons: prev.comparisons + 1 }));
         if (!(await sleep(speedRef.current))) return;
-
         if (arrayRef.current[j].value > arrayRef.current[j + 1].value) {
           updateBarStatus([j, j + 1], 'swapping');
           if (!(await sleep(speedRef.current))) return;
@@ -122,7 +126,6 @@ export function SortingVisualizer({ initialData, onStateChange }: { initialData?
         }
         updateBarStatus([j, j + 1], 'idle');
       }
-      // Last element is sorted
       const newArray = [...arrayRef.current];
       newArray[n - i - 1].status = 'sorted';
       setArray(newArray);
@@ -132,19 +135,15 @@ export function SortingVisualizer({ initialData, onStateChange }: { initialData?
 
   const selectionSort = async () => {
     const n = arrayRef.current.length;
-
     for (let i = 0; i < n; i++) {
       if (!isSortingRef.current) return;
       let minIdx = i;
       updateBarStatus([i], 'comparing');
-
       for (let j = i + 1; j < n; j++) {
         if (!isSortingRef.current) return;
-
         updateBarStatus([j], 'comparing');
         setStats(prev => ({ ...prev, comparisons: prev.comparisons + 1 }));
         if (!(await sleep(speedRef.current))) return;
-
         if (arrayRef.current[j].value < arrayRef.current[minIdx].value) {
           updateBarStatus([minIdx], 'idle');
           minIdx = j;
@@ -154,7 +153,6 @@ export function SortingVisualizer({ initialData, onStateChange }: { initialData?
           updateBarStatus([j], 'idle');
         }
       }
-
       if (!isSortingRef.current) return;
       if (minIdx !== i) {
         updateBarStatus([i, minIdx], 'swapping');
@@ -162,7 +160,6 @@ export function SortingVisualizer({ initialData, onStateChange }: { initialData?
         swapBars(i, minIdx);
         if (!(await sleep(speedRef.current))) return;
       }
-
       if (!isSortingRef.current) return;
       const newArray = [...arrayRef.current];
       newArray[i].status = 'sorted';
@@ -174,43 +171,109 @@ export function SortingVisualizer({ initialData, onStateChange }: { initialData?
 
   const insertionSort = async () => {
     const n = arrayRef.current.length;
-
-    // First element is sorted by definition in visualization
     if (!isSortingRef.current) return;
     updateBarStatus([0], 'sorted');
-
     for (let i = 1; i < n; i++) {
       if (!isSortingRef.current) return;
       let j = i;
       updateBarStatus([i], 'swapping');
       if (!(await sleep(speedRef.current))) return;
-
       while (j > 0 && arrayRef.current[j].value < arrayRef.current[j - 1].value) {
         if (!isSortingRef.current) return;
-
         updateBarStatus([j, j - 1], 'comparing');
         setStats(prev => ({ ...prev, comparisons: prev.comparisons + 1 }));
         if (!(await sleep(speedRef.current))) return;
-
         updateBarStatus([j, j - 1], 'swapping');
         if (!(await sleep(speedRef.current))) return;
         swapBars(j, j - 1);
         if (!(await sleep(speedRef.current))) return;
-
-        // After swap, mark the previous one as sorted if it was part of the sorted sublist
-        if (!isSortingRef.current) return;
         const newArr = [...arrayRef.current];
         newArr[j].status = 'sorted';
         setArray(newArr);
         arrayRef.current = newArr;
-
         j--;
       }
-      if (!isSortingRef.current) return;
       const finalArr = [...arrayRef.current];
       finalArr[j].status = 'sorted';
       setArray(finalArr);
       arrayRef.current = finalArr;
+    }
+  };
+
+  const shellSort = async () => {
+    const n = arrayRef.current.length;
+    for (let gap = Math.floor(n / 2); gap > 0; gap = Math.floor(gap / 2)) {
+      for (let i = gap; i < n; i++) {
+        if (!isSortingRef.current) return;
+        let tempValue = arrayRef.current[i].value;
+        let j = i;
+        updateBarStatus([i], 'comparing');
+        if (!(await sleep(speedRef.current))) return;
+        while (j >= gap && arrayRef.current[j - gap].value > tempValue) {
+          if (!isSortingRef.current) return;
+          updateBarStatus([j, j - gap], 'swapping');
+          setStats(prev => ({ ...prev, comparisons: prev.comparisons + 1 }));
+          if (!(await sleep(speedRef.current))) return;
+          updateBarValue(j, arrayRef.current[j - gap].value, 'swapping');
+          if (!(await sleep(speedRef.current))) return;
+          updateBarStatus([j], 'idle');
+          j -= gap;
+        }
+        updateBarValue(j, tempValue, 'sorted');
+        if (!(await sleep(speedRef.current))) return;
+      }
+    }
+  };
+
+  const cocktailSort = async () => {
+    const n = arrayRef.current.length;
+    let swapped = true;
+    let start = 0;
+    let end = n - 1;
+
+    while (swapped) {
+      swapped = false;
+      for (let i = start; i < end; i++) {
+        if (!isSortingRef.current) return;
+        updateBarStatus([i, i + 1], 'comparing');
+        setStats(prev => ({ ...prev, comparisons: prev.comparisons + 1 }));
+        if (!(await sleep(speedRef.current))) return;
+        if (arrayRef.current[i].value > arrayRef.current[i + 1].value) {
+          updateBarStatus([i, i + 1], 'swapping');
+          if (!(await sleep(speedRef.current))) return;
+          swapBars(i, i + 1);
+          swapped = true;
+          if (!(await sleep(speedRef.current))) return;
+        }
+        updateBarStatus([i, i + 1], 'idle');
+      }
+      if (!swapped) break;
+      swapped = false;
+      const lastSorted = [...arrayRef.current];
+      lastSorted[end].status = 'sorted';
+      setArray(lastSorted);
+      arrayRef.current = lastSorted;
+      end--;
+
+      for (let i = end - 1; i >= start; i--) {
+        if (!isSortingRef.current) return;
+        updateBarStatus([i, i + 1], 'comparing');
+        setStats(prev => ({ ...prev, comparisons: prev.comparisons + 1 }));
+        if (!(await sleep(speedRef.current))) return;
+        if (arrayRef.current[i].value > arrayRef.current[i + 1].value) {
+          updateBarStatus([i, i + 1], 'swapping');
+          if (!(await sleep(speedRef.current))) return;
+          swapBars(i, i + 1);
+          swapped = true;
+          if (!(await sleep(speedRef.current))) return;
+        }
+        updateBarStatus([i, i + 1], 'idle');
+      }
+      const firstSorted = [...arrayRef.current];
+      firstSorted[start].status = 'sorted';
+      setArray(firstSorted);
+      arrayRef.current = firstSorted;
+      start++;
     }
   };
 
@@ -222,7 +285,6 @@ export function SortingVisualizer({ initialData, onStateChange }: { initialData?
   const mergeSortHelper = async (start: number, end: number) => {
     if (start >= end) return;
     if (!isSortingRef.current) return;
-
     const mid = Math.floor((start + end) / 2);
     await mergeSortHelper(start, mid);
     await mergeSortHelper(mid + 1, end);
@@ -231,19 +293,14 @@ export function SortingVisualizer({ initialData, onStateChange }: { initialData?
 
   const merge = async (start: number, mid: number, end: number) => {
     if (!isSortingRef.current) return;
-
     const left = arrayRef.current.slice(start, mid + 1).map(b => b.value);
     const right = arrayRef.current.slice(mid + 1, end + 1).map(b => b.value);
-
     let i = 0, j = 0, k = start;
-
     while (i < left.length && j < right.length) {
       if (!isSortingRef.current) return;
-
       updateBarStatus([k], 'comparing');
       setStats(prev => ({ ...prev, comparisons: prev.comparisons + 1 }));
       if (!(await sleep(speedRef.current))) return;
-
       if (left[i] <= right[j]) {
         updateBarValue(k, left[i], 'swapping');
         i++;
@@ -255,53 +312,37 @@ export function SortingVisualizer({ initialData, onStateChange }: { initialData?
       updateBarStatus([k], 'idle');
       k++;
     }
-
     while (i < left.length) {
       if (!isSortingRef.current) return;
       updateBarValue(k, left[i], 'swapping');
       if (!(await sleep(speedRef.current))) return;
       updateBarStatus([k], 'idle');
-      i++;
-      k++;
+      i++; k++;
     }
-
     while (j < right.length) {
       if (!isSortingRef.current) return;
       updateBarValue(k, right[j], 'swapping');
       if (!(await sleep(speedRef.current))) return;
       updateBarStatus([k], 'idle');
-      j++;
-      k++;
+      j++; k++;
     }
   };
 
   const heapSort = async () => {
     const n = arrayRef.current.length;
-
-    // Build heap
-    for (let i = Math.floor(n / 2) - 1; i >= 0; i--) {
-      await heapify(n, i);
-    }
-
-    // Extract elements from heap
+    for (let i = Math.floor(n / 2) - 1; i >= 0; i--) await heapify(n, i);
     for (let i = n - 1; i > 0; i--) {
       if (!isSortingRef.current) return;
-
       updateBarStatus([0, i], 'swapping');
       if (!(await sleep(speedRef.current))) return;
       swapBars(0, i);
       if (!(await sleep(speedRef.current))) return;
-
-      if (!isSortingRef.current) return;
       const newArray = [...arrayRef.current];
       newArray[i].status = 'sorted';
       setArray(newArray);
       arrayRef.current = newArray;
-
       await heapify(i, 0);
     }
-
-    // Mark the last remaining element (index 0) as sorted
     if (!isSortingRef.current) return;
     const finalArray = [...arrayRef.current];
     finalArray[0].status = 'sorted';
@@ -311,31 +352,21 @@ export function SortingVisualizer({ initialData, onStateChange }: { initialData?
 
   const heapify = async (n: number, i: number) => {
     if (!isSortingRef.current) return;
-
     let largest = i;
     const l = 2 * i + 1;
     const r = 2 * i + 2;
-
     updateBarStatus([i], 'comparing');
     if (l < n) updateBarStatus([l], 'comparing');
     if (r < n) updateBarStatus([r], 'comparing');
     setStats(prev => ({ ...prev, comparisons: prev.comparisons + 1 }));
     if (!(await sleep(speedRef.current))) return;
-
-    if (l < n && arrayRef.current[l].value > arrayRef.current[largest].value) {
-      largest = l;
-    }
-
-    if (r < n && arrayRef.current[r].value > arrayRef.current[largest].value) {
-      largest = r;
-    }
-
+    if (l < n && arrayRef.current[l].value > arrayRef.current[largest].value) largest = l;
+    if (r < n && arrayRef.current[r].value > arrayRef.current[largest].value) largest = r;
     if (largest !== i) {
       updateBarStatus([i, largest], 'swapping');
       if (!(await sleep(speedRef.current))) return;
       swapBars(i, largest);
       if (!(await sleep(speedRef.current))) return;
-
       updateBarStatus([i, largest], 'idle');
       await heapify(n, largest);
     } else {
@@ -356,7 +387,6 @@ export function SortingVisualizer({ initialData, onStateChange }: { initialData?
       return;
     }
     if (!isSortingRef.current) return;
-
     const pivotIdx = await partition(start, end);
     await quickSortHelper(start, pivotIdx - 1);
     await quickSortHelper(pivotIdx + 1, end);
@@ -366,14 +396,11 @@ export function SortingVisualizer({ initialData, onStateChange }: { initialData?
     const pivotValue = arrayRef.current[end].value;
     updateBarStatus([end], 'comparing');
     let i = start;
-
     for (let j = start; j < end; j++) {
       if (!isSortingRef.current) return i;
-
       updateBarStatus([j], 'comparing');
       setStats(prev => ({ ...prev, comparisons: prev.comparisons + 1 }));
       if (!(await sleep(speedRef.current))) return i;
-
       if (arrayRef.current[j].value < pivotValue) {
         if (i !== j) {
           updateBarStatus([i, j], 'swapping');
@@ -387,26 +414,30 @@ export function SortingVisualizer({ initialData, onStateChange }: { initialData?
         updateBarStatus([j], 'idle');
       }
     }
-
     updateBarStatus([i, end], 'swapping');
     if (!(await sleep(speedRef.current))) return i;
     swapBars(i, end);
     if (!(await sleep(speedRef.current))) return i;
-    if (!isSortingRef.current) return i;
     updateBarStatus([end], 'idle');
     updateBarStatus([i], 'sorted');
-
     return i;
   };
 
-  const startSort = async () => {
-    if (isSorting) return;
+  const startSort = async (mode: 'auto' | 'step') => {
+    if (isSorting) {
+       if (mode === 'step' && isStepModeRef.current) {
+          stepTriggerRef.current?.();
+       }
+       return;
+    };
+
     setIsSorting(true);
     isSortingRef.current = true;
     setIsPaused(false);
     isPausedRef.current = false;
+    setIsStepMode(mode === 'step');
+    isStepModeRef.current = mode === 'step';
 
-    // Reset status to idle before starting
     const resetArray: Bar[] = arrayRef.current.map(b => ({ ...b, status: 'idle' }));
     setArray(resetArray);
     arrayRef.current = resetArray;
@@ -417,6 +448,8 @@ export function SortingVisualizer({ initialData, onStateChange }: { initialData?
         case 'bubble': await bubbleSort(); break;
         case 'selection': await selectionSort(); break;
         case 'insertion': await insertionSort(); break;
+        case 'shell': await shellSort(); break;
+        case 'cocktail': await cocktailSort(); break;
         case 'merge': await mergeSort(); break;
         case 'quick': await quickSort(); break;
         case 'heap': await heapSort(); break;
@@ -426,12 +459,13 @@ export function SortingVisualizer({ initialData, onStateChange }: { initialData?
     }
 
     if (isSortingRef.current) {
-        // If finished naturally, mark all as sorted
         setArray(prev => prev.map(bar => ({ ...bar, status: 'sorted' })));
     }
 
     setIsSorting(false);
     isSortingRef.current = false;
+    setIsStepMode(false);
+    isStepModeRef.current = false;
   };
 
   const stopSort = () => {
@@ -439,12 +473,18 @@ export function SortingVisualizer({ initialData, onStateChange }: { initialData?
     setIsSorting(false);
     setIsPaused(false);
     isPausedRef.current = false;
+    setIsStepMode(false);
+    isStepModeRef.current = false;
     generateArray(arraySize);
   };
 
   const togglePause = () => {
     setIsPaused(!isPaused);
     isPausedRef.current = !isPaused;
+    if (isStepMode) {
+       setIsStepMode(false);
+       isStepModeRef.current = false;
+    }
   };
 
   // Keyboard shortcuts using the "latest ref" pattern
@@ -487,7 +527,7 @@ export function SortingVisualizer({ initialData, onStateChange }: { initialData?
       if (e.code === 'Space') {
         e.preventDefault();
         if (!isSorting) {
-          startSort();
+          startSort('auto');
         } else {
           togglePause();
         }
@@ -501,6 +541,9 @@ export function SortingVisualizer({ initialData, onStateChange }: { initialData?
           e.preventDefault();
           generateArray(arraySize);
         }
+      } else if (e.key === 'ArrowRight' && isSorting) {
+         e.preventDefault();
+         startSort('step');
       }
     };
 
@@ -531,6 +574,8 @@ export function SortingVisualizer({ initialData, onStateChange }: { initialData?
                   <option value="bubble">{t('sorting.algo.bubble')}</option>
                   <option value="selection">{t('sorting.algo.selection')}</option>
                   <option value="insertion">{t('sorting.algo.insertion')}</option>
+                  <option value="shell">{t('sorting.algo.shell')}</option>
+                  <option value="cocktail">{t('sorting.algo.cocktail')}</option>
                   <option value="merge">{t('sorting.algo.merge')}</option>
                   <option value="quick">{t('sorting.algo.quick')}</option>
                   <option value="heap">{t('sorting.algo.heap')}</option>
@@ -575,23 +620,41 @@ export function SortingVisualizer({ initialData, onStateChange }: { initialData?
           <div className="md:col-span-2 bg-white dark:bg-slate-900/40 p-6 rounded-[2rem] border border-slate-200 dark:border-slate-800 flex flex-col justify-between">
             <div className="flex flex-wrap gap-4">
                {!isSorting ? (
-                 <button
-                   onClick={startSort}
-                   className="group px-8 py-3 bg-indigo-600 text-white rounded-2xl font-black flex items-center gap-2 hover:bg-indigo-700 transition-all shadow-lg shadow-indigo-600/20 active:scale-95 focus-visible:ring-2 focus-visible:ring-indigo-500 focus-visible:outline-none"
-                 >
-                   <Play className="w-5 h-5 fill-current" /> {t('common.play')}
-                   <kbd className="hidden md:inline-flex items-center justify-center px-1.5 py-0.5 border rounded text-[10px] font-bold ml-1 transition-all bg-white/10 border-white/20 text-white/70 group-hover:bg-white/20">Space</kbd>
-                 </button>
+                 <div className="flex gap-2">
+                    <button
+                      onClick={() => startSort('auto')}
+                      className="group px-8 py-3 bg-indigo-600 text-white rounded-2xl font-black flex items-center gap-2 hover:bg-indigo-700 transition-all shadow-lg shadow-indigo-600/20 active:scale-95 focus-visible:ring-2 focus-visible:ring-indigo-500 focus-visible:outline-none"
+                    >
+                      <Play className="w-5 h-5 fill-current" /> {t('common.play')}
+                    </button>
+                    <button
+                      onClick={() => startSort('step')}
+                      className="group px-6 py-3 bg-indigo-50 dark:bg-indigo-900/20 text-indigo-600 dark:text-indigo-400 rounded-2xl font-black flex items-center gap-2 hover:bg-indigo-100 dark:hover:bg-indigo-900/30 transition-all active:scale-95 focus-visible:ring-2 focus-visible:ring-indigo-500 focus-visible:outline-none"
+                      title="Run in step-by-step mode"
+                    >
+                      <FastForward className="w-5 h-5" /> {t('sorting.step_mode')}
+                    </button>
+                 </div>
                ) : (
                  <>
-                   <button
-                     onClick={togglePause}
-                     className="group px-8 py-3 bg-amber-500 text-white rounded-2xl font-black flex items-center gap-2 hover:bg-amber-600 transition-all shadow-lg shadow-amber-500/20 active:scale-95 focus-visible:ring-2 focus-visible:ring-amber-500 focus-visible:outline-none"
-                   >
-                     {isPaused ? <Play className="w-5 h-5 fill-current" /> : <Pause className="w-5 h-5 fill-current" />}
-                     {isPaused ? t('common.play') : t('timer.pause')}
-                     <kbd className="hidden md:inline-flex items-center justify-center px-1.5 py-0.5 border rounded text-[10px] font-bold ml-1 transition-all bg-white/10 border-white/20 text-white/70 group-hover:bg-white/20">Space</kbd>
-                   </button>
+                    {isStepMode ? (
+                       <button
+                         onClick={() => startSort('step')}
+                         className="group px-8 py-3 bg-indigo-600 text-white rounded-2xl font-black flex items-center gap-2 hover:bg-indigo-700 transition-all shadow-lg shadow-indigo-600/20 active:scale-95 focus-visible:ring-2 focus-visible:ring-indigo-500 focus-visible:outline-none"
+                       >
+                         <StepForward className="w-5 h-5" /> {t('sorting.next_step')}
+                         <kbd className="hidden md:inline-flex items-center justify-center px-1.5 py-0.5 border rounded text-[10px] font-bold ml-1 transition-all bg-white/10 border-white/20 text-white/70 group-hover:bg-white/20">→</kbd>
+                       </button>
+                    ) : (
+                       <button
+                         onClick={togglePause}
+                         className="group px-8 py-3 bg-amber-500 text-white rounded-2xl font-black flex items-center gap-2 hover:bg-amber-600 transition-all shadow-lg shadow-amber-500/20 active:scale-95 focus-visible:ring-2 focus-visible:ring-amber-500 focus-visible:outline-none"
+                       >
+                         {isPaused ? <Play className="w-5 h-5 fill-current" /> : <Pause className="w-5 h-5 fill-current" />}
+                         {isPaused ? t('common.play') : t('timer.pause')}
+                         <kbd className="hidden md:inline-flex items-center justify-center px-1.5 py-0.5 border rounded text-[10px] font-bold ml-1 transition-all bg-white/10 border-white/20 text-white/70 group-hover:bg-white/20">Space</kbd>
+                       </button>
+                    )}
                    <button
                      onClick={stopSort}
                      className="group px-8 py-3 bg-rose-500 text-white rounded-2xl font-black flex items-center gap-2 hover:bg-rose-600 transition-all shadow-lg shadow-rose-500/20 active:scale-95 focus-visible:ring-2 focus-visible:ring-rose-500 focus-visible:outline-none"
@@ -626,7 +689,7 @@ export function SortingVisualizer({ initialData, onStateChange }: { initialData?
 
        {/* Visualization Area */}
        <div
-         className="bg-slate-100 dark:bg-slate-950 p-8 rounded-[2.5rem] border border-slate-200 dark:border-slate-800 min-h-[400px] flex items-end justify-center gap-px overflow-hidden"
+         className="bg-slate-100 dark:bg-slate-950 p-8 rounded-[2.5rem] border border-slate-200 dark:border-slate-800 min-h-[400px] flex items-end justify-center gap-px overflow-hidden relative"
          role="img"
          aria-label={t('tool.sorting-visualizer.description')}
        >
@@ -644,6 +707,12 @@ export function SortingVisualizer({ initialData, onStateChange }: { initialData?
               }}
             />
           ))}
+          {isSorting && (
+             <div className="absolute top-4 right-6 px-4 py-2 bg-white/10 backdrop-blur-md rounded-full border border-white/20 flex items-center gap-2">
+                <div className="w-2 h-2 rounded-full bg-indigo-500 animate-pulse" />
+                <span className="text-[10px] font-black uppercase tracking-widest text-indigo-500">{isStepMode ? 'Step-by-Step' : 'Auto-Sorting'}</span>
+             </div>
+          )}
        </div>
 
        {/* Info */}
@@ -653,7 +722,7 @@ export function SortingVisualizer({ initialData, onStateChange }: { initialData?
             <Info className="w-4 h-4 text-indigo-500" /> {t('unit.guide_title')}
           </h4>
           <p className="text-sm text-slate-500 dark:text-slate-400 leading-relaxed">
-             {t('sorting.guide')}
+             {t('sorting.guide')} Use the <span className="font-bold">Step Mode</span> to manually control the algorithm's progress using the <span className="font-bold">Arrow Right</span> key.
           </p>
         </div>
         <div className="space-y-4">
@@ -662,27 +731,19 @@ export function SortingVisualizer({ initialData, onStateChange }: { initialData?
           </h4>
           <div className="text-sm text-slate-500 dark:text-slate-400 space-y-2">
              <div className="flex justify-between border-b border-slate-100 dark:border-slate-800 pb-1">
-                <span>{t('sorting.algo.bubble')}</span>
+                <span>{t('sorting.algo.bubble')} / Cocktail</span>
                 <span className="font-mono text-indigo-500">O(n²)</span>
              </div>
              <div className="flex justify-between border-b border-slate-100 dark:border-slate-800 pb-1">
-                <span>{t('sorting.algo.selection')}</span>
+                <span>{t('sorting.algo.selection')} / {t('sorting.algo.insertion')}</span>
                 <span className="font-mono text-indigo-500">O(n²)</span>
              </div>
              <div className="flex justify-between border-b border-slate-100 dark:border-slate-800 pb-1">
-                <span>{t('sorting.algo.insertion')}</span>
-                <span className="font-mono text-indigo-500">O(n²)</span>
+                <span>Shell Sort</span>
+                <span className="font-mono text-indigo-500">O(n log² n)</span>
              </div>
              <div className="flex justify-between border-b border-slate-100 dark:border-slate-800 pb-1">
-                <span>{t('sorting.algo.merge')}</span>
-                <span className="font-mono text-indigo-500">O(n log n)</span>
-             </div>
-             <div className="flex justify-between border-b border-slate-100 dark:border-slate-800 pb-1">
-                <span>{t('sorting.algo.quick')}</span>
-                <span className="font-mono text-indigo-500">O(n log n)</span>
-             </div>
-             <div className="flex justify-between border-b border-slate-100 dark:border-slate-800 pb-1">
-                <span>{t('sorting.algo.heap')}</span>
+                <span>{t('sorting.algo.merge')} / {t('sorting.algo.quick')} / {t('sorting.algo.heap')}</span>
                 <span className="font-mono text-indigo-500">O(n log n)</span>
              </div>
           </div>

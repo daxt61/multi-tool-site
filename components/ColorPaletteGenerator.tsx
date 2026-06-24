@@ -1,6 +1,7 @@
 import { useState, useMemo, useEffect } from 'react';
-import { Copy, Check, RefreshCw, Palette, Layers, Download } from 'lucide-react';
+import { Copy, Check, RefreshCw, Palette, Layers, Download, Eye } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
+import { getSecureRandomInt } from './ui/crypto';
 
 export function ColorPaletteGenerator({ initialData, onStateChange }: { initialData?: any; onStateChange?: (state: any) => void }) {
   const { t } = useTranslation();
@@ -11,7 +12,7 @@ export function ColorPaletteGenerator({ initialData, onStateChange }: { initialD
     onStateChange?.({ baseColor });
   }, [baseColor]);
 
-  const hexToHsl = (hex: string) => {
+  const hexToRgb = (hex: string) => {
     let r = 0, g = 0, b = 0;
     if (hex.length === 4) {
       r = parseInt(hex[1] + hex[1], 16);
@@ -22,16 +23,35 @@ export function ColorPaletteGenerator({ initialData, onStateChange }: { initialD
       g = parseInt(hex.substring(3, 5), 16);
       b = parseInt(hex.substring(5, 7), 16);
     }
-    r /= 255; g /= 255; b /= 255;
-    const max = Math.max(r, g, b), min = Math.min(r, g, b);
+    return { r, g, b };
+  };
+
+  const getLuminance = (r: number, g: number, b: number) => {
+    const a = [r, g, b].map(v => {
+      v /= 255;
+      return v <= 0.03928 ? v / 12.92 : Math.pow((v + 0.055) / 1.055, 2.4);
+    });
+    return a[0] * 0.2126 + a[1] * 0.7152 + a[2] * 0.0722;
+  };
+
+  const getContrastRatio = (lum1: number, lum2: number) => {
+    const brightest = Math.max(lum1, lum2);
+    const darkest = Math.min(lum1, lum2);
+    return (brightest + 0.05) / (darkest + 0.05);
+  };
+
+  const hexToHsl = (hex: string) => {
+    const { r, g, b } = hexToRgb(hex);
+    const rNorm = r / 255, gNorm = g / 255, bNorm = b / 255;
+    const max = Math.max(rNorm, gNorm, bNorm), min = Math.min(rNorm, gNorm, bNorm);
     let h = 0, s = 0, l = (max + min) / 2;
     if (max !== min) {
       const d = max - min;
       s = l > 0.5 ? d / (2 - max - min) : d / (max + min);
       switch (max) {
-        case r: h = (g - b) / d + (g < b ? 6 : 0); break;
-        case g: h = (b - r) / d + 2; break;
-        case b: h = (r - g) / d + 4; break;
+        case rNorm: h = (gNorm - bNorm) / d + (gNorm < bNorm ? 6 : 0); break;
+        case gNorm: h = (bNorm - rNorm) / d + 2; break;
+        case bNorm: h = (rNorm - gNorm) / d + 4; break;
       }
       h /= 6;
     }
@@ -58,26 +78,37 @@ export function ColorPaletteGenerator({ initialData, onStateChange }: { initialD
 
     return [
       {
+        id: 'comp',
         name: t('palette.comp'),
         colors: generatePalette([0, 180]),
         desc: t('palette.comp_desc')
       },
       {
+        id: 'analogue',
         name: t('palette.analogue'),
         colors: generatePalette([-30, 0, 30]),
         desc: t('palette.analogue_desc')
       },
       {
+        id: 'triadic',
         name: t('palette.triadic'),
         colors: generatePalette([0, 120, 240]),
         desc: t('palette.triadic_desc')
       },
       {
+        id: 'split_comp',
         name: t('palette.split_comp'),
         colors: generatePalette([0, 150, 210]),
         desc: t('palette.split_comp_desc')
       },
       {
+         id: 'rectangle',
+         name: t('palette.rectangle'),
+         colors: generatePalette([0, 30, 180, 210]),
+         desc: t('palette.rectangle_desc')
+      },
+      {
+        id: 'mono',
         name: t('palette.mono'),
         colors: [
           hslToHex(h, s, Math.max(l - 30, 10)),
@@ -89,11 +120,25 @@ export function ColorPaletteGenerator({ initialData, onStateChange }: { initialD
         desc: t('palette.mono_desc')
       },
       {
+        id: 'shades',
+        name: t('palette.shades'),
+        colors: [
+           hslToHex(h, Math.max(s - 20, 0), Math.min(l + 40, 95)),
+           hslToHex(h, Math.max(s - 10, 0), Math.min(l + 20, 90)),
+           baseColor,
+           hslToHex(h, Math.min(s + 10, 100), Math.max(l - 20, 10)),
+           hslToHex(h, Math.min(s + 20, 100), Math.max(l - 40, 5)),
+        ],
+        desc: t('palette.shades_desc')
+      },
+      {
+        id: 'tetra',
         name: t('palette.tetra'),
         colors: generatePalette([0, 60, 180, 240]),
         desc: t('palette.tetra_desc')
       },
       {
+        id: 'square',
         name: t('palette.square'),
         colors: generatePalette([0, 90, 180, 270]),
         desc: t('palette.square_desc')
@@ -123,19 +168,30 @@ export function ColorPaletteGenerator({ initialData, onStateChange }: { initialD
   };
 
   const generateRandom = () => {
-    // Sentinel: Use cryptographically secure random values instead of Math.random()
-    const range = 16777216; // 0x1000000 (covers 0x000000 to 0xFFFFFF)
-    const array = new Uint32Array(1);
-    const maxUint32 = 0xffffffff;
-    const limit = maxUint32 - (maxUint32 % range);
-    let randomValue;
-    do {
-      window.crypto.getRandomValues(array);
-      randomValue = array[0];
-    } while (randomValue >= limit);
+    // Generate aesthetic "brand" colors using better HSL ranges
+    const h = getSecureRandomInt(360);
+    const s = getSecureRandomInt(40) + 50; // 50% - 90%
+    const l = getSecureRandomInt(30) + 40; // 40% - 70%
+    setBaseColor(hslToHex(h, s, l));
+  };
 
-    const randomHex = '#' + (randomValue % range).toString(16).padStart(6, '0');
-    setBaseColor(randomHex);
+  const ContrastBadge = ({ color }: { color: string }) => {
+     const { r, g, b } = hexToRgb(color);
+     const lum = getLuminance(r, g, b);
+     const whiteContrast = getContrastRatio(lum, 1);
+     const blackContrast = getContrastRatio(lum, 0);
+
+     const bestText = whiteContrast > blackContrast ? 'white' : 'black';
+     const bestRatio = Math.max(whiteContrast, blackContrast);
+
+     return (
+        <div className={`px-1.5 py-0.5 rounded-md text-[8px] font-black uppercase tracking-tighter flex items-center gap-1 ${
+           bestText === 'white' ? 'bg-white/20 text-white' : 'bg-black/10 text-black/60'
+        }`}>
+           <Eye className="w-2 h-2" />
+           {bestRatio.toFixed(1)}:1
+        </div>
+     );
   };
 
   return (
@@ -185,7 +241,7 @@ export function ColorPaletteGenerator({ initialData, onStateChange }: { initialD
       {/* Palettes Grid */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
         {palettes.map((palette) => (
-          <div key={palette.name} className="bg-white dark:bg-slate-900/40 border border-slate-200 dark:border-slate-800 rounded-[2.5rem] p-8 space-y-6 flex flex-col">
+          <div key={palette.id} className="bg-white dark:bg-slate-900/40 border border-slate-200 dark:border-slate-800 rounded-[2.5rem] p-8 space-y-6 flex flex-col">
             <div className="flex justify-between items-start">
               <div>
                 <h3 className="text-lg font-black dark:text-white">{palette.name}</h3>
@@ -194,15 +250,18 @@ export function ColorPaletteGenerator({ initialData, onStateChange }: { initialD
               <Palette className="w-5 h-5 text-indigo-500 opacity-20" />
             </div>
 
-            <div className="flex h-24 rounded-2xl overflow-hidden border border-slate-100 dark:border-slate-800">
+            <div className="flex h-28 rounded-2xl overflow-hidden border border-slate-100 dark:border-slate-800 shadow-sm">
               {palette.colors.map((color, i) => (
                 <button
-                  key={`${palette.name}-${i}`}
+                  key={`${palette.id}-${i}`}
                   onClick={() => copyToClipboard(color)}
-                  className="flex-1 relative group transition-all hover:flex-[1.5]"
+                  className="flex-1 relative group transition-all hover:flex-[1.5] flex flex-col items-center justify-end pb-3"
                   style={{ backgroundColor: color }}
                   title={color}
                 >
+                  <div className="mb-auto mt-3">
+                     <ContrastBadge color={color} />
+                  </div>
                   <div className={`absolute inset-0 flex items-center justify-center bg-black/20 opacity-0 group-hover:opacity-100 transition-opacity`}>
                     {copied === color ? <Check className="w-5 h-5 text-white" /> : <Copy className="w-5 h-5 text-white" />}
                   </div>
@@ -233,7 +292,7 @@ export function ColorPaletteGenerator({ initialData, onStateChange }: { initialD
          <div className="space-y-2">
             <h4 className="font-bold dark:text-white">{t('palette.about_title')}</h4>
             <p className="text-sm text-slate-500 dark:text-slate-400 leading-relaxed">
-              {t('palette.about_text')}
+              {t('palette.about_text')} The <Eye className="w-3 h-3 inline-block" /> icon shows the WCAG contrast ratio against the most readable text color (white or black). A ratio of 4.5:1 is recommended for standard text.
             </p>
          </div>
       </div>

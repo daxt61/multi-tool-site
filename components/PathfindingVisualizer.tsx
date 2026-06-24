@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useCallback, useRef, useMemo } from 'react';
-import { Play, RotateCcw, MousePointer2, BrickWall, Target, Flag, Settings2, Info, FastForward, Trash2 } from 'lucide-react';
+import { Play, RotateCcw, MousePointer2, BrickWall, Target, Flag, Settings2, Info, FastForward, Trash2, Shuffle } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
+import { getSecureRandomInt } from './ui/crypto';
 
 // --- Constants ---
 const ROWS = 20;
@@ -327,6 +328,15 @@ export function PathfindingVisualizer({ initialData, onStateChange }: { initialD
     })));
   };
 
+  const generateRandomWalls = () => {
+    if (isVisualizing) return;
+    clearGrid();
+    setGrid(prev => prev.map(row => row.map(node => {
+      if (node.type === 'start' || node.type === 'target') return node;
+      return { ...node, type: getSecureRandomInt(10) < 3 ? 'wall' : 'empty' };
+    })));
+  };
+
   return (
     <div className="max-w-6xl mx-auto space-y-8" onMouseUp={handleMouseUp} onMouseLeave={handleMouseUp}>
       {/* Controls */}
@@ -400,6 +410,13 @@ export function PathfindingVisualizer({ initialData, onStateChange }: { initialD
                 className="px-6 py-3 bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 rounded-2xl font-bold flex items-center gap-2 hover:bg-slate-200 dark:hover:bg-slate-700 transition-all disabled:opacity-50"
               >
                 <Trash2 className="w-4 h-4" /> Clear Path
+              </button>
+              <button
+                onClick={generateRandomWalls}
+                disabled={isVisualizing}
+                className="px-6 py-3 bg-indigo-50 dark:bg-indigo-900/20 text-indigo-600 dark:text-indigo-400 rounded-2xl font-bold flex items-center gap-2 hover:bg-indigo-100 dark:hover:bg-indigo-900/30 transition-all disabled:opacity-50"
+              >
+                <Shuffle className="w-4 h-4" /> {t('pathfinding.random_walls')}
               </button>
               <button
                 onClick={clearGrid}

@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useMemo, useCallback, useDeferredValue, lazy, Suspense } from "react";
+import React, { useState, useEffect, useMemo, useCallback, useDeferredValue, lazy, Suspense, useRef } from "react";
 import { ThemeProvider, useTheme } from "next-themes";
 import { Analytics } from "@vercel/analytics/react";
 import { SpeedInsights } from "@vercel/speed-insights/react";
@@ -4129,6 +4129,7 @@ function CommandMenu({ open, setOpen, onSelect, recentTools = [] }: {
 function MainApp() {
   const navigate = useNavigate();
   const location = useLocation();
+  const searchInputRef = useRef<HTMLInputElement>(null);
   const { t, i18n: i18nInstance } = useTranslation();
   const [commandOpen, setCommandOpen] = useState(false);
   const [showBackToTop, setShowBackToTop] = useState(false);
@@ -4470,9 +4471,13 @@ function MainApp() {
 
                 <div className="relative group max-w-lg mx-auto">
                   <label htmlFor="tool-search" className="sr-only">{t("search.placeholder")}</label>
+                  <div className="sr-only" aria-live="polite" aria-atomic="true">
+                    {searchQuery && t(filteredTools.length === 1 ? "search.results_count_one" : "search.results_count_other", { count: filteredTools.length })}
+                  </div>
                   <div className="absolute inset-y-0 left-4 flex items-center pointer-events-none"><Search className="h-5 w-5 text-slate-400" /></div>
                   <input
                     id="tool-search"
+                    ref={searchInputRef}
                     type="text"
                     placeholder={t("search.placeholder")}
                     value={searchQuery}
@@ -4631,6 +4636,7 @@ function MainApp() {
                           setSearchQuery("");
                           setSelectedCategory(null);
                         }
+                        searchInputRef.current?.focus();
                       }}
                       className="px-6 py-2 bg-slate-900 dark:bg-white text-white dark:text-slate-900 rounded-xl font-bold transition-all focus-visible:ring-2 focus-visible:ring-indigo-500 focus-visible:outline-none"
                     >

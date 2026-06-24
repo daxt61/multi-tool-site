@@ -2830,6 +2830,10 @@ const resources = {
       "svg_visualizer.guide_text": "Paste your SVG path data (the content of the \"d\" attribute) into the editor. The preview will update in real-time. Adjust the viewBox to fit your drawing and customize the stroke appearance.",
       "svg_visualizer.points_title": "Interactive Inspection",
       "svg_visualizer.points_text": "Red dots represent path commands (Move, Line, etc.), while orange dots represent control points for curves (Bezier). Hover over any point to see its exact coordinates.",
+      "pathfinding.random_walls": "Random Walls",
+      "sorting.algo.comb": "Comb Sort",
+      "stopwatch.lap_delta": "Delta",
+      "caseconverter.sponge": "sPoNgEbOb CaSe",
     }
   },
   fr: {
@@ -5659,6 +5663,10 @@ const resources = {
       "svg_visualizer.guide_text": "Collez les données de votre tracé SVG (le contenu de l'attribut \"d\") dans l'éditeur. L'aperçu se mettra à jour en temps réel. Ajustez la viewBox pour l'adapter à votre dessin et personnalisez l'apparence du trait.",
       "svg_visualizer.points_title": "Inspection Interactive",
       "svg_visualizer.points_text": "Les points rouges représentent les commandes de tracé (Move, Line, etc.), tandis que les points oranges représentent les points de contrôle pour les courbes (Bézier). Survolez n'importe quel point pour voir ses coordonnées exactes.",
+      "pathfinding.random_walls": "Murs Aléatoires",
+      "sorting.algo.comb": "Tri à peigne (Comb Sort)",
+      "stopwatch.lap_delta": "Différence",
+      "caseconverter.sponge": "sPoNgEbOb CaSe",
     }
   }
 };

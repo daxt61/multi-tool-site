@@ -7,6 +7,7 @@ interface Lap {
   id: number;
   time: number;
   overallTime: number;
+  delta?: number;
 }
 
 export function Stopwatch({ initialData, onStateChange }: { initialData?: any; onStateChange?: (state: any) => void }) {
@@ -127,10 +128,12 @@ export function Stopwatch({ initialData, onStateChange }: { initialData?: any; o
 
   const handleLap = useCallback(() => {
     const lastLapTime = laps.length > 0 ? laps[0].overallTime : 0;
+    const currentLapTime = time - lastLapTime;
     const newLap: Lap = {
       id: laps.length + 1,
-      time: time - lastLapTime,
-      overallTime: time
+      time: currentLapTime,
+      overallTime: time,
+      delta: laps.length > 0 ? currentLapTime - laps[0].time : undefined
     };
     setLaps(prev => {
         const next = [newLap, ...prev];
@@ -181,7 +184,8 @@ export function Stopwatch({ initialData, onStateChange }: { initialData?: any; o
     laps.forEach(lap => {
       const lt = formatTime(lap.time);
       const ot = formatTime(lap.overallTime);
-      content += `Lap ${lap.id}: ${lt.h}:${lt.m}:${lt.s}.${lt.ms} (Total: ${ot.h}:${ot.m}:${ot.s}.${ot.ms})\n`;
+      const deltaStr = lap.delta !== undefined ? ` (Delta: ${lap.delta > 0 ? '+' : ''}${(lap.delta / 1000).toFixed(2)}s)` : '';
+      content += `Lap ${lap.id}: ${lt.h}:${lt.m}:${lt.s}.${lt.ms} (Total: ${ot.h}:${ot.m}:${ot.s}.${ot.ms})${deltaStr}\n`;
     });
 
     const blob = new Blob([content], { type: 'text/plain' });
@@ -195,11 +199,12 @@ export function Stopwatch({ initialData, onStateChange }: { initialData?: any; o
 
   const handleDownloadCSV = () => {
     if (laps.length === 0) return;
-    let csv = `Lap,Time,Overall Time\n`;
+    let csv = `Lap,Time,Overall Time,Delta (s)\n`;
     laps.forEach(lap => {
       const lt = formatTime(lap.time);
       const ot = formatTime(lap.overallTime);
-      csv += `${lap.id},"${lt.h}:${lt.m}:${lt.s}.${lt.ms}","${ot.h}:${ot.m}:${ot.s}.${ot.ms}"\n`;
+      const deltaValue = lap.delta !== undefined ? (lap.delta / 1000).toFixed(3) : '';
+      csv += `${lap.id},"${lt.h}:${lt.m}:${lt.s}.${lt.ms}","${ot.h}:${ot.m}:${ot.s}.${ot.ms}",${deltaValue}\n`;
     });
 
     const blob = new Blob([csv], { type: 'text/csv' });
@@ -313,6 +318,7 @@ export function Stopwatch({ initialData, onStateChange }: { initialData?: any; o
                   <tr>
                     <th className="px-8 py-4">{t('stopwatch.lap_id', 'Lap')}</th>
                     <th className="px-8 py-4">{t('stopwatch.lap_time', 'Time')}</th>
+                    <th className="px-8 py-4">{t('stopwatch.lap_delta', 'Delta')}</th>
                     <th className="px-8 py-4 text-right">{t('stopwatch.lap_total', 'Total Time')}</th>
                   </tr>
                 </thead>
@@ -325,6 +331,16 @@ export function Stopwatch({ initialData, onStateChange }: { initialData?: any; o
                         <td className="px-8 py-4 font-bold text-slate-400">#{lap.id}</td>
                         <td className="px-8 py-4 font-mono font-bold text-indigo-600 dark:text-indigo-400">
                           {lt.h !== '00' && <span>{lt.h}:</span>}{lt.m}:{lt.s}<span className="text-[10px] opacity-70">.{lt.ms}</span>
+                        </td>
+                        <td className={`px-8 py-4 font-mono text-xs font-bold ${
+                           lap.delta === undefined ? 'text-slate-400' :
+                           lap.delta > 0 ? 'text-rose-500' : 'text-emerald-500'
+                        }`}>
+                           {lap.delta !== undefined ? (
+                             <>
+                               {lap.delta > 0 ? '+' : ''}{(lap.delta / 1000).toFixed(2)}s
+                             </>
+                           ) : '—'}
                         </td>
                         <td className="px-8 py-4 text-right font-mono font-bold dark:text-white">
                            {ot.h}:{ot.m}:{ot.s}<span className="text-[10px] text-slate-400">.{ot.ms}</span>

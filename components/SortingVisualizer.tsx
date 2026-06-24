@@ -4,7 +4,7 @@ import { useTranslation } from 'react-i18next';
 import { getSecureRandomInt } from './ui/crypto';
 
 // Types for the sorting state
-type Algorithm = 'bubble' | 'selection' | 'insertion' | 'merge' | 'quick' | 'heap' | 'shell' | 'cocktail';
+type Algorithm = 'bubble' | 'selection' | 'insertion' | 'merge' | 'quick' | 'heap' | 'shell' | 'cocktail' | 'comb';
 
 interface Bar {
   value: number;
@@ -277,6 +277,37 @@ export function SortingVisualizer({ initialData, onStateChange }: { initialData?
     }
   };
 
+  const combSort = async () => {
+    const n = arrayRef.current.length;
+    let gap = n;
+    let shrink = 1.3;
+    let sorted = false;
+
+    while (!sorted) {
+      gap = Math.floor(gap / shrink);
+      if (gap <= 1) {
+        gap = 1;
+        sorted = true;
+      }
+
+      for (let i = 0; i + gap < n; i++) {
+        if (!isSortingRef.current) return;
+        updateBarStatus([i, i + gap], 'comparing');
+        setStats(prev => ({ ...prev, comparisons: prev.comparisons + 1 }));
+        if (!(await sleep(speedRef.current))) return;
+
+        if (arrayRef.current[i].value > arrayRef.current[i + gap].value) {
+          updateBarStatus([i, i + gap], 'swapping');
+          if (!(await sleep(speedRef.current))) return;
+          swapBars(i, i + gap);
+          sorted = false;
+          if (!(await sleep(speedRef.current))) return;
+        }
+        updateBarStatus([i, i + gap], 'idle');
+      }
+    }
+  };
+
   const mergeSort = async () => {
     const n = arrayRef.current.length;
     await mergeSortHelper(0, n - 1);
@@ -450,6 +481,7 @@ export function SortingVisualizer({ initialData, onStateChange }: { initialData?
         case 'insertion': await insertionSort(); break;
         case 'shell': await shellSort(); break;
         case 'cocktail': await cocktailSort(); break;
+        case 'comb': await combSort(); break;
         case 'merge': await mergeSort(); break;
         case 'quick': await quickSort(); break;
         case 'heap': await heapSort(); break;
@@ -576,6 +608,7 @@ export function SortingVisualizer({ initialData, onStateChange }: { initialData?
                   <option value="insertion">{t('sorting.algo.insertion')}</option>
                   <option value="shell">{t('sorting.algo.shell')}</option>
                   <option value="cocktail">{t('sorting.algo.cocktail')}</option>
+                  <option value="comb">{t('sorting.algo.comb')}</option>
                   <option value="merge">{t('sorting.algo.merge')}</option>
                   <option value="quick">{t('sorting.algo.quick')}</option>
                   <option value="heap">{t('sorting.algo.heap')}</option>

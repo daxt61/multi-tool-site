@@ -58,6 +58,7 @@ export function CaseConverter({ initialData, onStateChange }: { initialData?: an
     'Title Case': (t: string) => t.toLowerCase().replace(/(^\s*\p{L}|[^\p{L}]\p{L})/gu, s => s.toUpperCase()),
     'Sentence case': (t: string) => t.toLowerCase().replace(/(^\s*\p{L}|[.!?]\s+\p{L}|[\n\r]\s*\p{L})/gu, s => s.toUpperCase()),
     'mOcKiNg CaSe': (t: string) => t.split('').map(c => getSecureRandomBoolean() ? c.toLowerCase() : c.toUpperCase()).join(''),
+    'sPoNgEbOb CaSe': (t: string) => t.split('').map(c => getSecureRandomBoolean() ? c.toLowerCase() : c.toUpperCase()).join(''),
     'UPPERCASE': (t: string) => t.toUpperCase(),
     'lowercase': (t: string) => t.toLowerCase(),
     'aLtErNaTiNg CaSe': (t: string) => t.split('').map((c, i) => i % 2 === 0 ? c.toLowerCase() : c.toUpperCase()).join(''),
@@ -201,7 +202,9 @@ export function CaseConverter({ initialData, onStateChange }: { initialData?: an
               <div className="flex items-center justify-between relative z-10">
                 <div className="flex items-center gap-2">
                   <FileText className="w-4 h-4 text-slate-400 group-hover:text-indigo-500 transition-colors" />
-                  <span className="text-[10px] font-black uppercase tracking-widest text-slate-400 group-hover:text-slate-600 dark:group-hover:text-slate-300 transition-colors">{name}</span>
+                  <span className="text-[10px] font-black uppercase tracking-widest text-slate-400 group-hover:text-slate-600 dark:group-hover:text-slate-300 transition-colors">
+                    {name === 'sPoNgEbOb CaSe' ? t('caseconverter.sponge') : name}
+                  </span>
                 </div>
                 <div className="flex gap-1">
                   <button
@@ -216,7 +219,7 @@ export function CaseConverter({ initialData, onStateChange }: { initialData?: an
                     onClick={() => copyToClipboard(converted, name)}
                     disabled={!text}
                     className={`p-2 rounded-xl transition-all ${copied === name ? 'bg-emerald-50 dark:bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border-emerald-200 dark:border-emerald-500/20' : 'text-slate-400 hover:text-indigo-500 bg-slate-50 dark:bg-slate-800 border border-transparent'} disabled:opacity-50 disabled:cursor-not-allowed focus-visible:ring-2 focus-visible:ring-indigo-500 focus-visible:outline-none`}
-                    aria-label={t('caseconverter.copy_as', { name })}
+                    aria-label={t('caseconverter.copy_as', { name: name === 'sPoNgEbOb CaSe' ? t('caseconverter.sponge') : name })}
                   >
                     {copied === name ? (
                       <Check className="w-4 h-4" />

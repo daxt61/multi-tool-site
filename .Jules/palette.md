@@ -25,3 +25,7 @@
 ## 2025-08-10 - [Hybrid Keyboard Shortcut Implementation]
 **Learning:** Combining local `onKeyDown` handlers (for inputs) with global window listeners (for blurred states) provides the most robust power-user experience. This ensures that 'Escape' can clear a field while typing, but also reset the tool's state even when the user is just navigating the page, provided that global listeners are gated by `isInputFocused` and modifier key checks.
 **Action:** Use a hybrid listener pattern for standard tool shortcuts (Escape/Clear, C/Copy) to ensure responsiveness regardless of the current focus target.
+
+## 2026-06-24 - [Search Accessibility & Focus Management]
+**Learning:** Dynamic search results are invisible to screen readers without a live region, and clicking "Clear" in empty states often leaves focus on a now-hidden element or resets it to the body, breaking the user's flow.
+**Action:** Always implement an `aria-live="polite"` region to announce item counts in filterable lists, and use `useRef` to programmatically restore focus to the search input when clear/reset actions are triggered in empty states.

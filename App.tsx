@@ -461,6 +461,11 @@ const WordSearchGenerator = lazy(() => import("./components/WordSearchGenerator"
 const SVGPathVisualizer = lazy(() => import("./components/SVGPathVisualizer").then(m => ({ default: m.SVGPathVisualizer })));
 const RandomUserGenerator = lazy(() => import("./components/RandomUserGenerator").then(m => ({ default: m.RandomUserGenerator })));
 const PathfindingVisualizer = lazy(() => import("./components/PathfindingVisualizer").then(m => ({ default: m.PathfindingVisualizer })));
+const ROTConverter = lazy(() => import("./components/ROTConverter").then(m => ({ default: m.ROTConverter })));
+const AESCipher = lazy(() => import("./components/AESCipher").then(m => ({ default: m.AESCipher })));
+const Base58Converter = lazy(() => import("./components/Base58Converter").then(m => ({ default: m.Base58Converter })));
+const YAMLToCSV = lazy(() => import("./components/YAMLToCSV").then(m => ({ default: m.YAMLToCSV })));
+const CSVToYAML = lazy(() => import("./components/CSVToYAML").then(m => ({ default: m.CSVToYAML })));
 
 // ⚡ Bolt Optimization: Pre-calculating tool map and search index for O(1) lookups and faster filtering
 const toolsMap: Record<string, Tool> = {};
@@ -3894,6 +3899,61 @@ const tools: Tool[] = [
     Component: PathfindingVisualizer,
     category: "calculators",
     keywords: ["pathfinding", "algorithm", "dijkstra", "astar", "grid", "search", "maze"],
+  },
+  {
+    id: "rot-cipher",
+    name: "Convertisseur ROT",
+    nameEn: "ROT Converter",
+    icon: Shield,
+    description: "Convertir du texte en utilisant les algorithmes ROT13, ROT5, ROT18 et ROT47",
+    descriptionEn: "Convert text using ROT13, ROT5, ROT18, and ROT47 algorithms",
+    Component: ROTConverter,
+    category: "text",
+    keywords: ["rot13", "rot5", "rot18", "rot47", "cipher", "obfuscation", "classic"],
+  },
+  {
+    id: "aes-cipher",
+    name: "Chiffrement AES",
+    nameEn: "AES Cipher",
+    icon: Key,
+    description: "Chiffrer et déchiffrer du texte en utilisant l'algorithme AES-GCM",
+    descriptionEn: "Encrypt and decrypt text using the AES-GCM algorithm",
+    Component: AESCipher,
+    category: "dev",
+    keywords: ["aes", "encryption", "decryption", "security", "crypto", "gcm"],
+  },
+  {
+    id: "base58-converter",
+    name: "Convertisseur Base58",
+    nameEn: "Base58 Converter",
+    icon: Binary,
+    description: "Encoder et décoder des données au format Base58",
+    descriptionEn: "Encode and decode data in Base58 format",
+    Component: Base58Converter,
+    category: "dev",
+    keywords: ["base58", "bitcoin", "encoding", "decoding", "crypto"],
+  },
+  {
+    id: "yaml-to-csv",
+    name: "YAML en CSV",
+    nameEn: "YAML to CSV",
+    icon: FileCode,
+    description: "Convertir des données YAML en format CSV",
+    descriptionEn: "Convert YAML data into CSV format",
+    Component: YAMLToCSV,
+    category: "converters",
+    keywords: ["yaml", "csv", "convert", "data", "parser"],
+  },
+  {
+    id: "csv-to-yaml",
+    name: "CSV en YAML",
+    nameEn: "CSV to YAML",
+    icon: FileSpreadsheet,
+    description: "Convertir des données CSV en format YAML",
+    descriptionEn: "Convert CSV data into YAML format",
+    Component: CSVToYAML,
+    category: "converters",
+    keywords: ["csv", "yaml", "convert", "data", "parser"],
   },
 ];
 

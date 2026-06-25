@@ -466,6 +466,9 @@ const AESCipher = lazy(() => import("./components/AESCipher").then(m => ({ defau
 const Base58Converter = lazy(() => import("./components/Base58Converter").then(m => ({ default: m.Base58Converter })));
 const YAMLToCSV = lazy(() => import("./components/YAMLToCSV").then(m => ({ default: m.YAMLToCSV })));
 const CSVToYAML = lazy(() => import("./components/CSVToYAML").then(m => ({ default: m.CSVToYAML })));
+const JSONToMermaid = lazy(() => import("./components/JSONToMermaid").then(m => ({ default: m.JSONToMermaid })));
+const TOMLJSONConverter = lazy(() => import("./components/TOMLJSONConverter").then(m => ({ default: m.TOMLJSONConverter })));
+const JSONToValibot = lazy(() => import("./components/JSONToValibot").then(m => ({ default: m.JSONToValibot })));
 
 // ⚡ Bolt Optimization: Pre-calculating tool map and search index for O(1) lookups and faster filtering
 const toolsMap: Record<string, Tool> = {};
@@ -3954,6 +3957,39 @@ const tools: Tool[] = [
     Component: CSVToYAML,
     category: "converters",
     keywords: ["csv", "yaml", "convert", "data", "parser"],
+  },
+  {
+    id: "json-to-mermaid",
+    name: "JSON en Mermaid",
+    nameEn: "JSON to Mermaid",
+    icon: Network,
+    description: "Générer des diagrammes Mermaid à partir de JSON",
+    descriptionEn: "Generate Mermaid diagrams from JSON",
+    Component: JSONToMermaid,
+    category: "dev",
+    keywords: ["json", "mermaid", "diagram", "chart", "visualize", "class", "mindmap"],
+  },
+  {
+    id: "toml-json",
+    name: "TOML <> JSON",
+    nameEn: "TOML <> JSON",
+    icon: ArrowLeftRight,
+    description: "Convertisseur bidirectionnel TOML et JSON",
+    descriptionEn: "Bidirectional TOML and JSON converter",
+    Component: TOMLJSONConverter,
+    category: "dev",
+    keywords: ["toml", "json", "convert", "config", "rust"],
+  },
+  {
+    id: "json-to-valibot",
+    name: "JSON en Valibot",
+    nameEn: "JSON to Valibot",
+    icon: ShieldCheck,
+    description: "Générer des schémas Valibot à partir de JSON",
+    descriptionEn: "Generate Valibot schemas from JSON",
+    Component: JSONToValibot,
+    category: "dev",
+    keywords: ["json", "valibot", "schema", "validation", "typescript"],
   },
 ];
 

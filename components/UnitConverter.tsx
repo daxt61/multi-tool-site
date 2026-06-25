@@ -2,7 +2,7 @@ import { useState, useEffect, useMemo, useCallback, useRef } from 'react';
 import { Copy, Check, Trash2, ArrowUpDown, Info, Ruler, Download, Search, X } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 
-type ConversionCategory = 'length' | 'weight' | 'temperature' | 'area' | 'volume' | 'digital' | 'digital_si' | 'pressure' | 'energy' | 'speed' | 'time' | 'power' | 'frequency' | 'consumption' | 'angle' | 'torque' | 'force' | 'datarate' | 'illuminance' | 'luminance' | 'radiation' | 'magnetic' | 'acceleration' | 'density' | 'voltage' | 'current' | 'resistance' | 'capacitance' | 'typography' | 'cooking' | 'radioactivity' | 'charge' | 'magnetic_flux' | 'mass_flow' | 'luminous_flux' | 'luminous_intensity';
+type ConversionCategory = 'length' | 'weight' | 'temperature' | 'area' | 'volume' | 'digital' | 'digital_si' | 'pressure' | 'energy' | 'speed' | 'time' | 'power' | 'frequency' | 'consumption' | 'angle' | 'torque' | 'force' | 'datarate' | 'illuminance' | 'luminance' | 'radiation' | 'magnetic' | 'acceleration' | 'density' | 'voltage' | 'current' | 'resistance' | 'capacitance' | 'typography' | 'cooking' | 'radioactivity' | 'charge' | 'magnetic_flux' | 'mass_flow' | 'luminous_flux' | 'luminous_intensity' | 'thermal_conductivity' | 'dynamic_viscosity' | 'kinematic_viscosity';
 
 interface ConversionUnit {
   name: string;
@@ -265,11 +265,28 @@ const CONVERSIONS: Record<ConversionCategory, Record<string, ConversionUnit>> = 
   luminous_intensity: {
     'cd': { name: 'Candela (cd)', toBase: (v) => v, fromBase: (v) => v },
     'cp': { name: 'Candlepower (cp)', toBase: (v) => v * 0.981, fromBase: (v) => v / 0.981 }
+  },
+  thermal_conductivity: {
+    'W/mK': { name: 'Watt par mètre-kelvin', toBase: (v) => v, fromBase: (v) => v },
+    'cal/smC': { name: 'Calorie par sec-mètre-°C', toBase: (v) => v * 418.4, fromBase: (v) => v / 418.4 },
+    'BTU/hftF': { name: 'BTU par heure-pied-°F', toBase: (v) => v * 1.730735, fromBase: (v) => v / 1.730735 }
+  },
+  dynamic_viscosity: {
+    'Pas': { name: 'Pascal-seconde', toBase: (v) => v, fromBase: (v) => v },
+    'P': { name: 'Poise', toBase: (v) => v * 0.1, fromBase: (v) => v / 0.1 },
+    'cP': { name: 'Centipoise', toBase: (v) => v * 0.001, fromBase: (v) => v / 0.001 },
+    'lb/fts': { name: 'Livre par pied-seconde', toBase: (v) => v * 1.488164, fromBase: (v) => v / 1.488164 }
+  },
+  kinematic_viscosity: {
+    'm2/s': { name: 'Mètre carré par seconde', toBase: (v) => v, fromBase: (v) => v },
+    'St': { name: 'Stokes', toBase: (v) => v * 0.0001, fromBase: (v) => v / 0.0001 },
+    'cSt': { name: 'Centistokes', toBase: (v) => v * 0.000001, fromBase: (v) => v / 0.000001 },
+    'ft2/s': { name: 'Pied carré par seconde', toBase: (v) => v * 0.092903, fromBase: (v) => v / 0.092903 }
   }
 };
 
 const CATEGORIES_IDS: ConversionCategory[] = [
-  'length', 'weight', 'temperature', 'area', 'volume', 'digital', 'digital_si', 'speed', 'time', 'pressure', 'energy', 'power', 'frequency', 'consumption', 'angle', 'torque', 'force', 'datarate', 'illuminance', 'luminance', 'radiation', 'magnetic', 'acceleration', 'density', 'voltage', 'current', 'resistance', 'capacitance', 'typography', 'cooking', 'radioactivity', 'charge', 'magnetic_flux', 'mass_flow', 'luminous_flux', 'luminous_intensity'
+  'length', 'weight', 'temperature', 'area', 'volume', 'digital', 'digital_si', 'speed', 'time', 'pressure', 'energy', 'power', 'frequency', 'consumption', 'angle', 'torque', 'force', 'datarate', 'illuminance', 'luminance', 'radiation', 'magnetic', 'acceleration', 'density', 'voltage', 'current', 'resistance', 'capacitance', 'typography', 'cooking', 'radioactivity', 'charge', 'magnetic_flux', 'mass_flow', 'luminous_flux', 'luminous_intensity', 'thermal_conductivity', 'dynamic_viscosity', 'kinematic_viscosity'
 ];
 
 const convert = (value: string, from: string, to: string, cat: ConversionCategory) => {

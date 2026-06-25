@@ -4570,11 +4570,13 @@ function MainApp() {
                   <div className="sr-only" aria-live="polite" aria-atomic="true">
                     {searchQuery && t(filteredTools.length === 1 ? "search.results_count_one" : "search.results_count_other", { count: filteredTools.length })}
                   </div>
-                  <div className="absolute inset-y-0 left-4 flex items-center pointer-events-none"><Search className="h-5 w-5 text-slate-400" /></div>
+                  <div className="absolute inset-y-0 left-4 flex items-center pointer-events-none transition-colors group-focus-within:text-indigo-500"><Search className="h-5 w-5 text-slate-400 group-focus-within:text-indigo-500 transition-colors" /></div>
                   <input
                     id="tool-search"
                     ref={searchInputRef}
                     type="text"
+                    autoComplete="off"
+                    spellCheck={false}
                     placeholder={t("search.placeholder")}
                     value={searchQuery}
                     onChange={(e) => setSearchQuery(e.target.value)}
@@ -4600,7 +4602,10 @@ function MainApp() {
                         Esc
                       </kbd>
                       <button
-                        onClick={() => setSearchQuery("")}
+                        onClick={() => {
+                          setSearchQuery("");
+                          searchInputRef.current?.focus();
+                        }}
                         className="text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 transition-colors focus-visible:ring-2 focus-visible:ring-indigo-500 focus-visible:outline-none rounded-lg"
                         aria-label={t("search.clear")}
                       >

@@ -70,6 +70,7 @@ import {
   Send,
   Briefcase,
   Search,
+  Trash2,
   Frame,
   Crop,
   Replace,
@@ -4253,6 +4254,12 @@ function MainApp() {
       return newRecents;
     });
   }, []);
+
+  const handleClearRecents = useCallback(() => {
+    setRecents([]);
+    localStorage.removeItem("recents");
+    toast.success(t("recent.cleared"));
+  }, [t]);
   const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
   const [searchQuery, setSearchQuery] = useState("");
   const [favorites, setFavorites] = useState<string[]>(() => {
@@ -4632,7 +4639,15 @@ function MainApp() {
               {/* Recents */}
               {!searchQuery && recentTools.length > 0 && (
                 <section className="animate-in fade-in slide-in-from-bottom-4 duration-500" aria-labelledby="recent-tools-title">
-                  <h2 id="recent-tools-title" className="text-xs font-bold uppercase tracking-widest text-slate-500 dark:text-slate-500 mb-6 px-1">{t("recent.title")}</h2>
+                  <div className="flex justify-between items-center mb-6 px-1">
+                    <h2 id="recent-tools-title" className="text-xs font-bold uppercase tracking-widest text-slate-500 dark:text-slate-500">{t("recent.title")}</h2>
+                    <button
+                      onClick={handleClearRecents}
+                      className="text-[10px] font-bold text-slate-400 hover:text-rose-500 transition-colors flex items-center gap-1 group/clear"
+                    >
+                      <Trash2 className="w-3 h-3 group-hover/clear:scale-110 transition-transform" /> {t("common.clear")}
+                    </button>
+                  </div>
                   <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
                     {recentTools.map(tool => (
                       <Link

@@ -280,16 +280,14 @@ export function SortingVisualizer({ initialData, onStateChange }: { initialData?
   const combSort = async () => {
     const n = arrayRef.current.length;
     let gap = n;
-    let shrink = 1.3;
-    let sorted = false;
+    const shrink = 1.3;
+    let swapped = true;
 
-    while (!sorted) {
+    while (gap > 1 || swapped) {
       gap = Math.floor(gap / shrink);
-      if (gap <= 1) {
-        gap = 1;
-        sorted = true;
-      }
+      if (gap < 1) gap = 1;
 
+      swapped = false;
       for (let i = 0; i + gap < n; i++) {
         if (!isSortingRef.current) return;
         updateBarStatus([i, i + gap], 'comparing');
@@ -300,7 +298,7 @@ export function SortingVisualizer({ initialData, onStateChange }: { initialData?
           updateBarStatus([i, i + gap], 'swapping');
           if (!(await sleep(speedRef.current))) return;
           swapBars(i, i + gap);
-          sorted = false;
+          swapped = true;
           if (!(await sleep(speedRef.current))) return;
         }
         updateBarStatus([i, i + gap], 'idle');
@@ -455,12 +453,12 @@ export function SortingVisualizer({ initialData, onStateChange }: { initialData?
   };
 
   const startSort = async (mode: 'auto' | 'step') => {
-    if (isSorting) {
-       if (mode === 'step' && isStepModeRef.current) {
-          stepTriggerRef.current?.();
-       }
-       return;
-    };
+    if (isSortingRef.current) {
+      if (mode === 'step' && isStepModeRef.current) {
+        stepTriggerRef.current?.();
+      }
+      return;
+    }
 
     setIsSorting(true);
     isSortingRef.current = true;
@@ -491,13 +489,15 @@ export function SortingVisualizer({ initialData, onStateChange }: { initialData?
     }
 
     if (isSortingRef.current) {
-        setArray(prev => prev.map(bar => ({ ...bar, status: 'sorted' })));
+      setArray(prev => prev.map(bar => ({ ...bar, status: 'sorted' })));
     }
 
     setIsSorting(false);
     isSortingRef.current = false;
     setIsStepMode(false);
     isStepModeRef.current = false;
+    setIsPaused(false);
+    isPausedRef.current = false;
   };
 
   const stopSort = () => {
@@ -707,14 +707,14 @@ export function SortingVisualizer({ initialData, onStateChange }: { initialData?
                </button>
             </div>
 
-            <div className="grid grid-cols-2 gap-8 mt-6 md:mt-0">
+            <div className="grid grid-cols-2 gap-8 mt-6 md:mt-0" aria-live="polite" aria-atomic="true">
                <div className="space-y-1">
                   <div className="text-[10px] font-black uppercase tracking-widest text-slate-400">{t('sorting.comparisons')}</div>
-                  <div className="text-3xl font-black font-mono text-indigo-600 dark:text-indigo-400" aria-live="polite">{stats.comparisons}</div>
+                  <div className="text-3xl font-black font-mono text-indigo-600 dark:text-indigo-400">{stats.comparisons}</div>
                </div>
                <div className="space-y-1">
                   <div className="text-[10px] font-black uppercase tracking-widest text-slate-400">{t('sorting.swaps')}</div>
-                  <div className="text-3xl font-black font-mono text-indigo-600 dark:text-indigo-400" aria-live="polite">{stats.swaps}</div>
+                  <div className="text-3xl font-black font-mono text-indigo-600 dark:text-indigo-400">{stats.swaps}</div>
                </div>
             </div>
           </div>

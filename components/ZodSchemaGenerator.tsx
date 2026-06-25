@@ -35,6 +35,16 @@ export function ZodSchemaGenerator({ initialData, onStateChange }: { initialData
 
     if (Array.isArray(obj)) {
       if (obj.length === 0) return 'z.array(z.any())';
+
+      // Sample up to 5 elements to detect mixed types or optional fields
+      const samples = obj.slice(0, 5);
+      const sampleSchemas = samples.map(s => generateZodSchema(s, indent, depth + 1));
+      const uniqueSchemas = Array.from(new Set(sampleSchemas));
+
+      if (uniqueSchemas.length > 1) {
+        return `z.array(z.union([${uniqueSchemas.join(', ')}]))`;
+      }
+
       const itemSchema = generateZodSchema(obj[0], indent, depth + 1);
       return `z.array(${itemSchema})`;
     }

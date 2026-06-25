@@ -2,35 +2,42 @@ import { useState, useMemo, useEffect, useCallback, useRef } from 'react';
 import { Copy, Check, Trash2, Download, Braces, ShieldCheck, Info, ArrowRight } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 
+const MAX_LENGTH = 100000;
+const MAX_DEPTH = 20;
+
 export function JSONToValibot({ initialData, onStateChange }: { initialData?: any; onStateChange?: (state: any) => void }) {
   const { t } = useTranslation();
   const textareaRef = useRef<HTMLTextAreaElement>(null);
   const [json, setJson] = useState(initialData?.json || '{\n  "id": 1,\n  "name": "John Doe",\n  "email": "john@example.com",\n  "isActive": true,\n  "tags": ["admin", "user"],\n  "profile": {\n    "bio": "Software Engineer",\n    "age": 30\n  }\n}');
   const [copied, setCopied] = useState(false);
-  const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
     onStateChange?.({ json });
-  }, [json]);
+  }, [json, onStateChange]);
 
-  const valibotSchema = useMemo(() => {
-    if (!json.trim()) return '';
+  const { valibotSchema, error } = useMemo(() => {
+    if (!json.trim()) return { valibotSchema: '', error: null };
+    if (json.length > MAX_LENGTH) {
+      return { valibotSchema: '', error: t('error.max_length', { max: MAX_LENGTH.toLocaleString() }) };
+    }
+
     try {
       const parsed = JSON.parse(json);
-      setError(null);
 
       let output = "import * as v from 'valibot';\n\nexport const MySchema = ";
 
-      const generateValibot = (obj: any, indent: string = ''): string => {
+      const generateValibot = (obj: any, indent: string = '', depth: number = 0): string => {
+        if (depth > MAX_DEPTH) return 'v.any()';
+
         if (Array.isArray(obj)) {
           if (obj.length === 0) return 'v.array(v.any())';
-          return `v.array(${generateValibot(obj[0], indent)})`;
+          return `v.array(${generateValibot(obj[0], indent, depth + 1)})`;
         } else if (typeof obj === 'object' && obj !== null) {
           let res = 'v.object({\n';
           const entries = Object.entries(obj);
           entries.forEach(([key, value], index) => {
-            const safeKey = /^[a-z_$][a-z0-9_$]*$/i.test(key) ? key : `'${key}'`;
-            res += `${indent}  ${safeKey}: ${generateValibot(value, indent + '  ')}${index === entries.length - 1 ? '' : ','}\n`;
+            const safeKey = /^[a-z_$][a-z0-9_$]*$/i.test(key) ? key : JSON.stringify(key);
+            res += `${indent}  ${safeKey}: ${generateValibot(value, indent + '  ', depth + 1)}${index === entries.length - 1 ? '' : ','}\n`;
           });
           res += `${indent}})`;
           return res;
@@ -48,10 +55,9 @@ export function JSONToValibot({ initialData, onStateChange }: { initialData?: an
 
       output += generateValibot(parsed);
       output += ';\n\nexport type MyType = v.InferOutput<typeof MySchema>;';
-      return output;
+      return { valibotSchema: output, error: null };
     } catch (e) {
-      setError(t('error.invalid_json'));
-      return '';
+      return { valibotSchema: '', error: t('error.invalid_json') };
     }
   }, [json, t]);
 
@@ -75,7 +81,6 @@ export function JSONToValibot({ initialData, onStateChange }: { initialData?: an
 
   const handleClear = useCallback(() => {
     setJson('');
-    setError(null);
     textareaRef.current?.focus();
   }, []);
 

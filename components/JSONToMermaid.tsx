@@ -1,0 +1,251 @@
+import { useState, useMemo, useEffect, useCallback, useRef } from 'react';
+import { Copy, Check, Trash2, Download, Braces, Share2, Info, ArrowRight, Network } from 'lucide-react';
+import { useTranslation } from 'react-i18next';
+
+type DiagramMode = 'class' | 'mindmap';
+
+export function JSONToMermaid({ initialData, onStateChange }: { initialData?: any; onStateChange?: (state: any) => void }) {
+  const { t } = useTranslation();
+  const textareaRef = useRef<HTMLTextAreaElement>(null);
+  const [json, setJson] = useState(initialData?.json || '{\n  "user": {\n    "id": 1,\n    "name": "John Doe",\n    "profile": {\n      "bio": "Developer",\n      "social": ["twitter", "github"]\n    }\n  }\n}');
+  const [mode, setMode] = useState<DiagramMode>(initialData?.mode || 'class');
+  const [copied, setCopied] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+
+  useEffect(() => {
+    onStateChange?.({ json, mode });
+  }, [json, mode]);
+
+  const mermaidCode = useMemo(() => {
+    if (!json.trim()) return '';
+    try {
+      const parsed = JSON.parse(json);
+      setError(null);
+
+      if (mode === 'mindmap') {
+        let result = 'mindmap\n  root((JSON))\n';
+        const traverse = (obj: any, depth: number) => {
+          if (Array.isArray(obj)) {
+            obj.forEach((item, index) => {
+              const label = typeof item === 'object' && item !== null ? `Item ${index}` : String(item);
+              result += `${'  '.repeat(depth + 1)}${label}\n`;
+              if (typeof item === 'object' && item !== null) {
+                traverse(item, depth + 1);
+              }
+            });
+          } else if (typeof obj === 'object' && obj !== null) {
+            Object.entries(obj).forEach(([key, value]) => {
+              result += `${'  '.repeat(depth + 1)}${key}\n`;
+              if (typeof value === 'object' && value !== null) {
+                traverse(value, depth + 1);
+              }
+            });
+          }
+        };
+        traverse(parsed, 1);
+        return result;
+      } else {
+        // Class Diagram mode
+        let result = 'classDiagram\n';
+        const classes = new Map<string, string>();
+        const relations = new Set<string>();
+
+        const getClassName = (key: string) => {
+          return key.charAt(0).toUpperCase() + key.slice(1).replace(/[^a-zA-Z0-9]/g, '');
+        };
+
+        const traverse = (obj: any, name: string) => {
+          const className = getClassName(name);
+          let classBody = `  class ${className} {\n`;
+
+          if (Array.isArray(obj)) {
+            classBody += `    +Array items\n`;
+            if (obj.length > 0 && typeof obj[0] === 'object' && obj[0] !== null) {
+              const subName = name + "Item";
+              traverse(obj[0], subName);
+              relations.add(`${className} ..> ${getClassName(subName)} : contains`);
+            }
+          } else if (typeof obj === 'object' && obj !== null) {
+            Object.entries(obj).forEach(([key, value]) => {
+              const type = Array.isArray(value) ? 'Array' : typeof value;
+              classBody += `    +${type} ${key}\n`;
+
+              if (typeof value === 'object' && value !== null) {
+                const subName = key;
+                traverse(value, subName);
+                relations.add(`${className} --* ${getClassName(subName)}`);
+              }
+            });
+          }
+
+          classBody += '  }\n';
+          classes.set(className, classBody);
+        };
+
+        traverse(parsed, 'Root');
+
+        classes.forEach(body => {
+          result += body;
+        });
+        relations.forEach(rel => {
+          result += `  ${rel}\n`;
+        });
+
+        return result;
+      }
+    } catch (e) {
+      setError(t('error.invalid_json'));
+      return '';
+    }
+  }, [json, mode, t]);
+
+  const handleCopy = useCallback(() => {
+    if (!mermaidCode) return;
+    navigator.clipboard.writeText(mermaidCode);
+    setCopied(true);
+    setTimeout(() => setCopied(false), 2000);
+  }, [mermaidCode]);
+
+  const handleDownload = useCallback(() => {
+    if (!mermaidCode) return;
+    const blob = new Blob([mermaidCode], { type: 'text/plain' });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    link.href = url;
+    link.download = `diagram-${mode}.mmd`;
+    link.click();
+    URL.revokeObjectURL(url);
+  }, [mermaidCode, mode]);
+
+  const handleClear = useCallback(() => {
+    setJson('');
+    setError(null);
+    textareaRef.current?.focus();
+  }, []);
+
+  return (
+    <div className="max-w-6xl mx-auto space-y-8">
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+        {/* Left: Input */}
+        <div className="space-y-4">
+          <div className="flex justify-between items-center px-1">
+            <label htmlFor="json-input" className="text-xs font-black uppercase tracking-widest text-slate-400 flex items-center gap-2">
+              <Braces className="w-3 h-3" /> {t('common.input')} JSON
+            </label>
+            <div className="flex gap-2">
+               <button
+                onClick={handleClear}
+                className="text-xs font-bold text-rose-500 bg-rose-50 dark:bg-rose-500/10 hover:bg-rose-100 dark:hover:bg-rose-500/20 px-3 py-1.5 rounded-xl flex items-center gap-1 transition-all"
+              >
+                <Trash2 className="w-3 h-3" /> {t('common.clear')}
+              </button>
+            </div>
+          </div>
+          <div className="relative group">
+            <textarea
+              id="json-input"
+              ref={textareaRef}
+              value={json}
+              onChange={(e) => setJson(e.target.value)}
+              placeholder='{"key": "value"}'
+              className={`w-full h-[500px] p-6 bg-slate-50 dark:bg-slate-900 border ${error ? 'border-rose-500 focus:ring-rose-500/20' : 'border-slate-200 dark:border-slate-800 focus:ring-indigo-500/20'} rounded-3xl outline-none focus:ring-2 transition-all font-mono text-sm leading-relaxed dark:text-slate-300 resize-none`}
+            />
+            {error && (
+              <div className="absolute bottom-4 right-4 px-3 py-1 bg-rose-500 text-white text-xs font-bold rounded-lg animate-in fade-in zoom-in">
+                {error}
+              </div>
+            )}
+          </div>
+        </div>
+
+        {/* Right: Output */}
+        <div className="space-y-4">
+          <div className="flex justify-between items-center px-1">
+            <div className="flex gap-2">
+              <button
+                onClick={() => setMode('class')}
+                className={`px-4 py-1.5 rounded-xl text-xs font-bold transition-all border ${
+                  mode === 'class'
+                    ? 'bg-slate-900 text-white border-slate-900 dark:bg-white dark:text-slate-950'
+                    : 'bg-white dark:bg-slate-800 text-slate-500 border-slate-200 dark:border-slate-700 hover:border-slate-300'
+                }`}
+              >
+                Class Diagram
+              </button>
+              <button
+                onClick={() => setMode('mindmap')}
+                className={`px-4 py-1.5 rounded-xl text-xs font-bold transition-all border ${
+                  mode === 'mindmap'
+                    ? 'bg-slate-900 text-white border-slate-900 dark:bg-white dark:text-slate-950'
+                    : 'bg-white dark:bg-slate-800 text-slate-500 border-slate-200 dark:border-slate-700 hover:border-slate-300'
+                }`}
+              >
+                Mindmap
+              </button>
+            </div>
+            <div className="flex gap-2">
+              <button
+                onClick={handleDownload}
+                disabled={!mermaidCode}
+                className="text-xs font-bold text-indigo-500 bg-indigo-50 dark:bg-indigo-500/10 hover:bg-indigo-100 px-3 py-1.5 rounded-xl flex items-center gap-1 transition-all disabled:opacity-50"
+              >
+                <Download className="w-3 h-3" /> {t('common.download')}
+              </button>
+              <button
+                onClick={handleCopy}
+                disabled={!mermaidCode}
+                className={`text-xs font-bold px-3 py-1.5 rounded-xl transition-all flex items-center gap-1 border ${
+                  copied
+                    ? 'bg-emerald-50 dark:bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border-emerald-200 dark:border-emerald-500/20'
+                    : 'text-slate-600 dark:text-slate-400 bg-slate-100 dark:bg-slate-800 border-transparent hover:bg-slate-200 dark:hover:bg-slate-700'
+                } disabled:opacity-50`}
+              >
+                {copied ? <Check className="w-3 h-3" /> : <Copy className="w-3 h-3" />}
+                {copied ? t('common.copied') : t('common.copy')}
+              </button>
+            </div>
+          </div>
+          <div className="relative group">
+            <pre className="w-full h-[500px] p-6 bg-slate-900 text-slate-100 rounded-3xl overflow-auto font-mono text-sm leading-relaxed border border-slate-800 scrollbar-thin scrollbar-thumb-slate-700">
+              {mermaidCode || t('common.waiting')}
+            </pre>
+            <div className="absolute top-4 right-4">
+              <div className="w-8 h-8 bg-indigo-500/20 rounded-lg flex items-center justify-center text-indigo-400">
+                <Network className="w-4 h-4" />
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/* Info Sections */}
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-8 pt-12 border-t border-slate-100 dark:border-slate-800">
+        <div className="space-y-4">
+          <h4 className="font-bold dark:text-white flex items-center gap-2 text-indigo-500">
+            <Info className="w-4 h-4" /> {t('jsontomermaid.what_is_title', 'What is this tool?')}
+          </h4>
+          <p className="text-sm text-slate-500 dark:text-slate-400 leading-relaxed">
+            {t('jsontomermaid.what_is_text', 'Convert your JSON data structures into Mermaid.js diagram code. Mermaid is a markdown-like script language for generating charts and diagrams. This tool helps you visualize complex nested objects and their relationships.')}
+          </p>
+        </div>
+        <div className="space-y-4">
+          <h4 className="font-bold dark:text-white flex items-center gap-2 text-indigo-500">
+            <ArrowRight className="w-4 h-4" /> {t('jsontomermaid.modes_title', 'Diagram Modes')}
+          </h4>
+          <ul className="text-sm text-slate-500 dark:text-slate-400 space-y-2">
+            <li><strong>Class Diagram:</strong> {t('jsontomermaid.class_desc', 'Shows objects as classes with typed properties and composition relationships.')}</li>
+            <li><strong>Mindmap:</strong> {t('jsontomermaid.mindmap_desc', 'Visualizes the JSON as a hierarchical tree or mindmap, perfect for seeing nesting levels.')}</li>
+          </ul>
+        </div>
+        <div className="space-y-4">
+          <h4 className="font-bold dark:text-white flex items-center gap-2 text-indigo-500">
+            <Share2 className="w-4 h-4" /> {t('jsontomermaid.usage_title', 'How to use?')}
+          </h4>
+          <p className="text-sm text-slate-500 dark:text-slate-400 leading-relaxed">
+            {t('jsontomermaid.usage_text', 'Paste your JSON on the left. The Mermaid code is generated instantly on the right. You can then copy this code and paste it into any Mermaid-compatible editor (like Notion, GitHub, or Mermaid Live Editor) to render the graphic.')}
+          </p>
+        </div>
+      </div>
+    </div>
+  );
+}

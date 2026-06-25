@@ -44,6 +44,7 @@ export function WordCounter({ initialData, onStateChange }: { initialData?: any;
         ariGrade: 'N/A',
         cli: 0,
         fog: 0,
+        lix: 0,
         avgWordLength: 0,
         longestWord: 'N/A',
         topWords: [],
@@ -134,6 +135,12 @@ export function WordCounter({ initialData, onStateChange }: { initialData?: any;
       cli = 0.0588 * L - 0.296 * S - 15.8;
     }
 
+    let lix = 0;
+    if (wordCount > 0 && sentenceCount > 0) {
+      const longWords = words.filter((w: string) => w.length > 6).length;
+      lix = (wordCount / sentenceCount) + (longWords * 100 / wordCount);
+    }
+
     const getAriGrade = (score: number) => {
       const rounded = Math.ceil(score);
       if (rounded <= 1) return t('wordcounter.ari.grade_1');
@@ -188,11 +195,14 @@ export function WordCounter({ initialData, onStateChange }: { initialData?: any;
       readingTimeSlow: wordCount / 150,
       readingTimeFast: wordCount / 250,
       speakingTime: wordCount / 130,
+      speakingTimeSlow: wordCount / 110,
+      speakingTimeFast: wordCount / 160,
       writingTime: wordCount / 40,
       ari: ari > 0 ? ari.toFixed(1) : 0,
       ariGrade: getAriGrade(ari),
       cli: cli.toFixed(1),
       fog: fog.toFixed(1),
+      lix: lix.toFixed(1),
       flesch: flesch.toFixed(1),
       fleschLevel: getFleschLevel(flesch),
       avgWordLength,
@@ -402,10 +412,12 @@ export function WordCounter({ initialData, onStateChange }: { initialData?: any;
             ))}
           </div>
 
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+          <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-4">
             {[
+              { icon: <Star className="w-4 h-4" />, label: t('wordcounter.stat.ari'), value: `${stats.ari} (${stats.ariGrade})` },
               { icon: <Star className="w-4 h-4" />, label: t('wordcounter.stat.cli'), value: stats.cli },
               { icon: <Star className="w-4 h-4" />, label: t('wordcounter.stat.fog'), value: stats.fog },
+              { icon: <Star className="w-4 h-4" />, label: 'LIX', value: stats.lix },
               { icon: <Type className="w-4 h-4" />, label: t('wordcounter.stat.avg_word_length'), value: stats.avgWordLength },
               { icon: <Type className="w-4 h-4" />, label: t('wordcounter.stat.longest_word'), value: stats.longestWord },
             ].map((stat) => (
@@ -560,7 +572,7 @@ export function WordCounter({ initialData, onStateChange }: { initialData?: any;
     )}
 
       {/* Time & Readability Info */}
-      <div className="bg-indigo-50 dark:bg-indigo-900/10 p-8 rounded-[2.5rem] border border-indigo-100 dark:border-indigo-900/20 grid grid-cols-1 lg:grid-cols-3 gap-8">
+      <div className="bg-indigo-50 dark:bg-indigo-900/10 p-8 rounded-[2.5rem] border border-indigo-100 dark:border-indigo-900/20 grid grid-cols-1 lg:grid-cols-4 gap-8">
          <div className="space-y-6">
             <h4 className="font-bold dark:text-white flex items-center gap-2">
                <Clock className="w-4 h-4 text-indigo-500" /> {t('wordcounter.reading_time_title', 'Estimated Reading Time')}
@@ -570,6 +582,27 @@ export function WordCounter({ initialData, onStateChange }: { initialData?: any;
                 { label: t('wordcounter.reading_speed.slow'), speed: '150 wpm', value: formatTime(stats.readingTimeSlow || 0) },
                 { label: t('wordcounter.reading_speed.average'), speed: '200 wpm', value: formatTime(stats.readingTime || 0), primary: true },
                 { label: t('wordcounter.reading_speed.fast'), speed: '250 wpm', value: formatTime(stats.readingTimeFast || 0) },
+              ].map((r) => (
+                <div key={r.label} className={`flex justify-between items-center p-3 rounded-xl border ${r.primary ? 'bg-white dark:bg-slate-800 border-indigo-200 dark:border-indigo-500/30' : 'bg-transparent border-transparent'}`}>
+                  <div>
+                    <div className="text-xs font-black uppercase tracking-widest text-slate-400">{r.label}</div>
+                    <div className="text-[10px] font-bold text-indigo-500/50">{r.speed}</div>
+                  </div>
+                  <div className={`text-lg font-black font-mono ${r.primary ? 'text-indigo-600 dark:text-indigo-400' : 'text-slate-500'}`}>{r.value}</div>
+                </div>
+              ))}
+            </div>
+         </div>
+
+         <div className="space-y-6 lg:border-l lg:border-indigo-100 lg:dark:border-indigo-500/20 lg:pl-8">
+            <h4 className="font-bold dark:text-white flex items-center gap-2">
+               <MessageSquare className="w-4 h-4 text-indigo-500" /> {t('wordcounter.speaking_time_title', 'Estimated Speaking Time')}
+            </h4>
+            <div className="space-y-3">
+              {[
+                { label: t('wordcounter.reading_speed.slow'), speed: '110 wpm', value: formatTime(stats.speakingTimeSlow || 0) },
+                { label: t('wordcounter.reading_speed.average'), speed: '130 wpm', value: formatTime(stats.speakingTime || 0), primary: true },
+                { label: t('wordcounter.reading_speed.fast'), speed: '160 wpm', value: formatTime(stats.speakingTimeFast || 0) },
               ].map((r) => (
                 <div key={r.label} className={`flex justify-between items-center p-3 rounded-xl border ${r.primary ? 'bg-white dark:bg-slate-800 border-indigo-200 dark:border-indigo-500/30' : 'bg-transparent border-transparent'}`}>
                   <div>

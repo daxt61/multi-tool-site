@@ -299,6 +299,7 @@ const convert = (value: string, from: string, to: string, cat: ConversionCategor
 
 export function UnitConverter({ initialData, onStateChange }: { initialData?: any; onStateChange?: (state: any) => void }) {
   const fromValueRef = useRef<HTMLInputElement>(null);
+  const categorySearchInputRef = useRef<HTMLInputElement>(null);
   const { t, i18n } = useTranslation();
 
   const formatter = useMemo(() => new Intl.NumberFormat(i18n.language === 'en' ? 'en-US' : 'fr-FR', {
@@ -418,7 +419,10 @@ export function UnitConverter({ initialData, onStateChange }: { initialData?: an
           </div>
           <input
             id="category-search"
+            ref={categorySearchInputRef}
             type="text"
+            autoComplete="off"
+            spellCheck={false}
             placeholder={t('unit.search_category')}
             value={categorySearch}
             onChange={(e) => setCategorySearch(e.target.value)}
@@ -433,7 +437,10 @@ export function UnitConverter({ initialData, onStateChange }: { initialData?: an
           />
           {categorySearch && (
             <button
-              onClick={() => setCategorySearch('')}
+              onClick={() => {
+                setCategorySearch('');
+                categorySearchInputRef.current?.focus();
+              }}
               className="absolute inset-y-0 right-4 flex items-center text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 transition-colors focus-visible:ring-2 focus-visible:ring-indigo-500 focus-visible:outline-none rounded-lg"
               aria-label={t('unit.search_clear_aria')}
             >

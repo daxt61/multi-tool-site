@@ -55,7 +55,15 @@ export function CaseConverter({ initialData, onStateChange }: { initialData?: an
     'Header-Case': (t: string) => t.toLowerCase().split(/[\s_-]+/).map(w => w.charAt(0).toUpperCase() + w.slice(1)).join('-'),
     'dot.case': (t: string) => t.toLowerCase().replace(/[\s_-]+/g, '.'),
     'path/case': (t: string) => t.toLowerCase().replace(/[\s_-]+/g, '/'),
-    'Title Case': (t: string) => t.toLowerCase().replace(/(^\s*\p{L}|[^\p{L}]\p{L})/gu, s => s.toUpperCase()),
+    'Title Case': (t: string) => {
+      const minorWords = /^(a|an|and|as|at|but|by|en|for|if|in|of|on|or|the|to|v\.?|via|vs\.?)$/i;
+      return t.toLowerCase().split(/\s+/).map((word, index, words) => {
+        if (index > 0 && index < words.length - 1 && minorWords.test(word)) {
+          return word.toLowerCase();
+        }
+        return word.charAt(0).toUpperCase() + word.slice(1);
+      }).join(' ');
+    },
     'Sentence case': (t: string) => t.toLowerCase().replace(/(^\s*\p{L}|[.!?]\s+\p{L}|[\n\r]\s*\p{L})/gu, s => s.toUpperCase()),
     'mOcKiNg CaSe': (t: string) => t.split('').map(c => getSecureRandomBoolean() ? c.toLowerCase() : c.toUpperCase()).join(''),
     'sPoNgEbOb CaSe': (t: string) => t.split('').map(c => getSecureRandomBoolean() ? c.toLowerCase() : c.toUpperCase()).join(''),
@@ -63,6 +71,11 @@ export function CaseConverter({ initialData, onStateChange }: { initialData?: an
     'lowercase': (t: string) => t.toLowerCase(),
     'aLtErNaTiNg CaSe': (t: string) => t.split('').map((c, i) => i % 2 === 0 ? c.toLowerCase() : c.toUpperCase()).join(''),
     'iNVERSE cASE': (t: string) => t.split('').map(c => c === c.toUpperCase() ? c.toLowerCase() : c.toUpperCase()).join(''),
+    'Reverse Words': (t: string) => t.split(/\s+/).reverse().join(' '),
+    'Reverse Sentences': (t: string) => t.split(/([.!?]\s+)/).filter(Boolean).reduce((acc: string[], curr, i, arr) => {
+      if (i % 2 === 0) acc.push(curr + (arr[i+1] || ''));
+      return acc;
+    }, []).reverse().join(''),
     'Strikethrough': (t: string) => t.split('').map(c => c + '\u0336').join(''),
     'Bubble': (t: string) => t.split('').map(c => bubbleMap[c] || c).join('')
   };
@@ -203,7 +216,9 @@ export function CaseConverter({ initialData, onStateChange }: { initialData?: an
                 <div className="flex items-center gap-2">
                   <FileText className="w-4 h-4 text-slate-400 group-hover:text-indigo-500 transition-colors" />
                   <span className="text-[10px] font-black uppercase tracking-widest text-slate-400 group-hover:text-slate-600 dark:group-hover:text-slate-300 transition-colors">
-                    {name === 'sPoNgEbOb CaSe' ? t('caseconverter.sponge') : name}
+                    {name === 'sPoNgEbOb CaSe' ? t('caseconverter.sponge') :
+                     name === 'Reverse Words' ? t('caseconverter.reverse_words') :
+                     name === 'Reverse Sentences' ? t('caseconverter.reverse_sentences') : name}
                   </span>
                 </div>
                 <div className="flex gap-1">

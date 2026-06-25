@@ -31,6 +31,16 @@ export function JSONToValibot({ initialData, onStateChange }: { initialData?: an
 
         if (Array.isArray(obj)) {
           if (obj.length === 0) return 'v.array(v.any())';
+
+          // Sample up to 5 elements to detect mixed types or optional fields
+          const samples = obj.slice(0, 5);
+          const sampleSchemas = samples.map(s => generateValibot(s, indent, depth + 1));
+          const uniqueSchemas = Array.from(new Set(sampleSchemas));
+
+          if (uniqueSchemas.length > 1) {
+            return `v.array(v.union([${uniqueSchemas.join(', ')}]))`;
+          }
+
           return `v.array(${generateValibot(obj[0], indent, depth + 1)})`;
         } else if (typeof obj === 'object' && obj !== null) {
           let res = 'v.object({\n';

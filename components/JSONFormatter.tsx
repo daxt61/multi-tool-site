@@ -44,6 +44,21 @@ export function JSONFormatter({ initialData, onStateChange }: { initialData?: an
       }, {});
   }, []);
 
+  const escapeSnippetString = (str: string, quoteType: 'single' | 'double' = 'double') => {
+    // Sentinel: Escape backslashes, control characters, and quotes to prevent breakout
+    // from string literals or attributes in generated code snippets.
+    const escaped = str
+      .replace(/\\/g, '\\\\')
+      .replace(/\n/g, '\\n')
+      .replace(/\r/g, '\\r')
+      .replace(/\t/g, '\\t');
+
+    if (quoteType === 'single') {
+      return escaped.replace(/'/g, "\\'");
+    }
+    return escaped.replace(/"/g, '\\"');
+  };
+
   const handlePrettify = useCallback(() => {
     try {
       if (!input.trim() || input.length > MAX_LENGTH) return;
@@ -69,12 +84,12 @@ export function JSONFormatter({ initialData, onStateChange }: { initialData?: an
         if (obj === null) return 'None';
         if (typeof obj === 'boolean') return obj ? 'True' : 'False';
         if (typeof obj === 'number') return JSON.stringify(obj);
-        if (typeof obj === 'string') return `'${obj.replace(/'/g, "\\'")}'`;
+        if (typeof obj === 'string') return `'${escapeSnippetString(obj, 'single')}'`;
         if (Array.isArray(obj)) {
           return `[${obj.map(toPython).join(', ')}]`;
         }
         if (typeof obj === 'object') {
-          const entries = Object.entries(obj).map(([k, v]) => `'${k.replace(/'/g, "\\'")}': ${toPython(v)}`);
+          const entries = Object.entries(obj).map(([k, v]) => `'${escapeSnippetString(k, 'single')}': ${toPython(v)}`);
           return `{${entries.join(', ')}}`;
         }
         return 'None';
@@ -160,7 +175,7 @@ export function JSONFormatter({ initialData, onStateChange }: { initialData?: an
       classes.reverse().forEach((javaClass) => {
         outputText += `public class ${javaClass.name} {\n`;
         javaClass.fields.forEach((field: any) => {
-          outputText += `    @JsonProperty("${field.originalKey}")\n`;
+          outputText += `    @JsonProperty("${escapeSnippetString(field.originalKey, 'double')}")\n`;
           outputText += `    private ${field.type} ${field.name};\n\n`;
         });
 
@@ -246,7 +261,7 @@ export function JSONFormatter({ initialData, onStateChange }: { initialData?: an
       classes.reverse().forEach((csClass) => {
         outputText += `public class ${csClass.name}\n{\n`;
         csClass.fields.forEach((field: any) => {
-          outputText += `    [JsonPropertyName("${field.originalKey}")]\n`;
+          outputText += `    [JsonPropertyName("${escapeSnippetString(field.originalKey, 'double')}")]\n`;
           outputText += `    public ${field.type} ${field.name} { get; set; }\n\n`;
         });
         outputText = outputText.trimEnd() + '\n}\n\n';
@@ -309,13 +324,13 @@ export function JSONFormatter({ initialData, onStateChange }: { initialData?: an
 
       const toPHP = (obj: any): string => {
         if (obj === null) return 'null';
-        if (typeof obj === 'string') return `'${obj.replace(/'/g, "\\'")}'`;
+        if (typeof obj === 'string') return `'${escapeSnippetString(obj, 'single')}'`;
         if (typeof obj === 'number' || typeof obj === 'boolean') return JSON.stringify(obj);
         if (Array.isArray(obj)) {
           return `[${obj.map(toPHP).join(', ')}]`;
         }
         if (typeof obj === 'object') {
-          const entriesPHP = Object.entries(obj).map(([k, v]) => `'${k.replace(/'/g, "\\'")}' => ${toPHP(v)}`);
+          const entriesPHP = Object.entries(obj).map(([k, v]) => `'${escapeSnippetString(k, 'single')}' => ${toPHP(v)}`);
           return `[${entriesPHP.join(', ')}]`;
         }
         return 'null';
@@ -387,7 +402,7 @@ export function JSONFormatter({ initialData, onStateChange }: { initialData?: an
 
           const fields = Object.entries(val).map(([key, value]) => {
             let name = sanitizeGoIdentifier(key);
-            return `    ${name} ${getGoType(value, key, depth + 1)} \`json:"${key}"\``;
+            return `    ${name} ${getGoType(value, key, depth + 1)} \`json:"${escapeSnippetString(key, 'double')}"\``;
           });
 
           structs.push(`type ${finalName} struct {\n${fields.join('\n')}\n}`);
@@ -469,7 +484,7 @@ export function JSONFormatter({ initialData, onStateChange }: { initialData?: an
             const rustKey = sanitizeRustIdentifier(key);
             const type = getRustType(value, key, depth + 1);
             if (rustKey !== key || rustKey.startsWith('r#')) {
-               return `    #[serde(rename = "${key}")]\n    pub ${rustKey}: ${type},`;
+               return `    #[serde(rename = "${escapeSnippetString(key, 'double')}")]\n    pub ${rustKey}: ${type},`;
             }
             return `    pub ${rustKey}: ${type},`;
           });

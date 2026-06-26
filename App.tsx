@@ -272,6 +272,8 @@ const CSSBorderRadiusGenerator = lazy(() => import("./components/CSSBorderRadius
 const JSONPathTester = lazy(() => import("./components/JSONPathTester").then(m => ({ default: m.JSONPathTester })));
 const SitemapGenerator = lazy(() => import("./components/SitemapGenerator").then(m => ({ default: m.SitemapGenerator })));
 const JSONToSQL = lazy(() => import("./components/JSONToSQL").then(m => ({ default: m.JSONToSQL })));
+const SQLToCSV = lazy(() => import("./components/SQLToCSV").then(m => ({ default: m.SQLToCSV })));
+const JSONToBigQuery = lazy(() => import("./components/JSONToBigQuery").then(m => ({ default: m.JSONToBigQuery })));
 const StringEscaper = lazy(() => import("./components/StringEscaper").then(m => ({ default: m.StringEscaper })));
 const FlexboxGenerator = lazy(() => import("./components/FlexboxGenerator").then(m => ({ default: m.FlexboxGenerator })));
 const JSONToGo = lazy(() => import("./components/JSONToGo").then(m => ({ default: m.JSONToGo })));
@@ -1467,6 +1469,28 @@ const tools: Tool[] = [
     Component: JSONToSQL,
     category: "dev",
     keywords: ["database", "sql", "insert", "migration", "data"],
+  },
+  {
+    id: "sql-to-csv",
+    name: "SQL en CSV",
+    nameEn: "SQL to CSV",
+    icon: FileSpreadsheet,
+    description: "Convertir des requêtes SQL INSERT en données CSV",
+    descriptionEn: "Convert SQL INSERT statements into CSV data",
+    Component: SQLToCSV,
+    category: "dev",
+    keywords: ["sql", "csv", "convert", "database", "insert", "export"],
+  },
+  {
+    id: "json-to-bigquery",
+    name: "JSON en BigQuery",
+    nameEn: "JSON to BigQuery",
+    icon: Database,
+    description: "Générer un schéma JSON BigQuery à partir de JSON",
+    descriptionEn: "Generate a BigQuery JSON schema from JSON",
+    Component: JSONToBigQuery,
+    category: "dev",
+    keywords: ["bigquery", "google", "cloud", "schema", "json", "sql", "data warehouse"],
   },
   {
     id: "json-formatter",

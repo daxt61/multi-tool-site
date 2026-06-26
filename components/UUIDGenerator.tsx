@@ -6,29 +6,50 @@ export function UUIDGenerator({ initialData, onStateChange }: { initialData?: an
   const { t } = useTranslation();
   const [uuids, setUuids] = useState<string[]>(initialData?.uuids || []);
   const [count, setCount] = useState(initialData?.count || 1);
+  const [version, setVersion] = useState<'v4' | 'v7'>(initialData?.version || 'v4');
   const [copiedIndex, setCopiedIndex] = useState<number | null>(null);
 
   useEffect(() => {
-    onStateChange?.({ uuids, count });
-  }, [uuids, count, onStateChange]);
+    onStateChange?.({ uuids, count, version });
+  }, [uuids, count, version, onStateChange]);
 
-  const generateUUID = () => {
-    // Use the native and secure crypto.randomUUID if available
+  const generateUUIDV4 = () => {
     if (typeof crypto.randomUUID === 'function') {
       return crypto.randomUUID();
     }
+    const array = new Uint8Array(16);
+    window.crypto.getRandomValues(array);
+    array[6] = (array[6] & 0x0f) | 0x40;
+    array[8] = (array[8] & 0x3f) | 0x80;
+    const hex = Array.from(array).map(b => b.toString(16).padStart(2, '0')).join('');
+    return `${hex.slice(0, 8)}-${hex.slice(8, 12)}-${hex.slice(12, 16)}-${hex.slice(16, 20)}-${hex.slice(20, 32)}`;
+  };
 
-    // Secure fallback for browsers not supporting randomUUID
+  const generateUUIDV7 = () => {
     const array = new Uint8Array(16);
     window.crypto.getRandomValues(array);
 
-    // Set version 4 (13th bit is 4)
-    array[6] = (array[6] & 0x0f) | 0x40;
-    // Set variant (17th bit is 10)
+    const timestamp = Date.now();
+    const timestampBytes = new Uint8Array(6);
+    const view = new DataView(timestampBytes.buffer);
+    // JS dates are 53-bit integers, we need the 48 most significant bits for UUID v7
+    // DataView doesn't have setUint48, so we do it manually
+    view.setUint32(0, Math.floor(timestamp / 0x10000), false);
+    view.setUint16(4, timestamp % 0x10000, false);
+
+    array.set(timestampBytes, 0);
+
+    // Set version 7 (binary 0111)
+    array[6] = (array[6] & 0x0f) | 0x70;
+    // Set variant (binary 10xx)
     array[8] = (array[8] & 0x3f) | 0x80;
 
     const hex = Array.from(array).map(b => b.toString(16).padStart(2, '0')).join('');
     return `${hex.slice(0, 8)}-${hex.slice(8, 12)}-${hex.slice(12, 16)}-${hex.slice(16, 20)}-${hex.slice(20, 32)}`;
+  };
+
+  const generateUUID = () => {
+    return version === 'v4' ? generateUUIDV4() : generateUUIDV7();
   };
 
   const generateUUIDs = () => {
@@ -91,19 +112,35 @@ export function UUIDGenerator({ initialData, onStateChange }: { initialData?: an
 
       <div className="bg-slate-50 dark:bg-slate-900/50 p-6 md:p-8 rounded-[2.5rem] border border-slate-200 dark:border-slate-800">
         <div className="flex flex-col md:flex-row items-end gap-4 mb-6">
-          <div className="flex-1 w-full">
-            <label htmlFor="uuid-count" className="block text-xs font-black uppercase tracking-widest text-slate-400 mb-2 px-1 cursor-pointer">
-              {t('uuid.count_label', 'Nombre d\'UUIDs à générer')}
-            </label>
-            <input
-              id="uuid-count"
-              type="number"
-              min="1"
-              max="100"
-              value={count}
-              onChange={(e) => setCount(Number(e.target.value))}
-              className="w-full p-4 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-2xl font-bold focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 outline-none transition-all dark:text-white"
-            />
+          <div className="flex-1 w-full space-y-4 md:space-y-0 md:flex md:gap-4">
+            <div className="flex-1">
+              <label htmlFor="uuid-version" className="block text-xs font-black uppercase tracking-widest text-slate-400 mb-2 px-1 cursor-pointer">
+                {t('uuid.version_label', 'Version')}
+              </label>
+              <select
+                id="uuid-version"
+                value={version}
+                onChange={(e) => setVersion(e.target.value as 'v4' | 'v7')}
+                className="w-full p-4 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-2xl font-bold focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 outline-none transition-all dark:text-white cursor-pointer"
+              >
+                <option value="v4">UUID v4 (Random)</option>
+                <option value="v7">UUID v7 (Time-ordered)</option>
+              </select>
+            </div>
+            <div className="flex-1">
+              <label htmlFor="uuid-count" className="block text-xs font-black uppercase tracking-widest text-slate-400 mb-2 px-1 cursor-pointer">
+                {t('uuid.count_label', 'Nombre d\'UUIDs à générer')}
+              </label>
+              <input
+                id="uuid-count"
+                type="number"
+                min="1"
+                max="100"
+                value={count}
+                onChange={(e) => setCount(Number(e.target.value))}
+                className="w-full p-4 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-2xl font-bold focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 outline-none transition-all dark:text-white"
+              />
+            </div>
           </div>
           <div className="flex gap-2 w-full md:w-auto">
             <button

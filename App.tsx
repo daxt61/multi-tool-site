@@ -476,6 +476,7 @@ const JSONToHTMLTable = lazy(() => import("./components/JSONToHTMLTable").then(m
 const PropertiesToJSON = lazy(() => import("./components/PropertiesToJSON").then(m => ({ default: m.PropertiesToJSON })));
 const NDJSONConverter = lazy(() => import("./components/NDJSONConverter").then(m => ({ default: m.NDJSONConverter })));
 const JSONToLaTeX = lazy(() => import("./components/JSONToLaTeX").then(m => ({ default: m.JSONToLaTeX })));
+const JSONToAvro = lazy(() => import("./components/JSONToAvro").then(m => ({ default: m.JSONToAvro })));
 
 // ⚡ Bolt Optimization: Pre-calculating tool map and search index for O(1) lookups and faster filtering
 const toolsMap: Record<string, Tool> = {};
@@ -4063,6 +4064,17 @@ const tools: Tool[] = [
     Component: JSONToLaTeX,
     category: "dev",
     keywords: ["json", "latex", "tabular", "table", "academic"],
+  },
+  {
+    id: "json-avro",
+    name: "JSON en Avro",
+    nameEn: "JSON to Avro",
+    icon: Database,
+    description: "Générer un schéma Apache Avro à partir de JSON",
+    descriptionEn: "Generate an Apache Avro schema from JSON",
+    Component: JSONToAvro,
+    category: "dev",
+    keywords: ["json", "avro", "schema", "big data", "serialization"],
   },
 ];
 

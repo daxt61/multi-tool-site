@@ -798,6 +798,7 @@ const resources = {
       "jsonformatter.copy_yaml": "Copy as YAML",
       "jsonformatter.copy_go": "Copy as Go",
       "jsonformatter.copy_rust": "Copy as Rust",
+      "jsonformatter.copy_avro": "Copy as Avro",
       "cron.expression_label": "Cron Expression",
       "cron.minute": "Minute",
       "cron.hour": "Hour",
@@ -2938,6 +2939,8 @@ const resources = {
       "json_latex.vlines": "vlines",
       "json_latex.about_title": "About JSON to LaTeX Table",
       "json_latex.about_text": "This tool converts a JSON array of objects into a LaTeX tabular environment. It handles automatic escaping of special LaTeX characters like &, %, and $. You can toggle horizontal (\\hline) and vertical lines according to your document style. Perfect for academic papers and technical documentation.",
+      "json_avro.about_title": "About JSON to Avro Schema",
+      "json_avro.about_text": "Apache Avro is a data serialization system. Avro relies on schemas, which are defined in JSON. This tool helps you convert your sample JSON data into an Avro schema definition (.avsc), automatically inferring types and handling nested structures.",
     }
   },
   fr: {
@@ -3719,6 +3722,7 @@ const resources = {
       "jsonformatter.copy_yaml": "Copier en YAML",
       "jsonformatter.copy_go": "Copier en Go",
       "jsonformatter.copy_rust": "Copier en Rust",
+      "jsonformatter.copy_avro": "Copier en Avro",
       "cron.expression_label": "Expression Cron",
       "cron.minute": "Minute",
       "cron.hour": "Heure",
@@ -5875,6 +5879,8 @@ const resources = {
       "json_latex.vlines": "vlines (vert.)",
       "json_latex.about_title": "À propos de JSON en LaTeX",
       "json_latex.about_text": "Cet outil convertit un tableau d'objets JSON en un environnement tabular LaTeX. Il gère l'échappement automatique des caractères spéciaux LaTeX comme &, %, et $. Vous pouvez activer ou désactiver les lignes horizontales (\\hline) et verticales selon le style de votre document. Parfait pour les articles académiques et la documentation technique.",
+      "json_avro.about_title": "À propos de JSON en Avro",
+      "json_avro.about_text": "Apache Avro est un système de sérialisation de données. Avro repose sur des schémas, qui sont définis en JSON. Cet outil vous aide à convertir vos données JSON d'exemple en une définition de schéma Avro (.avsc), en inférant automatiquement les types et en gérant les structures imbriquées.",
     }
   }
 };

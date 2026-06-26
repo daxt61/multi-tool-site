@@ -470,6 +470,10 @@ const CSVToYAML = lazy(() => import("./components/CSVToYAML").then(m => ({ defau
 const JSONToMermaid = lazy(() => import("./components/JSONToMermaid").then(m => ({ default: m.JSONToMermaid })));
 const TOMLJSONConverter = lazy(() => import("./components/TOMLJSONConverter").then(m => ({ default: m.TOMLJSONConverter })));
 const JSONToValibot = lazy(() => import("./components/JSONToValibot").then(m => ({ default: m.JSONToValibot })));
+const JSONToHTMLTable = lazy(() => import("./components/JSONToHTMLTable").then(m => ({ default: m.JSONToHTMLTable })));
+const PropertiesToJSON = lazy(() => import("./components/PropertiesToJSON").then(m => ({ default: m.PropertiesToJSON })));
+const NDJSONConverter = lazy(() => import("./components/NDJSONConverter").then(m => ({ default: m.NDJSONConverter })));
+const JSONToLaTeX = lazy(() => import("./components/JSONToLaTeX").then(m => ({ default: m.JSONToLaTeX })));
 
 // ⚡ Bolt Optimization: Pre-calculating tool map and search index for O(1) lookups and faster filtering
 const toolsMap: Record<string, Tool> = {};
@@ -3991,6 +3995,50 @@ const tools: Tool[] = [
     Component: JSONToValibot,
     category: "dev",
     keywords: ["json", "valibot", "schema", "validation", "typescript"],
+  },
+  {
+    id: "json-html-table",
+    name: "JSON en Table HTML",
+    nameEn: "JSON to HTML Table",
+    icon: Table,
+    description: "Convertir du JSON en tableau HTML <table>",
+    descriptionEn: "Convert JSON to HTML <table> element",
+    Component: JSONToHTMLTable,
+    category: "dev",
+    keywords: ["json", "html", "table", "convert", "web"],
+  },
+  {
+    id: "properties-json",
+    name: "Properties en JSON",
+    nameEn: "Properties to JSON",
+    icon: FileCode,
+    description: "Convertir des fichiers .properties Java en JSON",
+    descriptionEn: "Convert Java .properties files to JSON",
+    Component: PropertiesToJSON,
+    category: "dev",
+    keywords: ["properties", "json", "java", "convert", "config"],
+  },
+  {
+    id: "ndjson-converter",
+    name: "JSON <> NDJSON",
+    nameEn: "JSON <> NDJSON",
+    icon: Braces,
+    description: "Convertisseur bidirectionnel JSON et NDJSON",
+    descriptionEn: "Bidirectional JSON and NDJSON converter",
+    Component: NDJSONConverter,
+    category: "dev",
+    keywords: ["json", "ndjson", "newline", "stream", "convert"],
+  },
+  {
+    id: "json-latex",
+    name: "JSON en LaTeX",
+    nameEn: "JSON to LaTeX",
+    icon: FileCode,
+    description: "Convertir du JSON en environnement tabular LaTeX",
+    descriptionEn: "Convert JSON to LaTeX tabular environment",
+    Component: JSONToLaTeX,
+    category: "dev",
+    keywords: ["json", "latex", "tabular", "table", "academic"],
   },
 ];
 

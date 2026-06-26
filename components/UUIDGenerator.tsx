@@ -13,7 +13,7 @@ export function UUIDGenerator({ initialData, onStateChange }: { initialData?: an
     onStateChange?.({ uuids, count, version });
   }, [uuids, count, version, onStateChange]);
 
-  const generateUUIDV4 = () => {
+  const generateUUIDV4 = useCallback(() => {
     if (typeof crypto.randomUUID === 'function') {
       return crypto.randomUUID();
     }
@@ -23,9 +23,9 @@ export function UUIDGenerator({ initialData, onStateChange }: { initialData?: an
     array[8] = (array[8] & 0x3f) | 0x80;
     const hex = Array.from(array).map(b => b.toString(16).padStart(2, '0')).join('');
     return `${hex.slice(0, 8)}-${hex.slice(8, 12)}-${hex.slice(12, 16)}-${hex.slice(16, 20)}-${hex.slice(20, 32)}`;
-  };
+  }, []);
 
-  const generateUUIDV7 = () => {
+  const generateUUIDV7 = useCallback(() => {
     const array = new Uint8Array(16);
     window.crypto.getRandomValues(array);
 
@@ -46,13 +46,13 @@ export function UUIDGenerator({ initialData, onStateChange }: { initialData?: an
 
     const hex = Array.from(array).map(b => b.toString(16).padStart(2, '0')).join('');
     return `${hex.slice(0, 8)}-${hex.slice(8, 12)}-${hex.slice(12, 16)}-${hex.slice(16, 20)}-${hex.slice(20, 32)}`;
-  };
+  }, []);
 
-  const generateUUID = () => {
+  const generateUUID = useCallback(() => {
     return version === 'v4' ? generateUUIDV4() : generateUUIDV7();
-  };
+  }, [version, generateUUIDV4, generateUUIDV7]);
 
-  const generateUUIDs = () => {
+  const generateUUIDs = useCallback(() => {
     const newUuids = [];
     const safeCount = Math.min(Math.max(1, count), 100);
     for (let i = 0; i < safeCount; i++) {
@@ -60,24 +60,24 @@ export function UUIDGenerator({ initialData, onStateChange }: { initialData?: an
     }
     setUuids(newUuids);
     setCopiedIndex(null);
-  };
+  }, [count, generateUUID]);
 
-  const copyToClipboard = (uuid: string, index: number) => {
+  const copyToClipboard = useCallback((uuid: string, index: number) => {
     navigator.clipboard.writeText(uuid);
     setCopiedIndex(index);
     setTimeout(() => setCopiedIndex(null), 2000);
-  };
+  }, []);
 
-  const copyAll = () => {
+  const copyAll = useCallback(() => {
     navigator.clipboard.writeText(uuids.join('\n'));
     setCopiedIndex(-1);
     setTimeout(() => setCopiedIndex(null), 2000);
-  };
+  }, [uuids]);
 
-  const handleClear = () => {
+  const handleClear = useCallback(() => {
     setUuids([]);
     setCopiedIndex(null);
-  };
+  }, []);
 
   const handleDownload = useCallback(() => {
     if (uuids.length === 0) return;
@@ -89,6 +89,27 @@ export function UUIDGenerator({ initialData, onStateChange }: { initialData?: an
     link.click();
     URL.revokeObjectURL(url);
   }, [uuids]);
+
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      // Don't trigger shortcuts if focus is in an input field (other than our count input maybe, but let's be safe)
+      if (document.activeElement?.tagName === "INPUT" && (document.activeElement as HTMLInputElement).type === "text") return;
+      if (document.activeElement?.tagName === "TEXTAREA") return;
+
+      if (e.key === 'Escape') {
+        handleClear();
+      } else if (e.key === 'Enter') {
+        // Only trigger Enter if we aren't already focusing a button or the select
+        if (document.activeElement?.tagName !== "BUTTON" && document.activeElement?.tagName !== "SELECT") {
+          e.preventDefault();
+          generateUUIDs();
+        }
+      }
+    };
+
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [handleClear, generateUUIDs]);
 
   return (
     <div className="max-w-3xl mx-auto space-y-8">
@@ -107,6 +128,7 @@ export function UUIDGenerator({ initialData, onStateChange }: { initialData?: an
           className="text-xs font-bold text-rose-500 bg-rose-50 dark:bg-rose-500/10 hover:bg-rose-100 dark:hover:bg-rose-500/20 px-3 py-1.5 rounded-xl flex items-center gap-1 transition-all disabled:opacity-50 disabled:cursor-not-allowed focus-visible:ring-2 focus-visible:ring-rose-500 focus-visible:outline-none"
         >
           <Trash2 className="w-3 h-3" /> {t('common.clear')}
+          <kbd className="hidden sm:inline-flex items-center justify-center px-1.5 py-0.5 border border-rose-200 dark:border-rose-800 rounded text-[10px] font-bold text-rose-400 bg-white dark:bg-slate-900 ml-1">Esc</kbd>
         </button>
       </div>
 
@@ -169,7 +191,11 @@ export function UUIDGenerator({ initialData, onStateChange }: { initialData?: an
       </div>
 
       {uuids.length > 0 ? (
-        <div className="space-y-3 animate-in fade-in slide-in-from-bottom-4 duration-500">
+        <div
+          className="space-y-3 animate-in fade-in slide-in-from-bottom-4 duration-500"
+          aria-live="polite"
+          aria-atomic="true"
+        >
           {uuids.map((uuid, index) => (
             <div
               key={index}

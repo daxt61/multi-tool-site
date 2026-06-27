@@ -152,7 +152,7 @@ export function GameOfLife() {
                 runSimulation();
               }
             }}
-            className={`px-6 py-3 rounded-2xl font-black flex items-center gap-2 transition-all ${
+            className={`px-6 py-3 rounded-2xl font-black flex items-center gap-2 transition-all focus-visible:ring-2 focus-visible:ring-indigo-500 focus-visible:outline-none ${
               running
                 ? 'bg-rose-500 text-white shadow-lg shadow-rose-500/20'
                 : 'bg-indigo-600 text-white shadow-lg shadow-indigo-600/20 hover:bg-indigo-700'
@@ -164,22 +164,25 @@ export function GameOfLife() {
           <button
             onClick={handleNextStep}
             disabled={running}
-            className="p-3 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-2xl text-slate-600 dark:text-slate-300 hover:bg-slate-50 disabled:opacity-50 transition-all"
-            title="Next Generation"
+            className="p-3 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-2xl text-slate-600 dark:text-slate-300 hover:bg-slate-50 disabled:opacity-50 transition-all focus-visible:ring-2 focus-visible:ring-indigo-500 focus-visible:outline-none"
+            title={t('gol.next_generation')}
+            aria-label={t('gol.next_generation')}
           >
             <SkipForward className="w-5 h-5" />
           </button>
           <button
             onClick={handleRandomize}
-            className="p-3 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-2xl text-slate-600 dark:text-slate-300 hover:bg-slate-50 transition-all"
-            title="Randomize"
+            className="p-3 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-2xl text-slate-600 dark:text-slate-300 hover:bg-slate-50 transition-all focus-visible:ring-2 focus-visible:ring-indigo-500 focus-visible:outline-none"
+            title={t('gol.randomize')}
+            aria-label={t('gol.randomize')}
           >
             <RotateCcw className="w-5 h-5" />
           </button>
           <button
             onClick={handleClear}
-            className="p-3 bg-rose-50 dark:bg-rose-500/10 border border-rose-200 dark:border-rose-900/30 rounded-2xl text-rose-500 hover:bg-rose-100 transition-all"
-            title="Clear"
+            className="p-3 bg-rose-50 dark:bg-rose-500/10 border border-rose-200 dark:border-rose-900/30 rounded-2xl text-rose-500 hover:bg-rose-100 transition-all focus-visible:ring-2 focus-visible:ring-rose-500 focus-visible:outline-none"
+            title={t('common.clear')}
+            aria-label={t('common.clear')}
           >
             <Trash2 className="w-5 h-5" />
           </button>
@@ -187,13 +190,14 @@ export function GameOfLife() {
 
         <div className="flex items-center gap-6">
           <div className="flex flex-col items-center">
-            <span className="text-[10px] font-black uppercase tracking-widest text-slate-400 mb-1">Generation</span>
+            <span className="text-[10px] font-black uppercase tracking-widest text-slate-400 mb-1">{t('gol.generation')}</span>
             <span className="text-2xl font-black font-mono tabular-nums text-indigo-600 dark:text-indigo-400">{generation}</span>
           </div>
           <div className="h-10 w-px bg-slate-200 dark:bg-slate-800 hidden md:block" />
           <div className="space-y-1">
-            <label className="text-[10px] font-black uppercase tracking-widest text-slate-400 block">Speed</label>
+            <label htmlFor="gol-speed" className="text-[10px] font-black uppercase tracking-widest text-slate-400 block">{t('gol.speed')}</label>
             <input
+              id="gol-speed"
               type="range"
               min="10"
               max="1000"
@@ -208,15 +212,15 @@ export function GameOfLife() {
 
       <div className="flex flex-wrap gap-2 justify-center">
          <div className="flex items-center gap-2 mr-4 text-xs font-black uppercase tracking-widest text-slate-400">
-           <LayoutGrid className="w-3 h-3" /> Presets:
+           <LayoutGrid className="w-3 h-3" /> {t('gol.presets')}:
          </div>
          {Object.keys(PRESETS).map(key => (
            <button
              key={key}
              onClick={() => applyPreset(key)}
-             className="px-4 py-1.5 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-full text-xs font-bold hover:border-indigo-500/50 transition-all"
+             className="px-4 py-1.5 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-full text-xs font-bold hover:border-indigo-500/50 transition-all focus-visible:ring-2 focus-visible:ring-indigo-500 focus-visible:outline-none"
            >
-             {key.charAt(0).toUpperCase() + key.slice(1)}
+             {t(`gol.preset.${key}`)}
            </button>
          ))}
       </div>
@@ -231,12 +235,12 @@ export function GameOfLife() {
               <button
                 key={`${i}-${j}`}
                 onClick={() => handleToggle(i, j)}
-                className={`w-4 h-4 sm:w-5 sm:h-5 transition-colors ${
+                className={`w-4 h-4 sm:w-5 sm:h-5 transition-colors focus-visible:z-10 focus-visible:ring-2 focus-visible:ring-indigo-500 focus-visible:outline-none ${
                   grid[i][j]
                     ? 'bg-indigo-500'
                     : 'bg-white dark:bg-slate-900 hover:bg-indigo-50 dark:hover:bg-indigo-900/30'
                 }`}
-                aria-label={`Cell ${i},${j}`}
+                aria-label={t(grid[i][j] ? 'gol.cell_alive' : 'gol.cell_dead', { row: i, col: j })}
               />
             ))
           )}
@@ -246,20 +250,20 @@ export function GameOfLife() {
       <div className="grid grid-cols-1 md:grid-cols-3 gap-8 pt-8 border-t border-slate-100 dark:border-slate-800">
         <div className="space-y-4">
           <h4 className="font-bold dark:text-white flex items-center gap-2">
-            <Info className="w-4 h-4 text-indigo-500" /> Rules of Life
+            <Info className="w-4 h-4 text-indigo-500" /> {t('gol.rules_title')}
           </h4>
           <ul className="text-xs text-slate-500 dark:text-slate-400 space-y-2 leading-relaxed">
-            <li>• Any live cell with 2 or 3 neighbors survives.</li>
-            <li>• Any dead cell with exactly 3 neighbors becomes alive.</li>
-            <li>• All other live cells die (isolation or overpopulation).</li>
+            <li>• {t('gol.rule_1')}</li>
+            <li>• {t('gol.rule_2')}</li>
+            <li>• {t('gol.rule_3')}</li>
           </ul>
         </div>
         <div className="space-y-4">
           <h4 className="font-bold dark:text-white flex items-center gap-2">
-            <Grid className="w-4 h-4 text-indigo-500" /> Interactive Play
+            <Grid className="w-4 h-4 text-indigo-500" /> {t('gol.interactive_title')}
           </h4>
           <p className="text-xs text-slate-500 dark:text-slate-400 leading-relaxed">
-            Click on cells to toggle them manually while the simulation is paused. Try creating stable patterns like blocks or oscillators like blinkers and pulsars.
+            {t('gol.interactive_desc')}
           </p>
         </div>
         <div className="space-y-4">

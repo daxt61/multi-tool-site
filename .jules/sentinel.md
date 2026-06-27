@@ -166,3 +166,8 @@
 **Vulnerability:** Multiple JSON-to-code generators (Mongoose, Joi, Protobuf) were vulnerable to Snippet Injection by interpolating user-controlled JSON keys directly into code templates. Malicious keys could break out of property name contexts to inject unauthorized options or syntax.
 **Learning:** Code generators that derive identifiers or property names from external data must treat those strings as potentially malicious payloads. Simple string interpolation is insufficient; language-specific escaping or strict identifier filtering is required.
 **Prevention:** For JavaScript/TypeScript generators, use `JSON.stringify()` for property names that aren't verified identifiers. For other formats like Protobuf, strictly whitelist alphanumeric characters and underscores for field names to ensure syntax integrity.
+
+## 2025-09-10 - [Prototype Pollution in XML and YAML Converters]
+**Vulnerability:** The JsonXmlConverter and CSVToYAML components were vulnerable to Prototype Pollution by using user-provided XML tags, attribute names, or CSV headers as object keys.
+**Learning:** Even when using native APIs like DOMParser, the resulting strings (tags, attributes) are still user-controlled and must be sanitized before being used as keys in plain JavaScript objects.
+**Prevention:** Consistently apply the pattern of using `Object.create(null)` for data objects and prepending an underscore to dangerous keys (`__proto__`, `constructor`, `prototype`) in all data transformation tools.

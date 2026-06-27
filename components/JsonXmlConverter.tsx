@@ -88,14 +88,23 @@ export function JsonXmlConverter({ initialData, onStateChange }: { initialData?:
           return null;
         }
 
-        const obj: any = {};
+        // Sentinel: Use Object.create(null) to prevent Prototype Pollution
+        const obj: any = Object.create(null);
         const element = node as Element;
 
+        const sanitizeKey = (key: string) => {
+          const lower = key.toLowerCase();
+          if (lower === '__proto__' || lower === 'constructor' || lower === 'prototype') {
+            return `_${key}`;
+          }
+          return key;
+        };
+
         if (element.attributes.length > 0) {
-          obj['@attributes'] = {};
+          obj['@attributes'] = Object.create(null);
           for (let i = 0; i < element.attributes.length; i++) {
             const attr = element.attributes[i];
-            obj['@attributes'][attr.name] = attr.value;
+            obj['@attributes'][sanitizeKey(attr.name)] = attr.value;
           }
         }
 
@@ -104,7 +113,7 @@ export function JsonXmlConverter({ initialData, onStateChange }: { initialData?:
           const child = element.childNodes[i];
           if (child.nodeType === Node.ELEMENT_NODE) {
             hasChildElements = true;
-            const name = (child as Element).tagName;
+            const name = sanitizeKey((child as Element).tagName);
             const value = toJson(child, depth + 1);
             if (value !== null) {
               if (obj[name]) {

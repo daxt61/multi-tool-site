@@ -44,7 +44,15 @@ export function CSVToYAML({ initialData, onStateChange }: { initialData?: any; o
       const lines = csv.trim().split('\n');
       if (lines.length < 2) return '';
 
-      const headers = parseCSVLine(lines[0]).map(h => h.trim());
+      const headers = parseCSVLine(lines[0]).map(h => {
+        const trimmed = h.trim();
+        const lower = trimmed.toLowerCase();
+        // Sentinel: Sanitize dangerous keys to prevent Prototype Pollution
+        if (lower === '__proto__' || lower === 'constructor' || lower === 'prototype') {
+          return `_${trimmed}`;
+        }
+        return trimmed;
+      });
       const result = lines.slice(1).map(line => {
         const values = parseCSVLine(line);
         return headers.reduce((obj, header, index) => {

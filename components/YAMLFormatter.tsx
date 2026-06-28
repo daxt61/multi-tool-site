@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { FileCode, Copy, Check, Trash2, AlertCircle, Maximize2, Minimize2, Download } from 'lucide-react';
 import yaml from 'js-yaml';
+import { Kbd } from './ui/Kbd';
 
 const MAX_LENGTH = 100000;
 
@@ -181,9 +182,7 @@ export function YAMLFormatter({ initialData, onStateChange }: { initialData?: an
           className="px-8 py-4 bg-indigo-600 text-white rounded-2xl font-black text-lg shadow-lg shadow-indigo-600/20 hover:bg-indigo-700 transition-all active:scale-95 flex items-center gap-2"
         >
           <Maximize2 className="w-5 h-5" /> Formater
-          <kbd className="ml-2 hidden sm:inline-flex items-center gap-1 px-2 py-0.5 border border-white/20 rounded text-[10px] font-bold bg-white/10">
-            Ctrl + Enter
-          </kbd>
+          <Kbd className="ml-2 hidden sm:inline-flex border-white/20 bg-white/10 text-white">Enter</Kbd>
         </button>
         <button
           onClick={handleMinify}

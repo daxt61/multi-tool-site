@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { FileText, Copy, Check, Trash2, AlertCircle, Eye, Download, FileUp } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
+import { Kbd } from './ui/Kbd';
 
 const MAX_LENGTH = 5 * 1024 * 1024; // 5MB limit for Base64 string
 
@@ -103,7 +104,7 @@ export function Base64ToPDF({ initialData, onStateChange }: { initialData?: any;
                 <FileUp className="w-3 h-3" /> {t('common.input')} TXT
                 <input type="file" accept=".txt" onChange={handleFileUpload} className="hidden" />
               </label>
-              <kbd className="hidden sm:inline-flex items-center justify-center px-1.5 py-0.5 border border-rose-200 dark:border-rose-800 rounded text-[10px] font-bold text-rose-400 bg-white dark:bg-slate-900">Esc</kbd>
+              <Kbd modifier={null} className="hidden sm:inline-flex border-rose-200 dark:border-rose-800 text-rose-400 dark:bg-slate-900">Esc</Kbd>
               <button
                 onClick={handleClear}
                 disabled={!input && !pdfUrl}
@@ -134,9 +135,7 @@ export function Base64ToPDF({ initialData, onStateChange }: { initialData?: any;
               className="px-10 py-4 bg-indigo-600 text-white rounded-2xl font-black text-lg shadow-lg shadow-indigo-600/20 hover:bg-indigo-700 transition-all active:scale-95 flex items-center gap-2"
             >
               <Eye className="w-5 h-5" /> {t('base64pdf.view_pdf')}
-              <kbd className="ml-2 hidden sm:inline-flex items-center gap-1 px-2 py-0.5 border border-white/20 rounded text-[10px] font-bold bg-white/10">
-                Ctrl + Enter
-              </kbd>
+              <Kbd className="ml-2 hidden sm:inline-flex border-white/20 bg-white/10 text-white">Enter</Kbd>
             </button>
           </div>
         </div>

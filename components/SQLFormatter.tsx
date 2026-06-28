@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { Database, Copy, Check, Trash2, AlertCircle, FileCode, Download } from 'lucide-react';
 import { format } from 'sql-formatter';
 import { useTranslation } from 'react-i18next';
+import { Kbd } from './ui/Kbd';
 
 const MAX_LENGTH = 100000;
 
@@ -107,7 +108,7 @@ export function SQLFormatter({ initialData, onStateChange }: { initialData?: any
               <label htmlFor="sql-input" className="text-xs font-black uppercase tracking-widest text-slate-400 cursor-pointer">{t('sql.input_label')}</label>
             </div>
             <div className="flex gap-2 items-center">
-              <kbd className="hidden sm:inline-flex items-center justify-center px-1.5 py-0.5 border border-rose-200 dark:border-rose-800 rounded text-[10px] font-bold text-rose-400 bg-white dark:bg-slate-900">Esc</kbd>
+              <Kbd modifier={null} className="hidden sm:inline-flex border-rose-200 dark:border-rose-800 text-rose-400 dark:bg-slate-900">Esc</Kbd>
               <button
                 onClick={handleClear}
                 disabled={!input && !output}
@@ -187,9 +188,7 @@ export function SQLFormatter({ initialData, onStateChange }: { initialData?: any
           className="px-12 py-4 bg-indigo-600 text-white rounded-2xl font-black text-lg shadow-lg shadow-indigo-600/20 hover:bg-indigo-700 transition-all active:scale-95 flex items-center gap-2 focus-visible:ring-2 focus-visible:ring-indigo-500 focus-visible:outline-none"
         >
           <Database className="w-5 h-5" /> {t('sql.format_btn')}
-          <kbd className="ml-2 hidden sm:inline-flex items-center gap-1 px-2 py-0.5 border border-white/20 rounded text-[10px] font-bold bg-white/10">
-            Ctrl + Enter
-          </kbd>
+          <Kbd className="ml-2 hidden sm:inline-flex border-white/20 bg-white/10 text-white">Enter</Kbd>
         </button>
       </div>
     </div>

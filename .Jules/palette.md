@@ -33,3 +33,7 @@
 ## 2025-05-14 - [Search Input UX Standard]
 **Learning:** Tool and category search inputs often suffer from browser/mobile UI interference (autofill, spellcheck) and broken keyboard flow when cleared.
 **Action:** Always include `autoComplete="off"` and `spellCheck={false}` on search inputs, and ensure focus is programmatically returned to the input field after a "clear" interaction to maintain a seamless UX.
+
+## 2025-08-16 - [Standardized Keyboard Shortcut Component]
+**Learning:** Hardcoded 'Ctrl' shortcut hints are inaccurate for Mac users and lead to inconsistent UI styling. A dedicated component that detects the OS ensures accurate instructions and visual uniformity across the application.
+**Action:** Use the `Kbd` component for all keyboard shortcut hints. It handles the ⌘ vs Ctrl logic automatically and provides a standard accessible `<kbd>` element with consistent styling.

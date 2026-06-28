@@ -136,6 +136,7 @@ import {
 } from "lucide-react";
 import { Toaster } from "./components/ui/sonner";
 import { toast } from "sonner";
+import { Kbd } from "./components/ui/Kbd";
 const AdPlaceholder = lazy(() => import("./components/AdPlaceholder").then(m => ({ default: m.AdPlaceholder })));
 
 
@@ -4247,9 +4248,9 @@ function CommandMenu({ open, setOpen, onSelect, recentTools = [] }: {
             placeholder={t("search.placeholder")}
             className="flex-1 bg-transparent border-none outline-none text-slate-900 dark:text-white placeholder:text-slate-400"
           />
-          <kbd className="hidden sm:inline-flex items-center gap-1 px-2 py-1 border border-slate-200 dark:border-slate-700 rounded text-[10px] font-bold text-slate-400">
+          <Kbd modifier={null} className="hidden sm:inline-flex border-slate-200 dark:border-slate-700">
             ESC
-          </kbd>
+          </Kbd>
         </div>
         <Command.List className="max-h-[400px] overflow-y-auto p-2 no-scrollbar">
           <Command.Empty className="py-12 text-center text-sm text-slate-500">
@@ -4631,9 +4632,7 @@ function MainApp() {
               aria-label={`${t("nav.search_label")} (${isMac ? '⌘K' : 'Ctrl+K'})`}
             >
               <Search className="w-5 h-5" />
-              <kbd className="hidden lg:inline-flex items-center gap-1 px-1.5 py-0.5 border border-slate-300 dark:border-slate-600 rounded text-[10px] font-bold bg-white dark:bg-slate-900 group-hover:border-indigo-500 transition-colors">
-                {isMac ? '⌘' : 'Ctrl'} K
-              </kbd>
+              <Kbd className="hidden lg:inline-flex border-slate-300 dark:border-slate-600 group-hover:border-indigo-500">K</Kbd>
             </button>
             <ThemeToggle navigate={navigate} location={location} />
           </div>
@@ -4682,16 +4681,16 @@ function MainApp() {
                   />
                   {!searchQuery && (
                     <div className="absolute inset-y-0 right-4 flex items-center pointer-events-none">
-                      <kbd className="hidden sm:inline-flex items-center gap-1 px-2 py-0.5 border border-slate-200 dark:border-slate-700 rounded text-[10px] font-bold text-slate-400 bg-white dark:bg-slate-800">
+                      <Kbd modifier={null} className="hidden sm:inline-flex border-slate-200 dark:border-slate-700">
                         /
-                      </kbd>
+                      </Kbd>
                     </div>
                   )}
                   {searchQuery && (
                     <div className="absolute inset-y-0 right-4 flex items-center gap-2">
-                      <kbd className="hidden sm:inline-flex items-center gap-1 px-2 py-0.5 border border-slate-200 dark:border-slate-700 rounded text-[10px] font-bold text-slate-400 bg-white dark:bg-slate-800">
+                      <Kbd modifier={null} className="hidden sm:inline-flex border-slate-200 dark:border-slate-700">
                         Esc
-                      </kbd>
+                      </Kbd>
                       <button
                         onClick={() => {
                           setSearchQuery("");

@@ -1,6 +1,7 @@
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useRef } from 'react';
 import { Key, Lock, Unlock, Copy, Check, Trash2, Download, Info, AlertCircle, Eye, EyeOff } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
+import { Kbd } from './ui/Kbd';
 
 const MAX_LENGTH = 100000;
 
@@ -90,18 +91,51 @@ export function AESCipher({ initialData, onStateChange }: { initialData?: any; o
     }
   };
 
-  const handleCopy = () => {
+  const handleCopy = useCallback(() => {
     if (!output) return;
     navigator.clipboard.writeText(output);
     setCopied(true);
     setTimeout(() => setCopied(false), 2000);
-  };
+  }, [output]);
 
-  const handleClear = () => {
+  const handleClear = useCallback(() => {
     setInput('');
     setOutput('');
     setError(null);
-  };
+  }, []);
+
+  const handlersRef = useRef({
+    handleCopy,
+    handleClear
+  });
+
+  useEffect(() => {
+    handlersRef.current = { handleCopy, handleClear };
+  }, [handleCopy, handleClear]);
+
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      const isEditable =
+        document.activeElement?.tagName === "INPUT" ||
+        document.activeElement?.tagName === "TEXTAREA" ||
+        document.activeElement?.tagName === "SELECT" ||
+        document.activeElement?.getAttribute('contenteditable') === 'true';
+
+      if (isEditable) return;
+      if (e.metaKey || e.ctrlKey || e.altKey || e.shiftKey) return;
+
+      if (e.key === 'Escape') {
+        e.preventDefault();
+        handlersRef.current.handleClear();
+      } else if (e.key.toLowerCase() === 'c') {
+        e.preventDefault();
+        handlersRef.current.handleCopy();
+      }
+    };
+
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, []);
 
   return (
     <div className="max-w-4xl mx-auto space-y-8">
@@ -144,13 +178,16 @@ export function AESCipher({ initialData, onStateChange }: { initialData?: any; o
               <label htmlFor="aes-input" className="text-xs font-black uppercase tracking-widest text-slate-400 cursor-pointer">
                 {isEncrypting ? t('common.input') : t('aes.encrypted_text', 'Encrypted Text (Base64)')}
               </label>
-              <button
-                onClick={handleClear}
-                disabled={!input}
-                className="text-xs font-bold text-rose-500 bg-rose-50 dark:bg-rose-500/10 hover:bg-rose-100 dark:hover:bg-rose-500/20 px-3 py-1.5 rounded-xl flex items-center gap-1 transition-all disabled:opacity-50"
-              >
-                <Trash2 className="w-3 h-3" /> {t('common.clear')}
-              </button>
+              <div className="flex items-center gap-2">
+                <Kbd modifier={null} className="hidden sm:inline-flex border-rose-200 dark:border-rose-800 text-rose-400 dark:bg-slate-900">Esc</Kbd>
+                <button
+                  onClick={handleClear}
+                  disabled={!input}
+                  className="text-xs font-bold text-rose-500 bg-rose-50 dark:bg-rose-500/10 hover:bg-rose-100 dark:hover:bg-rose-500/20 px-3 py-1.5 rounded-xl flex items-center gap-1 transition-all disabled:opacity-50 focus-visible:ring-2 focus-visible:ring-rose-500 focus-visible:outline-none"
+                >
+                  <Trash2 className="w-3 h-3" /> {t('common.clear')}
+                </button>
+              </div>
             </div>
             <textarea
               id="aes-input"
@@ -198,7 +235,7 @@ export function AESCipher({ initialData, onStateChange }: { initialData?: any; o
             <button
               onClick={handleCopy}
               disabled={!output}
-              className={`text-xs font-bold px-4 py-1.5 rounded-xl transition-all border flex items-center gap-2 ${
+              className={`text-xs font-bold px-4 py-1.5 rounded-xl transition-all border flex items-center gap-2 focus-visible:ring-2 focus-visible:ring-indigo-500 focus-visible:outline-none ${
                 copied
                   ? 'bg-emerald-50 dark:bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border-emerald-200 dark:border-emerald-500/20'
                   : 'bg-indigo-600 text-white shadow-lg shadow-indigo-600/20 hover:bg-indigo-700 border-transparent'
@@ -206,6 +243,7 @@ export function AESCipher({ initialData, onStateChange }: { initialData?: any; o
             >
               {copied ? <Check className="w-3 h-3" /> : <Copy className="w-3 h-3" />}
               {copied ? t('common.copied') : t('common.copy')}
+              {!copied && <Kbd modifier={null} className="hidden sm:inline-flex w-4 h-4 bg-white/20 border-white/30 text-white/70 ml-1">C</Kbd>}
             </button>
           </div>
           <div className="w-full h-[360px] p-6 bg-slate-900 text-indigo-300 border border-slate-800 rounded-[2.5rem] font-mono text-sm leading-relaxed overflow-y-auto break-all whitespace-pre-wrap">

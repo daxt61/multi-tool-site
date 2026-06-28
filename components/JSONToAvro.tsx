@@ -147,7 +147,7 @@ export function JSONToAvro({ initialData, onStateChange }: { initialData?: any; 
           <div className="bg-white dark:bg-slate-900/40 p-6 rounded-3xl border border-slate-200 dark:border-slate-800 space-y-4">
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div className="space-y-2">
-                <label htmlFor="schema-name" className="text-xs font-bold text-slate-500 px-1">Schema Name</label>
+                <label htmlFor="schema-name" className="text-xs font-bold text-slate-500 px-1">{t('json_avro.schema_name')}</label>
                 <input
                   id="schema-name"
                   type="text"
@@ -158,7 +158,7 @@ export function JSONToAvro({ initialData, onStateChange }: { initialData?: any; 
                 />
               </div>
               <div className="space-y-2">
-                <label htmlFor="namespace" className="text-xs font-bold text-slate-500 px-1">Namespace</label>
+                <label htmlFor="namespace" className="text-xs font-bold text-slate-500 px-1">{t('json_avro.namespace')}</label>
                 <input
                   id="namespace"
                   type="text"
@@ -185,7 +185,7 @@ export function JSONToAvro({ initialData, onStateChange }: { initialData?: any; 
         <div className="space-y-4">
           <div className="flex justify-between items-center px-1">
             <label htmlFor="avro-output" className="text-xs font-black uppercase tracking-widest text-slate-400 flex items-center gap-2">
-              <Database className="w-4 h-4 text-emerald-500" /> Avro Schema (.avsc)
+              <Database className="w-4 h-4 text-emerald-500" /> {t('json_avro.output_label')}
             </label>
             <div className="flex gap-2">
               <button
@@ -229,11 +229,9 @@ export function JSONToAvro({ initialData, onStateChange }: { initialData?: any; 
       <div className="bg-indigo-50 dark:bg-indigo-900/10 p-8 rounded-[2.5rem] border border-indigo-100 dark:border-indigo-900/20 flex items-start gap-4">
         <Info className="w-6 h-6 text-indigo-500 mt-1" />
         <div className="space-y-2">
-          <h4 className="font-bold dark:text-white">What is Avro Schema?</h4>
+          <h4 className="font-bold dark:text-white">{t('json_avro.about_title')}</h4>
           <p className="text-sm text-slate-500 dark:text-slate-400 leading-relaxed">
-            Apache Avro is a data serialization system. Avro relies on schemas, which are defined in JSON.
-            This tool helps you convert your sample JSON data into an Avro schema definition (.avsc),
-            automatically inferring types and handling nested structures.
+            {t('json_avro.about_text')}
           </p>
         </div>
       </div>

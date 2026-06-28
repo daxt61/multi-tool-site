@@ -1,6 +1,7 @@
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useRef } from 'react';
 import { FileCode, Copy, Check, Trash2, AlertCircle, Download, Info } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
+import { Kbd } from './ui/Kbd';
 
 const MAX_LENGTH = 100000;
 const MAX_DEPTH = 20;
@@ -115,18 +116,51 @@ export function JSONToPHP({ initialData, onStateChange }: { initialData?: any; o
     handleConvert();
   }, [handleConvert]);
 
-  const handleCopy = () => {
+  const handleCopy = useCallback(() => {
     if (!output) return;
     navigator.clipboard.writeText(output);
     setCopied(true);
     setTimeout(() => setCopied(false), 2000);
-  };
+  }, [output]);
 
-  const handleClear = () => {
+  const handleClear = useCallback(() => {
     setInput('');
     setOutput('');
     setError('');
-  };
+  }, []);
+
+  const handlersRef = useRef({
+    handleCopy,
+    handleClear
+  });
+
+  useEffect(() => {
+    handlersRef.current = { handleCopy, handleClear };
+  }, [handleCopy, handleClear]);
+
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      const isEditable =
+        document.activeElement?.tagName === "INPUT" ||
+        document.activeElement?.tagName === "TEXTAREA" ||
+        document.activeElement?.tagName === "SELECT" ||
+        document.activeElement?.getAttribute('contenteditable') === 'true';
+
+      if (isEditable) return;
+      if (e.metaKey || e.ctrlKey || e.altKey || e.shiftKey) return;
+
+      if (e.key === 'Escape') {
+        e.preventDefault();
+        handlersRef.current.handleClear();
+      } else if (e.key.toLowerCase() === 'c') {
+        e.preventDefault();
+        handlersRef.current.handleCopy();
+      }
+    };
+
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, []);
 
   const handleDownload = () => {
     if (!output) return;
@@ -150,13 +184,16 @@ export function JSONToPHP({ initialData, onStateChange }: { initialData?: any; o
               <FileCode className="w-4 h-4 text-indigo-500" />
               <label htmlFor="json-input" className="text-xs font-black uppercase tracking-widest text-slate-400 cursor-pointer">{t('common.input')} JSON</label>
             </div>
-            <button
-              onClick={handleClear}
-              disabled={!input && !output}
-              className="text-xs font-bold px-3 py-1 rounded-full text-rose-500 bg-rose-50 dark:bg-rose-500/10 hover:bg-rose-100 transition-all flex items-center gap-1 disabled:opacity-50"
-            >
-              <Trash2 className="w-3 h-3" /> {t('common.clear')}
-            </button>
+            <div className="flex items-center gap-2">
+              <Kbd modifier={null} className="hidden sm:inline-flex border-rose-200 dark:border-rose-800 text-rose-400 dark:bg-slate-900">Esc</Kbd>
+              <button
+                onClick={handleClear}
+                disabled={!input && !output}
+                className="text-xs font-bold px-3 py-1 rounded-full text-rose-500 bg-rose-50 dark:bg-rose-500/10 hover:bg-rose-100 transition-all flex items-center gap-1 disabled:opacity-50 focus-visible:ring-2 focus-visible:ring-rose-500 focus-visible:outline-none"
+              >
+                <Trash2 className="w-3 h-3" /> {t('common.clear')}
+              </button>
+            </div>
           </div>
           <textarea
             id="json-input"
@@ -191,6 +228,7 @@ export function JSONToPHP({ initialData, onStateChange }: { initialData?: any; o
                 }`}
               >
                 {copied ? <Check className="w-3 h-3" /> : <Copy className="w-3 h-3" />} {copied ? t('common.copied') : t('common.copy')}
+                {!copied && <Kbd modifier={null} className="hidden sm:inline-flex w-4 h-4 bg-white/50 dark:bg-black/20 ml-1">C</Kbd>}
               </button>
             </div>
           </div>

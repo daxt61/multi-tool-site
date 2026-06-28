@@ -4,7 +4,7 @@ import { useTranslation } from 'react-i18next';
 import { getSecureRandomInt } from './ui/crypto';
 
 // Types for the sorting state
-type Algorithm = 'bubble' | 'selection' | 'insertion' | 'merge' | 'quick' | 'heap' | 'shell' | 'cocktail' | 'comb';
+type Algorithm = 'bubble' | 'selection' | 'insertion' | 'merge' | 'quick' | 'heap' | 'shell' | 'cocktail' | 'comb' | 'radix';
 
 interface Bar {
   value: number;
@@ -17,7 +17,7 @@ const MAX_SPEED = 500; // ms delay
 const MIN_SPEED = 0;
 
 export function SortingVisualizer({ initialData, onStateChange }: { initialData?: any; onStateChange?: (state: any) => void }) {
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
   const [algorithm, setAlgorithm] = useState<Algorithm>(initialData?.algorithm || 'bubble');
   const [arraySize, setArraySize] = useState(initialData?.arraySize || 30);
   const [speed, setSpeed] = useState(initialData?.speed || 50);
@@ -405,6 +405,55 @@ export function SortingVisualizer({ initialData, onStateChange }: { initialData?
     }
   };
 
+  const radixSort = async () => {
+    const n = arrayRef.current.length;
+    const maxVal = Math.max(...arrayRef.current.map(b => b.value));
+
+    for (let exp = 1; Math.floor(maxVal / exp) > 0; exp *= 10) {
+      if (!isSortingRef.current) return;
+      await countingSortForRadix(n, exp);
+    }
+
+    const finalArray = [...arrayRef.current];
+    for (let i = 0; i < n; i++) finalArray[i].status = 'sorted';
+    setArray(finalArray);
+    arrayRef.current = finalArray;
+  };
+
+  const countingSortForRadix = async (n: number, exp: number) => {
+    const output = new Array(n);
+    const count = new Array(10).fill(0);
+
+    for (let i = 0; i < n; i++) {
+      if (!isSortingRef.current) return;
+      const digit = Math.floor(arrayRef.current[i].value / exp) % 10;
+      count[digit]++;
+      updateBarStatus([i], 'comparing');
+      setStats(prev => ({ ...prev, comparisons: prev.comparisons + 1 }));
+      if (!(await sleep(speedRef.current))) return;
+      updateBarStatus([i], 'idle');
+    }
+
+    for (let i = 1; i < 10; i++) {
+      count[i] += count[i - 1];
+    }
+
+    for (let i = n - 1; i >= 0; i--) {
+      if (!isSortingRef.current) return;
+      const digit = Math.floor(arrayRef.current[i].value / exp) % 10;
+      output[count[digit] - 1] = arrayRef.current[i].value;
+      count[digit]--;
+    }
+
+    for (let i = 0; i < n; i++) {
+      if (!isSortingRef.current) return;
+      updateBarValue(i, output[i], 'swapping');
+      setStats(prev => ({ ...prev, swaps: prev.swaps + 1 }));
+      if (!(await sleep(speedRef.current))) return;
+      updateBarStatus([i], 'idle');
+    }
+  };
+
   const quickSort = async () => {
     const n = arrayRef.current.length;
     await quickSortHelper(0, n - 1);
@@ -483,6 +532,7 @@ export function SortingVisualizer({ initialData, onStateChange }: { initialData?
         case 'merge': await mergeSort(); break;
         case 'quick': await quickSort(); break;
         case 'heap': await heapSort(); break;
+        case 'radix': await radixSort(); break;
       }
     } catch (e) {
       console.error('Sorting interrupted', e);
@@ -612,6 +662,7 @@ export function SortingVisualizer({ initialData, onStateChange }: { initialData?
                   <option value="merge">{t('sorting.algo.merge')}</option>
                   <option value="quick">{t('sorting.algo.quick')}</option>
                   <option value="heap">{t('sorting.algo.heap')}</option>
+                  <option value="radix">{t('sorting.algo.radix')}</option>
                 </select>
               </div>
 
@@ -663,9 +714,9 @@ export function SortingVisualizer({ initialData, onStateChange }: { initialData?
                     <button
                       onClick={() => startSort('step')}
                       className="group px-6 py-3 bg-indigo-50 dark:bg-indigo-900/20 text-indigo-600 dark:text-indigo-400 rounded-2xl font-black flex items-center gap-2 hover:bg-indigo-100 dark:hover:bg-indigo-900/30 transition-all active:scale-95 focus-visible:ring-2 focus-visible:ring-indigo-500 focus-visible:outline-none"
-                      title="Run in step-by-step mode"
+                      title={t('sorting.step_mode_hint')}
                     >
-                      <FastForward className="w-5 h-5" /> {t('sorting.step_mode')}
+                      <FastForward className="w-5 h-5" /> {t('sorting.step_by_step')}
                     </button>
                  </div>
                ) : (
@@ -743,7 +794,7 @@ export function SortingVisualizer({ initialData, onStateChange }: { initialData?
           {isSorting && (
              <div className="absolute top-4 right-6 px-4 py-2 bg-white/10 backdrop-blur-md rounded-full border border-white/20 flex items-center gap-2">
                 <div className="w-2 h-2 rounded-full bg-indigo-500 animate-pulse" />
-                <span className="text-[10px] font-black uppercase tracking-widest text-indigo-500">{isStepMode ? 'Step-by-Step' : 'Auto-Sorting'}</span>
+                <span className="text-[10px] font-black uppercase tracking-widest text-indigo-500">{isStepMode ? t('sorting.step_by_step') : t('sorting.auto_sorting')}</span>
              </div>
           )}
        </div>
@@ -755,7 +806,7 @@ export function SortingVisualizer({ initialData, onStateChange }: { initialData?
             <Info className="w-4 h-4 text-indigo-500" /> {t('unit.guide_title')}
           </h4>
           <p className="text-sm text-slate-500 dark:text-slate-400 leading-relaxed">
-             {t('sorting.guide')} Use the <span className="font-bold">Step Mode</span> to manually control the algorithm's progress using the <span className="font-bold">Arrow Right</span> key.
+             {t('sorting.guide')} {i18n.language === 'fr' ? <>Utilisez le mode <span className="font-bold">Pas à Pas</span> pour contrôler manuellement la progression de l'algorithme à l'aide de la touche <span className="font-bold">Flèche Droite</span>.</> : <>Use the <span className="font-bold">Step-by-Step</span> mode to manually control the algorithm's progress using the <span className="font-bold">Arrow Right</span> key.</>}
           </p>
         </div>
         <div className="space-y-4">
@@ -778,6 +829,10 @@ export function SortingVisualizer({ initialData, onStateChange }: { initialData?
              <div className="flex justify-between border-b border-slate-100 dark:border-slate-800 pb-1">
                 <span>{t('sorting.algo.merge')} / {t('sorting.algo.quick')} / {t('sorting.algo.heap')}</span>
                 <span className="font-mono text-indigo-500">O(n log n)</span>
+             </div>
+             <div className="flex justify-between border-b border-slate-100 dark:border-slate-800 pb-1">
+                <span>{t('sorting.algo.radix')}</span>
+                <span className="font-mono text-indigo-500">O(nk)</span>
              </div>
           </div>
         </div>

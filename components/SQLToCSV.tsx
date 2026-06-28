@@ -57,6 +57,7 @@ export function SQLToCSV({ initialData, onStateChange }: { initialData?: any; on
             let inString = false;
             let quoteChar = '';
 
+            let valCurrentLevel = 0;
             for (let i = 0; i < innerStr.length; i++) {
               const char = innerStr[i];
               if ((char === "'" || char === '"') && (i === 0 || innerStr[i - 1] !== '\\')) {
@@ -65,12 +66,17 @@ export function SQLToCSV({ initialData, onStateChange }: { initialData?: any; on
                   quoteChar = char;
                 } else if (char === quoteChar) {
                   inString = false;
+                }
+                currentVal += char;
+              } else if (!inString) {
+                if (char === '(') valCurrentLevel++;
+                if (char === ')') valCurrentLevel--;
+                if (char === ',' && valCurrentLevel === 0) {
+                  rowValues.push(cleanValue(currentVal));
+                  currentVal = '';
                 } else {
                   currentVal += char;
                 }
-              } else if (char === ',' && !inString) {
-                rowValues.push(cleanValue(currentVal));
-                currentVal = '';
               } else {
                 currentVal += char;
               }

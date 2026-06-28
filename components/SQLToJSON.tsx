@@ -81,6 +81,7 @@ export function SQLToJSON({ initialData, onStateChange }: { initialData?: any; o
             let valStart = 0;
             let valInString = false;
             let valQuoteChar = '';
+            let valCurrentLevel = 0;
 
             for (let i = 0; i < rawVals.length; i++) {
               const char = rawVals[i];
@@ -93,9 +94,13 @@ export function SQLToJSON({ initialData, onStateChange }: { initialData?: any; o
                 }
               }
 
-              if (!valInString && char === ',') {
-                rowValues.push(rawVals.substring(valStart, i).trim());
-                valStart = i + 1;
+              if (!valInString) {
+                if (char === '(') valCurrentLevel++;
+                if (char === ')') valCurrentLevel--;
+                if (char === ',' && valCurrentLevel === 0) {
+                  rowValues.push(rawVals.substring(valStart, i).trim());
+                  valStart = i + 1;
+                }
               }
             }
             rowValues.push(rawVals.substring(valStart).trim());
@@ -116,7 +121,7 @@ export function SQLToJSON({ initialData, onStateChange }: { initialData?: any; o
               } else if (!isNaN(Number(trimmedVal)) && trimmedVal !== '' && !trimmedVal.startsWith("'") && !trimmedVal.startsWith('"')) {
                 obj[col] = Number(trimmedVal);
               } else if ((trimmedVal.startsWith("'") && trimmedVal.endsWith("'")) || (trimmedVal.startsWith('"') && trimmedVal.endsWith('"'))) {
-                obj[col] = trimmedVal.substring(1, trimmedVal.length - 1).replace(/\\'/g, "'").replace(/\\"/g, '"');
+                obj[col] = trimmedVal.substring(1, trimmedVal.length - 1).replace(/\\'/g, "'").replace(/\\"/g, '"').replace(/''/g, "'");
               } else {
                 obj[col] = trimmedVal;
               }

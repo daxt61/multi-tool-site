@@ -15,13 +15,33 @@ export function JSONToProperties({ initialData, onStateChange }: { initialData?:
     onStateChange?.({ input, output });
   }, [input, output, onStateChange]);
 
+  const escapeKey = (str: string) => {
+    return str
+      .replace(/\\/g, '\\\\')
+      .replace(/\n/g, '\\n')
+      .replace(/\r/g, '\\r')
+      .replace(/\t/g, '\\t')
+      .replace(/\f/g, '\\f')
+      .replace(/[ =:]/g, (m) => `\\${m}`);
+  };
+
+  const escapeValue = (val: any) => {
+    return String(val)
+      .replace(/\\/g, '\\\\')
+      .replace(/\n/g, '\\n')
+      .replace(/\r/g, '\\r')
+      .replace(/\t/g, '\\t')
+      .replace(/\f/g, '\\f');
+  };
+
   const jsonToProperties = (obj: any, prefix = ''): string => {
     let props = '';
 
     if (obj === null || obj === undefined) return '';
 
     for (const [key, value] of Object.entries(obj)) {
-      const fullKey = prefix ? `${prefix}.${key}` : key;
+      const escapedKey = escapeKey(key);
+      const fullKey = prefix ? `${prefix}.${escapedKey}` : escapedKey;
 
       if (value !== null && typeof value === 'object' && !Array.isArray(value)) {
         props += jsonToProperties(value, fullKey);
@@ -31,11 +51,11 @@ export function JSONToProperties({ initialData, onStateChange }: { initialData?:
           if (item !== null && typeof item === 'object' && !Array.isArray(item)) {
             props += jsonToProperties(item, arrayKey);
           } else {
-            props += `${arrayKey}=${String(item)}\n`;
+            props += `${arrayKey}=${escapeValue(item)}\n`;
           }
         });
       } else {
-        props += `${fullKey}=${String(value)}\n`;
+        props += `${fullKey}=${escapeValue(value)}\n`;
       }
     }
 

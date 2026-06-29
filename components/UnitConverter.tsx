@@ -360,7 +360,7 @@ export function UnitConverter({ initialData, onStateChange }: { initialData?: an
   const handleClear = useCallback(() => {
     setFromValue('');
     setToValue(0);
-    fromValueRef.current?.focus();
+    setTimeout(() => fromValueRef.current?.focus(), 0);
   }, []);
 
   const handleSwap = useCallback(() => {
@@ -429,6 +429,7 @@ export function UnitConverter({ initialData, onStateChange }: { initialData?: an
             onKeyDown={(e) => {
               if (e.key === 'Escape') {
                 setCategorySearch('');
+                  setTimeout(() => categorySearchInputRef.current?.focus(), 0);
               } else if (e.key === 'Enter' && filteredCategories.length > 0) {
                 handleCategoryChange(filteredCategories[0].id as ConversionCategory);
               }
@@ -439,7 +440,7 @@ export function UnitConverter({ initialData, onStateChange }: { initialData?: an
             <button
               onClick={() => {
                 setCategorySearch('');
-                categorySearchInputRef.current?.focus();
+                setTimeout(() => categorySearchInputRef.current?.focus(), 0);
               }}
               className="absolute inset-y-0 right-4 flex items-center text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 transition-colors focus-visible:ring-2 focus-visible:ring-indigo-500 focus-visible:outline-none rounded-lg"
               aria-label={t('unit.search_clear_aria')}

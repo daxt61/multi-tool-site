@@ -481,6 +481,7 @@ const JSONToAvro = lazy(() => import("./components/JSONToAvro").then(m => ({ def
 const SVGToImage = lazy(() => import("./components/SVGToImage").then(m => ({ default: m.SVGToImage })));
 const ASCIIArtToImage = lazy(() => import("./components/ASCIIArtToImage").then(m => ({ default: m.ASCIIArtToImage })));
 const XmlCsvConverter = lazy(() => import("./components/XmlCsvConverter").then(m => ({ default: m.XmlCsvConverter })));
+const SudokuSolver = lazy(() => import("./components/SudokuSolver").then(m => ({ default: m.SudokuSolver })));
 
 // ⚡ Bolt Optimization: Pre-calculating tool map and search index for O(1) lookups and faster filtering
 const toolsMap: Record<string, Tool> = {};
@@ -4112,6 +4113,17 @@ const tools: Tool[] = [
     Component: XmlCsvConverter,
     category: "converters",
     keywords: ["xml", "csv", "convert", "data", "spreadsheet"],
+  },
+  {
+    id: "sudoku-solver",
+    name: "Sudoku",
+    nameEn: "Sudoku Solver",
+    icon: Grid3X3,
+    description: "Résoudre des puzzles Sudoku instantanément",
+    descriptionEn: "Solve Sudoku puzzles instantly",
+    Component: SudokuSolver,
+    category: "calculators",
+    keywords: ["sudoku", "puzzle", "solver", "game", "math", "logic"],
   },
 ];
 

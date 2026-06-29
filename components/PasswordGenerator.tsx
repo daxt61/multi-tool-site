@@ -51,6 +51,9 @@ export function PasswordGenerator({ initialData, onStateChange }: { initialData?
   const [includeSymbols, setIncludeSymbols] = useState(initialData?.includeSymbols ?? true);
   const [excludeSimilar, setExcludeSimilar] = useState(initialData?.excludeSimilar ?? false);
   const [excludeAmbiguous, setExcludeAmbiguous] = useState(initialData?.excludeAmbiguous ?? false);
+  const [customCharset, setCustomCharset] = useState(initialData?.customCharset || '');
+  const [excludeChars, setExcludeChars] = useState(initialData?.excludeChars || '');
+  const [useCustomCharset, setUseCustomCharset] = useState(initialData?.useCustomCharset ?? false);
   const [showPassword, setShowPassword] = useState(false);
   const [copied, setCopied] = useState(false);
   const [copiedRowIndex, setCopiedRowIndex] = useState<number | null>(null);
@@ -65,17 +68,27 @@ export function PasswordGenerator({ initialData, onStateChange }: { initialData?
     for (let q = 0; q < quantity; q++) {
       if (mode === 'random') {
         let charset = '';
-        if (includeUppercase) charset += 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
-        if (includeLowercase) charset += 'abcdefghijklmnopqrstuvwxyz';
-        if (includeNumbers) charset += '0123456789';
-        if (includeSymbols) charset += '!@#$%^&*()_+-=[]{}|;:,.<>?';
+        if (useCustomCharset && customCharset) {
+          charset = customCharset;
+        } else {
+          if (includeUppercase) charset += 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
+          if (includeLowercase) charset += 'abcdefghijklmnopqrstuvwxyz';
+          if (includeNumbers) charset += '0123456789';
+          if (includeSymbols) charset += '!@#$%^&*()_+-=[]{}|;:,.<>?';
 
-        if (excludeSimilar) {
-          charset = charset.replace(/[il1Lo0O]/g, '');
+          if (excludeSimilar) {
+            charset = charset.replace(/[il1Lo0O]/g, '');
+          }
+
+          if (excludeAmbiguous) {
+            charset = charset.replace(/[{}[\]()/\\\'"`~,;:.<>]/g, '');
+          }
         }
 
-        if (excludeAmbiguous) {
-          charset = charset.replace(/[{}[\]()/\\\'"`~,;:.<>]/g, '');
+        if (excludeChars) {
+          const escapedExclude = excludeChars.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+          const regex = new RegExp(`[${escapedExclude}]`, 'g');
+          charset = charset.replace(regex, '');
         }
 
         if (charset === '') {
@@ -121,9 +134,10 @@ export function PasswordGenerator({ initialData, onStateChange }: { initialData?
   useEffect(() => {
     onStateChange?.({
       mode, quantity, length, wordCount, capitalizeWords, addNumber, addSymbol,
-      includeUppercase, includeLowercase, includeNumbers, includeSymbols, excludeSimilar, excludeAmbiguous
+      includeUppercase, includeLowercase, includeNumbers, includeSymbols, excludeSimilar, excludeAmbiguous,
+      customCharset, excludeChars, useCustomCharset
     });
-  }, [mode, quantity, length, wordCount, capitalizeWords, addNumber, addSymbol, includeUppercase, includeLowercase, includeNumbers, includeSymbols, excludeSimilar, excludeAmbiguous, onStateChange]);
+  }, [mode, quantity, length, wordCount, capitalizeWords, addNumber, addSymbol, includeUppercase, includeLowercase, includeNumbers, includeSymbols, excludeSimilar, excludeAmbiguous, customCharset, excludeChars, useCustomCharset, onStateChange]);
 
   const copyToClipboard = useCallback((text?: string, index?: number) => {
     const toCopy = text || passwords[0];
@@ -143,12 +157,20 @@ export function PasswordGenerator({ initialData, onStateChange }: { initialData?
     if (!pwd) return 0;
     let charsetSize = 0;
     if (mode === 'random') {
-      if (includeUppercase) charsetSize += 26;
-      if (includeLowercase) charsetSize += 26;
-      if (includeNumbers) charsetSize += 10;
-      if (includeSymbols) charsetSize += 26;
-      if (excludeSimilar) charsetSize -= 7;
-      if (excludeAmbiguous) charsetSize -= 20; // Estimated Ambiguous chars count
+      if (useCustomCharset && customCharset) {
+        charsetSize = new Set(customCharset.split('')).size;
+      } else {
+        if (includeUppercase) charsetSize += 26;
+        if (includeLowercase) charsetSize += 26;
+        if (includeNumbers) charsetSize += 10;
+        if (includeSymbols) charsetSize += 26;
+        if (excludeSimilar) charsetSize -= 7;
+        if (excludeAmbiguous) charsetSize -= 20; // Estimated Ambiguous chars count
+      }
+      if (excludeChars) {
+        const uniqueExclude = new Set(excludeChars.split('')).size;
+        charsetSize = Math.max(1, charsetSize - uniqueExclude);
+      }
       return Math.floor(pwd.length * Math.log2(Math.max(charsetSize, 1)));
     } else {
       const wordListSize = i18n.language === 'en' ? WORDS_EN.length : WORDS_FR.length;
@@ -493,24 +515,26 @@ export function PasswordGenerator({ initialData, onStateChange }: { initialData?
           )}
 
           {mode === 'random' && (
-            <div className="grid grid-cols-2 gap-3">
-              {[
-                { label: t('passwordgenerator.uppercase'), state: includeUppercase, setState: setIncludeUppercase },
-                { label: t('passwordgenerator.lowercase'), state: includeLowercase, setState: setIncludeLowercase },
-                { label: t('passwordgenerator.numbers'), state: includeNumbers, setState: setIncludeNumbers },
-                { label: t('passwordgenerator.symbols'), state: includeSymbols, setState: setIncludeSymbols },
-                { label: t('passwordgenerator.exclude_similar'), state: excludeSimilar, setState: setExcludeSimilar },
-                { label: t('passwordgenerator.exclude_ambiguous'), state: excludeAmbiguous, setState: setExcludeAmbiguous },
-              ].map((opt) => (
+            <div className="space-y-6">
+              <div className="grid grid-cols-2 gap-3">
+                {[
+                  { label: t('passwordgenerator.uppercase'), state: includeUppercase, setState: setIncludeUppercase, disabled: useCustomCharset },
+                  { label: t('passwordgenerator.lowercase'), state: includeLowercase, setState: setIncludeLowercase, disabled: useCustomCharset },
+                  { label: t('passwordgenerator.numbers'), state: includeNumbers, setState: setIncludeNumbers, disabled: useCustomCharset },
+                  { label: t('passwordgenerator.symbols'), state: includeSymbols, setState: setIncludeSymbols, disabled: useCustomCharset },
+                  { label: t('passwordgenerator.exclude_similar'), state: excludeSimilar, setState: setExcludeSimilar, disabled: useCustomCharset },
+                  { label: t('passwordgenerator.exclude_ambiguous'), state: excludeAmbiguous, setState: setExcludeAmbiguous, disabled: useCustomCharset },
+                ].map((opt) => (
                 <button
                   key={opt.label}
                   onClick={() => opt.setState(!opt.state)}
+                  disabled={opt.disabled}
                   aria-pressed={opt.state}
                   className={`flex items-center justify-between p-4 rounded-2xl border transition-all focus-visible:ring-2 focus-visible:ring-indigo-500 focus-visible:outline-none ${
                     opt.state
                     ? 'bg-indigo-50 dark:bg-indigo-500/10 border-indigo-200 dark:border-indigo-500/20 text-indigo-600 dark:text-indigo-400'
                     : 'bg-white dark:bg-slate-800 border-slate-200 dark:border-slate-700 text-slate-400'
-                  }`}
+                  } ${opt.disabled ? 'opacity-50 cursor-not-allowed' : ''}`}
                 >
                   <span className="font-bold text-sm">{opt.label}</span>
                   <div className={`w-5 h-5 rounded-md border flex items-center justify-center transition-all ${
@@ -519,7 +543,51 @@ export function PasswordGenerator({ initialData, onStateChange }: { initialData?
                     {opt.state && <Check className="w-3 h-3 stroke-[3]" />}
                   </div>
                 </button>
-              ))}
+                ))}
+              </div>
+
+              <div className="space-y-4 pt-4 border-t border-slate-200 dark:border-slate-800">
+                <div className="flex items-center gap-2">
+                  <input
+                    id="use-custom-charset"
+                    type="checkbox"
+                    checked={useCustomCharset}
+                    onChange={(e) => setUseCustomCharset(e.target.checked)}
+                    className="w-4 h-4 text-indigo-600 rounded focus:ring-indigo-500"
+                  />
+                  <label htmlFor="use-custom-charset" className="text-sm font-bold text-slate-700 dark:text-slate-300">
+                    {t('passwordgenerator.use_custom_charset')}
+                  </label>
+                </div>
+                {useCustomCharset && (
+                  <div className="space-y-2">
+                    <label htmlFor="custom-charset" className="text-xs font-black uppercase tracking-widest text-slate-400">
+                      {t('passwordgenerator.custom_charset')}
+                    </label>
+                    <input
+                      id="custom-charset"
+                      type="text"
+                      value={customCharset}
+                      onChange={(e) => setCustomCharset(e.target.value)}
+                      placeholder="ABCDEF..."
+                      className="w-full p-3 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl focus:ring-2 focus:ring-indigo-500/20 outline-none font-mono"
+                    />
+                  </div>
+                )}
+                <div className="space-y-2">
+                  <label htmlFor="exclude-chars" className="text-xs font-black uppercase tracking-widest text-slate-400">
+                    {t('passwordgenerator.exclude_chars')}
+                  </label>
+                  <input
+                    id="exclude-chars"
+                    type="text"
+                    value={excludeChars}
+                    onChange={(e) => setExcludeChars(e.target.value)}
+                    placeholder='ex: @#$"'
+                    className="w-full p-3 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl focus:ring-2 focus:ring-indigo-500/20 outline-none font-mono"
+                  />
+                </div>
+              </div>
             </div>
           )}
 

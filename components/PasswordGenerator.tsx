@@ -1,7 +1,9 @@
 import { useState, useEffect, useCallback, useMemo } from 'react';
 import { Copy, RefreshCw, Check, Shield, ShieldAlert, ShieldCheck, Key, BookOpen, Trash2, Download, Eye, EyeOff, AlertCircle, Info, Activity } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
+import { toast } from 'sonner';
 import { getSecureRandomInt } from './ui/crypto';
+import { Kbd } from './ui/Kbd';
 
 const WORDS_FR = [
   'bleu', 'rouge', 'vert', 'jaune', 'noir', 'blanc', 'orange', 'rose', 'gris', 'brun', 'violet', 'marron', 'argent', 'or', 'indigo', 'turquoise', 'beige', 'ocre', 'cyan', 'lime',
@@ -51,6 +53,7 @@ export function PasswordGenerator({ initialData, onStateChange }: { initialData?
   const [excludeAmbiguous, setExcludeAmbiguous] = useState(initialData?.excludeAmbiguous ?? false);
   const [showPassword, setShowPassword] = useState(false);
   const [copied, setCopied] = useState(false);
+  const [copiedRowIndex, setCopiedRowIndex] = useState<number | null>(null);
   const [copiedHistoryIndex, setCopiedHistoryIndex] = useState<number | null>(null);
   const [copiedHistoryAll, setCopiedHistoryAll] = useState(false);
   const [history, setHistory] = useState<string[]>([]);
@@ -122,15 +125,19 @@ export function PasswordGenerator({ initialData, onStateChange }: { initialData?
     });
   }, [mode, quantity, length, wordCount, capitalizeWords, addNumber, addSymbol, includeUppercase, includeLowercase, includeNumbers, includeSymbols, excludeSimilar, excludeAmbiguous, onStateChange]);
 
-  const copyToClipboard = useCallback((text?: string) => {
+  const copyToClipboard = useCallback((text?: string, index?: number) => {
     const toCopy = text || passwords[0];
     if (!toCopy) return;
     navigator.clipboard.writeText(toCopy);
-    if (!text) {
+    toast.success(t('common.copied'));
+    if (typeof index === 'number') {
+      setCopiedRowIndex(index);
+      setTimeout(() => setCopiedRowIndex(null), 2000);
+    } else if (!text) {
       setCopied(true);
       setTimeout(() => setCopied(false), 2000);
     }
-  }, [passwords]);
+  }, [passwords, t]);
 
   const calculateEntropy = useCallback((pwd: string) => {
     if (!pwd) return 0;
@@ -203,7 +210,7 @@ export function PasswordGenerator({ initialData, onStateChange }: { initialData?
 
       const isBodyFocused = document.activeElement === document.body;
 
-      if ((e.key.toLowerCase() === 'r') || (e.code === 'Space' && isBodyFocused)) {
+      if ((e.key.toLowerCase() === 'r' || e.key === 'Enter') || (e.code === 'Space' && isBodyFocused)) {
         e.preventDefault();
         generatePassword();
       } else if (e.key.toLowerCase() === 'c') {
@@ -212,6 +219,9 @@ export function PasswordGenerator({ initialData, onStateChange }: { initialData?
       } else if (e.key.toLowerCase() === 'v') {
         e.preventDefault();
         setShowPassword(prev => !prev);
+      } else if (e.key === 'Escape') {
+        e.preventDefault();
+        handleClear();
       }
     };
 
@@ -230,6 +240,7 @@ export function PasswordGenerator({ initialData, onStateChange }: { initialData?
           className="text-xs font-bold text-indigo-600 bg-indigo-50 dark:bg-indigo-500/10 hover:bg-indigo-100 dark:hover:bg-indigo-500/20 px-3 py-1.5 rounded-xl flex items-center gap-1 transition-all disabled:opacity-50 disabled:cursor-not-allowed focus-visible:ring-2 focus-visible:ring-indigo-500 focus-visible:outline-none"
         >
           <Copy className="w-3 h-3" /> {t('passwordgenerator.copy_all')}
+          <Kbd modifier={null} className="ml-1 bg-white/50 dark:bg-black/20 border-indigo-200 dark:border-indigo-800">C</Kbd>
         </button>
         <div className="flex items-center gap-1 bg-slate-100 dark:bg-slate-800 p-0.5 rounded-xl border border-slate-200 dark:border-slate-700">
           <div className="px-2 text-slate-400">
@@ -258,6 +269,7 @@ export function PasswordGenerator({ initialData, onStateChange }: { initialData?
           className="text-xs font-bold text-rose-500 bg-rose-50 dark:bg-rose-500/10 hover:bg-rose-100 dark:hover:bg-rose-500/20 px-3 py-1.5 rounded-xl flex items-center gap-1 transition-all disabled:opacity-50 disabled:cursor-not-allowed focus-visible:ring-2 focus-visible:ring-rose-500 focus-visible:outline-none"
         >
           <Trash2 className="w-3 h-3" /> {t('common.clear')}
+          <Kbd modifier={null} className="ml-1 bg-white/50 dark:bg-black/20 border-rose-200 dark:border-rose-800">Esc</Kbd>
         </button>
       </div>
 
@@ -336,12 +348,16 @@ export function PasswordGenerator({ initialData, onStateChange }: { initialData?
                       </div>
                     </div>
                     <button
-                      onClick={() => copyToClipboard(pwd)}
+                      onClick={() => copyToClipboard(pwd, idx)}
                       aria-label={t('common.copy')}
                       title={t('common.copy')}
-                      className="p-3 bg-white/10 hover:bg-white/20 text-white rounded-xl transition-all active:scale-95 focus-visible:ring-2 focus-visible:ring-white"
+                      className={`p-3 rounded-xl transition-all active:scale-95 focus-visible:ring-2 focus-visible:ring-white ${
+                        copiedRowIndex === idx
+                          ? "bg-emerald-500 text-white"
+                          : "bg-white/10 hover:bg-white/20 text-white"
+                      }`}
                     >
-                      <Copy className="w-4 h-4" />
+                      {copiedRowIndex === idx ? <Check className="w-4 h-4" /> : <Copy className="w-4 h-4" />}
                     </button>
                   </div>
                 </div>
@@ -363,7 +379,7 @@ export function PasswordGenerator({ initialData, onStateChange }: { initialData?
           >
             {showPassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
             <span className="text-sm font-bold">{showPassword ? t('passwordgenerator.hide') : t('passwordgenerator.show')}</span>
-            <kbd className="hidden sm:inline-flex items-center justify-center w-5 h-5 border border-white/20 rounded text-[10px] font-bold bg-white/5 text-white/50 ml-1">V</kbd>
+            <Kbd modifier={null} className="hidden sm:inline-flex border-white/20 bg-white/5 text-white/50 ml-1">V</Kbd>
           </button>
 
           <button
@@ -373,7 +389,7 @@ export function PasswordGenerator({ initialData, onStateChange }: { initialData?
           >
             <RefreshCw className="w-5 h-5 group-hover/regen:rotate-180 transition-transform duration-500" />
             <span>{t('passwordgenerator.regenerate')}</span>
-            <kbd className="hidden sm:inline-flex items-center justify-center w-5 h-5 border border-slate-200 rounded text-[10px] font-bold bg-slate-100 text-slate-400 ml-1">R</kbd>
+            <Kbd modifier={null} className="hidden sm:inline-flex border-slate-200 bg-slate-100 text-slate-400 ml-1">R</Kbd>
           </button>
         </div>
       </div>

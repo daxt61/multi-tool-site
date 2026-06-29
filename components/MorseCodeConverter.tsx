@@ -30,12 +30,14 @@ export function MorseCodeConverter({ initialData, onStateChange }: { initialData
   const [error, setError] = useState<string | null>(null);
   const [isPlaying, setIsPlaying] = useState(false);
   const [isSignaling, setIsSignaling] = useState(false);
+  const [volume, setVolume] = useState(initialData?.volume ?? 0.5);
+  const [frequency, setFrequency] = useState(initialData?.frequency ?? 600);
   const stopPlaybackRef = useRef(false);
   const audioCtxRef = useRef<AudioContext | null>(null);
 
   useEffect(() => {
-    onStateChange?.({ text, morse });
-  }, [text, morse, onStateChange]);
+    onStateChange?.({ text, morse, volume, frequency });
+  }, [text, morse, volume, frequency, onStateChange]);
 
   useEffect(() => {
     return () => {
@@ -108,11 +110,11 @@ export function MorseCodeConverter({ initialData, onStateChange }: { initialData
         osc.connect(gain);
         gain.connect(ctx.destination);
         osc.type = 'sine';
-        osc.frequency.value = 600;
+        osc.frequency.value = frequency;
 
         const now = ctx.currentTime;
         gain.gain.setValueAtTime(0, now);
-        gain.gain.linearRampToValueAtTime(0.1, now + 0.01);
+        gain.gain.linearRampToValueAtTime(volume * 0.2, now + 0.01);
         gain.gain.linearRampToValueAtTime(0, now + duration - 0.01);
 
         osc.start(now);
@@ -208,6 +210,31 @@ export function MorseCodeConverter({ initialData, onStateChange }: { initialData
 
         {/* Morse Input */}
         <div className="space-y-4">
+          <div className="bg-white dark:bg-slate-900/40 p-6 rounded-[2rem] border border-slate-200 dark:border-slate-800 space-y-6 mb-4">
+            <div className="flex items-center gap-2 px-1">
+              <Signal className="w-4 h-4 text-indigo-500" />
+              <h4 className="text-xs font-black uppercase tracking-widest text-slate-400">{t('common.audio_settings', 'Audio Settings')}</h4>
+            </div>
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
+              <div className="space-y-3">
+                <label className="text-[10px] font-bold text-slate-400 uppercase px-1">{t('common.volume', 'Volume')} ({Math.round(volume * 100)}%)</label>
+                <input
+                  type="range" min="0" max="1" step="0.01" value={volume}
+                  onChange={(e) => setVolume(parseFloat(e.target.value))}
+                  className="w-full h-1.5 bg-slate-200 dark:bg-slate-700 rounded-lg appearance-none cursor-pointer accent-indigo-600"
+                />
+              </div>
+              <div className="space-y-3">
+                <label className="text-[10px] font-bold text-slate-400 uppercase px-1">{t('common.frequency', 'Frequency')} ({frequency}Hz)</label>
+                <input
+                  type="range" min="200" max="2000" step="10" value={frequency}
+                  onChange={(e) => setFrequency(parseInt(e.target.value))}
+                  className="w-full h-1.5 bg-slate-200 dark:bg-slate-700 rounded-lg appearance-none cursor-pointer accent-indigo-600"
+                />
+              </div>
+            </div>
+          </div>
+
           <div className="flex justify-between items-center px-1">
             <label htmlFor="morse-text" className="text-xs font-black uppercase tracking-widest text-slate-400 cursor-pointer">
               {t('morse.code_label')}

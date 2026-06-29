@@ -478,6 +478,9 @@ const PropertiesToJSON = lazy(() => import("./components/PropertiesToJSON").then
 const NDJSONConverter = lazy(() => import("./components/NDJSONConverter").then(m => ({ default: m.NDJSONConverter })));
 const JSONToLaTeX = lazy(() => import("./components/JSONToLaTeX").then(m => ({ default: m.JSONToLaTeX })));
 const JSONToAvro = lazy(() => import("./components/JSONToAvro").then(m => ({ default: m.JSONToAvro })));
+const SVGToImage = lazy(() => import("./components/SVGToImage").then(m => ({ default: m.SVGToImage })));
+const ASCIIArtToImage = lazy(() => import("./components/ASCIIArtToImage").then(m => ({ default: m.ASCIIArtToImage })));
+const XmlCsvConverter = lazy(() => import("./components/XmlCsvConverter").then(m => ({ default: m.XmlCsvConverter })));
 
 // ⚡ Bolt Optimization: Pre-calculating tool map and search index for O(1) lookups and faster filtering
 const toolsMap: Record<string, Tool> = {};
@@ -4076,6 +4079,39 @@ const tools: Tool[] = [
     Component: JSONToAvro,
     category: "dev",
     keywords: ["json", "avro", "schema", "big data", "serialization"],
+  },
+  {
+    id: "svg-to-image",
+    name: "SVG en Image",
+    nameEn: "SVG to Image",
+    icon: ImageIcon,
+    description: "Convertir du code SVG en image PNG ou JPEG",
+    descriptionEn: "Convert SVG code to PNG or JPEG image",
+    Component: SVGToImage,
+    category: "converters",
+    keywords: ["svg", "image", "png", "jpeg", "render", "canvas"],
+  },
+  {
+    id: "ascii-to-image",
+    name: "ASCII en Image",
+    nameEn: "ASCII Art to Image",
+    icon: ImageIcon,
+    description: "Convertir de l'art ASCII en image PNG ou JPEG",
+    descriptionEn: "Convert ASCII art to PNG or JPEG image",
+    Component: ASCIIArtToImage,
+    category: "text",
+    keywords: ["ascii", "art", "image", "png", "text", "canvas"],
+  },
+  {
+    id: "xml-to-csv",
+    name: "XML en CSV",
+    nameEn: "XML to CSV",
+    icon: FileSpreadsheet,
+    description: "Convertir des données XML en format CSV",
+    descriptionEn: "Convert XML data to CSV format",
+    Component: XmlCsvConverter,
+    category: "converters",
+    keywords: ["xml", "csv", "convert", "data", "spreadsheet"],
   },
 ];
 

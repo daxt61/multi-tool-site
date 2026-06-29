@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef, useMemo, useCallback } from 'react';
-import { Play, Pause, RotateCcw, Timer, StopCircle, Flag, Bell, BellOff, Coffee, Brain, ChevronRight, Copy, Check } from 'lucide-react';
+import { Play, Pause, RotateCcw, Timer, StopCircle, Flag, Bell, BellOff, Coffee, Brain, ChevronRight, Copy, Check, Repeat } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 
 type PomodoroState = 'work' | 'shortBreak' | 'longBreak';
@@ -26,6 +26,7 @@ export function TimerTool({ initialData, onStateChange }: { initialData?: any; o
   const [longBreakDuration, setLongBreakDuration] = useState(initialData?.longBreakDuration ?? 15);
   const [pomodoroTime, setPomodoroTime] = useState(initialData?.pomodoroTime ?? workDuration * 60);
   const [pomodoroCycles, setPomodoroCycles] = useState(initialData?.pomodoroCycles ?? 0);
+  const [isLooping, setIsLooping] = useState(initialData?.isLooping || false);
 
   useEffect(() => {
     onStateChange?.({
@@ -37,9 +38,10 @@ export function TimerTool({ initialData, onStateChange }: { initialData?: any; o
       pomodoroCycles,
       workDuration,
       shortBreakDuration,
-      longBreakDuration
+      longBreakDuration,
+      isLooping
     });
-  }, [mode, timerMinutes, timerSeconds, pomodoroState, pomodoroTime, pomodoroCycles, workDuration, shortBreakDuration, longBreakDuration]);
+  }, [mode, timerMinutes, timerSeconds, pomodoroState, pomodoroTime, pomodoroCycles, workDuration, shortBreakDuration, longBreakDuration, isLooping, onStateChange]);
   const [timerRunning, setTimerRunning] = useState(false);
   const [timerTime, setTimerTime] = useState(timerMinutes * 60 + timerSeconds);
   const [timerDone, setTimerDone] = useState(false);
@@ -101,9 +103,13 @@ export function TimerTool({ initialData, onStateChange }: { initialData?: any; o
         const remaining = Math.max(0, Math.ceil((targetTimeRef.current - Date.now()) / 1000));
         setTimerTime(remaining);
         if (remaining <= 0) {
-          setTimerRunning(false);
-          setTimerDone(true);
           playBeep();
+          if (isLooping) {
+            targetTimeRef.current = Date.now() + (timerMinutes * 60 + timerSeconds) * 1000;
+          } else {
+            setTimerRunning(false);
+            setTimerDone(true);
+          }
         }
       }, 100);
     } else if (mode === 'stopwatch' && stopwatchRunning) {
@@ -318,6 +324,19 @@ export function TimerTool({ initialData, onStateChange }: { initialData?: any; o
             )}
 
             <div className="flex gap-3 justify-center">
+              <button
+                onClick={() => setIsLooping(!isLooping)}
+                aria-pressed={isLooping}
+                className={`p-4 rounded-2xl transition-all border flex items-center gap-2 ${
+                  isLooping
+                    ? 'bg-indigo-50 dark:bg-indigo-900/20 text-indigo-600 border-indigo-200'
+                    : 'bg-slate-50 text-slate-500 border-slate-200'
+                }`}
+                title={t('common.loop', 'Loop')}
+              >
+                <Repeat className={`w-5 h-5 ${isLooping ? 'animate-spin-slow' : ''}`} />
+                <span className="text-xs font-bold uppercase tracking-widest hidden sm:inline">{t('common.loop', 'Loop')}</span>
+              </button>
               <button
                 onClick={() => {
                   initAudio();

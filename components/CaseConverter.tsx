@@ -77,7 +77,15 @@ export function CaseConverter({ initialData, onStateChange }: { initialData?: an
       return acc;
     }, []).reverse().join(''),
     'Strikethrough': (t: string) => t.split('').map(c => c + '\u0336').join(''),
-    'Bubble': (t: string) => t.split('').map(c => bubbleMap[c] || c).join('')
+    'Bubble': (t: string) => t.split('').map(c => bubbleMap[c] || c).join(''),
+    'Clap Case': (t: string) => t.toUpperCase().split(/\s+/).join(' 👏 '),
+    'Vaporwave': (t: string) => t.split('').map(c => {
+      const code = c.charCodeAt(0);
+      if (code >= 33 && code <= 126) {
+        return String.fromCharCode(code + 0xFEE0);
+      }
+      return c === ' ' ? '  ' : c;
+    }).join(' ')
   };
 
   const copyToClipboard = (converted: string, type: string) => {
@@ -218,7 +226,9 @@ export function CaseConverter({ initialData, onStateChange }: { initialData?: an
                   <span className="text-[10px] font-black uppercase tracking-widest text-slate-400 group-hover:text-slate-600 dark:group-hover:text-slate-300 transition-colors">
                     {name === 'sPoNgEbOb CaSe' ? t('caseconverter.sponge') :
                      name === 'Reverse Words' ? t('caseconverter.reverse_words') :
-                     name === 'Reverse Sentences' ? t('caseconverter.reverse_sentences') : name}
+                     name === 'Reverse Sentences' ? t('caseconverter.reverse_sentences') :
+                     name === 'Clap Case' ? t('caseconverter.clap') :
+                     name === 'Vaporwave' ? t('caseconverter.vaporwave') : name}
                   </span>
                 </div>
                 <div className="flex gap-1">

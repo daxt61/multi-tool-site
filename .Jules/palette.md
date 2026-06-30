@@ -37,3 +37,7 @@
 ## 2025-08-16 - [Standardized Keyboard Shortcut Component]
 **Learning:** Hardcoded 'Ctrl' shortcut hints are inaccurate for Mac users and lead to inconsistent UI styling. A dedicated component that detects the OS ensures accurate instructions and visual uniformity across the application.
 **Action:** Use the `Kbd` component for all keyboard shortcut hints. It handles the ⌘ vs Ctrl logic automatically and provides a standard accessible `<kbd>` element with consistent styling.
+
+## 2025-09-02 - [Standardized UX Feedback for List Actions]
+**Learning:** Individual row-level copy actions in tools (e.g., list views) should update a local `copiedRowIndex` state to briefly change the specific row's icon to a `Check` and apply a success-themed background (e.g., `bg-emerald-500`), paired with a global `sonner` success toast. This provides both local (precise) and global (action confirmed) feedback.
+**Action:** Implement the `copiedRowIndex` pattern for all list-based tool actions to ensure high-clarity interaction feedback.

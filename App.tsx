@@ -481,6 +481,9 @@ const JSONToAvro = lazy(() => import("./components/JSONToAvro").then(m => ({ def
 const SVGToImage = lazy(() => import("./components/SVGToImage").then(m => ({ default: m.SVGToImage })));
 const ASCIIArtToImage = lazy(() => import("./components/ASCIIArtToImage").then(m => ({ default: m.ASCIIArtToImage })));
 const XmlCsvConverter = lazy(() => import("./components/XmlCsvConverter").then(m => ({ default: m.XmlCsvConverter })));
+const XmlYamlConverter = lazy(() => import("./components/XmlYamlConverter").then(m => ({ default: m.XmlYamlConverter })));
+const ULIDGenerator = lazy(() => import("./components/ULIDGenerator").then(m => ({ default: m.ULIDGenerator })));
+const AnagramChecker = lazy(() => import("./components/AnagramChecker").then(m => ({ default: m.AnagramChecker })));
 const SudokuSolver = lazy(() => import("./components/SudokuSolver").then(m => ({ default: m.SudokuSolver })));
 
 // ⚡ Bolt Optimization: Pre-calculating tool map and search index for O(1) lookups and faster filtering
@@ -1376,6 +1379,17 @@ const tools: Tool[] = [
     category: "dev",
   },
   {
+    id: "ulid-generator",
+    name: "ULID",
+    nameEn: "ULID",
+    icon: Fingerprint,
+    description: "Générateur d'identifiants uniques triables (ULID)",
+    descriptionEn: "Unique lexicographically sortable identifier generator (ULID)",
+    Component: ULIDGenerator,
+    category: "dev",
+    keywords: ["ulid", "id", "unique", "sortable", "uuid", "identifier"],
+  },
+  {
     id: "base64",
     name: "Base64",
     nameEn: "Base64",
@@ -1672,6 +1686,17 @@ const tools: Tool[] = [
     descriptionEn: "Bidirectional JSON and XML converter",
     Component: JsonXmlConverter,
     category: "dev",
+  },
+  {
+    id: "xml-yaml",
+    name: "XML <> YAML",
+    nameEn: "XML <> YAML",
+    icon: FileCode,
+    description: "Convertisseur bidirectionnel XML et YAML",
+    descriptionEn: "Bidirectional XML and YAML converter",
+    Component: XmlYamlConverter,
+    category: "dev",
+    keywords: ["xml", "yaml", "convert", "converter", "data", "parser"],
   },
   {
     id: "curl-converter",
@@ -2958,6 +2983,17 @@ const tools: Tool[] = [
     Component: PalindromeChecker,
     category: "text",
     keywords: ["palindrome", "text", "check", "reverse", "backwards"],
+  },
+  {
+    id: "anagram-checker",
+    name: "Anagramme",
+    nameEn: "Anagram Checker",
+    icon: Shuffle,
+    description: "Vérifier si deux textes sont des anagrammes",
+    descriptionEn: "Check if two texts are anagrams",
+    Component: AnagramChecker,
+    category: "text",
+    keywords: ["anagram", "anagramme", "text", "check", "compare", "letters"],
   },
   {
     id: "dog-age",

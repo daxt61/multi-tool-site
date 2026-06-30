@@ -482,6 +482,8 @@ const SVGToImage = lazy(() => import("./components/SVGToImage").then(m => ({ def
 const ASCIIArtToImage = lazy(() => import("./components/ASCIIArtToImage").then(m => ({ default: m.ASCIIArtToImage })));
 const XmlCsvConverter = lazy(() => import("./components/XmlCsvConverter").then(m => ({ default: m.XmlCsvConverter })));
 const SudokuSolver = lazy(() => import("./components/SudokuSolver").then(m => ({ default: m.SudokuSolver })));
+const AnagramChecker = lazy(() => import("./components/AnagramChecker").then(m => ({ default: m.AnagramChecker })));
+const ULIDGenerator = lazy(() => import("./components/ULIDGenerator").then(m => ({ default: m.ULIDGenerator })));
 
 // ⚡ Bolt Optimization: Pre-calculating tool map and search index for O(1) lookups and faster filtering
 const toolsMap: Record<string, Tool> = {};
@@ -1374,6 +1376,17 @@ const tools: Tool[] = [
     descriptionEn: "Unique identifier generator",
     Component: UUIDGenerator,
     category: "dev",
+  },
+  {
+    id: "ulid-generator",
+    name: "Générateur ULID",
+    nameEn: "ULID Generator",
+    icon: Fingerprint,
+    description: "Générer des identifiants uniques sortables (ULID)",
+    descriptionEn: "Generate Universally Unique Lexicographically Sortable Identifiers",
+    Component: ULIDGenerator,
+    category: "dev",
+    keywords: ["ulid", "id", "unique", "sortable", "uuid", "timestamp"],
   },
   {
     id: "base64",
@@ -2958,6 +2971,17 @@ const tools: Tool[] = [
     Component: PalindromeChecker,
     category: "text",
     keywords: ["palindrome", "text", "check", "reverse", "backwards"],
+  },
+  {
+    id: "anagram-checker",
+    name: "Anagramme",
+    nameEn: "Anagram Checker",
+    icon: Shuffle,
+    description: "Vérifier si deux textes sont des anagrammes",
+    descriptionEn: "Check if two texts are anagrams of each other",
+    Component: AnagramChecker,
+    category: "text",
+    keywords: ["anagram", "anagramme", "lettres", "mots", "check", "jeu"],
   },
   {
     id: "dog-age",

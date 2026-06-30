@@ -1,7 +1,8 @@
 import React, { useState, useEffect, useRef, useCallback } from 'react';
-import { Play, Pause, RotateCcw, Timer, Flag, Download, Trash2, List } from 'lucide-react';
+import { Play, Pause, RotateCcw, Timer, Flag, Download, Trash2, List, Copy, Check } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import { toast } from 'sonner';
+import { Kbd } from './ui/Kbd';
 
 interface Lap {
   id: number;
@@ -15,6 +16,7 @@ export function Stopwatch({ initialData, onStateChange }: { initialData?: any; o
   const [time, setTime] = useState(0);
   const [isRunning, setIsRunning] = useState(false);
   const [laps, setLaps] = useState<Lap[]>([]);
+  const [copiedRowIndex, setCopiedRowIndex] = useState<number | null>(null);
   const startTimeRef = useRef<number>(0);
   const requestRef = useRef<number>();
 
@@ -152,6 +154,15 @@ export function Stopwatch({ initialData, onStateChange }: { initialData?: any; o
   const handleCopyTimeRef = useRef(handleCopyTime);
   useEffect(() => { handleCopyTimeRef.current = handleCopyTime; }, [handleCopyTime]);
 
+  const handleCopyLap = useCallback((lap: Lap, index: number) => {
+    const { h, m, s, ms } = formatTime(lap.time);
+    const formatted = `${h}:${m}:${s}.${ms}`;
+    navigator.clipboard.writeText(formatted);
+    toast.success(t('common.copied'));
+    setCopiedRowIndex(index);
+    setTimeout(() => setCopiedRowIndex(null), 2000);
+  }, [t]);
+
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
       if (document.activeElement?.tagName === "INPUT" || document.activeElement?.tagName === "TEXTAREA") {
@@ -250,7 +261,7 @@ export function Stopwatch({ initialData, onStateChange }: { initialData?: any; o
             }`}
           >
             {isRunning ? <Pause className="w-8 h-8 md:w-10 md:h-10 fill-current" /> : <Play className="w-8 h-8 md:w-10 md:h-10 fill-current translate-x-0.5" />}
-            <kbd className="hidden sm:inline-flex mt-1 items-center justify-center px-1.5 py-0.5 border border-white/20 rounded text-[10px] font-bold bg-white/10">Space</kbd>
+            <Kbd modifier={null} className="hidden sm:inline-flex mt-1 border-white/20 bg-white/10 text-white">Space</Kbd>
           </button>
 
           <button
@@ -261,7 +272,7 @@ export function Stopwatch({ initialData, onStateChange }: { initialData?: any; o
             aria-label={`${t('stopwatch.lap', 'Lap')} (L)`}
           >
             <Flag className="w-8 h-8 md:w-10 md:h-10" />
-            <kbd className="hidden sm:inline-flex mt-1 items-center justify-center w-5 h-5 border border-white/20 rounded text-[10px] font-bold bg-white/10">L</kbd>
+            <Kbd modifier={null} className="hidden sm:inline-flex mt-1 border-white/20 bg-white/10 text-white">L</Kbd>
           </button>
 
           <button
@@ -272,7 +283,7 @@ export function Stopwatch({ initialData, onStateChange }: { initialData?: any; o
             aria-label={`${t('common.reset', 'Reset')} (R)`}
           >
             <RotateCcw className="w-8 h-8 md:w-10 md:h-10" />
-            <kbd className="hidden sm:inline-flex mt-1 items-center justify-center w-5 h-5 border border-white/20 rounded text-[10px] font-bold bg-white/10">R</kbd>
+            <Kbd modifier={null} className="hidden sm:inline-flex mt-1 border-white/20 bg-white/10 text-white">R</Kbd>
           </button>
         </div>
       </div>
@@ -320,10 +331,11 @@ export function Stopwatch({ initialData, onStateChange }: { initialData?: any; o
                     <th className="px-8 py-4">{t('stopwatch.lap_time', 'Time')}</th>
                     <th className="px-8 py-4">{t('stopwatch.lap_delta', 'Delta')}</th>
                     <th className="px-8 py-4 text-right">{t('stopwatch.lap_total', 'Total Time')}</th>
+                    <th className="px-8 py-4"></th>
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-slate-100 dark:divide-slate-800">
-                  {laps.map((lap) => {
+                  {laps.map((lap, index) => {
                     const lt = formatTime(lap.time);
                     const ot = formatTime(lap.overallTime);
                     return (
@@ -344,6 +356,20 @@ export function Stopwatch({ initialData, onStateChange }: { initialData?: any; o
                         </td>
                         <td className="px-8 py-4 text-right font-mono font-bold dark:text-white">
                            {ot.h}:{ot.m}:{ot.s}<span className="text-[10px] text-slate-400">.{ot.ms}</span>
+                        </td>
+                        <td className="px-8 py-4 text-right">
+                          <button
+                            onClick={() => handleCopyLap(lap, index)}
+                            aria-label={t('common.copy')}
+                            title={t('common.copy')}
+                            className={`p-2 rounded-lg transition-all active:scale-95 focus-visible:ring-2 focus-visible:ring-indigo-500 ${
+                              copiedRowIndex === index
+                                ? "bg-emerald-500 text-white"
+                                : "text-slate-400 hover:text-indigo-500 hover:bg-indigo-50 dark:hover:bg-indigo-900/20"
+                            }`}
+                          >
+                            {copiedRowIndex === index ? <Check className="w-4 h-4" /> : <Copy className="w-4 h-4" />}
+                          </button>
                         </td>
                       </tr>
                     );

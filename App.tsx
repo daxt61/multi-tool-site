@@ -472,6 +472,9 @@ const YAMLToCSV = lazy(() => import("./components/YAMLToCSV").then(m => ({ defau
 const CSVToYAML = lazy(() => import("./components/CSVToYAML").then(m => ({ default: m.CSVToYAML })));
 const JSONToMermaid = lazy(() => import("./components/JSONToMermaid").then(m => ({ default: m.JSONToMermaid })));
 const TOMLJSONConverter = lazy(() => import("./components/TOMLJSONConverter").then(m => ({ default: m.TOMLJSONConverter })));
+const TSVJSONConverter = lazy(() => import("./components/TSVJSONConverter").then(m => ({ default: m.TSVJSONConverter })));
+const TSVCSVConverter = lazy(() => import("./components/TSVCSVConverter").then(m => ({ default: m.TSVCSVConverter })));
+const IPConverter = lazy(() => import("./components/IPConverter").then(m => ({ default: m.IPConverter })));
 const JSONToValibot = lazy(() => import("./components/JSONToValibot").then(m => ({ default: m.JSONToValibot })));
 const JSONToHTMLTable = lazy(() => import("./components/JSONToHTMLTable").then(m => ({ default: m.JSONToHTMLTable })));
 const PropertiesToJSON = lazy(() => import("./components/PropertiesToJSON").then(m => ({ default: m.PropertiesToJSON })));
@@ -4038,6 +4041,39 @@ const tools: Tool[] = [
     Component: TOMLJSONConverter,
     category: "dev",
     keywords: ["toml", "json", "convert", "config", "rust"],
+  },
+  {
+    id: "tsv-json",
+    name: "TSV <> JSON",
+    nameEn: "TSV <> JSON",
+    icon: ArrowLeftRight,
+    description: "Convertisseur bidirectionnel TSV et JSON",
+    descriptionEn: "Bidirectional TSV and JSON converter",
+    Component: TSVJSONConverter,
+    category: "dev",
+    keywords: ["tsv", "json", "convert", "tab", "data"],
+  },
+  {
+    id: "tsv-csv",
+    name: "TSV <> CSV",
+    nameEn: "TSV <> CSV",
+    icon: ArrowLeftRight,
+    description: "Convertisseur bidirectionnel TSV et CSV",
+    descriptionEn: "Bidirectional TSV and CSV converter",
+    Component: TSVCSVConverter,
+    category: "dev",
+    keywords: ["tsv", "csv", "convert", "tab", "comma", "spreadsheet"],
+  },
+  {
+    id: "ip-converter",
+    name: "Convertisseur IP",
+    nameEn: "IP Converter",
+    icon: Globe,
+    description: "Convertir une adresse IP en décimal, hexadécimal et binaire",
+    descriptionEn: "Convert an IP address to decimal, hexadecimal, and binary",
+    Component: IPConverter,
+    category: "dev",
+    keywords: ["ip", "convert", "decimal", "hex", "binary", "network"],
   },
   {
     id: "json-to-valibot",

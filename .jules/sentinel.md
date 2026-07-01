@@ -171,3 +171,8 @@
 **Vulnerability:** The JsonXmlConverter and CSVToYAML components were vulnerable to Prototype Pollution by using user-provided XML tags, attribute names, or CSV headers as object keys.
 **Learning:** Even when using native APIs like DOMParser, the resulting strings (tags, attributes) are still user-controlled and must be sanitized before being used as keys in plain JavaScript objects.
 **Prevention:** Consistently apply the pattern of using `Object.create(null)` for data objects and prepending an underscore to dangerous keys (`__proto__`, `constructor`, `prototype`) in all data transformation tools.
+
+## 2025-06-25 - [Snippet Injection in Mermaid Diagram Generator]
+**Vulnerability:** The JSONToMermaid component was vulnerable to Snippet Injection by directly interpolating user-controlled JSON keys into Mermaid.js code. Malicious keys containing newlines or curly braces could break out of class or mindmap blocks to inject unauthorized diagram syntax or corrupt the output.
+**Learning:** Tools that generate diagrammatic code or scripts (like Mermaid, Graphviz, or PlantUML) must treat all identifiers and labels derived from user input as untrusted. Mermaid, in particular, uses delimiters like `{}` for classes and indentation/newlines for mindmaps, which are easily exploited if not sanitized.
+**Prevention:** Implement a format-specific sanitization helper for all diagram generators. For Mermaid class diagrams, strictly restrict identifiers to alphanumeric characters and underscores. For labels in mindmaps, strip newlines and escape syntax-significant characters like braces and parentheses.

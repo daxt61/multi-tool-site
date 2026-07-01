@@ -1,6 +1,7 @@
 import { useState, useEffect, useCallback, useMemo, useRef } from 'react';
 import { Music, RotateCcw, Copy, Check, Volume2, VolumeX, BarChart2, Activity, Zap, Info } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
+import { Kbd } from './ui/Kbd';
 import {
   LineChart,
   Line,
@@ -127,13 +128,13 @@ export function BPMCounter({ initialData, onStateChange }: { initialData?: any; 
     });
   }, []);
 
-  const handleCopy = () => {
+  const handleCopy = useCallback(() => {
     if (bpm) {
       navigator.clipboard.writeText(bpm.toString());
       setCopied(true);
       setTimeout(() => setCopied(false), 2000);
     }
-  };
+  }, [bpm]);
 
   const handleDownloadCSV = () => {
     if (history.length === 0) return;
@@ -151,13 +152,23 @@ export function BPMCounter({ initialData, onStateChange }: { initialData?: any; 
     URL.revokeObjectURL(url);
   };
 
-  const reset = () => {
+  const reset = useCallback(() => {
     setTaps([]);
     setBpm(null);
     setHistory([]);
     setIsMetronomeOn(false);
     stopMetronome();
-  };
+  }, [stopMetronome]);
+
+  const handleTapRef = useRef(handleTap);
+  const handleResetRef = useRef(reset);
+  const handleCopyRef = useRef(handleCopy);
+
+  useEffect(() => {
+    handleTapRef.current = handleTap;
+    handleResetRef.current = reset;
+    handleCopyRef.current = handleCopy;
+  }, [handleTap, reset, handleCopy]);
 
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
@@ -167,14 +178,16 @@ export function BPMCounter({ initialData, onStateChange }: { initialData?: any; 
 
       if (e.key === ' ' || e.key === 'Enter') {
         e.preventDefault();
-        handleTap();
+        handleTapRef.current();
       } else if (e.key === 'Escape') {
-        reset();
+        handleResetRef.current();
+      } else if (e.key.toLowerCase() === 'c' && !e.metaKey && !e.ctrlKey) {
+        handleCopyRef.current();
       }
     };
     window.addEventListener('keydown', handleKeyDown);
     return () => window.removeEventListener('keydown', handleKeyDown);
-  }, [handleTap]);
+  }, []);
 
   return (
     <div className="max-w-4xl mx-auto space-y-12">
@@ -197,8 +210,10 @@ export function BPMCounter({ initialData, onStateChange }: { initialData?: any; 
             <div className="text-sm font-black uppercase tracking-[0.2em] mt-2 opacity-60">
               BPM
             </div>
-            <div className="text-[10px] font-bold uppercase tracking-widest mt-6 py-2 px-4 rounded-full bg-slate-100 dark:bg-slate-900/50 text-slate-400">
-              {t('bpm.press_space')}
+            <div className="flex gap-1 items-center mt-6">
+              <Kbd modifier={null} className="bg-slate-100 dark:bg-slate-900/50 border-slate-200 dark:border-slate-700">Space</Kbd>
+              <span className="text-[10px] font-bold text-slate-400">/</span>
+              <Kbd modifier={null} className="bg-slate-100 dark:bg-slate-900/50 border-slate-200 dark:border-slate-700">Enter</Kbd>
             </div>
           </button>
 
@@ -213,7 +228,12 @@ export function BPMCounter({ initialData, onStateChange }: { initialData?: any; 
                 }`}
               >
                 {copied ? <Check className="w-5 h-5" /> : <Copy className="w-5 h-5" />}
-                {copied ? t('common.copied') : t('common.copy')}
+                {copied ? t('common.copied') : (
+                  <>
+                    {t('common.copy')}
+                    <Kbd modifier={null} className="ml-1 bg-white/50 dark:bg-black/20 border-slate-200 dark:border-slate-700">C</Kbd>
+                  </>
+                )}
               </button>
             )}
             <button
@@ -235,10 +255,11 @@ export function BPMCounter({ initialData, onStateChange }: { initialData?: any; 
             </button>
             <button
               onClick={reset}
-              className="p-3 text-rose-500 bg-rose-50 dark:bg-rose-500/10 hover:bg-rose-100 dark:hover:bg-rose-500/20 rounded-2xl font-bold border border-transparent hover:border-rose-200 transition-all focus-visible:ring-2 focus-visible:ring-rose-500 outline-none"
-              title={t('common.reset')}
+              className="p-3 text-rose-500 bg-rose-50 dark:bg-rose-500/10 hover:bg-rose-100 dark:hover:bg-rose-500/20 rounded-2xl font-bold border border-transparent hover:border-rose-200 transition-all focus-visible:ring-2 focus-visible:ring-rose-500 outline-none flex items-center gap-2"
+              title={`${t('common.reset')} (Esc)`}
             >
               <RotateCcw className="w-6 h-6" />
+              <Kbd modifier={null} className="bg-white/50 dark:bg-black/20 border-rose-200 dark:border-rose-800 text-rose-400">Esc</Kbd>
             </button>
           </div>
         </div>
@@ -248,7 +269,7 @@ export function BPMCounter({ initialData, onStateChange }: { initialData?: any; 
           <div className="grid grid-cols-3 gap-4">
             <div className="bg-slate-50 dark:bg-slate-900/50 p-6 rounded-3xl border border-slate-200 dark:border-slate-800 text-center space-y-1">
               <div className="text-[10px] font-black uppercase tracking-widest text-slate-400 flex items-center justify-center gap-1">
-                <Activity className="w-3 h-3" /> Min
+                <Activity className="w-3 h-3" /> {t('common.min')}
               </div>
               <div className="text-2xl font-black font-mono text-slate-700 dark:text-white">
                 {stats?.min || '--'}
@@ -256,7 +277,7 @@ export function BPMCounter({ initialData, onStateChange }: { initialData?: any; 
             </div>
             <div className="bg-slate-50 dark:bg-slate-900/50 p-6 rounded-3xl border border-slate-200 dark:border-slate-800 text-center space-y-1">
               <div className="text-[10px] font-black uppercase tracking-widest text-slate-400 flex items-center justify-center gap-1">
-                <Zap className="w-3 h-3" /> Max
+                <Zap className="w-3 h-3" /> {t('common.max')}
               </div>
               <div className="text-2xl font-black font-mono text-slate-700 dark:text-white">
                 {stats?.max || '--'}

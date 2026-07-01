@@ -11,27 +11,29 @@ export function JSONToAvro({ initialData, onStateChange }: { initialData?: any; 
   const [json, setJson] = useState(initialData?.json || '{\n  "id": 1,\n  "name": "John Doe",\n  "active": true,\n  "scores": [95, 88],\n  "address": {\n    "city": "New York",\n    "zip": "10001"\n  }\n}');
   const [schemaName, setSchemaName] = useState(initialData?.schemaName || 'User');
   const [namespace, setNamespace] = useState(initialData?.namespace || 'com.example');
+  const [nullable, setNullable] = useState(initialData?.nullable || false);
   const [output, setOutput] = useState('');
   const [error, setError] = useState<string | null>(null);
   const [copied, setCopied] = useState(false);
 
   useEffect(() => {
-    onStateChange?.({ json, schemaName, namespace });
-  }, [json, schemaName, namespace, onStateChange]);
+    onStateChange?.({ json, schemaName, namespace, nullable });
+  }, [json, schemaName, namespace, nullable, onStateChange]);
 
   const inferAvroType = (val: any, fieldName: string, depth: number, recordNames: Set<string>): any => {
     if (depth > MAX_DEPTH) return "string";
-    if (val === null) return ["null", "string"];
 
-    if (Array.isArray(val)) {
+    let avroType: any = "string";
+
+    if (val === null) {
+      avroType = "string";
+    } else if (Array.isArray(val)) {
       const itemType = val.length > 0 ? inferAvroType(val[0], fieldName + "Item", depth + 1, recordNames) : "string";
-      return {
+      avroType = {
         type: "array",
         items: itemType
       };
-    }
-
-    if (typeof val === 'object') {
+    } else if (typeof val === 'object') {
       let name = fieldName.charAt(0).toUpperCase() + fieldName.slice(1);
       let finalName = name;
       let counter = 1;
@@ -40,7 +42,7 @@ export function JSONToAvro({ initialData, onStateChange }: { initialData?: any; 
       }
       recordNames.add(finalName);
 
-      return {
+      avroType = {
         type: "record",
         name: finalName,
         fields: Object.entries(val).map(([key, value]) => ({
@@ -48,18 +50,27 @@ export function JSONToAvro({ initialData, onStateChange }: { initialData?: any; 
           type: inferAvroType(value, key, depth + 1, recordNames)
         }))
       };
-    }
-
-    if (typeof val === 'number') {
+    } else if (typeof val === 'number') {
       if (Number.isInteger(val)) {
-        return val > 2147483647 || val < -2147483648 ? "long" : "int";
+        avroType = val > 2147483647 || val < -2147483648 ? "long" : "int";
+      } else {
+        avroType = "double";
       }
-      return "double";
+    } else if (typeof val === 'boolean') {
+      avroType = "boolean";
     }
 
-    if (typeof val === 'boolean') return "boolean";
+    if (nullable) {
+      if (typeof avroType === 'string' || (typeof avroType === 'object' && avroType.type === 'array' && !Array.isArray(avroType))) {
+         return ["null", avroType];
+      } else if (typeof avroType === 'object' && avroType.type === 'record') {
+         return ["null", avroType];
+      }
+    }
 
-    return "string";
+    if (val === null) return ["null", "string"];
+
+    return avroType;
   };
 
   const generateAvro = useCallback(() => {
@@ -146,6 +157,18 @@ export function JSONToAvro({ initialData, onStateChange }: { initialData?: any; 
 
           <div className="bg-white dark:bg-slate-900/40 p-6 rounded-3xl border border-slate-200 dark:border-slate-800 space-y-4">
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <div className="flex items-center gap-2 sm:col-span-2 pb-2">
+                <input
+                  id="nullable-toggle"
+                  type="checkbox"
+                  checked={nullable}
+                  onChange={(e) => setNullable(e.target.checked)}
+                  className="w-4 h-4 rounded border-slate-300 text-indigo-600 focus:ring-indigo-500"
+                />
+                <label htmlFor="nullable-toggle" className="text-xs font-bold text-slate-500 cursor-pointer">
+                  {t('json_avro.nullable')}
+                </label>
+              </div>
               <div className="space-y-2">
                 <label htmlFor="schema-name" className="text-xs font-bold text-slate-500 px-1">{t('json_avro.schema_name')}</label>
                 <input

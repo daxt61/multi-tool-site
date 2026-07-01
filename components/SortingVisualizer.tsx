@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useCallback, useRef } from 'react';
-import { Play, RotateCcw, Shuffle, Info, Settings2, BarChart3, Pause, FastForward, StepForward } from 'lucide-react';
+import { Play, RotateCcw, Shuffle, Info, Settings2, BarChart3, Pause, FastForward, StepForward, Volume2, VolumeX } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import { getSecureRandomInt } from './ui/crypto';
 
@@ -21,6 +21,8 @@ export function SortingVisualizer({ initialData, onStateChange }: { initialData?
   const [algorithm, setAlgorithm] = useState<Algorithm>(initialData?.algorithm || 'bubble');
   const [arraySize, setArraySize] = useState(initialData?.arraySize || 30);
   const [speed, setSpeed] = useState(initialData?.speed || 50);
+  const [soundEnabled, setSoundToggle] = useState(initialData?.soundEnabled ?? true);
+  const [volume, setVolume] = useState(initialData?.volume ?? 0.5);
   const [array, setArray] = useState<Bar[]>([]);
   const [isSorting, setIsSorting] = useState(false);
   const [isPaused, setIsPaused] = useState(false);
@@ -33,6 +35,45 @@ export function SortingVisualizer({ initialData, onStateChange }: { initialData?
   const stepTriggerRef = useRef<(() => void) | null>(null);
   const arrayRef = useRef<Bar[]>([]);
   const speedRef = useRef(speed);
+  const audioContextRef = useRef<AudioContext | null>(null);
+  const volumeRef = useRef(volume);
+  const soundEnabledRef = useRef(soundEnabled);
+
+  useEffect(() => {
+    volumeRef.current = volume;
+    soundEnabledRef.current = soundEnabled;
+  }, [volume, soundEnabled]);
+
+  const playNote = useCallback((value: number) => {
+    if (!soundEnabledRef.current) return;
+
+    if (!audioContextRef.current) {
+      audioContextRef.current = new (window.AudioContext || (window as any).webkitAudioContext)();
+    }
+
+    const ctx = audioContextRef.current;
+    if (ctx.state === 'suspended') {
+      ctx.resume();
+    }
+
+    const osc = ctx.createOscillator();
+    const envelope = ctx.createGain();
+
+    // Map value (20-320) to frequency (200-1000Hz)
+    const freq = 200 + (value - 20) * (800 / 300);
+
+    osc.type = 'sine';
+    osc.frequency.setValueAtTime(freq, ctx.currentTime);
+    osc.connect(envelope);
+    envelope.connect(ctx.destination);
+
+    envelope.gain.setValueAtTime(0, ctx.currentTime);
+    envelope.gain.linearRampToValueAtTime(volumeRef.current * 0.1, ctx.currentTime + 0.01);
+    envelope.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.1);
+
+    osc.start(ctx.currentTime);
+    osc.stop(ctx.currentTime + 0.1);
+  }, []);
 
   // Initialize array
   const generateArray = useCallback((size: number) => {
@@ -57,9 +98,9 @@ export function SortingVisualizer({ initialData, onStateChange }: { initialData?
   }, [arraySize, generateArray]);
 
   useEffect(() => {
-    onStateChange?.({ algorithm, arraySize, speed });
+    onStateChange?.({ algorithm, arraySize, speed, soundEnabled, volume });
     speedRef.current = speed;
-  }, [algorithm, arraySize, speed, onStateChange]);
+  }, [algorithm, arraySize, speed, soundEnabled, volume, onStateChange]);
 
   const sleep = (ms: number) => {
     return new Promise(resolve => {
@@ -116,10 +157,12 @@ export function SortingVisualizer({ initialData, onStateChange }: { initialData?
       for (let j = 0; j < n - i - 1; j++) {
         if (!isSortingRef.current) return;
         updateBarStatus([j, j + 1], 'comparing');
+        playNote(arrayRef.current[j].value);
         setStats(prev => ({ ...prev, comparisons: prev.comparisons + 1 }));
         if (!(await sleep(speedRef.current))) return;
         if (arrayRef.current[j].value > arrayRef.current[j + 1].value) {
           updateBarStatus([j, j + 1], 'swapping');
+          playNote(arrayRef.current[j+1].value);
           if (!(await sleep(speedRef.current))) return;
           swapBars(j, j + 1);
           if (!(await sleep(speedRef.current))) return;
@@ -139,15 +182,18 @@ export function SortingVisualizer({ initialData, onStateChange }: { initialData?
       if (!isSortingRef.current) return;
       let minIdx = i;
       updateBarStatus([i], 'comparing');
+      playNote(arrayRef.current[i].value);
       for (let j = i + 1; j < n; j++) {
         if (!isSortingRef.current) return;
         updateBarStatus([j], 'comparing');
+        playNote(arrayRef.current[j].value);
         setStats(prev => ({ ...prev, comparisons: prev.comparisons + 1 }));
         if (!(await sleep(speedRef.current))) return;
         if (arrayRef.current[j].value < arrayRef.current[minIdx].value) {
           updateBarStatus([minIdx], 'idle');
           minIdx = j;
           updateBarStatus([minIdx], 'swapping');
+          playNote(arrayRef.current[minIdx].value);
           if (!(await sleep(speedRef.current))) return;
         } else {
           updateBarStatus([j], 'idle');
@@ -181,6 +227,7 @@ export function SortingVisualizer({ initialData, onStateChange }: { initialData?
       while (j > 0 && arrayRef.current[j].value < arrayRef.current[j - 1].value) {
         if (!isSortingRef.current) return;
         updateBarStatus([j, j - 1], 'comparing');
+        playNote(arrayRef.current[j].value);
         setStats(prev => ({ ...prev, comparisons: prev.comparisons + 1 }));
         if (!(await sleep(speedRef.current))) return;
         updateBarStatus([j, j - 1], 'swapping');
@@ -208,10 +255,12 @@ export function SortingVisualizer({ initialData, onStateChange }: { initialData?
         let tempValue = arrayRef.current[i].value;
         let j = i;
         updateBarStatus([i], 'comparing');
+        playNote(arrayRef.current[i].value);
         if (!(await sleep(speedRef.current))) return;
         while (j >= gap && arrayRef.current[j - gap].value > tempValue) {
           if (!isSortingRef.current) return;
           updateBarStatus([j, j - gap], 'swapping');
+          playNote(arrayRef.current[j-gap].value);
           setStats(prev => ({ ...prev, comparisons: prev.comparisons + 1 }));
           if (!(await sleep(speedRef.current))) return;
           updateBarValue(j, arrayRef.current[j - gap].value, 'swapping');
@@ -236,6 +285,7 @@ export function SortingVisualizer({ initialData, onStateChange }: { initialData?
       for (let i = start; i < end; i++) {
         if (!isSortingRef.current) return;
         updateBarStatus([i, i + 1], 'comparing');
+        playNote(arrayRef.current[i].value);
         setStats(prev => ({ ...prev, comparisons: prev.comparisons + 1 }));
         if (!(await sleep(speedRef.current))) return;
         if (arrayRef.current[i].value > arrayRef.current[i + 1].value) {
@@ -258,6 +308,7 @@ export function SortingVisualizer({ initialData, onStateChange }: { initialData?
       for (let i = end - 1; i >= start; i--) {
         if (!isSortingRef.current) return;
         updateBarStatus([i, i + 1], 'comparing');
+        playNote(arrayRef.current[i].value);
         setStats(prev => ({ ...prev, comparisons: prev.comparisons + 1 }));
         if (!(await sleep(speedRef.current))) return;
         if (arrayRef.current[i].value > arrayRef.current[i + 1].value) {
@@ -291,6 +342,7 @@ export function SortingVisualizer({ initialData, onStateChange }: { initialData?
       for (let i = 0; i + gap < n; i++) {
         if (!isSortingRef.current) return;
         updateBarStatus([i, i + gap], 'comparing');
+        playNote(arrayRef.current[i].value);
         setStats(prev => ({ ...prev, comparisons: prev.comparisons + 1 }));
         if (!(await sleep(speedRef.current))) return;
 
@@ -328,6 +380,7 @@ export function SortingVisualizer({ initialData, onStateChange }: { initialData?
     while (i < left.length && j < right.length) {
       if (!isSortingRef.current) return;
       updateBarStatus([k], 'comparing');
+      playNote(left[i]);
       setStats(prev => ({ ...prev, comparisons: prev.comparisons + 1 }));
       if (!(await sleep(speedRef.current))) return;
       if (left[i] <= right[j]) {
@@ -385,6 +438,7 @@ export function SortingVisualizer({ initialData, onStateChange }: { initialData?
     const l = 2 * i + 1;
     const r = 2 * i + 2;
     updateBarStatus([i], 'comparing');
+    playNote(arrayRef.current[i].value);
     if (l < n) updateBarStatus([l], 'comparing');
     if (r < n) updateBarStatus([r], 'comparing');
     setStats(prev => ({ ...prev, comparisons: prev.comparisons + 1 }));
@@ -429,6 +483,7 @@ export function SortingVisualizer({ initialData, onStateChange }: { initialData?
       const digit = Math.floor(arrayRef.current[i].value / exp) % 10;
       count[digit]++;
       updateBarStatus([i], 'comparing');
+      playNote(arrayRef.current[i].value);
       setStats(prev => ({ ...prev, comparisons: prev.comparisons + 1 }));
       if (!(await sleep(speedRef.current))) return;
       updateBarStatus([i], 'idle');
@@ -473,10 +528,12 @@ export function SortingVisualizer({ initialData, onStateChange }: { initialData?
   const partition = async (start: number, end: number) => {
     const pivotValue = arrayRef.current[end].value;
     updateBarStatus([end], 'comparing');
+    playNote(pivotValue);
     let i = start;
     for (let j = start; j < end; j++) {
       if (!isSortingRef.current) return i;
       updateBarStatus([j], 'comparing');
+      playNote(arrayRef.current[j].value);
       setStats(prev => ({ ...prev, comparisons: prev.comparisons + 1 }));
       if (!(await sleep(speedRef.current))) return i;
       if (arrayRef.current[j].value < pivotValue) {
@@ -697,6 +754,37 @@ export function SortingVisualizer({ initialData, onStateChange }: { initialData?
                   onChange={(e) => setSpeed(parseInt(e.target.value))}
                   className="w-full h-1.5 bg-slate-200 dark:bg-slate-700 rounded-lg appearance-none cursor-pointer accent-indigo-600"
                 />
+              </div>
+
+              <div className="pt-4 border-t border-slate-200 dark:border-slate-800 space-y-4">
+                <div className="flex justify-between items-center px-1">
+                  <label htmlFor="sound-toggle" className="text-[10px] font-bold text-slate-400 uppercase cursor-pointer">{t('sorting.sound')}</label>
+                  <button
+                    id="sound-toggle"
+                    onClick={() => setSoundToggle(!soundEnabled)}
+                    className={`p-2 rounded-lg transition-all ${soundEnabled ? 'bg-indigo-50 text-indigo-600 dark:bg-indigo-900/20 dark:text-indigo-400' : 'bg-slate-100 text-slate-400 dark:bg-slate-800'}`}
+                  >
+                    {soundEnabled ? <Volume2 className="w-4 h-4" /> : <VolumeX className="w-4 h-4" />}
+                  </button>
+                </div>
+                {soundEnabled && (
+                  <div className="space-y-2">
+                    <div className="flex justify-between items-center px-1">
+                      <label htmlFor="volume-range" className="text-[10px] font-bold text-slate-400 uppercase">{t('common.volume')}</label>
+                      <span className="text-[10px] font-bold text-indigo-500">{Math.round(volume * 100)}%</span>
+                    </div>
+                    <input
+                      id="volume-range"
+                      type="range"
+                      min="0"
+                      max="1"
+                      step="0.01"
+                      value={volume}
+                      onChange={(e) => setVolume(parseFloat(e.target.value))}
+                      className="w-full h-1.5 bg-slate-200 dark:bg-slate-700 rounded-lg appearance-none cursor-pointer accent-indigo-600"
+                    />
+                  </div>
+                )}
               </div>
             </div>
           </div>

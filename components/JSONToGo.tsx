@@ -39,9 +39,13 @@ export function JSONToGo({ initialData, onStateChange }: { initialData?: any; on
   };
 
   const escapeGoTag = (str: string) => {
+    // Sentinel: Sanitize Go tags by escaping backslashes, double quotes, and control characters.
+    // Backticks are removed as they are used as delimiters for Go raw string literals
+    // and cannot be escaped within them, preventing snippet injection.
     return str
       .replace(/\\/g, '\\\\')
       .replace(/"/g, '\\"')
+      .replace(/`/g, '')
       .replace(/\n/g, '\\n')
       .replace(/\r/g, '\\r')
       .replace(/\t/g, '\\t');

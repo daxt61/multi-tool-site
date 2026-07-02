@@ -4,7 +4,7 @@ import { useTranslation } from 'react-i18next';
 import { toast } from 'sonner';
 import { Kbd } from './ui/Kbd';
 
-type ConversionCategory = 'length' | 'weight' | 'temperature' | 'area' | 'volume' | 'digital' | 'digital_si' | 'pressure' | 'energy' | 'speed' | 'time' | 'power' | 'frequency' | 'consumption' | 'angle' | 'torque' | 'force' | 'datarate' | 'illuminance' | 'luminance' | 'radiation' | 'magnetic' | 'acceleration' | 'density' | 'voltage' | 'current' | 'resistance' | 'capacitance' | 'typography' | 'cooking' | 'radioactivity' | 'charge' | 'magnetic_flux' | 'mass_flow' | 'luminous_flux' | 'luminous_intensity' | 'thermal_conductivity' | 'dynamic_viscosity' | 'kinematic_viscosity';
+type ConversionCategory = 'length' | 'weight' | 'temperature' | 'area' | 'volume' | 'digital' | 'digital_si' | 'pressure' | 'energy' | 'speed' | 'time' | 'power' | 'frequency' | 'consumption' | 'angle' | 'torque' | 'force' | 'datarate' | 'illuminance' | 'luminance' | 'radiation' | 'magnetic' | 'acceleration' | 'density' | 'voltage' | 'current' | 'resistance' | 'capacitance' | 'typography' | 'cooking' | 'radioactivity' | 'charge' | 'magnetic_flux' | 'mass_flow' | 'luminous_flux' | 'luminous_intensity' | 'thermal_conductivity' | 'dynamic_viscosity' | 'kinematic_viscosity' | 'sound_intensity';
 
 interface ConversionUnit {
   name: string;
@@ -284,11 +284,16 @@ const CONVERSIONS: Record<ConversionCategory, Record<string, ConversionUnit>> = 
     'St': { name: 'Stokes', toBase: (v) => v * 0.0001, fromBase: (v) => v / 0.0001 },
     'cSt': { name: 'Centistokes', toBase: (v) => v * 0.000001, fromBase: (v) => v / 0.000001 },
     'ft2/s': { name: 'Pied carré par seconde', toBase: (v) => v * 0.092903, fromBase: (v) => v / 0.092903 }
+  },
+  sound_intensity: {
+    'dB': { name: 'Décibels (dB)', toBase: (v) => v, fromBase: (v) => v },
+    'B': { name: 'Bels (B)', toBase: (v) => v * 10, fromBase: (v) => v / 10 },
+    'Np': { name: 'Nepers (Np)', toBase: (v) => v * 8.6858, fromBase: (v) => v / 8.6858 }
   }
 };
 
 const CATEGORIES_IDS: ConversionCategory[] = [
-  'length', 'weight', 'temperature', 'area', 'volume', 'digital', 'digital_si', 'speed', 'time', 'pressure', 'energy', 'power', 'frequency', 'consumption', 'angle', 'torque', 'force', 'datarate', 'illuminance', 'luminance', 'radiation', 'magnetic', 'acceleration', 'density', 'voltage', 'current', 'resistance', 'capacitance', 'typography', 'cooking', 'radioactivity', 'charge', 'magnetic_flux', 'mass_flow', 'luminous_flux', 'luminous_intensity', 'thermal_conductivity', 'dynamic_viscosity', 'kinematic_viscosity'
+  'length', 'weight', 'temperature', 'area', 'volume', 'digital', 'digital_si', 'speed', 'time', 'pressure', 'energy', 'power', 'frequency', 'consumption', 'angle', 'torque', 'force', 'datarate', 'illuminance', 'luminance', 'radiation', 'magnetic', 'acceleration', 'density', 'voltage', 'current', 'resistance', 'capacitance', 'typography', 'cooking', 'radioactivity', 'charge', 'magnetic_flux', 'mass_flow', 'luminous_flux', 'luminous_intensity', 'thermal_conductivity', 'dynamic_viscosity', 'kinematic_viscosity', 'sound_intensity'
 ];
 
 const convert = (value: string, from: string, to: string, cat: ConversionCategory) => {
@@ -432,7 +437,7 @@ export function UnitConverter({ initialData, onStateChange }: { initialData?: an
             onKeyDown={(e) => {
               if (e.key === 'Escape') {
                 setCategorySearch('');
-                  setTimeout(() => categorySearchInputRef.current?.focus(), 0);
+                setTimeout(() => categorySearchInputRef.current?.focus(), 0);
               } else if (e.key === 'Enter' && filteredCategories.length > 0) {
                 handleCategoryChange(filteredCategories[0].id as ConversionCategory);
               }

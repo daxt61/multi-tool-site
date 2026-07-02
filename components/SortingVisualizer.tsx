@@ -2,9 +2,10 @@ import React, { useState, useEffect, useCallback, useRef } from 'react';
 import { Play, RotateCcw, Shuffle, Info, Settings2, BarChart3, Pause, FastForward, StepForward, Volume2, VolumeX, AlertCircle } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import { getSecureRandomInt } from './ui/crypto';
+import { Kbd } from './ui/Kbd';
 
 // Types for the sorting state
-type Algorithm = 'bubble' | 'selection' | 'insertion' | 'merge' | 'quick' | 'heap' | 'shell' | 'cocktail' | 'comb' | 'radix' | 'bogo';
+type Algorithm = 'bubble' | 'selection' | 'insertion' | 'merge' | 'quick' | 'heap' | 'shell' | 'cocktail' | 'comb' | 'radix' | 'gnome' | 'odd_even' | 'bogo';
 
 interface Bar {
   value: number;
@@ -565,6 +566,77 @@ export function SortingVisualizer({ initialData, onStateChange }: { initialData?
     return true;
   };
 
+  const gnomeSort = async () => {
+    const n = arrayRef.current.length;
+    let index = 0;
+    while (index < n) {
+      if (!isSortingRef.current) return;
+      if (index === 0) {
+        index++;
+        continue;
+      }
+      updateBarStatus([index, index - 1], 'comparing');
+      playNote(arrayRef.current[index].value);
+      setStats(prev => ({ ...prev, comparisons: prev.comparisons + 1 }));
+      if (!(await sleep(speedRef.current))) return;
+
+      if (arrayRef.current[index].value >= arrayRef.current[index - 1].value) {
+        updateBarStatus([index, index - 1], 'idle');
+        index++;
+      } else {
+        updateBarStatus([index, index - 1], 'swapping');
+        if (!(await sleep(speedRef.current))) return;
+        swapBars(index, index - 1);
+        if (!(await sleep(speedRef.current))) return;
+        updateBarStatus([index, index - 1], 'idle');
+        index--;
+      }
+    }
+  };
+
+  const oddEvenSort = async () => {
+    const n = arrayRef.current.length;
+    let sorted = false;
+    while (!sorted) {
+      if (!isSortingRef.current) return;
+      sorted = true;
+
+      // Odd pass
+      for (let i = 1; i < n - 1; i += 2) {
+        if (!isSortingRef.current) return;
+        updateBarStatus([i, i + 1], 'comparing');
+        playNote(arrayRef.current[i].value);
+        setStats(prev => ({ ...prev, comparisons: prev.comparisons + 1 }));
+        if (!(await sleep(speedRef.current))) return;
+        if (arrayRef.current[i].value > arrayRef.current[i + 1].value) {
+          updateBarStatus([i, i + 1], 'swapping');
+          if (!(await sleep(speedRef.current))) return;
+          swapBars(i, i + 1);
+          sorted = false;
+          if (!(await sleep(speedRef.current))) return;
+        }
+        updateBarStatus([i, i + 1], 'idle');
+      }
+
+      // Even pass
+      for (let i = 0; i < n - 1; i += 2) {
+        if (!isSortingRef.current) return;
+        updateBarStatus([i, i + 1], 'comparing');
+        playNote(arrayRef.current[i].value);
+        setStats(prev => ({ ...prev, comparisons: prev.comparisons + 1 }));
+        if (!(await sleep(speedRef.current))) return;
+        if (arrayRef.current[i].value > arrayRef.current[i + 1].value) {
+          updateBarStatus([i, i + 1], 'swapping');
+          if (!(await sleep(speedRef.current))) return;
+          swapBars(i, i + 1);
+          sorted = false;
+          if (!(await sleep(speedRef.current))) return;
+        }
+        updateBarStatus([i, i + 1], 'idle');
+      }
+    }
+  };
+
   const bogoSort = async () => {
     const n = arrayRef.current.length;
     while (!isSorted(arrayRef.current)) {
@@ -614,6 +686,8 @@ export function SortingVisualizer({ initialData, onStateChange }: { initialData?
         case 'quick': await quickSort(); break;
         case 'heap': await heapSort(); break;
         case 'radix': await radixSort(); break;
+        case 'gnome': await gnomeSort(); break;
+        case 'odd_even': await oddEvenSort(); break;
         case 'bogo': await bogoSort(); break;
       }
     } catch (e) {
@@ -745,6 +819,8 @@ export function SortingVisualizer({ initialData, onStateChange }: { initialData?
                   <option value="quick">{t('sorting.algo.quick')}</option>
                   <option value="heap">{t('sorting.algo.heap')}</option>
                   <option value="radix">{t('sorting.algo.radix')}</option>
+                  <option value="gnome">{t('sorting.algo.gnome')}</option>
+                  <option value="odd_even">{t('sorting.algo.odd_even')}</option>
                   <option value="bogo">{t('sorting.algo.bogo')}</option>
                 </select>
               </div>
@@ -848,7 +924,7 @@ export function SortingVisualizer({ initialData, onStateChange }: { initialData?
                          className="group px-8 py-3 bg-indigo-600 text-white rounded-2xl font-black flex items-center gap-2 hover:bg-indigo-700 transition-all shadow-lg shadow-indigo-600/20 active:scale-95 focus-visible:ring-2 focus-visible:ring-indigo-500 focus-visible:outline-none"
                        >
                          <StepForward className="w-5 h-5" /> {t('sorting.next_step')}
-                         <kbd className="hidden md:inline-flex items-center justify-center px-1.5 py-0.5 border rounded text-[10px] font-bold ml-1 transition-all bg-white/10 border-white/20 text-white/70 group-hover:bg-white/20">→</kbd>
+                         <Kbd modifier={null} className="ml-1 border-white/20 bg-white/10 text-white/70 group-hover:bg-white/20">→</Kbd>
                        </button>
                     ) : (
                        <button
@@ -857,7 +933,7 @@ export function SortingVisualizer({ initialData, onStateChange }: { initialData?
                        >
                          {isPaused ? <Play className="w-5 h-5 fill-current" /> : <Pause className="w-5 h-5 fill-current" />}
                          {isPaused ? t('common.play') : t('timer.pause')}
-                         <kbd className="hidden md:inline-flex items-center justify-center px-1.5 py-0.5 border rounded text-[10px] font-bold ml-1 transition-all bg-white/10 border-white/20 text-white/70 group-hover:bg-white/20">Space</kbd>
+                         <Kbd modifier={null} className="ml-1 border-white/20 bg-white/10 text-white/70 group-hover:bg-white/20">Space</Kbd>
                        </button>
                     )}
                    <button
@@ -865,7 +941,7 @@ export function SortingVisualizer({ initialData, onStateChange }: { initialData?
                      className="group px-8 py-3 bg-rose-500 text-white rounded-2xl font-black flex items-center gap-2 hover:bg-rose-600 transition-all shadow-lg shadow-rose-500/20 active:scale-95 focus-visible:ring-2 focus-visible:ring-rose-500 focus-visible:outline-none"
                    >
                      <RotateCcw className="w-5 h-5" /> {t('common.reset')}
-                     <kbd className="hidden md:inline-flex items-center justify-center px-1.5 py-0.5 border rounded text-[10px] font-bold ml-1 transition-all bg-white/10 border-white/20 text-white/70 group-hover:bg-white/20">Esc</kbd>
+                     <Kbd modifier={null} className="ml-1 border-white/20 bg-white/10 text-white/70 group-hover:bg-white/20">Esc</Kbd>
                    </button>
                  </>
                )}
@@ -875,7 +951,7 @@ export function SortingVisualizer({ initialData, onStateChange }: { initialData?
                  className="group px-8 py-3 bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 rounded-2xl font-black flex items-center gap-2 hover:bg-slate-200 dark:hover:bg-slate-700 transition-all disabled:opacity-50 focus-visible:ring-2 focus-visible:ring-indigo-500 focus-visible:outline-none"
                >
                  <Shuffle className="w-5 h-5" /> {t('random.shuffle')}
-                 <kbd className="hidden md:inline-flex items-center justify-center w-6 h-6 border rounded text-xs font-bold ml-1 transition-all bg-black/5 border-black/10 text-slate-400 group-hover:bg-black/10 dark:bg-white/5 dark:border-white/10 dark:text-slate-500 dark:group-hover:bg-white/10">S</kbd>
+                 <Kbd modifier={null} className="ml-1 group-hover:bg-black/10 dark:group-hover:bg-white/10">S</Kbd>
                </button>
             </div>
 
@@ -903,8 +979,8 @@ export function SortingVisualizer({ initialData, onStateChange }: { initialData?
               key={idx}
               className={`w-full transition-all rounded-t-sm ${
                 bar.status === 'idle' ? 'bg-indigo-200 dark:bg-indigo-900/40' :
-                bar.status === 'comparing' ? 'bg-amber-400 shadow-[0_0_15px_rgba(251,191,36,0.5)]' :
-                bar.status === 'swapping' ? 'bg-rose-500 shadow-[0_0_15px_rgba(244,63,94,0.5)]' :
+                bar.status === 'comparing' ? 'bg-amber-400 shadow-[0_0_15px_rgba(251,191,36,0.5)] relative z-10' :
+                bar.status === 'swapping' ? 'bg-rose-500 shadow-[0_0_15px_rgba(244,63,94,0.5)] relative z-10' :
                 'bg-emerald-500'
               }`}
               style={{
@@ -954,6 +1030,10 @@ export function SortingVisualizer({ initialData, onStateChange }: { initialData?
              <div className="flex justify-between border-b border-slate-100 dark:border-slate-800 pb-1">
                 <span>{t('sorting.algo.radix')}</span>
                 <span className="font-mono text-indigo-500">O(nk)</span>
+             </div>
+             <div className="flex justify-between border-b border-slate-100 dark:border-slate-800 pb-1">
+                <span>{t('sorting.algo.gnome')} / {t('sorting.algo.odd_even')}</span>
+                <span className="font-mono text-indigo-500">O(n²)</span>
              </div>
              <div className="flex justify-between border-b border-slate-100 dark:border-slate-800 pb-1">
                 <span>{t('sorting.algo.bogo')}</span>

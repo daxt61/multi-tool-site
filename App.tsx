@@ -484,6 +484,8 @@ const JSONToAvro = lazy(() => import("./components/JSONToAvro").then(m => ({ def
 const SVGToImage = lazy(() => import("./components/SVGToImage").then(m => ({ default: m.SVGToImage })));
 const ASCIIArtToImage = lazy(() => import("./components/ASCIIArtToImage").then(m => ({ default: m.ASCIIArtToImage })));
 const XmlCsvConverter = lazy(() => import("./components/XmlCsvConverter").then(m => ({ default: m.XmlCsvConverter })));
+const CSVTransposer = lazy(() => import("./components/CSVTransposer").then(m => ({ default: m.CSVTransposer })));
+const XmlYamlConverter = lazy(() => import("./components/XmlYamlConverter").then(m => ({ default: m.XmlYamlConverter })));
 const SudokuSolver = lazy(() => import("./components/SudokuSolver").then(m => ({ default: m.SudokuSolver })));
 const AnagramChecker = lazy(() => import("./components/AnagramChecker").then(m => ({ default: m.AnagramChecker })));
 const ULIDGenerator = lazy(() => import("./components/ULIDGenerator").then(m => ({ default: m.ULIDGenerator })));
@@ -4173,6 +4175,28 @@ const tools: Tool[] = [
     Component: XmlCsvConverter,
     category: "converters",
     keywords: ["xml", "csv", "convert", "data", "spreadsheet"],
+  },
+  {
+    id: "xml-yaml",
+    name: "XML <> YAML",
+    nameEn: "XML <> YAML",
+    icon: FileCode,
+    description: "Convertisseur bidirectionnel XML et YAML",
+    descriptionEn: "Bidirectional XML and YAML converter",
+    Component: XmlYamlConverter,
+    category: "dev",
+    keywords: ["xml", "yaml", "convert", "data", "parser"],
+  },
+  {
+    id: "csv-transposer",
+    name: "Transposeur CSV",
+    nameEn: "CSV Transposer",
+    icon: FileCode,
+    description: "Transposer les lignes et colonnes de données CSV/TSV",
+    descriptionEn: "Transpose rows and columns of CSV/TSV data",
+    Component: CSVTransposer,
+    category: "dev",
+    keywords: ["csv", "tsv", "transpose", "matrix", "rows", "columns"],
   },
   {
     id: "sudoku-solver",

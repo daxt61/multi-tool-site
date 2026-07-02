@@ -484,6 +484,10 @@ const JSONToAvro = lazy(() => import("./components/JSONToAvro").then(m => ({ def
 const SVGToImage = lazy(() => import("./components/SVGToImage").then(m => ({ default: m.SVGToImage })));
 const ASCIIArtToImage = lazy(() => import("./components/ASCIIArtToImage").then(m => ({ default: m.ASCIIArtToImage })));
 const XmlCsvConverter = lazy(() => import("./components/XmlCsvConverter").then(m => ({ default: m.XmlCsvConverter })));
+const XmlYamlConverter = lazy(() => import("./components/XmlYamlConverter").then(m => ({ default: m.XmlYamlConverter })));
+const YamlXmlConverter = lazy(() => import("./components/YamlXmlConverter").then(m => ({ default: m.YamlXmlConverter })));
+const CSVTransposer = lazy(() => import("./components/CSVTransposer").then(m => ({ default: m.CSVTransposer })));
+const DragonCurve = lazy(() => import("./components/DragonCurve").then(m => ({ default: m.DragonCurve })));
 const SudokuSolver = lazy(() => import("./components/SudokuSolver").then(m => ({ default: m.SudokuSolver })));
 const AnagramChecker = lazy(() => import("./components/AnagramChecker").then(m => ({ default: m.AnagramChecker })));
 const ULIDGenerator = lazy(() => import("./components/ULIDGenerator").then(m => ({ default: m.ULIDGenerator })));
@@ -4173,6 +4177,50 @@ const tools: Tool[] = [
     Component: XmlCsvConverter,
     category: "converters",
     keywords: ["xml", "csv", "convert", "data", "spreadsheet"],
+  },
+  {
+    id: "xml-to-yaml",
+    name: "XML en YAML",
+    nameEn: "XML to YAML",
+    icon: FileCode,
+    description: "Convertisseur bidirectionnel XML et YAML",
+    descriptionEn: "Bidirectional XML and YAML converter",
+    Component: XmlYamlConverter,
+    category: "dev",
+    keywords: ["xml", "yaml", "convert", "config"],
+  },
+  {
+    id: "yaml-to-xml",
+    name: "YAML en XML",
+    nameEn: "YAML to XML",
+    icon: FileCode,
+    description: "Convertir des données YAML en format XML",
+    descriptionEn: "Convert YAML data into XML format",
+    Component: YamlXmlConverter,
+    category: "dev",
+    keywords: ["yaml", "xml", "convert", "config"],
+  },
+  {
+    id: "csv-transposer",
+    name: "Transposeur CSV",
+    nameEn: "CSV Transposer",
+    icon: ArrowLeftRight,
+    description: "Inverser les lignes et les colonnes d'un fichier CSV ou TSV",
+    descriptionEn: "Swap rows and columns of a CSV or TSV file",
+    Component: CSVTransposer,
+    category: "converters",
+    keywords: ["csv", "tsv", "transpose", "rows", "columns", "pivot"],
+  },
+  {
+    id: "dragon-curve",
+    name: "Courbe du Dragon",
+    nameEn: "Dragon Curve",
+    icon: Sparkles,
+    description: "Générateur de fractale de la courbe du dragon",
+    descriptionEn: "Dragon curve fractal generator",
+    Component: DragonCurve,
+    category: "calculators",
+    keywords: ["fractal", "dragon", "curve", "math", "recursive"],
   },
   {
     id: "sudoku-solver",

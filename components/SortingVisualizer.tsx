@@ -1,10 +1,10 @@
 import React, { useState, useEffect, useCallback, useRef } from 'react';
-import { Play, RotateCcw, Shuffle, Info, Settings2, BarChart3, Pause, FastForward, StepForward, Volume2, VolumeX } from 'lucide-react';
+import { Play, RotateCcw, Shuffle, Info, Settings2, BarChart3, Pause, FastForward, StepForward, Volume2, VolumeX, AlertCircle } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import { getSecureRandomInt } from './ui/crypto';
 
 // Types for the sorting state
-type Algorithm = 'bubble' | 'selection' | 'insertion' | 'merge' | 'quick' | 'heap' | 'shell' | 'cocktail' | 'comb' | 'radix';
+type Algorithm = 'bubble' | 'selection' | 'insertion' | 'merge' | 'quick' | 'heap' | 'shell' | 'cocktail' | 'comb' | 'radix' | 'bogo';
 
 interface Bar {
   value: number;
@@ -558,6 +558,30 @@ export function SortingVisualizer({ initialData, onStateChange }: { initialData?
     return i;
   };
 
+  const isSorted = (arr: Bar[]) => {
+    for (let i = 0; i < arr.length - 1; i++) {
+      if (arr[i].value > arr[i + 1].value) return false;
+    }
+    return true;
+  };
+
+  const bogoSort = async () => {
+    const n = arrayRef.current.length;
+    while (!isSorted(arrayRef.current)) {
+      if (!isSortingRef.current) return;
+
+      // Shuffle
+      for (let i = n - 1; i > 0; i--) {
+        const j = getSecureRandomInt(i + 1);
+        swapBars(i, j);
+      }
+
+      setStats(prev => ({ ...prev, comparisons: prev.comparisons + n }));
+      setArray([...arrayRef.current]);
+      if (!(await sleep(speedRef.current))) return;
+    }
+  };
+
   const startSort = async (mode: 'auto' | 'step') => {
     if (isSortingRef.current) {
       if (mode === 'step' && isStepModeRef.current) {
@@ -590,6 +614,7 @@ export function SortingVisualizer({ initialData, onStateChange }: { initialData?
         case 'quick': await quickSort(); break;
         case 'heap': await heapSort(); break;
         case 'radix': await radixSort(); break;
+        case 'bogo': await bogoSort(); break;
       }
     } catch (e) {
       console.error('Sorting interrupted', e);
@@ -720,8 +745,16 @@ export function SortingVisualizer({ initialData, onStateChange }: { initialData?
                   <option value="quick">{t('sorting.algo.quick')}</option>
                   <option value="heap">{t('sorting.algo.heap')}</option>
                   <option value="radix">{t('sorting.algo.radix')}</option>
+                  <option value="bogo">{t('sorting.algo.bogo')}</option>
                 </select>
               </div>
+
+              {algorithm === 'bogo' && arraySize > 6 && (
+                <div className="bg-amber-50 dark:bg-amber-500/10 border border-amber-200 dark:border-amber-800 p-3 rounded-xl flex items-start gap-2 text-amber-600 dark:text-amber-400 font-bold text-[10px] animate-in fade-in slide-in-from-top-2">
+                  <AlertCircle className="w-3.5 h-3.5 flex-shrink-0" />
+                  <p>{t('sorting.bogo_warning')}</p>
+                </div>
+              )}
 
               <div className="space-y-2">
                 <div className="flex justify-between items-center px-1">
@@ -921,6 +954,10 @@ export function SortingVisualizer({ initialData, onStateChange }: { initialData?
              <div className="flex justify-between border-b border-slate-100 dark:border-slate-800 pb-1">
                 <span>{t('sorting.algo.radix')}</span>
                 <span className="font-mono text-indigo-500">O(nk)</span>
+             </div>
+             <div className="flex justify-between border-b border-slate-100 dark:border-slate-800 pb-1">
+                <span>{t('sorting.algo.bogo')}</span>
+                <span className="font-mono text-indigo-500">O(n!)</span>
              </div>
           </div>
         </div>

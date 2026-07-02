@@ -1,6 +1,7 @@
 import { useState, useEffect, useCallback } from 'react';
 import { History as HistoryIcon, Trash2, Delete, Calculator as CalcIcon, Copy, Check, Download } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
+import { toast } from 'sonner';
 
 export function Calculator({ initialData, onStateChange }: { initialData?: any; onStateChange?: (state: any) => void }) {
   const { t } = useTranslation();
@@ -213,6 +214,7 @@ export function Calculator({ initialData, onStateChange }: { initialData?: any; 
   const handleCopy = () => {
     navigator.clipboard.writeText(display);
     setCopied(true);
+    toast.success(t('common.copied'));
     setTimeout(() => setCopied(false), 2000);
   };
 

@@ -1,6 +1,7 @@
 import { useState, useEffect, useCallback, useMemo, useRef } from 'react';
 import { Music, RotateCcw, Copy, Check, Volume2, VolumeX, BarChart2, Activity, Zap, Info } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
+import { toast } from 'sonner';
 import { Kbd } from './ui/Kbd';
 import {
   LineChart,
@@ -132,9 +133,10 @@ export function BPMCounter({ initialData, onStateChange }: { initialData?: any; 
     if (bpm) {
       navigator.clipboard.writeText(bpm.toString());
       setCopied(true);
+      toast.success(t('common.copied'));
       setTimeout(() => setCopied(false), 2000);
     }
-  }, [bpm]);
+  }, [bpm, t]);
 
   const handleDownloadCSV = () => {
     if (history.length === 0) return;

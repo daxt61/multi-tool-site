@@ -41,3 +41,7 @@
 ## 2025-09-02 - [Standardized UX Feedback for List Actions]
 **Learning:** Individual row-level copy actions in tools (e.g., list views) should update a local `copiedRowIndex` state to briefly change the specific row's icon to a `Check` and apply a success-themed background (e.g., `bg-emerald-500`), paired with a global `sonner` success toast. This provides both local (precise) and global (action confirmed) feedback.
 **Action:** Implement the `copiedRowIndex` pattern for all list-based tool actions to ensure high-clarity interaction feedback.
+
+## 2026-07-02 - [Standardized UX Feedback for Output Actions]
+**Learning:** Global tool output copy actions (e.g., in `Calculator.tsx`, `UnitConverter.tsx`, `BPMCounter.tsx`) often rely only on local visual feedback (like icon changes) which can be missed. A global `sonner` success toast provides consistent, high-visibility confirmation across different tool types.
+**Action:** Always pair tool output copy actions with a global success toast using the `common.copied` key to ensure unambiguous user feedback.

@@ -1,6 +1,7 @@
 import { useState, useEffect, useMemo, useCallback, useRef } from 'react';
 import { Copy, Check, Trash2, ArrowUpDown, Info, Ruler, Download, Search, X } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
+import { toast } from 'sonner';
 import { Kbd } from './ui/Kbd';
 
 type ConversionCategory = 'length' | 'weight' | 'temperature' | 'area' | 'volume' | 'digital' | 'digital_si' | 'pressure' | 'energy' | 'speed' | 'time' | 'power' | 'frequency' | 'consumption' | 'angle' | 'torque' | 'force' | 'datarate' | 'illuminance' | 'luminance' | 'radiation' | 'magnetic' | 'acceleration' | 'density' | 'voltage' | 'current' | 'resistance' | 'capacitance' | 'typography' | 'cooking' | 'radioactivity' | 'charge' | 'magnetic_flux' | 'mass_flow' | 'luminous_flux' | 'luminous_intensity' | 'thermal_conductivity' | 'dynamic_viscosity' | 'kinematic_viscosity';
@@ -355,8 +356,9 @@ export function UnitConverter({ initialData, onStateChange }: { initialData?: an
     if (!fromValue) return;
     navigator.clipboard.writeText(String(toValue));
     setCopied(true);
+    toast.success(t('common.copied'));
     setTimeout(() => setCopied(false), 2000);
-  }, [toValue, fromValue]);
+  }, [toValue, fromValue, t]);
 
   const handleClear = useCallback(() => {
     setFromValue('');

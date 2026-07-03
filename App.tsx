@@ -486,6 +486,8 @@ const ASCIIArtToImage = lazy(() => import("./components/ASCIIArtToImage").then(m
 const XmlCsvConverter = lazy(() => import("./components/XmlCsvConverter").then(m => ({ default: m.XmlCsvConverter })));
 const CSVTransposer = lazy(() => import("./components/CSVTransposer").then(m => ({ default: m.CSVTransposer })));
 const XmlYamlConverter = lazy(() => import("./components/XmlYamlConverter").then(m => ({ default: m.XmlYamlConverter })));
+const ColorToTailwind = lazy(() => import("./components/ColorToTailwind").then(m => ({ default: m.ColorToTailwind })));
+const SQLToTypeScript = lazy(() => import("./components/SQLToTypeScript").then(m => ({ default: m.SQLToTypeScript })));
 const SudokuSolver = lazy(() => import("./components/SudokuSolver").then(m => ({ default: m.SudokuSolver })));
 const AnagramChecker = lazy(() => import("./components/AnagramChecker").then(m => ({ default: m.AnagramChecker })));
 const ULIDGenerator = lazy(() => import("./components/ULIDGenerator").then(m => ({ default: m.ULIDGenerator })));
@@ -4232,6 +4234,28 @@ const tools: Tool[] = [
     Component: PythagorasTree,
     category: "calculators",
     keywords: ["fractal", "pythagoras", "tree", "math", "recursive", "geometry"],
+  },
+  {
+    id: "color-to-tailwind",
+    name: "HEX vers Tailwind",
+    nameEn: "Color to Tailwind",
+    icon: Palette,
+    description: "Trouver la couleur Tailwind la plus proche d'un code HEX",
+    descriptionEn: "Find the nearest Tailwind CSS color for any hex code",
+    Component: ColorToTailwind,
+    category: "converters",
+    keywords: ["color", "tailwind", "design", "hex", "match"],
+  },
+  {
+    id: "sql-to-typescript",
+    name: "SQL vers TypeScript",
+    nameEn: "SQL to TypeScript",
+    icon: Database,
+    description: "Convertir des tables SQL en interfaces TypeScript",
+    descriptionEn: "Convert SQL CREATE TABLE statements into TypeScript interfaces",
+    Component: SQLToTypeScript,
+    category: "dev",
+    keywords: ["sql", "typescript", "interface", "converter", "database"],
   },
 ];
 

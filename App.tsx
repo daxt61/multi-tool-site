@@ -489,6 +489,8 @@ const XmlYamlConverter = lazy(() => import("./components/XmlYamlConverter").then
 const SudokuSolver = lazy(() => import("./components/SudokuSolver").then(m => ({ default: m.SudokuSolver })));
 const AnagramChecker = lazy(() => import("./components/AnagramChecker").then(m => ({ default: m.AnagramChecker })));
 const ULIDGenerator = lazy(() => import("./components/ULIDGenerator").then(m => ({ default: m.ULIDGenerator })));
+const DragonCurve = lazy(() => import("./components/DragonCurve").then(m => ({ default: m.DragonCurve })));
+const PythagorasTree = lazy(() => import("./components/PythagorasTree").then(m => ({ default: m.PythagorasTree })));
 
 // ⚡ Bolt Optimization: Pre-calculating tool map and search index for O(1) lookups and faster filtering
 const toolsMap: Record<string, Tool> = {};
@@ -4208,6 +4210,28 @@ const tools: Tool[] = [
     Component: SudokuSolver,
     category: "calculators",
     keywords: ["sudoku", "puzzle", "solver", "game", "math", "logic"],
+  },
+  {
+    id: "dragon-curve",
+    name: "Courbe du Dragon",
+    nameEn: "Dragon Curve",
+    icon: Sparkles,
+    description: "Générer et visualiser la fractale de la courbe du dragon",
+    descriptionEn: "Generate and visualize the dragon curve fractal",
+    Component: DragonCurve,
+    category: "calculators",
+    keywords: ["fractal", "dragon curve", "math", "l-system", "recursive", "heighway"],
+  },
+  {
+    id: "pythagoras-tree",
+    name: "Arbre de Pythagore",
+    nameEn: "Pythagoras Tree",
+    icon: Zap,
+    description: "Générer une fractale d'arbre de Pythagore à base de carrés",
+    descriptionEn: "Generate a Pythagoras tree fractal built from squares",
+    Component: PythagorasTree,
+    category: "calculators",
+    keywords: ["fractal", "pythagoras", "tree", "math", "recursive", "geometry"],
   },
 ];
 

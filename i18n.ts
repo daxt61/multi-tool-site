@@ -3045,6 +3045,10 @@ const resources = {
       "sudoku.how_to_use_desc": "Enter the numbers from your Sudoku puzzle into the grid. Leave empty cells blank. Click 'Solve' to see the solution, or 'Validate' to check your current progress.",
       "sudoku.algorithm": "Backtracking Algorithm",
       "sudoku.algorithm_desc": "This tool uses a classic recursive backtracking algorithm. It systematically tries numbers 1-9 in empty cells, moving back when it hits a conflict, until the puzzle is solved.",
+      "dragon.what_is_title": "The Heighway Dragon Curve",
+      "dragon.about_text": "The dragon curve is a member of a family of self-similar fractal curves, which can be approximated by recursive methods such as Lindenmayer systems. It is most commonly constructed by repeatedly folding a strip of paper in half in the same direction, then opening it out so that every fold is a 90-degree angle.",
+      "pythagoras.about_title": "The Pythagoras Tree",
+      "pythagoras.about_text": "The Pythagoras tree is a plane fractal constructed from squares. Invented by the Dutch mathematics teacher Albert E. Bosman in 1942, it is named after the ancient Greek mathematician Pythagoras because every triple of touching squares encloses a right triangle, in a configuration traditionally used to depict the Pythagorean theorem.",
     }
   },
   fr: {
@@ -6093,6 +6097,10 @@ const resources = {
       "sudoku.how_to_use_desc": "Entrez les chiffres de votre puzzle Sudoku dans la grille. Laissez les cases vides vides. Cliquez sur 'Résoudre' pour voir la solution, ou 'Valider' pour vérifier votre progression actuelle.",
       "sudoku.algorithm": "Algorithme de Backtracking",
       "sudoku.algorithm_desc": "Cet outil utilise un algorithme classique de backtracking récursif. Il essaie systématiquement les chiffres de 1 à 9 dans les cases vides, en revenant en arrière lorsqu'il rencontre un conflit, jusqu'à ce que le puzzle soit résolu.",
+      "dragon.what_is_title": "La Courbe du Dragon de Heighway",
+      "dragon.about_text": "La courbe du dragon est une famille de courbes fractales auto-similaires, qui peuvent être approchées par des méthodes récursives telles que les systèmes de Lindenmayer. Elle est plus communément construite en pliant de manière répétée une bande de papier en deux dans la même direction, puis en l'ouvrant de sorte que chaque pli soit un angle de 90 degrés.",
+      "pythagoras.about_title": "L'Arbre de Pythagore",
+      "pythagoras.about_text": "L'arbre de Pythagore est une fractale plane construite à partir de carrés. Inventé par le professeur de mathématiques néerlandais Albert E. Bosman en 1942, il porte le nom du mathématicien de la Grèce antique Pythagore car chaque triple de carrés se touchant délimite un triangle rectangle, dans une configuration traditionnellement utilisée pour illustrer le théorème de Pythagore.",
     }
   }
 };

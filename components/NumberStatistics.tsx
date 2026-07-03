@@ -28,6 +28,16 @@ export function NumberStatistics({ initialData, onStateChange }: { initialData?:
     return parsed;
   }, [input]);
 
+  const calculatePercentile = (sorted: number[], p: number) => {
+    if (sorted.length === 0) return 0;
+    const index = (p / 100) * (sorted.length - 1);
+    const lower = Math.floor(index);
+    const upper = Math.ceil(index);
+    const weight = index - lower;
+    if (upper >= sorted.length) return sorted[lower];
+    return sorted[lower] * (1 - weight) + sorted[upper] * weight;
+  };
+
   const stats = useMemo(() => {
     if (numbers.length === 0) return null;
 
@@ -59,6 +69,13 @@ export function NumberStatistics({ initialData, onStateChange }: { initialData?:
     const variance = sqDiffs.reduce((a: number, b: number) => a + b, 0) / count;
     const stdDev = Math.sqrt(variance);
 
+    // Percentiles
+    const p25 = calculatePercentile(sorted, 25);
+    const p75 = calculatePercentile(sorted, 75);
+    const p90 = calculatePercentile(sorted, 90);
+    const p95 = calculatePercentile(sorted, 95);
+    const p99 = calculatePercentile(sorted, 99);
+
     return {
       count,
       sum,
@@ -69,15 +86,20 @@ export function NumberStatistics({ initialData, onStateChange }: { initialData?:
       max,
       range,
       variance,
-      stdDev
+      stdDev,
+      p25,
+      p75,
+      p90,
+      p95,
+      p99
     };
   }, [numbers]);
 
-  const handleCopy = (val: string, id: string) => {
+  const handleCopy = useCallback((val: string, id: string) => {
     navigator.clipboard.writeText(val);
     setCopied(id);
     setTimeout(() => setCopied(null), 2000);
-  };
+  }, []);
 
   const handleDownload = useCallback(() => {
     if (!input) return;
@@ -104,7 +126,12 @@ export function NumberStatistics({ initialData, onStateChange }: { initialData?:
 - ${t('numstats.median')}: ${stats.median}
 - ${t('numstats.mode')}: ${stats.modes.length > 0 ? stats.modes.join(', ') : t('common.na')}
 - ${t('numstats.variance')}: ${stats.variance.toFixed(4)}
-- ${t('numstats.std_dev')}: ${stats.stdDev.toFixed(4)}`;
+- ${t('numstats.std_dev')}: ${stats.stdDev.toFixed(4)}
+- P25: ${stats.p25.toFixed(4)}
+- P75: ${stats.p75.toFixed(4)}
+- P90: ${stats.p90.toFixed(4)}
+- P95: ${stats.p95.toFixed(4)}
+- P99: ${stats.p99.toFixed(4)}`;
 
     handleCopy(report, 'report');
   }, [stats, t, handleCopy]);
@@ -247,7 +274,12 @@ export function NumberStatistics({ initialData, onStateChange }: { initialData?:
             { label: t('numstats.range'), value: formatNum(stats.range), icon: <TrendingUp className="w-4 h-4" /> },
             { label: t('numstats.std_dev'), value: stats.stdDev.toFixed(4), icon: <Sigma className="w-4 h-4" /> },
             { label: t('numstats.variance'), value: stats.variance.toFixed(4), icon: <Calculator className="w-4 h-4" /> },
-            { label: t('numstats.mode'), value: stats.modes.length > 0 ? stats.modes.join(', ') : t('common.na'), icon: <Hash className="w-4 h-4" /> }
+            { label: t('numstats.mode'), value: stats.modes.length > 0 ? stats.modes.join(', ') : t('common.na'), icon: <Hash className="w-4 h-4" /> },
+            { label: t('numstats.p25'), value: formatNum(stats.p25), icon: <BarChart3 className="w-4 h-4" /> },
+            { label: t('numstats.p75'), value: formatNum(stats.p75), icon: <BarChart3 className="w-4 h-4" /> },
+            { label: t('numstats.p90'), value: formatNum(stats.p90), icon: <BarChart3 className="w-4 h-4" /> },
+            { label: t('numstats.p95'), value: formatNum(stats.p95), icon: <BarChart3 className="w-4 h-4" /> },
+            { label: t('numstats.p99'), value: formatNum(stats.p99), icon: <BarChart3 className="w-4 h-4" /> }
           ].map((item, i) => (
             <div key={i} className="group bg-white dark:bg-slate-900/40 border border-slate-200 dark:border-slate-800 p-6 rounded-[2rem] space-y-3 hover:border-indigo-500/30 transition-all">
               <div className="flex justify-between items-center">

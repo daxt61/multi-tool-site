@@ -1,6 +1,8 @@
 import { useState, useMemo, useDeferredValue, useEffect, useCallback, useRef } from 'react';
 import { Copy, Check, Trash2, Hash, Type, FileText, AlignLeft, Clock, MessageSquare, BarChart3, Info, Star, AlertCircle, Download, Pilcrow, RotateCcw, Twitter, Linkedin, Instagram } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
+import { toast } from 'sonner';
+import { Kbd } from './ui/Kbd';
 
 const MAX_LENGTH = 100000;
 
@@ -229,14 +231,16 @@ export function WordCounter({ initialData, onStateChange }: { initialData?: any;
     if (text.length > MAX_LENGTH) return;
     navigator.clipboard.writeText(text);
     setCopied(true);
+    toast.success(t('common.copied'));
     setTimeout(() => setCopied(false), 2000);
-  }, [text]);
+  }, [text, t]);
 
   const handleCopyCharFreq = () => {
     if (stats.charFreq.length === 0) return;
     const report = `${t('wordcounter.char_freq_report')}:\n` + stats.charFreq.map(([char, count]) => `- ${char} : ${count} (${((count / stats.charactersNoSpaces) * 100).toFixed(1)}%)`).join('\n');
     navigator.clipboard.writeText(report);
     setCopiedCharFreq(true);
+    toast.success(t('common.copied'));
     setTimeout(() => setCopiedCharFreq(false), 2000);
   };
 
@@ -267,6 +271,7 @@ export function WordCounter({ initialData, onStateChange }: { initialData?: any;
 
     navigator.clipboard.writeText(report);
     setCopiedStats(true);
+    toast.success(t('common.copied'));
     setTimeout(() => setCopiedStats(false), 2000);
   }, [stats, t]);
 
@@ -334,7 +339,7 @@ export function WordCounter({ initialData, onStateChange }: { initialData?: any;
             >
               {copiedStats ? <Check className="w-3 h-3" /> : <BarChart3 className="w-3 h-3" />}
               {copiedStats ? t('common.copied') : t('wordcounter.copy_stats_btn')}
-              {!copiedStats && <kbd className="hidden sm:inline-flex items-center justify-center px-1.5 py-0.5 border border-indigo-200 dark:border-indigo-800 rounded text-[10px] font-bold bg-white/50 dark:bg-black/20 ml-1">S</kbd>}
+              {!copiedStats && <Kbd modifier={null} className="hidden sm:inline-flex ml-1 bg-white/50 dark:bg-black/20 border-indigo-200 dark:border-indigo-800">S</Kbd>}
             </button>
             <button
               onClick={handleDownload}
@@ -354,7 +359,7 @@ export function WordCounter({ initialData, onStateChange }: { initialData?: any;
               title={`${t('common.copy')} (C)`}
             >
               {copied ? <Check className="w-3 h-3" /> : <Copy className="w-3 h-3" />} {copied ? t('common.copied') : t('common.copy')}
-              {!copied && <kbd className="hidden sm:inline-flex items-center justify-center px-1.5 py-0.5 border border-slate-200 dark:border-slate-800 rounded text-[10px] font-bold bg-white/50 dark:bg-black/20 ml-1">C</kbd>}
+              {!copied && <Kbd modifier={null} className="hidden sm:inline-flex ml-1 bg-white/50 dark:bg-black/20 border-slate-200 dark:border-slate-800">C</Kbd>}
             </button>
             <button
               onClick={handleClear}
@@ -363,7 +368,7 @@ export function WordCounter({ initialData, onStateChange }: { initialData?: any;
               title={`${t('common.clear')} (Esc)`}
             >
               <RotateCcw className="w-3 h-3" /> {t('common.clear')}
-              <kbd className="ml-1 hidden sm:inline-flex items-center justify-center px-1.5 py-0.5 border border-rose-200 dark:border-rose-800 rounded text-[10px] font-bold bg-white/50 dark:bg-black/20">Esc</kbd>
+              <Kbd modifier={null} className="hidden sm:inline-flex ml-1 bg-white/50 dark:bg-black/20 border-rose-200 dark:border-rose-800 text-rose-400">Esc</Kbd>
             </button>
           </div>
         </div>

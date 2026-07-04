@@ -496,6 +496,7 @@ const ULIDGenerator = lazy(() => import("./components/ULIDGenerator").then(m => 
 const DragonCurve = lazy(() => import("./components/DragonCurve").then(m => ({ default: m.DragonCurve })));
 const PythagorasTree = lazy(() => import("./components/PythagorasTree").then(m => ({ default: m.PythagorasTree })));
 const FractionCalculator = lazy(() => import("./components/FractionCalculator").then(m => ({ default: m.FractionCalculator })));
+const HammingDistance = lazy(() => import("./components/HammingDistance").then(m => ({ default: m.HammingDistance })));
 const PhoneExtractor = lazy(() => import("./components/PhoneExtractor").then(m => ({ default: m.PhoneExtractor })));
 const HashtagExtractor = lazy(() => import("./components/HashtagExtractor").then(m => ({ default: m.HashtagExtractor })));
 const EmojiExtractor = lazy(() => import("./components/EmojiExtractor").then(m => ({ default: m.EmojiExtractor })));
@@ -856,6 +857,17 @@ const tools: Tool[] = [
     descriptionEn: "Variations and percentage calculations",
     Component: PercentageCalculator,
     category: "calculators",
+  },
+  {
+    id: "hamming-distance",
+    name: "Distance de Hamming",
+    nameEn: "Hamming Distance",
+    icon: Activity,
+    description: "Calculer la distance de Hamming entre deux chaînes de texte ou binaires",
+    descriptionEn: "Calculate the Hamming distance between two text or binary strings",
+    Component: HammingDistance,
+    category: "calculators",
+    keywords: ["hamming", "distance", "binary", "text", "comparison", "error detection"],
   },
   {
     id: "bmi-calculator",

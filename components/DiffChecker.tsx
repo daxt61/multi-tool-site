@@ -1,5 +1,5 @@
 import { useState, useMemo, useEffect, useCallback, useRef } from 'react';
-import { Split, ArrowRight, Trash2, Copy, Check, ArrowLeftRight, Info, Search, LayoutPanelLeft, LayoutList, RotateCcw, Download } from 'lucide-react';
+import { Split, ArrowRight, Trash2, Copy, Check, ArrowLeftRight, Info, Search, LayoutPanelLeft, LayoutList, RotateCcw, Download, FileCode } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import { Kbd } from './ui/Kbd';
 
@@ -138,6 +138,48 @@ export function DiffChecker({ initialData, onStateChange }: { initialData?: any;
     URL.revokeObjectURL(url);
   }, [diffResult]);
 
+  const handleExportHTML = useCallback(() => {
+    const rows = diffResult.map(item => {
+      const color = item.type === 'added' ? '#dcfce7' : item.type === 'removed' ? '#fee2e2' : 'transparent';
+      const textColor = item.type === 'added' ? '#166534' : item.type === 'removed' ? '#991b1b' : '#334155';
+      const prefix = item.type === 'added' ? '+' : item.type === 'removed' ? '-' : ' ';
+      return `<div style="background-color: ${color}; color: ${textColor}; padding: 2px 8px; font-family: monospace; white-space: pre-wrap; border-bottom: 1px solid #f1f5f9;">
+        <span style="opacity: 0.5; margin-right: 10px;">${prefix}</span>${item.text || ' '}
+      </div>`;
+    }).join('');
+
+    const html = `
+      <!DOCTYPE html>
+      <html>
+        <head>
+          <title>Diff Report - Toolbox</title>
+          <meta charset="utf-8">
+        </head>
+        <body style="margin: 0; padding: 20px; font-family: sans-serif; background-color: #f8fafc;">
+          <div style="max-width: 1000px; margin: 0 auto; background: white; border-radius: 12px; box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1); overflow: hidden; border: 1px solid #e2e8f0;">
+            <div style="padding: 20px; border-bottom: 1px solid #e2e8f0; background: #f1f5f9;">
+              <h1 style="margin: 0; font-size: 18px; color: #0f172a;">Diff Report</h1>
+              <p style="margin: 5px 0 0; font-size: 12px; color: #64748b;">Generated on ${new Date().toLocaleString()}</p>
+            </div>
+            <div style="padding: 10px;">
+              ${rows}
+            </div>
+          </div>
+        </body>
+      </html>
+    `;
+
+    const blob = new Blob([html], { type: 'text/html' });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    link.href = url;
+    link.download = `diff-${Date.now()}.html`;
+    link.click();
+    URL.revokeObjectURL(url);
+  }, [diffResult]);
+
+  const leftScrollRef = useRef<HTMLDivElement>(null);
+  const rightScrollRef = useRef<HTMLDivElement>(null);
   const handleSwapRef = useRef(handleSwap);
   const handleCopyRef = useRef(handleCopy);
   const handleResetRef = useRef(handleReset);
@@ -227,24 +269,40 @@ export function DiffChecker({ initialData, onStateChange }: { initialData?: any;
     const left: DiffItem[] = [];
     const right: DiffItem[] = [];
 
-    // We use the same diff algorithm but align them
     const diff = diffResult;
 
-    for (const item of diff) {
+    for (let k = 0; k < diff.length; k++) {
+      const item = diff[k];
       if (item.type === 'unchanged') {
         left.push(item);
         right.push(item);
       } else if (item.type === 'removed') {
         left.push(item);
-        right.push({ type: 'empty', text: '' });
+        if (diff[k+1]?.type !== 'added') {
+          right.push({ type: 'empty', text: '' });
+        }
       } else if (item.type === 'added') {
-        left.push({ type: 'empty', text: '' });
+        if (diff[k-1]?.type !== 'removed') {
+          left.push({ type: 'empty', text: '' });
+        }
         right.push(item);
       }
     }
 
     return { left, right };
   }, [diffResult]);
+
+  const onScrollLeft = () => {
+    if (leftScrollRef.current && rightScrollRef.current) {
+      rightScrollRef.current.scrollTop = leftScrollRef.current.scrollTop;
+    }
+  };
+
+  const onScrollRight = () => {
+    if (leftScrollRef.current && rightScrollRef.current) {
+      leftScrollRef.current.scrollTop = rightScrollRef.current.scrollTop;
+    }
+  };
 
   const isTooLong = text1.length > MAX_LENGTH || text2.length > MAX_LENGTH;
 
@@ -363,13 +421,24 @@ export function DiffChecker({ initialData, onStateChange }: { initialData?: any;
               </button>
             </div>
 
-            <button
-              onClick={handleDownload}
-              disabled={!text1 && !text2}
-              className="text-xs font-bold px-4 py-2 rounded-xl bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 border border-slate-200 dark:border-slate-700 hover:bg-slate-200 transition-all flex items-center gap-2 disabled:opacity-50"
-            >
-              <Download className="w-3.5 h-3.5" /> {t('diffchecker.download')}
-            </button>
+            <div className="flex bg-slate-100 dark:bg-slate-800 p-1 rounded-xl border border-slate-200 dark:border-slate-700">
+              <button
+                onClick={handleDownload}
+                disabled={!text1 && !text2}
+                className="text-xs font-bold px-3 py-1.5 rounded-lg text-slate-600 dark:text-slate-300 hover:bg-white dark:hover:bg-slate-900 transition-all flex items-center gap-2 disabled:opacity-50"
+                title="Download .diff"
+              >
+                <Download className="w-3.5 h-3.5" /> .diff
+              </button>
+              <button
+                onClick={handleExportHTML}
+                disabled={!text1 && !text2}
+                className="text-xs font-bold px-3 py-1.5 rounded-lg text-slate-600 dark:text-slate-300 hover:bg-white dark:hover:bg-slate-900 transition-all flex items-center gap-2 disabled:opacity-50"
+                title="Export as HTML"
+              >
+                <FileCode className="w-3.5 h-3.5" /> HTML
+              </button>
+            </div>
 
             <button
               onClick={handleCopy}
@@ -424,12 +493,16 @@ export function DiffChecker({ initialData, onStateChange }: { initialData?: any;
               </div>
             ))
           ) : (
-            <div className="grid grid-cols-2 gap-4 min-w-[800px]">
-              <div className="space-y-1">
+            <div className="grid grid-cols-2 gap-4 min-w-[800px] h-[600px]">
+              <div
+                ref={leftScrollRef}
+                onScroll={onScrollLeft}
+                className="space-y-1 overflow-y-auto no-scrollbar pr-2 border-r border-slate-200 dark:border-slate-800"
+              >
                 {splitDiffResult.left.map((item, index) => (
                    <div
                    key={index}
-                   className={`flex gap-4 px-3 py-1.5 rounded-lg border h-[1.75rem] items-center ${
+                   className={`flex gap-4 px-3 py-1 rounded-lg border h-[1.75rem] items-center ${
                      item.type === 'removed' ? 'bg-rose-50 border-rose-100 text-rose-800 dark:bg-rose-500/10 dark:border-rose-500/20 dark:text-rose-400' :
                      item.type === 'empty' ? 'bg-slate-50/50 dark:bg-slate-800/30 border-transparent opacity-20' :
                      'text-slate-600 dark:text-slate-400 border-transparent'
@@ -438,7 +511,7 @@ export function DiffChecker({ initialData, onStateChange }: { initialData?: any;
                    <span className="w-8 select-none opacity-50 font-mono text-[10px] text-right flex-shrink-0">
                      {item.line1 || ''}
                    </span>
-                   <span className="whitespace-pre overflow-x-auto no-scrollbar">
+                   <span className="whitespace-pre overflow-x-auto no-scrollbar text-xs">
                      {item.chars ? (
                         item.chars.map((c, i) => (
                           <span key={i} className={c.type === 'removed' ? 'bg-rose-200 dark:bg-rose-500/40' : ''}>
@@ -452,11 +525,15 @@ export function DiffChecker({ initialData, onStateChange }: { initialData?: any;
                  </div>
                 ))}
               </div>
-              <div className="space-y-1">
+              <div
+                ref={rightScrollRef}
+                onScroll={onScrollRight}
+                className="space-y-1 overflow-y-auto no-scrollbar pl-2"
+              >
                 {splitDiffResult.right.map((item, index) => (
                    <div
                    key={index}
-                   className={`flex gap-4 px-3 py-1.5 rounded-lg border h-[1.75rem] items-center ${
+                   className={`flex gap-4 px-3 py-1 rounded-lg border h-[1.75rem] items-center ${
                      item.type === 'added' ? 'bg-emerald-50 border-emerald-100 text-emerald-800 dark:bg-emerald-500/10 dark:border-emerald-500/20 dark:text-emerald-400' :
                      item.type === 'empty' ? 'bg-slate-50/50 dark:bg-slate-800/30 border-transparent opacity-20' :
                      'text-slate-600 dark:text-slate-400 border-transparent'
@@ -465,7 +542,7 @@ export function DiffChecker({ initialData, onStateChange }: { initialData?: any;
                    <span className="w-8 select-none opacity-50 font-mono text-[10px] text-right flex-shrink-0">
                      {item.line2 || ''}
                    </span>
-                   <span className="whitespace-pre overflow-x-auto no-scrollbar">
+                   <span className="whitespace-pre overflow-x-auto no-scrollbar text-xs">
                      {item.chars ? (
                         item.chars.map((c, i) => (
                           <span key={i} className={c.type === 'added' ? 'bg-emerald-200 dark:bg-emerald-500/40' : ''}>

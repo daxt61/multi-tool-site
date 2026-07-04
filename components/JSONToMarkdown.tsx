@@ -26,7 +26,8 @@ export function JSONToMarkdown({ initialData, onStateChange }: { initialData?: a
 
     data.forEach(row => {
       const line = keys.map(key => {
-        const val = row[key];
+        // Sentinel: Prevent inherited properties from leaking into the table
+        const val = Object.prototype.hasOwnProperty.call(row, key) ? row[key] : undefined;
         if (val === null || val === undefined) return '';
         if (typeof val === 'object') return JSON.stringify(val);
         return String(val).replace(/\|/g, '\\|'); // Escape pipes

@@ -1,6 +1,8 @@
 import { useState, useEffect, useCallback, useRef } from 'react';
 import { Copy, Check, Palette, Hash, Sliders, RotateCcw } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
+import { toast } from 'sonner';
+import { Kbd } from './ui/Kbd';
 
 interface ColorState {
   hex: string;
@@ -324,8 +326,9 @@ export function ColorConverter({ initialData, onStateChange }: {
   const copyToClipboard = useCallback((text: string, id: string) => {
     navigator.clipboard.writeText(text);
     setCopied(id);
+    toast.success(t('common.copied'));
     setTimeout(() => setCopied(''), 2000);
-  }, []);
+  }, [t]);
 
   const handleResetRef = useRef(handleReset);
   const copyToClipboardRef = useRef(copyToClipboard);
@@ -368,7 +371,7 @@ export function ColorConverter({ initialData, onStateChange }: {
   return (
     <div className="max-w-5xl mx-auto space-y-12">
       <div className="flex justify-end items-center px-1 gap-2">
-        <kbd className="hidden sm:inline-flex items-center justify-center px-1.5 py-0.5 border border-rose-200 dark:border-rose-800 rounded text-[10px] font-bold text-rose-400 bg-white dark:bg-slate-900">Esc</kbd>
+        <Kbd modifier={null} className="hidden sm:inline-flex border-rose-200 dark:border-rose-800 text-rose-400">Esc</Kbd>
         <button
           onClick={handleReset}
           disabled={isDefault}
@@ -414,7 +417,7 @@ export function ColorConverter({ initialData, onStateChange }: {
                 title={format.id === 'hex' ? `${t('common.copy')} (C)` : undefined}
               >
                 {copied === format.id ? <Check className="w-4 h-4" /> : <Copy className="w-4 h-4" />}
-                {format.id === 'hex' && !copied && <kbd className="hidden sm:inline-flex items-center justify-center w-4 h-4 border border-slate-200 dark:border-slate-700 rounded text-[10px] font-bold bg-slate-50 dark:bg-slate-900">C</kbd>}
+                {format.id === 'hex' && !copied && <Kbd modifier={null} className="hidden sm:inline-flex w-4 h-4">C</Kbd>}
               </button>
             </div>
             <div className="text-xl font-black font-mono truncate dark:text-white">

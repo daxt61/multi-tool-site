@@ -133,6 +133,8 @@ import {
   PenTool,
   Zap,
   Barcode,
+  Phone,
+  Smile,
 } from "lucide-react";
 import { Toaster } from "./components/ui/sonner";
 import { toast } from "sonner";
@@ -493,6 +495,10 @@ const AnagramChecker = lazy(() => import("./components/AnagramChecker").then(m =
 const ULIDGenerator = lazy(() => import("./components/ULIDGenerator").then(m => ({ default: m.ULIDGenerator })));
 const DragonCurve = lazy(() => import("./components/DragonCurve").then(m => ({ default: m.DragonCurve })));
 const PythagorasTree = lazy(() => import("./components/PythagorasTree").then(m => ({ default: m.PythagorasTree })));
+const FractionCalculator = lazy(() => import("./components/FractionCalculator").then(m => ({ default: m.FractionCalculator })));
+const PhoneExtractor = lazy(() => import("./components/PhoneExtractor").then(m => ({ default: m.PhoneExtractor })));
+const HashtagExtractor = lazy(() => import("./components/HashtagExtractor").then(m => ({ default: m.HashtagExtractor })));
+const EmojiExtractor = lazy(() => import("./components/EmojiExtractor").then(m => ({ default: m.EmojiExtractor })));
 
 // ⚡ Bolt Optimization: Pre-calculating tool map and search index for O(1) lookups and faster filtering
 const toolsMap: Record<string, Tool> = {};
@@ -4256,6 +4262,50 @@ const tools: Tool[] = [
     Component: SQLToTypeScript,
     category: "dev",
     keywords: ["sql", "typescript", "interface", "converter", "database"],
+  },
+  {
+    id: "fraction-calculator",
+    name: "Calculatrice de Fractions",
+    nameEn: "Fraction Calculator",
+    icon: CalcIcon,
+    description: "Effectuer des opérations mathématiques sur les fractions",
+    descriptionEn: "Perform mathematical operations on fractions",
+    Component: FractionCalculator,
+    category: "calculators",
+    keywords: ["math", "fraction", "divide", "simplify", "calculator"],
+  },
+  {
+    id: "phone-extractor",
+    name: "Extracteur de Téléphones",
+    nameEn: "Phone Extractor",
+    icon: Phone,
+    description: "Extraire les numéros de téléphone d'un texte",
+    descriptionEn: "Extract phone numbers from text",
+    Component: PhoneExtractor,
+    category: "text",
+    keywords: ["phone", "extract", "regex", "contact", "numbers"],
+  },
+  {
+    id: "hashtag-extractor",
+    name: "Extracteur de Hashtags",
+    nameEn: "Hashtag Extractor",
+    icon: Hash,
+    description: "Extraire les hashtags (#) d'un texte",
+    descriptionEn: "Extract hashtags (#) from text",
+    Component: HashtagExtractor,
+    category: "text",
+    keywords: ["hashtag", "social", "extract", "regex", "tag"],
+  },
+  {
+    id: "emoji-extractor",
+    name: "Extracteur d'Emojis",
+    nameEn: "Emoji Extractor",
+    icon: Smile,
+    description: "Isoler et extraire tous les emojis d'un texte",
+    descriptionEn: "Isolate and extract all emojis from text",
+    Component: EmojiExtractor,
+    category: "text",
+    keywords: ["emoji", "smileys", "extract", "unicode", "icons"],
   },
 ];
 

@@ -64,7 +64,11 @@ export function JSONCSVConverter({ initialData, onStateChange }: { initialData?:
 
       const csvRows = [
         headers.join(','),
-        ...array.map(row => headers.map(header => formatValue(row[header])).join(','))
+        ...array.map(row => headers.map(header => {
+          // Sentinel: Prevent inherited properties from leaking into the CSV
+          const val = Object.prototype.hasOwnProperty.call(row, header) ? row[header] : undefined;
+          return formatValue(val);
+        }).join(','))
       ];
       return csvRows.join('\n');
     } catch (e) {

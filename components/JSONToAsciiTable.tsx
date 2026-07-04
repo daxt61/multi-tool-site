@@ -42,10 +42,13 @@ export function JSONToAsciiTable({ initialData, onStateChange }: { initialData?:
       }
 
       const keys = Object.keys(data[0]);
+      // Sentinel: Helper for safe property access to prevent prototype leakage
+      const getVal = (row: any, key: string) => Object.prototype.hasOwnProperty.call(row, key) ? row[key] : '';
+
       const columnWidths = keys.map(key => {
         return Math.max(
           key.length,
-          ...data.map(row => String(row[key] ?? '').length)
+          ...data.map(row => String(getVal(row, key) ?? '').length)
         );
       });
 
@@ -57,7 +60,7 @@ export function JSONToAsciiTable({ initialData, onStateChange }: { initialData?:
         result += keys.map((key, i) => pad(key, columnWidths[i])).join('  ') + '\n';
         result += columnWidths.map(w => '-'.repeat(w)).join('  ') + '\n';
         data.forEach(row => {
-          result += keys.map((key, i) => pad(String(row[key] ?? ''), columnWidths[i])).join('  ') + '\n';
+          result += keys.map((key, i) => pad(String(getVal(row, key) ?? ''), columnWidths[i])).join('  ') + '\n';
         });
       } else if (style === 'bordered') {
         const line = '+' + columnWidths.map(w => '-'.repeat(w + 2)).join('+') + '+';
@@ -65,7 +68,7 @@ export function JSONToAsciiTable({ initialData, onStateChange }: { initialData?:
         result += '| ' + keys.map((key, i) => pad(key, columnWidths[i])).join(' | ') + ' |\n';
         result += line + '\n';
         data.forEach(row => {
-          result += '| ' + keys.map((key, i) => pad(String(row[key] ?? ''), columnWidths[i])).join(' | ') + ' |\n';
+          result += '| ' + keys.map((key, i) => pad(String(getVal(row, key) ?? ''), columnWidths[i])).join(' | ') + ' |\n';
         });
         result += line;
       } else if (style === 'unicode') {
@@ -77,7 +80,7 @@ export function JSONToAsciiTable({ initialData, onStateChange }: { initialData?:
         result += '│ ' + keys.map((key, i) => pad(key, columnWidths[i])).join(' │ ') + ' │\n';
         result += mid + '\n';
         data.forEach((row, idx) => {
-          result += '│ ' + keys.map((key, i) => pad(String(row[key] ?? ''), columnWidths[i])).join(' │ ') + ' │\n';
+          result += '│ ' + keys.map((key, i) => pad(String(getVal(row, key) ?? ''), columnWidths[i])).join(' │ ') + ' │\n';
         });
         result += bot;
       } else if (style === 'markdown') {
@@ -85,7 +88,7 @@ export function JSONToAsciiTable({ initialData, onStateChange }: { initialData?:
         result += '| ' + keys.map(escape).join(' | ') + ' |\n';
         result += '| ' + columnWidths.map(w => '-'.repeat(Math.max(3, w))).join(' | ') + ' |\n';
         data.forEach(row => {
-          result += '| ' + keys.map(key => escape(String(row[key] ?? ''))).join(' | ') + ' |\n';
+          result += '| ' + keys.map(key => escape(String(getVal(row, key) ?? ''))).join(' | ') + ' |\n';
         });
       }
 

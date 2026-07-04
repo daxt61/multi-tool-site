@@ -72,7 +72,8 @@ export function JSONToHTMLTable({ initialData, onStateChange }: { initialData?: 
         tableHtml += '    <tr>\n';
         if (typeof row === 'object' && row !== null) {
           keys.forEach(key => {
-            const val = row[key];
+            // Sentinel: Prevent inherited properties from leaking into the table
+            const val = Object.prototype.hasOwnProperty.call(row, key) ? row[key] : undefined;
             tableHtml += `      <td>${val !== undefined && val !== null ? escapeHTML(String(val)) : ''}</td>\n`;
           });
         } else {

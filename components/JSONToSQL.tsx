@@ -6,7 +6,7 @@ import { Kbd } from './ui/Kbd';
 const MAX_LENGTH = 100000;
 
 type Dialect = 'standard' | 'mysql' | 'sqlserver' | 'oracle';
-type SQLMode = 'INSERT' | 'UPDATE' | 'UPSERT';
+type SQLMode = 'INSERT' | 'UPDATE' | 'UPSERT' | 'DELETE';
 
 export function JSONToSQL({ initialData, onStateChange }: { initialData?: any; onStateChange?: (state: any) => void }) {
   const { t } = useTranslation();
@@ -146,6 +146,14 @@ export function JSONToSQL({ initialData, onStateChange }: { initialData?: any; o
 
             return `MERGE INTO ${sqlTableName} AS target\nUSING (SELECT ${sourceValues}) AS source\nON (${onClause})\nWHEN MATCHED THEN\n  UPDATE SET ${updateSet}\nWHEN NOT MATCHED THEN\n  INSERT (${insertCols}) VALUES (${insertVals});`;
           }
+        });
+        result += statements.join('\n');
+      } else if (mode === 'DELETE') {
+        const statements = data.map((row: any) => {
+          const whereClause = whereColumns
+            .map(col => `${escapeIdentifier(col, dialect)} = ${escapeValue(row[col])}`)
+            .join(' AND ');
+          return `DELETE FROM ${sqlTableName} WHERE ${whereClause};`;
         });
         result += statements.join('\n');
       }
@@ -296,8 +304,8 @@ export function JSONToSQL({ initialData, onStateChange }: { initialData?: any; o
 
             <div className="space-y-4">
                <label className="text-xs font-bold text-slate-500 px-1 block">{t('jsontosql.mode')}</label>
-               <div className="flex bg-slate-100 dark:bg-slate-800 p-1 rounded-xl w-fit">
-                  {(['INSERT', 'UPDATE', 'UPSERT'] as const).map(m => (
+               <div className="flex flex-wrap bg-slate-100 dark:bg-slate-800 p-1 rounded-xl w-fit gap-1">
+                  {(['INSERT', 'UPDATE', 'UPSERT', 'DELETE'] as const).map(m => (
                     <button
                       key={m}
                       onClick={() => setMode(m)}
@@ -342,24 +350,31 @@ export function JSONToSQL({ initialData, onStateChange }: { initialData?: any; o
               ) : (
                 <div className="space-y-3 w-full">
                   <label className="text-xs font-bold text-slate-500 block">
-                    {mode === 'UPDATE' ? t('jsontosql.where_columns') : t('jsontosql.conflict_target')}
+                    {mode === 'UPDATE' || mode === 'DELETE' ? t('jsontosql.where_columns') : t('jsontosql.conflict_target')}
                   </label>
                   <div className="flex flex-wrap gap-2">
                     {(() => {
                       try {
                         const parsed = JSON.parse(input);
-                        const first = Array.isArray(parsed) ? parsed[0] : parsed;
-                        if (!first || typeof first !== 'object') return null;
+                        const first = Array.isArray(parsed) ? (parsed[0] || {}) : parsed;
+                        if (!first || typeof first !== 'object' || Object.keys(first).length === 0) {
+                           return <p className="text-[10px] text-slate-400 italic">Enter valid JSON with fields to select columns</p>;
+                        }
                         return Object.keys(first).map(col => (
                           <button
                             key={col}
                             onClick={() => toggleWhereColumn(col)}
-                            className={`px-3 py-1 rounded-lg text-xs font-bold border transition-all ${
+                            className={`px-3 py-1 rounded-lg text-xs font-bold border transition-all flex items-center gap-2 ${
                               whereColumns.includes(col)
                                 ? 'bg-indigo-50 dark:bg-indigo-900/30 border-indigo-200 dark:border-indigo-500/30 text-indigo-600 dark:text-indigo-400'
-                                : 'bg-slate-50 dark:bg-slate-800 border-slate-200 dark:border-slate-700 text-slate-500'
+                                : 'bg-white dark:bg-slate-800 border-slate-200 dark:border-slate-700 text-slate-500'
                             }`}
                           >
+                            <div className={`w-3 h-3 rounded border flex items-center justify-center transition-all ${
+                              whereColumns.includes(col) ? 'bg-indigo-600 border-indigo-600 text-white' : 'border-slate-300 dark:border-slate-600'
+                            }`}>
+                              {whereColumns.includes(col) && <Check className="w-2 h-2 stroke-[4]" />}
+                            </div>
                             {col}
                           </button>
                         ));

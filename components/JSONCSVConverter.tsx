@@ -1,36 +1,40 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback, useRef } from 'react';
 import { FileCode, FileSpreadsheet, Copy, Check, Trash2, AlertCircle, Download } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
+import { toast } from 'sonner';
+import { Kbd } from './ui/Kbd';
 
 const MAX_LENGTH = 100000;
 
 export function JSONCSVConverter({ initialData, onStateChange }: { initialData?: any; onStateChange?: (state: any) => void }) {
   const { t } = useTranslation();
+  const jsonRef = useRef<HTMLTextAreaElement>(null);
   const [jsonInput, setJsonInput] = useState(initialData?.jsonInput || '');
   const [csvInput, setCsvInput] = useState(initialData?.csvInput || '');
+  const [delimiter, setDelimiter] = useState(initialData?.delimiter || ',');
   const [error, setError] = useState('');
   const [copied, setCopied] = useState<'json' | 'csv' | null>(null);
 
   useEffect(() => {
-    onStateChange?.({ jsonInput, csvInput });
-  }, [jsonInput, csvInput]);
+    onStateChange?.({ jsonInput, csvInput, delimiter });
+  }, [jsonInput, csvInput, delimiter, onStateChange]);
 
-  const formatValue = (val: any) => {
+  const formatValue = (val: any, delim: string) => {
     if (val === null || val === undefined) return '';
     let str = String(val);
-    if (str.includes(',') || str.includes('"') || str.includes('\n')) {
+    if (str.includes(delim) || str.includes('"') || str.includes('\n') || str.includes('\r')) {
       return `"${str.replace(/"/g, '""')}"`;
     }
     return str;
   };
 
-  const parseCSVLine = (line: string) => {
+  const parseCSVLine = (line: string, delim: string) => {
     const result = [];
     let startValueIndex = 0;
     let inQuotes = false;
     for (let i = 0; i < line.length; i++) {
       if (line[i] === '"') inQuotes = !inQuotes;
-      if (line[i] === ',' && !inQuotes) {
+      if (line[i] === delim && !inQuotes) {
         result.push(line.substring(startValueIndex, i));
         startValueIndex = i + 1;
       }
@@ -45,7 +49,7 @@ export function JSONCSVConverter({ initialData, onStateChange }: { initialData?:
     });
   };
 
-  const jsonToCsv = (json: string) => {
+  const jsonToCsv = (json: string, delim: string) => {
     try {
       setError('');
       if (!json.trim()) return '';
@@ -63,12 +67,12 @@ export function JSONCSVConverter({ initialData, onStateChange }: { initialData?:
       const headers = Array.from(headersSet);
 
       const csvRows = [
-        headers.join(','),
+        headers.join(delim),
         ...array.map(row => headers.map(header => {
           // Sentinel: Prevent inherited properties from leaking into the CSV
           const val = Object.prototype.hasOwnProperty.call(row, header) ? row[header] : undefined;
-          return formatValue(val);
-        }).join(','))
+          return formatValue(val, delim);
+        }).join(delim))
       ];
       return csvRows.join('\n');
     } catch (e) {
@@ -77,13 +81,13 @@ export function JSONCSVConverter({ initialData, onStateChange }: { initialData?:
     }
   };
 
-  const csvToJson = (csv: string) => {
+  const csvToJson = (csv: string, delim: string) => {
     try {
       setError('');
       if (!csv.trim()) return '';
-      const lines = csv.trim().split('\n');
+      const lines = csv.trim().split(/\r?\n/);
       if (lines.length < 2) return '';
-      const headers = parseCSVLine(lines[0]).map(h => {
+      const headers = parseCSVLine(lines[0], delim).map(h => {
         const trimmed = h.trim();
         const lower = trimmed.toLowerCase();
         if (lower === '__proto__' || lower === 'constructor' || lower === 'prototype') {
@@ -92,7 +96,7 @@ export function JSONCSVConverter({ initialData, onStateChange }: { initialData?:
         return trimmed;
       });
       const result = lines.slice(1).map(line => {
-        const values = parseCSVLine(line);
+        const values = parseCSVLine(line, delim);
         return headers.reduce((obj, header, index) => {
           let val: any = values[index] ?? '';
           if (val === 'true') val = true;
@@ -109,34 +113,75 @@ export function JSONCSVConverter({ initialData, onStateChange }: { initialData?:
     }
   };
 
-  const handleJsonChange = (val: string) => {
+  const handleJsonChange = (val: string, delim: string = delimiter) => {
     setJsonInput(val);
     if (val.length > MAX_LENGTH) {
       setError(t('error.max_length', { max: MAX_LENGTH.toLocaleString() }));
       return;
     }
     setError('');
-    const csv = jsonToCsv(val);
+    const csv = jsonToCsv(val, delim);
     if (csv) setCsvInput(csv);
   };
 
-  const handleCsvChange = (val: string) => {
+  const handleCsvChange = (val: string, delim: string = delimiter) => {
     setCsvInput(val);
     if (val.length > MAX_LENGTH) {
       setError(t('error.max_length', { max: MAX_LENGTH.toLocaleString() }));
       return;
     }
     setError('');
-    const json = csvToJson(val);
+    const json = csvToJson(val, delim);
     if (json) setJsonInput(json);
   };
 
-  const copyToClipboard = (text: string, type: 'json' | 'csv') => {
+  const handleClear = useCallback(() => {
+    setJsonInput('');
+    setCsvInput('');
+    setError('');
+    setTimeout(() => jsonRef.current?.focus(), 0);
+  }, []);
+
+  const handleCopy = useCallback((text: string, type: 'json' | 'csv') => {
     if (!text) return;
     navigator.clipboard.writeText(text);
     setCopied(type);
+    toast.success(t('common.copied'));
     setTimeout(() => setCopied(null), 2000);
-  };
+  }, [t]);
+
+  const handlersRef = useRef({ handleClear, handleCopyJson: () => handleCopy(jsonInput, 'json'), handleCopyCsv: () => handleCopy(csvInput, 'csv') });
+  useEffect(() => {
+    handlersRef.current = { handleClear, handleCopyJson: () => handleCopy(jsonInput, 'json'), handleCopyCsv: () => handleCopy(csvInput, 'csv') };
+  }, [handleClear, handleCopy, jsonInput, csvInput]);
+
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      const activeElement = document.activeElement;
+      const isEditable =
+        activeElement instanceof HTMLInputElement ||
+        activeElement instanceof HTMLTextAreaElement ||
+        activeElement instanceof HTMLSelectElement ||
+        activeElement?.getAttribute("contenteditable") === "true";
+
+      if (isEditable && e.key !== 'Escape') return;
+
+      if (e.metaKey || e.ctrlKey || e.altKey || e.shiftKey) return;
+
+      if (e.key === 'Escape') {
+        e.preventDefault();
+        handlersRef.current.handleClear();
+      } else if (e.key.toLowerCase() === 'c') {
+        e.preventDefault();
+        // Default copy the one that has content, prioritizes JSON
+        if (jsonInput) handlersRef.current.handleCopyJson();
+        else if (csvInput) handlersRef.current.handleCopyCsv();
+      }
+    };
+
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [jsonInput, csvInput]);
 
   const handleDownload = (content: string, filename: string) => {
     if (!content) return;
@@ -160,6 +205,41 @@ export function JSONCSVConverter({ initialData, onStateChange }: { initialData?:
         </div>
       )}
 
+      <div className="flex flex-wrap gap-4 justify-between items-center bg-slate-50 dark:bg-slate-900/50 p-4 rounded-3xl border border-slate-200 dark:border-slate-800">
+        <div className="flex items-center gap-4">
+          <div className="flex items-center gap-2">
+            <label htmlFor="delim-select" className="text-xs font-bold text-slate-500 uppercase tracking-wider">{t('csvmapper.input_delimiter')}</label>
+            <select
+              id="delim-select"
+              value={delimiter}
+              onChange={(e) => {
+                const newDelim = e.target.value;
+                setDelimiter(newDelim);
+                if (jsonInput) handleJsonChange(jsonInput, newDelim);
+                else if (csvInput) handleCsvChange(csvInput, newDelim);
+              }}
+              className="bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl px-3 py-1.5 font-bold text-xs outline-none cursor-pointer focus-visible:ring-2 focus-visible:ring-indigo-500"
+            >
+              <option value=",">Comma (,)</option>
+              <option value=";">Semicolon (;)</option>
+              <option value="	">Tab (\t)</option>
+              <option value="|">Pipe (|)</option>
+            </select>
+          </div>
+        </div>
+
+        <div className="flex gap-2 items-center">
+          <Kbd modifier={null} className="hidden sm:inline-flex border-rose-200 dark:border-rose-800 text-rose-400 dark:bg-slate-900">Esc</Kbd>
+          <button
+            onClick={handleClear}
+            disabled={!jsonInput && !csvInput && !error}
+            className="text-xs font-bold text-rose-500 bg-rose-50 dark:bg-rose-500/10 hover:bg-rose-100 dark:hover:bg-rose-500/20 px-4 py-2 rounded-xl flex items-center gap-1 transition-all disabled:opacity-50 disabled:cursor-not-allowed focus-visible:ring-2 focus-visible:ring-rose-500 focus-visible:outline-none"
+          >
+            <Trash2 className="w-3 h-3" /> {t('common.clear')}
+          </button>
+        </div>
+      </div>
+
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
         {/* JSON Section */}
         <div className="space-y-4">
@@ -177,34 +257,28 @@ export function JSONCSVConverter({ initialData, onStateChange }: { initialData?:
                 <Download className="w-3 h-3" /> {t('common.download')}
               </button>
               <button
-                onClick={() => copyToClipboard(jsonInput, 'json')}
-                className={`text-xs font-bold px-3 py-1 rounded-full transition-all flex items-center gap-1 border ${
+                onClick={() => handleCopy(jsonInput, 'json')}
+                disabled={!jsonInput}
+                className={`text-xs font-bold px-3 py-1 rounded-full transition-all flex items-center gap-1 border focus-visible:ring-2 focus-visible:ring-indigo-500 focus-visible:outline-none ${
                   copied === 'json'
                     ? 'bg-emerald-50 dark:bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border border-emerald-200 dark:border-emerald-500/20'
-                    : 'text-slate-500 bg-slate-100 dark:bg-slate-800 border-transparent'
-                }`}
+                    : 'text-slate-500 bg-slate-100 dark:bg-slate-800 border-transparent hover:bg-slate-200 dark:hover:bg-slate-700'
+                } disabled:opacity-50`}
+                title={`${t('common.copy')} (C)`}
               >
                 {copied === 'json' ? <Check className="w-3 h-3" /> : <Copy className="w-3 h-3" />} {copied === 'json' ? t('common.copied') : t('common.copy')}
+                {(!copied && jsonInput) && <Kbd modifier={null} className="hidden sm:inline-flex w-4 h-4 bg-white/50 dark:bg-black/20 ml-1">C</Kbd>}
               </button>
-              <div className="flex gap-2 items-center">
-                <kbd className="hidden sm:inline-flex items-center justify-center px-1.5 py-0.5 border border-rose-200 dark:border-rose-800 rounded text-[10px] font-bold text-rose-400 bg-white dark:bg-slate-900">Esc</kbd>
-                <button
-                  onClick={() => {setJsonInput(''); setCsvInput(''); setError('');}}
-                  disabled={!jsonInput && !csvInput && !error}
-                  className="text-xs font-bold text-rose-500 bg-rose-50 dark:bg-rose-500/10 hover:bg-rose-100 dark:hover:bg-rose-500/20 px-3 py-1.5 rounded-xl flex items-center gap-1 transition-all disabled:opacity-50 disabled:cursor-not-allowed focus-visible:ring-2 focus-visible:ring-rose-500 focus-visible:outline-none"
-                >
-                  <Trash2 className="w-3 h-3" /> {t('common.clear')}
-                </button>
-              </div>
             </div>
           </div>
           <textarea
             id="json-input"
+            ref={jsonRef}
             value={jsonInput}
             onChange={(e) => handleJsonChange(e.target.value)}
             onKeyDown={(e) => {
               if (e.key === 'Escape') {
-                setJsonInput(''); setCsvInput(''); setError('');
+                handleClear();
               }
             }}
             placeholder='[{"id": 1, "name": "Test"}]'
@@ -228,14 +302,17 @@ export function JSONCSVConverter({ initialData, onStateChange }: { initialData?:
                 <Download className="w-3 h-3" /> {t('common.download')}
               </button>
               <button
-                onClick={() => copyToClipboard(csvInput, 'csv')}
-                className={`text-xs font-bold px-3 py-1 rounded-full transition-all flex items-center gap-1 border ${
+                onClick={() => handleCopy(csvInput, 'csv')}
+                disabled={!csvInput}
+                className={`text-xs font-bold px-3 py-1 rounded-full transition-all flex items-center gap-1 border focus-visible:ring-2 focus-visible:ring-indigo-500 focus-visible:outline-none ${
                   copied === 'csv'
                     ? 'bg-emerald-50 dark:bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border border-emerald-200 dark:border-emerald-500/20'
-                    : 'text-slate-500 bg-slate-100 dark:bg-slate-800 border-transparent'
-                }`}
+                    : 'text-slate-500 bg-slate-100 dark:bg-slate-800 border-transparent hover:bg-slate-200 dark:hover:bg-slate-700'
+                } disabled:opacity-50`}
+                title={`${t('common.copy')} (C)`}
               >
                 {copied === 'csv' ? <Check className="w-3 h-3" /> : <Copy className="w-3 h-3" />} {copied === 'csv' ? t('common.copied') : t('common.copy')}
+                {(!copied && !jsonInput && csvInput) && <Kbd modifier={null} className="hidden sm:inline-flex w-4 h-4 bg-white/50 dark:bg-black/20 ml-1">C</Kbd>}
               </button>
             </div>
           </div>
@@ -245,7 +322,7 @@ export function JSONCSVConverter({ initialData, onStateChange }: { initialData?:
             onChange={(e) => handleCsvChange(e.target.value)}
             onKeyDown={(e) => {
               if (e.key === 'Escape') {
-                setJsonInput(''); setCsvInput(''); setError('');
+                handleClear();
               }
             }}
             placeholder='id,name\n1,Test'

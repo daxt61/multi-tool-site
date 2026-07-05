@@ -15,11 +15,8 @@ export function Calculator({ initialData, onStateChange }: { initialData?: any; 
   const [activeBtn, setActiveBtn] = useState<string | null>(null);
   const [history, setHistory] = useState<{ expression: string; result: string }[]>(() => {
     try {
-      // Sentinel: Securely parse localStorage data to prevent app crashes (Local DoS).
       const saved = localStorage.getItem('calc_history');
       const parsed = saved ? JSON.parse(saved) : [];
-
-      // Sentinel: Validate data structure and content to prevent state poisoning.
       return Array.isArray(parsed)
         ? parsed
             .filter((item: any) => (
@@ -37,7 +34,7 @@ export function Calculator({ initialData, onStateChange }: { initialData?: any; 
 
   useEffect(() => {
     onStateChange?.({ display, previousValue, operation, newNumber });
-  }, [display, previousValue, operation, newNumber]);
+  }, [display, previousValue, operation, newNumber, onStateChange]);
 
   const [memory, setMemory] = useState<number>(() => {
     try {
@@ -68,6 +65,17 @@ export function Calculator({ initialData, onStateChange }: { initialData?: any; 
     }
   };
 
+  const calculate = useCallback((a: number, b: number, op: string): number => {
+    switch (op) {
+      case '+': return a + b;
+      case '-': return a - b;
+      case '×': return a * b;
+      case '÷': return b !== 0 ? a / b : NaN;
+      case 'x^y': return Math.pow(a, b);
+      default: return b;
+    }
+  }, []);
+
   const handleOperation = (op: string) => {
     const current = parseFloat(display);
 
@@ -75,8 +83,6 @@ export function Calculator({ initialData, onStateChange }: { initialData?: any; 
       setPreviousValue(current);
     } else if (operation) {
       if (newNumber) {
-        // If an operation is already pending and we haven't started typing a new number,
-        // just update the operator instead of calculating.
         setOperation(op);
         return;
       }
@@ -97,17 +103,6 @@ export function Calculator({ initialData, onStateChange }: { initialData?: any; 
 
     setOperation(op);
     setNewNumber(true);
-  };
-
-  const calculate = (a: number, b: number, op: string): number => {
-    switch (op) {
-      case '+': return a + b;
-      case '-': return a - b;
-      case '×': return a * b;
-      case '÷': return b !== 0 ? a / b : NaN;
-      case 'x^y': return Math.pow(a, b);
-      default: return b;
-    }
   };
 
   const handleMemory = (action: string) => {
@@ -292,7 +287,11 @@ export function Calculator({ initialData, onStateChange }: { initialData?: any; 
         btnKey = '=';
       }
       else if (e.key === 'Backspace') { handleBackspace(); btnKey = '←'; }
-      else if (e.key === 'Escape') { handleClear(); btnKey = 'C'; }
+      else if (e.key === 'Escape' || (e.key.toLowerCase() === 'c' && !e.metaKey && !e.ctrlKey)) {
+        e.preventDefault();
+        handleClear();
+        btnKey = 'C';
+      }
       else return;
 
       setActiveBtn(btnKey);
@@ -410,7 +409,7 @@ export function Calculator({ initialData, onStateChange }: { initialData?: any; 
                   ? 'bg-emerald-50 dark:bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border-emerald-200 dark:border-emerald-500/20'
                   : 'bg-white dark:bg-slate-800 text-slate-500 border-slate-200 dark:border-slate-700 hover:text-indigo-500 hover:border-indigo-500/50'
               }`}
-              title={t('common.copy')}
+              title={`${t('common.copy')} (Cmd+C)`}
               aria-label={t('common.copy')}
             >
               {copied ? <Check className="w-4 h-4" /> : <Copy className="w-4 h-4" />}
@@ -474,6 +473,7 @@ export function Calculator({ initialData, onStateChange }: { initialData?: any; 
                   <button
                     key={btn}
                     aria-label={getAriaLabel(btn)}
+                    title={btn === 'C' ? `${t('calculator.btn.clear')} (Esc or C)` : btn === '=' ? `${t('calculator.btn.equals')} (Enter)` : undefined}
                     onClick={() => {
                       if (btn === 'C') handleClear();
                       else if (btn === '←') handleBackspace();

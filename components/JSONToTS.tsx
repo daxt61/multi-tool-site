@@ -18,16 +18,20 @@ export function JSONToTS({ initialData, onStateChange }: { initialData?: any; on
   const [useExport, setUseExport] = useState(initialData?.useExport ?? false);
   const [isOptional, setIsOptional] = useState(initialData?.isOptional ?? false);
   const [isReadOnly, setIsReadOnly] = useState(initialData?.isReadOnly ?? false);
+  const [outputType, setOutputType] = useState<'interface' | 'type'>(initialData?.outputType || 'interface');
+  const [rootName, setRootName] = useState(initialData?.rootName || 'RootObject');
   const [error, setError] = useState('');
   const [copied, setCopied] = useState(false);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
 
   useEffect(() => {
-    onStateChange?.({ input, output, useExport, isOptional, isReadOnly });
-  }, [input, output, useExport, isOptional, isReadOnly, onStateChange]);
+    onStateChange?.({ input, output, useExport, isOptional, isReadOnly, outputType, rootName });
+  }, [input, output, useExport, isOptional, isReadOnly, outputType, rootName, onStateChange]);
 
   const toPascalCase = (str: string) => {
     return str
+      .replace(/([a-z0-9])([A-Z])/g, '$1 $2')
+      .replace(/([A-Z])([A-Z][a-z])/g, '$1 $2')
       .replace(/[^a-z0-9]/gi, ' ')
       .split(' ')
       .filter(Boolean)
@@ -67,7 +71,7 @@ export function JSONToTS({ initialData, onStateChange }: { initialData?: any; on
 
         if (typeof val === 'object') {
           let name = toPascalCase(fieldName);
-          if (name === 'Root') name = 'RootObject';
+          if (name === 'Root') name = toPascalCase(rootName || 'RootObject');
 
           let finalName = name;
           let counter = 1;
@@ -101,18 +105,27 @@ export function JSONToTS({ initialData, onStateChange }: { initialData?: any; on
       const readonlyPrefix = isReadOnly ? 'readonly ' : '';
 
       let result = interfaces.reverse().map(it => {
-        let str = `${prefix}interface ${it.name} {\n`;
-        it.fields.forEach(f => {
-          str += `  ${readonlyPrefix}${f.name}${f.isOptional ? '?' : ''}: ${f.type};\n`;
-        });
-        str += '}';
+        let str = '';
+        if (outputType === 'interface') {
+          str = `${prefix}interface ${it.name} {\n`;
+          it.fields.forEach(f => {
+            str += `  ${readonlyPrefix}${f.name}${f.isOptional ? '?' : ''}: ${f.type};\n`;
+          });
+          str += '}';
+        } else {
+          str = `${prefix}type ${it.name} = {\n`;
+          it.fields.forEach(f => {
+            str += `  ${readonlyPrefix}${f.name}${f.isOptional ? '?' : ''}: ${f.type};\n`;
+          });
+          str += '};';
+        }
         return str;
       }).join('\n\n');
 
       // If the root was not an object (e.g. just an array of primitives)
       if (interfaces.length === 0) {
         const simpleType = getTSType(parsed, 'Root', 0);
-        result = `${prefix}type RootObject = ${simpleType};`;
+        result = `${prefix}type ${toPascalCase(rootName || 'RootObject')} = ${simpleType};`;
       }
 
       setOutput(result);
@@ -121,7 +134,7 @@ export function JSONToTS({ initialData, onStateChange }: { initialData?: any; on
       setError(t('error.invalid_json') + ': ' + e.message);
       setOutput('');
     }
-  }, [input, useExport, isOptional, isReadOnly, t]);
+  }, [input, useExport, isOptional, isReadOnly, outputType, rootName, t]);
 
   useEffect(() => {
     handleConvert();
@@ -181,8 +194,39 @@ export function JSONToTS({ initialData, onStateChange }: { initialData?: any; on
 
   return (
     <div className="max-w-6xl mx-auto space-y-8">
-      <div className="flex flex-wrap gap-4 justify-between items-center bg-slate-50 dark:bg-slate-900/50 p-6 rounded-[2rem] border border-slate-200 dark:border-slate-800">
-        <div className="flex flex-wrap gap-2">
+      <div className="bg-slate-50 dark:bg-slate-900/50 p-6 rounded-[2rem] border border-slate-200 dark:border-slate-800 space-y-6">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <div className="space-y-2">
+            <label htmlFor="root-name" className="text-xs font-bold text-slate-500 px-1">{t('jsontots.root_name')}</label>
+            <input
+              id="root-name"
+              type="text"
+              value={rootName}
+              onChange={(e) => setRootName(e.target.value)}
+              placeholder="RootObject"
+              className="w-full p-2.5 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl outline-none focus:ring-2 focus:ring-indigo-500/20 font-mono text-sm"
+            />
+          </div>
+          <div className="space-y-2">
+            <label className="text-xs font-bold text-slate-500 px-1">{t('jsontots.output_type')}</label>
+            <div className="flex bg-white dark:bg-slate-800 p-1 rounded-xl border border-slate-200 dark:border-slate-700">
+              <button
+                onClick={() => setOutputType('interface')}
+                className={`flex-1 py-1.5 rounded-lg text-xs font-bold transition-all ${outputType === 'interface' ? 'bg-indigo-600 text-white shadow-md' : 'text-slate-500 hover:text-slate-700 dark:hover:text-slate-300'}`}
+              >
+                Interface
+              </button>
+              <button
+                onClick={() => setOutputType('type')}
+                className={`flex-1 py-1.5 rounded-lg text-xs font-bold transition-all ${outputType === 'type' ? 'bg-indigo-600 text-white shadow-md' : 'text-slate-500 hover:text-slate-700 dark:hover:text-slate-300'}`}
+              >
+                Type
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <div className="flex flex-wrap gap-2 pt-4 border-t border-slate-200 dark:border-slate-800">
           <button
             onClick={() => setUseExport(!useExport)}
             className={`px-4 py-2 rounded-xl text-sm font-bold transition-all focus-visible:ring-2 focus-visible:ring-indigo-500 focus-visible:outline-none ${

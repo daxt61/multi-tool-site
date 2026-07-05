@@ -135,6 +135,7 @@ import {
   Barcode,
   Phone,
   Smile,
+  Cloud,
 } from "lucide-react";
 import { Toaster } from "./components/ui/sonner";
 import { toast } from "sonner";
@@ -500,6 +501,8 @@ const HammingDistance = lazy(() => import("./components/HammingDistance").then(m
 const PhoneExtractor = lazy(() => import("./components/PhoneExtractor").then(m => ({ default: m.PhoneExtractor })));
 const HashtagExtractor = lazy(() => import("./components/HashtagExtractor").then(m => ({ default: m.HashtagExtractor })));
 const EmojiExtractor = lazy(() => import("./components/EmojiExtractor").then(m => ({ default: m.EmojiExtractor })));
+const WordCloudGenerator = lazy(() => import("./components/WordCloudGenerator").then(m => ({ default: m.WordCloudGenerator })));
+const TextHexDump = lazy(() => import("./components/TextHexDump").then(m => ({ default: m.TextHexDump })));
 
 // ⚡ Bolt Optimization: Pre-calculating tool map and search index for O(1) lookups and faster filtering
 const toolsMap: Record<string, Tool> = {};
@@ -4318,6 +4321,28 @@ const tools: Tool[] = [
     Component: EmojiExtractor,
     category: "text",
     keywords: ["emoji", "smileys", "extract", "unicode", "icons"],
+  },
+  {
+    id: "word-cloud",
+    name: "Nuage de Mots",
+    nameEn: "Word Cloud Generator",
+    icon: Cloud,
+    description: "Générer une visualisation par nuage de mots à partir d'un texte",
+    descriptionEn: "Generate a word cloud visualization from text",
+    Component: WordCloudGenerator,
+    category: "text",
+    keywords: ["word cloud", "visualization", "text analysis", "words", "frequency"],
+  },
+  {
+    id: "hex-dump",
+    name: "Hex Dump",
+    nameEn: "Text Hex Dump",
+    icon: Binary,
+    description: "Convertir du texte en visualisation hexadécimale (Offset | Hex | ASCII)",
+    descriptionEn: "Convert text to hexadecimal visualization (Offset | Hex | ASCII)",
+    Component: TextHexDump,
+    category: "dev",
+    keywords: ["hex dump", "hexadecimal", "binary", "text to hex", "debug", "encoding"],
   },
 ];
 

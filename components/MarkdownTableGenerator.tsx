@@ -1,6 +1,8 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback, useRef } from 'react';
 import { Table, Plus, RotateCcw, Copy, Check, Download, AlertCircle, Code, FileSpreadsheet, X as CloseIcon } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
+import { toast } from 'sonner';
+import { Kbd } from './ui/Kbd';
 
 const MAX_ROWS = 50;
 const MAX_COLS = 10;
@@ -133,17 +135,19 @@ export function MarkdownTableGenerator({ initialData, onStateChange }: { initial
     return html;
   };
 
-  const copyToClipboard = () => {
+  const copyToClipboard = useCallback(() => {
     navigator.clipboard.writeText(generateMarkdown());
     setCopied(true);
+    toast.success(t('common.copied'));
     setTimeout(() => setCopied(false), 2000);
-  };
+  }, [data, alignments, t]);
 
-  const copyHtmlToClipboard = () => {
+  const copyHtmlToClipboard = useCallback(() => {
     navigator.clipboard.writeText(generateHtml());
     setCopiedHtml(true);
+    toast.success(t('common.copied'));
     setTimeout(() => setCopiedHtml(false), 2000);
-  };
+  }, [data, alignments, t]);
 
   const handleDownload = () => {
     const content = generateMarkdown();
@@ -156,7 +160,7 @@ export function MarkdownTableGenerator({ initialData, onStateChange }: { initial
     URL.revokeObjectURL(url);
   };
 
-  const reset = () => {
+  const reset = useCallback(() => {
     setData([
       [t('markdown.header') + ' 1', t('markdown.header') + ' 2', t('markdown.header') + ' 3'],
       [t('markdown.data') + ' 1', t('markdown.data') + ' 2', t('markdown.data') + ' 3'],
@@ -164,7 +168,41 @@ export function MarkdownTableGenerator({ initialData, onStateChange }: { initial
     ]);
     setAlignments(['left', 'left', 'left']);
     setError(null);
-  };
+  }, [t]);
+
+  const handlersRef = useRef({ copyToClipboard, copyHtmlToClipboard, reset });
+  useEffect(() => {
+    handlersRef.current = { copyToClipboard, copyHtmlToClipboard, reset };
+  }, [copyToClipboard, copyHtmlToClipboard, reset]);
+
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      const activeElement = document.activeElement;
+      const isEditable =
+        activeElement instanceof HTMLInputElement ||
+        activeElement instanceof HTMLTextAreaElement ||
+        activeElement instanceof HTMLSelectElement ||
+        activeElement?.getAttribute("contenteditable") === "true";
+
+      if (isEditable && e.key !== 'Escape') return;
+
+      if (e.metaKey || e.ctrlKey || e.altKey || e.shiftKey) return;
+
+      if (e.key === 'Escape') {
+        e.preventDefault();
+        handlersRef.current.reset();
+      } else if (e.key.toLowerCase() === 'c') {
+        e.preventDefault();
+        handlersRef.current.copyToClipboard();
+      } else if (e.key.toLowerCase() === 'h') {
+        e.preventDefault();
+        handlersRef.current.copyHtmlToClipboard();
+      }
+    };
+
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, []);
 
   const updateAlignment = (c: number, align: 'left' | 'center' | 'right') => {
     const newAlignments = [...alignments];
@@ -240,12 +278,16 @@ export function MarkdownTableGenerator({ initialData, onStateChange }: { initial
           >
             <FileSpreadsheet className="w-4 h-4" /> {t('markdown.import_csv')}
           </button>
-          <button
-            onClick={reset}
-            className="px-4 py-2 text-rose-500 bg-rose-50 dark:bg-rose-500/10 hover:bg-rose-100 dark:hover:bg-rose-500/20 rounded-xl font-bold text-sm flex items-center gap-2 transition-all focus-visible:ring-2 focus-visible:ring-indigo-500 focus-visible:outline-none"
-          >
-            <RotateCcw className="w-4 h-4" /> {t('common.reset')}
-          </button>
+          <div className="flex gap-2 items-center">
+            <Kbd modifier={null} className="hidden sm:inline-flex border-rose-200 dark:border-rose-800 text-rose-400 dark:bg-slate-900">Esc</Kbd>
+            <button
+              onClick={reset}
+              className="px-4 py-2 text-rose-500 bg-rose-50 dark:bg-rose-500/10 hover:bg-rose-100 dark:hover:bg-rose-500/20 rounded-xl font-bold text-sm flex items-center gap-2 transition-all focus-visible:ring-2 focus-visible:ring-rose-500 focus-visible:outline-none"
+              aria-label={t('common.reset')}
+            >
+              <RotateCcw className="w-4 h-4" /> {t('common.reset')}
+            </button>
+          </div>
         </div>
 
         <div className="flex gap-2">
@@ -262,9 +304,11 @@ export function MarkdownTableGenerator({ initialData, onStateChange }: { initial
                 ? 'bg-emerald-50 dark:bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border-emerald-200 dark:border-emerald-500/20'
                 : 'bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 hover:bg-slate-200'
             }`}
+            title={`${t('markdown.copy_html')} (H)`}
           >
             {copiedHtml ? <Check className="w-4 h-4" /> : <Code className="w-4 h-4" />}
             {copiedHtml ? t('common.copied') : t('markdown.copy_html')}
+            {!copiedHtml && <Kbd modifier={null} className="hidden sm:inline-flex w-4 h-4 bg-white/50 dark:bg-black/20 ml-1">H</Kbd>}
           </button>
           <button
             onClick={copyToClipboard}
@@ -273,9 +317,11 @@ export function MarkdownTableGenerator({ initialData, onStateChange }: { initial
                 ? 'bg-emerald-50 dark:bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border-emerald-200 dark:border-emerald-500/20'
                 : 'bg-indigo-600 text-white border-transparent shadow-lg shadow-indigo-600/20 hover:bg-indigo-700'
             }`}
+            title={`${t('markdown.copy_markdown')} (C)`}
           >
             {copied ? <Check className="w-4 h-4" /> : <Copy className="w-4 h-4" />}
             {copied ? t('common.copied') : t('markdown.copy_markdown')}
+            {!copied && <Kbd modifier={null} className="hidden sm:inline-flex w-4 h-4 bg-white/50 dark:bg-black/20 ml-1">C</Kbd>}
           </button>
         </div>
       </div>

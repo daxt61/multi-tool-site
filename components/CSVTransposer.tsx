@@ -1,6 +1,8 @@
 import { useState, useEffect, useCallback, useRef } from 'react';
-import { Copy, Check, Trash2, ArrowLeftRight, Download, FileSpreadsheet, Info, AlertCircle } from 'lucide-react';
+import { Copy, Check, Trash2, ArrowLeftRight, Download, FileSpreadsheet, Info, AlertCircle, ArrowUpDown } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
+import { toast } from 'sonner';
+import { Kbd } from './ui/Kbd';
 
 const MAX_LENGTH = 100000;
 
@@ -105,19 +107,60 @@ export function CSVTransposer({ initialData, onStateChange }: { initialData?: an
     return () => clearTimeout(timeout);
   }, [handleTranspose]);
 
-  const handleCopy = () => {
+  const handleCopy = useCallback(() => {
     if (!output) return;
     navigator.clipboard.writeText(output);
     setCopied(true);
+    toast.success(t('common.copied'));
     setTimeout(() => setCopied(false), 2000);
-  };
+  }, [output, t]);
 
-  const handleClear = () => {
+  const handleClear = useCallback(() => {
     setInput('');
     setOutput('');
     setError(null);
-    textareaRef.current?.focus();
-  };
+    setTimeout(() => textareaRef.current?.focus(), 0);
+  }, []);
+
+  const handleSwap = useCallback(() => {
+    if (!output) return;
+    setInput(output);
+    setTimeout(() => textareaRef.current?.focus(), 0);
+  }, [output]);
+
+  const handlersRef = useRef({ handleCopy, handleClear, handleSwap });
+  useEffect(() => {
+    handlersRef.current = { handleCopy, handleClear, handleSwap };
+  }, [handleCopy, handleClear, handleSwap]);
+
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      const activeElement = document.activeElement;
+      const isEditable =
+        activeElement instanceof HTMLInputElement ||
+        activeElement instanceof HTMLTextAreaElement ||
+        activeElement instanceof HTMLSelectElement ||
+        activeElement?.getAttribute("contenteditable") === "true";
+
+      if (isEditable && e.key !== 'Escape') return;
+
+      if (e.metaKey || e.ctrlKey || e.altKey || e.shiftKey) return;
+
+      if (e.key === 'Escape') {
+        e.preventDefault();
+        handlersRef.current.handleClear();
+      } else if (e.key.toLowerCase() === 'c') {
+        e.preventDefault();
+        handlersRef.current.handleCopy();
+      } else if (e.key.toLowerCase() === 's') {
+        e.preventDefault();
+        handlersRef.current.handleSwap();
+      }
+    };
+
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, []);
 
   const handleDownload = () => {
     if (!output) return;
@@ -138,17 +181,19 @@ export function CSVTransposer({ initialData, onStateChange }: { initialData?: an
             <label htmlFor="csv-input" className="text-xs font-black uppercase tracking-widest text-slate-400 flex items-center gap-2">
               <FileSpreadsheet className="w-4 h-4 text-indigo-500" /> {t('common.input')} CSV/TSV
             </label>
-            <div className="flex gap-2">
+            <div className="flex gap-2 items-center">
               <select
                 value={delimiter}
                 onChange={(e) => setDelimiter(e.target.value)}
                 className="text-xs font-bold bg-slate-100 dark:bg-slate-800 border-none rounded-lg px-2 py-1 outline-none focus:ring-2 focus:ring-indigo-500/20"
+                aria-label={t('csvmapper.input_delimiter')}
               >
                 <option value=",">Comma (,)</option>
                 <option value=";">Semicolon (;)</option>
                 <option value="	">Tab (\t)</option>
                 <option value="|">Pipe (|)</option>
               </select>
+              <Kbd modifier={null} className="hidden sm:inline-flex border-rose-200 dark:border-rose-800 text-rose-400 dark:bg-slate-900">Esc</Kbd>
               <button
                 onClick={handleClear}
                 className="text-xs font-bold text-rose-500 bg-rose-50 dark:bg-rose-500/10 hover:bg-rose-100 px-3 py-1.5 rounded-xl flex items-center gap-1 transition-all"
@@ -175,6 +220,15 @@ export function CSVTransposer({ initialData, onStateChange }: { initialData?: an
             </label>
             <div className="flex gap-2">
               <button
+                onClick={handleSwap}
+                disabled={!output}
+                className="text-xs font-bold px-3 py-1.5 rounded-xl text-indigo-500 bg-indigo-50 dark:bg-indigo-500/10 hover:bg-indigo-100 transition-all flex items-center gap-1 disabled:opacity-50 disabled:cursor-not-allowed"
+                title={`${t('common.swap')} (S)`}
+              >
+                <ArrowUpDown className="w-3.5 h-3.5" /> {t('common.swap')}
+                <Kbd modifier={null} className="hidden sm:inline-flex border-indigo-200 dark:border-indigo-800 text-slate-400 ml-0.5">S</Kbd>
+              </button>
+              <button
                 onClick={handleDownload}
                 disabled={!output}
                 className="text-xs font-bold px-3 py-1.5 rounded-xl bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 hover:bg-slate-200 transition-all flex items-center gap-2 disabled:opacity-50"
@@ -189,9 +243,11 @@ export function CSVTransposer({ initialData, onStateChange }: { initialData?: an
                     ? 'bg-emerald-50 dark:bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border-emerald-200'
                     : 'bg-white dark:bg-slate-800 text-indigo-600 dark:text-indigo-400 border-slate-200 dark:border-slate-700 hover:border-indigo-500/50'
                 } disabled:opacity-50`}
+                title={`${t('common.copy')} (C)`}
               >
                 {copied ? <Check className="w-3 h-3" /> : <Copy className="w-3 h-3" />}
                 {copied ? t('common.copied') : t('common.copy')}
+                {!copied && <Kbd modifier={null} className="hidden sm:inline-flex border-indigo-200 dark:border-indigo-800 text-slate-400 ml-0.5">C</Kbd>}
               </button>
             </div>
           </div>

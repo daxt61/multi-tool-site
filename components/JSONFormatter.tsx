@@ -2,6 +2,7 @@ import { useState, useEffect, useCallback, useRef } from 'react';
 import { FileCode, Copy, Check, Trash2, AlertCircle, Maximize2, Minimize2, Download, SortAsc, Wrench, ShieldCheck, Database, Code, Coffee, FileJson } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import yaml from 'js-yaml';
+import { toast } from 'sonner';
 import { Kbd } from './ui/Kbd';
 
 const MAX_LENGTH = 100000;
@@ -590,8 +591,9 @@ export function JSONFormatter({ initialData, onStateChange }: { initialData?: an
     if (!output) return;
     navigator.clipboard.writeText(output);
     setCopied(true);
+    toast.success(t('common.copied'));
     setTimeout(() => setCopied(false), 2000);
-  }, [output]);
+  }, [output, t]);
 
   const handleClear = useCallback(() => {
     setInput('');
@@ -600,34 +602,36 @@ export function JSONFormatter({ initialData, onStateChange }: { initialData?: an
     inputRef.current?.focus();
   }, []);
 
+  const handlersRef = useRef({ handleClear, handleCopy });
+  useEffect(() => {
+    handlersRef.current = { handleClear, handleCopy };
+  }, [handleClear, handleCopy]);
+
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
       const activeElement = document.activeElement;
-      const isInputFocused =
+      const isEditable =
         activeElement instanceof HTMLInputElement ||
         activeElement instanceof HTMLTextAreaElement ||
         activeElement instanceof HTMLSelectElement ||
         activeElement?.getAttribute("contenteditable") === "true";
 
-      if (isInputFocused) {
-        // Local Escape handler is handled by the textarea's onKeyDown
-        return;
-      }
+      if (isEditable && e.key !== 'Escape') return;
 
       if (e.metaKey || e.ctrlKey || e.altKey || e.shiftKey) return;
 
       if (e.key === "Escape") {
         e.preventDefault();
-        handleClear();
+        handlersRef.current.handleClear();
       } else if (e.key.toLowerCase() === "c") {
         e.preventDefault();
-        handleCopy();
+        handlersRef.current.handleCopy();
       }
     };
 
     window.addEventListener("keydown", handleKeyDown);
     return () => window.removeEventListener("keydown", handleKeyDown);
-  }, [handleClear, handleCopy]);
+  }, []);
 
   const handleInputChange = (val: string) => {
     setInput(val);

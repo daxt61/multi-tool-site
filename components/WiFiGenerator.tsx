@@ -1,9 +1,12 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { Download, Trash2, QrCode, Wifi, ShieldCheck, Copy, Check, Eye, EyeOff } from 'lucide-react';
+import { useTranslation } from 'react-i18next';
+import { Kbd } from './ui/Kbd';
 
 const MAX_LENGTH = 100;
 
 export function WiFiGenerator({ initialData, onStateChange }: { initialData?: any; onStateChange?: (state: any) => void }) {
+  const { t } = useTranslation();
   const [ssid, setSsid] = useState((initialData?.ssid || '').slice(0, MAX_LENGTH));
   const [password, setPassword] = useState((initialData?.password || '').slice(0, MAX_LENGTH));
   const [encryption, setEncryption] = useState(initialData?.encryption || 'WPA');
@@ -56,12 +59,37 @@ export function WiFiGenerator({ initialData, onStateChange }: { initialData?: an
     setTimeout(() => setCopied(false), 2000);
   };
 
-  const handleClear = () => {
+  const handleClear = useCallback(() => {
     setSsid('');
     setPassword('');
     setEncryption('WPA');
     setHidden(false);
-  };
+  }, []);
+
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (
+        document.activeElement?.tagName === "INPUT" ||
+        document.activeElement?.tagName === "TEXTAREA" ||
+        document.activeElement?.getAttribute('contenteditable') === 'true'
+      ) {
+        if (e.key === 'Escape') {
+          handleClear();
+        }
+        return;
+      }
+
+      if (e.metaKey || e.ctrlKey || e.altKey || e.shiftKey) return;
+
+      if (e.key === 'Escape') {
+        e.preventDefault();
+        handleClear();
+      }
+    };
+
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [handleClear]);
 
   return (
     <div className="max-w-5xl mx-auto space-y-12">
@@ -71,40 +99,47 @@ export function WiFiGenerator({ initialData, onStateChange }: { initialData?: an
           <div className="bg-slate-50 dark:bg-slate-900/50 p-8 rounded-[2.5rem] border border-slate-200 dark:border-slate-800 space-y-8">
             <div className="flex justify-between items-center px-1">
               <h3 className="text-xs font-black uppercase tracking-widest text-slate-400 flex items-center gap-2">
-                <Wifi className="w-4 h-4 text-indigo-500" /> Configuration du WiFi
+                <Wifi className="w-4 h-4 text-indigo-500" /> {t('wifi.config_title')}
               </h3>
-              <button
-                onClick={handleClear}
-                className="text-xs font-bold text-rose-500 bg-rose-50 dark:bg-rose-500/10 hover:bg-rose-100 dark:hover:bg-rose-500/20 px-3 py-1 rounded-full transition-all flex items-center gap-1"
-              >
-                <Trash2 className="w-3 h-3" /> Effacer
-              </button>
+              <div className="flex gap-2 items-center">
+                <Kbd modifier={null} className="hidden sm:inline-flex border-rose-200 dark:border-rose-800 text-rose-400">Esc</Kbd>
+                <button
+                  onClick={handleClear}
+                  className="text-xs font-bold text-rose-500 bg-rose-50 dark:bg-rose-500/10 hover:bg-rose-100 dark:hover:bg-rose-500/20 px-3 py-1.5 rounded-full transition-all flex items-center gap-1 focus-visible:ring-2 focus-visible:ring-rose-500 focus-visible:outline-none"
+                >
+                  <Trash2 className="w-3 h-3" /> {t('common.clear')}
+                </button>
+              </div>
             </div>
 
             <div className="space-y-6">
               <div className="space-y-2">
-                <label htmlFor="ssid" className="text-sm font-bold text-slate-700 dark:text-slate-300 px-1">Nom du réseau (SSID)</label>
+                <label htmlFor="ssid" className="text-sm font-bold text-slate-700 dark:text-slate-300 px-1">{t('wifi.ssid_label')}</label>
                 <input
                   id="ssid"
                   type="text"
+                  autoComplete="off"
+                  spellCheck={false}
                   value={ssid}
                   maxLength={MAX_LENGTH}
                   onChange={(e) => setSsid(e.target.value.slice(0, MAX_LENGTH))}
-                  placeholder="Ex: MaBox_WiFi"
+                  placeholder={t('wifi.ssid_placeholder')}
                   className="w-full p-4 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-2xl outline-none focus:ring-2 focus:ring-indigo-500/20 transition-all dark:text-white"
                 />
               </div>
 
               <div className="space-y-2">
-                <label htmlFor="password" className="text-sm font-bold text-slate-700 dark:text-slate-300 px-1">Mot de passe</label>
+                <label htmlFor="password" className="text-sm font-bold text-slate-700 dark:text-slate-300 px-1">{t('wifi.password_label')}</label>
                 <div className="relative">
                   <input
                     id="password"
                     type={showPassword ? "text" : "password"}
+                    autoComplete="off"
+                    spellCheck={false}
                     value={password}
                     maxLength={MAX_LENGTH}
                     onChange={(e) => setPassword(e.target.value.slice(0, MAX_LENGTH))}
-                    placeholder="Mot de passe du réseau"
+                    placeholder={t('wifi.password_placeholder')}
                     className="w-full p-4 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-2xl outline-none focus:ring-2 focus:ring-indigo-500/20 transition-all dark:text-white pr-12"
                   />
                   <button
@@ -118,7 +153,7 @@ export function WiFiGenerator({ initialData, onStateChange }: { initialData?: an
 
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div className="space-y-2">
-                  <label className="text-sm font-bold text-slate-700 dark:text-slate-300 px-1">Sécurité</label>
+                  <label className="text-sm font-bold text-slate-700 dark:text-slate-300 px-1">{t('wifi.security_label')}</label>
                   <div className="grid grid-cols-3 gap-2">
                     {(['WPA', 'WEP', 'none'] as const).map((type) => (
                       <button
@@ -130,14 +165,14 @@ export function WiFiGenerator({ initialData, onStateChange }: { initialData?: an
                             : 'bg-white dark:bg-slate-800 text-slate-500 border-slate-200 dark:border-slate-700'
                         }`}
                       >
-                        {type === 'none' ? 'Aucune' : type}
+                        {type === 'none' ? t('wifi.security_none') : type}
                       </button>
                     ))}
                   </div>
                 </div>
 
                 <div className="space-y-2">
-                  <label className="text-sm font-bold text-slate-700 dark:text-slate-300 px-1">Réseau Masqué</label>
+                  <label className="text-sm font-bold text-slate-700 dark:text-slate-300 px-1">{t('wifi.hidden_label')}</label>
                   <button
                     onClick={() => setHidden(!hidden)}
                     className={`w-full py-3 rounded-xl font-bold text-xs uppercase transition-all border flex items-center justify-center gap-2 ${
@@ -146,7 +181,7 @@ export function WiFiGenerator({ initialData, onStateChange }: { initialData?: an
                         : 'bg-white dark:bg-slate-800 text-slate-500 border-slate-200 dark:border-slate-700'
                     }`}
                   >
-                    {hidden ? 'Oui' : 'Non'}
+                    {hidden ? t('wifi.hidden_yes') : t('wifi.hidden_no')}
                   </button>
                 </div>
               </div>
@@ -156,7 +191,7 @@ export function WiFiGenerator({ initialData, onStateChange }: { initialData?: an
           {ssid && (
             <div className="bg-white dark:bg-slate-900/40 p-6 rounded-3xl border border-slate-200 dark:border-slate-800 space-y-4">
               <div className="flex justify-between items-center">
-                <span className="text-xs font-black uppercase tracking-widest text-slate-400">Chaîne brute</span>
+                <span className="text-xs font-black uppercase tracking-widest text-slate-400">{t('wifi.raw_string')}</span>
                 <button
                   onClick={handleCopyRaw}
                   className={`flex items-center gap-2 px-3 py-1 rounded-lg text-xs font-bold transition-all ${
@@ -164,7 +199,7 @@ export function WiFiGenerator({ initialData, onStateChange }: { initialData?: an
                   }`}
                 >
                   {copied ? <Check className="w-3 h-3" /> : <Copy className="w-3 h-3" />}
-                  {copied ? 'Copié' : 'Copier'}
+                  {copied ? t('common.copied') : t('common.copy')}
                 </button>
               </div>
               <code className="block p-4 bg-slate-50 dark:bg-slate-950 rounded-xl font-mono text-xs break-all dark:text-slate-300">
@@ -188,7 +223,7 @@ export function WiFiGenerator({ initialData, onStateChange }: { initialData?: an
             ) : (
               <div className="w-64 h-64 bg-slate-50 dark:bg-slate-900/50 border-2 border-dashed border-slate-200 dark:border-slate-800 rounded-[2.5rem] flex flex-col items-center justify-center text-slate-400 gap-4">
                 <QrCode className="w-16 h-16 opacity-10" />
-                <p className="text-xs font-bold text-center px-8 uppercase tracking-widest opacity-40">Entrez un SSID pour générer le code</p>
+                <p className="text-xs font-bold text-center px-8 uppercase tracking-widest opacity-40">{t('wifi.waiting')}</p>
               </div>
             )}
           </div>
@@ -196,20 +231,20 @@ export function WiFiGenerator({ initialData, onStateChange }: { initialData?: an
           {ssid && (
             <button
               onClick={downloadQRCode}
-              className="w-full max-w-[320px] py-4 bg-indigo-600 text-white rounded-2xl font-black text-lg shadow-xl shadow-indigo-600/20 hover:bg-indigo-700 transition-all active:scale-95 flex items-center justify-center gap-2"
+              className="w-full max-w-[320px] py-4 bg-indigo-600 text-white rounded-2xl font-black text-lg shadow-xl shadow-indigo-600/20 hover:bg-indigo-700 transition-all active:scale-95 flex items-center justify-center gap-2 focus-visible:ring-2 focus-visible:ring-indigo-500 focus-visible:outline-none"
             >
               <Download className="w-5 h-5" />
-              Télécharger PNG
+              {t('wifi.download_png')}
             </button>
           )}
 
           <div className="bg-indigo-50 dark:bg-indigo-900/10 border border-indigo-100 dark:border-indigo-900/20 p-6 rounded-3xl w-full max-w-[320px]">
              <div className="flex items-center gap-3 mb-2">
                <ShieldCheck className="w-4 h-4 text-indigo-500" />
-               <span className="text-xs font-black uppercase tracking-widest text-slate-400">Sécurisé & Privé</span>
+               <span className="text-xs font-black uppercase tracking-widest text-slate-400">{t('common.privacy')}</span>
              </div>
              <p className="text-[10px] text-slate-500 dark:text-slate-400 leading-relaxed font-medium">
-               Générez un QR Code pour partager votre WiFi sans donner votre mot de passe à voix haute. Vos données sont transmises de façon éphémère pour la génération.
+               {t('wifi.privacy_text')}
              </p>
           </div>
         </div>

@@ -304,25 +304,25 @@ export function XmlYamlConverter({ initialData, onStateChange }: { initialData?:
       <div className="flex justify-center py-4">
           <div className="flex items-center gap-2 px-4 py-2 bg-indigo-50 dark:bg-indigo-900/20 rounded-full text-indigo-600 dark:text-indigo-400 text-xs font-bold animate-pulse">
             <ArrowLeftRight className="w-3 h-3" />
-            Bidirectional Sync Enabled
+            {t('common.bidirectional_sync', 'Bidirectional Sync Enabled')}
           </div>
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-8 pt-8 border-t border-slate-100 dark:border-slate-800">
         <div className="space-y-4">
           <h4 className="font-bold dark:text-white flex items-center gap-2 text-indigo-500">
-            <Info className="w-4 h-4" /> About this tool
+            <Info className="w-4 h-4" /> {t('xml_yaml.about_title')}
           </h4>
           <p className="text-sm text-slate-500 dark:text-slate-400 leading-relaxed">
-            Convert your data between XML and YAML formats. This tool uses native browser APIs for XML parsing and serialization, ensuring high performance and security. YAML handling is powered by the js-yaml library.
+            {t('xml_yaml.about_text')}
           </p>
         </div>
         <div className="space-y-4">
           <h4 className="font-bold dark:text-white flex items-center gap-2 text-indigo-500">
-            <ArrowLeftRight className="w-4 h-4" /> Technical details
+            <ArrowLeftRight className="w-4 h-4" /> {t('xml_yaml.tech_title')}
           </h4>
           <p className="text-sm text-slate-500 dark:text-slate-400 leading-relaxed">
-            Attributes in XML are represented with a '@' prefix in YAML. Text content is represented by the '#text' key if the element also has attributes or sub-elements. The tool implements recursive depth limits and sanitizes keys to prevent prototype pollution.
+            {t('xml_yaml.tech_text')}
           </p>
         </div>
       </div>

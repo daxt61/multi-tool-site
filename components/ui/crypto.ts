@@ -50,3 +50,18 @@ export const getSecureRandomInt = (max: number): number => {
     }
   }
 };
+
+/**
+ * Returns a cryptographically secure random boolean.
+ */
+export const getSecureRandomBoolean = (): boolean => {
+  return getSecureRandomInt(2) === 1;
+};
+
+/**
+ * Returns a cryptographically secure random HEX color.
+ */
+export const getSecureRandomColor = (): string => {
+  const n = getSecureRandomInt(16777216);
+  return '#' + n.toString(16).padStart(6, '0');
+};

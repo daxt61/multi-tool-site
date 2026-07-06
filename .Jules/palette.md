@@ -45,3 +45,7 @@
 ## 2026-07-02 - [Standardized UX Feedback for Output Actions]
 **Learning:** Global tool output copy actions (e.g., in `Calculator.tsx`, `UnitConverter.tsx`, `BPMCounter.tsx`) often rely only on local visual feedback (like icon changes) which can be missed. A global `sonner` success toast provides consistent, high-visibility confirmation across different tool types.
 **Action:** Always pair tool output copy actions with a global success toast using the `common.copied` key to ensure unambiguous user feedback.
+
+## 2026-07-03 - [Safe Global Keyboard Listener Isolation]
+**Learning:** Global keyboard listeners (e.g. Escape to clear) can cause unintended side effects (clearing the wrong input or stealing focus) when the user is interacting with global UI elements like Search bars or Command Menus.
+**Action:** Global keyboard listeners must explicitly verify that the focus is either on the relevant component's input/textarea or that no other editable element has focus (`if (isEditable && activeElement !== targetRef.current) return;`) before executing actions.

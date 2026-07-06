@@ -1,17 +1,64 @@
-import { useState, useEffect, useMemo } from 'react';
+import { useState, useEffect, useMemo, useCallback, useRef } from 'react';
 import { Search, Info, Trash2, Copy, Check } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
+import { toast } from 'sonner';
+import { Kbd } from './ui/Kbd';
 
 const MAX_LENGTH = 1000;
 
 export function UnicodeInspector({ initialData, onStateChange }: { initialData?: any; onStateChange?: (state: any) => void }) {
   const { t } = useTranslation();
+  const textareaRef = useRef<HTMLTextAreaElement>(null);
   const [input, setInput] = useState(initialData?.input || 'Hello 👋');
   const [copiedId, setCopiedId] = useState<string | null>(null);
 
   useEffect(() => {
     onStateChange?.({ input });
   }, [input, onStateChange]);
+
+  const handleClear = useCallback(() => {
+    setInput('');
+    setTimeout(() => textareaRef.current?.focus(), 0);
+  }, []);
+
+  const handleCopy = useCallback((text: string, id: string) => {
+    navigator.clipboard.writeText(text);
+    setCopiedId(id);
+    toast.success(t('common.copied'));
+    setTimeout(() => setCopiedId(null), 2000);
+  }, [t]);
+
+  const handlersRef = useRef({ handleClear, handleCopy });
+
+  useEffect(() => {
+    handlersRef.current = { handleClear, handleCopy };
+  }, [handleClear, handleCopy]);
+
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      const activeElement = document.activeElement;
+      const isEditable =
+        activeElement instanceof HTMLInputElement ||
+        activeElement instanceof HTMLTextAreaElement ||
+        activeElement?.getAttribute('contenteditable') === 'true';
+
+      if (e.metaKey || e.ctrlKey || e.altKey || e.shiftKey) return;
+
+      if (e.key === 'Escape') {
+        // If an editable element is focused, only clear if it's OUR textarea.
+        // Otherwise, do nothing (let other elements handle Escape).
+        if (isEditable && activeElement !== textareaRef.current) {
+          return;
+        }
+
+        e.preventDefault();
+        handlersRef.current.handleClear();
+      }
+    };
+
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, []);
 
   const characters = useMemo(() => {
     // Use Array.from first to correctly handle surrogate pairs, then slice
@@ -30,16 +77,6 @@ export function UnicodeInspector({ initialData, onStateChange }: { initialData?:
     });
   }, [input]);
 
-  const handleCopy = (text: string, id: string) => {
-    navigator.clipboard.writeText(text);
-    setCopiedId(id);
-    setTimeout(() => setCopiedId(null), 2000);
-  };
-
-  const handleClear = () => {
-    setInput('');
-  };
-
   return (
     <div className="max-w-6xl mx-auto space-y-8">
       <div className="space-y-4">
@@ -47,19 +84,25 @@ export function UnicodeInspector({ initialData, onStateChange }: { initialData?:
           <label htmlFor="unicode-input" className="text-xs font-black uppercase tracking-widest text-slate-400 flex items-center gap-2">
             <Search className="w-4 h-4 text-indigo-500" /> {t('common.input')}
           </label>
-          <button
-            onClick={handleClear}
-            disabled={!input}
-            className="text-xs font-bold text-rose-500 bg-rose-50 dark:bg-rose-500/10 hover:bg-rose-100 dark:hover:bg-rose-500/20 px-3 py-1.5 rounded-xl flex items-center gap-1 transition-all disabled:opacity-50 disabled:cursor-not-allowed focus-visible:ring-2 focus-visible:ring-rose-500 focus-visible:outline-none"
-          >
-            <Trash2 className="w-3 h-3" /> {t('common.clear')}
-          </button>
+          <div className="flex items-center gap-2">
+            <Kbd modifier={null} className="hidden sm:inline-flex border-rose-200 dark:border-rose-800 text-rose-400">Esc</Kbd>
+            <button
+              onClick={handleClear}
+              disabled={!input}
+              className="text-xs font-bold text-rose-500 bg-rose-50 dark:bg-rose-500/10 hover:bg-rose-100 dark:hover:bg-rose-500/20 px-3 py-1.5 rounded-xl flex items-center gap-1 transition-all disabled:opacity-50 disabled:cursor-not-allowed focus-visible:ring-2 focus-visible:ring-rose-500 focus-visible:outline-none"
+            >
+              <Trash2 className="w-3 h-3" /> {t('common.clear')}
+            </button>
+          </div>
         </div>
         <textarea
           id="unicode-input"
+          ref={textareaRef}
           value={input}
           onChange={(e) => setInput(e.target.value)}
           placeholder={t('stringescaper.placeholder_input')}
+          autoComplete="off"
+          spellCheck={false}
           className="w-full h-32 p-6 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-3xl outline-none focus:ring-2 focus:ring-indigo-500/20 transition-all text-lg leading-relaxed dark:text-slate-300 resize-none"
         />
         <div className="flex justify-between px-2 text-[10px] font-black uppercase tracking-widest text-slate-400">
@@ -78,6 +121,7 @@ export function UnicodeInspector({ initialData, onStateChange }: { initialData?:
             <div className="w-full space-y-1.5">
               <button
                 onClick={() => handleCopy(item.hex, `hex-${idx}`)}
+                title={t('common.copy')}
                 className="w-full flex items-center justify-between p-1.5 rounded-lg hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors group/btn"
               >
                 <span className="text-[10px] font-black text-slate-400 uppercase tracking-tight">HEX</span>
@@ -89,6 +133,7 @@ export function UnicodeInspector({ initialData, onStateChange }: { initialData?:
 
               <button
                 onClick={() => handleCopy(item.decimal, `dec-${idx}`)}
+                title={t('common.copy')}
                 className="w-full flex items-center justify-between p-1.5 rounded-lg hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors group/btn"
               >
                 <span className="text-[10px] font-black text-slate-400 uppercase tracking-tight">DEC</span>
@@ -100,6 +145,7 @@ export function UnicodeInspector({ initialData, onStateChange }: { initialData?:
 
               <button
                 onClick={() => handleCopy(item.entity, `ent-${idx}`)}
+                title={t('common.copy')}
                 className="w-full flex items-center justify-between p-1.5 rounded-lg hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors group/btn"
               >
                 <span className="text-[10px] font-black text-slate-400 uppercase tracking-tight">HTML</span>

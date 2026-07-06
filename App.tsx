@@ -395,6 +395,10 @@ const LetterShuffler = lazy(() => import("./components/LetterShuffler").then(m =
 const LevenshteinDistance = lazy(() => import("./components/LevenshteinDistance").then(m => ({ default: m.LevenshteinDistance })));
 const TextGrep = lazy(() => import("./components/TextGrep").then(m => ({ default: m.TextGrep })));
 const PunycodeConverter = lazy(() => import("./components/PunycodeConverter").then(m => ({ default: m.PunycodeConverter })));
+const EDigits = lazy(() => import("./components/EDigits").then(m => ({ default: m.EDigits })));
+const PhiDigits = lazy(() => import("./components/PhiDigits").then(m => ({ default: m.PhiDigits })));
+const BCDConverter = lazy(() => import("./components/BCDConverter").then(m => ({ default: m.BCDConverter })));
+const Excess3Converter = lazy(() => import("./components/Excess3Converter").then(m => ({ default: m.Excess3Converter })));
 const PlayfairCipher = lazy(() => import("./components/PlayfairCipher").then(m => ({ default: m.PlayfairCipher })));
 const DateSorter = lazy(() => import("./components/DateSorter").then(m => ({ default: m.DateSorter })));
 const RandomMatrixGenerator = lazy(() => import("./components/RandomMatrixGenerator").then(m => ({ default: m.RandomMatrixGenerator })));
@@ -4343,6 +4347,50 @@ const tools: Tool[] = [
     Component: TextHexDump,
     category: "dev",
     keywords: ["hex dump", "hexadecimal", "binary", "text to hex", "debug", "encoding"],
+  },
+  {
+    id: "e-generator",
+    name: "Décimales de e",
+    nameEn: "e Digits",
+    icon: Hash,
+    description: "Générer et formater les décimales de e (nombre d'Euler)",
+    descriptionEn: "Generate and format digits of e (Euler's number)",
+    Component: EDigits,
+    category: "calculators",
+    keywords: ["euler", "math", "constant", "digits", "natural logarithm"],
+  },
+  {
+    id: "phi-generator",
+    name: "Nombre d'Or",
+    nameEn: "Golden Ratio Digits",
+    icon: Hash,
+    description: "Générer et formater les décimales du nombre d'or (Phi)",
+    descriptionEn: "Generate and format digits of the golden ratio (Phi)",
+    Component: PhiDigits,
+    category: "calculators",
+    keywords: ["phi", "math", "constant", "digits", "golden ratio", "nature"],
+  },
+  {
+    id: "bcd-converter",
+    name: "Convertisseur BCD",
+    nameEn: "BCD Converter",
+    icon: Binary,
+    description: "Convertir entre décimal et code BCD (8421)",
+    descriptionEn: "Convert between decimal and BCD (8421) code",
+    Component: BCDConverter,
+    category: "dev",
+    keywords: ["binary", "bcd", "decimal", "encoding", "8421", "digital"],
+  },
+  {
+    id: "excess3-converter",
+    name: "Convertisseur Excess-3",
+    nameEn: "Excess-3 Converter",
+    icon: Binary,
+    description: "Convertir entre décimal et code Excess-3",
+    descriptionEn: "Convert between decimal and Excess-3 code",
+    Component: Excess3Converter,
+    category: "dev",
+    keywords: ["binary", "excess-3", "xs3", "decimal", "encoding", "self-complementing"],
   },
 ];
 

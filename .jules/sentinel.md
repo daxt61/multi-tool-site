@@ -181,3 +181,8 @@
 **Vulnerability:** The JSONToGo component was vulnerable to Snippet Injection in generated struct tags. Because Go uses backticks (`) as delimiters for raw string literals (standard for tags) and does not support escaping them within the literal, a backtick in a JSON key could terminate the tag and allow injection of arbitrary tags or Go code.
 **Learning:** Language-specific literal types have unique escaping constraints. Go's raw string literals are particularly dangerous for snippet generation if they contain the delimiter character, as there is no valid escape sequence.
 **Prevention:** For Go struct tags, explicitly remove or replace backticks from user-controlled keys. Combine this with standard escaping for the inner quote-wrapped tag values to ensure the resulting snippet is both valid and secure.
+
+## 2026-07-06 - [Prototype Property Leakage in Structured Converters]
+**Vulnerability:** Components like `JSONToSQL` and `JSONToLaTeX` were accessing object properties using direct bracket notation (`row[key]`) while iterating over a union of all keys found in a JSON array. This allowed inherited `Object.prototype` properties (like `toString` or `constructor`) to leak into the generated output when a specific row lacked a key that existed in other rows but matched a prototype method.
+**Learning:** In row-based data processing where keys are collected globally but accessed per-row, direct property access is unsafe. JavaScript's prototype chain fallback will provide the native function string if the property is missing on the instance.
+**Prevention:** Always use `Object.prototype.hasOwnProperty.call(row, key)` when retrieving values for structured output formats (SQL, LaTeX, CSV, etc.) to ensure only "own" properties are processed.

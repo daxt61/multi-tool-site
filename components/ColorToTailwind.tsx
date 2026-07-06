@@ -2,6 +2,7 @@ import { useState, useEffect, useMemo, useCallback } from 'react';
 import { Copy, Check, Palette, Search, Info, Sliders, RefreshCcw } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import { toast } from 'sonner';
+import { getSecureRandomColor } from './ui/crypto';
 
 // Simplified Tailwind Color Palette
 const TAILWIND_COLORS: Record<string, Record<string, string>> = {
@@ -125,8 +126,8 @@ export function ColorToTailwind({ initialData, onStateChange }: { initialData?: 
                 </div>
               </div>
               <button
-                onClick={() => setColor('#' + Math.floor(Math.random()*16777215).toString(16).padStart(6, '0'))}
-                className="p-3 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl hover:bg-slate-50 transition-colors"
+                onClick={() => setColor(getSecureRandomColor())}
+                className="p-3 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl hover:bg-slate-50 transition-colors focus-visible:ring-2 focus-visible:ring-indigo-500 focus-visible:outline-none"
                 title={t('common.random', 'Random')}
               >
                 <RefreshCcw className="w-5 h-5 text-slate-500" />

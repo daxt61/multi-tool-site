@@ -157,6 +157,8 @@ export function WorldClock({ initialData, onStateChange }: { initialData?: any; 
                 <input
                   autoFocus
                   type="text"
+                  autoComplete="off"
+                  spellCheck={false}
                   placeholder={t('worldclock.search_placeholder', 'Search for a city...')}
                   value={search}
                   onChange={(e) => setSearch(e.target.value)}

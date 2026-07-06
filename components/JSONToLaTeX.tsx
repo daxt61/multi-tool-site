@@ -73,7 +73,7 @@ export function JSONToLaTeX({ initialData, onStateChange }: { initialData?: any;
       // Rows
       data.forEach(row => {
         if (typeof row === 'object' && row !== null) {
-          latex += `  ${keys.map(k => escapeLaTeX(String(row[k] ?? ''))).join(' & ')} \\\\\n`;
+          latex += `  ${keys.map(k => escapeLaTeX(String((Object.prototype.hasOwnProperty.call(row, k) ? row[k] : null) ?? ''))).join(' & ')} \\\\\n`;
         } else {
           latex += `  \\multicolumn{${keys.length || 1}}{l}{${escapeLaTeX(String(row))}} \\\\\n`;
         }

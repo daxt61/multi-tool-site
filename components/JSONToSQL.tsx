@@ -78,7 +78,8 @@ export function JSONToSQL({ initialData, onStateChange }: { initialData?: any; o
 
       if (includeCreate && mode === 'INSERT') {
         const columnDefs = columns.map(col => {
-          const firstVal = data.find(row => row[col] !== undefined && row[col] !== null)?.[col];
+          const firstRow = data.find(row => Object.prototype.hasOwnProperty.call(row, col) && row[col] !== null);
+          const firstVal = firstRow ? firstRow[col] : null;
           return `${escapeIdentifier(col, dialect)} ${inferType(firstVal)}`;
         });
         result += `CREATE TABLE ${sqlTableName} (\n  ${columnDefs.join(',\n  ')}\n);\n\n`;
@@ -97,13 +98,13 @@ export function JSONToSQL({ initialData, onStateChange }: { initialData?: any; o
       if (mode === 'INSERT') {
         if (batchInsert && data.length > 0) {
           const allValues = data.map((row: any) => {
-            const values = columns.map(col => escapeValue(row[col]));
+            const values = columns.map(col => escapeValue(Object.prototype.hasOwnProperty.call(row, col) ? row[col] : null));
             return `(${values.join(', ')})`;
           });
           result += `INSERT INTO ${sqlTableName} (${escapedColumns.join(', ')}) VALUES\n${allValues.join(',\n')};`;
         } else {
           const statements = data.map((row: any) => {
-            const values = columns.map(col => escapeValue(row[col]));
+            const values = columns.map(col => escapeValue(Object.prototype.hasOwnProperty.call(row, col) ? row[col] : null));
             return `INSERT INTO ${sqlTableName} (${escapedColumns.join(', ')}) VALUES (${values.join(', ')});`;
           });
           result += statements.join('\n');
@@ -112,17 +113,17 @@ export function JSONToSQL({ initialData, onStateChange }: { initialData?: any; o
         const statements = data.map((row: any) => {
           const setClause = columns
             .filter(col => !whereColumns.includes(col))
-            .map(col => `${escapeIdentifier(col, dialect)} = ${escapeValue(row[col])}`)
+            .map(col => `${escapeIdentifier(col, dialect)} = ${escapeValue(Object.prototype.hasOwnProperty.call(row, col) ? row[col] : null)}`)
             .join(', ');
           const whereClause = whereColumns
-            .map(col => `${escapeIdentifier(col, dialect)} = ${escapeValue(row[col])}`)
+            .map(col => `${escapeIdentifier(col, dialect)} = ${escapeValue(Object.prototype.hasOwnProperty.call(row, col) ? row[col] : null)}`)
             .join(' AND ');
           return `UPDATE ${sqlTableName} SET ${setClause} WHERE ${whereClause};`;
         });
         result += statements.join('\n');
       } else if (mode === 'UPSERT') {
         const statements = data.map((row: any) => {
-          const values = columns.map(col => escapeValue(row[col]));
+          const values = columns.map(col => escapeValue(Object.prototype.hasOwnProperty.call(row, col) ? row[col] : null));
           const nonWhereColumns = columns.filter(col => !whereColumns.includes(col));
 
           if (dialect === 'mysql') {
@@ -151,7 +152,7 @@ export function JSONToSQL({ initialData, onStateChange }: { initialData?: any; o
       } else if (mode === 'DELETE') {
         const statements = data.map((row: any) => {
           const whereClause = whereColumns
-            .map(col => `${escapeIdentifier(col, dialect)} = ${escapeValue(row[col])}`)
+            .map(col => `${escapeIdentifier(col, dialect)} = ${escapeValue(Object.prototype.hasOwnProperty.call(row, col) ? row[col] : null)}`)
             .join(' AND ');
           return `DELETE FROM ${sqlTableName} WHERE ${whereClause};`;
         });

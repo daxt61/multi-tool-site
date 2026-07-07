@@ -1,6 +1,7 @@
 import { useState, useMemo, useEffect, useCallback, useRef } from 'react';
 import { Network, Info, Globe, Server, ShieldCheck, Copy, Check, Binary, Zap, RotateCcw } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
+import { Kbd } from './ui/Kbd';
 
 export function SubnetCalculator({ initialData, onStateChange }: { initialData?: any; onStateChange?: (state: any) => void }) {
   const inputRef = useRef<HTMLInputElement>(null);
@@ -127,7 +128,7 @@ export function SubnetCalculator({ initialData, onStateChange }: { initialData?:
                   aria-label={t('common.reset')}
                 >
                   <RotateCcw className="w-3.5 h-3.5" /> {t('common.reset')}
-                  <kbd className="ml-1 hidden sm:inline-flex items-center justify-center px-1.5 py-0.5 border border-rose-200 dark:border-rose-800 rounded text-[10px] font-bold bg-white/50 dark:bg-black/20">Esc</kbd>
+                  <Kbd modifier={null} className="ml-1 hidden sm:inline-flex border-rose-200 dark:border-rose-800 text-rose-400">Esc</Kbd>
                 </button>
               </div>
 
@@ -219,7 +220,7 @@ export function SubnetCalculator({ initialData, onStateChange }: { initialData?:
                       >
                         {copied === item.label ? <Check className="w-4 h-4" /> : <Copy className="w-4 h-4" />}
                         {item.label === t('subnet.network_address') && !copied && (
-                          <kbd className="hidden sm:inline-flex items-center justify-center w-4 h-4 border border-slate-200 dark:border-slate-700 rounded text-[10px] font-bold bg-white/50 dark:bg-black/20 ml-0.5">C</kbd>
+                          <Kbd modifier={null} className="hidden sm:inline-flex ml-0.5 border-slate-200 dark:border-slate-700 text-slate-400">C</Kbd>
                         )}
                       </button>
                     </div>

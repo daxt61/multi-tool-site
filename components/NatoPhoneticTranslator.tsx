@@ -1,6 +1,7 @@
-import { useState, useMemo, useDeferredValue, useEffect, useCallback } from 'react';
-import { Copy, Check, Trash2, Type, Info, MessageSquare, Volume2 } from 'lucide-react';
+import { useState, useMemo, useDeferredValue, useEffect, useCallback, useRef } from 'react';
+import { Copy, Check, Trash2, Type, Info, MessageSquare, Volume2, Download } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
+import { Kbd } from './ui/Kbd';
 
 const NATO_ALPHABET: Record<string, string> = {
   'A': 'Alfa', 'B': 'Bravo', 'C': 'Charlie', 'D': 'Delta', 'E': 'Echo',
@@ -16,18 +17,23 @@ const NATO_ALPHABET: Record<string, string> = {
   '@': 'At', '&': 'And', '+': 'Plus', '=': 'Equals'
 };
 
-export function NatoPhoneticTranslator() {
+export function NatoPhoneticTranslator({ initialData, onStateChange }: { initialData?: any; onStateChange?: (state: any) => void }) {
   const { t } = useTranslation();
-  const [text, setText] = useState('');
+  const [text, setText] = useState(initialData?.text || '');
   const [copied, setCopied] = useState(false);
   const deferredText = useDeferredValue(text);
+  const textareaRef = useRef<HTMLTextAreaElement>(null);
+
+  useEffect(() => {
+    onStateChange?.({ text });
+  }, [text, onStateChange]);
 
   const phoneticOutput = useMemo(() => {
     return deferredText
       .toUpperCase()
       .split('')
-      .map(char => NATO_ALPHABET[char] || (char === ' ' ? '•' : char))
-      .filter(val => val !== '')
+      .map((char: string) => NATO_ALPHABET[char] || (char === ' ' ? '•' : char))
+      .filter((val: string) => val !== '')
       .join(' ');
   }, [deferredText]);
 
@@ -41,7 +47,24 @@ export function NatoPhoneticTranslator() {
   const handleClear = useCallback(() => {
     setText('');
     setCopied(false);
+    setTimeout(() => textareaRef.current?.focus(), 0);
   }, []);
+
+  const handleDownload = useCallback(() => {
+    if (!phoneticOutput) return;
+    const blob = new Blob([phoneticOutput.replace(/•/g, ' ')], { type: 'text/plain' });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    link.href = url;
+    link.download = `nato-phonetic-${Date.now()}.txt`;
+    link.click();
+    URL.revokeObjectURL(url);
+  }, [phoneticOutput]);
+
+  const handlersRef = useRef({ handleClear, handleCopy });
+  useEffect(() => {
+    handlersRef.current = { handleClear, handleCopy };
+  }, [handleClear, handleCopy]);
 
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
@@ -58,18 +81,18 @@ export function NatoPhoneticTranslator() {
 
       if (e.key === "Escape") {
         e.preventDefault();
-        handleClear();
+        handlersRef.current.handleClear();
       } else if (e.key.toLowerCase() === "c") {
-        if (!isInputFocused) {
+        if (!isInputFocused || activeElement === textareaRef.current) {
           e.preventDefault();
-          handleCopy();
+          handlersRef.current.handleCopy();
         }
       }
     };
 
     window.addEventListener("keydown", handleKeyDown);
     return () => window.removeEventListener("keydown", handleKeyDown);
-  }, [handleClear, handleCopy]);
+  }, []);
 
   return (
     <div className="max-w-5xl mx-auto space-y-8">
@@ -79,7 +102,7 @@ export function NatoPhoneticTranslator() {
             {t('nato.input_label')}
           </label>
           <div className="flex gap-2 items-center">
-            <kbd className="hidden sm:inline-flex items-center justify-center px-1.5 py-0.5 border border-rose-200 dark:border-rose-800 rounded text-[10px] font-bold text-rose-400 bg-white dark:bg-slate-900">Esc</kbd>
+            <Kbd modifier={null} className="hidden sm:inline-flex border-rose-200 dark:border-rose-800 text-rose-400">Esc</Kbd>
             <button
               onClick={handleClear}
               disabled={!text}
@@ -91,6 +114,7 @@ export function NatoPhoneticTranslator() {
         </div>
         <textarea
           id="nato-input"
+          ref={textareaRef}
           value={text}
           onChange={(e) => setText(e.target.value)}
           placeholder={t('nato.placeholder')}
@@ -103,20 +127,31 @@ export function NatoPhoneticTranslator() {
           <h3 className="text-xs font-black uppercase tracking-widest text-slate-400 flex items-center gap-2">
             <Volume2 className="w-4 h-4 text-indigo-500" /> {t('nato.output_label')}
           </h3>
-          {phoneticOutput && (
-            <button
-              onClick={handleCopy}
-              className={`text-xs font-bold px-4 py-1.5 rounded-full transition-all flex items-center gap-2 border focus-visible:ring-2 focus-visible:ring-indigo-500 focus-visible:outline-none ${
-                copied
-                  ? 'bg-emerald-50 dark:bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border-emerald-200 dark:border-emerald-500/20'
-                  : 'bg-indigo-600 text-white shadow-lg shadow-indigo-600/20 hover:bg-indigo-700'
-              }`}
-            >
-              {copied ? <Check className="w-3.5 h-3.5" /> : <Copy className="w-3.5 h-3.5" />}
-              {copied ? t('common.copied') : t('common.copy')}
-              {!copied && <kbd className="hidden sm:inline-flex items-center justify-center w-4 h-4 border border-white/20 rounded text-[10px] font-bold bg-white/10 ml-1">C</kbd>}
-            </button>
-          )}
+          <div className="flex gap-2">
+            {phoneticOutput && (
+              <>
+                <button
+                  onClick={handleDownload}
+                  className="text-xs font-bold px-3 py-1.5 rounded-full text-indigo-600 bg-indigo-50 dark:bg-indigo-900/20 hover:bg-indigo-100 dark:hover:bg-indigo-900/30 transition-all flex items-center gap-1.5 border border-indigo-100 dark:border-indigo-900/30 focus-visible:ring-2 focus-visible:ring-indigo-500 outline-none"
+                >
+                  <Download className="w-3.5 h-3.5" /> {t('common.download')}
+                </button>
+                <button
+                  onClick={handleCopy}
+                  className={`text-xs font-bold px-4 py-1.5 rounded-full transition-all flex items-center gap-2 border focus-visible:ring-2 focus-visible:ring-indigo-500 focus-visible:outline-none ${
+                    copied
+                      ? 'bg-emerald-50 dark:bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border-emerald-200 dark:border-emerald-500/20'
+                      : 'bg-indigo-600 text-white shadow-lg shadow-indigo-600/20 hover:bg-indigo-700'
+                  }`}
+                  title={`${t('common.copy')} (C)`}
+                >
+                  {copied ? <Check className="w-3.5 h-3.5" /> : <Copy className="w-3.5 h-3.5" />}
+                  {copied ? t('common.copied') : t('common.copy')}
+                  {!copied && <Kbd modifier={null} className="hidden sm:inline-flex border-white/20 bg-white/10 text-white">C</Kbd>}
+                </button>
+              </>
+            )}
+          </div>
         </div>
 
         <div className="min-h-48 p-8 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-[2.5rem] shadow-sm flex flex-wrap gap-x-4 gap-y-3 items-center justify-center text-center" aria-live="polite">
@@ -125,7 +160,7 @@ export function NatoPhoneticTranslator() {
               {t('nato.waiting')}
             </div>
           ) : (
-            phoneticOutput.split(' ').map((word, i) => (
+            phoneticOutput.split(' ').map((word: string, i: number) => (
               <span
                 key={i}
                 className={`text-xl md:text-2xl font-black transition-all animate-in zoom-in-95 duration-300 ${

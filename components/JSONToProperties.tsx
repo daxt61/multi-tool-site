@@ -3,6 +3,7 @@ import { FileCode, Copy, Check, Trash2, AlertCircle, Download, Info } from 'luci
 import { useTranslation } from 'react-i18next';
 
 const MAX_LENGTH = 100000;
+const MAX_DEPTH = 20;
 
 export function JSONToProperties({ initialData, onStateChange }: { initialData?: any; onStateChange?: (state: any) => void }) {
   const { t } = useTranslation();
@@ -34,7 +35,9 @@ export function JSONToProperties({ initialData, onStateChange }: { initialData?:
       .replace(/\f/g, '\\f');
   };
 
-  const jsonToProperties = (obj: any, prefix = ''): string => {
+  const jsonToProperties = (obj: any, prefix = '', depth = 0): string => {
+    // Sentinel: Enforce recursion depth limit to prevent Stack Overflow DoS.
+    if (depth > MAX_DEPTH) return '';
     let props = '';
 
     if (obj === null || obj === undefined) return '';
@@ -44,12 +47,12 @@ export function JSONToProperties({ initialData, onStateChange }: { initialData?:
       const fullKey = prefix ? `${prefix}.${escapedKey}` : escapedKey;
 
       if (value !== null && typeof value === 'object' && !Array.isArray(value)) {
-        props += jsonToProperties(value, fullKey);
+        props += jsonToProperties(value, fullKey, depth + 1);
       } else if (Array.isArray(value)) {
         value.forEach((item, index) => {
           const arrayKey = `${fullKey}[${index}]`;
           if (item !== null && typeof item === 'object' && !Array.isArray(item)) {
-            props += jsonToProperties(item, arrayKey);
+            props += jsonToProperties(item, arrayKey, depth + 1);
           } else {
             props += `${arrayKey}=${escapeValue(item)}\n`;
           }

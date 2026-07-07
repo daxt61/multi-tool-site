@@ -3174,6 +3174,12 @@ const resources = {
       "xml_yaml.about_text": "Convert your data between XML and YAML formats. This tool uses native browser APIs for XML parsing and serialization, ensuring high performance and security. YAML handling is powered by the js-yaml library.",
       "xml_yaml.tech_title": "Technical details",
       "xml_yaml.tech_text": "Attributes in XML are represented with a '@' prefix in YAML. Text content is represented by the '#text' key if the element also has attributes or sub-elements. The tool implements recursive depth limits and sanitizes keys to prevent prototype pollution.",
+      "tool.hill-cipher.name": "Hill Cipher",
+      "tool.hill-cipher.description": "Encrypt and decrypt text using the matrix-based Hill cipher",
+      "hillcipher.matrix_size": "Matrix Size",
+      "hillcipher.error_invertible": "The matrix must be invertible modulo 26 (determinant must be coprime to 26).",
+      "hillcipher.about_title": "About Hill Cipher",
+      "hillcipher.about_text": "The Hill cipher is a polyalphabetic substitution cipher based on linear algebra, invented by Lester S. Hill in 1929. It uses a square matrix as a key to transform blocks of text. For decryption to be possible, the matrix must be invertible modulo 26, meaning its determinant must not be divisible by 2 or 13.",
     }
   },
   fr: {
@@ -6351,6 +6357,12 @@ const resources = {
       "xml_yaml.about_text": "Convertissez vos données entre les formats XML et YAML. Cet outil utilise les API natives du navigateur pour l'analyse et la sérialisation XML, garantissant des performances et une sécurité élevées. La gestion YAML est assurée par la bibliothèque js-yaml.",
       "xml_yaml.tech_title": "Détails techniques",
       "xml_yaml.tech_text": "Les attributs en XML sont représentés avec un préfixe '@' en YAML. Le contenu textuel est représenté par la clé '#text' si l'élément possède également des attributs ou des sous-éléments. L'outil implémente des limites de profondeur récursives et sanitise les clés pour éviter la pollution de prototype.",
+      "tool.hill-cipher.name": "Chiffre de Hill",
+      "tool.hill-cipher.description": "Chiffrer et déchiffrer du texte en utilisant le chiffre de Hill par matrice",
+      "hillcipher.matrix_size": "Taille de la matrice",
+      "hillcipher.error_invertible": "La matrice doit être inversible modulo 26 (le déterminant doit être premier avec 26).",
+      "hillcipher.about_title": "À propos du chiffre de Hill",
+      "hillcipher.about_text": "Le chiffre de Hill est un chiffrement polyalphabétique basé sur l'algèbre linéaire, inventé par Lester S. Hill en 1929. Il utilise une matrice carrée comme clé pour transformer des blocs de texte. Pour que le déchiffrement soit possible, la matrice doit être inversible modulo 26, ce qui signifie que son déterminant ne doit pas être divisible par 2 ou 13.",
     }
   }
 };

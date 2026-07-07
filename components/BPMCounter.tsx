@@ -19,6 +19,7 @@ export function BPMCounter({ initialData, onStateChange }: { initialData?: any; 
   const [bpm, setBpm] = useState<number | null>(initialData?.bpm || null);
   const [history, setHistory] = useState<{ time: number; bpm: number }[]>([]);
   const [isAnimate, setIsAnimate] = useState(false);
+  const [isBeatActive, setIsBeatActive] = useState(false);
   const [copied, setCopied] = useState(false);
   const [isMetronomeOn, setIsMetronomeOn] = useState(false);
 
@@ -73,6 +74,9 @@ export function BPMCounter({ initialData, onStateChange }: { initialData?: any; 
     envelope.gain.setValueAtTime(0, ctx.currentTime);
     envelope.gain.linearRampToValueAtTime(0.1, ctx.currentTime + 0.005);
     envelope.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.05);
+
+    setIsBeatActive(true);
+    setTimeout(() => setIsBeatActive(false), 100);
 
     osc.start(ctx.currentTime);
     osc.stop(ctx.currentTime + 0.05);
@@ -174,16 +178,25 @@ export function BPMCounter({ initialData, onStateChange }: { initialData?: any; 
 
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
-      if (document.activeElement?.tagName === "INPUT" || document.activeElement?.tagName === "TEXTAREA") {
-        return;
-      }
+      const activeElement = document.activeElement;
+      const isEditable =
+        activeElement instanceof HTMLInputElement ||
+        activeElement instanceof HTMLTextAreaElement ||
+        activeElement instanceof HTMLSelectElement ||
+        activeElement?.getAttribute("contenteditable") === "true";
+
+      if (isEditable && e.key !== 'Escape') return;
 
       if (e.key === ' ' || e.key === 'Enter') {
-        e.preventDefault();
-        handleTapRef.current();
+        if (!isEditable) {
+           e.preventDefault();
+           handleTapRef.current();
+        }
       } else if (e.key === 'Escape') {
+        e.preventDefault();
         handleResetRef.current();
       } else if (e.key.toLowerCase() === 'c' && !e.metaKey && !e.ctrlKey) {
+        e.preventDefault();
         handleCopyRef.current();
       }
     };
@@ -205,7 +218,12 @@ export function BPMCounter({ initialData, onStateChange }: { initialData?: any; 
             onClick={handleTap}
             aria-label={t('bpm.tap_label')}
           >
-            <Music className={`w-12 h-12 mb-6 ${isAnimate ? 'text-white' : 'text-indigo-600'}`} />
+            <div className="relative mb-6">
+               <Music className={`w-12 h-12 ${isAnimate ? 'text-white' : 'text-indigo-600'}`} />
+               {isMetronomeOn && (
+                 <div className={`absolute -top-2 -right-2 w-4 h-4 rounded-full bg-indigo-500 shadow-[0_0_10px_rgba(99,102,241,0.5)] transition-transform duration-100 ${isBeatActive ? 'scale-150' : 'scale-0'}`} />
+               )}
+            </div>
             <div className="text-7xl font-black font-mono tracking-tighter" aria-live="polite">
               {bpm || '--'}
             </div>

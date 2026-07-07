@@ -60,8 +60,20 @@ export function SortingVisualizer({ initialData, onStateChange }: { initialData?
     const osc = ctx.createOscillator();
     const envelope = ctx.createGain();
 
-    // Map value (20-320) to frequency (200-1000Hz)
-    const freq = 200 + (value - 20) * (800 / 300);
+    // Musical scale mapping (Pentatonic Major)
+    const scale = [0, 2, 4, 7, 9]; // Intervals in semitones
+    const baseFreq = 220; // A3
+    const normalized = (value - 20) / 300;
+    const semitone = Math.floor(normalized * 36); // 3 octaves
+    const octave = Math.floor(semitone / 12);
+    const noteIndex = semitone % 12;
+
+    // Find closest note in our pentatonic scale
+    const closestNote = scale.reduce((prev, curr) =>
+      Math.abs(curr - noteIndex) < Math.abs(prev - noteIndex) ? curr : prev
+    );
+
+    const freq = baseFreq * Math.pow(2, (octave * 12 + closestNote) / 12);
 
     osc.type = 'sine';
     osc.frequency.setValueAtTime(freq, ctx.currentTime);

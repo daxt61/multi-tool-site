@@ -392,18 +392,32 @@ export function UnitConverter({ initialData, onStateChange }: { initialData?: an
 
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
-      if (
-        document.activeElement?.tagName === "INPUT" ||
-        document.activeElement?.tagName === "TEXTAREA" ||
-        document.activeElement?.tagName === "SELECT" ||
-        document.activeElement?.getAttribute('contenteditable') === 'true'
-      ) {
-        return;
+      const activeElement = document.activeElement;
+      const isEditable =
+        activeElement instanceof HTMLInputElement ||
+        activeElement instanceof HTMLTextAreaElement ||
+        activeElement instanceof HTMLSelectElement ||
+        activeElement?.getAttribute("contenteditable") === "true";
+
+      if (isEditable && e.key !== 'Escape') {
+         if (e.key === '/' && activeElement !== categorySearchInputRef.current) {
+            e.preventDefault();
+            categorySearchInputRef.current?.focus();
+         }
+         return;
       }
 
       if (e.metaKey || e.ctrlKey || e.altKey || e.shiftKey) return;
 
-      if (e.key.toLowerCase() === 's') {
+      if (e.key === '/') {
+        e.preventDefault();
+        categorySearchInputRef.current?.focus();
+      } else if (e.key === 'Escape') {
+        if (isEditable) {
+           e.preventDefault();
+           handleClear();
+        }
+      } else if (e.key.toLowerCase() === 's') {
         e.preventDefault();
         handleSwapRef.current();
       } else if (e.key.toLowerCase() === 'c') {
@@ -414,7 +428,7 @@ export function UnitConverter({ initialData, onStateChange }: { initialData?: an
 
     window.addEventListener('keydown', handleKeyDown);
     return () => window.removeEventListener('keydown', handleKeyDown);
-  }, []);
+  }, [handleClear]);
 
   return (
     <div className="max-w-4xl mx-auto space-y-12">
@@ -503,11 +517,6 @@ export function UnitConverter({ initialData, onStateChange }: { initialData?: an
               onChange={(e) => {
                 setFromValue(e.target.value);
                 setToValue(convert(e.target.value, fromUnit, toUnit, category));
-              }}
-              onKeyDown={(e) => {
-                if (e.key === 'Escape') {
-                  handleClear();
-                }
               }}
               className="bg-transparent text-4xl font-black font-mono outline-none dark:text-white"
               placeholder="0"

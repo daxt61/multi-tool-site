@@ -151,8 +151,30 @@ export function Stopwatch({ initialData, onStateChange }: { initialData?: any; o
     toast.success(t('common.copied'));
   }, [time, t]);
 
+  const handleCopyAll = useCallback(() => {
+    if (laps.length === 0) return;
+    let content = laps.map(lap => {
+      const lt = formatTime(lap.time);
+      const ot = formatTime(lap.overallTime);
+      return `Lap ${lap.id}: ${lt.h}:${lt.m}:${lt.s}.${lt.ms} (Total: ${ot.h}:${ot.m}:${ot.s}.${ot.ms})`;
+    }).join('\n');
+    navigator.clipboard.writeText(content);
+    toast.success(t('common.copied_all'));
+  }, [laps, t]);
+
   const handleCopyTimeRef = useRef(handleCopyTime);
-  useEffect(() => { handleCopyTimeRef.current = handleCopyTime; }, [handleCopyTime]);
+  const handleCopyAllRef = useRef(handleCopyAll);
+  const handleStartPauseRef = useRef(handleStartPause);
+  const handleLapRef = useRef(handleLap);
+  const handleResetRef = useRef(handleReset);
+
+  useEffect(() => {
+    handleCopyTimeRef.current = handleCopyTime;
+    handleCopyAllRef.current = handleCopyAll;
+    handleStartPauseRef.current = handleStartPause;
+    handleLapRef.current = handleLap;
+    handleResetRef.current = handleReset;
+  }, [handleCopyTime, handleCopyAll, handleStartPause, handleLap, handleReset]);
 
   const handleCopyLap = useCallback((lap: Lap, index: number) => {
     const { h, m, s, ms } = formatTime(lap.time);
@@ -165,19 +187,27 @@ export function Stopwatch({ initialData, onStateChange }: { initialData?: any; o
 
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
-      if (document.activeElement?.tagName === "INPUT" || document.activeElement?.tagName === "TEXTAREA") {
-        return;
-      }
+      const activeElement = document.activeElement;
+      const isEditable =
+        activeElement instanceof HTMLInputElement ||
+        activeElement instanceof HTMLTextAreaElement ||
+        activeElement instanceof HTMLSelectElement ||
+        activeElement?.getAttribute("contenteditable") === "true";
+
+      if (isEditable) return;
 
       if (e.code === 'Space') {
         e.preventDefault();
-        handleStartPause();
+        handleStartPauseRef.current();
       } else if (e.key.toLowerCase() === 'l') {
-        if (time > 0) handleLap();
+        handleLapRef.current();
       } else if (e.key.toLowerCase() === 'r') {
-        if (time > 0) handleReset();
+        handleResetRef.current();
       } else if (e.key.toLowerCase() === 'c') {
-        if (time > 0) {
+        if (e.shiftKey) {
+          e.preventDefault();
+          handleCopyAllRef.current();
+        } else {
           e.preventDefault();
           handleCopyTimeRef.current();
         }
@@ -186,7 +216,7 @@ export function Stopwatch({ initialData, onStateChange }: { initialData?: any; o
 
     window.addEventListener('keydown', handleKeyDown);
     return () => window.removeEventListener('keydown', handleKeyDown);
-  }, [handleStartPause, handleLap, handleReset, time]);
+  }, []);
 
   const handleDownload = () => {
     if (laps.length === 0) return;
@@ -298,6 +328,14 @@ export function Stopwatch({ initialData, onStateChange }: { initialData?: any; o
             {laps.length > 0 && (
               <>
                 <button
+                  onClick={handleCopyAll}
+                  className="text-xs font-bold text-indigo-600 bg-indigo-50 dark:bg-indigo-900/20 hover:bg-indigo-100 dark:hover:bg-indigo-900/30 px-3 py-1.5 rounded-xl flex items-center gap-1 transition-all group"
+                  title={`${t('common.copy_all')} (Shift+C)`}
+                >
+                  <Copy className="w-3.5 h-3.5" /> {t('common.copy_all')}
+                  <Kbd modifier="Shift" className="hidden sm:inline-flex ml-1 bg-white/20 border-indigo-200">C</Kbd>
+                </button>
+                <button
                   onClick={handleDownload}
                   className="text-xs font-bold text-indigo-600 bg-indigo-50 dark:bg-indigo-900/20 hover:bg-indigo-100 dark:hover:bg-indigo-900/30 px-3 py-1.5 rounded-xl flex items-center gap-1 transition-all"
                 >
@@ -311,13 +349,16 @@ export function Stopwatch({ initialData, onStateChange }: { initialData?: any; o
                 </button>
               </>
             )}
-            <button
-              onClick={() => setLaps([])}
-              disabled={laps.length === 0}
-              className="text-xs font-bold text-rose-500 bg-rose-50 dark:bg-rose-500/10 hover:bg-rose-100 dark:hover:bg-rose-500/20 px-3 py-1.5 rounded-xl flex items-center gap-1 transition-all disabled:opacity-50"
-            >
-              <Trash2 className="w-3.5 h-3.5" /> {t('common.clear')}
-            </button>
+            <div className="flex items-center gap-2">
+              <Kbd modifier={null} className="hidden sm:inline-flex border-rose-200 text-rose-400">Esc</Kbd>
+              <button
+                onClick={() => setLaps([])}
+                disabled={laps.length === 0}
+                className="text-xs font-bold text-rose-500 bg-rose-50 dark:bg-rose-500/10 hover:bg-rose-100 dark:hover:bg-rose-500/20 px-3 py-1.5 rounded-xl flex items-center gap-1 transition-all disabled:opacity-50"
+              >
+                <Trash2 className="w-3.5 h-3.5" /> {t('common.clear')}
+              </button>
+            </div>
           </div>
         </div>
 

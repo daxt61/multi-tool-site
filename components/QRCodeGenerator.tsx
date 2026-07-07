@@ -1,6 +1,8 @@
 import { useState, useEffect, useRef, useCallback } from 'react';
 import { Download, Trash2, QrCode, Info, Palette, ShieldCheck, ArrowLeftRight } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
+import { toast } from 'sonner';
+import { Kbd } from './ui/Kbd';
 
 export function QRCodeGenerator({ initialData, onStateChange }: { initialData?: any; onStateChange?: (state: any) => void }) {
   const { t } = useTranslation();
@@ -40,12 +42,14 @@ export function QRCodeGenerator({ initialData, onStateChange }: { initialData?: 
       link.click();
       document.body.removeChild(link);
       window.URL.revokeObjectURL(blobUrl);
+      toast.success(t('common.download_success'));
     } catch (e) {
       const link = document.createElement('a');
       link.href = url;
       link.target = '_blank';
       link.download = `qrcode-${Date.now()}.${format}`;
       link.click();
+      toast.success(t('common.download_success'));
     }
   };
 
@@ -99,11 +103,12 @@ export function QRCodeGenerator({ initialData, onStateChange }: { initialData?: 
                   <QrCode className="w-4 h-4 text-indigo-500" /> {t('qrcode.label')}
                 </label>
                 <div className="flex gap-2 items-center">
-                  <kbd className="hidden sm:inline-flex items-center justify-center px-1.5 py-0.5 border border-rose-200 dark:border-rose-800 rounded text-[10px] font-bold text-rose-400 bg-white dark:bg-slate-900">Esc</kbd>
+                  <Kbd modifier={null} className="hidden sm:inline-flex border-rose-200 dark:border-rose-800 text-rose-400 dark:bg-slate-900">Esc</Kbd>
                   <button
                     onClick={handleClear}
                     disabled={!text}
                     className="text-xs font-bold text-rose-500 bg-rose-50 dark:bg-rose-500/10 hover:bg-rose-100 dark:hover:bg-rose-500/20 px-3 py-1.5 rounded-full transition-all flex items-center gap-1 disabled:opacity-50 disabled:cursor-not-allowed focus-visible:ring-2 focus-visible:ring-rose-500 focus-visible:outline-none"
+                    title={`${t('common.clear')} (Esc)`}
                   >
                     <Trash2 className="w-3 h-3" /> {t('common.clear')}
                   </button>
@@ -127,11 +132,12 @@ export function QRCodeGenerator({ initialData, onStateChange }: { initialData?: 
                     <Palette className="w-4 h-4 text-indigo-500" /> {t('common.color')}
                   </label>
                   <div className="flex gap-2 items-center">
-                    <kbd className="hidden sm:inline-flex items-center justify-center w-5 h-5 border border-indigo-200 dark:border-indigo-800 rounded text-[10px] font-bold text-indigo-400 bg-white dark:bg-slate-900">S</kbd>
+                    <Kbd modifier={null} className="hidden sm:inline-flex w-5 h-5 border-indigo-200 dark:border-indigo-800 text-indigo-400 dark:bg-slate-900">S</Kbd>
                     <button
                       onClick={handleSwapColors}
                       className="text-xs font-bold text-indigo-500 bg-indigo-50 dark:bg-indigo-500/10 hover:bg-indigo-100 dark:hover:bg-indigo-500/20 px-3 py-1.5 rounded-full transition-all flex items-center gap-1 focus-visible:ring-2 focus-visible:ring-indigo-500 focus-visible:outline-none"
                       aria-label={t('qrcode.swap_aria')}
+                      title={`${t('common.swap') || 'Swap'} (S)`}
                     >
                       <ArrowLeftRight className="w-3 h-3" /> {t('common.swap') || 'Swap'}
                     </button>
@@ -251,7 +257,7 @@ export function QRCodeGenerator({ initialData, onStateChange }: { initialData?: 
                <ShieldCheck className="w-4 h-4 text-indigo-500" />
                <span className="text-xs font-black uppercase tracking-widest text-slate-400">{t('qrcode.ecc_levels')}</span>
              </div>
-             <p className="text-[10px] text-slate-500 dark:text-slate-400 leading-relaxed font-medium">
+             <p className="text-[10px] text-slate-600 dark:text-slate-400 leading-relaxed font-medium">
                {t('qrcode.ecc_desc')}
              </p>
           </div>
@@ -264,7 +270,7 @@ export function QRCodeGenerator({ initialData, onStateChange }: { initialData?: 
           <h4 className="font-bold dark:text-white flex items-center gap-2">
             <Info className="w-4 h-4 text-indigo-500" /> {t('unit.guide_title')}
           </h4>
-          <p className="text-sm text-slate-500 dark:text-slate-400 leading-relaxed">
+          <p className="text-sm text-slate-600 dark:text-slate-400 leading-relaxed">
             {t('qrcode.guide_text')}
           </p>
         </div>
@@ -272,7 +278,7 @@ export function QRCodeGenerator({ initialData, onStateChange }: { initialData?: 
           <h4 className="font-bold dark:text-white flex items-center gap-2">
             <Palette className="w-4 h-4 text-indigo-500" /> {t('qrcode.accessibility_title')}
           </h4>
-          <p className="text-sm text-slate-500 dark:text-slate-400 leading-relaxed">
+          <p className="text-sm text-slate-600 dark:text-slate-400 leading-relaxed">
             {t('qrcode.accessibility_text')}
           </p>
         </div>
@@ -280,7 +286,7 @@ export function QRCodeGenerator({ initialData, onStateChange }: { initialData?: 
           <h4 className="font-bold dark:text-white flex items-center gap-2">
             <ShieldCheck className="w-4 h-4 text-indigo-500" /> {t('hashgenerator.security_note_title')}
           </h4>
-          <p className="text-sm text-slate-500 dark:text-slate-400 leading-relaxed">
+          <p className="text-sm text-slate-600 dark:text-slate-400 leading-relaxed">
             {t('qrcode.privacy_text')}
           </p>
         </div>

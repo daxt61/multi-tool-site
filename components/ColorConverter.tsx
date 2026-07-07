@@ -342,14 +342,14 @@ export function ColorConverter({ initialData, onStateChange }: {
 
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
-      if (
-        document.activeElement?.tagName === "INPUT" ||
-        document.activeElement?.tagName === "TEXTAREA" ||
-        document.activeElement?.tagName === "SELECT" ||
-        document.activeElement?.getAttribute('contenteditable') === 'true'
-      ) {
-        return;
-      }
+      const activeElement = document.activeElement;
+      const isEditable =
+        activeElement instanceof HTMLInputElement ||
+        activeElement instanceof HTMLTextAreaElement ||
+        activeElement instanceof HTMLSelectElement ||
+        activeElement?.getAttribute("contenteditable") === "true";
+
+      if (isEditable && e.key !== 'Escape') return;
 
       if (e.metaKey || e.ctrlKey || e.altKey || e.shiftKey) return;
 

@@ -507,6 +507,7 @@ const HashtagExtractor = lazy(() => import("./components/HashtagExtractor").then
 const EmojiExtractor = lazy(() => import("./components/EmojiExtractor").then(m => ({ default: m.EmojiExtractor })));
 const WordCloudGenerator = lazy(() => import("./components/WordCloudGenerator").then(m => ({ default: m.WordCloudGenerator })));
 const TextHexDump = lazy(() => import("./components/TextHexDump").then(m => ({ default: m.TextHexDump })));
+const HillCipher = lazy(() => import("./components/HillCipher").then(m => ({ default: m.HillCipher })));
 
 // ⚡ Bolt Optimization: Pre-calculating tool map and search index for O(1) lookups and faster filtering
 const toolsMap: Record<string, Tool> = {};
@@ -4391,6 +4392,17 @@ const tools: Tool[] = [
     Component: Excess3Converter,
     category: "dev",
     keywords: ["binary", "excess-3", "xs3", "decimal", "encoding", "self-complementing"],
+  },
+  {
+    id: "hill-cipher",
+    name: "Chiffre de Hill",
+    nameEn: "Hill Cipher",
+    icon: Grid3X3,
+    description: "Chiffrer et déchiffrer du texte en utilisant le chiffre de Hill par matrice",
+    descriptionEn: "Encrypt and decrypt text using the matrix-based Hill cipher",
+    Component: HillCipher,
+    category: "text",
+    keywords: ["hill", "cipher", "matrix", "encryption", "linear algebra", "classical"],
   },
 ];
 

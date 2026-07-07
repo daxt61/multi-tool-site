@@ -1,6 +1,8 @@
 import { useState, useEffect, useCallback, useRef } from 'react';
 import { Database, Copy, Check, Trash2, FileCode, AlertCircle, Info, Download } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
+import { toast } from 'sonner';
+import { Kbd } from './ui/Kbd';
 
 const MAX_LENGTH = 100000;
 const MAX_DEPTH = 20;
@@ -61,10 +63,10 @@ export function JSONToAvro({ initialData, onStateChange }: { initialData?: any; 
     }
 
     if (nullable) {
-      if (typeof avroType === 'string' || (typeof avroType === 'object' && avroType.type === 'array' && !Array.isArray(avroType))) {
-         return ["null", avroType];
-      } else if (typeof avroType === 'object' && avroType.type === 'record') {
-         return ["null", avroType];
+      if (typeof avroType === 'string') {
+        return ["null", avroType];
+      } else if (typeof avroType === 'object' && !Array.isArray(avroType)) {
+        return ["null", avroType];
       }
     }
 
@@ -118,26 +120,57 @@ export function JSONToAvro({ initialData, onStateChange }: { initialData?: any; 
       setError(t('error.invalid_json') + ': ' + e.message);
       setOutput('');
     }
-  }, [json, schemaName, namespace, t]);
+  }, [json, schemaName, namespace, nullable, t]);
 
   useEffect(() => {
     const timeout = setTimeout(generateAvro, 300);
     return () => clearTimeout(timeout);
   }, [generateAvro]);
 
-  const handleCopy = () => {
+  const handleCopy = useCallback(() => {
     if (!output) return;
     navigator.clipboard.writeText(output);
     setCopied(true);
+    toast.success(t('common.copied'));
     setTimeout(() => setCopied(false), 2000);
-  };
+  }, [output, t]);
 
-  const handleClear = () => {
+  const handleClear = useCallback(() => {
     setJson('');
     setOutput('');
     setError(null);
     textareaRef.current?.focus();
-  };
+  }, []);
+
+  const handlersRef = useRef({ handleCopy, handleClear });
+  useEffect(() => {
+    handlersRef.current = { handleCopy, handleClear };
+  }, [handleCopy, handleClear]);
+
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      const activeElement = document.activeElement;
+      const isEditable =
+        activeElement instanceof HTMLInputElement ||
+        activeElement instanceof HTMLTextAreaElement ||
+        activeElement instanceof HTMLSelectElement ||
+        activeElement?.getAttribute("contenteditable") === "true";
+
+      if (isEditable && e.key !== 'Escape') return;
+      if (e.metaKey || e.ctrlKey || e.altKey || e.shiftKey) return;
+
+      if (e.key === 'Escape') {
+        e.preventDefault();
+        handlersRef.current.handleClear();
+      } else if (e.key.toLowerCase() === 'c') {
+        e.preventDefault();
+        handlersRef.current.handleCopy();
+      }
+    };
+
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, []);
 
   const handleDownload = () => {
     if (!output) return;
@@ -159,12 +192,15 @@ export function JSONToAvro({ initialData, onStateChange }: { initialData?: any; 
             <label htmlFor="avro-json-input" className="text-xs font-black uppercase tracking-widest text-slate-400 flex items-center gap-2">
               <FileCode className="w-4 h-4 text-indigo-500" /> {t('common.input')} JSON
             </label>
-            <button
-              onClick={handleClear}
-              className="text-xs font-bold text-rose-500 bg-rose-50 dark:bg-rose-500/10 hover:bg-rose-100 px-3 py-1.5 rounded-xl flex items-center gap-1 transition-all"
-            >
-              <Trash2 className="w-3 h-3" /> {t('common.clear')}
-            </button>
+            <div className="flex gap-2 items-center">
+              <Kbd modifier={null} className="hidden sm:inline-flex border-rose-200 dark:border-rose-800 text-rose-400 dark:bg-slate-900">Esc</Kbd>
+              <button
+                onClick={handleClear}
+                className="text-xs font-bold text-rose-500 bg-rose-50 dark:bg-rose-500/10 hover:bg-rose-100 px-3 py-1.5 rounded-xl flex items-center gap-1 transition-all"
+              >
+                <Trash2 className="w-3 h-3" /> {t('common.clear')}
+              </button>
+            </div>
           </div>
 
           <div className="bg-white dark:bg-slate-900/40 p-6 rounded-3xl border border-slate-200 dark:border-slate-800 space-y-4">
@@ -233,6 +269,7 @@ export function JSONToAvro({ initialData, onStateChange }: { initialData?: any; 
               <button
                 onClick={handleCopy}
                 disabled={!output}
+                title={`${t('common.copy')} (C)`}
                 className={`text-xs font-bold px-4 py-1.5 rounded-xl transition-all border focus-visible:ring-2 focus-visible:ring-indigo-500 focus-visible:outline-none flex items-center gap-2 ${
                   copied
                     ? 'bg-emerald-50 dark:bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border-emerald-200'
@@ -241,6 +278,7 @@ export function JSONToAvro({ initialData, onStateChange }: { initialData?: any; 
               >
                 {copied ? <Check className="w-3 h-3" /> : <Copy className="w-3 h-3" />}
                 {copied ? t('common.copied') : t('common.copy')}
+                {!copied && <Kbd modifier={null} className="hidden sm:inline-flex w-4 h-4 bg-white/50 dark:bg-black/20 ml-1">C</Kbd>}
               </button>
             </div>
           </div>

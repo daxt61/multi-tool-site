@@ -126,13 +126,17 @@ export function TextHexDump({ initialData, onStateChange }: { initialData?: any;
             <label htmlFor="hexdump-input" className="text-xs font-black uppercase tracking-widest text-slate-400 flex items-center gap-2">
               <FileText className="w-4 h-4 text-indigo-500" /> {t('common.input')}
             </label>
-            <button
-              onClick={handleClear}
-              disabled={!text}
-              className="text-xs font-bold text-rose-500 bg-rose-50 dark:bg-rose-500/10 hover:bg-rose-100 dark:hover:bg-rose-500/20 px-3 py-1.5 rounded-xl flex items-center gap-1 transition-all disabled:opacity-50 disabled:cursor-not-allowed"
-            >
-              <Trash2 className="w-3 h-3" /> {t('common.clear')}
-            </button>
+            <div className="flex gap-2 items-center">
+              <Kbd modifier={null} className="hidden sm:inline-flex border-rose-200 dark:border-rose-800 text-rose-400">Esc</Kbd>
+              <button
+                onClick={handleClear}
+                disabled={!text}
+                className="text-xs font-bold text-rose-500 bg-rose-50 dark:bg-rose-500/10 hover:bg-rose-100 dark:hover:bg-rose-500/20 px-3 py-1.5 rounded-xl flex items-center gap-1 transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+                title={`${t('common.clear')} (Esc)`}
+              >
+                <Trash2 className="w-3 h-3" /> {t('common.clear')}
+              </button>
+            </div>
           </div>
           <textarea
             id="hexdump-input"

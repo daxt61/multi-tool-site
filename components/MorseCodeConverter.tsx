@@ -1,6 +1,7 @@
 import { useState, useEffect, useCallback, useRef } from 'react';
 import { Signal, Copy, Check, Trash2, Info, AlertCircle, Play, Square, Circle } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
+import { Kbd } from './ui/Kbd';
 
 const MAX_LENGTH = 100000;
 
@@ -24,6 +25,7 @@ const REVERSE_MORSE: Record<string, string> = Object.entries(MORSE_CODE).reduce(
 
 export function MorseCodeConverter({ initialData, onStateChange }: { initialData?: any; onStateChange?: (state: any) => void }) {
   const { t } = useTranslation();
+  const textareaRef = useRef<HTMLTextAreaElement>(null);
   const [text, setText] = useState(initialData?.text || '');
   const [morse, setMorse] = useState(initialData?.morse || '');
   const [copied, setCopied] = useState(false);
@@ -84,6 +86,7 @@ export function MorseCodeConverter({ initialData, onStateChange }: { initialData
     if (stopPlaybackRef.current === false && isPlaying) {
       stopPlaybackRef.current = true;
     }
+    setTimeout(() => textareaRef.current?.focus(), 0);
   }, [isPlaying]);
 
   const playMorse = async () => {
@@ -189,11 +192,12 @@ export function MorseCodeConverter({ initialData, onStateChange }: { initialData
               {t('morse.normal_text')}
             </label>
             <div className="flex gap-2 items-center">
-              <kbd className="hidden sm:inline-flex items-center justify-center px-1.5 py-0.5 border border-rose-200 dark:border-rose-800 rounded text-[10px] font-bold text-rose-400 bg-white dark:bg-slate-900">Esc</kbd>
+              <Kbd modifier={null} className="hidden sm:inline-flex border-rose-200 dark:border-rose-800 text-rose-400">Esc</Kbd>
               <button
                 onClick={handleClear}
                 disabled={!text && !morse}
                 className="text-xs font-bold text-rose-500 bg-rose-50 dark:bg-rose-500/10 hover:bg-rose-100 dark:hover:bg-rose-500/20 px-3 py-1.5 rounded-xl transition-all flex items-center gap-1 disabled:opacity-50 disabled:cursor-not-allowed focus-visible:ring-2 focus-visible:ring-rose-500 focus-visible:outline-none"
+                title={`${t('common.clear')} (Esc)`}
               >
                 <Trash2 className="w-3 h-3" /> {t('common.clear')}
               </button>
@@ -201,6 +205,7 @@ export function MorseCodeConverter({ initialData, onStateChange }: { initialData
           </div>
           <textarea
             id="normal-text"
+            ref={textareaRef}
             value={text}
             onChange={(e) => encode(e.target.value)}
             placeholder={t('stringescaper.placeholder_input')}
@@ -252,9 +257,9 @@ export function MorseCodeConverter({ initialData, onStateChange }: { initialData
               >
                 {isPlaying ? <Square className="w-3 h-3 fill-current" /> : <Play className="w-3 h-3 fill-current" />}
                 {isPlaying ? t('common.stop') : t('common.play')}
-                <kbd className={`hidden sm:inline-flex items-center justify-center w-4 h-4 border rounded text-[10px] font-bold bg-white/50 dark:bg-black/20 ml-1 ${
-                  isPlaying ? 'border-rose-200' : 'border-indigo-200'
-                }`}>P</kbd>
+                <Kbd modifier={null} className={`hidden sm:inline-flex ml-1 ${
+                  isPlaying ? 'border-rose-200/50 text-rose-200' : 'border-indigo-200/50 text-indigo-200'
+                }`}>P</Kbd>
               </button>
               <button
                 onClick={handleCopy}
@@ -264,10 +269,11 @@ export function MorseCodeConverter({ initialData, onStateChange }: { initialData
                     ? 'bg-emerald-50 dark:bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border-emerald-200 dark:border-emerald-500/20'
                     : 'text-slate-500 bg-slate-100 dark:bg-slate-800 border-transparent hover:bg-slate-200'
                 } disabled:opacity-50 disabled:cursor-not-allowed`}
+                title={`${t('common.copy')} (C)`}
               >
                 {copied ? <Check className="w-3 h-3" /> : <Copy className="w-3 h-3" />}
                 {copied ? t('common.copied') : t('common.copy')}
-                {!copied && <kbd className="hidden sm:inline-flex items-center justify-center w-4 h-4 border border-slate-200 dark:border-slate-700 rounded text-[10px] font-bold bg-white/50 dark:bg-black/20 ml-1">C</kbd>}
+                {!copied && <Kbd modifier={null} className="hidden sm:inline-flex ml-1 border-slate-200 dark:border-slate-700 text-slate-400">C</Kbd>}
               </button>
             </div>
           </div>

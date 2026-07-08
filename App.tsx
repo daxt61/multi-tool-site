@@ -4837,14 +4837,22 @@ function MainApp() {
 
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
-      if (e.key === "/" && document.activeElement?.tagName !== "INPUT" && document.activeElement?.tagName !== "TEXTAREA") {
-        e.preventDefault();
-        document.getElementById("tool-search")?.focus();
+      if (document.activeElement?.tagName !== "INPUT" && document.activeElement?.tagName !== "TEXTAREA") {
+        if (e.key === "/") {
+          e.preventDefault();
+          document.getElementById("tool-search")?.focus();
+        } else if (e.key.toLowerCase() === "l" && !e.ctrlKey && !e.metaKey && !e.altKey) {
+          e.preventDefault();
+          if (tools.length > 0) {
+            const randomTool = tools[Math.floor(Math.random() * tools.length)];
+            handleToolSelect(randomTool.id);
+          }
+        }
       }
     };
     window.addEventListener("keydown", handleKeyDown);
     return () => window.removeEventListener("keydown", handleKeyDown);
-  }, []);
+  }, [handleToolSelect, tools]);
 
   useEffect(() => {
     const updateSEO = () => {
@@ -5051,9 +5059,11 @@ function MainApp() {
                       handleToolSelect(randomTool.id);
                     }}
                     className="flex items-center gap-2 px-6 py-3 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl text-sm font-bold text-slate-600 dark:text-slate-400 hover:border-indigo-500 dark:hover:border-indigo-500 hover:text-indigo-600 dark:hover:text-indigo-400 transition-all shadow-sm focus-visible:ring-2 focus-visible:ring-indigo-500 focus-visible:outline-none group/random"
-                    aria-label={t("search.luck")}
+                    aria-label={`${t("search.luck")} (L)`}
+                    title={`${t("search.luck")} (L)`}
                   >
                     <Shuffle className="w-4 h-4 transition-transform duration-500 group-hover/random:rotate-180" /> {t("search.luck")}
+                    <Kbd modifier={null} className="ml-1 bg-slate-50 dark:bg-slate-800 border-slate-200 dark:border-slate-700 text-slate-400 group-hover/random:border-indigo-500/50 group-hover/random:text-indigo-500 transition-colors">L</Kbd>
                   </button>
                 </div>
               </div>

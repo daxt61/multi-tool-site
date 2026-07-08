@@ -508,6 +508,7 @@ const EmojiExtractor = lazy(() => import("./components/EmojiExtractor").then(m =
 const WordCloudGenerator = lazy(() => import("./components/WordCloudGenerator").then(m => ({ default: m.WordCloudGenerator })));
 const TextHexDump = lazy(() => import("./components/TextHexDump").then(m => ({ default: m.TextHexDump })));
 const HillCipher = lazy(() => import("./components/HillCipher").then(m => ({ default: m.HillCipher })));
+const JsonIniConverter = lazy(() => import("./components/JsonIniConverter").then(m => ({ default: m.JsonIniConverter })));
 
 // ⚡ Bolt Optimization: Pre-calculating tool map and search index for O(1) lookups and faster filtering
 const toolsMap: Record<string, Tool> = {};
@@ -4403,6 +4404,17 @@ const tools: Tool[] = [
     Component: HillCipher,
     category: "text",
     keywords: ["hill", "cipher", "matrix", "encryption", "linear algebra", "classical"],
+  },
+  {
+    id: "json-ini",
+    name: "JSON <> INI",
+    nameEn: "JSON <> INI",
+    icon: FileCode,
+    description: "Convertisseur bidirectionnel JSON et INI",
+    descriptionEn: "Bidirectional JSON and INI converter",
+    Component: JsonIniConverter,
+    category: "dev",
+    keywords: ["json", "ini", "convert", "config", "settings", "configuration"],
   },
 ];
 

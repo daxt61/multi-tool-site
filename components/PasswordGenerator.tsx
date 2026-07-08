@@ -39,9 +39,18 @@ export function PasswordGenerator({ initialData, onStateChange }: { initialData?
   const { t, i18n } = useTranslation();
   const [mode, setMode] = useState<'random' | 'passphrase'>(initialData?.mode || 'random');
   const [passwords, setPasswords] = useState<string[]>([]);
-  const [quantity, setQuantity] = useState(initialData?.quantity || 1);
-  const [length, setLength] = useState(initialData?.length || 16);
-  const [wordCount, setWordCount] = useState(initialData?.wordCount || 4);
+  const [quantity, setQuantity] = useState(() => {
+    const q = parseInt(initialData?.quantity, 10);
+    return isNaN(q) ? 1 : Math.min(50, Math.max(1, q));
+  });
+  const [length, setLength] = useState(() => {
+    const l = parseInt(initialData?.length, 10);
+    return isNaN(l) ? 16 : Math.min(128, Math.max(4, l));
+  });
+  const [wordCount, setWordCount] = useState(() => {
+    const w = parseInt(initialData?.wordCount, 10);
+    return isNaN(w) ? 4 : Math.min(20, Math.max(2, w));
+  });
   const [capitalizeWords, setCapitalizeWords] = useState(initialData?.capitalizeWords ?? false);
   const [addNumber, setAddNumber] = useState(initialData?.addNumber ?? false);
   const [addSymbol, setAddSymbol] = useState(initialData?.addSymbol ?? false);
@@ -490,7 +499,7 @@ export function PasswordGenerator({ initialData, onStateChange }: { initialData?
                 id="password-length"
                 type="range"
                 min="4"
-                max="64"
+                max="128"
                 value={length}
                 onChange={(e) => setLength(Number(e.target.value))}
                 className="w-full h-2 bg-slate-200 dark:bg-slate-800 rounded-lg appearance-none cursor-pointer accent-indigo-600 focus-visible:ring-2 focus-visible:ring-indigo-500 focus-visible:outline-none"
@@ -506,7 +515,7 @@ export function PasswordGenerator({ initialData, onStateChange }: { initialData?
                 id="word-count"
                 type="range"
                 min="2"
-                max="10"
+                max="20"
                 value={wordCount}
                 onChange={(e) => setWordCount(Number(e.target.value))}
                 className="w-full h-2 bg-slate-200 dark:bg-slate-800 rounded-lg appearance-none cursor-pointer accent-indigo-600 focus-visible:ring-2 focus-visible:ring-indigo-500 focus-visible:outline-none"

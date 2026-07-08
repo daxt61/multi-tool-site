@@ -9,15 +9,18 @@ export function BcryptGenerator({ initialData, onStateChange }: { initialData?: 
   const { t } = useTranslation();
 
   // Hashing state
-  const [password, setPassword] = useState(initialData?.password || '');
-  const [rounds, setRounds] = useState(initialData?.rounds || 10);
+  const [password, setPassword] = useState('');
+  const [rounds, setRounds] = useState(() => {
+    const r = parseInt(initialData?.rounds, 10);
+    return isNaN(r) ? 10 : Math.min(15, Math.max(4, r));
+  });
   const [hash, setHash] = useState('');
   const [hashing, setHashing] = useState(false);
   const [hashCopied, setHashCopied] = useState(false);
 
   // Verification state
-  const [checkPassword, setCheckPassword] = useState(initialData?.checkPassword || '');
-  const [checkHash, setCheckHash] = useState(initialData?.checkHash || '');
+  const [checkPassword, setCheckPassword] = useState('');
+  const [checkHash, setCheckHash] = useState('');
   const [isMatch, setIsMatch] = useState<boolean | null>(null);
   const [verifying, setVerifying] = useState(false);
 

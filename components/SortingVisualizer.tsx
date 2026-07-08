@@ -20,8 +20,14 @@ const MIN_SPEED = 0;
 export function SortingVisualizer({ initialData, onStateChange }: { initialData?: any; onStateChange?: (state: any) => void }) {
   const { t, i18n } = useTranslation();
   const [algorithm, setAlgorithm] = useState<Algorithm>(initialData?.algorithm || 'bubble');
-  const [arraySize, setArraySize] = useState(initialData?.arraySize || 30);
-  const [speed, setSpeed] = useState(initialData?.speed || 50);
+  const [arraySize, setArraySize] = useState(() => {
+    const s = parseInt(initialData?.arraySize, 10);
+    return isNaN(s) ? 30 : Math.min(100, Math.max(5, s));
+  });
+  const [speed, setSpeed] = useState(() => {
+    const s = parseInt(initialData?.speed, 10);
+    return isNaN(s) ? 50 : Math.min(500, Math.max(0, s));
+  });
   const [soundEnabled, setSoundToggle] = useState(initialData?.soundEnabled ?? true);
   const [volume, setVolume] = useState(initialData?.volume ?? 0.5);
   const [array, setArray] = useState<Bar[]>([]);

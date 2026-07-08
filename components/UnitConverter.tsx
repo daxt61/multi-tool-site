@@ -400,11 +400,11 @@ export function UnitConverter({ initialData, onStateChange }: { initialData?: an
         activeElement?.getAttribute("contenteditable") === "true";
 
       if (isEditable && e.key !== 'Escape') {
-         if (e.key === '/' && activeElement !== categorySearchInputRef.current) {
-            e.preventDefault();
-            categorySearchInputRef.current?.focus();
-         }
-         return;
+        if (e.key === '/' && activeElement !== categorySearchInputRef.current) {
+          e.preventDefault();
+          categorySearchInputRef.current?.focus();
+        }
+        return;
       }
 
       if (e.metaKey || e.ctrlKey || e.altKey || e.shiftKey) return;
@@ -413,10 +413,8 @@ export function UnitConverter({ initialData, onStateChange }: { initialData?: an
         e.preventDefault();
         categorySearchInputRef.current?.focus();
       } else if (e.key === 'Escape') {
-        if (isEditable) {
-           e.preventDefault();
-           handleClear();
-        }
+        e.preventDefault();
+        handleClear();
       } else if (e.key.toLowerCase() === 's') {
         e.preventDefault();
         handleSwapRef.current();
@@ -502,6 +500,7 @@ export function UnitConverter({ initialData, onStateChange }: { initialData?: an
               <button
                 onClick={handleClear}
                 disabled={!fromValue}
+                title={`${t('common.clear')} (Esc)`}
                 className="text-xs font-bold text-rose-500 bg-rose-50 dark:bg-rose-500/10 hover:bg-rose-100 dark:hover:bg-rose-500/20 px-3 py-1.5 rounded-xl flex items-center gap-1 transition-all disabled:opacity-50 disabled:cursor-not-allowed focus-visible:ring-2 focus-visible:ring-rose-500 focus-visible:outline-none"
               >
                 <Trash2 className="w-3 h-3" /> {t('common.clear')}

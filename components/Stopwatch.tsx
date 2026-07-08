@@ -126,6 +126,7 @@ export function Stopwatch({ initialData, onStateChange }: { initialData?: any; o
     setTime(0);
     setLaps([]);
     localStorage.removeItem('stopwatch_state');
+    setTimeout(() => document.getElementById('start-pause-btn')?.focus(), 0);
   }, []);
 
   const handleLap = useCallback(() => {
@@ -162,18 +163,22 @@ export function Stopwatch({ initialData, onStateChange }: { initialData?: any; o
     toast.success(t('common.copied_all'));
   }, [laps, t]);
 
-  const handleCopyTimeRef = useRef(handleCopyTime);
-  const handleCopyAllRef = useRef(handleCopyAll);
-  const handleStartPauseRef = useRef(handleStartPause);
-  const handleLapRef = useRef(handleLap);
-  const handleResetRef = useRef(handleReset);
+  const handlersRef = useRef({
+    handleCopyTime,
+    handleCopyAll,
+    handleStartPause,
+    handleLap,
+    handleReset
+  });
 
   useEffect(() => {
-    handleCopyTimeRef.current = handleCopyTime;
-    handleCopyAllRef.current = handleCopyAll;
-    handleStartPauseRef.current = handleStartPause;
-    handleLapRef.current = handleLap;
-    handleResetRef.current = handleReset;
+    handlersRef.current = {
+      handleCopyTime,
+      handleCopyAll,
+      handleStartPause,
+      handleLap,
+      handleReset
+    };
   }, [handleCopyTime, handleCopyAll, handleStartPause, handleLap, handleReset]);
 
   const handleCopyLap = useCallback((lap: Lap, index: number) => {
@@ -194,22 +199,29 @@ export function Stopwatch({ initialData, onStateChange }: { initialData?: any; o
         activeElement instanceof HTMLSelectElement ||
         activeElement?.getAttribute("contenteditable") === "true";
 
-      if (isEditable) return;
+      if (isEditable && e.key !== 'Escape') return;
+
+      const { handleStartPause, handleLap, handleReset, handleCopyAll, handleCopyTime } = handlersRef.current;
 
       if (e.code === 'Space') {
         e.preventDefault();
-        handleStartPauseRef.current();
+        handleStartPause();
       } else if (e.key.toLowerCase() === 'l') {
-        handleLapRef.current();
+        e.preventDefault();
+        handleLap();
       } else if (e.key.toLowerCase() === 'r') {
-        handleResetRef.current();
+        e.preventDefault();
+        handleReset();
+      } else if (e.key === 'Escape') {
+        e.preventDefault();
+        handleReset();
       } else if (e.key.toLowerCase() === 'c') {
         if (e.shiftKey) {
           e.preventDefault();
-          handleCopyAllRef.current();
+          handleCopyAll();
         } else {
           e.preventDefault();
-          handleCopyTimeRef.current();
+          handleCopyTime();
         }
       }
     };
@@ -281,6 +293,7 @@ export function Stopwatch({ initialData, onStateChange }: { initialData?: any; o
 
         <div className="flex flex-wrap justify-center gap-4">
           <button
+            id="start-pause-btn"
             onClick={handleStartPause}
             aria-label={isRunning ? t('timer.pause') : t('timer.start')}
             title={`${isRunning ? t('timer.pause') : t('timer.start')} (Space)`}
@@ -354,6 +367,7 @@ export function Stopwatch({ initialData, onStateChange }: { initialData?: any; o
               <button
                 onClick={() => setLaps([])}
                 disabled={laps.length === 0}
+              title={`${t('common.clear')} (Esc)`}
                 className="text-xs font-bold text-rose-500 bg-rose-50 dark:bg-rose-500/10 hover:bg-rose-100 dark:hover:bg-rose-500/20 px-3 py-1.5 rounded-xl flex items-center gap-1 transition-all disabled:opacity-50"
               >
                 <Trash2 className="w-3.5 h-3.5" /> {t('common.clear')}

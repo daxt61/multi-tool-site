@@ -1,6 +1,7 @@
 import { useState, useEffect, useCallback, useRef } from 'react';
 import { FileCode, Copy, Check, Trash2, AlertCircle, Database, Download, RotateCcw } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
+import { toast } from 'sonner';
 import { Kbd } from './ui/Kbd';
 
 const MAX_LENGTH = 100000;
@@ -170,39 +171,47 @@ export function JSONToSQL({ initialData, onStateChange }: { initialData?: any; o
     setInput('');
     setOutput('');
     setError('');
+    setTimeout(() => document.getElementById('json-input')?.focus(), 0);
   }, []);
 
   const handleCopy = useCallback(() => {
     if (!output) return;
     navigator.clipboard.writeText(output);
     setCopied(true);
+    toast.success(t('common.copied'));
     setTimeout(() => setCopied(false), 2000);
-  }, [output]);
+  }, [output, t]);
 
-  const handleConvertRef = useRef(handleConvert);
-  const handleClearRef = useRef(handleClear);
-  const handleCopyRef = useRef(handleCopy);
+  const handlersRef = useRef({
+    handleConvert,
+    handleClear,
+    handleCopy
+  });
 
   useEffect(() => {
-    handleConvertRef.current = handleConvert;
-    handleClearRef.current = handleClear;
-    handleCopyRef.current = handleCopy;
+    handlersRef.current = {
+      handleConvert,
+      handleClear,
+      handleCopy
+    };
   }, [handleConvert, handleClear, handleCopy]);
 
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
       const activeElement = document.activeElement;
-      const isInputFocused =
+      const isEditable =
         activeElement instanceof HTMLInputElement ||
         activeElement instanceof HTMLTextAreaElement ||
         activeElement instanceof HTMLSelectElement ||
         activeElement?.getAttribute("contenteditable") === "true";
 
-      if (isInputFocused && !((e.ctrlKey || e.metaKey) && e.key === 'Enter') && e.key !== 'Escape') return;
+      const { handleConvert, handleClear, handleCopy } = handlersRef.current;
+
+      if (isEditable && !((e.ctrlKey || e.metaKey) && e.key === 'Enter') && e.key !== 'Escape') return;
 
       if ((e.ctrlKey || e.metaKey) && e.key === 'Enter') {
         e.preventDefault();
-        handleConvertRef.current();
+        handleConvert();
         return;
       }
 
@@ -210,10 +219,10 @@ export function JSONToSQL({ initialData, onStateChange }: { initialData?: any; o
 
       if (e.key === "Escape") {
         e.preventDefault();
-        handleClearRef.current();
+        handleClear();
       } else if (e.key.toLowerCase() === "c") {
         e.preventDefault();
-        handleCopyRef.current();
+        handleCopy();
       }
     };
 
@@ -263,6 +272,7 @@ export function JSONToSQL({ initialData, onStateChange }: { initialData?: any; o
               <button
                 onClick={handleClear}
                 disabled={!input && !output}
+                title={`${t('common.clear')} (Esc)`}
                 className="text-xs font-bold px-3 py-1 rounded-full text-rose-500 bg-rose-50 dark:bg-rose-500/10 hover:bg-rose-100 dark:hover:bg-rose-500/20 transition-all flex items-center gap-1 disabled:opacity-50 disabled:cursor-not-allowed focus-visible:ring-2 focus-visible:ring-rose-500 focus-visible:outline-none"
               >
                 <Trash2 className="w-3 h-3" /> {t('common.clear')}
@@ -417,6 +427,7 @@ export function JSONToSQL({ initialData, onStateChange }: { initialData?: any; o
               <button
                 onClick={handleCopy}
                 disabled={!output}
+                title={`${t('common.copy')} (C)`}
                 className={`text-xs font-bold px-3 py-1 rounded-full transition-all flex items-center gap-1 border focus-visible:ring-2 focus-visible:ring-indigo-500 focus-visible:outline-none ${
                   copied
                     ? 'bg-emerald-50 dark:bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border border-emerald-200 dark:border-emerald-500/20'

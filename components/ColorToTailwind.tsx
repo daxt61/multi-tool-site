@@ -1,8 +1,9 @@
-import { useState, useEffect, useMemo, useCallback } from 'react';
+import { useState, useEffect, useMemo, useCallback, useRef } from 'react';
 import { Copy, Check, Palette, Search, Info, Sliders, RefreshCcw } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import { toast } from 'sonner';
 import { getSecureRandomColor } from './ui/crypto';
+import { Kbd } from './ui/Kbd';
 
 // Simplified Tailwind Color Palette
 const TAILWIND_COLORS: Record<string, Record<string, string>> = {
@@ -56,6 +57,10 @@ export function ColorToTailwind({ initialData, onStateChange }: { initialData?: 
     onStateChange?.({ color });
   }, [color, onStateChange]);
 
+  const handleRandom = useCallback(() => {
+    setColor(getSecureRandomColor());
+  }, []);
+
   const nearestMatches = useMemo(() => {
     const inputRgb = hexToRgb(color);
     if (!inputRgb) return [];
@@ -79,12 +84,61 @@ export function ColorToTailwind({ initialData, onStateChange }: { initialData?: 
     return matches.sort((a, b) => a.distance - b.distance).slice(0, 8);
   }, [color]);
 
-  const handleCopy = (val: string) => {
+  const handleCopy = useCallback((val: string) => {
     navigator.clipboard.writeText(val);
     setCopied(val);
     toast.success(t('common.copied'));
     setTimeout(() => setCopied(null), 2000);
-  };
+  }, [t]);
+
+  const handlersRef = useRef({
+    handleRandom,
+    handleCopy,
+    nearestMatches
+  });
+
+  useEffect(() => {
+    handlersRef.current = {
+      handleRandom,
+      handleCopy,
+      nearestMatches
+    };
+  }, [handleRandom, handleCopy, nearestMatches]);
+
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      const activeElement = document.activeElement;
+      const isEditable =
+        activeElement instanceof HTMLInputElement ||
+        activeElement instanceof HTMLTextAreaElement ||
+        activeElement instanceof HTMLSelectElement ||
+        activeElement?.getAttribute("contenteditable") === "true";
+
+      if (isEditable) return;
+      if (e.metaKey || e.ctrlKey || e.altKey || e.shiftKey) return;
+
+      const { handleRandom, handleCopy, nearestMatches } = handlersRef.current;
+
+      if (e.key.toLowerCase() === 'r') {
+        e.preventDefault();
+        handleRandom();
+      } else if (e.key.toLowerCase() === 'c') {
+        if (nearestMatches.length > 0) {
+          e.preventDefault();
+          const first = nearestMatches[0];
+          handleCopy(`${first.name}-${first.weight}`);
+        }
+      } else if (e.key.toLowerCase() === 'h') {
+        if (nearestMatches.length > 0) {
+          e.preventDefault();
+          handleCopy(nearestMatches[0].hex);
+        }
+      }
+    };
+
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, []);
 
   return (
     <div className="max-w-4xl mx-auto space-y-12">
@@ -126,11 +180,12 @@ export function ColorToTailwind({ initialData, onStateChange }: { initialData?: 
                 </div>
               </div>
               <button
-                onClick={() => setColor(getSecureRandomColor())}
-                className="p-3 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl hover:bg-slate-50 transition-colors focus-visible:ring-2 focus-visible:ring-indigo-500 focus-visible:outline-none"
-                title={t('common.random', 'Random')}
+                onClick={handleRandom}
+                className="p-3 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl hover:bg-slate-50 transition-colors focus-visible:ring-2 focus-visible:ring-indigo-500 focus-visible:outline-none flex items-center gap-2 group"
+                title={`${t('common.random', 'Random')} (R)`}
               >
-                <RefreshCcw className="w-5 h-5 text-slate-500" />
+                <RefreshCcw className="w-5 h-5 text-slate-500 group-hover:rotate-180 transition-transform duration-500" />
+                <Kbd modifier={null} className="hidden lg:inline-flex border-slate-200 dark:border-slate-700 text-slate-400">R</Kbd>
               </button>
             </div>
           </div>
@@ -165,17 +220,19 @@ export function ColorToTailwind({ initialData, onStateChange }: { initialData?: 
                   <div className="flex gap-2">
                     <button
                       onClick={() => handleCopy(className)}
-                      className={`p-2 rounded-lg transition-all ${copied === className ? 'bg-emerald-50 text-emerald-600' : 'text-slate-400 hover:bg-slate-50 hover:text-indigo-600'}`}
-                      title={t('common.copy_class', 'Copy Class')}
+                      className={`p-2 rounded-lg transition-all flex items-center gap-1 ${copied === className ? 'bg-emerald-50 text-emerald-600' : 'text-slate-400 hover:bg-slate-50 hover:text-indigo-600'}`}
+                      title={`${t('common.copy_class', 'Copy Class')}${i === 0 ? ' (C)' : ''}`}
                     >
                       {copied === className ? <Check className="w-4 h-4" /> : <Copy className="w-4 h-4" />}
+                      {i === 0 && !copied && <Kbd modifier={null} className="hidden sm:inline-flex border-slate-200 dark:border-slate-700 text-slate-400 h-4 min-w-[1.25rem] px-1 text-[10px]">C</Kbd>}
                     </button>
                     <button
                       onClick={() => handleCopy(match.hex)}
-                      className={`p-2 rounded-lg transition-all ${copied === match.hex ? 'bg-emerald-50 text-emerald-600' : 'text-slate-400 hover:bg-slate-50 hover:text-indigo-600'}`}
-                      title={t('common.copy_hex', 'Copy HEX')}
+                      className={`p-2 rounded-lg transition-all flex items-center gap-1 ${copied === match.hex ? 'bg-emerald-50 text-emerald-600' : 'text-slate-400 hover:bg-slate-50 hover:text-indigo-600'}`}
+                      title={`${t('common.copy_hex', 'Copy HEX')}${i === 0 ? ' (H)' : ''}`}
                     >
                       <span className="text-[10px] font-bold">HEX</span>
+                      {i === 0 && !copied && <Kbd modifier={null} className="hidden sm:inline-flex border-slate-200 dark:border-slate-700 text-slate-400 h-4 min-w-[1.25rem] px-1 text-[10px]">H</Kbd>}
                     </button>
                   </div>
                 </div>

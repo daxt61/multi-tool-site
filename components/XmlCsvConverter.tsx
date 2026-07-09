@@ -156,8 +156,8 @@ export function XmlCsvConverter({ initialData, onStateChange }: { initialData?: 
         headers.join(delimiter),
         ...flattenedRows.map(row =>
           headers.map(header => {
-            const val = row[header] ?? '';
-            const str = String(val).replace(/"/g, '""');
+            const val = Object.prototype.hasOwnProperty.call(row, header) ? row[header] : '';
+            const str = (val === null || val === undefined ? '' : String(val)).replace(/"/g, '""');
             return str.includes(delimiter) || str.includes('\n') || str.includes('"') ? `"${str}"` : str;
           }).join(delimiter)
         )

@@ -147,14 +147,14 @@ export function FractionCalculator({ initialData, onStateChange }: { initialData
               ref={num1Ref}
               type="number"
               value={num1}
-              onChange={(e) => setNum1(parseInt(e.target.value) || 0)}
+              onChange={(e) => setNum1(parseInt(e.target.value, 10) || 0)}
               className="bg-transparent text-3xl font-black font-mono text-center outline-none dark:text-white border-b border-slate-300 dark:border-slate-700 pb-2"
               placeholder="0"
             />
             <input
               type="number"
               value={den1}
-              onChange={(e) => setDen1(parseInt(e.target.value) || 0)}
+              onChange={(e) => setDen1(parseInt(e.target.value, 10) || 0)}
               onBlur={() => { if (den1 === 0) setDen1(1); }}
               className="bg-transparent text-3xl font-black font-mono text-center outline-none dark:text-white pt-2"
               placeholder="1"
@@ -187,14 +187,14 @@ export function FractionCalculator({ initialData, onStateChange }: { initialData
             <input
               type="number"
               value={num2}
-              onChange={(e) => setNum2(parseInt(e.target.value) || 0)}
+              onChange={(e) => setNum2(parseInt(e.target.value, 10) || 0)}
               className="bg-transparent text-3xl font-black font-mono text-center outline-none dark:text-white border-b border-slate-300 dark:border-slate-700 pb-2"
               placeholder="0"
             />
             <input
               type="number"
               value={den2}
-              onChange={(e) => setDen2(parseInt(e.target.value) || 0)}
+              onChange={(e) => setDen2(parseInt(e.target.value, 10) || 0)}
               onBlur={() => { if (den2 === 0) setDen2(1); }}
               className="bg-transparent text-3xl font-black font-mono text-center outline-none dark:text-white pt-2"
               placeholder="1"
@@ -230,7 +230,7 @@ export function FractionCalculator({ initialData, onStateChange }: { initialData
         <div className="grid grid-cols-1 md:grid-cols-3 gap-8 pt-8">
            {result.mixed && (
               <div className="p-8 bg-emerald-50 dark:bg-emerald-900/10 rounded-[2rem] border border-emerald-100 dark:border-emerald-900/20 space-y-4">
-                <h4 className="text-xs font-black uppercase tracking-widest text-emerald-500">{t('fraction.mixed_fraction', 'Mixed Fraction')}</h4>
+                <h4 className="text-xs font-black uppercase tracking-widest text-emerald-500">{t('fraction.mixed_fraction')}</h4>
                 <div className="flex items-center justify-center gap-2 font-mono font-black text-emerald-600 dark:text-emerald-400">
                   <span className="text-4xl">{result.mixed.whole}</span>
                   <div className="flex flex-col items-center">

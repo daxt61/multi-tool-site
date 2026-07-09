@@ -382,13 +382,11 @@ export function UnitConverter({ initialData, onStateChange }: { initialData?: an
     setToValue(convert(newFromValue, newFromUnit, newToUnit, category));
   }, [fromUnit, toUnit, toValue, category]);
 
-  const handleSwapRef = useRef(handleSwap);
-  const handleCopyRef = useRef(handleCopy);
+  const handlersRef = useRef({ handleSwap, handleCopy, handleClear });
 
   useEffect(() => {
-    handleSwapRef.current = handleSwap;
-    handleCopyRef.current = handleCopy;
-  }, [handleSwap, handleCopy]);
+    handlersRef.current = { handleSwap, handleCopy, handleClear };
+  }, [handleSwap, handleCopy, handleClear]);
 
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
@@ -398,6 +396,8 @@ export function UnitConverter({ initialData, onStateChange }: { initialData?: an
         activeElement instanceof HTMLTextAreaElement ||
         activeElement instanceof HTMLSelectElement ||
         activeElement?.getAttribute("contenteditable") === "true";
+
+      const { handleSwap, handleCopy, handleClear } = handlersRef.current;
 
       if (isEditable && e.key !== 'Escape') {
         if (e.key === '/' && activeElement !== categorySearchInputRef.current) {
@@ -417,16 +417,16 @@ export function UnitConverter({ initialData, onStateChange }: { initialData?: an
         handleClear();
       } else if (e.key.toLowerCase() === 's') {
         e.preventDefault();
-        handleSwapRef.current();
+        handleSwap();
       } else if (e.key.toLowerCase() === 'c') {
         e.preventDefault();
-        handleCopyRef.current();
+        handleCopy();
       }
     };
 
     window.addEventListener('keydown', handleKeyDown);
     return () => window.removeEventListener('keydown', handleKeyDown);
-  }, [handleClear]);
+  }, []);
 
   return (
     <div className="max-w-4xl mx-auto space-y-12">

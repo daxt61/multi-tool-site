@@ -49,3 +49,6 @@
 ## 2026-07-03 - [Safe Global Keyboard Listener Isolation]
 **Learning:** Global keyboard listeners (e.g. Escape to clear) can cause unintended side effects (clearing the wrong input or stealing focus) when the user is interacting with global UI elements like Search bars or Command Menus.
 **Action:** Global keyboard listeners must explicitly verify that the focus is either on the relevant component's input/textarea or that no other editable element has focus (`if (isEditable && activeElement !== targetRef.current) return;`) before executing actions.
+## 2026-07-09 - Standardized UI and Shortcut Pattern
+**Learning:** Tools should implement a unified 'Reset' or 'Clear' pattern paired with an 'Escape' shortcut, and copy actions should trigger global toast notifications via 'sonner' for consistent user feedback. The 'handlersRef' pattern is essential for stable keyboard listeners in React components.
+**Action:** Implemented these patterns across FractionCalculator, UnitConverter, CaseConverter, NumberStatistics, JSONToSQL, and RandomGenerator.

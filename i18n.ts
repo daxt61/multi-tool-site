@@ -3184,6 +3184,8 @@ const resources = {
       "hillcipher.about_text": "The Hill cipher is a polyalphabetic substitution cipher based on linear algebra, invented by Lester S. Hill in 1929. It uses a square matrix as a key to transform blocks of text. For decryption to be possible, the matrix must be invertible modulo 26, meaning its determinant must not be divisible by 2 or 13.",
       "jsonini.about_title": "About JSON <> INI Converter",
       "jsonini.about_text": "This tool allows you to convert between JSON and INI configuration formats. INI files are simple text files with a basic structure composed of sections, properties, and values. JSON is a more complex, hierarchical format. This converter automatically maps JSON nested objects to INI sections.",
+      "jsontosql.error_invalid_fields": "Enter valid JSON with fields to select columns",
+      "jsontosql.error_invalid_json": "Enter valid JSON to select columns",
     }
   },
   fr: {
@@ -6371,6 +6373,8 @@ const resources = {
       "hillcipher.about_text": "Le chiffre de Hill est un chiffrement polyalphabétique basé sur l'algèbre linéaire, inventé par Lester S. Hill en 1929. Il utilise une matrice carrée comme clé pour transformer des blocs de texte. Pour que le déchiffrement soit possible, la matrice doit être inversible modulo 26, ce qui signifie que son déterminant ne doit pas être divisible par 2 ou 13.",
       "jsonini.about_title": "À propos du convertisseur JSON <> INI",
       "jsonini.about_text": "Cet outil vous permet de convertir entre les formats de configuration JSON et INI. Les fichiers INI sont des fichiers texte simples avec une structure de base composée de sections, de propriétés et de valeurs. Le JSON est un format hiérarchique plus complexe. Ce convertisseur mappe automatiquement les objets imbriqués JSON aux sections INI.",
+      "jsontosql.error_invalid_fields": "Entrez un JSON valide avec des champs pour sélectionner des colonnes",
+      "jsontosql.error_invalid_json": "Entrez un JSON valide pour sélectionner des colonnes",
     }
   }
 };

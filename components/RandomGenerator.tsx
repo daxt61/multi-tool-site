@@ -1,11 +1,14 @@
-import { useState, useEffect } from 'react';
-import { Shuffle, Copy, Check, RefreshCw, Hash, Type, AlignLeft, Trash2, Download, AlertCircle } from 'lucide-react';
+import { useState, useEffect, useCallback, useRef } from 'react';
+import { Shuffle, Copy, Check, RefreshCw, Hash, Type, AlignLeft, Trash2, Download, AlertCircle, RotateCcw } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
+import { toast } from 'sonner';
 import { getSecureRandomInt } from './ui/crypto';
+import { Kbd } from './ui/Kbd';
 
 const MAX_LENGTH = 100000;
 
 export function RandomGenerator({ initialData, onStateChange }: { initialData?: any; onStateChange?: (state: any) => void }) {
+  const numMinRef = useRef<HTMLInputElement>(null);
   const { t } = useTranslation();
   const [min, setMin] = useState(initialData?.min ?? 1);
   const [max, setMax] = useState(initialData?.max ?? 100);
@@ -129,11 +132,12 @@ export function RandomGenerator({ initialData, onStateChange }: { initialData?: 
     setCoinResult(val === 0 ? 'pile' : 'face');
   };
 
-  const copyToClipboard = (text: string, id: string) => {
+  const copyToClipboard = useCallback((text: string, id: string) => {
     navigator.clipboard.writeText(text);
     setCopied(id);
+    toast.success(t('common.copied'));
     setTimeout(() => setCopied(''), 2000);
-  };
+  }, [t]);
 
   const handleDownload = (text: string, filename: string) => {
     if (!text) return;
@@ -145,6 +149,51 @@ export function RandomGenerator({ initialData, onStateChange }: { initialData?: 
     link.click();
     URL.revokeObjectURL(url);
   };
+
+  const handleReset = useCallback(() => {
+    setRandomNumber(null);
+    setRandomString('');
+    setList('');
+    setShuffledList([]);
+    setWinner(null);
+    setTeams([]);
+    setError(null);
+    setTimeout(() => numMinRef.current?.focus(), 0);
+  }, []);
+
+  const handlersRef = useRef({ handleReset, generateNumber, generateString, shuffleList });
+  useEffect(() => {
+    handlersRef.current = { handleReset, generateNumber, generateString, shuffleList };
+  }, [handleReset, generateNumber, generateString, shuffleList]);
+
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      const activeElement = document.activeElement;
+      const isEditable =
+        activeElement instanceof HTMLInputElement ||
+        activeElement instanceof HTMLTextAreaElement ||
+        activeElement?.getAttribute("contenteditable") === "true";
+
+      const { handleReset, generateNumber, generateString, shuffleList } = handlersRef.current;
+
+      if (isEditable && e.key !== 'Escape') return;
+
+      if (e.metaKey || e.ctrlKey || e.altKey || e.shiftKey) return;
+
+      if (e.key === "Escape") {
+        e.preventDefault();
+        handleReset();
+      } else if (e.key.toLowerCase() === 'r') {
+        e.preventDefault();
+        generateNumber();
+        generateString();
+        if (list.trim()) shuffleList();
+      }
+    };
+
+    window.addEventListener("keydown", handleKeyDown);
+    return () => window.removeEventListener("keydown", handleKeyDown);
+  }, [list]);
 
   return (
     <div className="max-w-5xl mx-auto space-y-12">
@@ -160,6 +209,7 @@ export function RandomGenerator({ initialData, onStateChange }: { initialData?: 
             <label htmlFor="num-min" className="text-xs font-bold text-slate-400 px-1 cursor-pointer">{t('random.min')}</label>
             <input
               id="num-min"
+              ref={numMinRef}
               type="number"
               value={min}
               onChange={(e) => setMin(Number(e.target.value))}
@@ -188,16 +238,20 @@ export function RandomGenerator({ initialData, onStateChange }: { initialData?: 
               <button
                 onClick={() => setRandomNumber(null)}
                 disabled={randomNumber === null}
+                title={`${t('common.clear')} (Esc)`}
                 className="text-xs font-bold text-rose-500 bg-rose-50 dark:bg-rose-500/10 hover:bg-rose-100 dark:hover:bg-rose-500/20 px-3 py-1.5 rounded-xl flex items-center gap-1 transition-all disabled:opacity-50 disabled:cursor-not-allowed focus-visible:ring-2 focus-visible:ring-rose-500 focus-visible:outline-none"
               >
-                <Trash2 className="w-3 h-3" /> {t('common.clear')}
+                <RotateCcw className="w-3 h-3" /> {t('common.clear')}
+                <Kbd modifier={null} className="ml-1 hidden sm:inline-flex border-rose-200 dark:border-rose-800 text-rose-400 dark:bg-slate-900">Esc</Kbd>
               </button>
             </div>
             <button
               onClick={generateNumber}
-              className="h-14 bg-indigo-600 text-white rounded-2xl font-black hover:bg-indigo-700 transition-all shadow-lg shadow-indigo-600/20 active:scale-95 flex items-center justify-center gap-2"
+              className="h-14 bg-indigo-600 text-white rounded-2xl font-black hover:bg-indigo-700 transition-all shadow-lg shadow-indigo-600/20 active:scale-95 flex items-center justify-center gap-2 group"
+              title={`${t('random.generate')} (R)`}
             >
-              <RefreshCw className="w-5 h-5" /> {t('random.generate')}
+              <RefreshCw className="w-5 h-5 group-hover:rotate-180 transition-transform duration-500" /> {t('random.generate')}
+              <Kbd modifier={null} className="ml-2 hidden sm:inline-flex border-white/20 bg-white/10 text-white">R</Kbd>
             </button>
           </div>
 
@@ -388,9 +442,11 @@ export function RandomGenerator({ initialData, onStateChange }: { initialData?: 
           <button
             onClick={() => {setList(''); setShuffledList([]); setWinner(null); setTeams([]); setError(null);}}
             disabled={!list && shuffledList.length === 0 && !winner && teams.length === 0}
+            title={`${t('common.clear')} (Esc)`}
             className="text-xs font-bold text-rose-500 bg-rose-50 dark:bg-rose-500/10 hover:bg-rose-100 dark:hover:bg-rose-500/20 px-3 py-1.5 rounded-xl flex items-center gap-1 transition-all disabled:opacity-50 disabled:cursor-not-allowed focus-visible:ring-2 focus-visible:ring-indigo-500 focus-visible:outline-none"
           >
-            <Trash2 className="w-3 h-3" /> {t('common.clear')}
+            <RotateCcw className="w-3 h-3" /> {t('common.clear')}
+            <Kbd modifier={null} className="ml-1 hidden sm:inline-flex border-rose-200 dark:border-rose-800 text-rose-400 dark:bg-slate-900">Esc</Kbd>
           </button>
         </div>
 

@@ -4,6 +4,8 @@ import {
   Hash, Calculator, Sigma, TrendingUp, AlertCircle, RotateCcw
 } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
+import { toast } from 'sonner';
+import { Kbd } from './ui/Kbd';
 
 const MAX_LENGTH = 100000;
 
@@ -98,8 +100,9 @@ export function NumberStatistics({ initialData, onStateChange }: { initialData?:
   const handleCopy = useCallback((val: string, id: string) => {
     navigator.clipboard.writeText(val);
     setCopied(id);
+    toast.success(t('common.copied'));
     setTimeout(() => setCopied(null), 2000);
-  }, []);
+  }, [t]);
 
   const handleDownload = useCallback(() => {
     if (!input) return;
@@ -139,19 +142,26 @@ export function NumberStatistics({ initialData, onStateChange }: { initialData?:
   const handleClear = useCallback(() => {
     setInput('');
     setError(null);
-    inputRef.current?.focus();
+    setTimeout(() => inputRef.current?.focus(), 0);
   }, []);
+
+  const handlersRef = useRef({ handleClear, copyReport });
+  useEffect(() => {
+    handlersRef.current = { handleClear, copyReport };
+  }, [handleClear, copyReport]);
 
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
       const activeElement = document.activeElement;
-      const isInputFocused =
+      const isEditable =
         activeElement instanceof HTMLInputElement ||
         activeElement instanceof HTMLTextAreaElement ||
         activeElement instanceof HTMLSelectElement ||
         activeElement?.getAttribute("contenteditable") === "true";
 
-      if (isInputFocused) return;
+      const { handleClear, copyReport } = handlersRef.current;
+
+      if (isEditable && e.key !== 'Escape') return;
 
       if (e.metaKey || e.ctrlKey || e.altKey || e.shiftKey) return;
 
@@ -166,7 +176,7 @@ export function NumberStatistics({ initialData, onStateChange }: { initialData?:
 
     window.addEventListener("keydown", handleKeyDown);
     return () => window.removeEventListener("keydown", handleKeyDown);
-  }, [handleClear, copyReport]);
+  }, []);
 
   const formatNum = (n: number) => {
     if (Number.isInteger(n)) return n.toString();
@@ -199,11 +209,11 @@ export function NumberStatistics({ initialData, onStateChange }: { initialData?:
               <button
                 onClick={handleClear}
                 disabled={!input}
+                title={`${t('common.clear')} (Esc)`}
                 className="text-xs font-bold text-rose-500 bg-rose-50 dark:bg-rose-500/10 hover:bg-rose-100 px-3 py-1.5 rounded-xl flex items-center gap-1 transition-all disabled:opacity-50 focus-visible:ring-2 focus-visible:ring-rose-500 outline-none"
-                aria-label={t('common.clear')}
               >
                 <RotateCcw className="w-3.5 h-3.5" /> {t('common.clear')}
-                <kbd className="ml-1 hidden sm:inline-flex items-center justify-center px-1.5 py-0.5 border border-rose-200 dark:border-rose-800 rounded text-[10px] font-bold bg-white/50 dark:bg-black/20">Esc</kbd>
+                <Kbd modifier={null} className="ml-1 hidden sm:inline-flex border-rose-200 dark:border-rose-800 text-rose-400 dark:bg-slate-900">Esc</Kbd>
               </button>
             </div>
           </div>
@@ -253,7 +263,7 @@ export function NumberStatistics({ initialData, onStateChange }: { initialData?:
                 >
                   {copied === 'report' ? <Check className="w-4 h-4" /> : <Copy className="w-4 h-4" />}
                   {copied === 'report' ? t('common.copied') : t('numstats.copy_report')}
-                  {!copied && <kbd className="hidden sm:inline-flex items-center justify-center w-4 h-4 border border-white/20 rounded text-[10px] font-bold bg-white/10 ml-1">C</kbd>}
+                  {!copied && <Kbd modifier={null} className="hidden sm:inline-flex border-white/20 bg-white/10 text-white ml-1">C</Kbd>}
                 </button>
               </div>
             ) : (

@@ -1,6 +1,7 @@
 import { useState, useEffect, useCallback, useRef } from 'react';
 import { Copy, Check, Type, FileText, Trash2, AlertCircle, Download, LayoutGrid } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
+import { Kbd } from './ui/Kbd';
 import { getSecureRandomInt } from './ui/crypto';
 
 const MAX_LENGTH = 100000;
@@ -106,8 +107,13 @@ export function CaseConverter({ initialData, onStateChange }: { initialData?: an
   const handleClear = useCallback(() => {
     setText('');
     setError(null);
-    textareaRef.current?.focus();
+    setTimeout(() => textareaRef.current?.focus(), 0);
   }, []);
+
+  const handlersRef = useRef({ handleClear });
+  useEffect(() => {
+    handlersRef.current = { handleClear };
+  }, [handleClear]);
 
   const handleDownload = (content: string, name: string) => {
     if (!content || error) return;
@@ -135,17 +141,15 @@ export function CaseConverter({ initialData, onStateChange }: { initialData?: an
 
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
-      if (
-        document.activeElement?.tagName === "INPUT" ||
-        document.activeElement?.tagName === "TEXTAREA"
-      ) {
-        if (e.key === 'Escape') {
-          e.preventDefault();
-          handleClear();
-        }
-        return;
-      }
+      const activeElement = document.activeElement;
+      const isEditable =
+        activeElement instanceof HTMLInputElement ||
+        activeElement instanceof HTMLTextAreaElement ||
+        activeElement?.getAttribute("contenteditable") === "true";
 
+      const { handleClear } = handlersRef.current;
+
+      if (isEditable && e.key !== 'Escape') return;
       if (e.metaKey || e.ctrlKey || e.altKey || e.shiftKey) return;
 
       if (e.key === 'Escape') {
@@ -156,7 +160,7 @@ export function CaseConverter({ initialData, onStateChange }: { initialData?: an
 
     window.addEventListener('keydown', handleKeyDown);
     return () => window.removeEventListener('keydown', handleKeyDown);
-  }, [handleClear]);
+  }, []);
 
   return (
     <div className="max-w-6xl mx-auto space-y-8">
@@ -188,12 +192,12 @@ export function CaseConverter({ initialData, onStateChange }: { initialData?: an
               <Download className="w-3 h-3" /> {t('common.download')}
             </button>
             <div className="flex gap-2 items-center">
-              <kbd className="hidden sm:inline-flex items-center justify-center px-1.5 py-0.5 border border-rose-200 dark:border-rose-800 rounded text-[10px] font-bold text-rose-400 bg-white dark:bg-slate-900">Esc</kbd>
+              <Kbd modifier={null} className="hidden sm:inline-flex border-rose-200 dark:border-rose-800 text-rose-400">Esc</Kbd>
               <button
                 onClick={handleClear}
                 disabled={!text}
+                title={`${t('common.clear')} (Esc)`}
                 className="text-xs font-bold px-3 py-1 rounded-full text-rose-500 bg-rose-50 dark:bg-rose-500/10 hover:bg-rose-100 dark:hover:bg-rose-500/20 transition-all flex items-center gap-1 disabled:opacity-50 disabled:cursor-not-allowed focus-visible:ring-2 focus-visible:ring-rose-500 focus-visible:outline-none"
-                aria-label={t('common.clear')}
               >
                 <Trash2 className="w-3 h-3" /> {t('common.clear')}
               </button>

@@ -369,7 +369,7 @@ export function JSONToSQL({ initialData, onStateChange }: { initialData?: any; o
                         const parsed = JSON.parse(input);
                         const first = Array.isArray(parsed) ? (parsed[0] || {}) : parsed;
                         if (!first || typeof first !== 'object' || Object.keys(first).length === 0) {
-                           return <p className="text-[10px] text-slate-400 italic">Enter valid JSON with fields to select columns</p>;
+                           return <p className="text-[10px] text-slate-400 italic">{t('jsontosql.error_invalid_fields', 'Enter valid JSON with fields to select columns')}</p>;
                         }
                         return Object.keys(first).map(col => (
                           <button
@@ -390,7 +390,7 @@ export function JSONToSQL({ initialData, onStateChange }: { initialData?: any; o
                           </button>
                         ));
                       } catch {
-                        return <p className="text-[10px] text-slate-400 italic">Enter valid JSON to select columns</p>;
+                        return <p className="text-[10px] text-slate-400 italic">{t('jsontosql.error_invalid_json', 'Enter valid JSON to select columns')}</p>;
                       }
                     })()}
                   </div>

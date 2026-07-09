@@ -1,7 +1,9 @@
-import { useState, useEffect } from 'react';
-import { Globe, MapPin, Wifi, Info, Copy, Check } from 'lucide-react';
+import { useState, useEffect, useCallback, useRef } from 'react';
+import { Globe, MapPin, Wifi, Info, Copy, Check, RotateCcw } from 'lucide-react';
 import { AdPlaceholder } from './AdPlaceholder';
 import { useTranslation } from 'react-i18next';
+import { toast } from 'sonner';
+import { Kbd } from './ui/Kbd';
 
 export function IPAddressTool() {
   const { t } = useTranslation();
@@ -15,18 +17,12 @@ export function IPAddressTool() {
   });
 
   const [loading, setLoading] = useState(true);
+  const [refreshing, setRefreshing] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [copied, setCopied] = useState(false);
 
-  const handleCopy = () => {
-    if (ipInfo.ip && !loading && !error) {
-      navigator.clipboard.writeText(ipInfo.ip);
-      setCopied(true);
-      setTimeout(() => setCopied(false), 2000);
-    }
-  };
-
-  useEffect(() => {
+  const fetchIP = useCallback(() => {
+    setRefreshing(true);
     fetch('https://ipapi.co/json/')
       .then(res => {
         if (!res.ok) throw new Error(t('ipaddresstool.error_detection'));
@@ -42,14 +38,61 @@ export function IPAddressTool() {
             timezone: data.timezone || t('common.na'),
             isp: data.org || t('common.na')
           });
+          setError(null);
         }
       })
       .catch(err => {
         console.error('Erreur IP:', err);
         setError(t('ipaddresstool.error_detection'));
       })
-      .finally(() => setLoading(false));
+      .finally(() => {
+        setLoading(false);
+        setRefreshing(false);
+      });
   }, [t]);
+
+  useEffect(() => {
+    fetchIP();
+  }, [fetchIP]);
+
+  const handleCopy = useCallback(() => {
+    if (ipInfo.ip && !loading && !error) {
+      navigator.clipboard.writeText(ipInfo.ip);
+      setCopied(true);
+      toast.success(t('common.copied'));
+      setTimeout(() => setCopied(false), 2000);
+    }
+  }, [ipInfo.ip, loading, error, t]);
+
+  const handlersRef = useRef({ handleCopy, fetchIP });
+  useEffect(() => {
+    handlersRef.current = { handleCopy, fetchIP };
+  }, [handleCopy, fetchIP]);
+
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      const activeElement = document.activeElement;
+      const isEditable =
+        activeElement instanceof HTMLInputElement ||
+        activeElement instanceof HTMLTextAreaElement ||
+        activeElement instanceof HTMLSelectElement ||
+        activeElement?.getAttribute("contenteditable") === "true";
+
+      if (isEditable) return;
+      if (e.metaKey || e.ctrlKey || e.altKey || e.shiftKey) return;
+
+      if (e.key.toLowerCase() === 'c') {
+        e.preventDefault();
+        handlersRef.current.handleCopy();
+      } else if (e.key.toLowerCase() === 'r') {
+        e.preventDefault();
+        handlersRef.current.fetchIP();
+      }
+    };
+
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, []);
 
   return (
     <div className="max-w-3xl mx-auto">
@@ -57,18 +100,31 @@ export function IPAddressTool() {
 
       <div className={`bg-gradient-to-br ${error ? 'from-rose-500 to-rose-600' : 'from-indigo-600 to-blue-500'} text-white p-8 md:p-12 rounded-[2.5rem] mb-8 text-center transition-colors duration-500 shadow-xl shadow-indigo-500/10 relative group`}>
         {!loading && !error && (
-          <button
-            onClick={handleCopy}
-            className={`absolute top-6 right-6 p-3 rounded-2xl transition-all border z-20 focus-visible:ring-2 focus-visible:ring-white focus-visible:outline-none ${
-              copied
-                ? 'bg-emerald-500 text-white border-emerald-400 shadow-lg shadow-emerald-500/20'
-                : 'bg-white/10 text-white/70 border-white/10 hover:bg-white/20 hover:text-white md:opacity-0 md:group-hover:opacity-100 md:group-focus-within:opacity-100 md:focus-visible:opacity-100'
-            }`}
-            title={t('ipaddresstool.copy_ip')}
-            aria-label={t('ipaddresstool.copy_ip')}
-          >
-            {copied ? <Check className="w-5 h-5" /> : <Copy className="w-5 h-5" />}
-          </button>
+          <div className="absolute top-6 right-6 flex gap-2 z-20">
+            <button
+              onClick={fetchIP}
+              disabled={refreshing}
+              className="p-3 rounded-2xl transition-all border bg-white/10 text-white/70 border-white/10 hover:bg-white/20 hover:text-white md:opacity-0 md:group-hover:opacity-100 md:group-focus-within:opacity-100 md:focus-visible:opacity-100 focus-visible:ring-2 focus-visible:ring-white focus-visible:outline-none disabled:opacity-50 flex items-center gap-2"
+              title={`${t('ipaddresstool.refresh')} (R)`}
+              aria-label={t('ipaddresstool.refresh')}
+            >
+              <RotateCcw className={`w-5 h-5 ${refreshing ? 'animate-spin' : ''}`} />
+              <Kbd modifier={null} className="hidden lg:inline-flex border-white/20 bg-white/5 text-white/50">R</Kbd>
+            </button>
+            <button
+              onClick={handleCopy}
+              className={`p-3 rounded-2xl transition-all border focus-visible:ring-2 focus-visible:ring-white focus-visible:outline-none flex items-center gap-2 ${
+                copied
+                  ? 'bg-emerald-500 text-white border-emerald-400 shadow-lg shadow-emerald-500/20'
+                  : 'bg-white/10 text-white/70 border-white/10 hover:bg-white/20 hover:text-white md:opacity-0 md:group-hover:opacity-100 md:group-focus-within:opacity-100 md:focus-visible:opacity-100'
+              }`}
+              title={`${t('ipaddresstool.copy_ip')} (C)`}
+              aria-label={t('ipaddresstool.copy_ip')}
+            >
+              {copied ? <Check className="w-5 h-5" /> : <Copy className="w-5 h-5" />}
+              {!copied && <Kbd modifier={null} className="hidden lg:inline-flex border-white/20 bg-white/5 text-white/50">C</Kbd>}
+            </button>
+          </div>
         )}
         <Globe className="w-16 h-16 mx-auto mb-6 opacity-80" />
         <div className="text-xs font-black uppercase tracking-widest opacity-70 mb-3">{t('ipaddresstool.your_ip')}</div>

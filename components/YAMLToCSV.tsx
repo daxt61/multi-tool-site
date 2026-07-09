@@ -43,7 +43,10 @@ export function YAMLToCSV({ initialData, onStateChange }: { initialData?: any; o
 
       const csvRows = [
         headers.join(','),
-        ...array.map(row => headers.map(header => formatValue(row[header])).join(','))
+        ...array.map(row => headers.map(header => {
+          const val = Object.prototype.hasOwnProperty.call(row, header) ? row[header] : undefined;
+          return formatValue(val);
+        }).join(','))
       ];
       return csvRows.join('\n');
     } catch (e: any) {

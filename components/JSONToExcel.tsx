@@ -55,7 +55,7 @@ export function JSONToExcel({ initialData, onStateChange }: { initialData?: any;
 
       const rows = flattenedData.map(item =>
         headers.map(header => {
-          const val = item[header];
+          const val = Object.prototype.hasOwnProperty.call(item, header) ? item[header] : undefined;
           if (val === null || val === undefined) return '';
           const str = String(val).replace(/"/g, '""');
           return str.includes(delimiter) || str.includes('\n') ? `"${str}"` : str;

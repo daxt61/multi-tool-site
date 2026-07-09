@@ -63,7 +63,10 @@ export function TSVJSONConverter({ initialData, onStateChange }: { initialData?:
 
       const tsvRows = [
         headers.join('\t'),
-        ...array.map(row => headers.map(header => formatValue(row[header])).join('\t'))
+        ...array.map(row => headers.map(header => {
+          const val = Object.prototype.hasOwnProperty.call(row, header) ? row[header] : undefined;
+          return formatValue(val);
+        }).join('\t'))
       ];
       return tsvRows.join('\n');
     } catch (e: any) {

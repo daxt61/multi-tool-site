@@ -1,6 +1,7 @@
-import React, { useState, useEffect, useMemo } from 'react';
+import React, { useState, useEffect, useMemo, useRef } from 'react';
 import { Clock, Globe, Plus, Trash2, X, Search } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
+import { Kbd } from './ui/Kbd';
 
 interface TimezoneItem {
   id: string;
@@ -33,6 +34,7 @@ const COMMON_TIMEZONES = [
 
 export function WorldClock({ initialData, onStateChange }: { initialData?: any; onStateChange?: (state: any) => void }) {
   const { t, i18n } = useTranslation();
+  const addBtnRef = useRef<HTMLButtonElement>(null);
   const [clocks, setClocks] = useState<TimezoneItem[]>(initialData?.clocks || [
     { id: '1', name: 'Local', zone: Intl.DateTimeFormat().resolvedOptions().timeZone }
   ]);
@@ -49,15 +51,26 @@ export function WorldClock({ initialData, onStateChange }: { initialData?: any; 
     onStateChange?.({ clocks });
   }, [clocks, onStateChange]);
 
-  const addClock = (timezone: { name: string, zone: string }) => {
-    const newClock = {
-      id: crypto.randomUUID(),
-      name: timezone.name,
-      zone: timezone.zone
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      const isInput = ["INPUT", "TEXTAREA"].includes(document.activeElement?.tagName || "");
+      if (isAdding && e.key === 'Escape') {
+        setIsAdding(false);
+        addBtnRef.current?.focus();
+      } else if (!isAdding && !isInput && e.key.toLowerCase() === 'a' && !e.metaKey && !e.ctrlKey) {
+        e.preventDefault();
+        setIsAdding(true);
+      }
     };
-    setClocks([...clocks, newClock]);
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [isAdding]);
+
+  const addClock = (timezone: { name: string, zone: string }) => {
+    setClocks([...clocks, { id: crypto.randomUUID(), name: timezone.name, zone: timezone.zone }]);
     setIsAdding(false);
     setSearch('');
+    setTimeout(() => addBtnRef.current?.focus(), 0);
   };
 
   const removeClock = (id: string) => {
@@ -100,10 +113,13 @@ export function WorldClock({ initialData, onStateChange }: { initialData?: any; 
           <Globe className="w-4 h-4 text-indigo-500" /> {t('worldclock.title', 'World Clock')}
         </h3>
         <button
+          id="add-clock-btn"
+          ref={addBtnRef}
           onClick={() => setIsAdding(true)}
-          className="text-xs font-bold text-indigo-600 bg-indigo-50 dark:bg-indigo-900/20 hover:bg-indigo-100 dark:hover:bg-indigo-900/30 px-4 py-2 rounded-xl flex items-center gap-2 transition-all focus-visible:ring-2 focus-visible:ring-indigo-500 focus-visible:outline-none"
+          className="text-xs font-bold text-indigo-600 bg-indigo-50 dark:bg-indigo-900/20 hover:bg-indigo-100 dark:hover:bg-indigo-900/30 px-4 py-2 rounded-xl flex items-center gap-2 transition-all focus-visible:ring-2 focus-visible:ring-indigo-500 focus-visible:outline-none group"
         >
           <Plus className="w-4 h-4" /> {t('worldclock.add', 'Add Clock')}
+          <Kbd modifier={null} className="ml-1 bg-white/50 dark:bg-black/20 border-indigo-200 dark:border-indigo-800 text-indigo-400 group-hover:border-indigo-300 transition-colors">A</Kbd>
         </button>
       </div>
 
@@ -117,7 +133,7 @@ export function WorldClock({ initialData, onStateChange }: { initialData?: any; 
             >
               <button
                 onClick={() => removeClock(clock.id)}
-                className="absolute top-4 right-4 p-2 text-slate-300 hover:text-rose-500 opacity-0 group-hover:opacity-100 transition-all"
+                className="absolute top-4 right-4 p-2 text-slate-300 hover:text-rose-500 opacity-0 group-hover:opacity-100 focus-visible:opacity-100 focus-visible:ring-2 focus-visible:ring-rose-500 rounded-lg transition-all z-20"
                 aria-label={t('common.remove', 'Remove')}
               >
                 <Trash2 className="w-4 h-4" />
@@ -146,7 +162,11 @@ export function WorldClock({ initialData, onStateChange }: { initialData?: any; 
           <div className="bg-white dark:bg-slate-900 w-full max-w-md rounded-[2.5rem] border border-slate-200 dark:border-slate-800 shadow-2xl overflow-hidden animate-in zoom-in-95 duration-200">
             <div className="p-6 border-b border-slate-100 dark:border-slate-800 flex justify-between items-center">
               <h3 className="text-lg font-black">{t('worldclock.add_title', 'Add a city')}</h3>
-              <button onClick={() => setIsAdding(false)} className="p-2 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-xl transition-colors">
+              <button
+                onClick={() => { setIsAdding(false); addBtnRef.current?.focus(); }}
+                className="p-2 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-xl transition-colors focus-visible:ring-2 focus-visible:ring-indigo-500 outline-none"
+                aria-label={t('common.clear', 'Close')}
+              >
                 <X className="w-5 h-5" />
               </button>
             </div>

@@ -11,6 +11,7 @@ type SQLMode = 'INSERT' | 'UPDATE' | 'UPSERT' | 'DELETE';
 
 export function JSONToSQL({ initialData, onStateChange }: { initialData?: any; onStateChange?: (state: any) => void }) {
   const { t } = useTranslation();
+  const inputRef = useRef<HTMLTextAreaElement>(null);
   const [input, setInput] = useState(initialData?.input || '');
   const [tableName, setTableName] = useState(initialData?.tableName || 'users');
   const [output, setOutput] = useState(initialData?.output || '');
@@ -171,7 +172,7 @@ export function JSONToSQL({ initialData, onStateChange }: { initialData?: any; o
     setInput('');
     setOutput('');
     setError('');
-    setTimeout(() => document.getElementById('json-input')?.focus(), 0);
+    setTimeout(() => inputRef.current?.focus(), 0);
   }, []);
 
   const handleCopy = useCallback(() => {
@@ -401,6 +402,7 @@ export function JSONToSQL({ initialData, onStateChange }: { initialData?: any; o
 
           <textarea
             id="json-input"
+            ref={inputRef}
             value={input}
             onChange={(e) => setInput(e.target.value)}
             placeholder='[{"id": 1, "name": "John Doe", "email": "john@example.com"}]'

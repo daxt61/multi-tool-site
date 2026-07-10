@@ -88,7 +88,7 @@ export function Base64ToAudio({ initialData, onStateChange }: { initialData?: an
       <div className="space-y-4">
         <div className="flex justify-between items-center px-1">
           <label htmlFor="base64-input" className="text-xs font-black uppercase tracking-widest text-slate-400 flex items-center gap-2">
-            <Music className="w-4 h-4 text-indigo-500" /> Base64 Audio String
+            <Music className="w-4 h-4 text-indigo-500" /> {t('base64audio.input_label')}
           </label>
           <button
             onClick={() => setInput('')}
@@ -125,8 +125,8 @@ export function Base64ToAudio({ initialData, onStateChange }: { initialData?: an
                 {isPlaying ? <Pause className="w-8 h-8 fill-current" /> : <Play className="w-8 h-8 fill-current ml-1" />}
               </button>
               <div>
-                <h3 className="font-black text-slate-900 dark:text-white uppercase tracking-tight">Audio Decoded</h3>
-                <p className="text-xs text-slate-400 font-bold uppercase">Ready to play</p>
+                <h3 className="font-black text-slate-900 dark:text-white uppercase tracking-tight">{t('base64audio.decoded_title')}</h3>
+                <p className="text-xs text-slate-400 font-bold uppercase">{t('base64audio.ready')}</p>
               </div>
             </div>
             <div className="flex items-center gap-2">
@@ -165,7 +165,7 @@ export function Base64ToAudio({ initialData, onStateChange }: { initialData?: an
                <div className="flex-1 h-2 bg-slate-200 dark:bg-slate-700 rounded-full overflow-hidden relative">
                  <div className={`absolute inset-0 bg-indigo-500 transition-all ${isPlaying ? 'animate-pulse' : ''}`} style={{ width: '100%', opacity: 0.2 }}></div>
                </div>
-               <span className="text-[10px] font-black text-slate-400 uppercase">Interactive Player</span>
+               <span className="text-[10px] font-black text-slate-400 uppercase">{t('base64audio.player_label')}</span>
              </div>
           </div>
         </div>

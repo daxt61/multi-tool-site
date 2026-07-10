@@ -513,6 +513,7 @@ const BaconianCipher = lazy(() => import("./components/BaconianCipher").then(m =
 const PolybiusSquare = lazy(() => import("./components/PolybiusSquare").then(m => ({ default: m.PolybiusSquare })));
 const AffineCipher = lazy(() => import("./components/AffineCipher").then(m => ({ default: m.AffineCipher })));
 const JSONToJSDoc = lazy(() => import("./components/JSONToJSDoc").then(m => ({ default: m.JSONToJSDoc })));
+const CSSAnimationGenerator = lazy(() => import("./components/CSSAnimationGenerator").then(m => ({ default: m.CSSAnimationGenerator })));
 
 // ⚡ Bolt Optimization: Pre-calculating tool map and search index for O(1) lookups and faster filtering
 const toolsMap: Record<string, Tool> = {};
@@ -4463,6 +4464,17 @@ const tools: Tool[] = [
     Component: JSONToJSDoc,
     category: "dev",
     keywords: ["json", "jsdoc", "typedef", "documentation", "javascript"],
+  },
+  {
+    id: "css-animation",
+    name: "Animations CSS",
+    nameEn: "CSS Animations",
+    icon: Sparkles,
+    description: "Générateur visuel d'animations @keyframes CSS",
+    descriptionEn: "Visual CSS @keyframes animation generator",
+    Component: CSSAnimationGenerator,
+    category: "dev",
+    keywords: ["css", "animation", "keyframes", "frontend", "design", "preview"],
   },
 ];
 

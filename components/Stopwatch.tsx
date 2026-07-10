@@ -13,6 +13,7 @@ interface Lap {
 
 export function Stopwatch({ initialData, onStateChange }: { initialData?: any; onStateChange?: (state: any) => void }) {
   const { t } = useTranslation();
+  const startBtnRef = useRef<HTMLButtonElement>(null);
   const [time, setTime] = useState(0);
   const [isRunning, setIsRunning] = useState(false);
   const [laps, setLaps] = useState<Lap[]>([]);
@@ -126,7 +127,7 @@ export function Stopwatch({ initialData, onStateChange }: { initialData?: any; o
     setTime(0);
     setLaps([]);
     localStorage.removeItem('stopwatch_state');
-    setTimeout(() => document.getElementById('start-pause-btn')?.focus(), 0);
+    setTimeout(() => startBtnRef.current?.focus(), 0);
   }, []);
 
   const handleLap = useCallback(() => {
@@ -294,6 +295,7 @@ export function Stopwatch({ initialData, onStateChange }: { initialData?: any; o
         <div className="flex flex-wrap justify-center gap-4">
           <button
             id="start-pause-btn"
+            ref={startBtnRef}
             onClick={handleStartPause}
             aria-label={isRunning ? t('timer.pause') : t('timer.start')}
             title={`${isRunning ? t('timer.pause') : t('timer.start')} (Space)`}

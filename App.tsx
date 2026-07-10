@@ -509,6 +509,10 @@ const WordCloudGenerator = lazy(() => import("./components/WordCloudGenerator").
 const TextHexDump = lazy(() => import("./components/TextHexDump").then(m => ({ default: m.TextHexDump })));
 const HillCipher = lazy(() => import("./components/HillCipher").then(m => ({ default: m.HillCipher })));
 const JsonIniConverter = lazy(() => import("./components/JsonIniConverter").then(m => ({ default: m.JsonIniConverter })));
+const BaconianCipher = lazy(() => import("./components/BaconianCipher").then(m => ({ default: m.BaconianCipher })));
+const PolybiusSquare = lazy(() => import("./components/PolybiusSquare").then(m => ({ default: m.PolybiusSquare })));
+const AffineCipher = lazy(() => import("./components/AffineCipher").then(m => ({ default: m.AffineCipher })));
+const JSONToJSDoc = lazy(() => import("./components/JSONToJSDoc").then(m => ({ default: m.JSONToJSDoc })));
 
 // ⚡ Bolt Optimization: Pre-calculating tool map and search index for O(1) lookups and faster filtering
 const toolsMap: Record<string, Tool> = {};
@@ -4415,6 +4419,50 @@ const tools: Tool[] = [
     Component: JsonIniConverter,
     category: "dev",
     keywords: ["json", "ini", "convert", "config", "settings", "configuration"],
+  },
+  {
+    id: "baconian-cipher",
+    name: "Chiffre de Bacon",
+    nameEn: "Baconian Cipher",
+    icon: Shield,
+    description: "Chiffrer et déchiffrer du texte en utilisant le chiffre de Bacon (A/B)",
+    descriptionEn: "Encrypt and decrypt text using the Baconian steganographic cipher",
+    Component: BaconianCipher,
+    category: "text",
+    keywords: ["bacon", "cipher", "steganography", "binary", "encryption"],
+  },
+  {
+    id: "polybius-square",
+    name: "Carré de Polybe",
+    nameEn: "Polybius Square",
+    icon: Grid3X3,
+    description: "Chiffrer du texte en utilisant des coordonnées dans une grille",
+    descriptionEn: "Encrypt text using grid coordinates with the Polybius Square",
+    Component: PolybiusSquare,
+    category: "text",
+    keywords: ["polybius", "square", "grid", "coordinates", "cipher"],
+  },
+  {
+    id: "affine-cipher",
+    name: "Chiffre Affine",
+    nameEn: "Affine Cipher",
+    icon: Key,
+    description: "Chiffre de substitution mono-alphabétique mathématique",
+    descriptionEn: "Monoalphabetic substitution cipher using a mathematical function",
+    Component: AffineCipher,
+    category: "text",
+    keywords: ["affine", "cipher", "math", "substitution", "encryption"],
+  },
+  {
+    id: "json-to-jsdoc",
+    name: "JSON en JSDoc",
+    nameEn: "JSON to JSDoc",
+    icon: FileCode,
+    description: "Générer des annotations JSDoc @typedef à partir de JSON",
+    descriptionEn: "Generate JSDoc @typedef annotations from JSON data",
+    Component: JSONToJSDoc,
+    category: "dev",
+    keywords: ["json", "jsdoc", "typedef", "documentation", "javascript"],
   },
 ];
 

@@ -51,6 +51,7 @@ export function WordCounter({ initialData, onStateChange }: { initialData?: any;
         longestWord: 'N/A',
         topWords: [],
         topBigrams: [],
+        topTrigrams: [],
         charFreq: [] as [string, number][]
       };
     }
@@ -80,6 +81,20 @@ export function WordCounter({ initialData, onStateChange }: { initialData?: any;
       }
     }
     const topBigrams = Object.entries(bigramFreq)
+      .sort((a, b) => b[1] - a[1])
+      .slice(0, 10);
+
+    const trigramFreq: Record<string, number> = Object.create(null);
+    for (let i = 0; i < words.length - 2; i++) {
+      const w1 = words[i].toLowerCase().replace(/[.,/#!$%^&*;:{}=\-_`~()]/g, "");
+      const w2 = words[i+1].toLowerCase().replace(/[.,/#!$%^&*;:{}=\-_`~()]/g, "");
+      const w3 = words[i+2].toLowerCase().replace(/[.,/#!$%^&*;:{}=\-_`~()]/g, "");
+      if (w1 && w2 && w3 && w1.length > 1 && w2.length > 1 && w3.length > 1) {
+        const trigram = `${w1} ${w2} ${w3}`;
+        trigramFreq[trigram] = (trigramFreq[trigram] || 0) + 1;
+      }
+    }
+    const topTrigrams = Object.entries(trigramFreq)
       .sort((a, b) => b[1] - a[1])
       .slice(0, 10);
 
@@ -211,6 +226,7 @@ export function WordCounter({ initialData, onStateChange }: { initialData?: any;
       longestWord,
       topWords,
       topBigrams,
+      topTrigrams,
       charFreq
     };
   }, [deferredText, t]);
@@ -537,6 +553,27 @@ export function WordCounter({ initialData, onStateChange }: { initialData?: any;
                       className="px-4 py-2 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl flex items-center gap-3 group transition-all hover:border-indigo-500/30"
                     >
                       <span className="font-bold text-slate-700 dark:text-slate-300">{bigram}</span>
+                      <span className="px-2 py-0.5 bg-indigo-100 dark:bg-indigo-900/30 text-indigo-600 dark:text-indigo-400 text-[10px] font-black rounded-md group-hover:bg-indigo-600 group-hover:text-white transition-colors">
+                        {count}
+                      </span>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+
+            {stats.topTrigrams.length > 0 && (
+              <div className="space-y-6">
+                <h3 className="text-xs font-black uppercase tracking-widest text-slate-400 flex items-center gap-2">
+                  <BarChart3 className="w-4 h-4" /> {t('wordcounter.top_trigrams')}
+                </h3>
+                <div className="flex flex-wrap gap-3">
+                  {stats.topTrigrams.map(([trigram, count]) => (
+                    <div
+                      key={trigram}
+                      className="px-4 py-2 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl flex items-center gap-3 group transition-all hover:border-indigo-500/30"
+                    >
+                      <span className="font-bold text-slate-700 dark:text-slate-300">{trigram}</span>
                       <span className="px-2 py-0.5 bg-indigo-100 dark:bg-indigo-900/30 text-indigo-600 dark:text-indigo-400 text-[10px] font-black rounded-md group-hover:bg-indigo-600 group-hover:text-white transition-colors">
                         {count}
                       </span>

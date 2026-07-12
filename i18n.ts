@@ -3227,6 +3227,11 @@ const resources = {
       "animation.code": "Generated CSS",
       "animation.about_title": "About CSS Animations",
       "animation.about_text": "CSS animations make it possible to animate transitions from one CSS style configuration to another. Animations consist of two components: a style describing the CSS animation and a set of keyframes that indicate the start and end states of the animation's style, as well as possible intermediate waypoints.",
+      "sqltomongodb.error_unsupported": "Unsupported SQL statement. Only simple INSERT INTO and SELECT are supported.",
+      "sqltomongodb.about_title": "About SQL to MongoDB",
+      "sqltomongodb.about_text": "This tool converts standard SQL commands into MongoDB shell syntax. It currently supports INSERT INTO statements (converted to insertMany) and SELECT statements (converted to find, including WHERE conditions, projections, and LIMIT). All processing is done locally in your browser.",
+      "yaml_toml.about_text": "Convert between YAML and TOML formats instantly. Both formats are popular for configuration files. Note that TOML requires a root object (table), so arrays or primitive values at the root of a YAML file cannot be converted to TOML.",
+      "jsontomermaid.flowchart_desc": "Generates a node-link diagram representing the structure as a process flow.",
     }
   },
   fr: {
@@ -6457,6 +6462,11 @@ const resources = {
       "animation.code": "CSS Généré",
       "animation.about_title": "À propos des Animations CSS",
       "animation.about_text": "Les animations CSS permettent d'animer les transitions entre une configuration de style CSS et une autre. Les animations se composent de deux éléments : un style décrivant l'animation CSS et un ensemble d'étapes (keyframes) qui indiquent les états de début et de fin du style de l'animation, ainsi que d'éventuels points de passage intermédiaires.",
+      "sqltomongodb.error_unsupported": "Instruction SQL non supportée. Seuls INSERT INTO et SELECT simples sont supportés.",
+      "sqltomongodb.about_title": "À propos de SQL en MongoDB",
+      "sqltomongodb.about_text": "Cet outil convertit les commandes SQL standard en syntaxe shell MongoDB. Il supporte actuellement les instructions INSERT INTO (converties en insertMany) et les instructions SELECT (converties en find, incluant les conditions WHERE, les projections et LIMIT). Tout le traitement est effectué localement dans votre navigateur.",
+      "yaml_toml.about_text": "Convertissez instantanément entre les formats YAML et TOML. Les deux formats sont populaires pour les fichiers de configuration. Notez que TOML nécessite un objet racine (table), donc les tableaux ou les valeurs primitives à la racine d'un fichier YAML ne peuvent pas être convertis en TOML.",
+      "jsontomermaid.flowchart_desc": "Génère un diagramme de flux représentant la structure comme un flux de processus.",
     }
   }
 };

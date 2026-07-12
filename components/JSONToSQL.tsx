@@ -6,7 +6,7 @@ import { Kbd } from './ui/Kbd';
 
 const MAX_LENGTH = 100000;
 
-type Dialect = 'standard' | 'mysql' | 'sqlserver' | 'oracle';
+type Dialect = 'standard' | 'mysql' | 'postgresql' | 'sqlite' | 'sqlserver' | 'oracle';
 type SQLMode = 'INSERT' | 'UPDATE' | 'UPSERT' | 'DELETE';
 
 export function JSONToSQL({ initialData, onStateChange }: { initialData?: any; onStateChange?: (state: any) => void }) {
@@ -34,6 +34,8 @@ export function JSONToSQL({ initialData, onStateChange }: { initialData?: any; o
       return `[${id.replace(/\]/g, ']]')}]`;
     } else if (dialect === 'oracle') {
       return `"${id.replace(/"/g, '""').toUpperCase()}"`;
+    } else if (dialect === 'postgresql' || dialect === 'sqlite' || dialect === 'standard') {
+      return `"${id.replace(/"/g, '""')}"`;
     }
     return `"${id.replace(/"/g, '""')}"`;
   };
@@ -49,6 +51,18 @@ export function JSONToSQL({ initialData, onStateChange }: { initialData?: any; o
     return 'TEXT';
   };
 
+  const flattenObject = (obj: any, prefix = ''): any => {
+    return Object.keys(obj).reduce((acc: any, k: string) => {
+      const pre = prefix.length ? prefix + '_' : '';
+      if (typeof obj[k] === 'object' && obj[k] !== null && !Array.isArray(obj[k])) {
+        Object.assign(acc, flattenObject(obj[k], pre + k));
+      } else {
+        acc[pre + k] = obj[k];
+      }
+      return acc;
+    }, {});
+  };
+
   const handleConvert = useCallback(() => {
     try {
       if (!input.trim()) return;
@@ -58,12 +72,14 @@ export function JSONToSQL({ initialData, onStateChange }: { initialData?: any; o
       }
 
       const parsed = JSON.parse(input);
-      const data = Array.isArray(parsed) ? parsed : [parsed];
+      const rawData = Array.isArray(parsed) ? parsed : [parsed];
 
-      if (data.length === 0) {
+      if (rawData.length === 0) {
         setError(t('jsontosql.error_empty'));
         return;
       }
+
+      const data = rawData.map(row => typeof row === 'object' && row !== null ? flattenObject(row) : row);
 
       const columnsSet = new Set<string>();
       data.forEach((row: any) => {
@@ -133,7 +149,7 @@ export function JSONToSQL({ initialData, onStateChange }: { initialData?: any; o
               .map(col => `${escapeIdentifier(col, dialect)} = VALUES(${escapeIdentifier(col, dialect)})`)
               .join(', ');
             return `INSERT INTO ${sqlTableName} (${escapedColumns.join(', ')}) VALUES (${values.join(', ')}) ON DUPLICATE KEY UPDATE ${updateClause};`;
-          } else if (dialect === 'standard') {
+          } else if (dialect === 'standard' || dialect === 'postgresql' || dialect === 'sqlite') {
             const updateClause = nonWhereColumns
               .map(col => `${escapeIdentifier(col, dialect)} = EXCLUDED.${escapeIdentifier(col, dialect)}`)
               .join(', ');
@@ -307,7 +323,9 @@ export function JSONToSQL({ initialData, onStateChange }: { initialData?: any; o
                   className="w-full p-3 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl outline-none focus:ring-2 focus:ring-indigo-500/20 transition-all dark:text-slate-300 cursor-pointer"
                 >
                   <option value="standard">{t('jsontosql.dialect_standard')}</option>
+                  <option value="postgresql">PostgreSQL</option>
                   <option value="mysql">{t('jsontosql.dialect_mysql')}</option>
+                  <option value="sqlite">SQLite</option>
                   <option value="sqlserver">MS SQL Server</option>
                   <option value="oracle">Oracle</option>
                 </select>

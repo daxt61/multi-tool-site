@@ -514,6 +514,8 @@ const PolybiusSquare = lazy(() => import("./components/PolybiusSquare").then(m =
 const AffineCipher = lazy(() => import("./components/AffineCipher").then(m => ({ default: m.AffineCipher })));
 const JSONToJSDoc = lazy(() => import("./components/JSONToJSDoc").then(m => ({ default: m.JSONToJSDoc })));
 const CSSAnimationGenerator = lazy(() => import("./components/CSSAnimationGenerator").then(m => ({ default: m.CSSAnimationGenerator })));
+const SQLToMongoDB = lazy(() => import("./components/SQLToMongoDB").then(m => ({ default: m.SQLToMongoDB })));
+const YAMLToTOML = lazy(() => import("./components/YAMLToTOML").then(m => ({ default: m.YAMLToTOML })));
 
 // ⚡ Bolt Optimization: Pre-calculating tool map and search index for O(1) lookups and faster filtering
 const toolsMap: Record<string, Tool> = {};
@@ -4464,6 +4466,28 @@ const tools: Tool[] = [
     Component: JSONToJSDoc,
     category: "dev",
     keywords: ["json", "jsdoc", "typedef", "documentation", "javascript"],
+  },
+  {
+    id: "sql-to-mongodb",
+    name: "SQL en MongoDB",
+    nameEn: "SQL to MongoDB",
+    icon: Database,
+    description: "Convertir des requêtes SQL INSERT et SELECT en commandes MongoDB",
+    descriptionEn: "Convert SQL INSERT and SELECT queries to MongoDB commands",
+    Component: SQLToMongoDB,
+    category: "dev",
+    keywords: ["sql", "mongodb", "nosql", "convert", "database", "query"],
+  },
+  {
+    id: "yaml-toml",
+    name: "YAML <> TOML",
+    nameEn: "YAML <> TOML",
+    icon: ArrowLeftRight,
+    description: "Convertisseur bidirectionnel YAML et TOML",
+    descriptionEn: "Bidirectional YAML and TOML converter",
+    Component: YAMLToTOML,
+    category: "dev",
+    keywords: ["yaml", "toml", "convert", "config", "configuration"],
   },
   {
     id: "css-animation",

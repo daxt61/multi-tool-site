@@ -143,8 +143,17 @@ export function DiffChecker({ initialData, onStateChange }: { initialData?: any;
       const color = item.type === 'added' ? '#dcfce7' : item.type === 'removed' ? '#fee2e2' : 'transparent';
       const textColor = item.type === 'added' ? '#166534' : item.type === 'removed' ? '#991b1b' : '#334155';
       const prefix = item.type === 'added' ? '+' : item.type === 'removed' ? '-' : ' ';
+
+      let content = item.text || ' ';
+      if (item.chars) {
+        content = item.chars.map(c => {
+           const charBg = c.type === 'added' ? '#bbf7d0' : c.type === 'removed' ? '#fecaca' : 'transparent';
+           return `<span style="background-color: ${charBg};">${c.text}</span>`;
+        }).join('');
+      }
+
       return `<div style="background-color: ${color}; color: ${textColor}; padding: 2px 8px; font-family: monospace; white-space: pre-wrap; border-bottom: 1px solid #f1f5f9;">
-        <span style="opacity: 0.5; margin-right: 10px;">${prefix}</span>${item.text || ' '}
+        <span style="opacity: 0.5; margin-right: 10px;">${prefix}</span>${content}
       </div>`;
     }).join('');
 

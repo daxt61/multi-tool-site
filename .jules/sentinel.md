@@ -186,3 +186,8 @@
 **Vulnerability:** Components like `JSONToSQL` and `JSONToLaTeX` were accessing object properties using direct bracket notation (`row[key]`) while iterating over a union of all keys found in a JSON array. This allowed inherited `Object.prototype` properties (like `toString` or `constructor`) to leak into the generated output when a specific row lacked a key that existed in other rows but matched a prototype method.
 **Learning:** In row-based data processing where keys are collected globally but accessed per-row, direct property access is unsafe. JavaScript's prototype chain fallback will provide the native function string if the property is missing on the instance.
 **Prevention:** Always use `Object.prototype.hasOwnProperty.call(row, key)` when retrieving values for structured output formats (SQL, LaTeX, CSV, etc.) to ensure only "own" properties are processed.
+
+## 2026-07-12 - [Prototype Pollution and DoS in SQL Flattening]
+**Vulnerability:** The JSONToSQL component's `flattenObject` function used a plain object literal as an accumulator and lacked recursion depth limits, making it vulnerable to Prototype Pollution and Stack Overflow DoS.
+**Learning:** Utilities that flatten nested JSON structures for tabular formats (like SQL, CSV, Excel) often share the same vulnerable recursive patterns. Standardizing the use of `Object.create(null)` and `MAX_DEPTH` guards is essential for all such converters.
+**Prevention:** Always initialize accumulators with `Object.create(null)`, sanitize dangerous keys (`__proto__`, `constructor`, `prototype`), and enforce a `MAX_DEPTH = 20` recursion limit in all JSON processing utilities.

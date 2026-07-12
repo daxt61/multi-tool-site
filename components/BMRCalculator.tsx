@@ -1,6 +1,8 @@
-import { useState, useMemo, useEffect } from 'react';
+import { useState, useMemo, useEffect, useRef, useCallback } from 'react';
 import { Heart, Activity, User, Ruler, Weight, RotateCcw, Info, Check, Zap, Trash2, Copy } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
+import { toast } from 'sonner';
+import { Kbd } from './ui/Kbd';
 
 type Gender = 'male' | 'female';
 type ActivityLevel = 'sedentary' | 'light' | 'moderate' | 'active' | 'very_active';
@@ -14,6 +16,7 @@ const ACTIVITY_MULTIPLIERS: Record<ActivityLevel, number> = {
 };
 
 export function BMRCalculator({ initialData, onStateChange }: { initialData?: any; onStateChange?: (state: any) => void }) {
+  const ageInputRef = useRef<HTMLInputElement>(null);
   const { t, i18n } = useTranslation();
   const [age, setAge] = useState<string>(initialData?.age || '');
   const [weight, setWeight] = useState<string>(initialData?.weight || '');
@@ -52,19 +55,55 @@ export function BMRCalculator({ initialData, onStateChange }: { initialData?: an
     return null;
   }, [age, weight, height, gender, activity]);
 
-  const handleClear = () => {
+  const handleClear = useCallback(() => {
     setAge('');
     setWeight('');
     setHeight('');
     setGender('male');
     setActivity('sedentary');
-  };
+    setTimeout(() => ageInputRef.current?.focus(), 0);
+  }, []);
 
-  const handleCopy = (value: number, label: string) => {
+  const handleCopy = useCallback((value: number | string, label: string) => {
     navigator.clipboard.writeText(value.toString());
     setCopied(label);
+    toast.success(t('common.copied'));
     setTimeout(() => setCopied(null), 2000);
-  };
+  }, [t]);
+
+  const handlersRef = useRef({ handleClear, handleCopy, results });
+
+  useEffect(() => {
+    handlersRef.current = { handleClear, handleCopy, results };
+  }, [handleClear, handleCopy, results]);
+
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      const activeElement = document.activeElement;
+      const isEditable =
+        activeElement instanceof HTMLInputElement ||
+        activeElement instanceof HTMLTextAreaElement ||
+        activeElement instanceof HTMLSelectElement ||
+        activeElement?.getAttribute("contenteditable") === "true";
+
+      const { handleClear, handleCopy, results } = handlersRef.current;
+
+      if (isEditable && e.key !== 'Escape') return;
+
+      if (e.metaKey || e.ctrlKey || e.altKey || e.shiftKey) return;
+
+      if (e.key === 'Escape') {
+        e.preventDefault();
+        handleClear();
+      } else if (e.key.toLowerCase() === 'c' && results) {
+        e.preventDefault();
+        handleCopy(results.tdee, 'tdee');
+      }
+    };
+
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, []);
 
   const activityLevels: ActivityLevel[] = ['sedentary', 'light', 'moderate', 'active', 'very_active'];
 
@@ -81,9 +120,12 @@ export function BMRCalculator({ initialData, onStateChange }: { initialData?: an
               <button
                 onClick={handleClear}
                 disabled={!age && !weight && !height}
+                aria-label={`${t('common.clear')} (Esc)`}
+                title={`${t('common.clear')} (Esc)`}
                 className="text-xs font-bold text-rose-500 bg-rose-50 dark:bg-rose-500/10 hover:bg-rose-100 dark:hover:bg-rose-500/20 px-3 py-1.5 rounded-xl flex items-center gap-1 transition-all disabled:opacity-50 disabled:cursor-not-allowed focus-visible:ring-2 focus-visible:ring-rose-500 focus-visible:outline-none"
               >
                 <Trash2 className="w-3 h-3" /> {t('common.clear')}
+                <Kbd modifier={null} className="ml-1 text-rose-400 border-rose-200 dark:border-rose-800">Esc</Kbd>
               </button>
             </div>
 
@@ -124,9 +166,11 @@ export function BMRCalculator({ initialData, onStateChange }: { initialData?: an
                   <div className="relative">
                     <input
                       id="age"
+                      ref={ageInputRef}
                       type="number"
                       value={age}
                       onChange={(e) => setAge(e.target.value)}
+                      onKeyDown={(e) => e.key === 'Escape' && handleClear()}
                       className="w-full p-4 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-2xl text-xl font-black font-mono focus:border-indigo-500 outline-none transition-all dark:text-white"
                       placeholder="25"
                     />
@@ -202,15 +246,16 @@ export function BMRCalculator({ initialData, onStateChange }: { initialData?: an
             {results && (
               <button
                 onClick={() => handleCopy(results.tdee, 'tdee')}
-                className={`absolute top-6 right-6 p-3 rounded-2xl transition-all z-20 focus-visible:ring-2 focus-visible:ring-indigo-500 focus-visible:outline-none ${
+                className={`absolute top-6 right-6 p-3 rounded-2xl transition-all z-20 focus-visible:ring-2 focus-visible:ring-indigo-500 focus-visible:outline-none flex items-center gap-2 ${
                   copied === 'tdee'
-                    ? 'bg-emerald-500 text-white'
-                    : 'bg-white/10 text-white/40 hover:text-white hover:bg-white/20 md:opacity-0 md:group-hover:opacity-100 md:focus-visible:opacity-100'
+                    ? 'bg-emerald-500 text-white border-emerald-400'
+                    : 'bg-white/10 text-white/40 border-transparent hover:text-white hover:bg-white/20 md:opacity-0 md:group-hover:opacity-100 md:focus-visible:opacity-100 border'
                 }`}
-                aria-label={t('bmrcalculator.copy_tdee')}
-                title={t('bmrcalculator.copy_tdee')}
+                aria-label={`${t('bmrcalculator.copy_tdee')} (C)`}
+                title={`${t('bmrcalculator.copy_tdee')} (C)`}
               >
                 {copied === 'tdee' ? <Check className="w-5 h-5" /> : <Copy className="w-5 h-5" />}
+                {copied !== 'tdee' && <Kbd modifier={null} className="hidden sm:inline-flex bg-white/5 border-white/20 text-white/50">C</Kbd>}
               </button>
             )}
 

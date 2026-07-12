@@ -5,6 +5,7 @@ import { toast } from 'sonner';
 import { Kbd } from './ui/Kbd';
 
 const MAX_LENGTH = 100000;
+const MAX_DEPTH = 20;
 
 type Dialect = 'standard' | 'mysql' | 'postgresql' | 'sqlite' | 'sqlserver' | 'oracle';
 type SQLMode = 'INSERT' | 'UPDATE' | 'UPSERT' | 'DELETE';
@@ -51,16 +52,23 @@ export function JSONToSQL({ initialData, onStateChange }: { initialData?: any; o
     return 'TEXT';
   };
 
-  const flattenObject = (obj: any, prefix = ''): any => {
+  const flattenObject = (obj: any, prefix = '', depth = 0): any => {
+    // Sentinel: Enforce recursion depth limit to prevent Stack Overflow DoS.
+    if (depth > MAX_DEPTH) return Object.create(null);
+
     return Object.keys(obj).reduce((acc: any, k: string) => {
       const pre = prefix.length ? prefix + '_' : '';
+      const lowerKey = k.toLowerCase();
+      // Sentinel: Sanitize dangerous keys to prevent Prototype Pollution
+      const safeKey = (lowerKey === '__proto__' || lowerKey === 'constructor' || lowerKey === 'prototype') ? `_${k}` : k;
+
       if (typeof obj[k] === 'object' && obj[k] !== null && !Array.isArray(obj[k])) {
-        Object.assign(acc, flattenObject(obj[k], pre + k));
+        Object.assign(acc, flattenObject(obj[k], pre + safeKey, depth + 1));
       } else {
-        acc[pre + k] = obj[k];
+        acc[pre + safeKey] = obj[k];
       }
       return acc;
-    }, {});
+    }, Object.create(null));
   };
 
   const handleConvert = useCallback(() => {

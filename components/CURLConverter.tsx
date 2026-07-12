@@ -4,7 +4,7 @@ import { useTranslation } from 'react-i18next';
 
 const MAX_LENGTH = 100000; // 100KB
 
-type OutputLanguage = 'fetch' | 'axios' | 'python' | 'php' | 'go' | 'ruby' | 'java' | 'csharp';
+type OutputLanguage = 'fetch' | 'axios' | 'python' | 'php' | 'go' | 'ruby' | 'java' | 'csharp' | 'rust' | 'cpp';
 
 export function CURLConverter({ initialData, onStateChange }: { initialData?: any; onStateChange?: (state: any) => void }) {
   const { t } = useTranslation();
@@ -216,6 +216,54 @@ export function CURLConverter({ initialData, onStateChange }: { initialData?: an
     return code;
   };
 
+  const generateRustReqwest = (url: string, method: string, headers: Record<string, string>, data: string | null) => {
+    let code = `use reqwest::header;\n\n#[tokio::main]\nasync fn main() -> Result<(), Box<dyn std::error::Error>> {\n`;
+    code += `    let client = reqwest::Client::new();\n`;
+    code += `    let mut headers = header::HeaderMap::new();\n`;
+
+    Object.entries(headers).forEach(([k, v]) => {
+      code += `    headers.insert(${JSON.stringify(k)}, ${JSON.stringify(v)}.parse()?);\n`;
+    });
+
+    code += `\n    let res = client.${method.toLowerCase()}(${JSON.stringify(url)})\n`;
+    code += `        .headers(headers)\n`;
+    if (data) {
+      code += `        .body(${JSON.stringify(data)})\n`;
+    }
+    code += `        .send()\n        .await?;\n\n`;
+    code += `    let body = res.text().await?;\n    println!("{}", body);\n\n    Ok(())\n}`;
+    return code;
+  };
+
+  const generateCPPLibcurl = (url: string, method: string, headers: Record<string, string>, data: string | null) => {
+    let code = `#include <iostream>\n#include <curl/curl.h>\n\nint main() {\n`;
+    code += `    CURL *curl;\n    CURLcode res;\n    curl = curl_easy_init();\n    if(curl) {\n`;
+    code += `        curl_easy_setopt(curl, CURLOPT_URL, ${JSON.stringify(url)});\n`;
+    code += `        curl_easy_setopt(curl, CURLOPT_CUSTOMREQUEST, ${JSON.stringify(method)});\n`;
+
+    if (Object.keys(headers).length > 0) {
+      code += `\n        struct curl_slist *headers = NULL;\n`;
+      Object.entries(headers).forEach(([k, v]) => {
+        code += `        headers = curl_slist_append(headers, ${JSON.stringify(k + ': ' + v)});\n`;
+      });
+      code += `        curl_easy_setopt(curl, CURLOPT_HTTPHEADER, headers);\n`;
+    }
+
+    if (data) {
+      code += `\n        curl_easy_setopt(curl, CURLOPT_POSTFIELDS, ${JSON.stringify(data)});\n`;
+    }
+
+    code += `\n        res = curl_easy_perform(curl);\n`;
+    code += `        if(res != CURLE_OK)\n`;
+    code += `            fprintf(stderr, "curl_easy_perform() failed: %s\\n", curl_easy_strerror(res));\n\n`;
+    code += `        curl_easy_cleanup(curl);\n`;
+    if (Object.keys(headers).length > 0) {
+      code += `        curl_slist_free_all(headers);\n`;
+    }
+    code += `    }\n    return 0;\n}`;
+    return code;
+  };
+
   const parseCURL = useCallback((curl: string, lang: OutputLanguage) => {
     if (!curl.trim()) {
       setOutput('');
@@ -253,6 +301,8 @@ export function CURLConverter({ initialData, onStateChange }: { initialData?: an
         case 'ruby': code = generateRuby(url, method, headers, data); break;
         case 'java': code = generateJavaOkHttp(url, method, headers, data); break;
         case 'csharp': code = generateCSharpRestSharp(url, method, headers, data); break;
+        case 'rust': code = generateRustReqwest(url, method, headers, data); break;
+        case 'cpp': code = generateCPPLibcurl(url, method, headers, data); break;
       }
 
       setOutput(code);
@@ -321,7 +371,7 @@ export function CURLConverter({ initialData, onStateChange }: { initialData?: an
 
   const handleDownload = () => {
     if (!output) return;
-    const extensions: Record<OutputLanguage, string> = { fetch: 'js', axios: 'js', python: 'py', php: 'php', go: 'go', ruby: 'rb', java: 'java', csharp: 'cs' };
+    const extensions: Record<OutputLanguage, string> = { fetch: 'js', axios: 'js', python: 'py', php: 'php', go: 'go', ruby: 'rb', java: 'java', csharp: 'cs', rust: 'rs', cpp: 'cpp' };
     const blob = new Blob([output], { type: 'text/plain' });
     const url = URL.createObjectURL(blob);
     const link = document.createElement('a');
@@ -335,7 +385,7 @@ export function CURLConverter({ initialData, onStateChange }: { initialData?: an
     <div className="max-w-6xl mx-auto space-y-8">
       <div className="flex flex-wrap gap-4 justify-between items-center bg-slate-50 dark:bg-slate-900/50 p-6 rounded-[2rem] border border-slate-200 dark:border-slate-800">
         <div className="flex flex-wrap gap-2">
-          {(['fetch', 'axios', 'python', 'php', 'go', 'ruby', 'java', 'csharp'] as OutputLanguage[]).map((lang) => (
+          {(['fetch', 'axios', 'python', 'php', 'go', 'ruby', 'java', 'csharp', 'rust', 'cpp'] as OutputLanguage[]).map((lang) => (
             <button
               key={lang}
               onClick={() => setLanguage(lang)}
@@ -346,7 +396,7 @@ export function CURLConverter({ initialData, onStateChange }: { initialData?: an
               }`}
             >
               {language === lang ? <Check className="w-4 h-4 inline mr-1" /> : null}
-              {lang === 'php' ? 'PHP cURL' : lang === 'python' ? 'Python Requests' : lang === 'java' ? 'Java OkHttp' : lang === 'csharp' ? 'C# RestSharp' : lang}
+              {lang === 'php' ? 'PHP cURL' : lang === 'python' ? 'Python Requests' : lang === 'java' ? 'Java OkHttp' : lang === 'csharp' ? 'C# RestSharp' : lang === 'rust' ? 'Rust Reqwest' : lang === 'cpp' ? 'C++ libcurl' : lang}
             </button>
           ))}
         </div>

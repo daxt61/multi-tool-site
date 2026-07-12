@@ -4,7 +4,7 @@ import { useTranslation } from 'react-i18next';
 
 const MAX_LENGTH = 100000;
 
-type DiagramMode = 'class' | 'mindmap';
+type DiagramMode = 'class' | 'mindmap' | 'flowchart';
 
 export function JSONToMermaid({ initialData, onStateChange }: { initialData?: any; onStateChange?: (state: any) => void }) {
   const { t } = useTranslation();
@@ -59,7 +59,42 @@ export function JSONToMermaid({ initialData, onStateChange }: { initialData?: an
     try {
       const parsed = JSON.parse(json);
 
-      if (mode === 'mindmap') {
+      if (mode === 'flowchart') {
+        let result = 'graph TD\n';
+        let nodeCounter = 0;
+
+        const traverseFlowchart = (obj: any, parentId: string) => {
+          if (Array.isArray(obj)) {
+            obj.forEach((item, index) => {
+              const currentId = `n${nodeCounter++}`;
+              const label = typeof item === 'object' && item !== null ? `Item ${index}` : String(item);
+              result += `  ${currentId}["${sanitizeMermaid(label)}"]\n`;
+              result += `  ${parentId} --> ${currentId}\n`;
+              if (typeof item === 'object' && item !== null) {
+                traverseFlowchart(item, currentId);
+              }
+            });
+          } else if (typeof obj === 'object' && obj !== null) {
+            Object.entries(obj).forEach(([key, value]) => {
+              const currentId = `n${nodeCounter++}`;
+              result += `  ${currentId}["${sanitizeMermaid(key)}"]\n`;
+              result += `  ${parentId} --> ${currentId}\n`;
+              if (typeof value === 'object' && value !== null) {
+                traverseFlowchart(value, currentId);
+              } else {
+                 const leafId = `n${nodeCounter++}`;
+                 result += `  ${leafId}("${sanitizeMermaid(String(value))}")\n`;
+                 result += `  ${currentId} --- ${leafId}\n`;
+              }
+            });
+          }
+        };
+
+        const rootId = `n${nodeCounter++}`;
+        result += `  ${rootId}(("JSON"))\n`;
+        traverseFlowchart(parsed, rootId);
+        return result;
+      } else if (mode === 'mindmap') {
         let result = 'mindmap\n  root((JSON))\n';
         const traverse = (obj: any, depth: number) => {
           if (Array.isArray(obj)) {
@@ -214,6 +249,16 @@ export function JSONToMermaid({ initialData, onStateChange }: { initialData?: an
               >
                 Mindmap
               </button>
+              <button
+                onClick={() => setMode('flowchart')}
+                className={`px-4 py-1.5 rounded-xl text-xs font-bold transition-all border ${
+                  mode === 'flowchart'
+                    ? 'bg-slate-900 text-white border-slate-900 dark:bg-white dark:text-slate-950'
+                    : 'bg-white dark:bg-slate-800 text-slate-500 border-slate-200 dark:border-slate-700 hover:border-slate-300'
+                }`}
+              >
+                Flowchart
+              </button>
             </div>
             <div className="flex gap-2">
               <button
@@ -267,6 +312,7 @@ export function JSONToMermaid({ initialData, onStateChange }: { initialData?: an
           <ul className="text-sm text-slate-500 dark:text-slate-400 space-y-2">
             <li><strong>Class Diagram:</strong> {t('jsontomermaid.class_desc', 'Shows objects as classes with typed properties and composition relationships.')}</li>
             <li><strong>Mindmap:</strong> {t('jsontomermaid.mindmap_desc', 'Visualizes the JSON as a hierarchical tree or mindmap, perfect for seeing nesting levels.')}</li>
+            <li><strong>Flowchart:</strong> {t('jsontomermaid.flowchart_desc', 'Generates a node-link diagram representing the structure as a process flow.')}</li>
           </ul>
         </div>
         <div className="space-y-4">

@@ -516,6 +516,7 @@ const JSONToJSDoc = lazy(() => import("./components/JSONToJSDoc").then(m => ({ d
 const CSSAnimationGenerator = lazy(() => import("./components/CSSAnimationGenerator").then(m => ({ default: m.CSSAnimationGenerator })));
 const SQLToMongoDB = lazy(() => import("./components/SQLToMongoDB").then(m => ({ default: m.SQLToMongoDB })));
 const YAMLToTOML = lazy(() => import("./components/YAMLToTOML").then(m => ({ default: m.YAMLToTOML })));
+const SubstitutionCipher = lazy(() => import("./components/SubstitutionCipher").then(m => ({ default: m.SubstitutionCipher })));
 
 // ⚡ Bolt Optimization: Pre-calculating tool map and search index for O(1) lookups and faster filtering
 const toolsMap: Record<string, Tool> = {};
@@ -4499,6 +4500,17 @@ const tools: Tool[] = [
     Component: CSSAnimationGenerator,
     category: "dev",
     keywords: ["css", "animation", "keyframes", "frontend", "design", "preview"],
+  },
+  {
+    id: "substitution-cipher",
+    name: "Chiffre de Substitution",
+    nameEn: "Substitution Cipher",
+    icon: Shield,
+    description: "Chiffrer et déchiffrer du texte en utilisant un alphabet de substitution personnalisé",
+    descriptionEn: "Encrypt and decrypt text using a custom substitution alphabet",
+    Component: SubstitutionCipher,
+    category: "text",
+    keywords: ["substitution", "cipher", "encryption", "classic", "cryptography", "key"],
   },
 ];
 

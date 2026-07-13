@@ -11,12 +11,13 @@ export function JSONToMermaid({ initialData, onStateChange }: { initialData?: an
   const textareaRef = useRef<HTMLTextAreaElement>(null);
   const [json, setJson] = useState(initialData?.json || '{\n  "user": {\n    "id": 1,\n    "name": "John Doe",\n    "profile": {\n      "bio": "Developer",\n      "social": ["twitter", "github"]\n    }\n  }\n}');
   const [mode, setMode] = useState<DiagramMode>(initialData?.mode || 'class');
+  const [direction, setDirection] = useState<'TD' | 'LR'>(initialData?.direction || 'TD');
   const [copied, setCopied] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    onStateChange?.({ json, mode });
-  }, [json, mode]);
+    onStateChange?.({ json, mode, direction });
+  }, [json, mode, direction]);
 
   const sanitizeMermaid = useCallback((str: string, isIdentifier = false) => {
     if (isIdentifier) {
@@ -60,7 +61,7 @@ export function JSONToMermaid({ initialData, onStateChange }: { initialData?: an
       const parsed = JSON.parse(json);
 
       if (mode === 'flowchart') {
-        let result = 'graph TD\n';
+        let result = `graph ${direction}\n`;
         let nodeCounter = 0;
 
         const traverseFlowchart = (obj: any, parentId: string) => {
@@ -260,6 +261,22 @@ export function JSONToMermaid({ initialData, onStateChange }: { initialData?: an
                 Flowchart
               </button>
             </div>
+            {mode === 'flowchart' && (
+               <div className="flex bg-slate-100 dark:bg-slate-800 p-1 rounded-xl border border-slate-200 dark:border-slate-700">
+                  <button
+                    onClick={() => setDirection('TD')}
+                    className={`px-3 py-1 rounded-lg text-[10px] font-black transition-all ${direction === 'TD' ? 'bg-white dark:bg-slate-700 text-indigo-600 shadow-sm' : 'text-slate-500'}`}
+                  >
+                    {t('jsontomermaid.direction_td', 'Top-Down')}
+                  </button>
+                  <button
+                    onClick={() => setDirection('LR')}
+                    className={`px-3 py-1 rounded-lg text-[10px] font-black transition-all ${direction === 'LR' ? 'bg-white dark:bg-slate-700 text-indigo-600 shadow-sm' : 'text-slate-500'}`}
+                  >
+                    {t('jsontomermaid.direction_lr', 'Left-Right')}
+                  </button>
+               </div>
+            )}
             <div className="flex gap-2">
               <button
                 onClick={handleDownload}

@@ -4,7 +4,7 @@ import { useTranslation } from 'react-i18next';
 
 const MAX_LENGTH = 100000; // 100KB
 
-type OutputLanguage = 'fetch' | 'axios' | 'python' | 'php' | 'go' | 'ruby' | 'java' | 'csharp' | 'rust' | 'cpp';
+type OutputLanguage = 'fetch' | 'axios' | 'python' | 'php' | 'go' | 'ruby' | 'java' | 'csharp' | 'rust' | 'cpp' | 'swift' | 'kotlin';
 
 export function CURLConverter({ initialData, onStateChange }: { initialData?: any; onStateChange?: (state: any) => void }) {
   const { t } = useTranslation();
@@ -264,6 +264,52 @@ export function CURLConverter({ initialData, onStateChange }: { initialData?: an
     return code;
   };
 
+  const generateSwiftURLSession = (url: string, method: string, headers: Record<string, string>, data: string | null) => {
+    let code = `import Foundation\n\n`;
+    code += `var request = URLRequest(url: URL(string: ${JSON.stringify(url)})!,timeoutInterval: Double.infinity)\n`;
+    code += `request.httpMethod = ${JSON.stringify(method)}\n`;
+
+    if (Object.keys(headers).length > 0) {
+      Object.entries(headers).forEach(([k, v]) => {
+        code += `request.addValue(${JSON.stringify(v)}, forHTTPHeaderField: ${JSON.stringify(k)})\n`;
+      });
+    }
+
+    if (data) {
+      code += `request.httpBody = ${JSON.stringify(data)}.data(using: .utf8)\n`;
+    }
+
+    code += `\nlet task = URLSession.shared.dataTask(with: request) { data, response, error in\n`;
+    code += `  guard let data = data else {\n`;
+    code += `    print(String(describing: error))\n`;
+    code += `    return\n`;
+    code += `  }\n`;
+    code += `  print(String(data: data, encoding: .utf8)!)\n`;
+    code += `}\n\ntask.resume()`;
+    return code;
+  };
+
+  const generateKotlinOkHttp = (url: string, method: string, headers: Record<string, string>, data: string | null) => {
+    let code = `import okhttp3.MediaType.Companion.toMediaType\n`;
+    code += `import okhttp3.OkHttpClient\nimport okhttp3.Request\nimport okhttp3.RequestBody.Companion.toRequestBody\n\n`;
+    code += `val client = OkHttpClient()\n`;
+
+    if (data) {
+      code += `val mediaType = ${JSON.stringify(headers['Content-Type'] || 'text/plain')}.toMediaType()\n`;
+      code += `val body = ${JSON.stringify(data)}.toRequestBody(mediaType)\n`;
+    }
+
+    code += `val request = Request.Builder()\n  .url(${JSON.stringify(url)})\n`;
+    code += `  .method(${JSON.stringify(method)}, ${data ? 'body' : 'null'})\n`;
+
+    Object.entries(headers).forEach(([k, v]) => {
+      code += `  .addHeader(${JSON.stringify(k)}, ${JSON.stringify(v)})\n`;
+    });
+
+    code += `  .build()\n\nval response = client.newCall(request).execute()`;
+    return code;
+  };
+
   const parseCURL = useCallback((curl: string, lang: OutputLanguage) => {
     if (!curl.trim()) {
       setOutput('');
@@ -303,6 +349,8 @@ export function CURLConverter({ initialData, onStateChange }: { initialData?: an
         case 'csharp': code = generateCSharpRestSharp(url, method, headers, data); break;
         case 'rust': code = generateRustReqwest(url, method, headers, data); break;
         case 'cpp': code = generateCPPLibcurl(url, method, headers, data); break;
+        case 'swift': code = generateSwiftURLSession(url, method, headers, data); break;
+        case 'kotlin': code = generateKotlinOkHttp(url, method, headers, data); break;
       }
 
       setOutput(code);
@@ -371,7 +419,7 @@ export function CURLConverter({ initialData, onStateChange }: { initialData?: an
 
   const handleDownload = () => {
     if (!output) return;
-    const extensions: Record<OutputLanguage, string> = { fetch: 'js', axios: 'js', python: 'py', php: 'php', go: 'go', ruby: 'rb', java: 'java', csharp: 'cs', rust: 'rs', cpp: 'cpp' };
+    const extensions: Record<OutputLanguage, string> = { fetch: 'js', axios: 'js', python: 'py', php: 'php', go: 'go', ruby: 'rb', java: 'java', csharp: 'cs', rust: 'rs', cpp: 'cpp', swift: 'swift', kotlin: 'kt' };
     const blob = new Blob([output], { type: 'text/plain' });
     const url = URL.createObjectURL(blob);
     const link = document.createElement('a');
@@ -385,7 +433,7 @@ export function CURLConverter({ initialData, onStateChange }: { initialData?: an
     <div className="max-w-6xl mx-auto space-y-8">
       <div className="flex flex-wrap gap-4 justify-between items-center bg-slate-50 dark:bg-slate-900/50 p-6 rounded-[2rem] border border-slate-200 dark:border-slate-800">
         <div className="flex flex-wrap gap-2">
-          {(['fetch', 'axios', 'python', 'php', 'go', 'ruby', 'java', 'csharp', 'rust', 'cpp'] as OutputLanguage[]).map((lang) => (
+          {(['fetch', 'axios', 'python', 'php', 'go', 'ruby', 'java', 'csharp', 'rust', 'cpp', 'swift', 'kotlin'] as OutputLanguage[]).map((lang) => (
             <button
               key={lang}
               onClick={() => setLanguage(lang)}
@@ -396,7 +444,7 @@ export function CURLConverter({ initialData, onStateChange }: { initialData?: an
               }`}
             >
               {language === lang ? <Check className="w-4 h-4 inline mr-1" /> : null}
-              {lang === 'php' ? 'PHP cURL' : lang === 'python' ? 'Python Requests' : lang === 'java' ? 'Java OkHttp' : lang === 'csharp' ? 'C# RestSharp' : lang === 'rust' ? 'Rust Reqwest' : lang === 'cpp' ? 'C++ libcurl' : lang}
+              {lang === 'php' ? 'PHP cURL' : lang === 'python' ? 'Python Requests' : lang === 'java' ? 'Java OkHttp' : lang === 'csharp' ? 'C# RestSharp' : lang === 'rust' ? 'Rust Reqwest' : lang === 'cpp' ? 'C++ libcurl' : lang === 'swift' ? 'Swift URLSession' : lang === 'kotlin' ? 'Kotlin OkHttp' : lang}
             </button>
           ))}
         </div>

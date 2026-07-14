@@ -5,9 +5,9 @@ test.describe('BMI Calculator UX Enhancement', () => {
     await page.goto('http://localhost:5173/en/outil/bmi-calculator');
 
     // Default weight: 70kg, height: 170cm => BMI: 24.2 (Normal)
-    const resultContainer = page.locator('[aria-live="polite"]');
-    await expect(resultContainer).toContainText('24.2');
-    await expect(resultContainer).toContainText('Normal');
+    const resultCard = page.locator('.bg-slate-900.p-10');
+    await expect(resultCard).toContainText('24.2');
+    await expect(resultCard).toContainText('Normal');
 
     // Check if the 'Normal' grid item is highlighted
     const normalGridItem = page.locator('div.border-indigo-500', { hasText: 'Normal' });
@@ -16,8 +16,8 @@ test.describe('BMI Calculator UX Enhancement', () => {
 
     // Change weight to trigger 'Overweight'
     await page.fill('#weight', '85');
-    await expect(resultContainer).toContainText('29.4');
-    await expect(resultContainer).toContainText('Overweight');
+    await expect(resultCard).toContainText('29.4');
+    await expect(resultCard).toContainText('Overweight');
 
     const overweightGridItem = page.locator('div.border-indigo-500', { hasText: 'Overweight' });
     await expect(overweightGridItem).toBeVisible();

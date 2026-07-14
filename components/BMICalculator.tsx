@@ -1,6 +1,8 @@
 import { useState, useMemo, useEffect, useRef, useCallback } from 'react';
-import { Activity, Info, Copy, Check, Trash2, HelpCircle, BookOpen, ChevronRight, Scale, Download } from 'lucide-react';
+import { Activity, Info, Copy, Check, Trash2, BookOpen, ChevronRight, Scale, Download } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
+import { toast } from 'sonner';
+import { Kbd } from './ui/Kbd';
 
 export function BMICalculator({ initialData, onStateChange }: { initialData?: any; onStateChange?: (state: any) => void }) {
   const weightRef = useRef<HTMLInputElement>(null);
@@ -79,6 +81,7 @@ export function BMICalculator({ initialData, onStateChange }: { initialData?: an
     const text = `${t('bmi.your_bmi')} : ${bmi.toFixed(1)} (${category.label})`;
     navigator.clipboard.writeText(text);
     setCopied(true);
+    toast.success(t('common.copied'));
     setTimeout(() => setCopied(false), 2000);
   }, [bmi, category.label, t]);
 
@@ -87,6 +90,7 @@ export function BMICalculator({ initialData, onStateChange }: { initialData?: an
     const text = `${t('bmi.ideal_weight')} : ${idealWeightRange.low.toFixed(1)} - ${idealWeightRange.high.toFixed(1)} ${idealWeightRange.unit}`;
     navigator.clipboard.writeText(text);
     setCopiedIdeal(true);
+    toast.success(t('common.copied'));
     setTimeout(() => setCopiedIdeal(false), 2000);
   }, [idealWeightRange, t]);
 
@@ -134,16 +138,25 @@ ${idealWeightRange ? `- ${t('bmi.ideal_weight')} : ${idealWeightRange.low.toFixe
     weightRef.current?.focus();
   }, []);
 
+  const handlersRef = useRef({ handleClear, handleCopy, handleUnitChange, unit });
+
+  useEffect(() => {
+    handlersRef.current = { handleClear, handleCopy, handleUnitChange, unit };
+  }, [handleClear, handleCopy, handleUnitChange, unit]);
+
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
       const activeElement = document.activeElement;
-      const isInputFocused =
+      const isEditable =
         activeElement instanceof HTMLInputElement ||
         activeElement instanceof HTMLTextAreaElement ||
         activeElement instanceof HTMLSelectElement ||
         activeElement?.getAttribute("contenteditable") === "true";
 
-      if (isInputFocused) return;
+      const { handleClear, handleCopy, handleUnitChange, unit } = handlersRef.current;
+
+      if (isEditable && e.key !== "Escape") return;
+
       if (e.metaKey || e.ctrlKey || e.altKey || e.shiftKey) return;
 
       if (e.key === "Escape") {
@@ -160,7 +173,7 @@ ${idealWeightRange ? `- ${t('bmi.ideal_weight')} : ${idealWeightRange.low.toFixe
 
     window.addEventListener("keydown", handleKeyDown);
     return () => window.removeEventListener("keydown", handleKeyDown);
-  }, [handleClear, handleCopy, handleUnitChange, unit]);
+  }, []);
 
   return (
     <div className="max-w-4xl mx-auto space-y-8">
@@ -182,7 +195,7 @@ ${idealWeightRange ? `- ${t('bmi.ideal_weight')} : ${idealWeightRange.low.toFixe
               >
                 {t('bmi.imperial')}
               </button>
-              <kbd className="hidden sm:inline-flex items-center justify-center w-5 h-5 border border-slate-200 dark:border-slate-700 rounded text-[10px] font-bold text-slate-400 bg-white dark:bg-slate-900 mx-1">S</kbd>
+              <Kbd modifier={null} className="hidden sm:inline-flex mx-1">S</Kbd>
             </div>
             <div className="flex gap-2 items-center">
               <button
@@ -194,11 +207,12 @@ ${idealWeightRange ? `- ${t('bmi.ideal_weight')} : ${idealWeightRange.low.toFixe
                 <Download className="w-3 h-3" /> {t('common.download')}
               </button>
               <div className="flex gap-2 items-center">
-                <kbd className="hidden sm:inline-flex items-center justify-center px-1.5 py-0.5 border border-rose-200 dark:border-rose-800 rounded text-[10px] font-bold text-rose-400 bg-white dark:bg-slate-900">Esc</kbd>
+                <Kbd modifier={null} className="hidden sm:inline-flex border-rose-200 dark:border-rose-800 text-rose-400">Esc</Kbd>
                 <button
                   onClick={handleClear}
                   disabled={!weight && !height}
                   aria-label={t('bmi.clear_fields')}
+                  title={`${t('bmi.clear_fields')} (Esc)`}
                   className="text-xs font-bold text-rose-500 bg-rose-50 dark:bg-rose-500/10 hover:bg-rose-100 dark:hover:bg-rose-500/20 px-3 py-1.5 rounded-xl flex items-center gap-1 transition-all disabled:opacity-50 disabled:cursor-not-allowed focus-visible:ring-2 focus-visible:ring-rose-500 focus-visible:outline-none"
                 >
                   <Trash2 className="w-3 h-3" /> {t('common.clear')}
@@ -295,11 +309,11 @@ ${idealWeightRange ? `- ${t('bmi.ideal_weight')} : ${idealWeightRange.low.toFixe
                   ? "bg-emerald-50 dark:bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border-emerald-200 dark:border-emerald-500/20"
                   : "bg-white/10 text-white/40 border-transparent hover:text-white hover:bg-white/20 md:opacity-0 md:group-hover:opacity-100 md:focus-visible:opacity-100"
               } disabled:opacity-0`}
-              title={t('bmi.copy_result')}
-              aria-label={t('bmi.copy_result')}
+              title={`${t('bmi.copy_result')} (C)`}
+              aria-label={`${t('bmi.copy_result')} (C)`}
             >
               {copied ? <Check className="w-5 h-5" /> : <Copy className="w-5 h-5" />}
-              {!copied && <kbd className="hidden sm:inline-flex items-center justify-center w-5 h-5 border border-white/20 rounded text-[10px] font-bold bg-white/5">C</kbd>}
+              {!copied && <Kbd modifier={null} className="hidden sm:inline-flex border-white/20 bg-white/5 text-white/50">C</Kbd>}
             </button>
             <div className="space-y-4 relative z-10" aria-live="polite" aria-atomic="true">
               <div className="text-slate-400 font-bold uppercase tracking-widest text-xs">{t('bmi.your_bmi')}</div>

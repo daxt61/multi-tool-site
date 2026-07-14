@@ -54,7 +54,7 @@ test.describe('BMI Calculator Keyboard Shortcuts', () => {
 
     // Check for success feedback (Check icon instead of Copy icon)
     // The button has absolute top-6 right-6 inside the result card
-    const copyButton = page.locator('button[aria-label="Copier le résultat"]');
+    const copyButton = page.locator('button[aria-label="Copier le résultat (C)"]');
     await expect(copyButton).toBeVisible();
 
     // After pressing C, it should show the Check icon

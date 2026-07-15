@@ -4948,7 +4948,7 @@ function MainApp() {
       if (document.activeElement?.tagName !== "INPUT" && document.activeElement?.tagName !== "TEXTAREA") {
         if (e.key === "/") {
           e.preventDefault();
-          document.getElementById("tool-search")?.focus();
+          searchInputRef.current?.focus();
         } else if (e.key.toLowerCase() === "l" && !e.ctrlKey && !e.metaKey && !e.altKey) {
           e.preventDefault();
           if (tools.length > 0) {
@@ -5113,7 +5113,7 @@ function MainApp() {
                 <div className="relative group max-w-lg mx-auto">
                   <label htmlFor="tool-search" className="sr-only">{t("search.placeholder")}</label>
                   <div className="sr-only" aria-live="polite" aria-atomic="true">
-                    {searchQuery && t(filteredTools.length === 1 ? "search.results_count_one" : "search.results_count_other", { count: filteredTools.length })}
+                    {(searchQuery || selectedCategory) && t(filteredTools.length === 1 ? "search.results_count_one" : "search.results_count_other", { count: filteredTools.length })}
                   </div>
                   <div className="absolute inset-y-0 left-4 flex items-center pointer-events-none transition-colors group-focus-within:text-indigo-500"><Search className="h-5 w-5 text-slate-400 group-focus-within:text-indigo-500 transition-colors" /></div>
                   <input

@@ -57,3 +57,7 @@
 ## 2025-08-20 - [Shortcut Hints and Test Assertions]
 **Learning:** When improving accessibility by appending keyboard shortcut hints to `aria-label` or `title` attributes (e.g., changing "Copy" to "Copy (C)"), existing functional tests (like Playwright) that assert on these specific labels will break.
 **Action:** Always audit and update associated end-to-end tests when modifying user-facing labels for accessibility to ensure they account for the appended shortcut hints.
+
+## 2025-08-25 - [Inclusive Search Announcements]
+**Learning:** Standard search result announcements using `aria-live` often only trigger on text input changes. Users filtering by category or other non-textual UI controls are left without confirmation of the resulting list update.
+**Action:** Configure `aria-live` regions to announce result counts whenever *any* filter state (search query, category selection, etc.) changes, ensuring a consistent experience for assistive technology users.

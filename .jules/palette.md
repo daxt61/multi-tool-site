@@ -37,3 +37,11 @@
 ## 2025-08-15 - [OS-Aware Keyboard Shortcut Hints]
 **Learning:** Hardcoding platform-specific shortcuts (like 'Ctrl+K') in translation files creates a confusing experience for Mac users who expect '⌘K'. Dynamic label construction improves both clarity and perceived polish.
 **Action:** Use a centralized platform detection logic to dynamically append the correct modifier (⌘ or Ctrl) to localized accessibility labels and visual hints.
+
+## 2025-07-30 - [Modern Feature Toggles in Code Generators]
+**Learning:** For language-specific code generators (like JSON to C#), providing toggles for modern syntax (e.g., Records, init-only properties) significantly improves the utility for developers using newer framework versions.
+**Action:** When creating or upgrading code generators, research the latest stable language features and provide opt-in toggles for them.
+
+## 2025-07-30 - [Custom Character Overrides in Visual Tools]
+**Learning:** In tools that generate visual output using characters (like ASCII Art), allowing the user to override the "ink" character provides more creative control and accessibility for different display environments.
+**Action:** Implement "Custom Character" inputs for char-based generation tools, defaulting to standard symbols (e.g., █).

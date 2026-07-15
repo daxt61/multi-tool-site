@@ -46,6 +46,15 @@ export function SQLToMongoDB({ initialData, onStateChange }: { initialData?: any
       const cleanInput = input.trim().replace(/--.*$/gm, '').replace(/\/\*[\s\S]*?\*\//g, '');
       let result = '';
 
+      const sanitizeKey = (key: string) => {
+        const lower = key.toLowerCase();
+        // Sentinel: Sanitize dangerous keys to prevent Prototype Pollution
+        if (lower === '__proto__' || lower === 'constructor' || lower === 'prototype') {
+          return `_${key}`;
+        }
+        return key;
+      };
+
       // Handle INSERT INTO
       const insertRegex = /INSERT\s+INTO\s+([^\s(]+)\s*\(([^)]+)\)\s*VALUES\s*([\s\S]+);?/i;
       const insertMatch = cleanInput.match(insertRegex);
@@ -80,9 +89,9 @@ export function SQLToMongoDB({ initialData, onStateChange }: { initialData?: any
             }
             vals.push(parseValue(currentVal));
 
-            const obj: any = {};
+            const obj: any = Object.create(null);
             columns.forEach((col: string, idx: number) => {
-              obj[col] = vals[idx];
+              obj[sanitizeKey(col)] = vals[idx];
             });
             rows.push(obj);
           }
@@ -109,7 +118,7 @@ export function SQLToMongoDB({ initialData, onStateChange }: { initialData?: any
         result = `db.${collection}.insertMany(${JSON.stringify(rows, null, 2)})`;
       } else {
         // Handle SELECT
-        const selectRegex = /SELECT\s+(.+?)\s+FROM\s+([^\s]+)(?:\s+WHERE\s+(.+?))?(?:\s+LIMIT\s+(\d+))?;?/i;
+        const selectRegex = /SELECT\s+([\s\S]+?)\s+FROM\s+([^\s;]+)(?:\s+WHERE\s+([\s\S]+?))?(?:\s+LIMIT\s+(\d+))?\s*;?$/i;
         const selectMatch = cleanInput.match(selectRegex);
 
         if (selectMatch) {
@@ -121,11 +130,11 @@ export function SQLToMongoDB({ initialData, onStateChange }: { initialData?: any
           let query = '{}';
           if (where) {
             const conditions = where.split(/\s+AND\s+/i);
-            const queryObj: any = {};
+            const queryObj: any = Object.create(null);
             conditions.forEach((cond: string) => {
               const partMatch = cond.match(/([^\s>=<!]+)\s*(=|!=|<>|>|<|>=|<=|LIKE|IN)\s*(.+)/i);
               if (partMatch) {
-                const key = partMatch[1].trim().replace(/[`"[]/g, '');
+                const key = sanitizeKey(partMatch[1].trim().replace(/[`"[]/g, ''));
                 const op = partMatch[2].toUpperCase();
                 const val = parseValue(partMatch[3]);
 
@@ -150,8 +159,8 @@ export function SQLToMongoDB({ initialData, onStateChange }: { initialData?: any
 
           let projection = '';
           if (fields !== '*') {
-            const projObj: any = {};
-            fields.split(',').forEach((f: string) => projObj[f.trim().replace(/[`"[]/g, '')] = 1);
+            const projObj: any = Object.create(null);
+            fields.split(',').forEach((f: string) => projObj[sanitizeKey(f.trim().replace(/[`"[]/g, ''))] = 1);
             projection = `, ${JSON.stringify(projObj)}`;
           }
 

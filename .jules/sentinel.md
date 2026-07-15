@@ -196,3 +196,8 @@
 **Vulnerability:** The newly implemented JSONToOpenAPI component was designed with defensive patterns to prevent Prototype Pollution and Stack Overflow Denial of Service (DoS).
 **Learning:** Any recursive converter that maps user-provided JSON keys to internal object structures must sanitize keys like `__proto__` and enforce a recursion depth limit.
 **Prevention:** Implemented `MAX_DEPTH = 20` and used key sanitization (prefixing dangerous keys with an underscore) to ensure the tool remains stable and secure even with malicious inputs.
+
+## 2025-08-20 - [Prototype Pollution in SQL-to-MongoDB Converter]
+**Vulnerability:** The SQLToMongoDB component was vulnerable to Prototype Pollution by using user-provided SQL column names and WHERE clause keys (e.g., `__proto__`) as keys for plain JavaScript objects during the conversion process.
+**Learning:** Even specialized converters that target a specific database syntax (MongoDB) are susceptible to Prototype Pollution if they use intermediate JavaScript objects to map user-controlled schema or query structures. This can lead to data loss in the generated output as `JSON.stringify` ignores inherited properties.
+**Prevention:** Consistently use `Object.create(null)` for all internal data structures that store user-provided keys, and apply a `sanitizeKey` helper to prefix dangerous reserved keys (`__proto__`, `constructor`, `prototype`) with an underscore.

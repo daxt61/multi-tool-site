@@ -513,6 +513,7 @@ const BaconianCipher = lazy(() => import("./components/BaconianCipher").then(m =
 const PolybiusSquare = lazy(() => import("./components/PolybiusSquare").then(m => ({ default: m.PolybiusSquare })));
 const AffineCipher = lazy(() => import("./components/AffineCipher").then(m => ({ default: m.AffineCipher })));
 const JSONToJSDoc = lazy(() => import("./components/JSONToJSDoc").then(m => ({ default: m.JSONToJSDoc })));
+const JSONToOpenAPI = lazy(() => import("./components/JSONToOpenAPI").then(m => ({ default: m.JSONToOpenAPI })));
 const CSSAnimationGenerator = lazy(() => import("./components/CSSAnimationGenerator").then(m => ({ default: m.CSSAnimationGenerator })));
 const SQLToMongoDB = lazy(() => import("./components/SQLToMongoDB").then(m => ({ default: m.SQLToMongoDB })));
 const YAMLToTOML = lazy(() => import("./components/YAMLToTOML").then(m => ({ default: m.YAMLToTOML })));
@@ -4467,6 +4468,17 @@ const tools: Tool[] = [
     Component: JSONToJSDoc,
     category: "dev",
     keywords: ["json", "jsdoc", "typedef", "documentation", "javascript"],
+  },
+  {
+    id: "json-to-openapi",
+    name: "JSON en OpenAPI",
+    nameEn: "JSON to OpenAPI",
+    icon: FileCode,
+    description: "Générer une spécification OpenAPI 3.0 à partir de JSON",
+    descriptionEn: "Generate an OpenAPI 3.0 specification from JSON",
+    Component: JSONToOpenAPI,
+    category: "dev",
+    keywords: ["json", "openapi", "swagger", "api", "schema", "documentation"],
   },
   {
     id: "sql-to-mongodb",

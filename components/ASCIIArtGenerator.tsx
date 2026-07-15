@@ -121,6 +121,38 @@ const FONTS: Record<string, Record<string, string[]>> = {
     'Y': [' ╚╦╝ ', '  ║  ', '  ╩  '],
     'Z': [' ╔═╝ ', ' ╔═╝ ', ' ╚═╝ '],
     ' ': ['     ', '     ', '     '],
+  },
+  'Straight': {
+    'A': ['  /\\  ', ' /__\\ ', '/    \\'],
+    'B': ['|--\\ ', '|--/ ', '|--/ '],
+    'C': [' /--\\', '|    ', ' \\--/'],
+    'D': ['|--\\ ', '|   |', '|--/ '],
+    'E': ['|--- ', '|--- ', '|--- '],
+    'F': ['|--- ', '|--- ', '|    '],
+    'G': [' /--\\', '|  -_', ' \\--/'],
+    'H': ['|   |', '|---|', '|   |'],
+    'I': [' --- ', '  |  ', ' --- '],
+    'J': ['   -|', '    |', ' ---/'],
+    'K': ['|  / ', '|-<  ', '|  \\ '],
+    'L': ['|    ', '|    ', '|--- '],
+    'M': ['|\\/| ', '|  | ', '|  | '],
+    'N': ['|\\ | ', '| \\| ', '|  | '],
+    'O': [' /--\\', '|    |', ' \\--/'],
+    'P': ['|--\\ ', '|--/ ', '|    '],
+    'Q': [' /--\\', '|  \\|', ' \\--X'],
+    'R': ['|--\\ ', '|--/ ', '|  \\ '],
+    'S': [' /---', ' `---', ' ---/'],
+    'T': [' --- ', '  |  ', '  |  '],
+    'U': ['|   |', '|   |', ' \\--/'],
+    'V': ['\\   /', ' \\ / ', '  V  '],
+    'W': ['|   |', '| | |', ' \\_/ '],
+    'X': ['\\  / ', ' ><  ', '/  \\ '],
+    'Y': ['\\   /', ' \\ / ', '  |  '],
+    'Z': [' --- ', '   / ', ' --- '],
+    ' ': ['     ', '     ', '     '],
+  },
+  'Minimal': {
+    'A': ['/\\'], 'B': ['|)'], 'C': ['( '], 'D': ['|)'], 'E': ['|-'], 'F': ['|-'], 'G': ['(-'], 'H': ['|-|'], 'I': ['|'], 'J': ['_|'], 'K': ['|<'], 'L': ['|_'], 'M': ['|\\/|'], 'N': ['|\\|'], 'O': ['()'], 'P': ['|p'], 'Q': ['(q)'], 'R': ['|r'], 'S': [' s'], 'T': ['+'], 'U': ['|_|'], 'V': ['\\/'], 'W': ['\\/\\/'], 'X': ['><'], 'Y': ['\\/'], 'Z': ['/_'], ' ': [' '],
   }
 };
 
@@ -128,11 +160,12 @@ export function ASCIIArtGenerator({ initialData, onStateChange }: { initialData?
   const { t } = useTranslation();
   const [text, setText] = useState(initialData?.text || 'HELLO');
   const [font, setFont] = useState(initialData?.font || 'Block');
+  const [customChar, setCustomCharacter] = useState(initialData?.customChar || '');
   const [copied, setCopied] = useState(false);
 
   useEffect(() => {
-    onStateChange?.({ text, font });
-  }, [text, font, onStateChange]);
+    onStateChange?.({ text, font, customChar });
+  }, [text, font, customChar, onStateChange]);
 
   const asciiArt = useMemo(() => {
     if (!text) return '';
@@ -143,12 +176,16 @@ export function ASCIIArtGenerator({ initialData, onStateChange }: { initialData?
     for (const char of text.toUpperCase()) {
       const charGrid = selectedFont[char] || selectedFont[' '];
       for (let i = 0; i < linesCount; i++) {
-        lines[i] += charGrid[i] + ' ';
+        let linePart = charGrid[i];
+        if (customChar && customChar.length > 0) {
+          linePart = linePart.replace(/[█#@*+=]/g, customChar.charAt(0));
+        }
+        lines[i] += linePart + ' ';
       }
     }
 
     return lines.join('\n');
-  }, [text, font]);
+  }, [text, font, customChar]);
 
   const handleCopy = () => {
     if (!asciiArt) return;
@@ -202,6 +239,18 @@ export function ASCIIArtGenerator({ initialData, onStateChange }: { initialData?
                   <option key={f} value={f}>{f}</option>
                 ))}
               </select>
+            </div>
+
+            <div className="space-y-2">
+              <label htmlFor="custom-char" className="text-sm font-bold text-slate-600 dark:text-slate-400">{t('ascii_art.custom_char')}</label>
+              <input
+                id="custom-char"
+                type="text"
+                value={customChar}
+                onChange={(e) => setCustomCharacter(e.target.value.slice(0, 1))}
+                placeholder={t('ascii_art.custom_char_placeholder')}
+                className="w-full p-4 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-2xl font-bold outline-none focus:border-indigo-500 transition-all dark:text-white"
+              />
             </div>
           </div>
         </div>

@@ -19,10 +19,12 @@ export function JSONToCSharp({ initialData, onStateChange }: { initialData?: any
   const [error, setError] = useState<string | null>(null);
   const [copied, setCopied] = useState(false);
   const [library, setLibrary] = useState<LibraryType>(initialData?.library || 'system');
+  const [useRecords, setUseRecords] = useState(initialData?.useRecords ?? false);
+  const [useInitOnly, setUseInitOnly] = useState(initialData?.useInitOnly ?? false);
 
   useEffect(() => {
-    onStateChange?.({ jsonInput, library });
-  }, [jsonInput, library, onStateChange]);
+    onStateChange?.({ jsonInput, library, useRecords, useInitOnly });
+  }, [jsonInput, library, useRecords, useInitOnly, onStateChange]);
 
   const toPascalCase = (str: string) => {
     return str
@@ -117,7 +119,8 @@ export function JSONToCSharp({ initialData, onStateChange }: { initialData?: any
       finalOutput += 'using System.Collections.Generic;\n\n';
 
       classes.reverse().forEach((csClass) => {
-        finalOutput += `public class ${csClass.name}\n{\n`;
+        const classType = useRecords ? 'record' : 'class';
+        finalOutput += `public ${classType} ${csClass.name}\n{\n`;
 
         csClass.fields.forEach(field => {
           const escapedKey = escapeCSharpString(field.originalKey);
@@ -126,7 +129,8 @@ export function JSONToCSharp({ initialData, onStateChange }: { initialData?: any
           } else {
             finalOutput += `    [JsonProperty("${escapedKey}")]\n`;
           }
-          finalOutput += `    public ${field.type} ${field.name} { get; set; }\n\n`;
+          const setter = useInitOnly ? 'init' : 'set';
+          finalOutput += `    public ${field.type} ${field.name} { get; ${setter}; }\n\n`;
         });
 
         finalOutput = finalOutput.trimEnd() + '\n}\n\n';
@@ -138,7 +142,7 @@ export function JSONToCSharp({ initialData, onStateChange }: { initialData?: any
       setError(t('error.invalid_json'));
       setOutput('');
     }
-  }, [jsonInput, library, t]);
+  }, [jsonInput, library, useRecords, useInitOnly, t]);
 
   useEffect(() => {
     generateCSharp();
@@ -175,20 +179,45 @@ export function JSONToCSharp({ initialData, onStateChange }: { initialData?: any
   return (
     <div className="max-w-6xl mx-auto space-y-8">
       <div className="flex flex-wrap gap-4 justify-between items-center bg-slate-50 dark:bg-slate-900/50 p-6 rounded-[2rem] border border-slate-200 dark:border-slate-800">
-        <div className="flex flex-wrap gap-2">
-          {(['system', 'newtonsoft'] as LibraryType[]).map((lib) => (
+        <div className="flex flex-wrap gap-4">
+          <div className="flex flex-wrap gap-2">
+            {(['system', 'newtonsoft'] as LibraryType[]).map((lib) => (
+              <button
+                key={lib}
+                onClick={() => setLibrary(lib)}
+                className={`px-4 py-2 rounded-xl text-sm font-bold transition-all focus-visible:ring-2 focus-visible:ring-indigo-500 focus-visible:outline-none ${
+                  library === lib
+                    ? 'bg-indigo-600 text-white shadow-lg shadow-indigo-600/20'
+                    : 'bg-white dark:bg-slate-800 text-slate-500 hover:text-slate-900 dark:hover:text-slate-200'
+                }`}
+              >
+                {lib === 'system' ? 'System.Text.Json' : 'Newtonsoft.Json'}
+              </button>
+            ))}
+          </div>
+          <div className="w-px h-8 bg-slate-200 dark:bg-slate-800 hidden sm:block" />
+          <div className="flex flex-wrap gap-2">
             <button
-              key={lib}
-              onClick={() => setLibrary(lib)}
+              onClick={() => setUseRecords(!useRecords)}
               className={`px-4 py-2 rounded-xl text-sm font-bold transition-all focus-visible:ring-2 focus-visible:ring-indigo-500 focus-visible:outline-none ${
-                library === lib
+                useRecords
                   ? 'bg-indigo-600 text-white shadow-lg shadow-indigo-600/20'
                   : 'bg-white dark:bg-slate-800 text-slate-500 hover:text-slate-900 dark:hover:text-slate-200'
               }`}
             >
-              {lib === 'system' ? 'System.Text.Json' : 'Newtonsoft.Json'}
+              {useRecords ? <Check className="w-4 h-4 inline mr-1" /> : null} Records
             </button>
-          ))}
+            <button
+              onClick={() => setUseInitOnly(!useInitOnly)}
+              className={`px-4 py-2 rounded-xl text-sm font-bold transition-all focus-visible:ring-2 focus-visible:ring-indigo-500 focus-visible:outline-none ${
+                useInitOnly
+                  ? 'bg-indigo-600 text-white shadow-lg shadow-indigo-600/20'
+                  : 'bg-white dark:bg-slate-800 text-slate-500 hover:text-slate-900 dark:hover:text-slate-200'
+              }`}
+            >
+              {useInitOnly ? <Check className="w-4 h-4 inline mr-1" /> : null} Init-only
+            </button>
+          </div>
         </div>
       </div>
 

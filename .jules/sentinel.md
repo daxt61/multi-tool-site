@@ -191,3 +191,8 @@
 **Vulnerability:** The JSONToSQL component's `flattenObject` function used a plain object literal as an accumulator and lacked recursion depth limits, making it vulnerable to Prototype Pollution and Stack Overflow DoS.
 **Learning:** Utilities that flatten nested JSON structures for tabular formats (like SQL, CSV, Excel) often share the same vulnerable recursive patterns. Standardizing the use of `Object.create(null)` and `MAX_DEPTH` guards is essential for all such converters.
 **Prevention:** Always initialize accumulators with `Object.create(null)`, sanitize dangerous keys (`__proto__`, `constructor`, `prototype`), and enforce a `MAX_DEPTH = 20` recursion limit in all JSON processing utilities.
+
+## 2025-07-30 - [Prototype Pollution and DoS in JSON-to-OpenAPI Converter]
+**Vulnerability:** The newly implemented JSONToOpenAPI component was designed with defensive patterns to prevent Prototype Pollution and Stack Overflow Denial of Service (DoS).
+**Learning:** Any recursive converter that maps user-provided JSON keys to internal object structures must sanitize keys like `__proto__` and enforce a recursion depth limit.
+**Prevention:** Implemented `MAX_DEPTH = 20` and used key sanitization (prefixing dangerous keys with an underscore) to ensure the tool remains stable and secure even with malicious inputs.

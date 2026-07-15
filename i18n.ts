@@ -852,7 +852,7 @@ const resources = {
       "jsontojava.about_title": "About JSON to Java conversion",
       "jsontojava.about_text": "This tool generates Java classes (POJO) from your JSON data. It supports Jackson and GSON annotations, as well as Lombok to reduce boilerplate code. Nested objects are automatically extracted into separate classes.",
       "jsontocsharp.about_title": "About JSON to C# conversion",
-      "jsontocsharp.about_text": "This tool generates C# classes from your JSON data. It supports JsonPropertyName (System.Text.Json) and JsonProperty (Newtonsoft.Json) attributes. Nested objects are automatically extracted into separate classes.",
+      "jsontocsharp.about_text": "This tool generates C# classes or records from your JSON data. It supports JsonPropertyName (System.Text.Json) and JsonProperty (Newtonsoft.Json) attributes, and modern features like record types and init-only properties.",
       "jsontogo.about_title": "About JSON to Go conversion",
       "jsontogo.about_text": "This tool generates Go structs from your JSON data. It automatically handles PascalCase for field names and adds json:\"...\" tags for deserialization. Types are inferred from values (e.g., int, float64, string, bool).",
       "jsontogo.placeholder_output": "Go struct definition will appear here...",
@@ -1312,6 +1312,8 @@ const resources = {
       "tool.ascii-art.description": "Generate ASCII text banners",
       "ascii_art.font": "Font",
       "ascii_art.hint": "Letters and spaces only, max 20 chars.",
+      "ascii_art.custom_char": "Custom Character",
+      "ascii_art.custom_char_placeholder": "e.g. #",
       "tool.js-object-converter.name": "JS Object <> JSON",
       "tool.js-object-converter.description": "Convert between JavaScript objects and JSON",
       "tool.json-to-joi.name": "JSON to Joi",
@@ -3240,6 +3242,8 @@ const resources = {
       "substitution.placeholder_input": "Enter text here...",
       "substitution.about_title": "About Substitution Cipher",
       "substitution.about_text": "A monoalphabetic substitution cipher is a method of encryption where each letter in the plaintext is replaced by a letter from a fixed scrambled alphabet (the key). It is more secure than simple rotation ciphers (like Caesar) because there are 26! (factorial) possible keys, making brute-force attacks difficult.",
+      "jsontoopenapi.about_title": "About JSON to OpenAPI",
+      "jsontoopenapi.about_text": "This tool converts a JSON object or array into an OpenAPI 3.0 schema definition. It automatically infers types, formats (like date-time), and marks fields as required. You can export the result in YAML or JSON format.",
     }
   },
   fr: {
@@ -4075,7 +4079,7 @@ const resources = {
       "jsontojava.about_title": "À propos de la conversion JSON en Java",
       "jsontojava.about_text": "Cet outil génère des classes Java (POJO) à partir de vos données JSON. Il supporte les annotations Jackson et GSON, ainsi que Lombok pour réduire le code boilerplate. Les objets imbriqués sont automatiquement extraits dans des classes séparées.",
       "jsontocsharp.about_title": "À propos de la conversion JSON en C#",
-      "jsontocsharp.about_text": "Cet outil génère des classes C# à partir de vos données JSON. Il supporte les attributs JsonPropertyName (System.Text.Json) et JsonProperty (Newtonsoft.Json). Les objets imbriqués sont automatiquement extraits dans des classes séparées.",
+      "jsontocsharp.about_text": "Cet outil génère des classes ou des records C# à partir de vos données JSON. Il supporte les attributs JsonPropertyName (System.Text.Json) et JsonProperty (Newtonsoft.Json), ainsi que les fonctionnalités modernes comme les types record et les propriétés init-only.",
       "jsontogo.about_title": "À propos de la conversion JSON en Go",
       "jsontogo.about_text": "Cet outil génère des structs Go à partir de vos données JSON. Il gère automatiquement le PascalCase pour les noms de champs et ajoute les tags json:\"...\" pour la désérialisation. Les types sont inférés à partir des valeurs (ex: int, float64, string, bool).",
       "jsontogo.placeholder_output": "La définition du struct Go apparaîtra ici...",
@@ -4535,6 +4539,8 @@ const resources = {
       "tool.ascii-art.description": "Générer des bannières de texte en ASCII",
       "ascii_art.font": "Police",
       "ascii_art.hint": "Lettres et espaces uniquement, max 20 car.",
+      "ascii_art.custom_char": "Caractère personnalisé",
+      "ascii_art.custom_char_placeholder": "ex: #",
       "tool.js-object-converter.name": "JS Object <> JSON",
       "tool.js-object-converter.description": "Convertir entre objets JavaScript et JSON",
       "tool.json-to-joi.name": "JSON en Joi",
@@ -6483,6 +6489,8 @@ const resources = {
       "substitution.placeholder_input": "Entrez votre texte ici...",
       "substitution.about_title": "À propos du Chiffre de Substitution",
       "substitution.about_text": "Un chiffre de substitution monoalphabétique est une méthode de cryptographie où chaque lettre du texte clair est remplacée par une lettre d'un alphabet brouillé fixe (la clé). Il est plus sûr que les simples chiffres de rotation (comme César) car il existe 26! (factorielle) clés possibles, ce qui rend les attaques par force brute difficiles.",
+      "jsontoopenapi.about_title": "À propos de JSON en OpenAPI",
+      "jsontoopenapi.about_text": "Cet outil convertit un objet ou un tableau JSON en une définition de schéma OpenAPI 3.0. Il déduit automatiquement les types, les formats (comme date-time) et marque les champs comme obligatoires. Vous pouvez exporter le résultat au format YAML ou JSON.",
     }
   }
 };

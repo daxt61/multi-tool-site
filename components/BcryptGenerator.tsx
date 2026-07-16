@@ -1,12 +1,15 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { Shield, ShieldCheck, Copy, Check, Trash2, AlertCircle, Info, RefreshCw, Search } from 'lucide-react';
 import bcrypt from 'bcryptjs';
 import { useTranslation } from 'react-i18next';
+import { toast } from 'sonner';
+import { Kbd } from './ui/Kbd';
 
 const MAX_PASSWORD_LENGTH = 72; // Bcrypt limit is technically 72 bytes
 
 export function BcryptGenerator({ initialData, onStateChange }: { initialData?: any; onStateChange?: (state: any) => void }) {
   const { t } = useTranslation();
+  const passwordInputRef = useRef<HTMLInputElement>(null);
 
   // Hashing state
   const [password, setPassword] = useState('');
@@ -65,6 +68,7 @@ export function BcryptGenerator({ initialData, onStateChange }: { initialData?: 
     if (!hash) return;
     navigator.clipboard.writeText(hash);
     setHashCopied(true);
+    toast.success(t('common.copied'));
     setTimeout(() => setHashCopied(false), 2000);
   };
 
@@ -72,6 +76,7 @@ export function BcryptGenerator({ initialData, onStateChange }: { initialData?: 
     setPassword('');
     setHash('');
     setIsMatch(null);
+    passwordInputRef.current?.focus();
   };
 
   const handleClearVerify = () => {
@@ -110,20 +115,33 @@ export function BcryptGenerator({ initialData, onStateChange }: { initialData?: 
                      className="w-16 px-2 py-1 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg text-sm font-mono focus:ring-2 focus:ring-indigo-500/20 outline-none"
                    />
                 </div>
-                <button
-                  onClick={handleClearHash}
-                  className="text-xs font-bold text-rose-500 hover:text-rose-600 transition-colors"
-                >
-                  {t('common.clear')}
-                </button>
+                <div className="flex items-center gap-2">
+                  <Kbd modifier={null} className="hidden sm:inline-flex border-rose-200 dark:border-rose-800 text-rose-400 dark:bg-slate-900">Esc</Kbd>
+                  <button
+                    onClick={handleClearHash}
+                    className="text-xs font-bold text-rose-500 hover:text-rose-600 transition-colors focus-visible:ring-2 focus-visible:ring-rose-500 focus-visible:outline-none rounded-lg"
+                    aria-label={t('common.clear')}
+                  >
+                    {t('common.clear')}
+                  </button>
+                </div>
               </div>
             </div>
             <input
               id="bcrypt-password"
+              ref={passwordInputRef}
+              autoComplete="off"
+              spellCheck={false}
               type="text"
               value={password}
               maxLength={MAX_PASSWORD_LENGTH}
               onChange={(e) => setPassword(e.target.value)}
+              onKeyDown={(e) => {
+                if (e.key === 'Escape') {
+                  e.preventDefault();
+                  handleClearHash();
+                }
+              }}
               placeholder="P4ssw0rd!"
               className="w-full p-4 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl outline-none focus:ring-2 focus:ring-indigo-500/20 transition-all font-mono"
             />
@@ -135,7 +153,7 @@ export function BcryptGenerator({ initialData, onStateChange }: { initialData?: 
           <button
             onClick={handleHash}
             disabled={!password || hashing}
-            className="w-full py-4 bg-indigo-600 hover:bg-indigo-700 text-white rounded-2xl font-black text-lg shadow-lg shadow-indigo-600/20 transition-all active:scale-95 disabled:opacity-50 flex items-center justify-center gap-2"
+            className="w-full py-4 bg-indigo-600 hover:bg-indigo-700 text-white rounded-2xl font-black text-lg shadow-lg shadow-indigo-600/20 transition-all active:scale-95 disabled:opacity-50 flex items-center justify-center gap-2 focus-visible:ring-2 focus-visible:ring-indigo-500 focus-visible:outline-none"
           >
             {hashing ? <RefreshCw className="w-5 h-5 animate-spin" /> : <Shield className="w-5 h-5" />}
             {t('bcrypt.generate_hash')}
@@ -154,7 +172,8 @@ export function BcryptGenerator({ initialData, onStateChange }: { initialData?: 
                 />
                 <button
                   onClick={handleCopyHash}
-                  className={`absolute top-3 right-3 p-2 rounded-xl transition-all ${
+                  aria-label={t('common.copy')}
+                  className={`absolute top-3 right-3 p-2 rounded-xl transition-all focus-visible:ring-2 focus-visible:ring-indigo-500 focus-visible:outline-none ${
                     hashCopied
                       ? 'bg-emerald-500 text-white'
                       : 'bg-slate-800 text-slate-400 hover:text-white'
@@ -186,6 +205,8 @@ export function BcryptGenerator({ initialData, onStateChange }: { initialData?: 
               <input
                 id="verify-password"
                 type="text"
+                autoComplete="off"
+                spellCheck={false}
                 value={checkPassword}
                 onChange={(e) => setCheckPassword(e.target.value)}
                 className="w-full p-4 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl outline-none focus:ring-2 focus:ring-indigo-500/20 transition-all font-mono"
@@ -198,6 +219,8 @@ export function BcryptGenerator({ initialData, onStateChange }: { initialData?: 
               <input
                 id="verify-hash"
                 type="text"
+                autoComplete="off"
+                spellCheck={false}
                 value={checkHash}
                 onChange={(e) => setCheckHash(e.target.value)}
                 className="w-full p-4 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl outline-none focus:ring-2 focus:ring-indigo-500/20 transition-all font-mono"
@@ -209,14 +232,15 @@ export function BcryptGenerator({ initialData, onStateChange }: { initialData?: 
              <button
               onClick={handleVerify}
               disabled={!checkPassword || !checkHash || verifying}
-              className="flex-1 py-4 bg-slate-900 dark:bg-white text-white dark:text-slate-900 rounded-2xl font-black text-lg shadow-lg transition-all active:scale-95 disabled:opacity-50 flex items-center justify-center gap-2"
+              className="flex-1 py-4 bg-slate-900 dark:bg-white text-white dark:text-slate-900 rounded-2xl font-black text-lg shadow-lg transition-all active:scale-95 disabled:opacity-50 flex items-center justify-center gap-2 focus-visible:ring-2 focus-visible:ring-indigo-500 focus-visible:outline-none"
             >
               {verifying ? <RefreshCw className="w-5 h-5 animate-spin" /> : <Search className="w-5 h-5" />}
               {t('bcrypt.verify_btn')}
             </button>
             <button
               onClick={handleClearVerify}
-              className="px-6 py-4 bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400 rounded-2xl font-bold hover:bg-slate-200 transition-all"
+              className="px-6 py-4 bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400 rounded-2xl font-bold hover:bg-slate-200 transition-all focus-visible:ring-2 focus-visible:ring-slate-500 focus-visible:outline-none"
+              aria-label={t('common.clear')}
             >
               <Trash2 className="w-5 h-5" />
             </button>

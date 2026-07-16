@@ -3270,6 +3270,8 @@ const resources = {
       "contrastmatrix.wcag_text": "AA level requires 4.5:1 for normal text. AAA level requires 7:1. UI components and large text (18pt+) require 3:1.",
       "contrastmatrix.tips_title": "Design Tip",
       "contrastmatrix.tips_text": "Use a matrix to define which pairings are allowed in your design system. Green cells indicate pairings that are safe to use for all users.",
+      "tool.sql-to-openapi.name": "SQL to OpenAPI",
+      "tool.sql-to-openapi.description": "Generate an OpenAPI 3.0 specification from SQL CREATE TABLE statements",
     }
   },
   fr: {
@@ -6543,6 +6545,8 @@ const resources = {
       "contrastmatrix.wcag_text": "Le niveau AA requiert 4,5:1 pour le texte normal. Le niveau AAA requiert 7:1. Les composants d'interface et le texte large (18pt+) requièrent 3:1.",
       "contrastmatrix.tips_title": "Conseil de Design",
       "contrastmatrix.tips_text": "Utilisez une matrice pour définir les associations autorisées dans votre design system. Les cellules vertes indiquent les combinaisons sûres pour tous les utilisateurs.",
+      "tool.sql-to-openapi.name": "SQL en OpenAPI",
+      "tool.sql-to-openapi.description": "Générer une spécification OpenAPI 3.0 à partir de SQL CREATE TABLE",
     }
   }
 };

@@ -1,6 +1,7 @@
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useRef } from 'react';
 import { Copy, Check, Trash2, Code, Braces, AlertCircle, Info, Download, Terminal } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
+import { Kbd } from './ui/Kbd';
 
 const MAX_LENGTH = 100000;
 const MAX_DEPTH = 15;
@@ -148,22 +149,66 @@ export function JSONToCSharp({ initialData, onStateChange }: { initialData?: any
     generateCSharp();
   }, [generateCSharp]);
 
-  const handleConvert = () => {
+  const handleConvert = useCallback(() => {
     generateCSharp();
-  };
+  }, [generateCSharp]);
 
-  const handleCopy = () => {
+  const handleCopy = useCallback(() => {
     if (!output) return;
     navigator.clipboard.writeText(output);
     setCopied(true);
     setTimeout(() => setCopied(false), 2000);
-  };
+  }, [output]);
 
-  const handleClear = () => {
+  const handleClear = useCallback(() => {
     setJsonInput('');
     setOutput('');
     setError(null);
-  };
+  }, []);
+
+  const handlersRef = useRef({
+    handleCopy,
+    handleClear,
+    handleConvert
+  });
+
+  useEffect(() => {
+    handlersRef.current = { handleCopy, handleClear, handleConvert };
+  }, [handleCopy, handleClear, handleConvert]);
+
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      const activeElement = document.activeElement;
+      const isEditable =
+        activeElement instanceof HTMLInputElement ||
+        activeElement instanceof HTMLTextAreaElement ||
+        activeElement instanceof HTMLSelectElement ||
+        activeElement?.getAttribute('contenteditable') === 'true';
+
+      const { handleCopy, handleClear, handleConvert } = handlersRef.current;
+
+      if (isEditable && !((e.ctrlKey || e.metaKey) && e.key === 'Enter') && e.key !== 'Escape') return;
+
+      if ((e.ctrlKey || e.metaKey) && e.key === 'Enter') {
+        e.preventDefault();
+        handleConvert();
+        return;
+      }
+
+      if (e.metaKey || e.ctrlKey || e.altKey || e.shiftKey) return;
+
+      if (e.key === 'Escape') {
+        e.preventDefault();
+        handleClear();
+      } else if (e.key.toLowerCase() === 'c') {
+        e.preventDefault();
+        handleCopy();
+      }
+    };
+
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, []);
 
   const handleDownload = () => {
     if (!output) return;
@@ -227,13 +272,16 @@ export function JSONToCSharp({ initialData, onStateChange }: { initialData?: any
             <label htmlFor="json-input" className="text-xs font-black uppercase tracking-widest text-slate-400 flex items-center gap-2">
               <Braces className="w-4 h-4 text-indigo-500" /> {t('common.input')} (JSON)
             </label>
-            <button
-              onClick={handleClear}
-              disabled={!jsonInput}
-              className="text-xs font-bold text-rose-500 bg-rose-50 dark:bg-rose-500/10 hover:bg-rose-100 dark:hover:bg-rose-500/20 px-3 py-1.5 rounded-xl flex items-center gap-1 transition-all disabled:opacity-50 disabled:cursor-not-allowed focus-visible:ring-2 focus-visible:ring-rose-500 focus-visible:outline-none"
-            >
-              <Trash2 className="w-3 h-3" /> {t('common.clear')}
-            </button>
+            <div className="flex items-center gap-2">
+              <Kbd modifier={null} className="hidden sm:inline-flex border-rose-200 dark:border-rose-800 text-rose-400 dark:bg-slate-900">Esc</Kbd>
+              <button
+                onClick={handleClear}
+                disabled={!jsonInput}
+                className="text-xs font-bold text-rose-500 bg-rose-50 dark:bg-rose-500/10 hover:bg-rose-100 dark:hover:bg-rose-500/20 px-3 py-1.5 rounded-xl flex items-center gap-1 transition-all disabled:opacity-50 disabled:cursor-not-allowed focus-visible:ring-2 focus-visible:ring-rose-500 focus-visible:outline-none"
+              >
+                <Trash2 className="w-3 h-3" /> {t('common.clear')}
+              </button>
+            </div>
           </div>
           <textarea
             id="json-input"
@@ -265,6 +313,7 @@ export function JSONToCSharp({ initialData, onStateChange }: { initialData?: any
               <button
                 onClick={handleCopy}
                 disabled={!output}
+                title={`${t('common.copy')} (C)`}
                 className={`text-xs font-bold px-4 py-1.5 rounded-xl transition-all border focus-visible:ring-2 focus-visible:ring-indigo-500 focus-visible:outline-none flex items-center gap-2 ${
                   copied
                     ? 'bg-emerald-50 dark:bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border-emerald-200 dark:border-emerald-500/20'
@@ -273,6 +322,7 @@ export function JSONToCSharp({ initialData, onStateChange }: { initialData?: any
               >
                 {copied ? <Check className="w-3 h-3" /> : <Copy className="w-3 h-3" />}
                 {copied ? t('common.copied') : t('common.copy')}
+                {!copied && output && <Kbd modifier={null} className="hidden sm:inline-flex w-4 h-4 border-indigo-200 dark:border-indigo-800 text-indigo-400 dark:bg-slate-900 ml-1">C</Kbd>}
               </button>
             </div>
           </div>

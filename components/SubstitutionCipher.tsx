@@ -3,6 +3,7 @@ import { Shield, Copy, Check, Trash2, Shuffle, Info, AlertCircle, Download } fro
 import { useTranslation } from 'react-i18next';
 import { toast } from 'sonner';
 import { Kbd } from './ui/Kbd';
+import { getSecureRandomInt } from './ui/crypto';
 
 const ALPHABET = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
 
@@ -58,8 +59,13 @@ export function SubstitutionCipher({ initialData, onStateChange }: { initialData
   }, [input, key, mode, onStateChange]);
 
   const handleRandomizeKey = () => {
-    const shuffled = ALPHABET.split('').sort(() => Math.random() - 0.5).join('');
-    setKey(shuffled);
+    const chars = ALPHABET.split('');
+    // Sentinel: Use Fisher-Yates shuffle with CSPRNG for unbiased, secure randomization
+    for (let i = chars.length - 1; i > 0; i--) {
+      const j = getSecureRandomInt(i + 1);
+      [chars[i], chars[j]] = [chars[j], chars[i]];
+    }
+    setKey(chars.join(''));
     toast.success(t('substitution.key_randomized', 'Key randomized!'));
   };
 

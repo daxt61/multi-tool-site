@@ -518,6 +518,9 @@ const CSSAnimationGenerator = lazy(() => import("./components/CSSAnimationGenera
 const SQLToMongoDB = lazy(() => import("./components/SQLToMongoDB").then(m => ({ default: m.SQLToMongoDB })));
 const YAMLToTOML = lazy(() => import("./components/YAMLToTOML").then(m => ({ default: m.YAMLToTOML })));
 const SubstitutionCipher = lazy(() => import("./components/SubstitutionCipher").then(m => ({ default: m.SubstitutionCipher })));
+const EnigmaCipher = lazy(() => import("./components/EnigmaCipher").then(m => ({ default: m.EnigmaCipher })));
+const RunningPaceCalculator = lazy(() => import("./components/RunningPaceCalculator").then(m => ({ default: m.RunningPaceCalculator })));
+const ColorContrastMatrix = lazy(() => import("./components/ColorContrastMatrix").then(m => ({ default: m.ColorContrastMatrix })));
 
 // ⚡ Bolt Optimization: Pre-calculating tool map and search index for O(1) lookups and faster filtering
 const toolsMap: Record<string, Tool> = {};
@@ -4523,6 +4526,39 @@ const tools: Tool[] = [
     Component: SubstitutionCipher,
     category: "text",
     keywords: ["substitution", "cipher", "encryption", "classic", "cryptography", "key"],
+  },
+  {
+    id: "enigma-cipher",
+    name: "Machine Enigma",
+    nameEn: "Enigma Machine",
+    icon: Shield,
+    description: "Simulation interactive de la célèbre machine de cryptage Enigma",
+    descriptionEn: "Interactive simulation of the famous Enigma cipher machine",
+    Component: EnigmaCipher,
+    category: "text",
+    keywords: ["enigma", "cipher", "ww2", "history", "cryptography", "encryption"],
+  },
+  {
+    id: "running-pace",
+    name: "Allure de Course",
+    nameEn: "Running Pace",
+    icon: Activity,
+    description: "Calculer votre allure, vitesse et temps de passage pour la course à pied",
+    descriptionEn: "Calculate your pace, speed and split times for running",
+    Component: RunningPaceCalculator,
+    category: "health",
+    keywords: ["running", "pace", "marathon", "fitness", "sport", "speed"],
+  },
+  {
+    id: "contrast-matrix",
+    name: "Matrice de Contraste",
+    nameEn: "Contrast Matrix",
+    icon: Table,
+    description: "Comparer le contraste entre plusieurs couleurs d'une palette",
+    descriptionEn: "Compare contrast ratios between multiple colors in a palette",
+    Component: ColorContrastMatrix,
+    category: "converters",
+    keywords: ["contrast", "matrix", "accessibility", "wcag", "color", "palette"],
   },
 ];
 

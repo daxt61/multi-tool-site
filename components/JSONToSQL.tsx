@@ -17,6 +17,7 @@ export function JSONToSQL({ initialData, onStateChange }: { initialData?: any; o
   const [tableName, setTableName] = useState(initialData?.tableName || 'users');
   const [output, setOutput] = useState(initialData?.output || '');
   const [includeCreate, setIncludeCreate] = useState(initialData?.includeCreate ?? false);
+  const [includeNotNull, setIncludeNotNull] = useState(initialData?.includeNotNull ?? false);
   const [batchInsert, setBatchInsert] = useState(initialData?.batchInsert ?? false);
   const [dialect, setDialect] = useState<Dialect>(initialData?.dialect || 'standard');
   const [mode, setMode] = useState<SQLMode>(initialData?.mode || 'INSERT');
@@ -25,8 +26,8 @@ export function JSONToSQL({ initialData, onStateChange }: { initialData?: any; o
   const [copied, setCopied] = useState(false);
 
   useEffect(() => {
-    onStateChange?.({ input, tableName, output, includeCreate, batchInsert, dialect, mode, whereColumns });
-  }, [input, tableName, output, includeCreate, batchInsert, dialect, mode, whereColumns, onStateChange]);
+    onStateChange?.({ input, tableName, output, includeCreate, includeNotNull, batchInsert, dialect, mode, whereColumns });
+  }, [input, tableName, output, includeCreate, includeNotNull, batchInsert, dialect, mode, whereColumns, onStateChange]);
 
   const escapeIdentifier = (id: string, dialect: Dialect) => {
     if (dialect === 'mysql') {
@@ -41,14 +42,35 @@ export function JSONToSQL({ initialData, onStateChange }: { initialData?: any; o
     return `"${id.replace(/"/g, '""')}"`;
   };
 
-  const inferType = (val: any) => {
+  const inferType = (val: any, columnName: string, dialect: Dialect) => {
     if (val === null) return 'TEXT';
-    if (typeof val === 'number') return Number.isInteger(val) ? 'INTEGER' : 'DECIMAL';
-    if (typeof val === 'boolean') return 'BOOLEAN';
-    if (typeof val === 'string') {
-      if (/^\d{4}-\d{2}-\d{2}(T\d{2}:\d{2}:\d{2}(\.\d{3})?Z?)?$/.test(val)) return 'TIMESTAMP';
-      if (/^\d{4}-\d{2}-\d{2}$/.test(val)) return 'DATE';
+
+    if (typeof val === 'number') {
+      if (Number.isInteger(val)) {
+        if (columnName.toLowerCase().includes('id') && val > 0) {
+           return dialect === 'mysql' ? 'INT AUTO_INCREMENT' : (dialect === 'postgresql' ? 'SERIAL' : 'INTEGER');
+        }
+        return val > 2147483647 ? 'BIGINT' : 'INTEGER';
+      }
+      return 'DECIMAL(10,2)';
     }
+
+    if (typeof val === 'boolean') {
+      if (dialect === 'mysql') return 'TINYINT(1)';
+      if (dialect === 'sqlite') return 'INTEGER';
+      return 'BOOLEAN';
+    }
+
+    if (typeof val === 'string') {
+      if (/^\d{4}-\d{2}-\d{2}(T\d{2}:\d{2}:\d{2}(\.\d{3})?Z?)?$/.test(val)) {
+         if (dialect === 'mysql') return 'DATETIME';
+         return 'TIMESTAMP';
+      }
+      if (/^\d{4}-\d{2}-\d{2}$/.test(val)) return 'DATE';
+      if (val.length > 255) return 'TEXT';
+      return 'VARCHAR(255)';
+    }
+
     return 'TEXT';
   };
 
@@ -106,7 +128,17 @@ export function JSONToSQL({ initialData, onStateChange }: { initialData?: any; o
         const columnDefs = columns.map(col => {
           const firstRow = data.find(row => Object.prototype.hasOwnProperty.call(row, col) && row[col] !== null);
           const firstVal = firstRow ? firstRow[col] : null;
-          return `${escapeIdentifier(col, dialect)} ${inferType(firstVal)}`;
+          let type = inferType(firstVal, col, dialect);
+
+          let constraint = '';
+          if (col.toLowerCase() === 'id' || col.toLowerCase() === tableName.toLowerCase() + '_id') {
+             constraint = ' PRIMARY KEY';
+          }
+          if (includeNotNull && firstVal !== null) {
+             constraint += ' NOT NULL';
+          }
+
+          return `${escapeIdentifier(col, dialect)} ${type}${constraint}`;
         });
         result += `CREATE TABLE ${sqlTableName} (\n  ${columnDefs.join(',\n  ')}\n);\n\n`;
       }
@@ -373,6 +405,19 @@ export function JSONToSQL({ initialData, onStateChange }: { initialData?: any; o
                       {t('jsontosql.include_create')}
                     </span>
                   </label>
+                  {includeCreate && (
+                    <label className="flex items-center gap-2 cursor-pointer group">
+                      <input
+                        type="checkbox"
+                        checked={includeNotNull}
+                        onChange={(e) => setIncludeNotNull(e.target.checked)}
+                        className="w-4 h-4 rounded border-slate-300 text-indigo-600 focus:ring-indigo-500"
+                      />
+                      <span className="text-sm font-medium text-slate-600 dark:text-slate-400 group-hover:text-slate-900 dark:group-hover:text-slate-200 transition-colors">
+                        NOT NULL
+                      </span>
+                    </label>
+                  )}
                   <label className="flex items-center gap-2 cursor-pointer group">
                     <input
                       type="checkbox"

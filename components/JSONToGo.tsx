@@ -1,6 +1,7 @@
 import { useState, useEffect, useCallback, useRef } from 'react';
 import { FileCode, Copy, Check, Trash2, Code, Braces, AlertCircle, Info } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
+import { Kbd } from './ui/Kbd';
 
 const MAX_LENGTH = 100000;
 const MAX_DEPTH = 20;
@@ -166,7 +167,7 @@ export function JSONToGo({ initialData, onStateChange }: { initialData?: any; on
               <Braces className="w-4 h-4 text-indigo-500" /> {t('common.input')} (JSON)
             </label>
             <div className="flex items-center gap-2">
-              <kbd className="hidden sm:inline-flex items-center justify-center px-1.5 py-0.5 border border-rose-200 dark:border-rose-800 rounded text-[10px] font-bold text-rose-400 bg-white dark:bg-slate-900">Esc</kbd>
+              <Kbd modifier={null} className="hidden sm:inline-flex border-rose-200 dark:border-rose-800 text-rose-400 dark:bg-slate-900">Esc</Kbd>
               <button
                 onClick={handleClear}
                 disabled={!jsonInput}
@@ -194,6 +195,7 @@ export function JSONToGo({ initialData, onStateChange }: { initialData?: any; on
             <button
               onClick={handleCopy}
               disabled={!output}
+              title={`${t('common.copy')} (C)`}
               className={`text-xs font-bold px-4 py-1.5 rounded-xl transition-all border focus-visible:ring-2 focus-visible:ring-indigo-500 focus-visible:outline-none flex items-center gap-2 ${
                 copied
                   ? 'bg-emerald-50 dark:bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border-emerald-200 dark:border-emerald-500/20'
@@ -202,7 +204,7 @@ export function JSONToGo({ initialData, onStateChange }: { initialData?: any; on
             >
               {copied ? <Check className="w-3 h-3" /> : <Copy className="w-3 h-3" />}
               {copied ? t('common.copied') : t('common.copy')}
-              {!copied && <kbd className="hidden sm:inline-flex items-center justify-center w-4 h-4 border border-indigo-200 dark:border-indigo-800 rounded text-[10px] font-bold bg-white dark:bg-slate-900 ml-1">C</kbd>}
+              {!copied && <Kbd modifier={null} className="hidden sm:inline-flex w-4 h-4 border-indigo-200 dark:border-indigo-800 text-indigo-400 dark:bg-slate-900 ml-1">C</Kbd>}
             </button>
           </div>
           <div className="relative group">

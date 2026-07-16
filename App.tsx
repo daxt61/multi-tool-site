@@ -516,6 +516,7 @@ const JSONToJSDoc = lazy(() => import("./components/JSONToJSDoc").then(m => ({ d
 const JSONToOpenAPI = lazy(() => import("./components/JSONToOpenAPI").then(m => ({ default: m.JSONToOpenAPI })));
 const CSSAnimationGenerator = lazy(() => import("./components/CSSAnimationGenerator").then(m => ({ default: m.CSSAnimationGenerator })));
 const SQLToMongoDB = lazy(() => import("./components/SQLToMongoDB").then(m => ({ default: m.SQLToMongoDB })));
+const SQLToOpenAPI = lazy(() => import("./components/SQLToOpenAPI").then(m => ({ default: m.SQLToOpenAPI })));
 const YAMLToTOML = lazy(() => import("./components/YAMLToTOML").then(m => ({ default: m.YAMLToTOML })));
 const SubstitutionCipher = lazy(() => import("./components/SubstitutionCipher").then(m => ({ default: m.SubstitutionCipher })));
 const EnigmaCipher = lazy(() => import("./components/EnigmaCipher").then(m => ({ default: m.EnigmaCipher })));
@@ -4493,6 +4494,17 @@ const tools: Tool[] = [
     Component: SQLToMongoDB,
     category: "dev",
     keywords: ["sql", "mongodb", "nosql", "convert", "database", "query"],
+  },
+  {
+    id: "sql-to-openapi",
+    name: "SQL en OpenAPI",
+    nameEn: "SQL to OpenAPI",
+    icon: FileCode,
+    description: "Générer une spécification OpenAPI 3.0 à partir de SQL CREATE TABLE",
+    descriptionEn: "Generate an OpenAPI 3.0 specification from SQL CREATE TABLE statements",
+    Component: SQLToOpenAPI,
+    category: "dev",
+    keywords: ["sql", "openapi", "swagger", "api", "schema", "documentation"],
   },
   {
     id: "yaml-toml",

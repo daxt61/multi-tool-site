@@ -1,8 +1,9 @@
 import { useState, useEffect, useCallback, useRef } from 'react';
-import { Copy, Check, Palette, Hash, Sliders, RotateCcw } from 'lucide-react';
+import { Copy, Check, Palette, Hash, Sliders, RotateCcw, Shuffle } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import { toast } from 'sonner';
 import { Kbd } from './ui/Kbd';
+import { getSecureRandomColor } from './ui/crypto';
 
 interface ColorState {
   hex: string;
@@ -315,6 +316,10 @@ export function ColorConverter({ initialData, onStateChange }: {
 
   const { tints, shades } = generateShadesAndTints();
 
+  const handleRandom = useCallback(() => {
+    updateFromHex(getSecureRandomColor());
+  }, []);
+
   const handleReset = useCallback(() => {
     setHex(DEFAULT_COLORS.hex);
     setRgb(DEFAULT_COLORS.rgb);
@@ -331,14 +336,16 @@ export function ColorConverter({ initialData, onStateChange }: {
   }, [t]);
 
   const handleResetRef = useRef(handleReset);
+  const handleRandomRef = useRef(handleRandom);
   const copyToClipboardRef = useRef(copyToClipboard);
   const currentHexRef = useRef(hex);
 
   useEffect(() => {
     handleResetRef.current = handleReset;
+    handleRandomRef.current = handleRandom;
     copyToClipboardRef.current = copyToClipboard;
     currentHexRef.current = hex;
-  }, [handleReset, copyToClipboard, hex]);
+  }, [handleReset, handleRandom, copyToClipboard, hex]);
 
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
@@ -359,6 +366,9 @@ export function ColorConverter({ initialData, onStateChange }: {
       } else if (e.key.toLowerCase() === 'c') {
         e.preventDefault();
         copyToClipboardRef.current(currentHexRef.current, 'hex');
+      } else if (e.key.toLowerCase() === 'r') {
+        e.preventDefault();
+        handleRandomRef.current();
       }
     };
 
@@ -370,15 +380,26 @@ export function ColorConverter({ initialData, onStateChange }: {
 
   return (
     <div className="max-w-5xl mx-auto space-y-12">
-      <div className="flex justify-end items-center px-1 gap-2">
-        <Kbd modifier={null} className="hidden sm:inline-flex border-rose-200 dark:border-rose-800 text-rose-400">Esc</Kbd>
-        <button
-          onClick={handleReset}
-          disabled={isDefault}
-          className="text-xs font-bold text-rose-500 bg-rose-50 dark:bg-rose-500/10 hover:bg-rose-100 dark:hover:bg-rose-500/20 px-3 py-1.5 rounded-xl flex items-center gap-1 transition-all disabled:opacity-50 disabled:cursor-not-allowed focus-visible:ring-2 focus-visible:ring-rose-500 focus-visible:outline-none"
-        >
-          <RotateCcw className="w-3 h-3" /> {t('colorconverter.reset')}
-        </button>
+      <div className="flex justify-end items-center px-1 gap-4 flex-wrap">
+        <div className="flex items-center gap-2">
+          <Kbd modifier={null} className="hidden sm:inline-flex border-indigo-200 dark:border-indigo-800 text-indigo-400">R</Kbd>
+          <button
+            onClick={handleRandom}
+            className="text-xs font-bold text-indigo-500 bg-indigo-50 dark:bg-indigo-500/10 hover:bg-indigo-100 dark:hover:bg-indigo-500/20 px-3 py-1.5 rounded-xl flex items-center gap-1 transition-all focus-visible:ring-2 focus-visible:ring-indigo-500 focus-visible:outline-none"
+          >
+            <Shuffle className="w-3 h-3" /> {t('common.random')}
+          </button>
+        </div>
+        <div className="flex items-center gap-2">
+          <Kbd modifier={null} className="hidden sm:inline-flex border-rose-200 dark:border-rose-800 text-rose-400">Esc</Kbd>
+          <button
+            onClick={handleReset}
+            disabled={isDefault}
+            className="text-xs font-bold text-rose-500 bg-rose-50 dark:bg-rose-500/10 hover:bg-rose-100 dark:hover:bg-rose-500/20 px-3 py-1.5 rounded-xl flex items-center gap-1 transition-all disabled:opacity-50 disabled:cursor-not-allowed focus-visible:ring-2 focus-visible:ring-rose-500 focus-visible:outline-none"
+          >
+            <RotateCcw className="w-3 h-3" /> {t('colorconverter.reset')}
+          </button>
+        </div>
       </div>
 
       {/* Visual Preview Area */}

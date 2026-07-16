@@ -12,7 +12,8 @@ export function RandomGenerator({ initialData, onStateChange }: { initialData?: 
   const { t } = useTranslation();
   const [min, setMin] = useState(initialData?.min ?? 1);
   const [max, setMax] = useState(initialData?.max ?? 100);
-  const [randomNumber, setRandomNumber] = useState<number | null>(null);
+  const [quantity, setQuantity] = useState(initialData?.quantity ?? 1);
+  const [randomNumbers, setRandomNumbers] = useState<number[]>([]);
 
   const [strLength, setStrLength] = useState(initialData?.strLength ?? 12);
   const [randomString, setRandomString] = useState('');
@@ -24,8 +25,8 @@ export function RandomGenerator({ initialData, onStateChange }: { initialData?: 
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    onStateChange?.({ min, max, strLength, includeUpper, includeLower, includeNumbers, list });
-  }, [min, max, strLength, includeUpper, includeLower, includeNumbers, list, onStateChange]);
+    onStateChange?.({ min, max, quantity, strLength, includeUpper, includeLower, includeNumbers, list });
+  }, [min, max, quantity, strLength, includeUpper, includeLower, includeNumbers, list, onStateChange]);
 
   const handleListChange = (val: string) => {
     setList(val);
@@ -56,8 +57,13 @@ export function RandomGenerator({ initialData, onStateChange }: { initialData?: 
     }
     const range = finalMax - finalMin + 1;
     if (range <= 0) return;
-    const val = getSecureRandomInt(range) + finalMin;
-    setRandomNumber(val);
+
+    const count = Math.max(1, Math.min(100, quantity));
+    const results = [];
+    for (let i = 0; i < count; i++) {
+        results.push(getSecureRandomInt(range) + finalMin);
+    }
+    setRandomNumbers(results);
   };
 
   const generateString = () => {
@@ -151,7 +157,7 @@ export function RandomGenerator({ initialData, onStateChange }: { initialData?: 
   };
 
   const handleReset = useCallback(() => {
-    setRandomNumber(null);
+    setRandomNumbers([]);
     setRandomString('');
     setList('');
     setShuffledList([]);
@@ -204,7 +210,7 @@ export function RandomGenerator({ initialData, onStateChange }: { initialData?: 
           <h3 className="text-xs font-black uppercase tracking-widest text-slate-400">{t('random.number_title')}</h3>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 items-end">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-6 items-end">
           <div className="space-y-2">
             <label htmlFor="num-min" className="text-xs font-bold text-slate-400 px-1 cursor-pointer">{t('random.min')}</label>
             <input
@@ -226,18 +232,30 @@ export function RandomGenerator({ initialData, onStateChange }: { initialData?: 
               className="w-full p-4 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl font-black font-mono outline-none focus:ring-2 focus:ring-indigo-500/20 transition-all dark:text-white"
             />
           </div>
+          <div className="space-y-2">
+            <label htmlFor="num-quantity" className="text-xs font-bold text-slate-400 px-1 cursor-pointer">{t('common.count', 'Quantity')}</label>
+            <input
+              id="num-quantity"
+              type="number"
+              min="1"
+              max="100"
+              value={quantity}
+              onChange={(e) => setQuantity(Number(e.target.value))}
+              className="w-full p-4 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl font-black font-mono outline-none focus:ring-2 focus:ring-indigo-500/20 transition-all dark:text-white"
+            />
+          </div>
           <div className="flex flex-col gap-2">
             <div className="flex gap-2 self-end">
               <button
-                onClick={() => randomNumber !== null && handleDownload(randomNumber.toString(), 'nombre-aleatoire')}
-                disabled={randomNumber === null}
+                onClick={() => randomNumbers.length > 0 && handleDownload(randomNumbers.join('\n'), 'nombres-aleatoires')}
+                disabled={randomNumbers.length === 0}
                 className="text-xs font-bold text-indigo-600 bg-indigo-50 dark:bg-indigo-900/20 hover:bg-indigo-100 dark:hover:bg-indigo-900/30 px-3 py-1.5 rounded-xl flex items-center gap-1 transition-all disabled:opacity-50 disabled:cursor-not-allowed focus-visible:ring-2 focus-visible:ring-indigo-500 focus-visible:outline-none"
               >
                 <Download className="w-3 h-3" /> {t('common.download')}
               </button>
               <button
-                onClick={() => setRandomNumber(null)}
-                disabled={randomNumber === null}
+                onClick={() => setRandomNumbers([])}
+                disabled={randomNumbers.length === 0}
                 title={`${t('common.clear')} (Esc)`}
                 className="text-xs font-bold text-rose-500 bg-rose-50 dark:bg-rose-500/10 hover:bg-rose-100 dark:hover:bg-rose-500/20 px-3 py-1.5 rounded-xl flex items-center gap-1 transition-all disabled:opacity-50 disabled:cursor-not-allowed focus-visible:ring-2 focus-visible:ring-rose-500 focus-visible:outline-none"
               >
@@ -255,20 +273,25 @@ export function RandomGenerator({ initialData, onStateChange }: { initialData?: 
             </button>
           </div>
 
-          {randomNumber !== null && (
-            <div className="h-14 bg-white dark:bg-slate-800 border border-indigo-200 dark:border-indigo-900/30 rounded-2xl flex items-center justify-between px-6 animate-in zoom-in-95 duration-300">
-              <span className="text-2xl font-black font-mono text-indigo-600 dark:text-indigo-400">{randomNumber}</span>
-              <button
-                onClick={() => copyToClipboard(randomNumber.toString(), 'num')}
-                className={`p-2 rounded-xl transition-all border ${
-                  copied === 'num'
-                    ? 'bg-emerald-50 dark:bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border-emerald-200 dark:border-emerald-500/20'
-                    : 'text-slate-400 hover:text-indigo-500 border-transparent'
-                }`}
-                aria-label={t('random.copy_num')}
-              >
-                {copied === 'num' ? <Check className="w-5 h-5" /> : <Copy className="w-5 h-5" />}
-              </button>
+          {randomNumbers.length > 0 && (
+            <div className={`bg-white dark:bg-slate-800 border border-indigo-200 dark:border-indigo-900/30 rounded-2xl flex flex-col p-4 animate-in zoom-in-95 duration-300 ${randomNumbers.length > 1 ? 'h-40' : 'h-14 justify-center'}`}>
+              <div className="flex justify-between items-center mb-2">
+                <span className="text-xs font-black uppercase tracking-widest text-slate-400">{t('common.result')}</span>
+                <button
+                  onClick={() => copyToClipboard(randomNumbers.join(quantity > 1 ? '\n' : ''), 'num')}
+                  className={`p-1.5 rounded-lg transition-all border ${
+                    copied === 'num'
+                      ? 'bg-emerald-50 dark:bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border-emerald-200 dark:border-emerald-500/20'
+                      : 'text-slate-400 hover:text-indigo-500 border-transparent'
+                  }`}
+                  aria-label={t('random.copy_num')}
+                >
+                  {copied === 'num' ? <Check className="w-4 h-4" /> : <Copy className="w-4 h-4" />}
+                </button>
+              </div>
+              <div className={`font-black font-mono text-indigo-600 dark:text-indigo-400 overflow-y-auto custom-scrollbar ${randomNumbers.length > 1 ? 'text-sm' : 'text-2xl text-center'}`}>
+                {randomNumbers.join(randomNumbers.length > 1 ? ', ' : '')}
+              </div>
             </div>
           )}
         </div>

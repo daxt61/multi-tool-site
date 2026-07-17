@@ -201,3 +201,8 @@
 **Vulnerability:** The SQLToMongoDB component was vulnerable to Prototype Pollution by using user-provided SQL column names and WHERE clause keys (e.g., `__proto__`) as keys for plain JavaScript objects during the conversion process.
 **Learning:** Even specialized converters that target a specific database syntax (MongoDB) are susceptible to Prototype Pollution if they use intermediate JavaScript objects to map user-controlled schema or query structures. This can lead to data loss in the generated output as `JSON.stringify` ignores inherited properties.
 **Prevention:** Consistently use `Object.create(null)` for all internal data structures that store user-provided keys, and apply a `sanitizeKey` helper to prefix dangerous reserved keys (`__proto__`, `constructor`, `prototype`) with an underscore.
+
+## 2026-07-17 - [Newline and Key Breakout in .env Generation]
+**Vulnerability:** The JSONToEnv component was vulnerable to Dotenv Injection / Breakout. Raw newlines (`\n`, `\r`) in values or special characters (like `=`) in keys could break the `.env` line format, allowing users to inject arbitrary environment variables.
+**Learning:** Utilities that generate `.env` or configuration properties must sanitize keys to valid POSIX/environmental patterns (alphanumeric and underscores) and strictly escape control/newline characters in values to prevent file format layout breakout.
+**Prevention:** Sanitize keys using `key.replace(/[^a-zA-Z0-9_]/g, '_')` and securely quote and escape values containing newlines, carriage returns, or other line terminators.

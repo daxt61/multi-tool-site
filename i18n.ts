@@ -3330,6 +3330,16 @@ const resources = {
       "water.level.active_desc": "Intense exercise 6-7 days/week",
       "water.level.very_active": "Very high",
       "water.level.very_active_desc": "Physical work or intense training",
+      "jsontoprisma.about_title": "About JSON to Prisma Schema Generator",
+      "jsontoprisma.about_text": "Convert your JSON data structures into fully-configured Prisma Schema models. This tool auto-detects types, formats, ID strategy, and recursively extracts sub-objects into related models with foreign keys and auto back-references.",
+      "jsontoprisma.options_title": "Prisma Options",
+      "jsontoprisma.provider": "Database Provider",
+      "jsontoprisma.id_strategy": "Primary Key ID Strategy",
+      "jsontoprisma.add_timestamps": "Include createdAt / updatedAt",
+      "jsontoprisma.add_soft_delete": "Include deletedAt field",
+      "jsontoprisma.auto_relations": "Relation auto-extraction",
+      "jsontoprisma.error_array_objects": "Prisma models can only be created from JSON containing non-empty objects.",
+      "jsontoprisma.error_valid_object": "Invalid JSON: please supply a valid object or array of objects.",
     }
   },
   fr: {
@@ -6663,6 +6673,16 @@ const resources = {
       "water.level.active_desc": "Exercice intense 6-7 jours/sem",
       "water.level.very_active": "Très élevée",
       "water.level.very_active_desc": "Travail physique ou entraînement intense",
+      "jsontoprisma.about_title": "À propos du Générateur de Schéma Prisma",
+      "jsontoprisma.about_text": "Convertissez vos structures de données JSON en modèles de schéma Prisma entièrement configurés. Cet outil détecte automatiquement les types, les formats, la stratégie d'ID, et extrait récursivement les sous-objets en modèles liés avec clés étrangères et auto-références.",
+      "jsontoprisma.options_title": "Options Prisma",
+      "jsontoprisma.provider": "Fournisseur de Base de Données",
+      "jsontoprisma.id_strategy": "Stratégie d'ID de Clé Primaire",
+      "jsontoprisma.add_timestamps": "Inclure createdAt / updatedAt",
+      "jsontoprisma.add_soft_delete": "Inclure le champ deletedAt",
+      "jsontoprisma.auto_relations": "Auto-extraction des relations",
+      "jsontoprisma.error_array_objects": "Les modèles Prisma ne peuvent être créés qu'à partir de JSON contenant des objets non vides.",
+      "jsontoprisma.error_valid_object": "JSON invalide : veuillez fournir un objet valide ou un tableau d'objets.",
     }
   }
 };

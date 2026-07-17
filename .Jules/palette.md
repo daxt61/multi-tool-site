@@ -61,3 +61,7 @@
 ## 2025-08-25 - [Inclusive Search Announcements]
 **Learning:** Standard search result announcements using `aria-live` often only trigger on text input changes. Users filtering by category or other non-textual UI controls are left without confirmation of the resulting list update.
 **Action:** Configure `aria-live` regions to announce result counts whenever *any* filter state (search query, category selection, etc.) changes, ensuring a consistent experience for assistive technology users.
+
+## 2026-07-20 - [Auto-Extracting Relational Prisma Schemas]
+**Learning:** When generating schema structures (like Prisma Schema) from nested JSON, parsing child records recursively and auto-configuring relations with back-references and foreign key mappings drastically reduces database design complexity for developer users.
+**Action:** Implement automatic relation mapping and foreign key references when converting JSON schemas to database-compatible schemas.

@@ -49,9 +49,15 @@ export function JSONToEnv({ initialData, onStateChange }: { initialData?: any; o
             key = `${p}${key}`;
           }
 
+          // Sentinel: Sanitize the environment variable key to prevent breakout via newlines,
+          // carriage returns, equals, or other special characters. Only allow alphanumeric and underscores.
+          key = key.replace(/[^a-zA-Z0-9_]/g, '_');
+
           let value = String(obj);
-          if (quoteValues || value.includes(' ') || value.includes('"') || value.includes("'")) {
-             value = `"${value.replace(/"/g, '\\"')}"`;
+          // Sentinel: Prevent dotenv/newline injection. If the value contains any newline, carriage return,
+          // space, or quotes, we force quotes and escape newlines and carriage returns securely.
+          if (quoteValues || value.includes(' ') || value.includes('"') || value.includes("'") || value.includes('\n') || value.includes('\r')) {
+             value = `"${value.replace(/"/g, '\\"').replace(/\n/g, '\\n').replace(/\r/g, '\\r')}"`;
           }
           lines.push(`${key}=${value}`);
           return;

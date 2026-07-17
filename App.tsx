@@ -522,6 +522,8 @@ const SubstitutionCipher = lazy(() => import("./components/SubstitutionCipher").
 const EnigmaCipher = lazy(() => import("./components/EnigmaCipher").then(m => ({ default: m.EnigmaCipher })));
 const RunningPaceCalculator = lazy(() => import("./components/RunningPaceCalculator").then(m => ({ default: m.RunningPaceCalculator })));
 const ColorContrastMatrix = lazy(() => import("./components/ColorContrastMatrix").then(m => ({ default: m.ColorContrastMatrix })));
+const LinePrefixSuffix = lazy(() => import("./components/LinePrefixSuffix").then(m => ({ default: m.LinePrefixSuffix })));
+const TextColumnsAligner = lazy(() => import("./components/TextColumnsAligner").then(m => ({ default: m.TextColumnsAligner })));
 
 // ⚡ Bolt Optimization: Pre-calculating tool map and search index for O(1) lookups and faster filtering
 const toolsMap: Record<string, Tool> = {};
@@ -4571,6 +4573,28 @@ const tools: Tool[] = [
     Component: ColorContrastMatrix,
     category: "converters",
     keywords: ["contrast", "matrix", "accessibility", "wcag", "color", "palette"],
+  },
+  {
+    id: "line-prefix-suffix",
+    name: "Ajouter Préfixe & Suffixe",
+    nameEn: "Add Line Prefix & Suffix",
+    icon: WrapText,
+    description: "Ajouter un préfixe, un suffixe ou des numéros de ligne à chaque ligne",
+    descriptionEn: "Add a prefix, a suffix, or line numbers to every line of text",
+    Component: LinePrefixSuffix,
+    category: "text",
+    keywords: ["prefix", "suffix", "prepend", "append", "numbering", "lines", "wrap", "format"],
+  },
+  {
+    id: "text-columns-aligner",
+    name: "Aligner les Colonnes",
+    nameEn: "Text Columns Aligner",
+    icon: Columns,
+    description: "Aligner les colonnes d'un texte séparé par des caractères en colonnes régulières",
+    descriptionEn: "Align columns of a character-separated text into neatly padded text columns",
+    Component: TextColumnsAligner,
+    category: "text",
+    keywords: ["columns", "align", "table", "pad", "space", "whitespace", "tsv", "csv", "format"],
   },
 ];
 

@@ -45,3 +45,7 @@
 ## 2025-07-30 - [Custom Character Overrides in Visual Tools]
 **Learning:** In tools that generate visual output using characters (like ASCII Art), allowing the user to override the "ink" character provides more creative control and accessibility for different display environments.
 **Action:** Implement "Custom Character" inputs for char-based generation tools, defaulting to standard symbols (e.g., █).
+
+## 2026-03-20 - [Multi-Column Text and Line Formatting UX]
+**Learning:** Utilities that parse space-delimited text into columns can collapse adjacent spaces by default to handle arbitrary spaces from terminal outputs (e.g., ps/docker outputs), but should preserve exact values if desired. Also, storing intermediate tabular row grids as `string[][]` arrays instead of plain objects avoids any Prototype Pollution natively.
+**Action:** Always prefer array grids `string[][]` over plain object properties when parsing raw multi-column tables. Provide a checkbox to toggle collapsing of adjacent delimiters.

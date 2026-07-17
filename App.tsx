@@ -408,6 +408,7 @@ const JSONObfuscator = lazy(() => import("./components/JSONObfuscator").then(m =
 const WordShuffler = lazy(() => import("./components/WordShuffler").then(m => ({ default: m.WordShuffler })));
 const SoftShadowGenerator = lazy(() => import("./components/SoftShadowGenerator").then(m => ({ default: m.SoftShadowGenerator })));
 const JSONToPydantic = lazy(() => import("./components/JSONToPydantic").then(m => ({ default: m.JSONToPydantic })));
+const JSONToPrisma = lazy(() => import("./components/JSONToPrisma").then(m => ({ default: m.JSONToPrisma })));
 const JSONToYup = lazy(() => import("./components/JSONToYup").then(m => ({ default: m.JSONToYup })));
 const SQLMinifier = lazy(() => import("./components/SQLMinifier").then(m => ({ default: m.SQLMinifier })));
 const Base64ToAudio = lazy(() => import("./components/Base64ToAudio").then(m => ({ default: m.Base64ToAudio })));
@@ -3297,6 +3298,17 @@ const tools: Tool[] = [
     Component: JSONToPydantic,
     category: "dev",
     keywords: ["python", "pydantic", "json", "types", "data validation"],
+  },
+  {
+    id: "json-to-prisma",
+    name: "JSON en Prisma",
+    nameEn: "JSON to Prisma",
+    icon: Database,
+    description: "Générer un schéma Prisma à partir d'un JSON",
+    descriptionEn: "Generate a Prisma schema from JSON",
+    Component: JSONToPrisma,
+    category: "dev",
+    keywords: ["prisma", "schema", "database", "model", "orm", "relation", "postgresql", "mysql", "mongodb"],
   },
   {
     id: "sql-minifier",

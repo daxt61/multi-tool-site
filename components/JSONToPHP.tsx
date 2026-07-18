@@ -13,12 +13,20 @@ export function JSONToPHP({ initialData, onStateChange }: { initialData?: any; o
   const [error, setError] = useState('');
   const [copied, setCopied] = useState(false);
 
+  // Modern PHP generation options
+  const [readonlyClasses, setReadonlyClasses] = useState(initialData?.readonlyClasses ?? false);
+  const [constructorPromotion, setConstructorPromotion] = useState(initialData?.constructorPromotion ?? false);
+  const [typedProperties, setTypedProperties] = useState(initialData?.typedProperties ?? true);
+
   useEffect(() => {
-    onStateChange?.({ input, output });
-  }, [input, output, onStateChange]);
+    onStateChange?.({ input, output, readonlyClasses, constructorPromotion, typedProperties });
+  }, [input, output, readonlyClasses, constructorPromotion, typedProperties, onStateChange]);
 
   const toPascalCase = (str: string) => {
+    // Standardized toPascalCase transition rule for lowercase/numbers and uppercase letters:
     return str
+      .replace(/([a-z0-9])([A-Z])/g, '$1 $2')
+      .replace(/([A-Z])([A-Z][a-z])/g, '$1 $2')
       .replace(/[^a-z0-9]/gi, ' ')
       .split(' ')
       .filter(Boolean)
@@ -27,7 +35,6 @@ export function JSONToPHP({ initialData, onStateChange }: { initialData?: any; o
   };
 
   const toValidPHPIdentifier = (key: string) => {
-    // PHP identifiers start with a letter or underscore, followed by any number of letters, numbers, or underscores.
     let ident = key.replace(/[^a-zA-Z0-9_\x80-\xff]/g, '_');
     if (/^[0-9]/.test(ident)) {
       ident = '_' + ident;
@@ -68,19 +75,45 @@ export function JSONToPHP({ initialData, onStateChange }: { initialData?: any; o
             finalName = name + counter++;
           }
 
-          const fields = Object.entries(val).map(([key, value]) => {
-            const type = getPHPType(value, key, depth + 1);
+          const properties = Object.entries(val).map(([key, value]) => {
+            const innerType = getPHPType(value, key, depth + 1);
             const ident = toValidPHPIdentifier(key);
-            // Sentinel: Sanitize the original key in the comment to prevent breakout via newlines
-            // and PHP closing tags (?>) which terminate single-line comments.
-            const safeCommentKey = key.replace(/\n/g, ' ').replace(/\r/g, '').replace(/\?>/g, '? >');
-            const comment = ident !== key ? ` // Original JSON key: ${safeCommentKey}` : '';
-            return `    public ${type} $${ident};${comment}`;
+            const typeStr = typedProperties ? `${innerType} ` : '';
+            return { key, value, type: innerType, typeStr, ident };
           });
 
-          let classStr = `class ${finalName} {\n`;
-          classStr += fields.join('\n');
-          classStr += '\n}';
+          const isReadonlyClass = readonlyClasses;
+          const isConstructorPromotion = constructorPromotion;
+
+          let classStr = '';
+          if (isReadonlyClass) {
+            classStr += `readonly class ${finalName} {\n`;
+          } else {
+            classStr += `class ${finalName} {\n`;
+          }
+
+          if (isConstructorPromotion) {
+            classStr += `    public function __construct(\n`;
+            const promoFields = properties.map(prop => {
+              const safeCommentKey = prop.key.replace(/\n/g, ' ').replace(/\r/g, '').replace(/\?>/g, '? >');
+              const comment = prop.ident !== prop.key ? ` // Original JSON key: ${safeCommentKey}` : '';
+              // Constructor properties in readonly classes cannot be declared with redundant readonly modifier.
+              const readonlyPrefix = (isReadonlyClass) ? '' : '';
+              return `        public ${readonlyPrefix}${prop.typeStr}$${prop.ident}${comment}`;
+            });
+            classStr += promoFields.join(',\n');
+            classStr += `\n    ) {}\n`;
+          } else {
+            const fields = properties.map(prop => {
+              const safeCommentKey = prop.key.replace(/\n/g, ' ').replace(/\r/g, '').replace(/\?>/g, '? >');
+              const comment = prop.ident !== prop.key ? ` // Original JSON key: ${safeCommentKey}` : '';
+              return `    public ${prop.typeStr}$${prop.ident};${comment}`;
+            });
+            classStr += fields.join('\n');
+            classStr += '\n';
+          }
+
+          classStr += '}';
 
           classes.push(classStr);
           classNames.add(finalName);
@@ -110,7 +143,7 @@ export function JSONToPHP({ initialData, onStateChange }: { initialData?: any; o
       setError(t('error.invalid_json') + ': ' + e.message);
       setOutput('');
     }
-  }, [input, t]);
+  }, [input, readonlyClasses, constructorPromotion, typedProperties, t]);
 
   useEffect(() => {
     handleConvert();
@@ -195,12 +228,55 @@ export function JSONToPHP({ initialData, onStateChange }: { initialData?: any; o
               </button>
             </div>
           </div>
+
+          {/* Generator Toggles & Controls */}
+          <div className="bg-white dark:bg-slate-900/40 p-5 rounded-3xl border border-slate-200 dark:border-slate-800 space-y-4">
+            <h4 className="text-xs font-black uppercase tracking-widest text-slate-400">{t('jsontophp.options_title')}</h4>
+            <div className="flex flex-col sm:flex-row gap-4">
+              <label className="flex items-center gap-2 cursor-pointer group">
+                <input
+                  type="checkbox"
+                  checked={readonlyClasses}
+                  onChange={(e) => setReadonlyClasses(e.target.checked)}
+                  className="w-4 h-4 rounded border-slate-300 text-indigo-600 focus:ring-indigo-500"
+                />
+                <span className="text-xs font-bold text-slate-600 dark:text-slate-400 group-hover:text-slate-900 dark:group-hover:text-slate-200 transition-colors">
+                  {t('jsontophp.readonly_classes')}
+                </span>
+              </label>
+
+              <label className="flex items-center gap-2 cursor-pointer group">
+                <input
+                  type="checkbox"
+                  checked={constructorPromotion}
+                  onChange={(e) => setConstructorPromotion(e.target.checked)}
+                  className="w-4 h-4 rounded border-slate-300 text-indigo-600 focus:ring-indigo-500"
+                />
+                <span className="text-xs font-bold text-slate-600 dark:text-slate-400 group-hover:text-slate-900 dark:group-hover:text-slate-200 transition-colors">
+                  {t('jsontophp.constructor_promotion')}
+                </span>
+              </label>
+
+              <label className="flex items-center gap-2 cursor-pointer group">
+                <input
+                  type="checkbox"
+                  checked={typedProperties}
+                  onChange={(e) => setTypedProperties(e.target.checked)}
+                  className="w-4 h-4 rounded border-slate-300 text-indigo-600 focus:ring-indigo-500"
+                />
+                <span className="text-xs font-bold text-slate-600 dark:text-slate-400 group-hover:text-slate-900 dark:group-hover:text-slate-200 transition-colors">
+                  {t('jsontophp.typed_properties')}
+                </span>
+              </label>
+            </div>
+          </div>
+
           <textarea
             id="json-input"
             value={input}
             onChange={(e) => setInput(e.target.value)}
-            placeholder='{"id": 1, "name": "PHP"}'
-            className="w-full h-[450px] p-6 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-3xl outline-none focus:ring-2 focus:ring-indigo-500/20 transition-all font-mono text-sm leading-relaxed dark:text-slate-300 resize-none"
+            placeholder='{"id": 1, "name": "PHP", "nestedObj": {"enabled": true}}'
+            className="w-full h-[330px] p-6 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-3xl outline-none focus:ring-2 focus:ring-indigo-500/20 transition-all font-mono text-sm leading-relaxed dark:text-slate-300 resize-none"
           />
         </div>
 
@@ -236,19 +312,19 @@ export function JSONToPHP({ initialData, onStateChange }: { initialData?: any; o
             id="php-output"
             value={output}
             readOnly
-            className="w-full h-[450px] p-6 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-3xl outline-none font-mono text-sm leading-relaxed text-indigo-600 dark:text-indigo-400 resize-none"
+            className="w-full h-[450px] p-6 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-3xl outline-none font-mono text-sm leading-relaxed text-indigo-600 dark:text-indigo-400 resize-none shadow-inner"
           />
         </div>
       </div>
 
       {error && (
-        <div className="bg-rose-50 dark:bg-rose-500/10 border border-rose-200 dark:border-rose-800 p-4 rounded-2xl flex items-center gap-3 text-rose-600 dark:text-rose-400 font-bold">
+        <div className="bg-rose-50 dark:bg-rose-500/10 border border-rose-200 dark:border-rose-800 p-4 rounded-2xl flex items-center gap-3 text-rose-600 dark:text-rose-400 font-bold animate-in fade-in slide-in-from-top-2">
           <AlertCircle className="w-5 h-5" />
           {error}
         </div>
       )}
 
-      <div className="bg-indigo-50 dark:bg-indigo-900/10 p-8 rounded-[2.5rem] border border-indigo-100 dark:border-indigo-900/20 flex items-start gap-4">
+      <div className="bg-indigo-50 dark:bg-indigo-900/10 p-8 rounded-[2.5rem] border border-indigo-100 dark:border-indigo-900/20 flex items-start gap-4 animate-in fade-in duration-500">
         <Info className="w-6 h-6 text-indigo-500 mt-1" />
         <div className="space-y-2">
           <h4 className="font-bold dark:text-white">{t('jsontophp.about_title')}</h4>

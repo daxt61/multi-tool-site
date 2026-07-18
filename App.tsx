@@ -525,6 +525,8 @@ const RunningPaceCalculator = lazy(() => import("./components/RunningPaceCalcula
 const ColorContrastMatrix = lazy(() => import("./components/ColorContrastMatrix").then(m => ({ default: m.ColorContrastMatrix })));
 const LinePrefixSuffix = lazy(() => import("./components/LinePrefixSuffix").then(m => ({ default: m.LinePrefixSuffix })));
 const TextColumnsAligner = lazy(() => import("./components/TextColumnsAligner").then(m => ({ default: m.TextColumnsAligner })));
+const ListSeparatorChanger = lazy(() => import("./components/ListSeparatorChanger").then(m => ({ default: m.ListSeparatorChanger })));
+const ListReverser = lazy(() => import("./components/ListReverser").then(m => ({ default: m.ListReverser })));
 
 // ⚡ Bolt Optimization: Pre-calculating tool map and search index for O(1) lookups and faster filtering
 const toolsMap: Record<string, Tool> = {};
@@ -4607,6 +4609,28 @@ const tools: Tool[] = [
     Component: TextColumnsAligner,
     category: "text",
     keywords: ["columns", "align", "table", "pad", "space", "whitespace", "tsv", "csv", "format"],
+  },
+  {
+    id: "list-separator-changer",
+    name: "Changer de Séparateur de Liste",
+    nameEn: "List Separator Changer",
+    icon: ArrowLeftRight,
+    description: "Convertir les séparateurs de liste (virgules, tabulations, nouvelles lignes, etc.)",
+    descriptionEn: "Convert list separators (commas, tabs, newlines, etc.)",
+    Component: ListSeparatorChanger,
+    category: "text",
+    keywords: ["list", "separator", "changer", "delimiter", "csv", "newlines", "commas", "join", "split"],
+  },
+  {
+    id: "list-reverser",
+    name: "Inverseur de Liste",
+    nameEn: "List Reverser",
+    icon: ArrowUpDown,
+    description: "Inverser l'ordre des éléments d'une liste avec n'importe quel séparateur",
+    descriptionEn: "Reverse the order of list elements with any separator",
+    Component: ListReverser,
+    category: "text",
+    keywords: ["list", "reverse", "invert", "flip", "order", "separator"],
   },
 ];
 

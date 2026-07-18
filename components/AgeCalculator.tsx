@@ -1,6 +1,8 @@
 import { useState, useMemo, useEffect, useCallback, useRef } from 'react';
 import { Calendar, Clock, Heart, Baby, Gift, Info, Star, Trash2, Copy, Check, Download, RotateCcw } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
+import { toast } from 'sonner';
+import { Kbd } from './ui/Kbd';
 
 export function AgeCalculator({ initialData, onStateChange }: { initialData?: any; onStateChange?: (state: any) => void }) {
   const { t } = useTranslation();
@@ -98,6 +100,7 @@ export function AgeCalculator({ initialData, onStateChange }: { initialData?: an
 
     navigator.clipboard.writeText(text || `0 ${t('agecalculator.days').toLowerCase()}`);
     setCopied(true);
+    toast.success(t('common.copied'));
     setTimeout(() => setCopied(false), 2000);
   }, [ageData, t]);
 
@@ -126,15 +129,17 @@ ${t('agecalculator.life_stats')} :
     link.download = `rapport-age-${Date.now()}.txt`;
     link.click();
     URL.revokeObjectURL(url);
-  }, [getReportContent]);
+    toast.success(t('common.download_success'));
+  }, [getReportContent, t]);
 
   const handleCopyReport = useCallback(() => {
     const content = getReportContent();
     if (!content) return;
     navigator.clipboard.writeText(content);
     setCopiedReport(true);
+    toast.success(t('common.copied'));
     setTimeout(() => setCopiedReport(false), 2000);
-  }, [getReportContent]);
+  }, [getReportContent, t]);
 
   const handleReset = useCallback(() => {
     setBirthDate('');
@@ -207,7 +212,7 @@ ${t('agecalculator.life_stats')} :
                 >
                   {copiedReport ? <Check className="w-3 h-3" /> : <Copy className="w-3 h-3" />}
                   <span className="hidden sm:inline">{copiedReport ? t('common.copied') : t('common.copy')}</span>
-                  {!copiedReport && <kbd className="hidden md:inline-flex items-center justify-center w-4 h-4 border border-indigo-200 dark:border-indigo-800 rounded text-[10px] font-bold bg-white dark:bg-slate-900 ml-1">R</kbd>}
+                  {!copiedReport && <Kbd modifier={null} className="hidden md:inline-flex ml-1">R</Kbd>}
                 </button>
                 <button
                   onClick={handleDownload}
@@ -217,7 +222,7 @@ ${t('agecalculator.life_stats')} :
                 >
                   <Download className="w-3 h-3" />
                   <span className="hidden sm:inline">{t('common.download')}</span>
-                  <kbd className="hidden md:inline-flex items-center justify-center w-4 h-4 border border-indigo-200 dark:border-indigo-800 rounded text-[10px] font-bold bg-white dark:bg-slate-900 ml-1">D</kbd>
+                  <Kbd modifier={null} className="hidden md:inline-flex ml-1">D</Kbd>
                 </button>
                 <button
                   onClick={handleReset}
@@ -227,7 +232,7 @@ ${t('agecalculator.life_stats')} :
                 >
                   <RotateCcw className="w-3 h-3" />
                   <span className="hidden sm:inline">{t('common.reset')}</span>
-                  <kbd className="hidden md:inline-flex items-center justify-center px-1.5 py-0.5 border border-rose-200 dark:border-rose-800 rounded text-[10px] font-bold text-rose-400 bg-white dark:bg-slate-900 ml-1">Esc</kbd>
+                  <Kbd modifier={null} className="hidden md:inline-flex ml-1 text-rose-400 border-rose-200 dark:border-rose-800 bg-white dark:bg-slate-900">Esc</Kbd>
                 </button>
               </div>
             </div>
@@ -237,6 +242,12 @@ ${t('agecalculator.life_stats')} :
               type="date"
               value={birthDate}
               onChange={(e) => setBirthDate(e.target.value)}
+              onKeyDown={(e) => {
+                if (e.key === 'Escape') {
+                  e.preventDefault();
+                  handleReset();
+                }
+              }}
               className="w-full p-4 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-2xl text-xl font-black font-mono focus:border-indigo-500 outline-none transition-all dark:text-white"
             />
             {ageData && (
@@ -293,7 +304,7 @@ ${t('agecalculator.life_stats')} :
                aria-label={t('agecalculator.copy_age')}
              >
                {copied ? <Check className="w-5 h-5" /> : <Copy className="w-5 h-5" />}
-               {!copied && <kbd className="hidden sm:inline-flex items-center justify-center w-5 h-5 border border-slate-200 dark:border-slate-800 rounded text-[10px] font-bold bg-white dark:bg-slate-900">C</kbd>}
+               {!copied && <Kbd modifier={null} className="hidden sm:inline-flex bg-white dark:bg-slate-900 border-slate-200 dark:border-slate-800 ml-1">C</Kbd>}
              </button>
 
              <h3 className="text-xs font-black uppercase tracking-widest text-slate-500">{t('agecalculator.current_age')}</h3>

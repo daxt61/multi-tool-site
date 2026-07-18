@@ -66,8 +66,17 @@ export function JSONToScala({ initialData, onStateChange }: { initialData?: any;
 
           const fields = Object.entries(val).map(([key, value]) => {
             const scalaKey = toCamelCase(key);
+            const isKeyword = [
+              'abstract', 'case', 'catch', 'class', 'def', 'do', 'else', 'extends',
+              'false', 'final', 'finally', 'for', 'forSome', 'if', 'implicit', 'import',
+              'lazy', 'match', 'new', 'null', 'object', 'override', 'package', 'private',
+              'protected', 'return', 'sealed', 'super', 'this', 'throw', 'trait', 'true',
+              'try', 'type', 'val', 'var', 'while', 'with', 'yield'
+            ].includes(scalaKey);
+            const startsWithDigit = /^[0-9]/.test(scalaKey);
+            const ident = (isKeyword || startsWithDigit) ? `\`${scalaKey}\`` : scalaKey;
             const type = getScalaType(value, key, depth + 1);
-            return `  ${scalaKey}: ${type}`;
+            return `  ${ident}: ${type}`;
           });
 
           let classStr = `case class ${finalName}(\n`;

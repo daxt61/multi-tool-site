@@ -26,10 +26,29 @@ export function JSONToRuby({ initialData, onStateChange }: { initialData?: any; 
   };
 
   const toSnakeCase = (str: string) => {
-    return str
+    let result = str
       .replace(/([a-z])([A-Z])/g, '$1_$2')
       .replace(/[^a-z0-9]/gi, '_')
       .toLowerCase();
+
+    // Ruby identifiers cannot start with a digit
+    if (/^[0-9]/.test(result)) {
+      result = 'r_' + result;
+    }
+
+    // Handle Ruby keywords
+    const keywords = [
+      '__ENCODING__', '__LINE__', '__FILE__', 'BEGIN', 'END', 'alias', 'and', 'begin',
+      'break', 'case', 'class', 'def', 'defined', 'do', 'else', 'elsif', 'end', 'ensure',
+      'false', 'for', 'if', 'in', 'module', 'next', 'nil', 'not', 'or', 'redo', 'rescue',
+      'retry', 'return', 'self', 'super', 'then', 'true', 'undef', 'unless', 'until', 'when',
+      'while', 'yield'
+    ];
+    if (keywords.includes(result)) {
+      result += '_';
+    }
+
+    return result || 'property';
   };
 
   const handleConvert = useCallback(() => {

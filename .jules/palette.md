@@ -49,3 +49,7 @@
 ## 2026-03-20 - [Multi-Column Text and Line Formatting UX]
 **Learning:** Utilities that parse space-delimited text into columns can collapse adjacent spaces by default to handle arbitrary spaces from terminal outputs (e.g., ps/docker outputs), but should preserve exact values if desired. Also, storing intermediate tabular row grids as `string[][]` arrays instead of plain objects avoids any Prototype Pollution natively.
 **Action:** Always prefer array grids `string[][]` over plain object properties when parsing raw multi-column tables. Provide a checkbox to toggle collapsing of adjacent delimiters.
+
+## 2026-07-18 - [Interactive Handle Accessibility in Graphical Editors]
+**Learning:** Purely mouse-driven click-and-drag markers (such as handles in a visual CSS clip-path editor) can exclude keyboard or assistive technology users if alternative inputs (such as input forms or slider controls) are missing or not explicitly labeled.
+**Action:** Always pair interactive graphical handles with explicit numeric/slider inputs to allow multiple redundant methods of control.

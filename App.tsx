@@ -527,6 +527,7 @@ const LinePrefixSuffix = lazy(() => import("./components/LinePrefixSuffix").then
 const TextColumnsAligner = lazy(() => import("./components/TextColumnsAligner").then(m => ({ default: m.TextColumnsAligner })));
 const ListSeparatorChanger = lazy(() => import("./components/ListSeparatorChanger").then(m => ({ default: m.ListSeparatorChanger })));
 const ListReverser = lazy(() => import("./components/ListReverser").then(m => ({ default: m.ListReverser })));
+const CSSClipPathGenerator = lazy(() => import("./components/CSSClipPathGenerator").then(m => ({ default: m.CSSClipPathGenerator })));
 
 // ⚡ Bolt Optimization: Pre-calculating tool map and search index for O(1) lookups and faster filtering
 const toolsMap: Record<string, Tool> = {};
@@ -4631,6 +4632,17 @@ const tools: Tool[] = [
     Component: ListReverser,
     category: "text",
     keywords: ["list", "reverse", "invert", "flip", "order", "separator"],
+  },
+  {
+    id: "css-clippath",
+    name: "Générateur Clip Path",
+    nameEn: "Clip Path Generator",
+    icon: Scissors,
+    description: "Générateur visuel et interactif de clip-path CSS avec éditeur graphique",
+    descriptionEn: "Visual and interactive CSS clip-path generator with graphical editor",
+    Component: CSSClipPathGenerator,
+    category: "dev",
+    keywords: ["css", "clip-path", "clipping", "polygon", "shape", "svg", "vector", "design", "mask"],
   },
 ];
 

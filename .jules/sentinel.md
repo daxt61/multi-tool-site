@@ -206,3 +206,8 @@
 **Vulnerability:** The JSONToEnv component was vulnerable to Dotenv Injection / Breakout. Raw newlines (`\n`, `\r`) in values or special characters (like `=`) in keys could break the `.env` line format, allowing users to inject arbitrary environment variables.
 **Learning:** Utilities that generate `.env` or configuration properties must sanitize keys to valid POSIX/environmental patterns (alphanumeric and underscores) and strictly escape control/newline characters in values to prevent file format layout breakout.
 **Prevention:** Sanitize keys using `key.replace(/[^a-zA-Z0-9_]/g, '_')` and securely quote and escape values containing newlines, carriage returns, or other line terminators.
+
+## 2026-07-20 - [Syntax Breakout and Compilation Failures in Ruby and Scala Code Generators]
+**Vulnerability:** The JSONToRuby and JSONToScala converters generated invalid code snippets when user-provided JSON keys contained reserved language keywords or started with numeric characters, causing syntax breakout or compilation errors in client environments.
+**Learning:** Code generation tools must treat input keys as untrusted identifiers. If keys are mapped directly as field or property names without escaping keywords or digits, it breaks language syntax and allows potential code logic bypass or breakout.
+**Prevention:** Always sanitize, prefix, or escape language-specific keywords and starting digits in code generators. Use language mechanisms (like backticks `` `class` `` in Scala/Kotlin, or appending `_` / prepending `r_` in Ruby) to safely serialize property names.

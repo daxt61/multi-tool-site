@@ -22,7 +22,7 @@ test('Word Counter UX improvements', async ({ page, baseURL }) => {
 
   // We can't easily check the clipboard in CI, but we can check if the button state changed
   // The button text should change to "Copié"
-  await expect(page.getByText('Copié')).toBeVisible();
+  await expect(page.getByText('Copié').first()).toBeVisible();
 
   // Test global Escape shortcut for clearing
   await page.keyboard.press('Escape');

@@ -531,6 +531,7 @@ const CSSClipPathGenerator = lazy(() => import("./components/CSSClipPathGenerato
 const AnsiEscapeStripper = lazy(() => import("./components/AnsiEscapeStripper").then(m => ({ default: m.AnsiEscapeStripper })));
 const XPathTester = lazy(() => import("./components/XPathTester").then(m => ({ default: m.XPathTester })));
 const JSONToDjango = lazy(() => import("./components/JSONToDjango").then(m => ({ default: m.JSONToDjango })));
+const CSSToTailwind = lazy(() => import("./components/CSSToTailwind").then(m => ({ default: m.CSSToTailwind })));
 
 // ⚡ Bolt Optimization: Pre-calculating tool map and search index for O(1) lookups and faster filtering
 const toolsMap: Record<string, Tool> = {};
@@ -3315,6 +3316,17 @@ const tools: Tool[] = [
     Component: JSONToDjango,
     category: "dev",
     keywords: ["python", "django", "model", "orm", "json", "database"],
+  },
+  {
+    id: "css-to-tailwind",
+    name: "CSS en Tailwind CSS",
+    nameEn: "CSS to Tailwind CSS",
+    icon: Palette,
+    description: "Convertir des déclarations CSS brutes en classes utilitaires Tailwind",
+    descriptionEn: "Convert raw CSS styles into Tailwind utility classes",
+    Component: CSSToTailwind,
+    category: "dev",
+    keywords: ["css", "tailwind", "converter", "utility classes", "style", "frontend", "design"],
   },
   {
     id: "json-to-prisma",

@@ -65,3 +65,7 @@
 ## 2026-07-20 - [Auto-Extracting Relational Prisma Schemas]
 **Learning:** When generating schema structures (like Prisma Schema) from nested JSON, parsing child records recursively and auto-configuring relations with back-references and foreign key mappings drastically reduces database design complexity for developer users.
 **Action:** Implement automatic relation mapping and foreign key references when converting JSON schemas to database-compatible schemas.
+
+## 2026-07-21 - [Focus Management on Resetting Interactive Components]
+**Learning:** Clearing or resetting complex interactive components (such as grids of selection buttons) without programmatically returning focus can leave keyboard and screen reader users with lost focus or a disrupted flow.
+**Action:** Use a `useRef` hook to target the first active or primary interactive element in the component and invoke `.focus()` programmatically upon resetting the state.

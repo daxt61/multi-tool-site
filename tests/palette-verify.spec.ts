@@ -12,7 +12,7 @@ test('verify calculator accessibility and dashboard scroll', async ({ page }) =>
   await expect(equalsBtn).toBeVisible();
 
   // Check display aria-live
-  const display = page.locator('[aria-live="polite"]');
+  const display = page.locator('[aria-live="polite"]').first();
   await expect(display).toBeVisible();
   await expect(display).toContainText('0');
 

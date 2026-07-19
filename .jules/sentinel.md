@@ -211,3 +211,8 @@
 **Vulnerability:** The JSONToRuby and JSONToScala converters generated invalid code snippets when user-provided JSON keys contained reserved language keywords or started with numeric characters, causing syntax breakout or compilation errors in client environments.
 **Learning:** Code generation tools must treat input keys as untrusted identifiers. If keys are mapped directly as field or property names without escaping keywords or digits, it breaks language syntax and allows potential code logic bypass or breakout.
 **Prevention:** Always sanitize, prefix, or escape language-specific keywords and starting digits in code generators. Use language mechanisms (like backticks `` `class` `` in Scala/Kotlin, or appending `_` / prepending `r_` in Ruby) to safely serialize property names.
+
+## 2026-07-21 - [Syntax Breakout and Compilation Failures in C++ Code Generator]
+**Vulnerability:** The JSONToCPP converter generated invalid C++ structs when user-provided JSON keys matched reserved C++ keywords or started with numeric characters, causing compilation errors or syntax breakout in client C++ environments.
+**Learning:** Identifiers in C++ cannot start with digits, and using C++ reserved keywords (such as `class`, `struct`, `union`, `int`, etc.) as member fields leads to syntactically broken code. Inputs parsed into variables for compiled languages must be carefully normalized.
+**Prevention:** Sanitize C++ snake_case identifiers by prepending a safe prefix (like `f_`) to keys starting with digits and appending an underscore (`_`) to reserved C++ keywords.

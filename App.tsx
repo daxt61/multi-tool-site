@@ -528,6 +528,8 @@ const TextColumnsAligner = lazy(() => import("./components/TextColumnsAligner").
 const ListSeparatorChanger = lazy(() => import("./components/ListSeparatorChanger").then(m => ({ default: m.ListSeparatorChanger })));
 const ListReverser = lazy(() => import("./components/ListReverser").then(m => ({ default: m.ListReverser })));
 const CSSClipPathGenerator = lazy(() => import("./components/CSSClipPathGenerator").then(m => ({ default: m.CSSClipPathGenerator })));
+const AnsiEscapeStripper = lazy(() => import("./components/AnsiEscapeStripper").then(m => ({ default: m.AnsiEscapeStripper })));
+const XPathTester = lazy(() => import("./components/XPathTester").then(m => ({ default: m.XPathTester })));
 
 // ⚡ Bolt Optimization: Pre-calculating tool map and search index for O(1) lookups and faster filtering
 const toolsMap: Record<string, Tool> = {};
@@ -4643,6 +4645,28 @@ const tools: Tool[] = [
     Component: CSSClipPathGenerator,
     category: "dev",
     keywords: ["css", "clip-path", "clipping", "polygon", "shape", "svg", "vector", "design", "mask"],
+  },
+  {
+    id: "ansi-escape-stripper",
+    name: "Nettoyeur de Codes ANSI",
+    nameEn: "ANSI Escape Stripper",
+    icon: Terminal,
+    description: "Supprimer les codes d'échappement et couleurs ANSI d'un texte",
+    descriptionEn: "Remove ANSI escape codes and colors from text",
+    Component: AnsiEscapeStripper,
+    category: "text",
+    keywords: ["ansi", "escape", "strip", "clean", "color", "terminal", "bash", "log"],
+  },
+  {
+    id: "xpath-tester",
+    name: "Testeur XPath",
+    nameEn: "XPath Tester",
+    icon: FileSearch,
+    description: "Tester des requêtes et expressions XPath sur du XML",
+    descriptionEn: "Test XPath queries and expressions on XML documents",
+    Component: XPathTester,
+    category: "dev",
+    keywords: ["xpath", "xml", "query", "evaluator", "tester", "html", "nodes"],
   },
 ];
 

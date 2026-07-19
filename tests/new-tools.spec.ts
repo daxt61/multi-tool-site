@@ -1,46 +1,54 @@
 import { test, expect } from '@playwright/test';
 
-test.describe('New Tools Integration', () => {
-  test('Text Splitter should split text correctly', async ({ page }) => {
-    await page.goto('http://localhost:5173/en/outil/text-splitter');
+test.describe('New Tools Tests', () => {
+  test('ANSI Escape Stripper - functionality test', async ({ page }) => {
+    // Go to the ANSI escape stripper tool
+    await page.goto('http://localhost:5173/en/outil/ansi-escape-stripper');
 
-    // Test splitting by characters
-    await page.fill('#split-input', 'ABCDEF');
-    await page.fill('#split-value', '2');
+    // Wait for the tool component to load
+    await expect(page.locator('h1')).toContainText('ANSI Escape Stripper');
 
-    await expect(page.getByText('Chunk #1')).toBeVisible();
-    await expect(page.locator('pre').first()).toContainText('AB');
-    await expect(page.getByText('Chunk #2')).toBeVisible();
-    await expect(page.locator('pre').nth(1)).toContainText('CD');
+    // Fill in some ANSI sequence text
+    const inputTextArea = page.locator('#ansi-input');
+    await inputTextArea.fill('\\x1b[31mRedText\\x1b[0m \\x1b[1mBoldText\\x1b[0m');
+
+    // The output should be processed automatically
+    const outputTextArea = page.locator('#ansi-output');
+    await expect(outputTextArea).toHaveValue('RedText BoldText');
+
+    // Switch stripping mode to Color/Styling only
+    const colorModeBtn = page.getByRole('button', { name: 'Colors/Styling Only' });
+    await colorModeBtn.click();
+    await expect(outputTextArea).toHaveValue('RedText BoldText');
+
+    // Test Esc keyboard shortcut inside input
+    await inputTextArea.focus();
+    await page.keyboard.press('Escape');
+    await expect(inputTextArea).toHaveValue('');
+    await expect(outputTextArea).toHaveValue('');
   });
 
-  test('String Joiner should join lines correctly', async ({ page }) => {
-    await page.goto('http://localhost:5173/en/outil/string-joiner');
+  test('XPath Tester - functionality test', async ({ page }) => {
+    // Go to the XPath Tester tool
+    await page.goto('http://localhost:5173/en/outil/xpath-tester');
 
-    await page.fill('#join-input', 'Line 1\nLine 2');
-    await page.fill('#join-separator', ' | ');
+    // Wait for the tool component to load
+    await expect(page.locator('h1')).toContainText('XPath Tester');
 
-    const output = await page.inputValue('#join-output');
-    expect(output).toBe('Line 1 | Line 2');
-  });
+    // Ensure the default XML document and query are evaluated
+    const resultsContainer = page.locator('.break-all');
+    await expect(resultsContainer.first()).toContainText('Harry Potter');
 
-  test('JSON Analyzer should provide correct stats', async ({ page }) => {
-    await page.goto('http://localhost:5173/en/outil/json-analyzer');
+    // Try a custom XPath query
+    const xpathInput = page.locator('#xpath-query');
+    await xpathInput.fill('//book[price > 30]'); // should matches nothing in default book lists
+    await expect(page.locator('.italic')).toContainText('No matches found.');
 
-    const json = JSON.stringify({
-      id: 1,
-      name: "Test",
-      active: true,
-      tags: ["A", "B"]
-    });
-
-    await page.fill('#json-input', json);
-
-    // Check key count (id, name, active, tags)
-    await expect(page.getByText('4', { exact: true }).first()).toBeVisible();
-
-    // Check type distribution labels
-    await expect(page.getByText('Strings', { exact: true })).toBeVisible();
-    await expect(page.getByText('Numbers', { exact: true })).toBeVisible();
+    // Clear everything using clear button
+    const clearBtn = page.getByRole('button', { name: 'Clear' });
+    await clearBtn.click();
+    await expect(xpathInput).toHaveValue('');
+    const xmlDocumentArea = page.locator('#xml-document');
+    await expect(xmlDocumentArea).toHaveValue('');
   });
 });

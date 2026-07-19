@@ -530,6 +530,7 @@ const ListReverser = lazy(() => import("./components/ListReverser").then(m => ({
 const CSSClipPathGenerator = lazy(() => import("./components/CSSClipPathGenerator").then(m => ({ default: m.CSSClipPathGenerator })));
 const AnsiEscapeStripper = lazy(() => import("./components/AnsiEscapeStripper").then(m => ({ default: m.AnsiEscapeStripper })));
 const XPathTester = lazy(() => import("./components/XPathTester").then(m => ({ default: m.XPathTester })));
+const JSONToDjango = lazy(() => import("./components/JSONToDjango").then(m => ({ default: m.JSONToDjango })));
 
 // ⚡ Bolt Optimization: Pre-calculating tool map and search index for O(1) lookups and faster filtering
 const toolsMap: Record<string, Tool> = {};
@@ -3303,6 +3304,17 @@ const tools: Tool[] = [
     Component: JSONToPydantic,
     category: "dev",
     keywords: ["python", "pydantic", "json", "types", "data validation"],
+  },
+  {
+    id: "json-to-django",
+    name: "JSON en Django Model",
+    nameEn: "JSON to Django Model",
+    icon: FileCode,
+    description: "Générer des modèles Django à partir de JSON",
+    descriptionEn: "Generate Django models from JSON",
+    Component: JSONToDjango,
+    category: "dev",
+    keywords: ["python", "django", "model", "orm", "json", "database"],
   },
   {
     id: "json-to-prisma",

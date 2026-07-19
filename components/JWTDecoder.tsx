@@ -7,6 +7,12 @@ const MAX_LENGTH = 100000;
 export function JWTDecoder({ initialData, onStateChange }: { initialData?: any; onStateChange?: (state: any) => void }) {
   const { t } = useTranslation();
   const [jwt, setJwt] = useState(initialData?.jwt || '');
+  const [secretKey, setSecretKey] = useState('');
+  const [selectedAlg, setSelectedAlg] = useState('HS256');
+  const [verificationResult, setVerificationResult] = useState<'valid' | 'invalid' | 'missing_secret' | 'error' | null>('missing_secret');
+  const [verificationError, setVerificationError] = useState('');
+  const [showSecret, setShowSecret] = useState(false);
+
   const [decoded, setDecoded] = useState<{
     header: any;
     payload: any;
@@ -23,8 +29,71 @@ export function JWTDecoder({ initialData, onStateChange }: { initialData?: any; 
   const [copiedPayload, setCopiedPayload] = useState(false);
 
   useEffect(() => {
-    onStateChange?.({ jwt });
-  }, [jwt, onStateChange]);
+    onStateChange?.({ jwt, selectedAlg });
+  }, [jwt, selectedAlg, onStateChange]);
+
+  const base64UrlDecode = (str: string) => {
+    let base64 = str.replace(/-/g, '+').replace(/_/g, '/');
+    while (base64.length % 4) {
+      base64 += '=';
+    }
+    const binary = atob(base64);
+    const bytes = new Uint8Array(binary.length);
+    for (let i = 0; i < binary.length; i++) {
+      bytes[i] = binary.charCodeAt(i);
+    }
+    return bytes;
+  };
+
+  const verifySignature = async (token: string, secret: string, alg: string) => {
+    if (!token.trim() || !secret.trim()) {
+      setVerificationResult('missing_secret');
+      setVerificationError('');
+      return;
+    }
+
+    try {
+      const parts = token.split('.');
+      if (parts.length !== 3) {
+        setVerificationResult('error');
+        setVerificationError('Invalid token format');
+        return;
+      }
+
+      const [headerB64, payloadB64, signatureB64] = parts;
+      const dataToVerify = new TextEncoder().encode(`${headerB64}.${payloadB64}`);
+      const signatureBytes = base64UrlDecode(signatureB64);
+
+      const cryptoAlg = alg === 'HS256' ? 'SHA-256' : alg === 'HS384' ? 'SHA-384' : 'SHA-512';
+      const secretBytes = new TextEncoder().encode(secret);
+
+      const key = await window.crypto.subtle.importKey(
+        'raw',
+        secretBytes,
+        { name: 'HMAC', hash: cryptoAlg },
+        false,
+        ['verify']
+      );
+
+      const isValid = await window.crypto.subtle.verify(
+        'HMAC',
+        key,
+        signatureBytes,
+        dataToVerify
+      );
+
+      if (isValid) {
+        setVerificationResult('valid');
+        setVerificationError('');
+      } else {
+        setVerificationResult('invalid');
+        setVerificationError('');
+      }
+    } catch (e: any) {
+      setVerificationResult('error');
+      setVerificationError(e.message || 'Verification failed');
+    }
+  };
 
   const decodeJWT = (token: string) => {
     if (!token.trim()) {
@@ -79,6 +148,10 @@ export function JWTDecoder({ initialData, onStateChange }: { initialData?: any; 
     decodeJWT(jwt);
   }, [jwt]);
 
+  useEffect(() => {
+    verifySignature(jwt, secretKey, selectedAlg);
+  }, [jwt, secretKey, selectedAlg]);
+
   const handleCopy = (text: string, target: 'header' | 'payload') => {
     navigator.clipboard.writeText(JSON.stringify(text, null, 2));
     if (target === 'header') {
@@ -105,7 +178,11 @@ export function JWTDecoder({ initialData, onStateChange }: { initialData?: any; 
         <div className="flex justify-between items-center px-1">
           <label htmlFor="jwt-input" className="text-xs font-black uppercase tracking-widest text-slate-400 cursor-pointer">{t('jwt.token_label')}</label>
           <button
-            onClick={() => setJwt('')}
+            onClick={() => {
+              setJwt('');
+              setSecretKey('');
+              setVerificationResult('missing_secret');
+            }}
             disabled={!jwt}
             aria-label={t('common.clear')}
             className="text-xs font-bold px-3 py-1.5 rounded-full text-rose-500 bg-rose-50 dark:bg-rose-500/10 hover:bg-rose-100 dark:hover:bg-rose-500/20 border border-transparent transition-all flex items-center gap-1 disabled:opacity-50 disabled:cursor-not-allowed focus-visible:ring-2 focus-visible:ring-rose-500 focus-visible:outline-none"
@@ -127,6 +204,67 @@ export function JWTDecoder({ initialData, onStateChange }: { initialData?: any; 
           </div>
         )}
       </div>
+
+      {/* Signature Verification Block */}
+      {decoded.header && (
+        <div className="bg-slate-50 dark:bg-slate-900/50 p-6 rounded-[2rem] border border-slate-200 dark:border-slate-800 space-y-4 animate-in fade-in duration-300">
+          <div className="flex justify-between items-center px-1">
+            <label className="text-xs font-black uppercase tracking-widest text-slate-400 flex items-center gap-2">
+              <ShieldCheck className="w-4 h-4 text-indigo-500" /> Signature Verification (HMAC)
+            </label>
+            {verificationResult === 'valid' && (
+              <span className="px-3 py-1 bg-emerald-100 dark:bg-emerald-900/30 text-emerald-600 dark:text-emerald-400 text-xs font-bold rounded-full animate-pulse">
+                ✓ Valid Signature
+              </span>
+            )}
+            {verificationResult === 'invalid' && (
+              <span className="px-3 py-1 bg-rose-100 dark:bg-rose-900/30 text-rose-600 dark:text-rose-400 text-xs font-bold rounded-full animate-shake">
+                ✗ Invalid Signature
+              </span>
+            )}
+            {verificationResult === 'missing_secret' && (
+              <span className="px-3 py-1 bg-amber-100 dark:bg-amber-900/30 text-amber-600 dark:text-amber-400 text-xs font-bold rounded-full">
+                Enter Secret Key to Verify
+              </span>
+            )}
+            {verificationResult === 'error' && (
+              <span className="px-3 py-1 bg-rose-100 dark:bg-rose-900/30 text-rose-600 dark:text-rose-400 text-xs font-bold rounded-full">
+                Verification Error: {verificationError}
+              </span>
+            )}
+          </div>
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4 items-center">
+            <div className="md:col-span-2 relative">
+              <input
+                type={showSecret ? 'text' : 'password'}
+                value={secretKey}
+                onChange={(e) => setSecretKey(e.target.value)}
+                placeholder="HMAC secret key to verify signature..."
+                className="w-full p-3.5 pr-12 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-2xl font-mono text-sm focus:ring-2 focus:ring-indigo-500/20 outline-none transition-all dark:text-white"
+              />
+              <button
+                type="button"
+                onClick={() => setShowSecret(!showSecret)}
+                className="absolute right-4 top-1/2 -translate-y-1/2 text-slate-400 hover:text-indigo-500 transition-colors"
+                aria-label={showSecret ? "Hide secret" : "Show secret"}
+              >
+                {showSecret ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
+              </button>
+            </div>
+            <div>
+              <select
+                value={selectedAlg}
+                onChange={(e) => setSelectedAlg(e.target.value)}
+                className="w-full p-3.5 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-2xl font-bold text-sm outline-none focus:ring-2 focus:ring-indigo-500/20 transition-all dark:text-white cursor-pointer"
+              >
+                <option value="HS256">HMAC-SHA256 (HS256)</option>
+                <option value="HS384">HMAC-SHA384 (HS384)</option>
+                <option value="HS512">HMAC-SHA512 (HS512)</option>
+              </select>
+            </div>
+          </div>
+        </div>
+      )}
 
       {decoded.header && (
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 animate-in fade-in slide-in-from-bottom-4 duration-500">

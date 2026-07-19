@@ -3,7 +3,7 @@ import { test, expect } from '@playwright/test';
 test.describe('New Tools Smoke Test', () => {
   test('should load Word Cloud Generator and generate cloud', async ({ page }) => {
     await page.goto('http://localhost:5173/en/outil/word-cloud');
-    await expect(page.getByRole('heading', { name: 'Word Cloud Generator' })).toBeVisible();
+    await expect(page.getByRole('heading', { name: 'Word Cloud Generator', exact: true })).toBeVisible();
 
     const input = page.locator('#wordcloud-input');
     await input.fill('hello world hello hello test word cloud');

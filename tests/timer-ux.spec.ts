@@ -22,7 +22,7 @@ test('TimerTool UX and accessibility improvements', async ({ page, baseURL }) =>
   // 3. Verify keyboard shortcut hints (kbd elements)
   const spaceHint = page.locator('kbd:has-text("Space")');
   await expect(spaceHint).toBeVisible();
-  const rHint = page.locator('kbd:has-text("R")');
+  const rHint = page.locator('button:has-text("Reset"), button:has-text("Réinitialiser")').locator('kbd', { hasText: 'R' });
   await expect(rHint).toBeVisible();
 
   // 4. Verify sound toggle is still there in Pomodoro mode

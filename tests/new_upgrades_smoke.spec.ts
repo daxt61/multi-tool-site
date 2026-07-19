@@ -15,7 +15,7 @@ test.describe('New and Upgraded Tools Smoke Test', () => {
 
   test('Password Generator has multiple generation options', async ({ page }) => {
     await page.goto(`${BASE_URL}/en/outil/password-generator`);
-    await expect(page.locator('text=Count')).toBeVisible();
+    await expect(page.locator('label[for="password-quantity"]')).toBeVisible();
   });
 
   test('Diff Checker has character level diffing', async ({ page }) => {

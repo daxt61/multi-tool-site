@@ -26,6 +26,9 @@ test('verify calculator accessibility and dashboard scroll', async ({ page }) =>
   // 2. Verify Dashboard Scroll-to-Top
   await page.goto('http://localhost:5173/en');
 
+  // Wait for cards to render so the page has scrollable height
+  await page.waitForSelector('[id^="tool-title-"]');
+
   // Scroll down a bit
   await page.evaluate(() => window.scrollTo(0, 1000));
   let scrollY = await page.evaluate(() => window.scrollY);

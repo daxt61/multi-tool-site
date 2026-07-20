@@ -16,12 +16,19 @@ export function XMLFormatter() {
   };
 
   const MAX_DEPTH = 50;
+  const MAX_LENGTH = 100000;
 
   // Improved XML Prettifier using DOMParser
   const prettifyXml = (sourceXml: string) => {
     try {
       setError(null);
       if (!sourceXml.trim()) return '';
+
+      // Sentinel: Enforce input length limit to prevent client-side DoS
+      if (sourceXml.length > MAX_LENGTH) {
+        setError(`L'entrée est trop longue. Limite de ${MAX_LENGTH.toLocaleString()} caractères.`);
+        return sourceXml;
+      }
 
       const parser = new DOMParser();
       const xmlDoc = parser.parseFromString(sourceXml, 'application/xml');
@@ -101,6 +108,12 @@ export function XMLFormatter() {
 
   const handleMinify = () => {
     try {
+      if (!xml.trim()) return;
+      // Sentinel: Enforce input length limit to prevent client-side DoS
+      if (xml.length > MAX_LENGTH) {
+        setError(`L'entrée est trop longue. Limite de ${MAX_LENGTH.toLocaleString()} caractères.`);
+        return;
+      }
       const minified = xml.replace(/>\s+</g, '><').trim();
       setXml(minified);
       setError(null);

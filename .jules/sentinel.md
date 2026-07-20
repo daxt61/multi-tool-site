@@ -216,3 +216,8 @@
 **Vulnerability:** The JSONToCPP converter generated invalid C++ structs when user-provided JSON keys matched reserved C++ keywords or started with numeric characters, causing compilation errors or syntax breakout in client C++ environments.
 **Learning:** Identifiers in C++ cannot start with digits, and using C++ reserved keywords (such as `class`, `struct`, `union`, `int`, etc.) as member fields leads to syntactically broken code. Inputs parsed into variables for compiled languages must be carefully normalized.
 **Prevention:** Sanitize C++ snake_case identifiers by prepending a safe prefix (like `f_`) to keys starting with digits and appending an underscore (`_`) to reserved C++ keywords.
+
+## 2026-07-22 - [Client-side DoS in XML Formatter]
+**Vulnerability:** The XMLFormatter was vulnerable to client-side Denial of Service (DoS) / browser hanging when attempting to format or minify excessively large XML inputs (e.g. over 100k characters).
+**Learning:** Even though XMLFormatter has depth checks, parsing and rendering massive XML inputs using DOMParser and custom recursive format function on the main thread consumes excessive CPU and memory, hanging the browser UI.
+**Prevention:** Enforce a strict `MAX_LENGTH` input length check (standardized to 100,000 characters) at the start of all format/minify procedures. Provide clear error feedback if the limit is exceeded.

@@ -1,11 +1,14 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef, useCallback } from 'react';
 import { Shield, Key, Copy, Check, Trash2, Info, AlertCircle, Clock, Zap } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
+import { toast } from 'sonner';
+import { Kbd } from './ui/Kbd';
 
 export function PasswordStrengthMeter({ initialData, onStateChange }: { initialData?: any; onStateChange?: (state: any) => void }) {
   const { t } = useTranslation();
   const [password, setPassword] = useState(initialData?.password || '');
   const [copied, setCopied] = useState(false);
+  const inputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
     // Sentinel: Never share the password in the URL state.
@@ -51,40 +54,97 @@ export function PasswordStrengthMeter({ initialData, onStateChange }: { initialD
     return t('passwordstrength.centuries') || 'Centuries';
   };
 
-  const handleCopy = () => {
+  const handleCopy = useCallback(() => {
     if (!password) return;
     navigator.clipboard.writeText(password);
     setCopied(true);
+    toast.success(t('common.copied'));
     setTimeout(() => setCopied(false), 2000);
-  };
+  }, [password, t]);
+
+  const handleClear = useCallback(() => {
+    setPassword('');
+    inputRef.current?.focus();
+  }, []);
+
+  // Keyboard shortcut handlers ref to avoid stale closures
+  const handlersRef = useRef({ handleClear, handleCopy });
+  useEffect(() => {
+    handlersRef.current = { handleClear, handleCopy };
+  }, [handleClear, handleCopy]);
+
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      const activeElement = document.activeElement;
+      const isEditable =
+        activeElement instanceof HTMLInputElement ||
+        activeElement instanceof HTMLTextAreaElement ||
+        activeElement instanceof HTMLSelectElement ||
+        activeElement?.getAttribute("contenteditable") === "true";
+
+      const isInputFocused = activeElement === inputRef.current;
+
+      // Escape to clear only works if input is focused, or we are not in an editable element
+      if (e.key === 'Escape') {
+        if (isInputFocused || !isEditable) {
+          e.preventDefault();
+          handlersRef.current.handleClear();
+        }
+        return;
+      }
+
+      // If user is typing in another input/textarea, do not trigger other shortcuts
+      if (isEditable) return;
+
+      if (e.metaKey || e.ctrlKey || e.altKey || e.shiftKey) return;
+
+      if (e.key.toLowerCase() === 'c') {
+        e.preventDefault();
+        handlersRef.current.handleCopy();
+      }
+    };
+
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, []);
 
   return (
     <div className="max-w-3xl mx-auto space-y-12">
       <div className="space-y-4">
         <div className="flex justify-between items-center px-1">
-          <label htmlFor="password-input" className="text-xs font-black uppercase tracking-widest text-slate-400 cursor-pointer">{t('passwordgenerator.length')}</label>
-          <div className="flex gap-2">
+          <label htmlFor="password-input" className="text-xs font-black uppercase tracking-widest text-slate-400 cursor-pointer flex items-center gap-2">
+            <Key className="w-4 h-4 text-indigo-500" />
+            {t('passwordgenerator.password')}
+          </label>
+          <div className="flex gap-2 items-center">
             <button
               onClick={handleCopy}
               disabled={!password}
+              aria-label={t('common.copy')}
+              title={`${t('common.copy')} (C)`}
               className={`flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-bold transition-all ${
                 copied ? 'bg-emerald-50 text-emerald-600 dark:bg-emerald-500/10 border border-emerald-200 dark:border-emerald-500/20' : 'bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 hover:bg-slate-200'
-              } disabled:opacity-50`}
+              } disabled:opacity-50 focus-visible:ring-2 focus-visible:ring-indigo-500 focus-visible:outline-none`}
             >
               {copied ? <Check className="w-4 h-4" /> : <Copy className="w-4 h-4" />}
               {copied ? t('common.copied') : t('common.copy')}
+              <Kbd modifier={null} className="ml-1">C</Kbd>
             </button>
             <button
-              onClick={() => setPassword('')}
+              onClick={handleClear}
               disabled={!password}
-              className="p-2 text-rose-500 bg-rose-50 dark:bg-rose-500/10 rounded-lg hover:bg-rose-100 disabled:opacity-50 transition-all"
+              aria-label={t('common.clear')}
+              title={`${t('common.clear')} (Esc)`}
+              className="p-2 text-rose-500 bg-rose-50 dark:bg-rose-500/10 rounded-lg hover:bg-rose-100 disabled:opacity-50 transition-all focus-visible:ring-2 focus-visible:ring-rose-500 focus-visible:outline-none"
             >
               <Trash2 className="w-4 h-4" />
             </button>
+            <Kbd modifier={null} className="hidden sm:inline-flex">Esc</Kbd>
           </div>
         </div>
         <input
           id="password-input"
+          ref={inputRef}
           type="text"
           value={password}
           onChange={(e) => setPassword(e.target.value)}

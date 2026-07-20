@@ -520,6 +520,7 @@ const SQLToMongoDB = lazy(() => import("./components/SQLToMongoDB").then(m => ({
 const SQLToOpenAPI = lazy(() => import("./components/SQLToOpenAPI").then(m => ({ default: m.SQLToOpenAPI })));
 const YAMLToTOML = lazy(() => import("./components/YAMLToTOML").then(m => ({ default: m.YAMLToTOML })));
 const SubstitutionCipher = lazy(() => import("./components/SubstitutionCipher").then(m => ({ default: m.SubstitutionCipher })));
+const XORCipher = lazy(() => import("./components/XORCipher").then(m => ({ default: m.XORCipher })));
 const EnigmaCipher = lazy(() => import("./components/EnigmaCipher").then(m => ({ default: m.EnigmaCipher })));
 const RunningPaceCalculator = lazy(() => import("./components/RunningPaceCalculator").then(m => ({ default: m.RunningPaceCalculator })));
 const ColorContrastMatrix = lazy(() => import("./components/ColorContrastMatrix").then(m => ({ default: m.ColorContrastMatrix })));
@@ -4581,6 +4582,17 @@ const tools: Tool[] = [
     Component: SubstitutionCipher,
     category: "text",
     keywords: ["substitution", "cipher", "encryption", "classic", "cryptography", "key"],
+  },
+  {
+    id: "xor-cipher",
+    name: "Chiffrement XOR",
+    nameEn: "XOR Cipher",
+    icon: Binary,
+    description: "Chiffrer et déchiffrer du texte ou des données binaires en utilisant l'opération logique XOR",
+    descriptionEn: "Encrypt and decrypt text or binary data using the logical XOR operation",
+    Component: XORCipher,
+    category: "dev",
+    keywords: ["xor", "cipher", "encryption", "bitwise", "binary", "hex", "obfuscation", "cryptography", "key"],
   },
   {
     id: "enigma-cipher",

@@ -69,3 +69,7 @@
 ## 2026-07-21 - [Focus Management on Resetting Interactive Components]
 **Learning:** Clearing or resetting complex interactive components (such as grids of selection buttons) without programmatically returning focus can leave keyboard and screen reader users with lost focus or a disrupted flow.
 **Action:** Use a `useRef` hook to target the first active or primary interactive element in the component and invoke `.focus()` programmatically upon resetting the state.
+
+## 2026-07-22 - [Refining Form Associations and Event Isolation for Strength Tools]
+**Learning:** Generic labels (like "Length" on a password input) degrade screen-reader experiences and confuse search indexing. Additionally, keyboard shortcut mechanisms (like Escape to clear or C to copy) on inputs should prioritize focus checks and keep handlers clean via React's standard `handlersRef` within `useEffect` to prevent collisions.
+**Action:** Always ensure the target form control uses a context-appropriate label (e.g. "Password") and isolate the event listeners to ensure they don't intercept typing when editable fields are focused.

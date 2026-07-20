@@ -45,4 +45,32 @@ test.describe('Sentinel Security Fixes', () => {
     const passValue = await page.inputValue('#password');
     expect(passValue.length).toBe(100);
   });
+
+  test('XMLFormatter enforces MAX_LENGTH and shows error', async ({ page }) => {
+    await page.goto('http://localhost:5173/fr/outil/xml-formatter');
+
+    // Create an XML string that is too long (over 100,000 chars)
+    const longXml = '<root>' + '<child>text</child>'.repeat(10000) + '</root>';
+
+    // Fill the XML input
+    await page.fill('#xml-input', longXml);
+
+    // Try to format
+    await page.click('button:has-text("Embellir")');
+
+    // Expect error to be shown
+    const errorAlert = page.locator('div.bg-rose-50');
+    await expect(errorAlert).toBeVisible();
+    await expect(errorAlert).toContainText("L'entrée est trop longue");
+
+    // Clear error
+    await page.click('button:has-text("Effacer")');
+    await expect(errorAlert).not.toBeVisible();
+
+    // Try to minify with too long XML
+    await page.fill('#xml-input', longXml);
+    await page.click('button:has-text("Minifier")');
+    await expect(errorAlert).toBeVisible();
+    await expect(errorAlert).toContainText("L'entrée est trop longue");
+  });
 });

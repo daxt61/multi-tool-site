@@ -73,3 +73,7 @@
 ## 2026-07-22 - [Refining Form Associations and Event Isolation for Strength Tools]
 **Learning:** Generic labels (like "Length" on a password input) degrade screen-reader experiences and confuse search indexing. Additionally, keyboard shortcut mechanisms (like Escape to clear or C to copy) on inputs should prioritize focus checks and keep handlers clean via React's standard `handlersRef` within `useEffect` to prevent collisions.
 **Action:** Always ensure the target form control uses a context-appropriate label (e.g. "Password") and isolate the event listeners to ensure they don't intercept typing when editable fields are focused.
+
+## 2026-07-23 - [Accessibility in Custom Component Groups]
+**Learning:** Custom components like `Command.Group` (from `cmdk`) that utilize helper props like `heading` do not automatically expose these labels to browser accessibility trees as the `group`'s accessible name.
+**Action:** Always provide explicit `aria-label` or `aria-labelledby` attributes alongside rendering headings to ensure screen readers correctly announce the group boundary and play nicely with Playwright role-based selectors.

@@ -4898,7 +4898,7 @@ function CommandMenu({ open, setOpen, onSelect, recentTools = [] }: {
           </Command.Empty>
 
           {recentTools.length > 0 && (
-            <Command.Group heading={t("recent.title")} className="px-2 py-2 text-xs font-bold text-slate-500 uppercase tracking-widest">
+            <Command.Group heading={t("recent.title")} aria-label={t("recent.title")} className="px-2 py-2 text-xs font-bold text-slate-500 uppercase tracking-widest">
               {recentTools.map((tool) => {
                 const name = (currentLang === 'en' && tool.nameEn) ? tool.nameEn : tool.name;
                 return (
@@ -4921,7 +4921,7 @@ function CommandMenu({ open, setOpen, onSelect, recentTools = [] }: {
             </Command.Group>
           )}
 
-          <Command.Group heading={t("category.all")} className="px-2 py-2 text-xs font-bold text-slate-500 uppercase tracking-widest">
+          <Command.Group heading={t("category.all")} aria-label={t("category.all")} className="px-2 py-2 text-xs font-bold text-slate-500 uppercase tracking-widest">
             {tools.map((tool) => {
               const name = (currentLang === 'en' && tool.nameEn) ? tool.nameEn : tool.name;
               return (

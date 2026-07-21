@@ -8,8 +8,8 @@ test('verify recent tools in command menu', async ({ page, baseURL }) => {
   // 2. Go back home
   await page.goto(`${baseURL || 'http://localhost:5173'}/fr`);
 
-  // 3. Open Command Menu (Ctrl+K)
-  await page.keyboard.press('Control+k');
+  // 3. Open Command Menu by clicking the search button
+  await page.getByRole('button', { name: /Ouvrir la recherche/ }).click();
 
   // 4. Check if "Outils Récents" group is present
   const recentGroup = page.getByRole('group', { name: 'Outils Récents' });

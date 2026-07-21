@@ -136,6 +136,7 @@ import {
   Phone,
   Smile,
   Cloud,
+  Keyboard,
 } from "lucide-react";
 import { Toaster } from "./components/ui/sonner";
 import { toast } from "sonner";
@@ -533,6 +534,7 @@ const AnsiEscapeStripper = lazy(() => import("./components/AnsiEscapeStripper").
 const XPathTester = lazy(() => import("./components/XPathTester").then(m => ({ default: m.XPathTester })));
 const JSONToDjango = lazy(() => import("./components/JSONToDjango").then(m => ({ default: m.JSONToDjango })));
 const CSSToTailwind = lazy(() => import("./components/CSSToTailwind").then(m => ({ default: m.CSSToTailwind })));
+const TextTypoGenerator = lazy(() => import("./components/TextTypoGenerator").then(m => ({ default: m.TextTypoGenerator })));
 
 // ⚡ Bolt Optimization: Pre-calculating tool map and search index for O(1) lookups and faster filtering
 const toolsMap: Record<string, Tool> = {};
@@ -4703,6 +4705,17 @@ const tools: Tool[] = [
     Component: XPathTester,
     category: "dev",
     keywords: ["xpath", "xml", "query", "evaluator", "tester", "html", "nodes"],
+  },
+  {
+    id: "text-typo-generator",
+    name: "Générateur de Typos",
+    nameEn: "Text Typo Generator",
+    icon: Keyboard,
+    description: "Générer des fautes de frappe et d'orthographe réalistes",
+    descriptionEn: "Generate realistic typos and keyboard slip-ups",
+    Component: TextTypoGenerator,
+    category: "text",
+    keywords: ["typo", "keyboard", "keyboard slip", "orthographe", "fautes", "misspelling", "fat-finger", "generator"],
   },
 ];
 

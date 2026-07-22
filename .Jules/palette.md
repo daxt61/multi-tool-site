@@ -6,7 +6,7 @@
 **Learning:** Visual-only active states for preset buttons (like tip percentages) do not communicate selection to assistive technologies.
 **Action:** Implement `aria-pressed={isActive}` on all mutually exclusive selection buttons to ensure standard-compliant screen reader feedback.
 
-## 2025-05-30 - [Search Keyboard Shortcuts & Navigation]
+## 2025-03-30 - [Search Keyboard Shortcuts & Navigation]
 **Learning:** Adding standard keyboard shortcuts (Escape to clear, Enter to select first result) to a global search input significantly improves the speed and accessibility for power users. It reduces reliance on mouse interaction for the primary navigation entry point.
 **Action:** Prioritize standard keyboard interaction patterns (Escape/Enter) for search and filter inputs in future tools.
 
@@ -77,3 +77,7 @@
 ## 2026-07-23 - [Accessibility in Custom Component Groups]
 **Learning:** Custom components like `Command.Group` (from `cmdk`) that utilize helper props like `heading` do not automatically expose these labels to browser accessibility trees as the `group`'s accessible name.
 **Action:** Always provide explicit `aria-label` or `aria-labelledby` attributes alongside rendering headings to ensure screen readers correctly announce the group boundary and play nicely with Playwright role-based selectors.
+
+## 2026-07-24 - [Premium Standard for Media Converter Tools]
+**Learning:** Media converters (e.g. Base64-to-Image) often suffer from hardcoded languages and lacks keyboard friendliness. Providing fully localized labels and instructions, associated `htmlFor` attributes, local/global keyboard triggers (`Escape` and `C`) utilizing the `handlersRef` safeguard, and `sonner` success toasts makes these developer-facing tools feel incredibly snappy and production-ready.
+**Action:** Always apply the bilingual translation pattern, robust keyboard event hooks, visual `Kbd` badges, and programmatically restore focus to inputs after a "Clear" action.

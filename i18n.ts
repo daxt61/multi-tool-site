@@ -3498,6 +3498,15 @@ const resources = {
       "listuniquefinder.sort_freq_desc": "Count Descending",
       "listuniquefinder.about_title": "About Find Unique List Items",
       "listuniquefinder.about_text": "An advanced tool to analyze, filter, and extract unique or duplicate elements from text lists. Configure split and join delimiters, toggle case sensitivity, trim spaces, apply occurrence count thresholds, format using custom templates, and sort by counts or alphabetically.",
+      "base64image.input_label": "Base64 Image String",
+      "base64image.placeholder": "Paste your image Base64 code here...",
+      "base64image.error_length": "The string is too long. Limit of {{max}} characters.",
+      "base64image.error_invalid": "Invalid Base64 string or unsupported image format",
+      "base64image.preview_label": "Image Preview",
+      "base64image.copy_data_url": "Copy Data URL",
+      "base64image.about_title": "About Base64 to Image",
+      "base64image.about_text": "Convert Base64 encoded strings into a visual image preview. Supports PNG, JPEG, GIF, WebP, and SVG formats. This tool helps you view and download images from Base64 strings safely and completely locally in your browser.",
+      "base64image.empty_state": "Paste a Base64 string to see the image preview",
     }
   },
   fr: {
@@ -6999,6 +7008,15 @@ const resources = {
       "listuniquefinder.sort_freq_desc": "Fréquence décroissante",
       "listuniquefinder.about_title": "À propos de la recherche d'éléments uniques",
       "listuniquefinder.about_text": "Un outil avancé pour analyser, filtrer et extraire des éléments uniques ou en double des listes de texte. Configurez les séparateurs d'entrée et de sortie, basculez la sensibilité à la casse, supprimez les espaces superflus, appliquez des seuils de fréquence et triez par nombre d'occurrences ou par ordre alphabétique.",
+      "base64image.input_label": "Chaîne Base64 de l'Image",
+      "base64image.placeholder": "Collez votre code Base64 d'image ici...",
+      "base64image.error_length": "La chaîne est trop longue. Limite de {{max}} caractères.",
+      "base64image.error_invalid": "Chaîne Base64 invalide ou format d'image non supporté",
+      "base64image.preview_label": "Aperçu de l'image",
+      "base64image.copy_data_url": "Copier le Data URL",
+      "base64image.about_title": "À propos de Base64 en Image",
+      "base64image.about_text": "Convertissez des chaînes encodées en Base64 en un aperçu d'image visuel. Supporte les formats PNG, JPEG, GIF, WebP et SVG. Cet outil vous aide à afficher et télécharger des images à partir de chaînes Base64 de manière sécurisée et entièrement locale dans votre navigateur.",
+      "base64image.empty_state": "Collez une chaîne Base64 pour voir l'aperçu de l'image",
     }
   }
 };

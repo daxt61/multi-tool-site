@@ -203,6 +203,7 @@ const HTMLEntityConverter = lazy(() => import("./components/HTMLEntityConverter"
 const JSONToTS = lazy(() => import("./components/JSONToTS").then(m => ({ default: m.JSONToTS })));
 const JSONToCPP = lazy(() => import("./components/JSONToCPP").then(m => ({ default: m.JSONToCPP })));
 const ListCleaner = lazy(() => import("./components/ListCleaner").then(m => ({ default: m.ListCleaner })));
+const ListUniqueFinder = lazy(() => import("./components/ListUniqueFinder").then(m => ({ default: m.ListUniqueFinder })));
 const JWTDecoder = lazy(() => import("./components/JWTDecoder").then(m => ({ default: m.JWTDecoder })));
 const CodeMinifier = lazy(() => import("./components/CodeMinifier").then(m => ({ default: m.CodeMinifier })));
 const BinaryTextConverter = lazy(() => import("./components/BinaryTextConverter").then(m => ({ default: m.BinaryTextConverter })));
@@ -1248,6 +1249,17 @@ const tools: Tool[] = [
     Component: ListCleaner,
     category: "text",
     keywords: ["doublons", "tri", "préfixe", "suffixe", "nettoyage", "formatage"],
+  },
+  {
+    id: "list-unique-finder",
+    name: "Trouver les éléments uniques",
+    nameEn: "Find Unique List Items",
+    icon: Fingerprint,
+    description: "Extraire les lignes uniques, doublons et fréquences d'une liste",
+    descriptionEn: "Extract unique lines, duplicates and frequencies from a list",
+    Component: ListUniqueFinder,
+    category: "text",
+    keywords: ["unique", "doublons", "fréquence", "filtre", "list", "compte"],
   },
   {
     id: "nato-translator",

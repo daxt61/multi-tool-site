@@ -3527,7 +3527,16 @@ const resources = {
       "jsonschema.use_text": "Use the generated schema to validate API payloads, automatically generate form UI, construct documentation, or interface validation constraints.",
       "jsonschema.download": "Download Schema",
       "jsonschema.copied": "Copied schema to clipboard!",
-      "jsonschema.error_length": "Input is too long. Limit of {{max}} characters."
+      "jsonschema.error_length": "Input is too long. Limit of {{max}} characters.",
+      "unit_system": "Output Unit",
+      "wrap_selector": "Wrap in CSS Selector",
+      "selector_name": "Selector Name",
+      "tailwind_input_label": "Tailwind Classes",
+      "tailwind_placeholder": "Paste Tailwind CSS classes here... e.g.\nflex items-center justify-between p-4 bg-blue-500 rounded-[12px] text-lg text-white font-bold",
+      "css_output_label": "CSS Declarations",
+      "tailwind_empty_output": "CSS rules will appear here...",
+      "tailwind_about_title": "About Tailwind CSS to CSS Converter",
+      "tailwind_about_text": "This utility reverse-engineers default Tailwind CSS classes back into standard CSS layout and design styles. It processes layouts (flex/grid), dimensions, padding, margins, borders, font weights, colors, positioning, and fully supports arbitrary square-bracket syntax (e.g. w-[250px])."
     }
   },
   fr: {
@@ -7058,7 +7067,16 @@ const resources = {
       "jsonschema.use_text": "Utilisez le schéma généré pour valider les entrées de vos API, générer dynamiquement des formulaires, ou documenter vos structures de données.",
       "jsonschema.download": "Télécharger le Schéma",
       "jsonschema.copied": "Schéma copié dans le presse-papiers !",
-      "jsonschema.error_length": "L'entrée est trop longue. Limite de {{max}} caractères."
+      "jsonschema.error_length": "L'entrée est trop longue. Limite de {{max}} caractères.",
+      "unit_system": "Système d'unités",
+      "wrap_selector": "Envelopper dans un sélecteur CSS",
+      "selector_name": "Nom du sélecteur",
+      "tailwind_input_label": "Classes Tailwind",
+      "tailwind_placeholder": "Collez vos classes Tailwind CSS ici... ex :\nflex items-center justify-between p-4 bg-blue-500 rounded-[12px] text-lg text-white font-bold",
+      "css_output_label": "Déclarations CSS",
+      "tailwind_empty_output": "Les règles CSS apparaîtront ici...",
+      "tailwind_about_title": "À propos du Convertisseur Tailwind CSS en CSS",
+      "tailwind_about_text": "Cet utilitaire recrée les règles CSS standard d'origine à partir de classes Tailwind CSS par défaut. Il prend en charge la mise en page (flex/grid), les dimensions, les marges internes et externes, les bordures, l'épaisseur de police, les couleurs et positionnements, ainsi que la syntaxe de valeur arbitraire entre crochets (ex: w-[250px])."
     }
   }
 };

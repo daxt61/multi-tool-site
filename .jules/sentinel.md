@@ -221,3 +221,8 @@
 **Vulnerability:** The XMLFormatter was vulnerable to client-side Denial of Service (DoS) / browser hanging when attempting to format or minify excessively large XML inputs (e.g. over 100k characters).
 **Learning:** Even though XMLFormatter has depth checks, parsing and rendering massive XML inputs using DOMParser and custom recursive format function on the main thread consumes excessive CPU and memory, hanging the browser UI.
 **Prevention:** Enforce a strict `MAX_LENGTH` input length check (standardized to 100,000 characters) at the start of all format/minify procedures. Provide clear error feedback if the limit is exceeded.
+
+## 2026-07-25 - [Credential and Plaintext Leakage in Substitution Cipher Shared State]
+**Vulnerability:** The SubstitutionCipher component leaked user plaintexts and secret substitution keys in shared URL states. Any shared configuration link created a base64 encoded URL parameter containing these sensitive fields, exposing them in browser history and referrers.
+**Learning:** Security-sensitive tools (like ciphers or generators) that support sharing state must explicitly exclude secrets and user input/plaintext from their state serialization. Only safe, non-sensitive configuration parameters (such as the operation mode) should be serialized.
+**Prevention:** Always verify that security-sensitive state fields are omitted from both state serialization (`onStateChange`) and state restoration (`initialData` properties). Maintain a clear boundary between UI configuration states and cryptographic secrets/user plaintexts.

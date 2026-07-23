@@ -114,4 +114,46 @@ test.describe('Sentinel: URL Leak Prevention', () => {
       expect(decodedData.ssid).toBe(ssid);
     }
   });
+
+  test('SubstitutionCipher does not leak text or key in shared state', async ({ page }) => {
+    await page.goto('http://localhost:5173/fr/outil/substitution-cipher');
+
+    const secretText = 'CONFIDENTIAL INFO';
+    const secretKey = 'ZEBRACDFGHIJKLMNOPQSTUVWXY';
+
+    const keyInput = page.locator('input[type="text"]').first();
+    await keyInput.fill(secretKey);
+
+    const inputArea = page.locator('textarea').first();
+    await inputArea.fill(secretText);
+
+    let sharedUrl = '';
+    await page.exposeFunction('captureClipboardSub', (text: string) => {
+      sharedUrl = text;
+    });
+    await page.evaluate(() => {
+      navigator.clipboard.writeText = async (text: string) => {
+        (window as any).captureClipboardSub(text);
+      };
+    });
+
+    const shareBtn = page.locator('button:has-text("Partager"), button:has-text("Share config")');
+    await shareBtn.waitFor({ state: 'visible' });
+    await shareBtn.click();
+
+    await expect.poll(() => sharedUrl).toContain('data=');
+    const urlObj = new URL(sharedUrl);
+    const data = urlObj.searchParams.get('data');
+
+    if (data) {
+      const decodedData = JSON.parse(decodeURIComponent(Array.prototype.map.call(atob(data), (c: string) => {
+        return '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2);
+      }).join('')));
+
+      // Sentinel: Neither the input plaintext nor the secret substitution key should be shared.
+      expect(decodedData.input).toBeUndefined();
+      expect(decodedData.key).toBeUndefined();
+      expect(decodedData.mode).toBeDefined();
+    }
+  });
 });

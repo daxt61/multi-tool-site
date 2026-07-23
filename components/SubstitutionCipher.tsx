@@ -10,8 +10,8 @@ const ALPHABET = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
 export function SubstitutionCipher({ initialData, onStateChange }: { initialData?: any; onStateChange?: (state: any) => void }) {
   const { t } = useTranslation();
   const textareaRef = useRef<HTMLTextAreaElement>(null);
-  const [input, setInput] = useState(initialData?.input || '');
-  const [key, setKey] = useState(initialData?.key || 'QWERTYUIOPASDFGHJKLZXCVBNM');
+  const [input, setInput] = useState('');
+  const [key, setKey] = useState('QWERTYUIOPASDFGHJKLZXCVBNM');
   const [mode, setMode] = useState<'encrypt' | 'decrypt'>(initialData?.mode || 'encrypt');
   const [copied, setCopied] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -55,8 +55,9 @@ export function SubstitutionCipher({ initialData, onStateChange }: { initialData
   const output = useMemo(() => processText(input, key, mode), [input, key, mode, processText]);
 
   useEffect(() => {
-    onStateChange?.({ input, key, mode });
-  }, [input, key, mode, onStateChange]);
+    // Sentinel: Never share the input (plaintext) or secret key in the URL state.
+    onStateChange?.({ mode });
+  }, [mode, onStateChange]);
 
   const handleRandomizeKey = () => {
     const chars = ALPHABET.split('');

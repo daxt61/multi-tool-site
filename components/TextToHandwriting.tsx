@@ -1,6 +1,9 @@
 import { useState, useEffect, useRef, useCallback } from 'react';
-import { Download, Copy, Trash2, Info, Type, Palette, Move, RotateCcw, PenTool } from 'lucide-react';
+import { Download, Trash2, Info, Palette, RotateCcw, PenTool, AlertCircle } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
+import { getSecureRandomInt } from './ui/crypto';
+
+const MAX_LENGTH = 10000;
 
 export function TextToHandwriting() {
   const { t } = useTranslation();
@@ -12,6 +15,7 @@ export function TextToHandwriting() {
   const [paperType, setPaperType] = useState<'blank' | 'lined' | 'grid'>('lined');
   const [lineSpacing, setLineSpacing] = useState(30);
   const [rotation, setRotate] = useState(0);
+  const [error, setError] = useState<string | null>(null);
 
   const fonts = [
     { name: 'Dancing Script', url: 'https://fonts.googleapis.com/css2?family=Dancing+Script&display=swap' },
@@ -40,6 +44,10 @@ export function TextToHandwriting() {
     // Clear and background
     ctx.fillStyle = '#ffffff';
     ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+    if (text.length > MAX_LENGTH) {
+      return;
+    }
 
     // Draw Paper pattern
     if (paperType === 'lined') {
@@ -74,9 +82,9 @@ export function TextToHandwriting() {
     ctx.rotate((rotation * Math.PI) / 180);
 
     lines.forEach((line) => {
-      // Add subtle random variations to simulate human writing
-      const xVariation = Math.random() * 2;
-      const yVariation = Math.random() * 2;
+      // Add subtle random variations to simulate human writing using cryptographically secure random values
+      const xVariation = getSecureRandomInt(200) / 100;
+      const yVariation = getSecureRandomInt(200) / 100;
       ctx.fillText(line, 40 + xVariation, y + yVariation);
       y += lineSpacing;
     });
@@ -90,6 +98,7 @@ export function TextToHandwriting() {
   }, [drawHandwriting]);
 
   const handleDownload = () => {
+    if (text.length > MAX_LENGTH) return;
     const canvas = canvasRef.current;
     if (!canvas) return;
     const url = canvas.toDataURL('image/png');
@@ -107,16 +116,35 @@ export function TextToHandwriting() {
           <div className="space-y-4">
             <div className="flex justify-between items-center px-1">
               <label className="text-xs font-black uppercase tracking-widest text-slate-400">Content</label>
-              <button onClick={() => setText('')} className="text-rose-500 hover:text-rose-600 transition-colors">
-                <Trash2 className="w-4 h-4" />
-              </button>
+              <div className="flex items-center gap-4">
+                <span className={`text-[10px] font-bold ${text.length > MAX_LENGTH ? 'text-rose-500 font-black animate-pulse' : 'text-slate-400'}`}>
+                  {text.length.toLocaleString()} / {MAX_LENGTH.toLocaleString()}
+                </span>
+                <button onClick={() => { setText(''); setError(null); }} className="text-rose-500 hover:text-rose-600 transition-colors">
+                  <Trash2 className="w-4 h-4" />
+                </button>
+              </div>
             </div>
             <textarea
               value={text}
-              onChange={(e) => setText(e.target.value)}
-              className="w-full h-48 p-4 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl outline-none focus:ring-2 focus:ring-indigo-500/20 transition-all text-sm resize-none"
+              onChange={(e) => {
+                const val = e.target.value;
+                setText(val);
+                if (val.length > MAX_LENGTH) {
+                  setError(t('error.max_length', { max: MAX_LENGTH.toLocaleString() }));
+                } else {
+                  setError(null);
+                }
+              }}
+              className={`w-full h-48 p-4 bg-slate-50 dark:bg-slate-900 border ${error ? 'border-rose-500 ring-rose-500/20' : 'border-slate-200 dark:border-slate-800'} rounded-2xl outline-none focus:ring-2 focus:ring-indigo-500/20 transition-all text-sm resize-none`}
               placeholder="Enter text to convert..."
             />
+            {error && (
+              <div className="bg-rose-50 dark:bg-rose-500/10 border border-rose-200 dark:border-rose-800 p-4 rounded-xl flex items-center gap-3 text-rose-600 dark:text-rose-400 font-bold text-xs animate-in fade-in slide-in-from-top-2">
+                <AlertCircle className="w-4 h-4 shrink-0" />
+                {error}
+              </div>
+            )}
           </div>
 
           <div className="grid grid-cols-2 gap-4">
@@ -195,7 +223,8 @@ export function TextToHandwriting() {
              </h3>
              <button
                onClick={handleDownload}
-               className="px-4 py-2 bg-indigo-600 text-white rounded-xl text-xs font-black uppercase tracking-widest flex items-center gap-2 hover:bg-indigo-700 transition-all shadow-lg shadow-indigo-600/20"
+               disabled={!!error || !text}
+               className="px-4 py-2 bg-indigo-600 text-white rounded-xl text-xs font-black uppercase tracking-widest flex items-center gap-2 hover:bg-indigo-700 transition-all shadow-lg shadow-indigo-600/20 disabled:opacity-50 disabled:cursor-not-allowed"
              >
                <Download className="w-4 h-4" /> Download Image
              </button>
@@ -218,7 +247,7 @@ export function TextToHandwriting() {
             <Info className="w-4 h-4 text-indigo-500" /> Humanized Variations
           </h4>
           <p className="text-sm text-slate-500 dark:text-slate-400 leading-relaxed">
-            The generator adds small random offsets to each line and character to simulate the natural inconsistency of human handwriting.
+            The generator adds small random offsets to each line and character to simulate the natural inconsistency of human handwriting using cryptographically secure random numbers.
           </p>
         </div>
         <div className="space-y-4">

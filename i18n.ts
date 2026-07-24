@@ -3536,7 +3536,12 @@ const resources = {
       "css_output_label": "CSS Declarations",
       "tailwind_empty_output": "CSS rules will appear here...",
       "tailwind_about_title": "About Tailwind CSS to CSS Converter",
-      "tailwind_about_text": "This utility reverse-engineers default Tailwind CSS classes back into standard CSS layout and design styles. It processes layouts (flex/grid), dimensions, padding, margins, borders, font weights, colors, positioning, and fully supports arbitrary square-bracket syntax (e.g. w-[250px])."
+      "tailwind_about_text": "This utility reverse-engineers default Tailwind CSS classes back into standard CSS layout and design styles. It processes layouts (flex/grid), dimensions, padding, margins, borders, font weights, colors, positioning, and fully supports arbitrary square-bracket syntax (e.g. w-[250px]).",
+      "utf8bytes.direction_encode": "Text to Bytes",
+      "utf8bytes.direction_decode": "Bytes to Text",
+      "utf8bytes.format": "Byte Format",
+      "utf8bytes.about_title": "About UTF-8 to Bytes Converter",
+      "utf8bytes.about_text": "UTF-8 is a variable-width character encoding used for electronic communication. It can represent every character in the Unicode character set, including emojis and international characters. This tool lets you convert any UTF-8 string into its raw byte representation in Hexadecimal, Decimal, Binary, or Octal format, or perform the reverse transformation. No data is sent to any server; all conversions are completed completely in your browser."
     }
   },
   fr: {
@@ -7076,7 +7081,12 @@ const resources = {
       "css_output_label": "Déclarations CSS",
       "tailwind_empty_output": "Les règles CSS apparaîtront ici...",
       "tailwind_about_title": "À propos du Convertisseur Tailwind CSS en CSS",
-      "tailwind_about_text": "Cet utilitaire recrée les règles CSS standard d'origine à partir de classes Tailwind CSS par défaut. Il prend en charge la mise en page (flex/grid), les dimensions, les marges internes et externes, les bordures, l'épaisseur de police, les couleurs et positionnements, ainsi que la syntaxe de valeur arbitraire entre crochets (ex: w-[250px])."
+      "tailwind_about_text": "Cet utilitaire recrée les règles CSS standard d'origine à partir de classes Tailwind CSS par défaut. Il prend en charge la mise en page (flex/grid), les dimensions, les marges internes et externes, les bordures, l'épaisseur de police, les couleurs et positionnements, ainsi que la syntaxe de valeur arbitraire entre crochets (ex: w-[250px]).",
+      "utf8bytes.direction_encode": "Texte en Octets",
+      "utf8bytes.direction_decode": "Octets en Texte",
+      "utf8bytes.format": "Format des Octets",
+      "utf8bytes.about_title": "À propos du Convertisseur UTF-8 en Octets",
+      "utf8bytes.about_text": "L'UTF-8 est un codage de caractères de largeur variable utilisé pour la communication électronique. Il peut représenter chaque caractère du jeu de caractères Unicode, y compris les émojis et les caractères internationaux. Cet outil vous permet de convertir n'importe quelle chaîne UTF-8 en sa représentation d'octets brute au format hexadécimal, décimal, binaire ou octal, ou d'effectuer la transformation inverse. Aucune donnée n'est envoyée à un serveur ; toutes les conversions sont effectuées entièrement dans votre navigateur."
     }
   }
 };

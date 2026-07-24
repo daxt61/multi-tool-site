@@ -1,6 +1,8 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { Search, Info, AlertCircle, Copy, Check, Flag, Loader2 } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
+import { toast } from 'sonner';
+import { Kbd } from './ui/Kbd';
 
 interface MatchResult {
   index: number;
@@ -48,6 +50,7 @@ export function RegExTester({ initialData, onStateChange }: { initialData?: any;
 
   const backdropRef = useRef<HTMLDivElement>(null);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
+  const regexInputRef = useRef<HTMLInputElement>(null);
   const workerRef = useRef<Worker | null>(null);
   const workerUrlRef = useRef<string | null>(null);
   const executionTimerId = useRef<any>(null);
@@ -134,6 +137,7 @@ export function RegExTester({ initialData, onStateChange }: { initialData?: any;
   const handleCopy = () => {
     navigator.clipboard.writeText(regex);
     setCopied(true);
+    toast.success(t('regextester.regex_copied') || 'Regex pattern copied to clipboard!');
     setTimeout(() => setCopied(false), 2000);
   };
 
@@ -142,8 +146,52 @@ export function RegExTester({ initialData, onStateChange }: { initialData?: any;
     const list = matches.map(m => m.text).join('\n');
     navigator.clipboard.writeText(list);
     setMatchesCopied(true);
+    toast.success(t('regextester.matches_copied_toast') || 'All matches copied to clipboard!');
     setTimeout(() => setMatchesCopied(false), 2000);
   };
+
+  // Keyboard Event Safeguard Refs-backed handler
+  const handlersRef = useRef({
+    onClear: () => {
+      setRegex('');
+      setTestText('');
+      setMatches([]);
+      setError(null);
+      regexInputRef.current?.focus();
+    },
+    onCopy: handleCopy
+  });
+
+  useEffect(() => {
+    handlersRef.current = {
+      onClear: () => {
+        setRegex('');
+        setTestText('');
+        setMatches([]);
+        setError(null);
+        regexInputRef.current?.focus();
+      },
+      onCopy: handleCopy
+    };
+  });
+
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      const target = e.target as HTMLElement;
+      if (target?.tagName === "INPUT" || target?.tagName === "TEXTAREA" || target?.isContentEditable) {
+        return;
+      }
+      if (e.key === "Escape") {
+        e.preventDefault();
+        handlersRef.current.onClear();
+      } else if (e.key.toLowerCase() === "c" && !e.ctrlKey && !e.metaKey && !e.altKey) {
+        e.preventDefault();
+        handlersRef.current.onCopy();
+      }
+    };
+    window.addEventListener("keydown", handleKeyDown);
+    return () => window.removeEventListener("keydown", handleKeyDown);
+  }, []);
 
   const renderHighlightedText = () => {
     if (error || !regex || matches.length === 0) {
@@ -189,11 +237,11 @@ export function RegExTester({ initialData, onStateChange }: { initialData?: any;
   };
 
   const availableFlags = [
-    { char: 'g', name: 'Global' },
+    { char: 'g', name: t('regextester.flag_g') || 'Global' },
     { char: 'i', name: t('regextester.flag_i') },
-    { char: 'm', name: 'Multiligne' },
-    { char: 's', name: 'DotAll' },
-    { char: 'u', name: 'Unicode' },
+    { char: 'm', name: t('regextester.flag_m') || 'Multiligne' },
+    { char: 's', name: t('regextester.flag_s') || 'DotAll' },
+    { char: 'u', name: t('regextester.flag_u') || 'Unicode' },
   ];
 
   const PATTERN_LIBRARY = [
@@ -232,12 +280,22 @@ export function RegExTester({ initialData, onStateChange }: { initialData?: any;
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
         {/* Left Column: Editor */}
         <div className="lg:col-span-7 space-y-6">
-          <div className="bg-slate-50 dark:bg-slate-900/50 p-6 rounded-[2.5rem] border border-slate-200 dark:border-slate-800 space-y-4">
+          <div className="bg-slate-50 dark:bg-slate-900/50 p-6 md:p-8 rounded-[2.5rem] border border-slate-200 dark:border-slate-800 space-y-4">
             <div className="flex justify-between items-center px-1">
               <label htmlFor="regex-input" className="text-xs font-black uppercase tracking-widest text-slate-400">{t('regextester.regex_input')}</label>
-              <button onClick={handleCopy} className="text-xs font-bold text-indigo-500 flex items-center gap-1">
-                {copied ? <Check className="w-3 h-3" /> : <Copy className="w-3 h-3" />} {copied ? t('common.copied') : t('common.copy')}
-              </button>
+              <div className="flex items-center gap-3">
+                <span className="flex items-center gap-1 text-[11px] font-bold text-slate-400">
+                  <Kbd modifier={null} className="bg-white dark:bg-slate-800 border-slate-200 dark:border-slate-700 text-slate-400">Esc</Kbd>
+                  {t('common.clear') || 'Clear'}
+                </span>
+                <span className="flex items-center gap-1 text-[11px] font-bold text-slate-400">
+                  <Kbd modifier={null} className="bg-white dark:bg-slate-800 border-slate-200 dark:border-slate-700 text-slate-400">C</Kbd>
+                  {t('common.copy') || 'Copy'}
+                </span>
+                <button onClick={handleCopy} className="text-xs font-bold text-indigo-500 flex items-center gap-1">
+                  {copied ? <Check className="w-3 h-3" /> : <Copy className="w-3 h-3" />} {copied ? t('common.copied') : t('common.copy')}
+                </button>
+              </div>
             </div>
             <div className="relative group">
               <div className="absolute inset-y-0 left-4 flex items-center pointer-events-none">
@@ -245,11 +303,14 @@ export function RegExTester({ initialData, onStateChange }: { initialData?: any;
               </div>
               <input
                 id="regex-input"
+                ref={regexInputRef}
                 type="text"
+                autoComplete="off"
+                spellCheck={false}
                 value={regex}
                 onChange={(e) => setRegex(e.target.value)}
                 className={`w-full pl-8 pr-20 py-4 bg-white dark:bg-slate-900 border ${error ? 'border-rose-500 ring-rose-500/20' : 'border-slate-200 dark:border-slate-800 focus:ring-indigo-500/20'} rounded-2xl font-mono text-lg outline-none focus:ring-2 transition-all dark:text-white`}
-                placeholder="Entrez votre regex ici..."
+                placeholder={t('regextester.regex_placeholder') || "Enter regex pattern..."}
               />
               <div className="absolute inset-y-0 right-4 flex items-center pointer-events-none">
                 <span className="text-slate-400 font-mono text-lg">/{flags}</span>
@@ -262,7 +323,7 @@ export function RegExTester({ initialData, onStateChange }: { initialData?: any;
             )}
           </div>
 
-          <div className="bg-white dark:bg-slate-900/40 p-6 rounded-[2.5rem] border border-slate-200 dark:border-slate-800 space-y-4 relative">
+          <div className="bg-white dark:bg-slate-900/40 p-6 md:p-8 rounded-[2.5rem] border border-slate-200 dark:border-slate-800 space-y-4 relative">
              <div className="flex justify-between items-center px-1">
               <label htmlFor="test-text" className="text-xs font-black uppercase tracking-widest text-slate-400">{t('regextester.test_text_input')}</label>
               <div className="flex items-center gap-4">
@@ -298,6 +359,8 @@ export function RegExTester({ initialData, onStateChange }: { initialData?: any;
               <textarea
                 id="test-text"
                 ref={textareaRef}
+                autoComplete="off"
+                spellCheck={false}
                 value={testText}
                 onChange={(e) => setTestText(e.target.value)}
                 onScroll={syncScroll}

@@ -538,6 +538,7 @@ const CSSToTailwind = lazy(() => import("./components/CSSToTailwind").then(m => 
 const TailwindToCSS = lazy(() => import("./components/TailwindToCSS").then(m => ({ default: m.TailwindToCSS })));
 const TextTypoGenerator = lazy(() => import("./components/TextTypoGenerator").then(m => ({ default: m.TextTypoGenerator })));
 const UTF8ToBytes = lazy(() => import("./components/UTF8ToBytes").then(m => ({ default: m.UTF8ToBytes })));
+const TOTPGenerator = lazy(() => import("./components/TOTPGenerator").then(m => ({ default: m.TOTPGenerator })));
 
 // ⚡ Bolt Optimization: Pre-calculating tool map and search index for O(1) lookups and faster filtering
 const toolsMap: Record<string, Tool> = {};
@@ -4752,6 +4753,17 @@ const tools: Tool[] = [
     Component: UTF8ToBytes,
     category: "dev",
     keywords: ["utf8", "bytes", "hex", "binary", "octal", "decimal", "encoder", "decoder", "converter", "unicode"],
+  },
+  {
+    id: "totp-generator",
+    name: "Générateur TOTP",
+    nameEn: "TOTP Generator",
+    icon: ShieldCheck,
+    description: "Générer et valider des codes de sécurité à double facteur (2FA) selon les protocoles de temps standard",
+    descriptionEn: "Generate and validate time-based double factor (2FA) security codes complying with standard time-based protocols",
+    Component: TOTPGenerator,
+    category: "dev",
+    keywords: ["totp", "otp", "2fa", "authenticator", "mfa", "security", "google authenticator", "rfc6238", "double factor"],
   },
 ];
 

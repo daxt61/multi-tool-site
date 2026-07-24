@@ -537,6 +537,7 @@ const JSONToDjango = lazy(() => import("./components/JSONToDjango").then(m => ({
 const CSSToTailwind = lazy(() => import("./components/CSSToTailwind").then(m => ({ default: m.CSSToTailwind })));
 const TailwindToCSS = lazy(() => import("./components/TailwindToCSS").then(m => ({ default: m.TailwindToCSS })));
 const TextTypoGenerator = lazy(() => import("./components/TextTypoGenerator").then(m => ({ default: m.TextTypoGenerator })));
+const UTF8ToBytes = lazy(() => import("./components/UTF8ToBytes").then(m => ({ default: m.UTF8ToBytes })));
 
 // ⚡ Bolt Optimization: Pre-calculating tool map and search index for O(1) lookups and faster filtering
 const toolsMap: Record<string, Tool> = {};
@@ -4740,6 +4741,17 @@ const tools: Tool[] = [
     Component: TextTypoGenerator,
     category: "text",
     keywords: ["typo", "keyboard", "keyboard slip", "orthographe", "fautes", "misspelling", "fat-finger", "generator"],
+  },
+  {
+    id: "utf8-to-bytes",
+    name: "Convertisseur UTF-8 en Octets",
+    nameEn: "UTF-8 to Bytes Converter",
+    icon: Binary,
+    description: "Convertir du texte UTF-8 en octets (Hex, Décimal, Binaire, Octal) et inversement",
+    descriptionEn: "Convert UTF-8 text to bytes (Hex, Decimal, Binary, Octal) and vice-versa",
+    Component: UTF8ToBytes,
+    category: "dev",
+    keywords: ["utf8", "bytes", "hex", "binary", "octal", "decimal", "encoder", "decoder", "converter", "unicode"],
   },
 ];
 

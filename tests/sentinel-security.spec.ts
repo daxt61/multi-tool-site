@@ -73,4 +73,29 @@ test.describe('Sentinel Security Fixes', () => {
     await expect(errorAlert).toBeVisible();
     await expect(errorAlert).toContainText("L'entrée est trop longue");
   });
+
+  test('TextToHandwriting enforces MAX_LENGTH and shows error', async ({ page }) => {
+    await page.goto('http://localhost:5173/en/outil/text-to-handwriting');
+
+    // Make sure we loaded correctly
+    await expect(page.locator('canvas')).toBeVisible();
+
+    // Fill textarea with more than 10,000 characters
+    const longText = 'a'.repeat(10005);
+    await page.fill('textarea', longText);
+
+    // Verify error is displayed
+    const errorAlert = page.locator('div.bg-rose-50');
+    await expect(errorAlert).toBeVisible();
+    await expect(errorAlert).toContainText("Input is too long. Limit of 10,000 characters.");
+
+    // Verify Download button is disabled
+    const downloadBtn = page.locator('button:has-text("Download Image")');
+    await expect(downloadBtn).toBeDisabled();
+
+    // Clear text
+    await page.click('button:has(svg.lucide-trash2)');
+    await expect(errorAlert).not.toBeVisible();
+    await expect(downloadBtn).toBeDisabled(); // should still be disabled because input is empty
+  });
 });

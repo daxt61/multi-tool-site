@@ -226,3 +226,8 @@
 **Vulnerability:** The SubstitutionCipher component leaked user plaintexts and secret substitution keys in shared URL states. Any shared configuration link created a base64 encoded URL parameter containing these sensitive fields, exposing them in browser history and referrers.
 **Learning:** Security-sensitive tools (like ciphers or generators) that support sharing state must explicitly exclude secrets and user input/plaintext from their state serialization. Only safe, non-sensitive configuration parameters (such as the operation mode) should be serialized.
 **Prevention:** Always verify that security-sensitive state fields are omitted from both state serialization (`onStateChange`) and state restoration (`initialData` properties). Maintain a clear boundary between UI configuration states and cryptographic secrets/user plaintexts.
+
+## 2026-07-26 - [Client-side DoS in Text to Handwriting Generator]
+**Vulnerability:** The TextToHandwriting component allowed users to input text of arbitrary length, which was split and rendered onto a canvas. Large inputs could freeze or crash the browser.
+**Learning:** Tools utilizing the Canvas API for sequential rendering/computations are highly susceptible to client-side Denial of Service (DoS) if the input size is unbounded.
+**Prevention:** Enforce a strict `MAX_LENGTH` limit on the input, and conditionally stop the rendering loop and disable actions if the limit is exceeded.

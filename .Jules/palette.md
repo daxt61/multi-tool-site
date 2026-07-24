@@ -1,3 +1,7 @@
+## 2026-07-25 - [Programmatic Focus on Component Reset Action]
+**Learning:** When users reset or clear interactive settings fields (e.g. a TOTP secret key) or validate dynamic forms, providing visual/auditory feedback via a success toast and returning focus programmatically to the main input field maintains a clean and delightful UX, avoiding accessibility "focus drops".
+**Action:** Always provide a visual Reset action next to configuration parameters, throw a Sonner success toast on click, and programmatically restore focus to the primary input field.
+
 ## 2025-05-15 - [Keyboard Visibility for Hover-Only Elements]
 **Learning:** Elements hidden with `opacity-0` and revealed via `group-hover:opacity-100` are invisible to keyboard users when focused, making critical utilities (like Copy) inaccessible.
 **Action:** Always pair `md:group-hover:opacity-100` with `md:focus-visible:opacity-100` and ensure a higher `z-index` (e.g., `z-20`) so the focus ring is not obscured by surrounding container borders.

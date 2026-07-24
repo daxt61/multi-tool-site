@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef, useMemo } from "react";
-import { Key, RefreshCw, Check, Copy, ShieldCheck, ShieldAlert, Play, Clock, Sparkles } from "lucide-react";
+import { Key, RefreshCw, Check, Copy, ShieldCheck, ShieldAlert, Play, Clock, Sparkles, RotateCcw } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import { toast } from "sonner";
 import { Kbd } from "./ui/Kbd";
@@ -199,6 +199,18 @@ export function TOTPGenerator() {
   const [copiedToken, setCopiedToken] = useState(false);
   const [copiedSecret, setCopiedSecret] = useState(false);
 
+  const secretInputRef = useRef<HTMLInputElement>(null);
+
+  const handleReset = () => {
+    setSecret("");
+    setTestToken("");
+    setValidationResult("idle");
+    toast.success(t("common.reset") || "Reset completed");
+    setTimeout(() => {
+      secretInputRef.current?.focus();
+    }, 0);
+  };
+
   // Generate safe cryptographically secure Base32 secret on mount
   useEffect(() => {
     handleGenerateSecret();
@@ -300,21 +312,13 @@ export function TOTPGenerator() {
 
   // Keyboard shortcut patterns (useRef backing safeguard)
   const handlersRef = useRef({
-    onClear: () => {
-      setSecret("");
-      setTestToken("");
-      setValidationResult("idle");
-    },
+    onClear: handleReset,
     onCopy: handleCopyToken
   });
 
   useEffect(() => {
     handlersRef.current = {
-      onClear: () => {
-        setSecret("");
-        setTestToken("");
-        setValidationResult("idle");
-      },
+      onClear: handleReset,
       onCopy: handleCopyToken
     };
   });
@@ -398,10 +402,18 @@ export function TOTPGenerator() {
                     {copiedSecret ? <Check className="w-3 h-3 text-emerald-500" /> : <Copy className="w-3 h-3" />}
                     {copiedSecret ? t("common.copied") : t("common.copy")}
                   </button>
+                  <button
+                    onClick={handleReset}
+                    className="text-xs font-bold text-rose-500 hover:text-rose-600 flex items-center gap-1 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-rose-500"
+                  >
+                    <RotateCcw className="w-3.5 h-3.5" />
+                    {t("common.reset")}
+                  </button>
                 </div>
               </div>
               <input
                 id="secret-input"
+                ref={secretInputRef}
                 type="text"
                 autoComplete="off"
                 spellCheck={false}

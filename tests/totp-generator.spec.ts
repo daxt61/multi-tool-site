@@ -43,4 +43,19 @@ test('verify TOTPGenerator functionalities', async ({ page }) => {
   // Failed banner must be visible because 111111 is incorrect
   const failBanner = page.locator('span:has-text("Échec de la validation")');
   await expect(failBanner).toBeVisible();
+
+  // Verify Reset functionality
+  const resetBtn = page.locator('button:has-text("Réinitialiser")');
+  await expect(resetBtn).toBeVisible();
+  await resetBtn.click();
+
+  // The secret input should be empty
+  await expect(secretInput).toHaveValue('');
+
+  // The focus should be restored to the secret input
+  await expect(secretInput).toBeFocused();
+
+  // The success toast should appear
+  const resetToast = page.locator('li[data-sonner-toast]').filter({ hasText: 'Réinitialiser' });
+  await expect(resetToast).toBeVisible();
 });

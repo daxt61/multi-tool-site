@@ -212,6 +212,7 @@ const UnitPriceCalculator = lazy(() => import("./components/UnitPriceCalculator"
 const AgeCalculator = lazy(() => import("./components/AgeCalculator").then(m => ({ default: m.AgeCalculator })));
 const ColorPaletteGenerator = lazy(() => import("./components/ColorPaletteGenerator").then(m => ({ default: m.ColorPaletteGenerator })));
 const RegExTester = lazy(() => import("./components/RegExTester").then(m => ({ default: m.RegExTester })));
+const RegexExtractor = lazy(() => import("./components/RegexExtractor").then(m => ({ default: m.RegexExtractor })));
 const UserAgentAnalyzer = lazy(() => import("./components/UserAgentAnalyzer").then(m => ({ default: m.UserAgentAnalyzer })));
 const SlugGenerator = lazy(() => import("./components/SlugGenerator").then(m => ({ default: m.SlugGenerator })));
 const Metronome = lazy(() => import("./components/Metronome").then(m => ({ default: m.Metronome })));
@@ -1494,6 +1495,17 @@ const tools: Tool[] = [
     descriptionEn: "Regular expression tester",
     Component: RegExTester,
     category: "dev",
+  },
+  {
+    id: "regex-extractor",
+    name: "Extracteur RegEx",
+    nameEn: "RegEx Extractor",
+    icon: Scissors,
+    description: "Extraire, formater et dédupliquer des correspondances d'expressions régulières",
+    descriptionEn: "Extract, format, and deduplicate regular expression matches",
+    Component: RegexExtractor,
+    category: "dev",
+    keywords: ["regex", "extraction", "match", "capture group", "pattern", "parse"],
   },
   {
     id: "utm-builder",

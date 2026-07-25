@@ -1,3 +1,7 @@
+## 2026-07-25 - [Inclusive Multi-Language Keyboard Shortcuts and Form Controls]
+**Learning:** Developer-facing generation utilities like Robots.txt often use complex multi-faceted inputs that lack proper label-to-input mapping and multi-language support. Pairing local keyboard triggers (`Escape` for reset, `C` for copy) with a `handlersRef` safeguard, clear programmatic focus restoration on clearing, and global `sonner` success toasts makes the tool feel incredibly smooth and accessible.
+**Action:** Always map complex input controls using standard `htmlFor` and unique sequential ID variables, supply helpful `<Kbd>` visual hotkey badges, and implement the programmatic focus restoration pattern on form reset.
+
 ## 2025-05-15 - [Keyboard Visibility for Hover-Only Elements]
 **Learning:** Elements hidden with `opacity-0` and revealed via `group-hover:opacity-100` are invisible to keyboard users when focused, making critical utilities (like Copy) inaccessible.
 **Action:** Always pair `md:group-hover:opacity-100` with `md:focus-visible:opacity-100` and ensure a higher `z-index` (e.g., `z-20`) so the focus ring is not obscured by surrounding container borders.

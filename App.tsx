@@ -231,6 +231,7 @@ const JSONSchemaGenerator = lazy(() => import("./components/JSONSchemaGenerator"
 const ZodSchemaGenerator = lazy(() => import("./components/ZodSchemaGenerator").then(m => ({ default: m.ZodSchemaGenerator })));
 const SubnetCalculator = lazy(() => import("./components/SubnetCalculator").then(m => ({ default: m.SubnetCalculator })));
 const TimezoneConverter = lazy(() => import("./components/TimezoneConverter").then(m => ({ default: m.TimezoneConverter })));
+const SemVerAnalyzer = lazy(() => import("./components/SemVerAnalyzer").then(m => ({ default: m.SemVerAnalyzer })));
 const DownloadTimeCalculator = lazy(() => import("./components/DownloadTimeCalculator").then(m => ({ default: m.DownloadTimeCalculator })));
 const FreelanceTaxCalculator = lazy(() => import("./components/FreelanceTaxCalculator").then(m => ({ default: m.FreelanceTaxCalculator })));
 const SleepCalculator = lazy(() => import("./components/SleepCalculator").then(m => ({ default: m.SleepCalculator })));
@@ -1359,6 +1360,17 @@ const tools: Tool[] = [
     Component: ZodSchemaGenerator,
     category: "dev",
     keywords: ["typescript", "validation", "zod", "schema", "json"],
+  },
+  {
+    id: "semver-analyzer",
+    name: "Analyseur SemVer",
+    nameEn: "SemVer Analyzer",
+    icon: Tag,
+    description: "Valider, comparer et incrémenter des versions SemVer 2.0.0",
+    descriptionEn: "Validate, compare and increment SemVer 2.0.0 versions",
+    Component: SemVerAnalyzer,
+    category: "dev",
+    keywords: ["semver", "version", "tag", "npm", "package", "range", "comparator"],
   },
   {
     id: "yup-schema",

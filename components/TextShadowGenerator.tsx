@@ -1,6 +1,9 @@
 import { useState, useEffect } from 'react';
 import { Type, Plus, Trash2, Copy, Check, Info, RotateCcw, ChevronUp, ChevronDown } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
+import { getSecureRandomInt } from './ui/crypto';
+
+const MAX_LENGTH = 500;
 
 interface Shadow {
   id: string;
@@ -16,7 +19,7 @@ export function TextShadowGenerator({ initialData, onStateChange }: { initialDat
   const [shadows, setShadows] = useState<Shadow[]>(initialData?.shadows || [
     { id: '1', x: 2, y: 2, blur: 4, color: '#000000', opacity: 0.5 }
   ]);
-  const [previewText, setPreviewText] = useState(initialData?.previewText || 'Hello World');
+  const [previewText, setPreviewText] = useState((initialData?.previewText || 'Hello World').slice(0, MAX_LENGTH));
   const [textColor, setTextColor] = useState(initialData?.textColor || '#4f46e5');
   const [fontSize, setFontSize] = useState(initialData?.fontSize || 64);
   const [copied, setCopied] = useState(false);
@@ -27,7 +30,7 @@ export function TextShadowGenerator({ initialData, onStateChange }: { initialDat
 
   const addShadow = () => {
     const newShadow: Shadow = {
-      id: typeof crypto !== 'undefined' && crypto.randomUUID ? crypto.randomUUID() : Math.random().toString(36).substr(2, 9),
+      id: typeof crypto !== 'undefined' && crypto.randomUUID ? crypto.randomUUID() : `fallback-${getSecureRandomInt(1000000)}`,
       x: 0,
       y: 0,
       blur: 5,
@@ -72,6 +75,7 @@ export function TextShadowGenerator({ initialData, onStateChange }: { initialDat
     setShadows([{ id: '1', x: 2, y: 2, blur: 4, color: '#000000', opacity: 0.5 }]);
     setTextColor('#4f46e5');
     setFontSize(64);
+    setPreviewText('Hello World');
   };
 
   return (
@@ -89,9 +93,14 @@ export function TextShadowGenerator({ initialData, onStateChange }: { initialDat
 
             <div className="space-y-4">
               <div className="space-y-2">
-                <label className="text-[10px] font-black uppercase tracking-widest text-slate-500">{t('textshadow.preview_text')}</label>
+                <div className="flex justify-between items-center">
+                  <label htmlFor="preview-text-input" className="text-[10px] font-black uppercase tracking-widest text-slate-500">{t('textshadow.preview_text')}</label>
+                  <span className="text-[9px] text-slate-400 font-bold">{previewText.length} / {MAX_LENGTH}</span>
+                </div>
                 <input
+                  id="preview-text-input"
                   type="text"
+                  maxLength={MAX_LENGTH}
                   value={previewText}
                   onChange={(e) => setPreviewText(e.target.value)}
                   className="w-full p-3 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl outline-none focus:ring-2 focus:ring-indigo-500/20"

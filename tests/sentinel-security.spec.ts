@@ -98,4 +98,29 @@ test.describe('Sentinel Security Fixes', () => {
     await expect(errorAlert).not.toBeVisible();
     await expect(downloadBtn).toBeDisabled(); // should still be disabled because input is empty
   });
+
+  test('TextShadowGenerator enforces MAX_LENGTH (500 chars) natively on preview text input', async ({ page }) => {
+    await page.goto('http://localhost:5173/en/outil/text-shadow');
+
+    // Make sure we loaded correctly
+    const inputField = page.locator('#preview-text-input');
+    await expect(inputField).toBeVisible();
+
+    // Fill input with 505 characters
+    const longText = 'a'.repeat(505);
+    await page.fill('#preview-text-input', longText);
+
+    // Verify input is natively capped at 500 characters
+    const val = await inputField.inputValue();
+    expect(val.length).toBe(500);
+
+    // Verify character count indicator displays '500 / 500'
+    const charCounter = page.locator('span:has-text("500 / 500")');
+    await expect(charCounter).toBeVisible();
+
+    // Clear/Reset and verify input contains 'Hello World' (default text after reset)
+    await page.click('button[aria-label="Reset"], button[aria-label="Réinitialiser"]');
+    const valAfterReset = await inputField.inputValue();
+    expect(valAfterReset).toBe('Hello World');
+  });
 });

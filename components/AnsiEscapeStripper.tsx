@@ -44,13 +44,13 @@ export function AnsiEscapeStripper({ initialData, onStateChange }: { initialData
     }
   })();
 
-  const handleCopy = () => {
+  const handleCopy = useCallback(() => {
     if (!processedOutput) return;
     navigator.clipboard.writeText(processedOutput);
     setCopied(true);
     setTimeout(() => setCopied(false), 2000);
     toast.success(t('common.copied', 'Copied to clipboard!'));
-  };
+  }, [processedOutput, t]);
 
   const handleClear = useCallback(() => {
     setInput('');
@@ -78,6 +78,40 @@ export function AnsiEscapeStripper({ initialData, onStateChange }: { initialData
     setError(null);
     setInput(val);
   };
+
+  // Keyboard shortcut handlers pattern with handlersRef to prevent stale closures
+  const handlersRef = useRef({ handleCopy, handleClear });
+  useEffect(() => {
+    handlersRef.current = { handleCopy, handleClear };
+  }, [handleCopy, handleClear]);
+
+  useEffect(() => {
+    const handleGlobalKeyDown = (e: KeyboardEvent) => {
+      const activeEl = document.activeElement;
+      const isEditable = activeEl && (
+        activeEl.tagName === 'INPUT' ||
+        activeEl.tagName === 'TEXTAREA' ||
+        activeEl.getAttribute('contenteditable') === 'true'
+      );
+
+      // C to copy output (only when not typing in editable element)
+      if (e.key.toLowerCase() === 'c' && !e.ctrlKey && !e.metaKey && !e.altKey && !isEditable) {
+        e.preventDefault();
+        handlersRef.current.handleCopy();
+      }
+
+      // Escape to clear (only when not typing, or when typing inside this specific component's textarea)
+      if (e.key === 'Escape') {
+        if (!isEditable || activeEl === inputRef.current) {
+          e.preventDefault();
+          handlersRef.current.handleClear();
+        }
+      }
+    };
+
+    window.addEventListener('keydown', handleGlobalKeyDown);
+    return () => window.removeEventListener('keydown', handleGlobalKeyDown);
+  }, []);
 
   // Local Keyboard Shortcuts (Escape to clear on input)
   const handleKeyDown = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
@@ -111,7 +145,7 @@ export function AnsiEscapeStripper({ initialData, onStateChange }: { initialData
               >
                 <Trash2 className="w-3.5 h-3.5" />
                 {t('common.clear', 'Clear')}
-                <Kbd modifier={null}>Esc</Kbd>
+                <Kbd modifier={null} className="ml-1 select-none">Esc</Kbd>
               </button>
             </div>
           </div>
@@ -130,23 +164,24 @@ export function AnsiEscapeStripper({ initialData, onStateChange }: { initialData
         {/* Output */}
         <div className="space-y-4">
           <div className="flex justify-between items-center px-1">
-            <span className="text-xs font-black uppercase tracking-widest text-slate-400 flex items-center gap-2">
+            <label htmlFor="ansi-output" className="text-xs font-black uppercase tracking-widest text-slate-400 flex items-center gap-2">
               <Terminal className="w-4 h-4 text-emerald-500" /> {t('ansiescapestripper.output_label', 'Stripped output')}
-            </span>
-            <div className="flex gap-2">
+            </label>
+            <div className="flex gap-2 items-center">
               <button
                 onClick={handleCopy}
                 disabled={!processedOutput}
-                className="p-2 text-slate-400 hover:text-indigo-500 transition-colors disabled:opacity-30"
+                className="p-2 text-slate-400 hover:text-indigo-500 transition-colors disabled:opacity-30 flex items-center gap-1.5 focus-visible:ring-2 focus-visible:ring-indigo-500 rounded-lg"
                 aria-label={t('common.copy', 'Copy')}
                 title={t('common.copy', 'Copy')}
               >
-                {copied ? <Check className="w-4 h-4" /> : <Copy className="w-4 h-4" />}
+                {copied ? <Check className="w-4 h-4 text-emerald-500" /> : <Copy className="w-4 h-4" />}
+                <Kbd modifier={null} className="select-none">C</Kbd>
               </button>
               <button
                 onClick={handleDownload}
                 disabled={!processedOutput}
-                className="p-2 text-slate-400 hover:text-emerald-500 transition-colors disabled:opacity-30"
+                className="p-2 text-slate-400 hover:text-emerald-500 transition-colors disabled:opacity-30 focus-visible:ring-2 focus-visible:ring-emerald-500 rounded-lg"
                 aria-label={t('common.download', 'Download')}
                 title={t('common.download', 'Download')}
               >
@@ -173,7 +208,7 @@ export function AnsiEscapeStripper({ initialData, onStateChange }: { initialData
           </div>
 
           <div className="space-y-3">
-            <label className="text-[10px] font-bold text-slate-400 uppercase px-1">{t('ansiescapestripper.mode_label', 'Stripping Mode')}</label>
+            <span className="block text-[10px] font-bold text-slate-400 uppercase px-1">{t('ansiescapestripper.mode_label', 'Stripping Mode')}</span>
             <div className="flex bg-white dark:bg-slate-800 p-1 rounded-xl border border-slate-200 dark:border-slate-700">
               <button
                 onClick={() => setMode('all')}

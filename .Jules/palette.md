@@ -1,3 +1,7 @@
+## 2026-07-26 - [Bilingual Keyboard Navigation and Form Association for ANSI Tools]
+**Learning:** Utilities working with escape sequences (like AnsiEscapeStripper) can easily collide with browser-native behaviors if shortcuts are not properly isolated. Integrating a local `useRef`-backed `handlersRef` wrapper with localized `<Kbd>` key hint badges, global `sonner` toasts, and semantic label associations ensures high accessibility compliance while keeping keyboard interactions fluid.
+**Action:** Isolate keyboard events using stable closure safeguards (`handlersRef`), display visual `<Kbd>` hotkey indicators, and verify standard HTML form label-to-control links.
+
 ## 2026-07-25 - [Inclusive Multi-Language Keyboard Shortcuts and Form Controls]
 **Learning:** Developer-facing generation utilities like Robots.txt often use complex multi-faceted inputs that lack proper label-to-input mapping and multi-language support. Pairing local keyboard triggers (`Escape` for reset, `C` for copy) with a `handlersRef` safeguard, clear programmatic focus restoration on clearing, and global `sonner` success toasts makes the tool feel incredibly smooth and accessible.
 **Action:** Always map complex input controls using standard `htmlFor` and unique sequential ID variables, supply helpful `<Kbd>` visual hotkey badges, and implement the programmatic focus restoration pattern on form reset.

@@ -152,6 +152,7 @@ const Calculator = lazy(() => import("./components/Calculator").then(m => ({ def
 const UnitConverter = lazy(() => import("./components/UnitConverter").then(m => ({ default: m.UnitConverter })));
 const PasswordGenerator = lazy(() => import("./components/PasswordGenerator").then(m => ({ default: m.PasswordGenerator })));
 const WordCounter = lazy(() => import("./components/WordCounter").then(m => ({ default: m.WordCounter })));
+const LineSorter = lazy(() => import("./components/LineSorter").then(m => ({ default: m.LineSorter })));
 const ColorConverter = lazy(() => import("./components/ColorConverter").then(m => ({ default: m.ColorConverter })));
 const TimerTool = lazy(() => import("./components/TimerTool").then(m => ({ default: m.TimerTool })));
 const TextFormatter = lazy(() => import("./components/TextFormatter").then(m => ({ default: m.TextFormatter })));
@@ -1101,6 +1102,17 @@ const tools: Tool[] = [
     Component: WordCounter,
     category: "text",
     keywords: ["texte", "lettres", "lignes", "lisibilité", "seo", "densité", "mots-clés"],
+  },
+  {
+    id: "line-sorter",
+    name: "Trier les lignes",
+    nameEn: "Line Sorter",
+    icon: ArrowUpDown,
+    description: "Trier des lignes de texte par ordre alphabétique, numérique ou longueur",
+    descriptionEn: "Sort text lines alphabetically, numerically, or by length",
+    Component: LineSorter,
+    category: "text",
+    keywords: ["sort", "lines", "alphabetical", "numeric", "natural", "length", "shuffle", "order", "trier", "ordre", "lignes", "texte"],
   },
   {
     id: "text-transformer",

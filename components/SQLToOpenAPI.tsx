@@ -163,12 +163,15 @@ export function SQLToOpenAPI({ initialData, onStateChange }: { initialData?: any
           if (col.required) required.push(safeKey);
         });
 
-        schemas[table.name] = {
+        const lowerTable = table.name.toLowerCase();
+        const safeTableName = (lowerTable === '__proto__' || lowerTable === 'constructor' || lowerTable === 'prototype') ? `_${table.name}` : table.name;
+
+        schemas[safeTableName] = {
           type: 'object',
           properties,
         };
         if (required.length > 0) {
-          schemas[table.name].required = required;
+          schemas[safeTableName].required = required;
         }
       });
 

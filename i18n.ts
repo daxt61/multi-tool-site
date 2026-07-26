@@ -3753,7 +3753,22 @@ const resources = {
       "jwt.show_secret": "Show secret",
       "jwt.toast_header_copied": "Header copied to clipboard!",
       "jwt.toast_payload_copied": "Payload copied to clipboard!",
-      "jwt.toast_cleared": "Cleared JWT decoder inputs!"
+      "jwt.toast_cleared": "Cleared JWT decoder inputs!",
+      "jsonschemato_ts.title": "JSON Schema to TypeScript Converter",
+      "jsonschemato_ts.description": "Generate clean TypeScript interfaces, type aliases, Zod schemas, or TypeBox schemas from standard JSON schemas.",
+      "jsonschemato_ts.input_label": "Input JSON Schema",
+      "jsonschemato_ts.placeholder": "Paste your standard JSON Schema here...",
+      "jsonschemato_ts.options_title": "Generation Options",
+      "jsonschemato_ts.output_format": "Output Format",
+      "jsonschemato_ts.root_name": "Root Type Name",
+      "jsonschemato_ts.export": "Export definitions",
+      "jsonschemato_ts.readonly": "Add readonly to properties",
+      "jsonschemato_ts.output_label": "Generated Code",
+      "jsonschemato_ts.about_title": "About this tool",
+      "jsonschemato_ts.about_text_1": "This converter parses standard IETF compliant JSON Schemas (such as Draft-04, Draft-07, Draft 2020-12) and generates clean, optimized TypeScript type models, Zod validation schemas, or TypeBox structural definitions.",
+      "jsonschemato_ts.about_item_1": "Safe Structures: Nested schema definitions listed under \"definitions\" or \"$defs\" are cleanly extracted into separate standalone models.",
+      "jsonschemato_ts.about_item_2": "Zod & TypeBox: Full runtime type-validation integration using the web's most popular schema validation engines.",
+      "jsonschemato_ts.about_item_3": "Pollution Hardening: Protects customer-facing environment safety by sanitizing prototype/constructor-based JSON attributes."
     }
   },
   fr: {
@@ -7510,7 +7525,22 @@ const resources = {
       "jwt.show_secret": "Afficher le secret",
       "jwt.toast_header_copied": "En-tête copié dans le presse-papiers !",
       "jwt.toast_payload_copied": "Payload copié dans le presse-papiers !",
-      "jwt.toast_cleared": "Entrées du décodeur JWT réinitialisées !"
+      "jwt.toast_cleared": "Entrées du décodeur JWT réinitialisées !",
+      "jsonschemato_ts.title": "Convertisseur JSON Schema en TypeScript",
+      "jsonschemato_ts.description": "Générez des interfaces TypeScript, alias de types, schémas Zod ou schémas TypeBox à partir de schémas JSON standard.",
+      "jsonschemato_ts.input_label": "Schéma JSON d'entrée",
+      "jsonschemato_ts.placeholder": "Collez votre schéma JSON standard ici...",
+      "jsonschemato_ts.options_title": "Options de Génération",
+      "jsonschemato_ts.output_format": "Format de sortie",
+      "jsonschemato_ts.root_name": "Nom du Type Racine",
+      "jsonschemato_ts.export": "Exporter les définitions (export)",
+      "jsonschemato_ts.readonly": "Ajouter readonly sur les propriétés",
+      "jsonschemato_ts.output_label": "Code Généré",
+      "jsonschemato_ts.about_title": "À propos de cet outil",
+      "jsonschemato_ts.about_text_1": "Ce convertisseur prend des schémas JSON conformes aux standards de l'IETF (tels que Draft-04, Draft-07, Draft 2020-12) et génère des types TypeScript hautement optimisés, des schémas de validation Zod ou des définitions TypeBox.",
+      "jsonschemato_ts.about_item_1": "Structure saine : Les références imbriquées définies sous \"definitions\" ou \"$defs\" sont extraites proprement dans des modèles séparés.",
+      "jsonschemato_ts.about_item_2": "Zod & TypeBox : Prise en charge de la validation de types à l'exécution grâce aux formats les plus populaires.",
+      "jsonschemato_ts.about_item_3": "Protection contre la pollution : Garantit l'intégrité de l'environnement client en ignorant les attributs d'objets dangereux."
     }
   }
 };

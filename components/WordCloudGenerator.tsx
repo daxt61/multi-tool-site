@@ -1,5 +1,6 @@
 import { useState, useEffect, useRef, useCallback, useMemo } from 'react';
 import { Cloud, Download, Trash2, RotateCcw, Info, Settings2, Palette, Type, AlertCircle } from 'lucide-react';
+import { getSecureRandomInt } from './ui/crypto';
 import { useTranslation } from 'react-i18next';
 import { toast } from 'sonner';
 import { Kbd } from './ui/Kbd';
@@ -90,7 +91,7 @@ export function WordCloudGenerator({ initialData, onStateChange }: { initialData
     const words: Word[] = processed.map(w => ({
       text: w.text,
       size: maxWeight === minWeight ? 40 : 15 + ((w.weight - minWeight) / (maxWeight - minWeight)) * 60,
-      rotate: Math.random() < 0.2 ? Math.PI / 2 : 0
+      rotate: getSecureRandomInt(100) < 20 ? Math.PI / 2 : 0
     }));
 
     ctx.clearRect(0, 0, width, height);

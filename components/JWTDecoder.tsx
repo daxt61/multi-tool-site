@@ -1,16 +1,18 @@
-import { useState, useEffect } from 'react';
-import { Copy, Check, Trash2, ShieldCheck, Clock, Eye, EyeOff, AlertCircle } from 'lucide-react';
-import { useTranslation } from 'react-i18next';
+import { useState, useEffect, useRef, useCallback } from "react";
+import { Copy, Check, Trash2, ShieldCheck, Clock, Eye, EyeOff, AlertCircle } from "lucide-react";
+import { useTranslation } from "react-i18next";
+import { toast } from "sonner";
+import { Kbd } from "./ui/Kbd";
 
 const MAX_LENGTH = 100000;
 
 export function JWTDecoder({ initialData, onStateChange }: { initialData?: any; onStateChange?: (state: any) => void }) {
   const { t } = useTranslation();
-  const [jwt, setJwt] = useState(initialData?.jwt || '');
-  const [secretKey, setSecretKey] = useState('');
-  const [selectedAlg, setSelectedAlg] = useState('HS256');
-  const [verificationResult, setVerificationResult] = useState<'valid' | 'invalid' | 'missing_secret' | 'error' | null>('missing_secret');
-  const [verificationError, setVerificationError] = useState('');
+  const [jwt, setJwt] = useState(initialData?.jwt || "");
+  const [secretKey, setSecretKey] = useState("");
+  const [selectedAlg, setSelectedAlg] = useState("HS256");
+  const [verificationResult, setVerificationResult] = useState<"valid" | "invalid" | "missing_secret" | "error" | null>("missing_secret");
+  const [verificationError, setVerificationError] = useState("");
   const [showSecret, setShowSecret] = useState(false);
 
   const [decoded, setDecoded] = useState<{
@@ -21,7 +23,7 @@ export function JWTDecoder({ initialData, onStateChange }: { initialData?: any; 
   }>({
     header: null,
     payload: null,
-    signature: '',
+    signature: "",
     error: null,
   });
   const [showSignature, setShowSignature] = useState(false);
@@ -33,9 +35,9 @@ export function JWTDecoder({ initialData, onStateChange }: { initialData?: any; 
   }, [jwt, selectedAlg, onStateChange]);
 
   const base64UrlDecode = (str: string) => {
-    let base64 = str.replace(/-/g, '+').replace(/_/g, '/');
+    let base64 = str.replace(/-/g, "+").replace(/_/g, "/");
     while (base64.length % 4) {
-      base64 += '=';
+      base64 += "=";
     }
     const binary = atob(base64);
     const bytes = new Uint8Array(binary.length);
@@ -47,16 +49,16 @@ export function JWTDecoder({ initialData, onStateChange }: { initialData?: any; 
 
   const verifySignature = async (token: string, secret: string, alg: string) => {
     if (!token.trim() || !secret.trim()) {
-      setVerificationResult('missing_secret');
-      setVerificationError('');
+      setVerificationResult("missing_secret");
+      setVerificationError("");
       return;
     }
 
     try {
-      const parts = token.split('.');
+      const parts = token.split(".");
       if (parts.length !== 3) {
-        setVerificationResult('error');
-        setVerificationError('Invalid token format');
+        setVerificationResult("error");
+        setVerificationError("Invalid token format");
         return;
       }
 
@@ -64,40 +66,40 @@ export function JWTDecoder({ initialData, onStateChange }: { initialData?: any; 
       const dataToVerify = new TextEncoder().encode(`${headerB64}.${payloadB64}`);
       const signatureBytes = base64UrlDecode(signatureB64);
 
-      const cryptoAlg = alg === 'HS256' ? 'SHA-256' : alg === 'HS384' ? 'SHA-384' : 'SHA-512';
+      const cryptoAlg = alg === "HS256" ? "SHA-256" : alg === "HS384" ? "SHA-384" : "SHA-512";
       const secretBytes = new TextEncoder().encode(secret);
 
       const key = await window.crypto.subtle.importKey(
-        'raw',
+        "raw",
         secretBytes,
-        { name: 'HMAC', hash: cryptoAlg },
+        { name: "HMAC", hash: cryptoAlg },
         false,
-        ['verify']
+        ["verify"]
       );
 
       const isValid = await window.crypto.subtle.verify(
-        'HMAC',
+        "HMAC",
         key,
         signatureBytes,
         dataToVerify
       );
 
       if (isValid) {
-        setVerificationResult('valid');
-        setVerificationError('');
+        setVerificationResult("valid");
+        setVerificationError("");
       } else {
-        setVerificationResult('invalid');
-        setVerificationError('');
+        setVerificationResult("invalid");
+        setVerificationError("");
       }
     } catch (e: any) {
-      setVerificationResult('error');
-      setVerificationError(e.message || 'Verification failed');
+      setVerificationResult("error");
+      setVerificationError(e.message || "Verification failed");
     }
   };
 
   const decodeJWT = (token: string) => {
     if (!token.trim()) {
-      setDecoded({ header: null, payload: null, signature: '', error: null });
+      setDecoded({ header: null, payload: null, signature: "", error: null });
       return;
     }
 
@@ -105,25 +107,25 @@ export function JWTDecoder({ initialData, onStateChange }: { initialData?: any; 
       setDecoded({
         header: null,
         payload: null,
-        signature: '',
-        error: t('error.max_length', { max: MAX_LENGTH.toLocaleString() }),
+        signature: "",
+        error: t("error.max_length", { max: MAX_LENGTH.toLocaleString() }),
       });
       return;
     }
 
     try {
-      const parts = token.split('.');
+      const parts = token.split(".");
       if (parts.length !== 3) {
-        throw new Error(t('jwt.error_parts'));
+        throw new Error(t("jwt.error_parts"));
       }
 
       const decodePart = (base64Url: string) => {
-        const base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
+        const base64 = base64Url.replace(/-/g, "+").replace(/_/g, "/");
         const jsonPayload = decodeURIComponent(
           atob(base64)
-            .split('')
-            .map((c) => '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2))
-            .join('')
+            .split("")
+            .map((c) => "%" + ("00" + c.charCodeAt(0).toString(16)).slice(-2))
+            .join("")
         );
         return JSON.parse(jsonPayload);
       };
@@ -138,8 +140,8 @@ export function JWTDecoder({ initialData, onStateChange }: { initialData?: any; 
       setDecoded({
         header: null,
         payload: null,
-        signature: '',
-        error: e.message || t('error.invalid_token'),
+        signature: "",
+        error: e.message || t("error.invalid_token", "Invalid Token"),
       });
     }
   };
@@ -152,22 +154,73 @@ export function JWTDecoder({ initialData, onStateChange }: { initialData?: any; 
     verifySignature(jwt, secretKey, selectedAlg);
   }, [jwt, secretKey, selectedAlg]);
 
-  const handleCopy = (text: string, target: 'header' | 'payload') => {
+  const handleCopy = (text: any, target: "header" | "payload") => {
     navigator.clipboard.writeText(JSON.stringify(text, null, 2));
-    if (target === 'header') {
+    if (target === "header") {
       setCopiedHeader(true);
+      toast.success(t("jwt.toast_header_copied", "Header copied to clipboard!"));
       setTimeout(() => setCopiedHeader(false), 2000);
     } else {
       setCopiedPayload(true);
+      toast.success(t("jwt.toast_payload_copied", "Payload copied to clipboard!"));
       setTimeout(() => setCopiedPayload(false), 2000);
     }
   };
 
+  const clearAll = useCallback(() => {
+    setJwt("");
+    setSecretKey("");
+    setVerificationResult("missing_secret");
+    toast.success(t("jwt.toast_cleared", "Cleared JWT decoder inputs!"));
+    setTimeout(() => {
+      document.getElementById("jwt-input")?.focus();
+    }, 0);
+  }, [t]);
+
+  const handleCopyPayloadShortcut = useCallback(() => {
+    if (!decoded.payload) return;
+    navigator.clipboard.writeText(JSON.stringify(decoded.payload, null, 2));
+    setCopiedPayload(true);
+    toast.success(t("jwt.toast_payload_copied", "Payload copied to clipboard!"));
+    setTimeout(() => setCopiedPayload(false), 2000);
+  }, [decoded.payload, t]);
+
+  // Setup keyboard shortcuts using a useRef-backed current wrapper
+  const handlersRef = useRef({ clearAll, handleCopyPayloadShortcut });
+  useEffect(() => {
+    handlersRef.current = { clearAll, handleCopyPayloadShortcut };
+  }, [clearAll, handleCopyPayloadShortcut]);
+
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      const active = document.activeElement;
+      const isEditable =
+        active instanceof HTMLInputElement ||
+        active instanceof HTMLTextAreaElement ||
+        active?.getAttribute("contenteditable") === "true";
+
+      if (isEditable && e.key !== "Escape") return;
+
+      if (e.metaKey || e.ctrlKey || e.altKey || e.shiftKey) return;
+
+      if (e.key === "Escape") {
+        e.preventDefault();
+        handlersRef.current.clearAll();
+      } else if (e.key.toLowerCase() === "c") {
+        e.preventDefault();
+        handlersRef.current.handleCopyPayloadShortcut();
+      }
+    };
+
+    window.addEventListener("keydown", handleKeyDown);
+    return () => window.removeEventListener("keydown", handleKeyDown);
+  }, []);
+
   const formatDate = (timestamp: number) => {
-    if (!timestamp) return t('common.na');
+    if (!timestamp) return t("common.na");
     return new Date(timestamp * 1000).toLocaleString(undefined, {
-      dateStyle: 'full',
-      timeStyle: 'medium',
+      dateStyle: "full",
+      timeStyle: "medium",
     });
   };
 
@@ -176,26 +229,28 @@ export function JWTDecoder({ initialData, onStateChange }: { initialData?: any; 
       {/* Input Area */}
       <div className="space-y-4">
         <div className="flex justify-between items-center px-1">
-          <label htmlFor="jwt-input" className="text-xs font-black uppercase tracking-widest text-slate-400 cursor-pointer">{t('jwt.token_label')}</label>
-          <button
-            onClick={() => {
-              setJwt('');
-              setSecretKey('');
-              setVerificationResult('missing_secret');
-            }}
-            disabled={!jwt}
-            aria-label={t('common.clear')}
-            className="text-xs font-bold px-3 py-1.5 rounded-full text-rose-500 bg-rose-50 dark:bg-rose-500/10 hover:bg-rose-100 dark:hover:bg-rose-500/20 border border-transparent transition-all flex items-center gap-1 disabled:opacity-50 disabled:cursor-not-allowed focus-visible:ring-2 focus-visible:ring-rose-500 focus-visible:outline-none"
-          >
-            <Trash2 className="w-3 h-3" /> {t('common.clear')}
-          </button>
+          <label htmlFor="jwt-input" className="text-xs font-black uppercase tracking-widest text-slate-400 cursor-pointer">{t("jwt.token_label")}</label>
+          <div className="flex items-center gap-3">
+            <div className="flex items-center gap-1.5">
+              <Kbd modifier={null} className="text-[10px] text-rose-400 border-rose-200 dark:border-rose-800 dark:bg-slate-900">ESC</Kbd>
+              <span className="text-[10px] font-black uppercase tracking-wider text-slate-400">{t("common.clear", "Reset")}</span>
+            </div>
+            <button
+              onClick={clearAll}
+              disabled={!jwt && !secretKey}
+              aria-label={t("common.clear")}
+              className="text-xs font-bold px-3 py-1.5 rounded-full text-rose-500 bg-rose-50 dark:bg-rose-500/10 hover:bg-rose-100 dark:hover:bg-rose-500/20 border border-transparent transition-all flex items-center gap-1 disabled:opacity-50 disabled:cursor-not-allowed focus-visible:ring-2 focus-visible:ring-rose-500 focus-visible:outline-none"
+            >
+              <Trash2 className="w-3 h-3" /> {t("common.clear")}
+            </button>
+          </div>
         </div>
         <textarea
           id="jwt-input"
           value={jwt}
           onChange={(e) => setJwt(e.target.value)}
-          placeholder={t('jwt.placeholder')}
-          className={`w-full h-32 p-6 bg-slate-50 dark:bg-slate-900 border ${decoded.error?.includes('longue') || decoded.error?.includes('long') ? 'border-rose-500 ring-rose-500/20' : 'border-slate-200 dark:border-slate-800 focus:ring-indigo-500/20'} rounded-[2rem] outline-none focus:ring-2 transition-all text-sm font-mono break-all dark:text-slate-300`}
+          placeholder={t("jwt.placeholder")}
+          className={`w-full h-32 p-6 bg-slate-50 dark:bg-slate-900 border ${decoded.error?.includes("longue") || decoded.error?.includes("long") ? "border-rose-500 ring-rose-500/20" : "border-slate-200 dark:border-slate-800 focus:ring-indigo-500/20"} rounded-[2rem] outline-none focus:ring-2 transition-all text-sm font-mono break-all dark:text-slate-300`}
         />
         {decoded.error && (
           <div className="flex items-center gap-2 text-rose-500 text-sm font-bold px-4 animate-in slide-in-from-top-1">
@@ -209,50 +264,53 @@ export function JWTDecoder({ initialData, onStateChange }: { initialData?: any; 
       {decoded.header && (
         <div className="bg-slate-50 dark:bg-slate-900/50 p-6 rounded-[2rem] border border-slate-200 dark:border-slate-800 space-y-4 animate-in fade-in duration-300">
           <div className="flex justify-between items-center px-1">
-            <label className="text-xs font-black uppercase tracking-widest text-slate-400 flex items-center gap-2">
-              <ShieldCheck className="w-4 h-4 text-indigo-500" /> Signature Verification (HMAC)
+            <label htmlFor="jwt-secret-input" className="text-xs font-black uppercase tracking-widest text-slate-400 flex items-center gap-2">
+              <ShieldCheck className="w-4 h-4 text-indigo-500" /> {t("jwt.signature_verification", "Signature Verification (HMAC)")}
             </label>
-            {verificationResult === 'valid' && (
+            {verificationResult === "valid" && (
               <span className="px-3 py-1 bg-emerald-100 dark:bg-emerald-900/30 text-emerald-600 dark:text-emerald-400 text-xs font-bold rounded-full animate-pulse">
-                ✓ Valid Signature
+                ✓ {t("jwt.valid_signature", "Valid Signature")}
               </span>
             )}
-            {verificationResult === 'invalid' && (
+            {verificationResult === "invalid" && (
               <span className="px-3 py-1 bg-rose-100 dark:bg-rose-900/30 text-rose-600 dark:text-rose-400 text-xs font-bold rounded-full animate-shake">
-                ✗ Invalid Signature
+                ✗ {t("jwt.invalid_signature", "Invalid Signature")}
               </span>
             )}
-            {verificationResult === 'missing_secret' && (
+            {verificationResult === "missing_secret" && (
               <span className="px-3 py-1 bg-amber-100 dark:bg-amber-900/30 text-amber-600 dark:text-amber-400 text-xs font-bold rounded-full">
-                Enter Secret Key to Verify
+                {t("jwt.enter_secret", "Enter Secret Key to Verify")}
               </span>
             )}
-            {verificationResult === 'error' && (
+            {verificationResult === "error" && (
               <span className="px-3 py-1 bg-rose-100 dark:bg-rose-900/30 text-rose-600 dark:text-rose-400 text-xs font-bold rounded-full">
-                Verification Error: {verificationError}
+                {t("jwt.verification_error", "Verification Error")}: {verificationError}
               </span>
             )}
           </div>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4 items-center">
             <div className="md:col-span-2 relative">
               <input
-                type={showSecret ? 'text' : 'password'}
+                id="jwt-secret-input"
+                type={showSecret ? "text" : "password"}
                 value={secretKey}
                 onChange={(e) => setSecretKey(e.target.value)}
-                placeholder="HMAC secret key to verify signature..."
+                placeholder={t("jwt.secret_placeholder", "HMAC secret key to verify signature...")}
                 className="w-full p-3.5 pr-12 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-2xl font-mono text-sm focus:ring-2 focus:ring-indigo-500/20 outline-none transition-all dark:text-white"
               />
               <button
                 type="button"
                 onClick={() => setShowSecret(!showSecret)}
                 className="absolute right-4 top-1/2 -translate-y-1/2 text-slate-400 hover:text-indigo-500 transition-colors"
-                aria-label={showSecret ? "Hide secret" : "Show secret"}
+                aria-label={showSecret ? t("jwt.hide_secret", "Hide secret") : t("jwt.show_secret", "Show secret")}
               >
                 {showSecret ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
               </button>
             </div>
             <div>
+              <label htmlFor="jwt-algorithm-select" className="sr-only">{t("jwt.algorithm", "Signing Algorithm")}</label>
               <select
+                id="jwt-algorithm-select"
                 value={selectedAlg}
                 onChange={(e) => setSelectedAlg(e.target.value)}
                 className="w-full p-3.5 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-2xl font-bold text-sm outline-none focus:ring-2 focus:ring-indigo-500/20 transition-all dark:text-white cursor-pointer"
@@ -273,16 +331,16 @@ export function JWTDecoder({ initialData, onStateChange }: { initialData?: any; 
             <div className="flex justify-between items-center">
               <div className="flex items-center gap-3 text-rose-500">
                 <ShieldCheck className="w-5 h-5 transition-transform group-hover:scale-110" />
-                <h3 className="font-black uppercase tracking-widest text-xs text-slate-400">{t('jwt.header')}</h3>
+                <h3 className="font-black uppercase tracking-widest text-xs text-slate-400">{t("jwt.header")}</h3>
               </div>
               <button
-                onClick={() => handleCopy(decoded.header, 'header')}
+                onClick={() => handleCopy(decoded.header, "header")}
                 className={`p-2 rounded-xl transition-all border focus-visible:ring-2 focus-visible:ring-indigo-500 focus-visible:outline-none ${
                   copiedHeader
-                    ? 'bg-emerald-50 dark:bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border-emerald-200 dark:border-emerald-500/20'
-                    : 'text-slate-400 hover:text-indigo-500 border-transparent hover:bg-indigo-50 dark:hover:bg-indigo-900/20'
+                    ? "bg-emerald-50 dark:bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border-emerald-200 dark:border-emerald-500/20"
+                    : "text-slate-400 hover:text-indigo-500 border-transparent hover:bg-indigo-50 dark:hover:bg-indigo-900/20"
                 }`}
-                aria-label={t('common.copy')}
+                aria-label={t("common.copy")}
               >
                 {copiedHeader ? <Check className="w-4 h-4" /> : <Copy className="w-4 h-4" />}
               </button>
@@ -297,19 +355,22 @@ export function JWTDecoder({ initialData, onStateChange }: { initialData?: any; 
             <div className="flex justify-between items-center">
               <div className="flex items-center gap-3 text-indigo-500">
                 <Eye className="w-5 h-5 transition-transform group-hover:scale-110" />
-                <h3 className="font-black uppercase tracking-widest text-xs text-slate-400">{t('jwt.payload')}</h3>
+                <h3 className="font-black uppercase tracking-widest text-xs text-slate-400">{t("jwt.payload")}</h3>
               </div>
-              <button
-                onClick={() => handleCopy(decoded.payload, 'payload')}
-                className={`p-2 rounded-xl transition-all border focus-visible:ring-2 focus-visible:ring-indigo-500 focus-visible:outline-none ${
-                  copiedPayload
-                    ? 'bg-emerald-50 dark:bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border-emerald-200 dark:border-emerald-500/20'
-                    : 'text-slate-400 hover:text-indigo-500 border-transparent hover:bg-indigo-50 dark:hover:bg-indigo-900/20'
-                }`}
-                aria-label={t('common.copy')}
-              >
-                {copiedPayload ? <Check className="w-4 h-4" /> : <Copy className="w-4 h-4" />}
-              </button>
+              <div className="flex items-center gap-2">
+                <Kbd modifier={null} className="text-[10px] text-indigo-400 border-indigo-200 dark:border-indigo-800 dark:bg-slate-900">C</Kbd>
+                <button
+                  onClick={() => handleCopy(decoded.payload, "payload")}
+                  className={`p-2 rounded-xl transition-all border focus-visible:ring-2 focus-visible:ring-indigo-500 focus-visible:outline-none ${
+                    copiedPayload
+                      ? "bg-emerald-50 dark:bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border-emerald-200 dark:border-emerald-500/20"
+                      : "text-slate-400 hover:text-indigo-500 border-transparent hover:bg-indigo-50 dark:hover:bg-indigo-900/20"
+                  }`}
+                  aria-label={t("common.copy")}
+                >
+                  {copiedPayload ? <Check className="w-4 h-4" /> : <Copy className="w-4 h-4" />}
+                </button>
+              </div>
             </div>
             <pre className="p-6 bg-slate-50 dark:bg-slate-800 rounded-2xl text-xs font-mono overflow-auto max-h-60 text-indigo-600 dark:text-indigo-400">
               {JSON.stringify(decoded.payload, null, 2)}
@@ -320,14 +381,14 @@ export function JWTDecoder({ initialData, onStateChange }: { initialData?: any; 
           <div className="p-8 bg-white dark:bg-slate-900/50 border border-slate-200 dark:border-slate-800 rounded-[2.5rem] space-y-6 lg:col-span-2 group">
             <div className="flex items-center gap-3 text-amber-500">
               <Clock className="w-5 h-5 transition-transform group-hover:scale-110" />
-              <h3 className="font-black uppercase tracking-widest text-xs text-slate-400">{t('jwt.info_title')}</h3>
+              <h3 className="font-black uppercase tracking-widest text-xs text-slate-400">{t("jwt.info_title")}</h3>
             </div>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               {[
-                { label: t('jwt.iat'), value: decoded.payload.iat ? formatDate(decoded.payload.iat) : t('common.na') },
-                { label: t('jwt.exp'), value: decoded.payload.exp ? formatDate(decoded.payload.exp) : t('common.na') },
-                { label: t('jwt.sub'), value: decoded.payload.sub || t('common.na') },
-                { label: t('jwt.iss'), value: decoded.payload.iss || t('common.na') },
+                { label: t("jwt.iat"), value: decoded.payload.iat ? formatDate(decoded.payload.iat) : t("common.na") },
+                { label: t("jwt.exp"), value: decoded.payload.exp ? formatDate(decoded.payload.exp) : t("common.na") },
+                { label: t("jwt.sub"), value: decoded.payload.sub || t("common.na") },
+                { label: t("jwt.iss"), value: decoded.payload.iss || t("common.na") },
               ].map((claim) => (
                 <div key={claim.label} className="p-4 bg-slate-50 dark:bg-slate-800/50 rounded-2xl border border-slate-100 dark:border-slate-800">
                   <div className="text-[10px] font-black uppercase tracking-widest text-slate-400 mb-1">{claim.label}</div>
@@ -342,21 +403,21 @@ export function JWTDecoder({ initialData, onStateChange }: { initialData?: any; 
              <div className="flex justify-between items-center">
                 <div className="flex items-center gap-3 text-emerald-500">
                   <ShieldCheck className="w-5 h-5 transition-transform group-hover:scale-110" />
-                  <h3 className="font-black uppercase tracking-widest text-xs text-slate-400">{t('jwt.signature')}</h3>
+                  <h3 className="font-black uppercase tracking-widest text-xs text-slate-400">{t("jwt.signature")}</h3>
                 </div>
                 <button
                   onClick={() => setShowSignature(!showSignature)}
                   className="flex items-center gap-2 text-xs font-bold text-slate-500 hover:text-slate-900 dark:hover:text-white transition-colors focus-visible:ring-2 focus-visible:ring-indigo-500 focus-visible:outline-none rounded-lg p-1"
                 >
                   {showSignature ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
-                  {showSignature ? t('common.hide') : t('common.show')}
+                  {showSignature ? t("common.hide", "Hide") : t("common.show", "Show")}
                 </button>
              </div>
              <div className="p-6 bg-slate-50 dark:bg-slate-800 rounded-2xl text-xs font-mono break-all text-emerald-600 dark:text-emerald-400">
-               {showSignature ? decoded.signature : '•'.repeat(Math.min(decoded.signature.length, 64)) + (decoded.signature.length > 64 ? '...' : '')}
+               {showSignature ? decoded.signature : "•".repeat(Math.min(decoded.signature.length, 64)) + (decoded.signature.length > 64 ? "..." : "")}
              </div>
              <p className="text-[10px] text-slate-400 font-medium italic">
-               {t('jwt.signature_note')}
+               {t("jwt.signature_note")}
              </p>
           </div>
         </div>

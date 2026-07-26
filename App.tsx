@@ -537,6 +537,7 @@ const CSSClipPathGenerator = lazy(() => import("./components/CSSClipPathGenerato
 const AnsiEscapeStripper = lazy(() => import("./components/AnsiEscapeStripper").then(m => ({ default: m.AnsiEscapeStripper })));
 const XPathTester = lazy(() => import("./components/XPathTester").then(m => ({ default: m.XPathTester })));
 const JSONToDjango = lazy(() => import("./components/JSONToDjango").then(m => ({ default: m.JSONToDjango })));
+const GitignoreGenerator = lazy(() => import("./components/GitignoreGenerator").then(m => ({ default: m.GitignoreGenerator })));
 const CSSToTailwind = lazy(() => import("./components/CSSToTailwind").then(m => ({ default: m.CSSToTailwind })));
 const TailwindToCSS = lazy(() => import("./components/TailwindToCSS").then(m => ({ default: m.TailwindToCSS })));
 const TextTypoGenerator = lazy(() => import("./components/TextTypoGenerator").then(m => ({ default: m.TextTypoGenerator })));
@@ -4800,6 +4801,17 @@ const tools: Tool[] = [
     Component: TOTPGenerator,
     category: "dev",
     keywords: ["totp", "otp", "2fa", "authenticator", "mfa", "security", "google authenticator", "rfc6238", "double factor"],
+  },
+  {
+    id: "gitignore-generator",
+    name: "Générateur .gitignore",
+    nameEn: "Gitignore Generator",
+    icon: FileCode,
+    description: "Générer un fichier .gitignore propre à partir de templates et presets populaires",
+    descriptionEn: "Generate a clean .gitignore file from templates and popular presets",
+    Component: GitignoreGenerator,
+    category: "dev",
+    keywords: ["gitignore", "git", "ignore", "templates", "presets", "programming", "ide", "vscode"],
   },
 ];
 

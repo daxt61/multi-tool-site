@@ -229,6 +229,7 @@ const RomanNumeralConverter = lazy(() => import("./components/RomanNumeralConver
 const XMLFormatter = lazy(() => import("./components/XMLFormatter").then(m => ({ default: m.XMLFormatter })));
 const ColorContrastChecker = lazy(() => import("./components/ColorContrastChecker").then(m => ({ default: m.ColorContrastChecker })));
 const JSONSchemaGenerator = lazy(() => import("./components/JSONSchemaGenerator").then(m => ({ default: m.JSONSchemaGenerator })));
+const JSONSchemaToTS = lazy(() => import("./components/JSONSchemaToTS").then(m => ({ default: m.JSONSchemaToTS })));
 const ZodSchemaGenerator = lazy(() => import("./components/ZodSchemaGenerator").then(m => ({ default: m.ZodSchemaGenerator })));
 const SubnetCalculator = lazy(() => import("./components/SubnetCalculator").then(m => ({ default: m.SubnetCalculator })));
 const TimezoneConverter = lazy(() => import("./components/TimezoneConverter").then(m => ({ default: m.TimezoneConverter })));
@@ -1362,6 +1363,17 @@ const tools: Tool[] = [
     descriptionEn: "Generate a JSON Schema from JSON",
     Component: JSONSchemaGenerator,
     category: "dev",
+  },
+  {
+    id: "json-schema-to-ts",
+    name: "JSON Schema vers TypeScript",
+    nameEn: "JSON Schema to TypeScript",
+    icon: FileCode,
+    description: "Convertir un JSON Schema en TypeScript (Interfaces/Types), Zod ou TypeBox",
+    descriptionEn: "Convert a JSON Schema to TypeScript (Interfaces/Types), Zod, or TypeBox",
+    Component: JSONSchemaToTS,
+    category: "dev",
+    keywords: ["json schema", "typescript", "zod", "typebox", "interface", "converter", "schema"],
   },
   {
     id: "zod-schema",

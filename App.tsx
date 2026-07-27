@@ -544,6 +544,7 @@ const TailwindToCSS = lazy(() => import("./components/TailwindToCSS").then(m => 
 const TextTypoGenerator = lazy(() => import("./components/TextTypoGenerator").then(m => ({ default: m.TextTypoGenerator })));
 const UTF8ToBytes = lazy(() => import("./components/UTF8ToBytes").then(m => ({ default: m.UTF8ToBytes })));
 const TOTPGenerator = lazy(() => import("./components/TOTPGenerator").then(m => ({ default: m.TOTPGenerator })));
+const CollatzSequence = lazy(() => import("./components/CollatzSequence").then(m => ({ default: m.CollatzSequence })));
 
 // ⚡ Bolt Optimization: Pre-calculating tool map and search index for O(1) lookups and faster filtering
 const toolsMap: Record<string, Tool> = {};
@@ -881,6 +882,17 @@ const tools: Tool[] = [
     category: "business",
   },
   // Calculators
+  {
+    id: "collatz-sequence",
+    name: "Conjecture de Collatz",
+    nameEn: "Collatz Conjecture",
+    icon: TrendingUp,
+    description: "Simuler et visualiser la trajectoire mathématique 3n + 1",
+    descriptionEn: "Simulate and visualize the 3n + 1 mathematical trajectory",
+    Component: CollatzSequence,
+    category: "calculators",
+    keywords: ["collatz", "sequence", "trajectory", "3n+1", "conjecture", "math", "syracuse"],
+  },
   {
     id: "calculator",
     name: "Calculatrice",

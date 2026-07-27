@@ -3802,7 +3802,21 @@ const resources = {
       "docker_compose.max_services": "Maximum 8 services allowed.",
       "docker_compose.min_services": "At least one service is required.",
       "docker_compose.max_env": "Maximum 10 env variables per service.",
-      "docker_compose.max_volumes": "Maximum 5 volumes per service."
+      "docker_compose.max_volumes": "Maximum 5 volumes per service.",
+      "contact.title": "Contact us.",
+      "contact.subtitle": "A suggestion? A bug? We are listening.",
+      "contact.email": "Email",
+      "contact.support": "Support",
+      "contact.support_desc": "Response within 24h",
+      "contact.github": "GitHub Profile",
+      "contact.twitter": "Twitter Profile",
+      "contact.success_title": "Message sent!",
+      "contact.success_desc": "We will get back to you very soon.",
+      "contact.email_label": "Email",
+      "contact.email_placeholder": "jean@example.com",
+      "contact.message_label": "Message",
+      "contact.message_placeholder": "How can we help you?",
+      "contact.send_btn": "Send"
     }
   },
   fr: {
@@ -7608,7 +7622,21 @@ const resources = {
       "docker_compose.max_services": "Maximum de 8 services autorisé.",
       "docker_compose.min_services": "Au moins un service est requis.",
       "docker_compose.max_env": "Maximum de 10 variables d'environnement par service.",
-      "docker_compose.max_volumes": "Maximum de 5 volumes par service."
+      "docker_compose.max_volumes": "Maximum de 5 volumes par service.",
+      "contact.title": "Contactez-nous.",
+      "contact.subtitle": "Une suggestion ? Un bug ? Nous sommes à votre écoute.",
+      "contact.email": "Email",
+      "contact.support": "Support",
+      "contact.support_desc": "Réponse sous 24h",
+      "contact.github": "Profil GitHub",
+      "contact.twitter": "Profil Twitter",
+      "contact.success_title": "Message envoyé !",
+      "contact.success_desc": "Nous reviendrons vers vous très prochainement.",
+      "contact.email_label": "Email",
+      "contact.email_placeholder": "jean@exemple.com",
+      "contact.message_label": "Message",
+      "contact.message_placeholder": "Comment pouvons-nous vous aider ?",
+      "contact.send_btn": "Envoyer"
     }
   }
 };

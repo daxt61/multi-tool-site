@@ -1,13 +1,19 @@
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useRef } from 'react';
 import { ShieldCheck, Copy, Check, Trash2, AlertCircle, RefreshCw, Key, Info, Eye, EyeOff } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
+import { toast } from 'sonner';
+import { Kbd } from './ui/Kbd';
 
 const ALGORITHMS = ['HS256', 'HS384', 'HS512'];
 
+const DEFAULT_HEADER = JSON.stringify({ alg: 'HS256', typ: 'JWT' }, null, 2);
+const DEFAULT_PAYLOAD = JSON.stringify({ sub: '1234567890', name: 'John Doe', iat: Math.floor(Date.now() / 1000) }, null, 2);
+
 export function JWTGenerator({ initialData, onStateChange }: { initialData?: any; onStateChange?: (state: any) => void }) {
   const { t } = useTranslation();
-  const [header, setHeader] = useState(initialData?.header || JSON.stringify({ alg: 'HS256', typ: 'JWT' }, null, 2));
-  const [payload, setPayload] = useState(initialData?.payload || JSON.stringify({ sub: '1234567890', name: 'John Doe', iat: Math.floor(Date.now() / 1000) }, null, 2));
+  const secretInputRef = useRef<HTMLInputElement>(null);
+  const [header, setHeader] = useState(initialData?.header || DEFAULT_HEADER);
+  const [payload, setPayload] = useState(initialData?.payload || DEFAULT_PAYLOAD);
   const [secret, setSecret] = useState('');
   const [algorithm, setAlgorithm] = useState(initialData?.algorithm || 'HS256');
   const [jwt, setJwt] = useState('');
@@ -77,15 +83,79 @@ export function JWTGenerator({ initialData, onStateChange }: { initialData?: any
     generateJWT();
   }, [generateJWT]);
 
-  const handleCopy = () => {
+  const handleCopy = useCallback(() => {
     if (!jwt) return;
     navigator.clipboard.writeText(jwt);
     setCopied(true);
     setTimeout(() => setCopied(false), 2000);
+    toast.success(t('jwt.toast_token_copied', 'JWT copied to clipboard!'));
+  }, [jwt, t]);
+
+  const handleClear = useCallback(() => {
+    setHeader(DEFAULT_HEADER);
+    setPayload(JSON.stringify({ sub: '1234567890', name: 'John Doe', iat: Math.floor(Date.now() / 1000) }, null, 2));
+    setSecret('');
+    setError(null);
+    secretInputRef.current?.focus();
+    toast.success(t('jwt.toast_generator_cleared', 'JWT inputs cleared!'));
+  }, [t]);
+
+  // Keyboard shortcut handlers pattern with handlersRef to prevent stale closures
+  const handlersRef = useRef({ handleCopy, handleClear });
+  useEffect(() => {
+    handlersRef.current = { handleCopy, handleClear };
+  }, [handleCopy, handleClear]);
+
+  useEffect(() => {
+    const handleGlobalKeyDown = (e: KeyboardEvent) => {
+      const activeEl = document.activeElement;
+      const isEditable = activeEl && (
+        activeEl.tagName === 'INPUT' ||
+        activeEl.tagName === 'TEXTAREA' ||
+        activeEl.getAttribute('contenteditable') === 'true'
+      );
+
+      // C to copy output (only when not typing in editable element)
+      if (e.key.toLowerCase() === 'c' && !e.ctrlKey && !e.metaKey && !e.altKey && !isEditable) {
+        e.preventDefault();
+        handlersRef.current.handleCopy();
+      }
+
+      // Escape to clear
+      if (e.key === 'Escape') {
+        if (!isEditable || activeEl === secretInputRef.current) {
+          e.preventDefault();
+          handlersRef.current.handleClear();
+        }
+      }
+    };
+
+    window.addEventListener('keydown', handleGlobalKeyDown);
+    return () => window.removeEventListener('keydown', handleGlobalKeyDown);
+  }, []);
+
+  // Local Keyboard Shortcuts (Escape to clear on input)
+  const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
+    if (e.key === 'Escape') {
+      e.preventDefault();
+      handleClear();
+    }
   };
 
   return (
     <div className="max-w-6xl mx-auto space-y-8">
+      {/* Reset/Clear Header Button */}
+      <div className="flex justify-end px-1">
+        <button
+          onClick={handleClear}
+          className="text-xs font-bold text-rose-500 bg-rose-50 dark:bg-rose-500/10 hover:bg-rose-100 dark:hover:bg-rose-500/20 px-3 py-1.5 rounded-xl flex items-center gap-1.5 transition-all focus-visible:ring-2 focus-visible:ring-rose-500"
+        >
+          <Trash2 className="w-3.5 h-3.5" />
+          {t('common.clear', 'Clear')}
+          <Kbd modifier={null} className="ml-1 select-none">Esc</Kbd>
+        </button>
+      </div>
+
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
         {/* Left Column: Configuration */}
         <div className="space-y-6">
@@ -113,9 +183,11 @@ export function JWTGenerator({ initialData, onStateChange }: { initialData?: any
                 <div className="relative">
                   <input
                     id="jwt-secret"
+                    ref={secretInputRef}
                     type={showSecret ? 'text' : 'password'}
                     value={secret}
                     onChange={(e) => setSecret(e.target.value)}
+                    onKeyDown={handleKeyDown}
                     placeholder={t('hmac.key_placeholder')}
                     className="w-full p-4 pr-12 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-2xl font-mono text-sm focus:ring-2 focus:ring-indigo-500/20 outline-none transition-all dark:text-white"
                   />
@@ -171,6 +243,7 @@ export function JWTGenerator({ initialData, onStateChange }: { initialData?: any
               >
                 {copied ? <Check className="w-4 h-4" /> : <Copy className="w-4 h-4" />}
                 {copied ? t('common.copied') : t('common.copy')}
+                <Kbd modifier={null} className="ml-1 select-none">C</Kbd>
               </button>
             </div>
             <div className="relative group">

@@ -423,6 +423,7 @@ const GCDLCMCalculator = lazy(() => import("./components/GCDLCMCalculator").then
 const GrayCodeConverter = lazy(() => import("./components/GrayCodeConverter").then(m => ({ default: m.GrayCodeConverter })));
 const TimeSequenceGenerator = lazy(() => import("./components/TimeSequenceGenerator").then(m => ({ default: m.TimeSequenceGenerator })));
 const JWTGenerator = lazy(() => import("./components/JWTGenerator").then(m => ({ default: m.JWTGenerator })));
+const DockerComposeGenerator = lazy(() => import("./components/DockerComposeGenerator").then(m => ({ default: m.DockerComposeGenerator })));
 const FIRECalculator = lazy(() => import("./components/FIRECalculator").then(m => ({ default: m.FIRECalculator })));
 const SocialMediaBioGenerator = lazy(() => import("./components/SocialMediaBioGenerator").then(m => ({ default: m.SocialMediaBioGenerator })));
 const ListToChecklist = lazy(() => import("./components/ListToChecklist").then(m => ({ default: m.ListToChecklist })));
@@ -1471,6 +1472,17 @@ const tools: Tool[] = [
     Component: JWTGenerator,
     category: "dev",
     keywords: ["jwt", "token", "auth", "security", "hmac", "sign"],
+  },
+  {
+    id: "docker-compose-generator",
+    name: "Générateur Docker Compose",
+    nameEn: "Docker Compose Generator",
+    icon: Box,
+    description: "Construisez, personnalisez et téléchargez visuellement des configurations docker-compose.yml multi-conteneurs",
+    descriptionEn: "Visually build, customize, and download multi-container docker-compose.yml configurations",
+    Component: DockerComposeGenerator,
+    category: "dev",
+    keywords: ["docker", "compose", "yml", "yaml", "container", "devops", "deploy"],
   },
   {
     id: "qr-code",

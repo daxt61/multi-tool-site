@@ -3792,7 +3792,17 @@ const resources = {
       "collatz.success_downloaded": "Sequence downloaded successfully!",
       "collatz.reset_complete": "Visualizer reset to defaults.",
       "collatz.enter_value_prompt": "Enter a valid start number to visualize.",
-      "collatz.warning_max_number": "Starting number capped at 1,000,000,000 to prevent system slowdown."
+      "collatz.warning_max_number": "Starting number capped at 1,000,000,000 to prevent system slowdown.",
+      "jwt.toast_token_copied": "JSON Web Token copied to clipboard!",
+      "jwt.toast_generator_cleared": "JWT inputs cleared!",
+      "tool.docker-compose-generator.name": "Docker Compose Generator",
+      "tool.docker-compose-generator.description": "Visually build, customize, and download multi-container docker-compose.yml configurations",
+      "docker_compose.cleared": "Configuration reset to default!",
+      "docker_compose.preset_loaded": "Preset loaded successfully!",
+      "docker_compose.max_services": "Maximum 8 services allowed.",
+      "docker_compose.min_services": "At least one service is required.",
+      "docker_compose.max_env": "Maximum 10 env variables per service.",
+      "docker_compose.max_volumes": "Maximum 5 volumes per service."
     }
   },
   fr: {
@@ -7588,7 +7598,17 @@ const resources = {
       "collatz.success_downloaded": "Séquence téléchargée avec succès !",
       "collatz.reset_complete": "Visualiseur réinitialisé aux valeurs par défaut.",
       "collatz.enter_value_prompt": "Entrez un nombre de départ pour visualiser.",
-      "collatz.warning_max_number": "Nombre de départ limité à 1 000 000 000 pour éviter les ralentissements."
+      "collatz.warning_max_number": "Nombre de départ limité à 1 000 000 000 pour éviter les ralentissements.",
+      "jwt.toast_token_copied": "JSON Web Token copié dans le presse-papiers !",
+      "jwt.toast_generator_cleared": "Entrées du générateur JWT réinitialisées !",
+      "tool.docker-compose-generator.name": "Générateur Docker Compose",
+      "tool.docker-compose-generator.description": "Construisez, personnalisez et téléchargez visuellement des configurations docker-compose.yml multi-conteneurs",
+      "docker_compose.cleared": "Configuration réinitialisée !",
+      "docker_compose.preset_loaded": "Preset chargé avec succès !",
+      "docker_compose.max_services": "Maximum de 8 services autorisé.",
+      "docker_compose.min_services": "Au moins un service est requis.",
+      "docker_compose.max_env": "Maximum de 10 variables d'environnement par service.",
+      "docker_compose.max_volumes": "Maximum de 5 volumes par service."
     }
   }
 };

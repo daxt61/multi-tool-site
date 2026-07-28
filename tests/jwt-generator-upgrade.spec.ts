@@ -49,3 +49,27 @@ test('JWT Generator Upgrade E2E: Generation, Copy, Reset, and Keyboard Shortcuts
   await expect(secretInput).toHaveValue('');
   await expect(secretInput).toBeFocused();
 });
+
+test('JWT Generator mitigates client-side DoS by enforcing MAX_LENGTH', async ({ page }) => {
+  await page.goto('http://localhost:5173/en/outil/jwt-generator');
+
+  // Verify elements are loaded
+  const payloadTextarea = page.locator('#jwt-payload');
+  await expect(payloadTextarea).toBeVisible();
+
+  // Create an extremely large payload
+  const hugePayload = JSON.stringify({ sub: '1234567890', data: 'a'.repeat(100005) });
+
+  // Fill with too long payload
+  await payloadTextarea.fill(hugePayload);
+
+  // Expect error alert to be visible and display length error
+  const errorAlert = page.locator('div.bg-rose-50');
+  await expect(errorAlert).toBeVisible();
+  await expect(errorAlert).toContainText("Input is too long. Limit of 100,000 characters.");
+
+  // Clear/Reset and verify error disappears
+  const clearBtn = page.locator('button:has-text("Clear")');
+  await clearBtn.click();
+  await expect(errorAlert).not.toBeVisible();
+});

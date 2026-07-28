@@ -5,6 +5,7 @@ import { toast } from 'sonner';
 import { Kbd } from './ui/Kbd';
 
 const ALGORITHMS = ['HS256', 'HS384', 'HS512'];
+const MAX_LENGTH = 100000;
 
 const DEFAULT_HEADER = JSON.stringify({ alg: 'HS256', typ: 'JWT' }, null, 2);
 const DEFAULT_PAYLOAD = JSON.stringify({ sub: '1234567890', name: 'John Doe', iat: Math.floor(Date.now() / 1000) }, null, 2);
@@ -38,6 +39,11 @@ export function JWTGenerator({ initialData, onStateChange }: { initialData?: any
   const generateJWT = useCallback(async () => {
     try {
       setError(null);
+      if (header.length > MAX_LENGTH || payload.length > MAX_LENGTH || secret.length > MAX_LENGTH) {
+        setError(t('error.max_length', { max: MAX_LENGTH.toLocaleString() }));
+        setJwt('');
+        return;
+      }
       const parsedHeader = JSON.parse(header);
       const parsedPayload = JSON.parse(payload);
 

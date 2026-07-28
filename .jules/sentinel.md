@@ -1,3 +1,8 @@
+## 2026-07-27 - [Client-side DoS in JWT Generator]
+**Vulnerability:** The JWTGenerator component lacked input length checks on the header, payload, and secret inputs. Pasting massive strings could trigger extremely long processing times or freeze the browser during JSON parsing or cryptographic signing.
+**Learning:** Even client-side cryptographic generators can be exploited for Denial of Service if they automatically parse and sign inputs on every keystroke/change without checking the sizes first.
+**Prevention:** Always enforce a strict input length limit (such as `MAX_LENGTH = 100000`) on textareas and inputs before parsing them as JSON or initiating cryptographic operations.
+
 ## 2025-05-15 - [XSS in Custom Markdown Renderer]
 **Vulnerability:** The MarkdownPreview component was using `dangerouslySetInnerHTML` with raw user input processed through regexes, allowing for Cross-Site Scripting (XSS).
 **Learning:** Custom markdown parsers that use string replacement to generate HTML must escape all HTML special characters in the input BEFORE applying any markdown rules. Additionally, links must be sanitized to prevent `javascript:` protocol exploits.

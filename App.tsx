@@ -546,6 +546,7 @@ const TextTypoGenerator = lazy(() => import("./components/TextTypoGenerator").th
 const UTF8ToBytes = lazy(() => import("./components/UTF8ToBytes").then(m => ({ default: m.UTF8ToBytes })));
 const TOTPGenerator = lazy(() => import("./components/TOTPGenerator").then(m => ({ default: m.TOTPGenerator })));
 const CollatzSequence = lazy(() => import("./components/CollatzSequence").then(m => ({ default: m.CollatzSequence })));
+const SVGToReact = lazy(() => import("./components/SVGToReact").then(m => ({ default: m.SVGToReact })));
 
 // ⚡ Bolt Optimization: Pre-calculating tool map and search index for O(1) lookups and faster filtering
 const toolsMap: Record<string, Tool> = {};
@@ -4848,6 +4849,17 @@ const tools: Tool[] = [
     Component: GitignoreGenerator,
     category: "dev",
     keywords: ["gitignore", "git", "ignore", "templates", "presets", "programming", "ide", "vscode"],
+  },
+  {
+    id: "svg-to-react",
+    name: "SVG vers React",
+    nameEn: "SVG to React",
+    icon: Sparkles,
+    description: "Convertir du code SVG brut en composants React (JSX/TSX) ou React Native propres et personnalisables",
+    descriptionEn: "Convert raw SVG code to clean, customizable React (JSX/TSX) or React Native components",
+    Component: SVGToReact,
+    category: "dev",
+    keywords: ["svg", "react", "native", "jsx", "tsx", "component", "converter", "vector", "developer"],
   },
 ];
 

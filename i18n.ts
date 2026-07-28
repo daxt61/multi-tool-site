@@ -3820,7 +3820,27 @@ const resources = {
       "contact.email_placeholder": "jean@example.com",
       "contact.message_label": "Message",
       "contact.message_placeholder": "How can we help you?",
-      "contact.send_btn": "Send"
+      "contact.send_btn": "Send",
+      "tool.svg-to-react.name": "SVG to React",
+      "tool.svg-to-react.description": "Convert raw SVG code to clean, customizable React (JSX/TSX) or React Native components",
+      "svg_to_react.input_label": "Source SVG Code",
+      "svg_to_react.placeholder": "Paste your raw SVG code here... e.g., <svg>...</svg>",
+      "svg_to_react.options_title": "Component Options",
+      "svg_to_react.language_label": "Language",
+      "svg_to_react.platform_label": "Target Platform",
+      "svg_to_react.platform_web": "React (Web)",
+      "svg_to_react.platform_native": "React Native",
+      "svg_to_react.component_name": "Component Name",
+      "svg_to_react.forward_ref": "Use forwardRef",
+      "svg_to_react.react_memo": "Wrap with React.memo",
+      "svg_to_react.replace_colors": "Replace hardcoded colors with currentColor / props",
+      "svg_to_react.custom_size": "Override width/height with size prop",
+      "svg_to_react.presets_title": "SVG Presets",
+      "svg_to_react.output_label": "React Component Code",
+      "svg_to_react.output_placeholder": "The converted component will appear here...",
+      "svg_to_react.about_title": "About SVG to React/React Native Converter",
+      "svg_to_react.about_text_1": "This utility converts raw SVG vector images into reusable, typed React (JS/TS) or React Native components.",
+      "svg_to_react.about_text_2": "It automatically parses standard HTML SVG attributes into camelCase (e.g. stroke-width becomes strokeWidth, fill-rule becomes fillRule) and replaces direct colors with currentColor or dynamic prop overrides. For React Native, it translates tag names like path, rect, g to components imported from 'react-native-svg'."
     }
   },
   fr: {
@@ -7644,7 +7664,27 @@ const resources = {
       "contact.email_placeholder": "jean@exemple.com",
       "contact.message_label": "Message",
       "contact.message_placeholder": "Comment pouvons-nous vous aider ?",
-      "contact.send_btn": "Envoyer"
+      "contact.send_btn": "Envoyer",
+      "tool.svg-to-react.name": "SVG vers React",
+      "tool.svg-to-react.description": "Convertir du code SVG brut en composants React (JSX/TSX) ou React Native propres et personnalisables",
+      "svg_to_react.input_label": "Code SVG Source",
+      "svg_to_react.placeholder": "Collez votre code SVG brut ici... ex: <svg>...</svg>",
+      "svg_to_react.options_title": "Options du Composant",
+      "svg_to_react.language_label": "Langage",
+      "svg_to_react.platform_label": "Plateforme Cible",
+      "svg_to_react.platform_web": "React (Web)",
+      "svg_to_react.platform_native": "React Native",
+      "svg_to_react.component_name": "Nom du Composant",
+      "svg_to_react.forward_ref": "Utiliser forwardRef",
+      "svg_to_react.react_memo": "Envelopper avec React.memo",
+      "svg_to_react.replace_colors": "Remplacer les couleurs figées par currentColor / props",
+      "svg_to_react.custom_size": "Forcer les dimensions width/height avec la prop size",
+      "svg_to_react.presets_title": "Presets SVG",
+      "svg_to_react.output_label": "Code du Composant React",
+      "svg_to_react.output_placeholder": "Le composant converti apparaîtra ici...",
+      "svg_to_react.about_title": "À propos du Convertisseur SVG vers React/React Native",
+      "svg_to_react.about_text_1": "Cet utilitaire convertit des images vectorielles SVG brutes en composants React (JS/TS) ou React Native réutilisables et typés.",
+      "svg_to_react.about_text_2": "Il transforme automatiquement les attributs SVG HTML standards en camelCase (ex: stroke-width devient strokeWidth, fill-rule devient fillRule) et remplace les couleurs par currentColor ou des props dynamiques. Pour React Native, il traduit les balises comme path, rect, g en composants importés de 'react-native-svg'."
     }
   }
 };

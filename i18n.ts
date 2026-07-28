@@ -3840,7 +3840,27 @@ const resources = {
       "svg_to_react.output_placeholder": "The converted component will appear here...",
       "svg_to_react.about_title": "About SVG to React/React Native Converter",
       "svg_to_react.about_text_1": "This utility converts raw SVG vector images into reusable, typed React (JS/TS) or React Native components.",
-      "svg_to_react.about_text_2": "It automatically parses standard HTML SVG attributes into camelCase (e.g. stroke-width becomes strokeWidth, fill-rule becomes fillRule) and replaces direct colors with currentColor or dynamic prop overrides. For React Native, it translates tag names like path, rect, g to components imported from 'react-native-svg'."
+      "svg_to_react.about_text_2": "It automatically converts standard HTML SVG attributes into camelCase (e.g., stroke-width becomes strokeWidth, fill-rule becomes fillRule) and swaps colors with currentColor or dynamic props. For React Native, it translates tags like path, rect, g to imported components from 'react-native-svg'.",
+      "sleep.planning_title": "I want to wake up at...",
+      "sleep.planning_subtitle": "To wake up feeling refreshed, you should avoid cutting a sleep cycle.",
+      "sleep.wake_up_label": "Wake-up time",
+      "sleep.cycles_one": "{{count}} cycle",
+      "sleep.cycles_other": "{{count}} cycles",
+      "sleep.cycles": "{{count}} cycles",
+      "sleep.bedtime_action": "Go to bed at {{time}}",
+      "sleep.sleep_now_title": "If I go to bed now...",
+      "sleep.sleep_now_subtitle": "Calculated by adding 15 minutes to fall asleep.",
+      "sleep.wake_time_action": "Wake up at {{time}}",
+      "sleep.rule_90_title": "The 90-Minute Rule",
+      "sleep.rule_90_text": "A complete sleep cycle lasts an average of 90 minutes. Waking up at the end of a cycle rather than in the middle helps you feel more alert and less groggy.",
+      "sleep.inertia_title": "Sleep Inertia",
+      "sleep.inertia_text": "This is that feeling of disorientation when you are woken up in the middle of deep sleep. By planning your cycles, you minimize this risk.",
+      "sleep.falling_sleep_title": "Time to Fall Asleep",
+      "sleep.falling_sleep_text": "Humans take an average of 14 to 15 minutes to fall asleep. Our calculator automatically includes this delay in its estimates.",
+      "sleep.tips_title": "Tips for a Good Night",
+      "sleep.tips_text": "Try to keep regular schedules, even on weekends. Avoid blue screens 1 hour before bedtime and keep your bedroom at a cool temperature (around 18°C).",
+      "sleep.reset_success": "Wake-up time reset to 07:00!",
+      "stringescaper.reset_success": "Input cleared!"
     }
   },
   fr: {
@@ -7684,7 +7704,27 @@ const resources = {
       "svg_to_react.output_placeholder": "Le composant converti apparaîtra ici...",
       "svg_to_react.about_title": "À propos du Convertisseur SVG vers React/React Native",
       "svg_to_react.about_text_1": "Cet utilitaire convertit des images vectorielles SVG brutes en composants React (JS/TS) ou React Native réutilisables et typés.",
-      "svg_to_react.about_text_2": "Il transforme automatiquement les attributs SVG HTML standards en camelCase (ex: stroke-width devient strokeWidth, fill-rule devient fillRule) et remplace les couleurs par currentColor ou des props dynamiques. Pour React Native, il traduit les balises comme path, rect, g en composants importés de 'react-native-svg'."
+      "svg_to_react.about_text_2": "Il transforme automatiquement les attributs SVG HTML standards en camelCase (ex: stroke-width devient strokeWidth, fill-rule devient fillRule) et remplace les couleurs par currentColor ou des props dynamiques. Pour React Native, il traduit les balises comme path, rect, g en composants importés de 'react-native-svg'",
+      "sleep.planning_title": "Je veux me réveiller à...",
+      "sleep.planning_subtitle": "Pour se réveiller en pleine forme, il faut éviter de couper un cycle de sommeil.",
+      "sleep.wake_up_label": "Heure de réveil",
+      "sleep.cycles_one": "{{count}} cycle",
+      "sleep.cycles_other": "{{count}} cycles",
+      "sleep.cycles": "{{count}} cycles",
+      "sleep.bedtime_action": "Se coucher à {{time}}",
+      "sleep.sleep_now_title": "Si je me couche maintenant...",
+      "sleep.sleep_now_subtitle": "Calculé en ajoutant 15 minutes pour l'endormissement.",
+      "sleep.wake_time_action": "Réveil à {{time}}",
+      "sleep.rule_90_title": "La règle des 90 minutes",
+      "sleep.rule_90_text": "Un cycle de sommeil complet dure en moyenne 90 minutes. Se réveiller à la fin d'un cycle plutôt qu'au milieu permet de se sentir plus alerte et moins groggy.",
+      "sleep.inertia_title": "Inertie du sommeil",
+      "sleep.inertia_text": "C'est cette sensation de désorientation quand on est réveillé en plein sommeil profond. En planifiant vos cycles, vous minimisez ce risque.",
+      "sleep.falling_sleep_title": "Le temps d'endormissement",
+      "sleep.falling_sleep_text": "L'être humain met en moyenne 14 à 15 minutes pour s'endormir. Notre calculateur inclut automatiquement ce délai dans ses estimations.",
+      "sleep.tips_title": "Conseils pour une bonne nuit",
+      "sleep.tips_text": "Essayez de maintenir des horaires réguliers, même le week-end. Évitez les écrans bleus 1 heure avant le coucher et maintenez votre chambre à une température fraîche (environ 18°C).",
+      "sleep.reset_success": "Heure de réveil réinitialisée à 07h00 !",
+      "stringescaper.reset_success": "Saisie effacée !"
     }
   }
 };

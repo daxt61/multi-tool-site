@@ -1,6 +1,8 @@
-import { useState, useEffect, useMemo, useCallback } from 'react';
-import { Clock, Copy, Check, Info, Trash2 } from 'lucide-react';
+import { useState, useEffect, useMemo, useCallback, useRef } from 'react';
+import { Clock, Copy, Check, Info, Trash2, Calendar } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
+import { toast } from 'sonner';
+import { Kbd } from './ui/Kbd';
 
 export function CronGenerator({ initialData, onStateChange }: { initialData?: any; onStateChange?: (state: any) => void }) {
   const { t, i18n } = useTranslation();
@@ -11,21 +13,30 @@ export function CronGenerator({ initialData, onStateChange }: { initialData?: an
   const [dayOfWeek, setDayOfWeek] = useState(initialData?.dayOfWeek || '*');
   const [cron, setCron] = useState('* * * * *');
   const [copied, setCopied] = useState(false);
+  const [activeTab, setActiveTab] = useState<'minutes' | 'hours' | 'dayOfMonth' | 'month' | 'dayOfWeek'>('minutes');
+
+  const mainInputRef = useRef<HTMLInputElement>(null);
+
+  // Denial of Service Mitigation: Enforce limits on text inputs
+  const sanitizeInput = (val: string, maxLen: number = 30) => {
+    return val.slice(0, maxLen).replace(/[^0-9a-zA-Z*?/,#-]/g, '');
+  };
 
   const matchesCronField = useCallback((value: number, pattern: string, min: number, max: number): boolean => {
-    if (pattern === '*') return true;
+    if (pattern === '*' || pattern === '?') return true;
     if (pattern.startsWith('*/')) {
-      const step = parseInt(pattern.slice(2));
-      return value % step === 0;
+      const step = parseInt(pattern.slice(2), 10);
+      return !isNaN(step) && step > 0 && value % step === 0;
     }
     if (pattern.includes(',')) {
       return pattern.split(',').some(p => matchesCronField(value, p, min, max));
     }
     if (pattern.includes('-')) {
-      const [start, end] = pattern.split('-').map(Number);
-      return value >= start && value <= end;
+      const [start, end] = pattern.split('-').map(p => parseInt(p, 10));
+      return !isNaN(start) && !isNaN(end) && value >= start && value <= end;
     }
-    return parseInt(pattern) === value;
+    const valInt = parseInt(pattern, 10);
+    return !isNaN(valInt) && valInt === value;
   }, []);
 
   const nextRuns = useMemo(() => {
@@ -33,10 +44,12 @@ export function CronGenerator({ initialData, onStateChange }: { initialData?: an
     let current = new Date();
     current.setSeconds(0, 0);
 
-    // Safety limit to avoid infinite loops
-    const limit = new Date(current.getTime() + 24 * 60 * 60 * 1000); // 24 hours
+    // Limit computation range to prevent browser freezing
+    const limit = new Date(current.getTime() + 24 * 60 * 60 * 1000);
 
-    while (runs.length < 3 && current < limit) {
+    let iterations = 0;
+    while (runs.length < 5 && current < limit && iterations < 5000) {
+      iterations++;
       current.setMinutes(current.getMinutes() + 1);
 
       const m = current.getMinutes();
@@ -90,14 +103,14 @@ export function CronGenerator({ initialData, onStateChange }: { initialData?: an
 
     // Month
     if (month !== '*') {
-      const mIdx = parseInt(month);
+      const mIdx = parseInt(month, 10);
       res += t('cron.desc_in_month', { month: monthsArr[mIdx] || month }) + " ";
     }
 
     // Day of Week
     if (dayOfWeek !== '*') {
       const parseDay = (val: string) => {
-        const d = parseInt(val);
+        const d = parseInt(val, 10);
         return daysArr[d] || val;
       };
 
@@ -122,11 +135,46 @@ export function CronGenerator({ initialData, onStateChange }: { initialData?: an
     onStateChange?.({ minutes, hours, dayOfMonth, month, dayOfWeek, cron: newCron });
   }, [minutes, hours, dayOfMonth, month, dayOfWeek]);
 
-  const handleCopy = () => {
+  const handleCopy = useCallback(() => {
     navigator.clipboard.writeText(cron);
     setCopied(true);
+    toast.success(t('common.copied') || 'Copié !');
     setTimeout(() => setCopied(false), 2000);
-  };
+  }, [cron, t]);
+
+  const handleClear = useCallback(() => {
+    setMinutes('*');
+    setHours('*');
+    setDayOfMonth('*');
+    setMonth('*');
+    setDayOfWeek('*');
+    toast.success(t('common.clear') || 'Effacé !');
+    mainInputRef.current?.focus();
+  }, [t]);
+
+  // Keyboard shortcut handlers with useRef closure safeguard
+  const handlersRef = useRef({ handleCopy, handleClear });
+  useEffect(() => {
+    handlersRef.current = { handleCopy, handleClear };
+  }, [handleCopy, handleClear]);
+
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      const activeElement = document.activeElement;
+      const isInput = activeElement?.tagName === 'INPUT' || activeElement?.tagName === 'TEXTAREA' || activeElement?.hasAttribute('contenteditable');
+
+      if (e.key === 'Escape') {
+        e.preventDefault();
+        handlersRef.current.handleClear();
+      } else if (e.key.toLowerCase() === 'c' && !e.ctrlKey && !e.metaKey && !e.altKey && !isInput) {
+        e.preventDefault();
+        handlersRef.current.handleCopy();
+      }
+    };
+
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, []);
 
   const presets = [
     { name: t('cron.preset_every_minute'), value: '* * * * *' },
@@ -139,24 +187,75 @@ export function CronGenerator({ initialData, onStateChange }: { initialData?: an
 
   const applyPreset = (value: string) => {
     const parts = value.split(' ');
-    setMinutes(parts[0]);
-    setHours(parts[1]);
-    setDayOfMonth(parts[2]);
-    setMonth(parts[3]);
-    setDayOfWeek(parts[4]);
+    if (parts.length === 5) {
+      setMinutes(parts[0]);
+      setHours(parts[1]);
+      setDayOfMonth(parts[2]);
+      setMonth(parts[3]);
+      setDayOfWeek(parts[4]);
+      toast.success(t('cron.preset_applied') || 'Préréglage appliqué !');
+    }
   };
 
-  const handleClear = () => {
-    setMinutes('*');
-    setHours('*');
-    setDayOfMonth('*');
-    setMonth('*');
-    setDayOfWeek('*');
-  };
+  // Helper arrays for options
+  const minuteOptions = [
+    { label: t('cron.opt_every_minute') || 'Chaque minute', value: '*' },
+    { label: t('cron.opt_every_5_minutes') || 'Toutes les 5 minutes', value: '*/5' },
+    { label: t('cron.opt_every_10_minutes') || 'Toutes les 10 minutes', value: '*/10' },
+    { label: t('cron.opt_every_15_minutes') || 'Toutes les 15 minutes', value: '*/15' },
+    { label: t('cron.opt_every_30_minutes') || 'Toutes les 30 minutes', value: '*/30' },
+    { label: '0', value: '0' },
+    { label: '15', value: '15' },
+    { label: '30', value: '30' },
+    { label: '45', value: '45' },
+  ];
+
+  const hourOptions = [
+    { label: t('cron.opt_every_hour') || 'Chaque heure', value: '*' },
+    { label: t('cron.opt_every_2_hours') || 'Toutes les 2 heures', value: '*/2' },
+    { label: t('cron.opt_every_4_hours') || 'Toutes les 4 heures', value: '*/4' },
+    { label: t('cron.opt_every_6_hours') || 'Toutes les 6 heures', value: '*/6' },
+    { label: t('cron.opt_every_12_hours') || 'Toutes les 12 heures', value: '*/12' },
+    { label: '00:00', value: '0' },
+    { label: '12:00', value: '12' },
+  ];
+
+  const domOptions = [
+    { label: t('cron.opt_every_day') || 'Chaque jour', value: '*' },
+    { label: t('cron.opt_first_day') || 'Premier jour', value: '1' },
+    { label: t('cron.opt_last_day') || 'Dernier jour', value: 'L' },
+    { label: '15', value: '15' },
+  ];
+
+  const monthOptions = [
+    { label: t('cron.opt_every_month') || 'Chaque mois', value: '*' },
+    { label: t('unit.symbol.time.january') || 'Janvier', value: '1' },
+    { label: t('unit.symbol.time.april') || 'Avril', value: '4' },
+    { label: t('unit.symbol.time.july') || 'Juillet', value: '7' },
+    { label: t('unit.symbol.time.october') || 'Octobre', value: '10' },
+  ];
+
+  const dowOptions = [
+    { label: t('cron.opt_every_day_week') || 'Chaque jour de la semaine', value: '*' },
+    { label: t('unit.symbol.time.monday') || 'Lundi', value: '1' },
+    { label: t('unit.symbol.time.friday') || 'Vendredi', value: '5' },
+    { label: t('unit.symbol.time.weekend') || 'Week-end (Sam, Dim)', value: '0,6' },
+    { label: t('unit.symbol.time.weekdays') || 'Jours ouvrés (Lun-Ven)', value: '1-5' },
+  ];
 
   return (
     <div className="max-w-4xl mx-auto space-y-10">
-      <div className="flex justify-end px-1">
+      <div className="flex justify-between items-center px-1">
+        <div className="flex gap-2 text-xs text-slate-400">
+          <Kbd modifier={null} className="bg-slate-100 dark:bg-slate-800 border-slate-200 dark:border-slate-700">
+            Esc
+          </Kbd>
+          <span>{t('cron.shortcut_clear') || 'Effacer'}</span>
+          <Kbd modifier={null} className="bg-slate-100 dark:bg-slate-800 border-slate-200 dark:border-slate-700 ml-2">
+            C
+          </Kbd>
+          <span>{t('cron.shortcut_copy') || 'Copier'}</span>
+        </div>
         <button
           onClick={handleClear}
           disabled={cron === '* * * * *'}
@@ -189,23 +288,133 @@ export function CronGenerator({ initialData, onStateChange }: { initialData?: an
         </button>
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-5 gap-4">
+      {/* Interactive Tabs Controller */}
+      <div className="bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-3xl p-6 space-y-6">
+        <div className="flex flex-wrap gap-2 border-b border-slate-200 dark:border-slate-800 pb-4">
+          {[
+            { id: 'minutes', label: t('cron.minute'), value: minutes },
+            { id: 'hours', label: t('cron.hour'), value: hours },
+            { id: 'dayOfMonth', label: t('cron.day_month'), value: dayOfMonth },
+            { id: 'month', label: t('cron.month'), value: month },
+            { id: 'dayOfWeek', label: t('cron.day_week'), value: dayOfWeek },
+          ].map((tab) => (
+            <button
+              key={tab.id}
+              onClick={() => setActiveTab(tab.id as any)}
+              className={`px-4 py-2 rounded-xl text-sm font-bold transition-all ${
+                activeTab === tab.id
+                  ? 'bg-indigo-600 text-white shadow-md shadow-indigo-500/10'
+                  : 'bg-white dark:bg-slate-850 text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800'
+              }`}
+            >
+              {tab.label} <span className="font-mono text-xs opacity-70">({tab.value})</span>
+            </button>
+          ))}
+        </div>
+
+        {/* Dynamic Options for active tab */}
+        <div className="space-y-4">
+          <h4 className="text-sm font-bold text-slate-600 dark:text-slate-300">
+            {t('cron.select_preset_for') || 'Sélectionner une option de préréglage pour'} {t(`cron.${activeTab}`)}
+          </h4>
+          <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3">
+            {activeTab === 'minutes' &&
+              minuteOptions.map((opt) => (
+                <button
+                  key={opt.value}
+                  onClick={() => setMinutes(opt.value)}
+                  className={`p-3 rounded-xl border text-center text-sm font-bold transition-all ${
+                    minutes === opt.value
+                      ? 'border-indigo-500 bg-indigo-50/50 dark:bg-indigo-950/30 text-indigo-600 dark:text-indigo-400'
+                      : 'border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 hover:border-slate-300'
+                  }`}
+                >
+                  {opt.label}
+                </button>
+              ))}
+
+            {activeTab === 'hours' &&
+              hourOptions.map((opt) => (
+                <button
+                  key={opt.value}
+                  onClick={() => setHours(opt.value)}
+                  className={`p-3 rounded-xl border text-center text-sm font-bold transition-all ${
+                    hours === opt.value
+                      ? 'border-indigo-500 bg-indigo-50/50 dark:bg-indigo-950/30 text-indigo-600 dark:text-indigo-400'
+                      : 'border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 hover:border-slate-300'
+                  }`}
+                >
+                  {opt.label}
+                </button>
+              ))}
+
+            {activeTab === 'dayOfMonth' &&
+              domOptions.map((opt) => (
+                <button
+                  key={opt.value}
+                  onClick={() => setDayOfMonth(opt.value)}
+                  className={`p-3 rounded-xl border text-center text-sm font-bold transition-all ${
+                    dayOfMonth === opt.value
+                      ? 'border-indigo-500 bg-indigo-50/50 dark:bg-indigo-950/30 text-indigo-600 dark:text-indigo-400'
+                      : 'border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 hover:border-slate-300'
+                  }`}
+                >
+                  {opt.label}
+                </button>
+              ))}
+
+            {activeTab === 'month' &&
+              monthOptions.map((opt) => (
+                <button
+                  key={opt.value}
+                  onClick={() => setMonth(opt.value)}
+                  className={`p-3 rounded-xl border text-center text-sm font-bold transition-all ${
+                    month === opt.value
+                      ? 'border-indigo-500 bg-indigo-50/50 dark:bg-indigo-950/30 text-indigo-600 dark:text-indigo-400'
+                      : 'border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 hover:border-slate-300'
+                  }`}
+                >
+                  {opt.label}
+                </button>
+              ))}
+
+            {activeTab === 'dayOfWeek' &&
+              dowOptions.map((opt) => (
+                <button
+                  key={opt.value}
+                  onClick={() => setDayOfWeek(opt.value)}
+                  className={`p-3 rounded-xl border text-center text-sm font-bold transition-all ${
+                    dayOfWeek === opt.value
+                      ? 'border-indigo-500 bg-indigo-50/50 dark:bg-indigo-950/30 text-indigo-600 dark:text-indigo-400'
+                      : 'border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 hover:border-slate-300'
+                  }`}
+                >
+                  {opt.label}
+                </button>
+              ))}
+          </div>
+        </div>
+      </div>
+
+      {/* Manual Input Fields */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-5 gap-4">
         {[
-          { id: 'cron-minute', label: t('cron.minute'), value: minutes, setter: setMinutes, hint: '0-59, *, */n' },
+          { id: 'cron-minute', label: t('cron.minute'), value: minutes, setter: setMinutes, hint: '0-59, *, */n', ref: mainInputRef },
           { id: 'cron-hour', label: t('cron.hour'), value: hours, setter: setHours, hint: '0-23, *, */n' },
           { id: 'cron-dom', label: t('cron.day_month'), value: dayOfMonth, setter: setDayOfMonth, hint: '1-31, *, L' },
           { id: 'cron-month', label: t('cron.month'), value: month, setter: setMonth, hint: '1-12, *, JAN-DEC' },
           { id: 'cron-dow', label: t('cron.day_week'), value: dayOfWeek, setter: setDayOfWeek, hint: '0-6, *, SUN-SAT' },
         ].map((field) => (
           <div key={field.id} className="space-y-2">
-            <label htmlFor={field.id} className="text-xs font-black uppercase tracking-widest text-slate-400 px-1 cursor-pointer">
-              {field.label}
+            <label htmlFor={field.id} className="text-xs font-black uppercase tracking-widest text-slate-400 px-1 cursor-pointer flex justify-between items-center">
+              <span>{field.label}</span>
             </label>
             <input
               id={field.id}
+              ref={field.ref}
               type="text"
               value={field.value}
-              onChange={(e) => field.setter(e.target.value)}
+              onChange={(e) => field.setter(sanitizeInput(e.target.value))}
               className="w-full p-4 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl text-center font-mono font-bold text-xl outline-none focus:ring-2 focus:ring-indigo-500/20 transition-all dark:text-white"
             />
             <p className="text-[10px] text-center text-slate-400 font-bold">{field.hint}</p>
@@ -249,9 +458,9 @@ export function CronGenerator({ initialData, onStateChange }: { initialData?: an
         </div>
 
         <div className="bg-amber-50 dark:bg-amber-500/5 border border-amber-200 dark:border-amber-900/20 p-8 rounded-[2.5rem] flex gap-4">
-        <div className="shrink-0 w-10 h-10 bg-amber-100 dark:bg-amber-900/30 rounded-full flex items-center justify-center text-amber-600">
-          <Info className="w-5 h-5" />
-        </div>
+          <div className="shrink-0 w-10 h-10 bg-amber-100 dark:bg-amber-900/30 rounded-full flex items-center justify-center text-amber-600">
+            <Info className="w-5 h-5" />
+          </div>
           <div className="space-y-1">
             <h5 className="font-bold text-amber-900 dark:text-amber-100">{t('cron.how_title')}</h5>
             <p className="text-sm text-amber-700 dark:text-amber-300 leading-relaxed">

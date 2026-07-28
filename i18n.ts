@@ -3860,7 +3860,24 @@ const resources = {
       "sleep.tips_title": "Tips for a Good Night",
       "sleep.tips_text": "Try to keep regular schedules, even on weekends. Avoid blue screens 1 hour before bedtime and keep your bedroom at a cool temperature (around 18°C).",
       "sleep.reset_success": "Wake-up time reset to 07:00!",
-      "stringescaper.reset_success": "Input cleared!"
+      "stringescaper.reset_success": "Input cleared!",
+      "about.hero_title_1": "Productivity",
+      "about.hero_title_2": "without compromise.",
+      "about.hero_subtitle": "Toolbox is a modern platform gathering all the essential utilities for your daily tasks.",
+      "about.feat1_title": "Instant",
+      "about.feat1_desc": "No account, no installation. Your tools are ready.",
+      "about.feat2_title": "Private",
+      "about.feat2_desc": "Your data remains local. We collect nothing.",
+      "about.feat3_title": "Open Source",
+      "about.feat3_desc": "Total transparency on the code and algorithms.",
+      "about.mission_tag": "Our Mission",
+      "about.mission_title": "Accessibility & Performance",
+      "about.mission_desc": "The web is full of converters and calculators, but too often they are cluttered with ads, slow, or complex. Our mission is to provide a clean, fast, and pleasant alternative.",
+      "about.bullet1": "Maximum performance (Vite + React)",
+      "about.bullet2": "Total respect for privacy",
+      "about.bullet3": "Intuitive and minimalist design",
+      "about.box_title": "A constantly evolving toolbox",
+      "about.box_desc": "We regularly add new tools based on feedback from our users. From finance to development, we cover all your needs."
     }
   },
   fr: {
@@ -7724,7 +7741,24 @@ const resources = {
       "sleep.tips_title": "Conseils pour une bonne nuit",
       "sleep.tips_text": "Essayez de maintenir des horaires réguliers, même le week-end. Évitez les écrans bleus 1 heure avant le coucher et maintenez votre chambre à une température fraîche (environ 18°C).",
       "sleep.reset_success": "Heure de réveil réinitialisée à 07h00 !",
-      "stringescaper.reset_success": "Saisie effacée !"
+      "stringescaper.reset_success": "Saisie effacée !",
+      "about.hero_title_1": "La productivité",
+      "about.hero_title_2": "sans compromis.",
+      "about.hero_subtitle": "Boîte à Outils est une plateforme moderne regroupant tous les utilitaires essentiels pour vos tâches quotidiennes.",
+      "about.feat1_title": "Instantané",
+      "about.feat1_desc": "Pas de compte, pas d'installation. Vos outils sont prêts.",
+      "about.feat2_title": "Privé",
+      "about.feat2_desc": "Vos données restent locales. Nous ne collectons rien.",
+      "about.feat3_title": "Open Source",
+      "about.feat3_desc": "Transparence totale sur le code et les algorithmes.",
+      "about.mission_tag": "Notre Mission",
+      "about.mission_title": "Accessibilité & Performance",
+      "about.mission_desc": "Le web regorge de convertisseurs et calculateurs, mais trop souvent ils sont encombrés de publicités, lents ou complexes. Notre mission est de fournir une alternative propre, rapide et agréable.",
+      "about.bullet1": "Performance maximale (Vite + React)",
+      "about.bullet2": "Respect total de la vie privée",
+      "about.bullet3": "Design intuitif et minimaliste",
+      "about.box_title": "Une boîte à outils en constante évolution",
+      "about.box_desc": "Nous ajoutons régulièrement de nouveaux outils basés sur les retours de nos utilisateurs. De la finance au développement, nous couvrons tous vos besoins."
     }
   }
 };

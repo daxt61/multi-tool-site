@@ -236,3 +236,8 @@
 **Vulnerability:** The TextToHandwriting component allowed users to input text of arbitrary length, which was split and rendered onto a canvas. Large inputs could freeze or crash the browser.
 **Learning:** Tools utilizing the Canvas API for sequential rendering/computations are highly susceptible to client-side Denial of Service (DoS) if the input size is unbounded.
 **Prevention:** Enforce a strict `MAX_LENGTH` limit on the input, and conditionally stop the rendering loop and disable actions if the limit is exceeded.
+
+## 2026-07-28 - [Client-side DoS in List to JSON Converter]
+**Vulnerability:** The ListToJSON component had no maximum length checks on input lists, which could lead to tab freezing and browser crash when users typed or pasted huge inputs (as the component mapped, split, de-duplicated and stringified on every change).
+**Learning:** Client-side list processing utilities are highly prone to DoS when performing parsing, set conversion and sorting without an upper boundary. Enforcing standard limits is a required security control.
+**Prevention:** Always define and enforce `MAX_LENGTH = 100000` on input text areas for list/string transformation tools before starting computational loops.

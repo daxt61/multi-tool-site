@@ -3914,7 +3914,8 @@ const resources = {
       "workhours.about_title": "About Work Hours Calculator",
       "workhours.about_text": "Track your daily shift times (supporting overnight hours), subtract mandatory breaks, and calculate total hours worked. You can configure custom hourly rates and standard daily or weekly overtime rules with multipliers to estimate gross earnings instantly. Export your logging to CSV or copy a full text-based invoice report with a click.",
       "workhours.download_csv_tooltip": "Download CSV report",
-      "workhours.copy_summary": "Copy Summary"
+      "workhours.copy_summary": "Copy Summary",
+      "list_to_json.error_max_length": "The list is too long. Limit of {{max}} characters."
     }
   },
   fr: {
@@ -7832,7 +7833,8 @@ const resources = {
       "workhours.about_title": "À propos de la calculatrice d'heures de travail",
       "workhours.about_text": "Suivez vos horaires de travail quotidiens (prenant en charge les heures de nuit), soustrayez les pauses obligatoires et calculez le total des heures travaillées. Vous pouvez configurer des taux horaires personnalisés et des règles standard d'heures supplémentaires quotidiennes ou hebdomadaires avec des multiplicateurs pour estimer instantanément vos gains bruts. Exportez vos journaux en CSV ou copiez un rapport de facture textuel complet en un clic.",
       "workhours.download_csv_tooltip": "Télécharger le rapport CSV",
-      "workhours.copy_summary": "Copier le résumé"
+      "workhours.copy_summary": "Copier le résumé",
+      "list_to_json.error_max_length": "La liste est trop longue. Limite de {{max}} caractères."
     }
   }
 };

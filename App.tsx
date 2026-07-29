@@ -221,6 +221,7 @@ const TextToSpeech = lazy(() => import("./components/TextToSpeech").then(m => ({
 const GlassmorphismGenerator = lazy(() => import("./components/GlassmorphismGenerator").then(m => ({ default: m.GlassmorphismGenerator })));
 const ImageToWebP = lazy(() => import("./components/ImageToWebP").then(m => ({ default: m.ImageToWebP })));
 const BMRCalculator = lazy(() => import("./components/BMRCalculator").then(m => ({ default: m.BMRCalculator })));
+const WorkHoursCalculator = lazy(() => import("./components/WorkHoursCalculator").then(m => ({ default: m.WorkHoursCalculator })));
 const NumberToWords = lazy(() => import("./components/NumberToWords").then(m => ({ default: m.NumberToWords })));
 const BoxShadowGenerator = lazy(() => import("./components/BoxShadowGenerator").then(m => ({ default: m.BoxShadowGenerator })));
 const MetaTagsGenerator = lazy(() => import("./components/MetaTagsGenerator").then(m => ({ default: m.MetaTagsGenerator })));
@@ -585,6 +586,17 @@ const categories: Category[] = [
 
 const tools: Tool[] = [
   // Business Tools
+  {
+    id: "work-hours-calculator",
+    name: "Calculateur d'Heures",
+    nameEn: "Work Hours Calculator",
+    icon: Briefcase,
+    description: "Calculez les heures de travail quotidiennes et hebdomadaires, les pauses, les heures supplémentaires et le salaire estimé",
+    descriptionEn: "Calculate daily and weekly work hours, breaks, overtime, and estimated pay",
+    Component: WorkHoursCalculator,
+    category: "business",
+    keywords: ["work", "hours", "overtime", "pay", "weekly", "timesheet", "heures", "travail", "salaire"],
+  },
   {
     id: "vcard-generator",
     name: "Carte de Visite",

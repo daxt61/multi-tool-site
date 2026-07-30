@@ -131,12 +131,13 @@ export function BMRCalculator({ initialData, onStateChange }: { initialData?: an
 
             <div className="space-y-6">
               {/* Gender Selection */}
-              <div className="space-y-3">
-                <label className="text-xs font-bold text-slate-500 px-1">{t('bmrcalculator.gender')}</label>
+              <div className="space-y-3" role="radiogroup" aria-label={t('bmrcalculator.gender')}>
+                <span className="text-xs font-bold text-slate-500 px-1 block">{t('bmrcalculator.gender')}</span>
                 <div className="grid grid-cols-2 gap-3">
                   <button
+                    role="radio"
+                    aria-checked={gender === 'male'}
                     onClick={() => setGender('male')}
-                    aria-pressed={gender === 'male'}
                     className={`py-4 rounded-2xl font-bold text-sm transition-all border focus-visible:ring-2 focus-visible:ring-indigo-500 focus-visible:outline-none ${
                       gender === 'male'
                         ? 'bg-indigo-600 text-white border-indigo-600 shadow-lg shadow-indigo-600/20'
@@ -146,8 +147,9 @@ export function BMRCalculator({ initialData, onStateChange }: { initialData?: an
                     {t('bmrcalculator.male')}
                   </button>
                   <button
+                    role="radio"
+                    aria-checked={gender === 'female'}
                     onClick={() => setGender('female')}
-                    aria-pressed={gender === 'female'}
                     className={`py-4 rounded-2xl font-bold text-sm transition-all border focus-visible:ring-2 focus-visible:ring-indigo-500 focus-visible:outline-none ${
                       gender === 'female'
                         ? 'bg-indigo-600 text-white border-indigo-600 shadow-lg shadow-indigo-600/20'
@@ -162,7 +164,7 @@ export function BMRCalculator({ initialData, onStateChange }: { initialData?: an
               {/* Age, Weight, Height Grid */}
               <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                 <div className="space-y-2">
-                  <label htmlFor="age" className="text-xs font-bold text-slate-500 px-1">{t('bmrcalculator.age')}</label>
+                  <label htmlFor="age" className="text-xs font-bold text-slate-500 px-1 cursor-pointer">{t('bmrcalculator.age')}</label>
                   <div className="relative">
                     <input
                       id="age"
@@ -177,7 +179,7 @@ export function BMRCalculator({ initialData, onStateChange }: { initialData?: an
                   </div>
                 </div>
                 <div className="space-y-2">
-                  <label htmlFor="weight" className="text-xs font-bold text-slate-500 px-1">{t('bmrcalculator.weight')}</label>
+                  <label htmlFor="weight" className="text-xs font-bold text-slate-500 px-1 cursor-pointer">{t('bmrcalculator.weight')}</label>
                   <div className="relative">
                     <input
                       id="weight"
@@ -190,7 +192,7 @@ export function BMRCalculator({ initialData, onStateChange }: { initialData?: an
                   </div>
                 </div>
                 <div className="space-y-2">
-                  <label htmlFor="height" className="text-xs font-bold text-slate-500 px-1">{t('bmrcalculator.height')}</label>
+                  <label htmlFor="height" className="text-xs font-bold text-slate-500 px-1 cursor-pointer">{t('bmrcalculator.height')}</label>
                   <div className="relative">
                     <input
                       id="height"
@@ -205,14 +207,15 @@ export function BMRCalculator({ initialData, onStateChange }: { initialData?: an
               </div>
 
               {/* Activity Level */}
-              <div className="space-y-3">
-                <label htmlFor="activity" className="text-xs font-bold text-slate-500 px-1">{t('bmrcalculator.activity_level')}</label>
+              <div className="space-y-3" role="radiogroup" aria-labelledby="activity-label">
+                <span id="activity-label" className="text-xs font-bold text-slate-500 px-1 block">{t('bmrcalculator.activity_level')}</span>
                 <div className="grid grid-cols-1 gap-2">
                   {activityLevels.map((level) => (
                     <button
                       key={level}
+                      role="radio"
+                      aria-checked={activity === level}
                       onClick={() => setActivity(level)}
-                      aria-pressed={activity === level}
                       className={`flex items-start gap-4 p-4 rounded-2xl border transition-all text-left focus-visible:ring-2 focus-visible:ring-indigo-500 focus-visible:outline-none ${
                         activity === level
                           ? 'bg-indigo-50 dark:bg-indigo-900/20 border-indigo-200 dark:border-indigo-800 shadow-sm'
@@ -222,7 +225,7 @@ export function BMRCalculator({ initialData, onStateChange }: { initialData?: an
                       <div className={`mt-1 w-5 h-5 rounded-full border-2 flex items-center justify-center shrink-0 ${
                         activity === level ? 'border-indigo-600 bg-indigo-600' : 'border-slate-300'
                       }`}>
-                        {activity === level && <Check className="w-3 h-3 text-white" />}
+                        {activity === level && <Check className="w-3 h-3 text-white" aria-hidden="true" />}
                       </div>
                       <div>
                         <div className={`font-bold text-sm ${activity === level ? 'text-indigo-600 dark:text-indigo-400' : 'text-slate-700 dark:text-slate-200'}`}>

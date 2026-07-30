@@ -6,6 +6,7 @@ import { toast } from 'sonner';
 import { Kbd } from './ui/Kbd';
 
 const MAX_PASSWORD_LENGTH = 72; // Bcrypt limit is technically 72 bytes
+const MAX_HASH_LENGTH = 100; // Standard Bcrypt hash is 60 chars
 
 export function BcryptGenerator({ initialData, onStateChange }: { initialData?: any; onStateChange?: (state: any) => void }) {
   const { t } = useTranslation();
@@ -22,8 +23,8 @@ export function BcryptGenerator({ initialData, onStateChange }: { initialData?: 
   const [hashCopied, setHashCopied] = useState(false);
 
   // Verification state
-  const [checkPassword, setCheckPassword] = useState('');
-  const [checkHash, setCheckHash] = useState('');
+  const [checkPassword, setCheckPassword] = useState(() => (initialData?.checkPassword || '').slice(0, MAX_PASSWORD_LENGTH));
+  const [checkHash, setCheckHash] = useState(() => (initialData?.checkHash || '').slice(0, MAX_HASH_LENGTH));
   const [isMatch, setIsMatch] = useState<boolean | null>(null);
   const [verifying, setVerifying] = useState(false);
 
@@ -208,9 +209,13 @@ export function BcryptGenerator({ initialData, onStateChange }: { initialData?: 
                 autoComplete="off"
                 spellCheck={false}
                 value={checkPassword}
-                onChange={(e) => setCheckPassword(e.target.value)}
+                maxLength={MAX_PASSWORD_LENGTH}
+                onChange={(e) => setCheckPassword(e.target.value.slice(0, MAX_PASSWORD_LENGTH))}
                 className="w-full p-4 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl outline-none focus:ring-2 focus:ring-indigo-500/20 transition-all font-mono"
               />
+              <p className="text-[10px] text-slate-400 font-bold px-1 italic">
+                Max length: {MAX_PASSWORD_LENGTH} characters (Bcrypt standard)
+              </p>
             </div>
             <div className="space-y-2">
               <label htmlFor="verify-hash" className="text-sm font-bold text-slate-600 dark:text-slate-400 px-1">
@@ -222,9 +227,13 @@ export function BcryptGenerator({ initialData, onStateChange }: { initialData?: 
                 autoComplete="off"
                 spellCheck={false}
                 value={checkHash}
-                onChange={(e) => setCheckHash(e.target.value)}
+                maxLength={MAX_HASH_LENGTH}
+                onChange={(e) => setCheckHash(e.target.value.slice(0, MAX_HASH_LENGTH))}
                 className="w-full p-4 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl outline-none focus:ring-2 focus:ring-indigo-500/20 transition-all font-mono"
               />
+              <p className="text-[10px] text-slate-400 font-bold px-1 italic">
+                Max length: {MAX_HASH_LENGTH} characters (Standard Bcrypt hash size is 60)
+              </p>
             </div>
           </div>
 

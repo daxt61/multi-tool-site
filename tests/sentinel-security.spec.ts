@@ -123,4 +123,20 @@ test.describe('Sentinel Security Fixes', () => {
     const valAfterReset = await inputField.inputValue();
     expect(valAfterReset).toBe('Hello World');
   });
+
+  test('BcryptGenerator enforces MAX_PASSWORD_LENGTH and MAX_HASH_LENGTH on verify inputs', async ({ page }) => {
+    await page.goto('http://localhost:5173/fr/outil/bcrypt-generator');
+
+    // Fill verify password with > 72 characters
+    const longPassword = 'a'.repeat(100);
+    await page.fill('#verify-password', longPassword);
+    const passVal = await page.inputValue('#verify-password');
+    expect(passVal.length).toBe(72);
+
+    // Fill verify hash with > 100 characters
+    const longHash = 'b'.repeat(150);
+    await page.fill('#verify-hash', longHash);
+    const hashVal = await page.inputValue('#verify-hash');
+    expect(hashVal.length).toBe(100);
+  });
 });

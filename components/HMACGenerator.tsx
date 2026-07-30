@@ -4,8 +4,13 @@ import { useTranslation } from 'react-i18next';
 
 const MAX_LENGTH = 100000;
 
+import { useRef } from 'react';
+import { Kbd } from './ui/Kbd';
+import { toast } from 'sonner';
+
 export function HMACGenerator({ initialData, onStateChange }: { initialData?: any; onStateChange?: (state: any) => void }) {
   const { t } = useTranslation();
+  const inputRef = useRef<HTMLTextAreaElement>(null);
   const [message, setMessage] = useState(initialData?.message || '');
   const [secretKey, setSecretKey] = useState('');
   const [algorithm, setAlgorithm] = useState<'SHA-256' | 'SHA-384' | 'SHA-512'>(initialData?.algorithm || 'SHA-256');
@@ -57,19 +62,51 @@ export function HMACGenerator({ initialData, onStateChange }: { initialData?: an
     generateHMAC();
   }, [generateHMAC]);
 
-  const handleCopy = () => {
+  const handleCopy = useCallback(() => {
     if (!hmac) return;
     navigator.clipboard.writeText(hmac);
     setCopied(true);
+    toast.success('HMAC hash copied to clipboard!');
     setTimeout(() => setCopied(false), 2000);
-  };
+  }, [hmac]);
 
-  const handleClear = () => {
+  const handleClear = useCallback(() => {
     setMessage('');
     setSecretKey('');
     setHmac('');
     setError(null);
-  };
+    toast.success(t('robotstxt.toast_cleared') || 'Cleared!');
+    inputRef.current?.focus();
+  }, [t]);
+
+  const handlersRef = useRef({ handleClear, handleCopy });
+  useEffect(() => {
+    handlersRef.current = { handleClear, handleCopy };
+  }, [handleClear, handleCopy]);
+
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      const activeElement = document.activeElement;
+      const isEditable =
+        activeElement instanceof HTMLInputElement ||
+        activeElement instanceof HTMLTextAreaElement ||
+        activeElement?.getAttribute('contenteditable') === 'true';
+
+      if (isEditable && e.key !== 'Escape') return;
+      if (e.metaKey || e.ctrlKey || e.altKey || e.shiftKey) return;
+
+      if (e.key === 'Escape') {
+        e.preventDefault();
+        handlersRef.current.handleClear();
+      } else if (e.key.toLowerCase() === 'c') {
+        e.preventDefault();
+        handlersRef.current.handleCopy();
+      }
+    };
+
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, []);
 
   return (
     <div className="max-w-4xl mx-auto space-y-8">
@@ -86,16 +123,20 @@ export function HMACGenerator({ initialData, onStateChange }: { initialData?: an
             <label htmlFor="hmac-message" className="block text-xs font-black uppercase tracking-widest text-slate-400">
               {t('common.input')} (Message)
             </label>
-            <button
-              onClick={handleClear}
-              disabled={!message && !secretKey}
-              className="text-xs font-bold text-rose-500 hover:text-rose-600 transition-colors disabled:opacity-50"
-            >
-              {t('common.clear')}
-            </button>
+            <div className="flex gap-2 items-center">
+              <span className="hidden sm:inline-flex"><Kbd>Esc</Kbd></span>
+              <button
+                onClick={handleClear}
+                disabled={!message && !secretKey}
+                className="text-xs font-bold text-rose-500 hover:text-rose-600 transition-colors disabled:opacity-50"
+              >
+                {t('common.clear')}
+              </button>
+            </div>
           </div>
           <textarea
             id="hmac-message"
+            ref={inputRef}
             value={message}
             onChange={(e) => setMessage(e.target.value)}
             placeholder={t('hashgenerator.input_placeholder')}
@@ -144,22 +185,25 @@ export function HMACGenerator({ initialData, onStateChange }: { initialData?: an
 
       <div className="space-y-4 animate-in fade-in slide-in-from-bottom-2">
         <div className="flex justify-between items-center px-1">
-          <label className="text-xs font-black uppercase tracking-widest text-slate-400">
+          <label htmlFor="hmac-output" className="text-xs font-black uppercase tracking-widest text-slate-400">
             {t('hmac.result')}
           </label>
-          <button
-            onClick={handleCopy}
-            disabled={!hmac}
-            className={`text-xs font-bold px-3 py-1 rounded-full transition-all flex items-center gap-1 border focus-visible:ring-2 focus-visible:ring-indigo-500 focus-visible:outline-none ${
-              copied
-                ? 'bg-emerald-50 dark:bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border-emerald-200 dark:border-emerald-500/20'
-                : 'text-indigo-500 bg-indigo-50 dark:bg-indigo-500/10 border-transparent hover:bg-indigo-100 dark:hover:bg-indigo-500/20 disabled:opacity-50'
-            }`}
-          >
-            {copied ? <Check className="w-3 h-3" /> : <Copy className="w-3 h-3" />} {copied ? t('common.copied') : t('common.copy')}
-          </button>
+          <div className="flex gap-2 items-center">
+            {hmac && <span className="hidden sm:inline-flex"><Kbd>C</Kbd></span>}
+            <button
+              onClick={handleCopy}
+              disabled={!hmac}
+              className={`text-xs font-bold px-3 py-1 rounded-full transition-all flex items-center gap-1 border focus-visible:ring-2 focus-visible:ring-indigo-500 focus-visible:outline-none ${
+                copied
+                  ? 'bg-emerald-50 dark:bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border-emerald-200 dark:border-emerald-500/20'
+                  : 'text-indigo-500 bg-indigo-50 dark:bg-indigo-500/10 border-transparent hover:bg-indigo-100 dark:hover:bg-indigo-500/20 disabled:opacity-50'
+              }`}
+            >
+              {copied ? <Check className="w-3 h-3" /> : <Copy className="w-3 h-3" />} {copied ? t('common.copied') : t('common.copy')}
+            </button>
+          </div>
         </div>
-        <div className="p-6 bg-slate-900 border border-slate-800 rounded-3xl font-mono text-sm break-all text-indigo-300 min-h-[5rem] flex items-center justify-center">
+        <div id="hmac-output" className="p-6 bg-slate-900 border border-slate-800 rounded-3xl font-mono text-sm break-all text-indigo-300 min-h-[5rem] flex items-center justify-center" aria-live="polite">
           {hmac || <span className="text-slate-500 italic opacity-50">{t('hmac.waiting')}</span>}
         </div>
       </div>

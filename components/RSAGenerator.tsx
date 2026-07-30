@@ -1,6 +1,9 @@
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useRef } from 'react';
 import { Shield, Copy, Check, Trash2, AlertCircle, Key, Download, RefreshCw } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
+
+import { Kbd } from './ui/Kbd';
+import { toast } from 'sonner';
 
 export function RSAGenerator({ initialData, onStateChange }: { initialData?: any; onStateChange?: (state: any) => void }) {
   const { t } = useTranslation();
@@ -42,6 +45,7 @@ export function RSAGenerator({ initialData, onStateChange }: { initialData?: any
 
       setPublicKey(arrayBufferToPem(exportedPublic, 'PUBLIC KEY'));
       setPrivateKey(arrayBufferToPem(exportedPrivate, 'PRIVATE KEY'));
+      toast.success(t('common.download_success') || 'Keys generated successfully!');
     } catch (e: any) {
       setError(t('rsa.error_fail') + ': ' + e.message);
     } finally {
@@ -49,11 +53,13 @@ export function RSAGenerator({ initialData, onStateChange }: { initialData?: any
     }
   }, [keySize, t]);
 
-  const handleCopy = (text: string, type: 'public' | 'private') => {
+  const handleCopy = useCallback((text: string, type: 'public' | 'private') => {
+    if (!text) return;
     navigator.clipboard.writeText(text);
     setCopied(type);
+    toast.success(type === 'public' ? 'Public key copied!' : 'Private key copied!');
     setTimeout(() => setCopied(null), 2000);
-  };
+  }, []);
 
   const handleDownload = (text: string, filename: string) => {
     const blob = new Blob([text], { type: 'text/plain' });
@@ -63,13 +69,46 @@ export function RSAGenerator({ initialData, onStateChange }: { initialData?: any
     link.download = filename;
     link.click();
     URL.revokeObjectURL(url);
+    toast.success(t('common.download_success') || 'Download successful');
   };
 
-  const handleClear = () => {
+  const handleClear = useCallback(() => {
     setPublicKey('');
     setPrivateKey('');
     setError(null);
-  };
+    toast.success(t('robotstxt.toast_cleared') || 'Cleared!');
+  }, [t]);
+
+  const handlersRef = useRef({ handleClear, handleCopy, publicKey, privateKey });
+  useEffect(() => {
+    handlersRef.current = { handleClear, handleCopy, publicKey, privateKey };
+  }, [handleClear, handleCopy, publicKey, privateKey]);
+
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      const activeElement = document.activeElement;
+      const isEditable =
+        activeElement instanceof HTMLInputElement ||
+        activeElement instanceof HTMLTextAreaElement ||
+        activeElement?.getAttribute('contenteditable') === 'true';
+
+      if (isEditable && e.key !== 'Escape') return;
+      if (e.metaKey || e.ctrlKey || e.altKey || e.shiftKey) return;
+
+      if (e.key === 'Escape') {
+        e.preventDefault();
+        handlersRef.current.handleClear();
+      } else if (e.key.toLowerCase() === 'c') {
+        e.preventDefault();
+        if (handlersRef.current.publicKey) {
+          handlersRef.current.handleCopy(handlersRef.current.publicKey, 'public');
+        }
+      }
+    };
+
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, []);
 
   return (
     <div className="max-w-5xl mx-auto space-y-8">
@@ -130,8 +169,9 @@ export function RSAGenerator({ initialData, onStateChange }: { initialData?: any
         {/* Public Key */}
         <div className="space-y-4 animate-in fade-in slide-in-from-left-4 duration-500">
           <div className="flex justify-between items-center px-1">
-            <label className="text-xs font-black uppercase tracking-widest text-slate-400">{t('rsa.public_key')}</label>
-            <div className="flex gap-2">
+            <label htmlFor="rsa-public-key" className="text-xs font-black uppercase tracking-widest text-slate-400">{t('rsa.public_key')}</label>
+            <div className="flex gap-2 items-center">
+              {publicKey && <span className="hidden sm:inline-flex"><Kbd>C</Kbd></span>}
               <button
                 onClick={() => handleDownload(publicKey, 'public_key.pem')}
                 disabled={!publicKey}
@@ -155,6 +195,7 @@ export function RSAGenerator({ initialData, onStateChange }: { initialData?: any
             </div>
           </div>
           <textarea
+            id="rsa-public-key"
             readOnly
             value={publicKey}
             placeholder={t('rsa.public_placeholder')}
@@ -165,7 +206,7 @@ export function RSAGenerator({ initialData, onStateChange }: { initialData?: any
         {/* Private Key */}
         <div className="space-y-4 animate-in fade-in slide-in-from-right-4 duration-500">
           <div className="flex justify-between items-center px-1">
-            <label className="text-xs font-black uppercase tracking-widest text-slate-400">{t('rsa.private_key')}</label>
+            <label htmlFor="rsa-private-key" className="text-xs font-black uppercase tracking-widest text-slate-400">{t('rsa.private_key')}</label>
             <div className="flex gap-2">
               <button
                 onClick={() => handleDownload(privateKey, 'private_key.pem')}
@@ -190,6 +231,7 @@ export function RSAGenerator({ initialData, onStateChange }: { initialData?: any
             </div>
           </div>
           <textarea
+            id="rsa-private-key"
             readOnly
             value={privateKey}
             placeholder={t('rsa.private_placeholder')}

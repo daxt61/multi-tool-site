@@ -3951,7 +3951,9 @@ const resources = {
       "base64.wrap_format": "Line Wrapping",
       "base64.wrap_off": "Off",
       "base64.invalid_warning": "Warning: Contains invalid Base64 characters.",
-      "base64.padding_warning": "Warning: Invalid padding length."
+      "base64.padding_warning": "Warning: Invalid padding length.",
+      "jsontosql.ddl_title": "SQL DDL Generator",
+      "jsontosql.ddl_desc": "Convert your JSON structures or objects into standard SQL table definitions schema."
     }
   },
   fr: {
@@ -7906,7 +7908,9 @@ const resources = {
       "base64.wrap_format": "Retour à la ligne",
       "base64.wrap_off": "Désactivé",
       "base64.invalid_warning": "Attention : Contient des caractères Base64 invalides.",
-      "base64.padding_warning": "Attention : Longueur de remplissage (padding) invalide."
+      "base64.padding_warning": "Attention : Longueur de remplissage (padding) invalide.",
+      "jsontosql.ddl_title": "Générateur SQL DDL",
+      "jsontosql.ddl_desc": "Convertissez vos objets et structures JSON en schémas de table SQL standard robustes."
     }
   }
 };

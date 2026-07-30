@@ -137,6 +137,7 @@ import {
   Smile,
   Cloud,
   Keyboard,
+  Quote,
 } from "lucide-react";
 import { Toaster } from "./components/ui/sonner";
 import { toast } from "sonner";
@@ -548,6 +549,7 @@ const UTF8ToBytes = lazy(() => import("./components/UTF8ToBytes").then(m => ({ d
 const TOTPGenerator = lazy(() => import("./components/TOTPGenerator").then(m => ({ default: m.TOTPGenerator })));
 const CollatzSequence = lazy(() => import("./components/CollatzSequence").then(m => ({ default: m.CollatzSequence })));
 const SVGToReact = lazy(() => import("./components/SVGToReact").then(m => ({ default: m.SVGToReact })));
+const QuoteListItems = lazy(() => import("./components/QuoteListItems").then(m => ({ default: m.QuoteListItems })));
 
 // ⚡ Bolt Optimization: Pre-calculating tool map and search index for O(1) lookups and faster filtering
 const toolsMap: Record<string, Tool> = {};
@@ -4872,6 +4874,17 @@ const tools: Tool[] = [
     Component: SVGToReact,
     category: "dev",
     keywords: ["svg", "react", "native", "jsx", "tsx", "component", "converter", "vector", "developer"],
+  },
+  {
+    id: "quote-list-items",
+    name: "Mettre en guillemets",
+    nameEn: "Quote List Items",
+    icon: Quote,
+    description: "Ajouter ou supprimer des guillemets et des séparateurs sur les éléments d'une liste",
+    descriptionEn: "Add or remove quotes and separators on list items",
+    Component: QuoteListItems,
+    category: "text",
+    keywords: ["quote", "unquote", "list", "array", "separators", "brackets", "sql", "comma", "guillemets", "entourer"],
   },
 ];
 

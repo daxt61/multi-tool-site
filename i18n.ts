@@ -3918,7 +3918,27 @@ const resources = {
       "workhours.about_text": "Track your daily shift times (supporting overnight hours), subtract mandatory breaks, and calculate total hours worked. You can configure custom hourly rates and standard daily or weekly overtime rules with multipliers to estimate gross earnings instantly. Export your logging to CSV or copy a full text-based invoice report with a click.",
       "workhours.download_csv_tooltip": "Download CSV report",
       "workhours.copy_summary": "Copy Summary",
-      "list_to_json.error_max_length": "The list is too long. Limit of {{max}} characters."
+      "list_to_json.error_max_length": "The list is too long. Limit of {{max}} characters.",
+      "quotelistitems.placeholder_input": "apple\nbanana\norange...",
+      "quotelistitems.mode_label": "Operation Mode",
+      "quotelistitems.mode_quote": "Add Quotes",
+      "quotelistitems.mode_unquote": "Remove Quotes",
+      "quotelistitems.quote_style": "Quote Style / Wrapping",
+      "quotelistitems.style_double": "Double Quotes (\"...\")",
+      "quotelistitems.style_single": "Single Quotes ('...')",
+      "quotelistitems.style_backtick": "Backticks (`...`)",
+      "quotelistitems.style_parenthesis": "Parentheses ((...))",
+      "quotelistitems.style_braces": "Curly Braces ({...})",
+      "quotelistitems.style_brackets": "Square Brackets ([...])",
+      "quotelistitems.style_custom": "Custom Wrapping...",
+      "quotelistitems.custom_left": "Left / Start",
+      "quotelistitems.custom_right": "Right / End",
+      "quotelistitems.separator_comma_space": "Comma + Space (, )",
+      "quotelistitems.non_numeric_only": "Quote non-numeric items only",
+      "quotelistitems.escape_embedded": "Escape target quote characters",
+      "quotelistitems.unescape_embedded": "Unescape target quote characters on removal",
+      "quotelistitems.about_title": "About Quoting List Items",
+      "quotelistitems.about_text": "Quoting and unquoting lists is a staple operations tool for software developers, database administrators, and content editors. Whether you need to wrap comma-separated names in SQL-ready double quotes, single-quote list items with trailing commas for Javascript arrays, format a list as brackets or brace tokens, or peel existing quotes from a bulk-copied dataset, this offline client-side tool handles it with extreme speed and security."
     }
   },
   fr: {
@@ -7840,7 +7860,27 @@ const resources = {
       "workhours.about_text": "Suivez vos horaires de travail quotidiens (prenant en charge les heures de nuit), soustrayez les pauses obligatoires et calculez le total des heures travaillées. Vous pouvez configurer des taux horaires personnalisés et des règles standard d'heures supplémentaires quotidiennes ou hebdomadaires avec des multiplicateurs pour estimer instantanément vos gains bruts. Exportez vos journaux en CSV ou copiez un rapport de facture textuel complet en un clic.",
       "workhours.download_csv_tooltip": "Télécharger le rapport CSV",
       "workhours.copy_summary": "Copier le résumé",
-      "list_to_json.error_max_length": "La liste est trop longue. Limite de {{max}} caractères."
+      "list_to_json.error_max_length": "La liste est trop longue. Limite de {{max}} caractères.",
+      "quotelistitems.placeholder_input": "pomme\nbanane\norange...",
+      "quotelistitems.mode_label": "Mode d'Opération",
+      "quotelistitems.mode_quote": "Ajouter des Guillemets",
+      "quotelistitems.mode_unquote": "Supprimer les Guillemets",
+      "quotelistitems.quote_style": "Style de Guillemets / Enveloppement",
+      "quotelistitems.style_double": "Guillemets Doubles (\"...\")",
+      "quotelistitems.style_single": "Guillemets Simples ('...')",
+      "quotelistitems.style_backtick": "Backticks (`...`)",
+      "quotelistitems.style_parenthesis": "Parenthèses ((...))",
+      "quotelistitems.style_braces": "Accolades ({...})",
+      "quotelistitems.style_brackets": "Crochets ([...])",
+      "quotelistitems.style_custom": "Enveloppement Personnalisé...",
+      "quotelistitems.custom_left": "Gauche / Début",
+      "quotelistitems.custom_right": "Droite / Fin",
+      "quotelistitems.separator_comma_space": "Virgule + Espace (, )",
+      "quotelistitems.non_numeric_only": "Entourer les éléments non-numériques uniquement",
+      "quotelistitems.escape_embedded": "Échapper les guillemets présents dans les valeurs",
+      "quotelistitems.unescape_embedded": "Déséchapper les guillemets lors du retrait",
+      "quotelistitems.about_title": "À propos de la mise en guillemets de listes",
+      "quotelistitems.about_text": "Mettre en guillemets ou désentourer des listes est un besoin récurrent pour les développeurs logiciels, les administrateurs de bases de données et les rédacteurs de contenu. Que vous ayez besoin de formater une liste SQL IN, d'entourer des chaînes avec des virgules pour un tableau Javascript ou de nettoyer un jeu de données copié en vrac, ce convertisseur s'exécute de manière ultra-rapide et entièrement locale dans votre navigateur."
     }
   }
 };

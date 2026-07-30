@@ -550,6 +550,8 @@ const TOTPGenerator = lazy(() => import("./components/TOTPGenerator").then(m => 
 const CollatzSequence = lazy(() => import("./components/CollatzSequence").then(m => ({ default: m.CollatzSequence })));
 const SVGToReact = lazy(() => import("./components/SVGToReact").then(m => ({ default: m.SVGToReact })));
 const QuoteListItems = lazy(() => import("./components/QuoteListItems").then(m => ({ default: m.QuoteListItems })));
+const JSONToQuery = lazy(() => import("./components/JSONToQuery").then(m => ({ default: m.JSONToQuery })));
+const BencodeConverter = lazy(() => import("./components/BencodeConverter").then(m => ({ default: m.BencodeConverter })));
 
 // ⚡ Bolt Optimization: Pre-calculating tool map and search index for O(1) lookups and faster filtering
 const toolsMap: Record<string, Tool> = {};
@@ -4885,6 +4887,28 @@ const tools: Tool[] = [
     Component: QuoteListItems,
     category: "text",
     keywords: ["quote", "unquote", "list", "array", "separators", "brackets", "sql", "comma", "guillemets", "entourer"],
+  },
+  {
+    id: "json-to-query",
+    name: "JSON en Query String",
+    nameEn: "JSON to Query String",
+    icon: LinkIcon,
+    description: "Convertir bidirectionnellement du JSON structuré en paramètres de requête URL (Query String)",
+    descriptionEn: "Bidirectional conversion between structured JSON and URL query string parameters",
+    Component: JSONToQuery,
+    category: "dev",
+    keywords: ["json", "query", "url", "parameter", "qs", "querystring", "params", "parse", "stringify"],
+  },
+  {
+    id: "bencode-converter",
+    name: "Convertisseur Bencode",
+    nameEn: "Bencode Converter",
+    icon: Binary,
+    description: "Convertir bidirectionnellement du format d'encodage Bencode (BitTorrent) en JSON lisible",
+    descriptionEn: "Bidirectional conversion between BitTorrent Bencode encoding and readable JSON",
+    Component: BencodeConverter,
+    category: "dev",
+    keywords: ["bencode", "torrent", "json", "encoder", "decoder", "bittorrent", "binary", "parser"],
   },
 ];
 

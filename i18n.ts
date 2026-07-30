@@ -3938,7 +3938,20 @@ const resources = {
       "quotelistitems.escape_embedded": "Escape target quote characters",
       "quotelistitems.unescape_embedded": "Unescape target quote characters on removal",
       "quotelistitems.about_title": "About Quoting List Items",
-      "quotelistitems.about_text": "Quoting and unquoting lists is a staple operations tool for software developers, database administrators, and content editors. Whether you need to wrap comma-separated names in SQL-ready double quotes, single-quote list items with trailing commas for Javascript arrays, format a list as brackets or brace tokens, or peel existing quotes from a bulk-copied dataset, this offline client-side tool handles it with extreme speed and security."
+      "quotelistitems.about_text": "Quoting and unquoting lists is a staple operations tool for software developers, database administrators, and content editors. Whether you need to wrap comma-separated names in SQL-ready double quotes, single-quote list items with trailing commas for Javascript arrays, format a list as brackets or brace tokens, or peel existing quotes from a bulk-copied dataset, this offline client-side tool handles it with extreme speed and security.",
+      "jsontoquery.array_format": "Array Serialization Format",
+      "jsontoquery.url_encode": "URL Encode Keys & Values",
+      "jsontoquery.query_output": "Query String Output",
+      "jsontoquery.about_title": "About JSON to Query String Converter",
+      "jsontoquery.about_text": "This bidirectional tool allows developers to quickly generate URL query strings from complex nested JSON objects or arrays, as well as reconstruct structured JSON objects from raw query strings. It provides extensive customization for array encoding styles, safe Prototype Pollution filtering, and fully offline processing.",
+      "bencode.offline_desc": "100% Client-side Bencode parser & encoder.",
+      "bencode.input_label": "Bencode Input",
+      "bencode.about_title": "About Bencode",
+      "bencode.about_text": "Bencode is the encoding protocol used by the BitTorrent network for storing and transmitting loosely structured data in torrent files. It supports four primitive types: byte strings, integers, lists, and dictionaries. This bidirectional tool converts raw Bencode streams to readable JSON representation, and re-encodes JSON structures securely with safe bounds and sorted keys.",
+      "base64.wrap_format": "Line Wrapping",
+      "base64.wrap_off": "Off",
+      "base64.invalid_warning": "Warning: Contains invalid Base64 characters.",
+      "base64.padding_warning": "Warning: Invalid padding length."
     }
   },
   fr: {
@@ -7880,7 +7893,20 @@ const resources = {
       "quotelistitems.escape_embedded": "Échapper les guillemets présents dans les valeurs",
       "quotelistitems.unescape_embedded": "Déséchapper les guillemets lors du retrait",
       "quotelistitems.about_title": "À propos de la mise en guillemets de listes",
-      "quotelistitems.about_text": "Mettre en guillemets ou désentourer des listes est un besoin récurrent pour les développeurs logiciels, les administrateurs de bases de données et les rédacteurs de contenu. Que vous ayez besoin de formater une liste SQL IN, d'entourer des chaînes avec des virgules pour un tableau Javascript ou de nettoyer un jeu de données copié en vrac, ce convertisseur s'exécute de manière ultra-rapide et entièrement locale dans votre navigateur."
+      "quotelistitems.about_text": "Mettre en guillemets ou désentourer des listes est un besoin récurrent pour les développeurs logiciels, les administrateurs de bases de données et les rédacteurs de contenu. Que vous ayez besoin de formater une liste SQL IN, d'entourer des chaînes avec des virgules pour un tableau Javascript ou de nettoyer un jeu de données copié en vrac, ce convertisseur s'exécute de manière ultra-rapide et entièrement locale dans votre navigateur.",
+      "jsontoquery.array_format": "Format de Sérialisation des Tableaux",
+      "jsontoquery.url_encode": "Encoder en URL les clés et les valeurs",
+      "jsontoquery.query_output": "Chaîne de Requête URL de Sortie",
+      "jsontoquery.about_title": "À propos du Convertisseur JSON en Query String",
+      "jsontoquery.about_text": "Cet outil bidirectionnel permet aux développeurs de générer rapidement des chaînes de paramètres URL (Query String) à partir d'objets ou tableaux JSON imbriqués, et de reconstruire du JSON structuré à partir d'une chaîne brute. Il propose une personnalisation avancée du formatage des tableaux, un filtrage contre la pollution de prototype et un traitement 100% hors ligne.",
+      "bencode.offline_desc": "Analyseur et encodeur Bencode 100% local.",
+      "bencode.input_label": "Entrée Bencode",
+      "bencode.about_title": "À propos de Bencode",
+      "bencode.about_text": "Bencode est le protocole d'encodage utilisé par le réseau BitTorrent pour stocker et transmettre des données faiblement structurées dans les fichiers torrent. Il prend en charge quatre types primitifs : chaînes d'octets, entiers, listes et dictionnaires. Cet outil bidirectionnel convertit les flux Bencode bruts en une représentation JSON lisible, et ré-encode le JSON de manière sécurisée.",
+      "base64.wrap_format": "Retour à la ligne",
+      "base64.wrap_off": "Désactivé",
+      "base64.invalid_warning": "Attention : Contient des caractères Base64 invalides.",
+      "base64.padding_warning": "Attention : Longueur de remplissage (padding) invalide."
     }
   }
 };

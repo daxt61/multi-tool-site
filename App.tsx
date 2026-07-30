@@ -552,6 +552,7 @@ const SVGToReact = lazy(() => import("./components/SVGToReact").then(m => ({ def
 const QuoteListItems = lazy(() => import("./components/QuoteListItems").then(m => ({ default: m.QuoteListItems })));
 const JSONToQuery = lazy(() => import("./components/JSONToQuery").then(m => ({ default: m.JSONToQuery })));
 const BencodeConverter = lazy(() => import("./components/BencodeConverter").then(m => ({ default: m.BencodeConverter })));
+const JSONToSQLDDL = lazy(() => import("./components/JSONToSQLDDL").then(m => ({ default: m.JSONToSQLDDL })));
 
 // ⚡ Bolt Optimization: Pre-calculating tool map and search index for O(1) lookups and faster filtering
 const toolsMap: Record<string, Tool> = {};
@@ -4909,6 +4910,17 @@ const tools: Tool[] = [
     Component: BencodeConverter,
     category: "dev",
     keywords: ["bencode", "torrent", "json", "encoder", "decoder", "bittorrent", "binary", "parser"],
+  },
+  {
+    id: "json-to-sql-ddl",
+    name: "JSON en SQL DDL",
+    nameEn: "JSON to SQL DDL",
+    icon: Database,
+    description: "Convertir des structures ou des jeux de données JSON en instructions de schéma SQL CREATE TABLE (DDL)",
+    descriptionEn: "Convert structured JSON or arrays of datasets to SQL CREATE TABLE schema DDL",
+    Component: JSONToSQLDDL,
+    category: "dev",
+    keywords: ["sql", "ddl", "create table", "database", "schema", "mysql", "postgresql", "oracle", "sqlite", "sqlserver", "convert", "json"],
   },
 ];
 

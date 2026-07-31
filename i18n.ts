@@ -3953,7 +3953,10 @@ const resources = {
       "base64.invalid_warning": "Warning: Contains invalid Base64 characters.",
       "base64.padding_warning": "Warning: Invalid padding length.",
       "jsontosql.ddl_title": "SQL DDL Generator",
-      "jsontosql.ddl_desc": "Convert your JSON structures or objects into standard SQL table definitions schema."
+      "jsontosql.ddl_desc": "Convert your JSON structures or objects into standard SQL table definitions schema.",
+      "yamlini.toast_cleared": "Inputs cleared successfully!",
+      "yamlini.about_title": "About YAML <> INI",
+      "yamlini.about_text": "Convert between YAML and INI configuration formats. INI files are structured into sections and keys, whereas YAML supports nested hierarchy. Our converter flattens nested YAML properties using dots (.) in INI keys, and un-flattens dot notation back to nested structures when converting INI to YAML."
     }
   },
   fr: {
@@ -7910,7 +7913,10 @@ const resources = {
       "base64.invalid_warning": "Attention : Contient des caractères Base64 invalides.",
       "base64.padding_warning": "Attention : Longueur de remplissage (padding) invalide.",
       "jsontosql.ddl_title": "Générateur SQL DDL",
-      "jsontosql.ddl_desc": "Convertissez vos objets et structures JSON en schémas de table SQL standard robustes."
+      "jsontosql.ddl_desc": "Convertissez vos objets et structures JSON en schémas de table SQL standard robustes.",
+      "yamlini.toast_cleared": "Entrées effacées avec succès !",
+      "yamlini.about_title": "À propos de YAML <> INI",
+      "yamlini.about_text": "Convertissez vos données entre les formats YAML et INI. Les fichiers INI sont structurés en sections et clés, tandis que le YAML prend en charge une hiérarchie imbriquée. Notre convertisseur aplatit les propriétés YAML imbriquées à l'aide de points (.) dans les clés INI, et déplie la notation par points en structures imbriquées lors de la conversion de l'INI en YAML."
     }
   }
 };

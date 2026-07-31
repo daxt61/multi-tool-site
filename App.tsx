@@ -528,6 +528,7 @@ const CSSAnimationGenerator = lazy(() => import("./components/CSSAnimationGenera
 const SQLToMongoDB = lazy(() => import("./components/SQLToMongoDB").then(m => ({ default: m.SQLToMongoDB })));
 const SQLToOpenAPI = lazy(() => import("./components/SQLToOpenAPI").then(m => ({ default: m.SQLToOpenAPI })));
 const YAMLToTOML = lazy(() => import("./components/YAMLToTOML").then(m => ({ default: m.YAMLToTOML })));
+const YamlIniConverter = lazy(() => import("./components/YamlIniConverter").then(m => ({ default: m.YamlIniConverter })));
 const SubstitutionCipher = lazy(() => import("./components/SubstitutionCipher").then(m => ({ default: m.SubstitutionCipher })));
 const XORCipher = lazy(() => import("./components/XORCipher").then(m => ({ default: m.XORCipher })));
 const EnigmaCipher = lazy(() => import("./components/EnigmaCipher").then(m => ({ default: m.EnigmaCipher })));
@@ -4679,6 +4680,17 @@ const tools: Tool[] = [
     Component: YAMLToTOML,
     category: "dev",
     keywords: ["yaml", "toml", "convert", "config", "configuration"],
+  },
+  {
+    id: "yaml-ini",
+    name: "YAML <> INI",
+    nameEn: "YAML <> INI",
+    icon: ArrowLeftRight,
+    description: "Convertisseur bidirectionnel YAML et INI",
+    descriptionEn: "Bidirectional YAML and INI converter",
+    Component: YamlIniConverter,
+    category: "dev",
+    keywords: ["yaml", "ini", "convert", "config", "configuration", "settings"],
   },
   {
     id: "css-animation",

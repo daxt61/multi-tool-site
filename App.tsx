@@ -4987,7 +4987,7 @@ const ToolCard = React.memo(({ tool, isFavorite, onToggleFavorite }: {
           className={`p-1.5 rounded-lg transition-colors focus-visible:ring-2 focus-visible:ring-indigo-500 focus-visible:outline-none ${isFavorite ? 'text-amber-500' : 'text-slate-300 hover:text-slate-400'}`}
           aria-label={isFavorite ? t("tool.remove_favorite") : t("tool.add_favorite")}
         >
-          <Star className={`w-5 h-5 ${isFavorite ? 'fill-current' : ''}`} />
+          <Star className={`w-5 h-5 ${isFavorite ? 'fill-current' : ''}`} aria-hidden="true" />
         </button>
       </div>
 
@@ -5483,7 +5483,7 @@ function MainApp() {
           } hover:border-indigo-500 hover:text-indigo-600 focus-visible:ring-2 focus-visible:ring-indigo-500 focus-visible:outline-none group`}
           aria-label={t("common.back_to_top") || "Back to top"}
         >
-          <ArrowUp className="w-6 h-6 transition-transform group-hover:-translate-y-1" />
+          <ArrowUp className="w-6 h-6 transition-transform group-hover:-translate-y-1" aria-hidden="true" />
         </button>
 
         {/* Nav Header */}
@@ -5493,7 +5493,7 @@ function MainApp() {
             className="flex items-center gap-2 group focus-visible:ring-2 focus-visible:ring-indigo-500 focus-visible:outline-none rounded-lg"
           >
             <div className="w-10 h-10 bg-slate-900 dark:bg-white rounded-lg flex items-center justify-center transition-transform group-hover:scale-105 active:scale-95">
-              <Sparkles className="w-6 h-6 text-white dark:text-slate-900" />
+              <Sparkles className="w-6 h-6 text-white dark:text-slate-900" aria-hidden="true" />
             </div>
             <span className="text-xl font-bold tracking-tight">{t("footer.copy")}</span>
           </Link>
@@ -5537,7 +5537,7 @@ function MainApp() {
                   <div className="sr-only" aria-live="polite" aria-atomic="true">
                     {(searchQuery || selectedCategory) && t(filteredTools.length === 1 ? "search.results_count_one" : "search.results_count_other", { count: filteredTools.length })}
                   </div>
-                  <div className="absolute inset-y-0 left-4 flex items-center pointer-events-none transition-colors group-focus-within:text-indigo-500"><Search className="h-5 w-5 text-slate-400 group-focus-within:text-indigo-500 transition-colors" /></div>
+                  <div className="absolute inset-y-0 left-4 flex items-center pointer-events-none transition-colors group-focus-within:text-indigo-500"><Search className="h-5 w-5 text-slate-400 group-focus-within:text-indigo-500 transition-colors" aria-hidden="true" /></div>
                   <input
                     id="tool-search"
                     ref={searchInputRef}
@@ -5576,7 +5576,7 @@ function MainApp() {
                         className="text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 transition-colors focus-visible:ring-2 focus-visible:ring-indigo-500 focus-visible:outline-none rounded-lg"
                         aria-label={t("search.clear")}
                       >
-                        <X className="h-5 w-5" />
+                        <X className="h-5 w-5" aria-hidden="true" />
                       </button>
                     </div>
                   )}
@@ -5592,7 +5592,7 @@ function MainApp() {
                     aria-label={`${t("search.luck")} (L)`}
                     title={`${t("search.luck")} (L)`}
                   >
-                    <Shuffle className="w-4 h-4 transition-transform duration-500 group-hover/random:rotate-180" /> {t("search.luck")}
+                    <Shuffle className="w-4 h-4 transition-transform duration-500 group-hover/random:rotate-180" aria-hidden="true" /> {t("search.luck")}
                     <Kbd modifier={null} className="ml-1 bg-slate-50 dark:bg-slate-800 border-slate-200 dark:border-slate-700 text-slate-400 group-hover/random:border-indigo-500/50 group-hover/random:text-indigo-500 transition-colors">L</Kbd>
                   </button>
                 </div>
@@ -5607,7 +5607,7 @@ function MainApp() {
                       onClick={handleClearRecents}
                       className="text-[10px] font-bold text-slate-400 hover:text-rose-500 transition-colors flex items-center gap-1 group/clear"
                     >
-                      <Trash2 className="w-3 h-3 group-hover/clear:scale-110 transition-transform" /> {t("common.clear")}
+                      <Trash2 className="w-3 h-3 group-hover/clear:scale-110 transition-transform" aria-hidden="true" /> {t("common.clear")}
                     </button>
                   </div>
                   <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
@@ -5618,7 +5618,7 @@ function MainApp() {
                         className="flex items-center gap-3 p-4 bg-slate-50 dark:bg-slate-900/50 rounded-xl border border-slate-200 dark:border-slate-800 hover:border-slate-300 dark:hover:border-slate-700 transition-all group focus-visible:ring-2 focus-visible:ring-indigo-500 focus-visible:outline-none"
                       >
                         <div className="w-8 h-8 rounded-lg bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 flex items-center justify-center text-slate-400 group-hover:text-indigo-500 transition-colors">
-                          <tool.icon className="w-4 h-4 transition-transform group-hover:scale-110" />
+                          <tool.icon className="w-4 h-4 transition-transform group-hover:scale-110" aria-hidden="true" />
                         </div>
                         <span className="font-semibold text-sm truncate">{tool.name}</span>
                       </Link>
@@ -5644,7 +5644,7 @@ function MainApp() {
                             : "bg-slate-50 text-slate-600 border-slate-200 hover:border-slate-300 dark:bg-slate-900 dark:text-slate-400 dark:border-slate-800 dark:hover:border-slate-700"
                         }`}
                       >
-                        <cat.icon className="w-4 h-4" />
+                        <cat.icon className="w-4 h-4" aria-hidden="true" />
                       {t(`category.${cat.id}`)}
                       <span className={`ml-1.5 opacity-50 font-mono text-[10px] tabular-nums ${(selectedCategory === cat.id) || (cat.id === "all" && !selectedCategory) ? 'text-white dark:text-slate-900' : 'text-slate-500 dark:text-slate-400'}`}>
                         {categoryCounts[cat.id] || 0}

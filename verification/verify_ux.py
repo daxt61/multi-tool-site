@@ -2,35 +2,23 @@ from playwright.sync_api import sync_playwright
 import os
 
 def run_cuj(page):
-    # Navigate to Sleep Calculator first
-    page.goto("http://localhost:5173/fr/outil/sleep-calculator")
+    # Navigate to the main application in French
+    page.goto("http://localhost:5173/fr")
     page.wait_for_timeout(1000)
 
-    # Change wake up time to 08:00
-    wake_up_input = page.locator("#wake-up-time")
-    wake_up_input.fill("08:00")
+    # Type into the search input to filter tools
+    page.locator('input[id="tool-search"]').fill('calculateur')
     page.wait_for_timeout(1000)
 
-    # Click reset button
-    reset_btn = page.locator("button:has(svg.lucide-trash-2)")
-    reset_btn.click()
+    # Scroll down the page to trigger the back-to-top button
+    page.evaluate("window.scrollTo(0, 800)")
     page.wait_for_timeout(1000)
 
-    # Navigate to String Escaper
-    page.goto("http://localhost:5173/fr/outil/string-escaper")
+    # Toggle the language to English using text content "EN"
+    page.locator('button:has-text("EN")').click()
     page.wait_for_timeout(1000)
 
-    # Fill text input
-    text_input = page.locator("#string-input")
-    text_input.fill("Hello \"World\" & others!")
-    page.wait_for_timeout(1000)
-
-    # Click copy button
-    copy_btn = page.locator("button:has(svg.lucide-copy)")
-    copy_btn.click()
-    page.wait_for_timeout(1000)
-
-    # Take screenshot of the state
+    # Take a screenshot representing the visual state
     page.screenshot(path="/home/jules/verification/screenshots/verification.png")
     page.wait_for_timeout(1000)
 

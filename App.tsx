@@ -554,6 +554,7 @@ const QuoteListItems = lazy(() => import("./components/QuoteListItems").then(m =
 const JSONToQuery = lazy(() => import("./components/JSONToQuery").then(m => ({ default: m.JSONToQuery })));
 const BencodeConverter = lazy(() => import("./components/BencodeConverter").then(m => ({ default: m.BencodeConverter })));
 const JSONToSQLDDL = lazy(() => import("./components/JSONToSQLDDL").then(m => ({ default: m.JSONToSQLDDL })));
+const CommitMessageGenerator = lazy(() => import("./components/CommitMessageGenerator").then(m => ({ default: m.CommitMessageGenerator })));
 
 // ⚡ Bolt Optimization: Pre-calculating tool map and search index for O(1) lookups and faster filtering
 const toolsMap: Record<string, Tool> = {};
@@ -4933,6 +4934,17 @@ const tools: Tool[] = [
     Component: JSONToSQLDDL,
     category: "dev",
     keywords: ["sql", "ddl", "create table", "database", "schema", "mysql", "postgresql", "oracle", "sqlite", "sqlserver", "convert", "json"],
+  },
+  {
+    id: "commit-message-generator",
+    name: "Générateur de Commits",
+    nameEn: "Commit Message Generator",
+    icon: FileText,
+    description: "Générer des messages de commit propres et conformes aux spécifications Conventional Commits",
+    descriptionEn: "Generate clean commit messages complying with the Conventional Commits specification",
+    Component: CommitMessageGenerator,
+    category: "dev",
+    keywords: ["git", "commit", "conventional", "message", "feat", "fix", "docs", "style", "refactor", "build", "ci", "chore"],
   },
 ];
 

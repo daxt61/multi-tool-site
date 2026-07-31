@@ -241,3 +241,8 @@
 **Vulnerability:** The ListToJSON component had no maximum length checks on input lists, which could lead to tab freezing and browser crash when users typed or pasted huge inputs (as the component mapped, split, de-duplicated and stringified on every change).
 **Learning:** Client-side list processing utilities are highly prone to DoS when performing parsing, set conversion and sorting without an upper boundary. Enforcing standard limits is a required security control.
 **Prevention:** Always define and enforce `MAX_LENGTH = 100000` on input text areas for list/string transformation tools before starting computational loops.
+
+## 2026-07-31 - [ReDoS and State Exposure in Password Analyzer]
+**Vulnerability:** The PasswordAnalyzer component calculated entropy, scores, and validated repeating/common patterns using complex regex checks on dynamic password inputs. Unbounded input length permitted pasting massive strings that would trigger catastrophic backtracking (ReDoS) or local browser CPU/thread exhaustion. Additionally, password tools must never leak user-typed passwords into shareable URL parameters.
+**Learning:** Any component executing multi-pass regexes (such as `/(.)\1{2,}/`) on user-typed text must limit input length natively and dynamically to avoid ReDoS. Furthermore, security tools must strictly sanitize internal state to prevent leaking sensitive fields into global URL serialization.
+**Prevention:** Enforce a strict standard `MAX_LENGTH = 128` on password analysis text inputs, pair it with `maxLength` elements, and configure state handlers to exclude sensitive user plaintexts from `onStateChange` and `initialData` synchronization.

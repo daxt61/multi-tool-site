@@ -1,13 +1,21 @@
 import { useState, useEffect, useMemo, useCallback, useRef } from 'react';
 import { Shield, ShieldAlert, ShieldCheck, Key, CheckCircle2, XCircle, Zap, Fingerprint, Lock, Trash2, Copy, Check } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
+import { toast } from 'sonner';
 
-export function PasswordAnalyzer() {
+export function PasswordAnalyzer({ initialData, onStateChange }: { initialData?: any; onStateChange?: (state: any) => void }) {
   const { t } = useTranslation();
   const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
   const [copied, setCopied] = useState(false);
   const inputRef = useRef<HTMLInputElement>(null);
+
+  const MAX_LENGTH = 128;
+
+  useEffect(() => {
+    // Sentinel: Never share the password in the URL state.
+    onStateChange?.({});
+  }, [onStateChange]);
 
   const analysis = useMemo(() => {
     if (!password) return null;
@@ -61,32 +69,53 @@ export function PasswordAnalyzer() {
     if (!password) return;
     navigator.clipboard.writeText(password);
     setCopied(true);
+    toast.success(t('common.copied'));
     setTimeout(() => setCopied(false), 2000);
-  }, [password]);
+  }, [password, t]);
+
+  // Keyboard shortcut handlers ref to avoid stale closures
+  const handlersRef = useRef({ handleClear, handleCopy, setShowPassword });
+  useEffect(() => {
+    handlersRef.current = { handleClear, handleCopy, setShowPassword };
+  }, [handleClear, handleCopy]);
 
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
-      const isInputFocused = document.activeElement?.id === 'pwd-analyzer';
+      const activeElement = document.activeElement;
+      const isEditable =
+        activeElement instanceof HTMLInputElement ||
+        activeElement instanceof HTMLTextAreaElement ||
+        activeElement instanceof HTMLSelectElement ||
+        activeElement?.getAttribute("contenteditable") === "true";
 
-      if (e.key === 'Escape' && isInputFocused) {
-        handleClear();
+      const isInputFocused = activeElement === inputRef.current;
+
+      // Escape to clear only works if input is focused, or we are not in an editable element
+      if (e.key === 'Escape') {
+        if (isInputFocused || !isEditable) {
+          e.preventDefault();
+          handlersRef.current.handleClear();
+        }
         return;
       }
+
+      // If user is typing in another input/textarea, do not trigger other shortcuts
+      if (isEditable) return;
 
       if (e.altKey) {
         if (e.key.toLowerCase() === 'c') {
           e.preventDefault();
-          handleCopy();
+          handlersRef.current.handleCopy();
         } else if (e.key.toLowerCase() === 'v') {
           e.preventDefault();
-          setShowPassword(prev => !prev);
+          handlersRef.current.setShowPassword(prev => !prev);
         }
       }
     };
 
     window.addEventListener('keydown', handleKeyDown);
     return () => window.removeEventListener('keydown', handleKeyDown);
-  }, [handleClear, handleCopy]);
+  }, []);
 
   return (
     <div className="max-w-4xl mx-auto space-y-8">
@@ -100,7 +129,8 @@ export function PasswordAnalyzer() {
             ref={inputRef}
             type={showPassword ? "text" : "password"}
             value={password}
-            onChange={(e) => setPassword(e.target.value)}
+            onChange={(e) => setPassword(e.target.value.slice(0, MAX_LENGTH))}
+            maxLength={MAX_LENGTH}
             className="w-full p-6 px-16 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-[2rem] outline-none focus:ring-4 focus:ring-indigo-500/10 transition-all text-xl font-mono text-center dark:text-slate-200"
             placeholder={t('pwd_analyzer.placeholder')}
             aria-describedby={analysis ? "analysis-results" : undefined}

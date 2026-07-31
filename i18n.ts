@@ -3981,7 +3981,21 @@ const resources = {
       "jsontodart.helpers_options": "Helpers & Utilities",
       "jsontodart.copywith": "Generate copyWith method",
       "jsontodart.tostring": "Generate @override toString() method",
-      "jsontodart.modifiers_options": "Class Modifiers"
+      "jsontodart.modifiers_options": "Class Modifiers",
+      "uuid.formatting_options": "Formatting Options",
+      "uuid.uppercase_label": "Uppercase",
+      "uuid.braces_label": "Braces (wrap in {})",
+      "uuid.hyphens_label": "Include Hyphens",
+      "uuid.prefix_label": "Prefix",
+      "uuid.suffix_label": "Suffix",
+      "uuid.delimiter_label": "Join Delimiter",
+      "uuid.generate_success_one": "Generated {{count}} UUID",
+      "uuid.generate_success_other": "Generated {{count}} UUIDs",
+      "uuid.generate_success": "Generated {{count}} UUIDs",
+      "uuid.copied_single": "UUID copied to clipboard!",
+      "uuid.copied_all": "All UUIDs copied to clipboard!",
+      "uuid.cleared": "Cleared UUIDs!",
+      "uuid.download_success": "UUIDs downloaded successfully!"
     }
   },
   fr: {
@@ -7966,7 +7980,21 @@ const resources = {
       "jsontodart.helpers_options": "Utilitaires & Helpers",
       "jsontodart.copywith": "Générer la méthode copyWith",
       "jsontodart.tostring": "Générer la méthode @override toString()",
-      "jsontodart.modifiers_options": "Modificateurs de Classe"
+      "jsontodart.modifiers_options": "Modificateurs de Classe",
+      "uuid.formatting_options": "Options de Formatage",
+      "uuid.uppercase_label": "Majuscules",
+      "uuid.braces_label": "Accolades (entourer de {})",
+      "uuid.hyphens_label": "Inclure les Tirets",
+      "uuid.prefix_label": "Préfixe",
+      "uuid.suffix_label": "Suffixe",
+      "uuid.delimiter_label": "Séparateur de Jonction",
+      "uuid.generate_success_one": "{{count}} UUID généré",
+      "uuid.generate_success_other": "{{count}} UUIDs générés",
+      "uuid.generate_success": "{{count}} UUIDs générés",
+      "uuid.copied_single": "UUID copié dans le presse-papiers !",
+      "uuid.copied_all": "Tous les UUIDs copiés dans le presse-papiers !",
+      "uuid.cleared": "UUIDs effacés !",
+      "uuid.download_success": "UUIDs téléchargés avec succès !"
     }
   }
 };

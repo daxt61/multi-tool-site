@@ -246,3 +246,8 @@
 **Vulnerability:** The PasswordAnalyzer component calculated entropy, scores, and validated repeating/common patterns using complex regex checks on dynamic password inputs. Unbounded input length permitted pasting massive strings that would trigger catastrophic backtracking (ReDoS) or local browser CPU/thread exhaustion. Additionally, password tools must never leak user-typed passwords into shareable URL parameters.
 **Learning:** Any component executing multi-pass regexes (such as `/(.)\1{2,}/`) on user-typed text must limit input length natively and dynamically to avoid ReDoS. Furthermore, security tools must strictly sanitize internal state to prevent leaking sensitive fields into global URL serialization.
 **Prevention:** Enforce a strict standard `MAX_LENGTH = 128` on password analysis text inputs, pair it with `maxLength` elements, and configure state handlers to exclude sensitive user plaintexts from `onStateChange` and `initialData` synchronization.
+
+## 2026-08-01 - [Client-side DoS in SVG to CSS Converter]
+**Vulnerability:** The SVGToCSS component had no maximum length constraints on the raw SVG input source. Processing and base64-encoding extremely large, nested, or malformed SVG structures on the main UI thread could trigger browser tab freezing, memory bloat, or browser crashes.
+**Learning:** Utilities performing client-side string transformations (such as base64 encoding or percentage-based escaping on SVG markup) are vulnerable to Denial of Service (DoS) if they operate with unbounded input limits.
+**Prevention:** Enforce a strict standard input length limit (such as `MAX_LENGTH = 100000`) on textareas, and halt the conversion if the limit is exceeded.

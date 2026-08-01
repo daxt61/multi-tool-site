@@ -1,3 +1,7 @@
+## 2026-07-28 - [Premium Keyboard Navigation and Toast Confirmation for Calculator Tools]
+**Learning:** For multi-input calculators (such as the Percentage Calculator), user interaction can be significantly enriched by combining localized `sonner` success toasts on copy, stable keyboard listeners (`Escape` for clearing inputs, with programmatic focus restoration using `useRef`), and making hover-only copy buttons accessible via `focus-visible:opacity-100`.
+**Action:** Always provide instant visual/auditory feedback for copy actions, implement proper focus management upon clearing, and make interactive hover states keyboard-accessible.
+
 ## 2026-07-26 - [Bilingual Keyboard Navigation and Form Association for ANSI Tools]
 **Learning:** Utilities working with escape sequences (like AnsiEscapeStripper) can easily collide with browser-native behaviors if shortcuts are not properly isolated. Integrating a local `useRef`-backed `handlersRef` wrapper with localized `<Kbd>` key hint badges, global `sonner` toasts, and semantic label associations ensures high accessibility compliance while keeping keyboard interactions fluid.
 **Action:** Isolate keyboard events using stable closure safeguards (`handlersRef`), display visual `<Kbd>` hotkey indicators, and verify standard HTML form label-to-control links.

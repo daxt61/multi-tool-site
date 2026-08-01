@@ -555,6 +555,7 @@ const JSONToQuery = lazy(() => import("./components/JSONToQuery").then(m => ({ d
 const BencodeConverter = lazy(() => import("./components/BencodeConverter").then(m => ({ default: m.BencodeConverter })));
 const JSONToSQLDDL = lazy(() => import("./components/JSONToSQLDDL").then(m => ({ default: m.JSONToSQLDDL })));
 const CommitMessageGenerator = lazy(() => import("./components/CommitMessageGenerator").then(m => ({ default: m.CommitMessageGenerator })));
+const GzipDeflateConverter = lazy(() => import("./components/GzipDeflateConverter").then(m => ({ default: m.GzipDeflateConverter })));
 
 // ⚡ Bolt Optimization: Pre-calculating tool map and search index for O(1) lookups and faster filtering
 const toolsMap: Record<string, Tool> = {};
@@ -4945,6 +4946,17 @@ const tools: Tool[] = [
     Component: CommitMessageGenerator,
     category: "dev",
     keywords: ["git", "commit", "conventional", "message", "feat", "fix", "docs", "style", "refactor", "build", "ci", "chore"],
+  },
+  {
+    id: "gzip-deflate",
+    name: "Gzip & Deflate",
+    nameEn: "Gzip & Deflate",
+    icon: FileUp,
+    description: "Compressez et décompressez vos données au format Gzip ou Deflate localement",
+    descriptionEn: "Compress and decompress your data in Gzip or Deflate formats locally",
+    Component: GzipDeflateConverter,
+    category: "dev",
+    keywords: ["gzip", "deflate", "compress", "decompress", "zip", "zlib", "bytes", "base64", "hex"],
   },
 ];
 

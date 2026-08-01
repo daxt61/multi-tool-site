@@ -1,9 +1,13 @@
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useRef } from 'react';
 import { Percent, ArrowRight, Info, TrendingUp, Trash2, Copy, Check } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
+import { toast } from 'sonner';
+import { Kbd } from './ui/Kbd';
 
 export function PercentageCalculator({ initialData, onStateChange }: { initialData?: any; onStateChange?: (state: any) => void }) {
   const { t } = useTranslation();
+  const percentInputRef = useRef<HTMLInputElement>(null);
+
   const [value1, setValue1] = useState(initialData?.value1 || '');
   const [value2, setValue2] = useState(initialData?.value2 || '');
   const [value3, setValue3] = useState(initialData?.value3 || '');
@@ -16,17 +20,17 @@ export function PercentageCalculator({ initialData, onStateChange }: { initialDa
 
   useEffect(() => {
     onStateChange?.({ value1, value2, value3, value4, initialVal, finalVal, valAfter, percentAfter });
-  }, [value1, value2, value3, value4, initialVal, finalVal, valAfter, percentAfter]);
+  }, [value1, value2, value3, value4, initialVal, finalVal, valAfter, percentAfter, onStateChange]);
 
-  const percentageOf = (Number(value2) / 100) * Number(value1);
-  const whatPercent = Number(value4) !== 0 ? (Number(value3) / Number(value4)) * 100 : 0;
+  const percentageOf = (value1 !== '' && value2 !== '' && !isNaN(Number(value1)) && !isNaN(Number(value2))) ? (Number(value2) / 100) * Number(value1) : NaN;
+  const whatPercent = (value3 !== '' && value4 !== '' && Number(value4) !== 0 && !isNaN(Number(value3)) && !isNaN(Number(value4))) ? (Number(value3) / Number(value4)) * 100 : NaN;
 
   const v1 = Number(initialVal);
   const v2 = Number(finalVal);
-  const percentChange = v1 !== 0 ? ((v2 - v1) / v1) * 100 : 0;
+  const percentChange = (initialVal !== '' && finalVal !== '' && v1 !== 0 && !isNaN(v1) && !isNaN(v2)) ? ((v2 - v1) / v1) * 100 : NaN;
 
-  const afterIncrease = Number(valAfter) * (1 + Math.abs(Number(percentAfter)) / 100);
-  const afterDecrease = Number(valAfter) * (1 - Math.abs(Number(percentAfter)) / 100);
+  const afterIncrease = (valAfter !== '' && percentAfter !== '' && !isNaN(Number(valAfter)) && !isNaN(Number(percentAfter))) ? Number(valAfter) * (1 + Math.abs(Number(percentAfter)) / 100) : NaN;
+  const afterDecrease = (valAfter !== '' && percentAfter !== '' && !isNaN(Number(valAfter)) && !isNaN(Number(percentAfter))) ? Number(valAfter) * (1 - Math.abs(Number(percentAfter)) / 100) : NaN;
 
   const handleClear = useCallback(() => {
     setValue1('');
@@ -37,30 +41,53 @@ export function PercentageCalculator({ initialData, onStateChange }: { initialDa
     setFinalVal('');
     setValAfter('');
     setPercentAfter('');
+    setTimeout(() => {
+      percentInputRef.current?.focus();
+    }, 0);
   }, []);
+
+  const copyToClipboard = (text: string, id: string) => {
+    navigator.clipboard.writeText(text);
+    setCopiedId(id);
+    toast.success(t('common.copied'));
+    setTimeout(() => setCopiedId(null), 2000);
+  };
+
+  const handlersRef = useRef({ handleClear });
+  useEffect(() => {
+    handlersRef.current = { handleClear };
+  }, [handleClear]);
 
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
+      const activeElement = document.activeElement;
+      const isEditable =
+        activeElement instanceof HTMLInputElement ||
+        activeElement instanceof HTMLTextAreaElement ||
+        activeElement instanceof HTMLSelectElement ||
+        activeElement?.getAttribute("contenteditable") === "true";
+
+      const { handleClear } = handlersRef.current;
+
+      if (isEditable && e.key !== 'Escape') return;
+
+      if (e.metaKey || e.ctrlKey || e.altKey || e.shiftKey) return;
+
       if (e.key === 'Escape') {
+        e.preventDefault();
         handleClear();
       }
     };
     window.addEventListener('keydown', handleKeyDown);
     return () => window.removeEventListener('keydown', handleKeyDown);
-  }, [handleClear]);
-
-  const copyToClipboard = (text: string, id: string) => {
-    navigator.clipboard.writeText(text);
-    setCopiedId(id);
-    setTimeout(() => setCopiedId(null), 2000);
-  };
+  }, []);
 
   const hasContent = value1 || value2 || value3 || value4 || initialVal || finalVal || valAfter || percentAfter;
 
   return (
     <div className="max-w-4xl mx-auto space-y-8">
       <div className="flex justify-end px-1 gap-2 items-center">
-        <kbd className="hidden sm:inline-flex items-center justify-center px-1.5 py-0.5 border border-rose-200 dark:border-rose-800 rounded text-[10px] font-bold text-rose-400 bg-white dark:bg-slate-900">Esc</kbd>
+        <Kbd modifier={null} className="hidden sm:inline-flex text-rose-400 border-rose-200 dark:border-rose-800 bg-white dark:bg-slate-900">Esc</Kbd>
         <button
           onClick={handleClear}
           disabled={!hasContent}
@@ -91,6 +118,7 @@ export function PercentageCalculator({ initialData, onStateChange }: { initialDa
                 <label htmlFor="percent-val" className="sr-only">{t('percentage.label_percent')}</label>
                 <input
                   id="percent-val"
+                  ref={percentInputRef}
                   type="number"
                   value={value2}
                   onChange={(e) => setValue2(e.target.value)}
@@ -122,7 +150,7 @@ export function PercentageCalculator({ initialData, onStateChange }: { initialDa
               disabled={isNaN(percentageOf)}
               className={`absolute top-2 right-2 p-2 rounded-xl transition-all focus-visible:ring-2 focus-visible:ring-indigo-500 focus-visible:outline-none focus-visible:opacity-100 ${
                 copiedId === 'copy1'
-                  ? 'bg-emerald-50 dark:bg-emerald-500/10 text-emerald-600 dark:text-emerald-400'
+                  ? 'bg-emerald-50 dark:bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 opacity-100'
                   : 'text-slate-400 hover:text-indigo-500 bg-white dark:bg-slate-800 opacity-0 group-hover/copy:opacity-100 shadow-sm border border-slate-100 dark:border-slate-700'
               } disabled:opacity-0 disabled:pointer-events-none`}
               aria-label={t('percentage.copy_result_of')}
@@ -184,7 +212,7 @@ export function PercentageCalculator({ initialData, onStateChange }: { initialDa
               disabled={isNaN(whatPercent)}
               className={`absolute top-2 right-2 p-2 rounded-xl transition-all focus-visible:ring-2 focus-visible:ring-indigo-500 focus-visible:outline-none focus-visible:opacity-100 ${
                 copiedId === 'copy2'
-                  ? 'bg-emerald-50 dark:bg-emerald-500/10 text-emerald-600 dark:text-emerald-400'
+                  ? 'bg-emerald-50 dark:bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 opacity-100'
                   : 'text-slate-400 hover:text-indigo-500 bg-white dark:bg-slate-800 opacity-0 group-hover/copy:opacity-100 shadow-sm border border-slate-100 dark:border-slate-700'
               } disabled:opacity-0 disabled:pointer-events-none`}
               aria-label={t('percentage.copy_result_represents')}
@@ -237,7 +265,7 @@ export function PercentageCalculator({ initialData, onStateChange }: { initialDa
 
         <div className="relative group/copy bg-white dark:bg-slate-800 p-8 rounded-3xl border border-slate-100 dark:border-slate-700 text-center">
             <div className="text-xs font-bold text-slate-400 uppercase tracking-widest mb-2">{t('percentage.variation')}</div>
-            <div className={`text-5xl font-black font-mono ${percentChange >= 0 ? 'text-emerald-500' : 'text-rose-500'}`} aria-live="polite" aria-atomic="true">
+            <div className={`text-5xl font-black font-mono ${percentChange >= 0 || isNaN(percentChange) ? 'text-emerald-500' : 'text-rose-500'}`} aria-live="polite" aria-atomic="true">
                {percentChange > 0 ? '+' : ''}{isNaN(percentChange) ? '0' : percentChange.toLocaleString(undefined, { maximumFractionDigits: 2 })}%
             </div>
             <button
@@ -245,7 +273,7 @@ export function PercentageCalculator({ initialData, onStateChange }: { initialDa
               disabled={isNaN(percentChange)}
               className={`absolute top-4 right-4 p-2 rounded-xl transition-all focus-visible:ring-2 focus-visible:ring-indigo-500 focus-visible:outline-none focus-visible:opacity-100 ${
                 copiedId === 'copy3'
-                  ? 'bg-emerald-50 dark:bg-emerald-500/10 text-emerald-600 dark:text-emerald-400'
+                  ? 'bg-emerald-50 dark:bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 opacity-100'
                   : 'text-slate-400 hover:text-indigo-500 bg-white dark:bg-slate-800 opacity-0 group-hover/copy:opacity-100 shadow-sm border border-slate-100 dark:border-slate-700'
               } disabled:opacity-0 disabled:pointer-events-none`}
               aria-label={t('percentage.copy_result_variation')}
@@ -301,14 +329,14 @@ export function PercentageCalculator({ initialData, onStateChange }: { initialDa
            <div className="relative group/copy bg-emerald-50 dark:bg-emerald-900/10 border border-emerald-100 dark:border-emerald-900/20 p-6 rounded-2xl text-center">
              <div className="text-xs font-bold text-emerald-600 dark:text-emerald-400 uppercase tracking-widest mb-1">{t('percentage.increase')}</div>
              <div className="text-3xl font-black text-emerald-600 dark:text-emerald-400 font-mono" aria-live="polite" aria-atomic="true">
-               {afterIncrease.toLocaleString(undefined, { maximumFractionDigits: 2 })}
+               {isNaN(afterIncrease) ? '0' : afterIncrease.toLocaleString(undefined, { maximumFractionDigits: 2 })}
              </div>
              <button
               onClick={() => copyToClipboard(afterIncrease.toFixed(2), 'copy4')}
-              disabled={!valAfter && !percentAfter}
+              disabled={isNaN(afterIncrease)}
               className={`absolute top-2 right-2 p-2 rounded-xl transition-all focus-visible:ring-2 focus-visible:ring-emerald-500 focus-visible:outline-none focus-visible:opacity-100 ${
                 copiedId === 'copy4'
-                  ? 'bg-white text-emerald-600'
+                  ? 'bg-white text-emerald-600 opacity-100'
                   : 'text-emerald-400 hover:text-emerald-600 bg-white/50 opacity-0 group-hover/copy:opacity-100 shadow-sm border border-emerald-100'
               } disabled:opacity-0 disabled:pointer-events-none`}
               aria-label={t('percentage.copy_increase')}
@@ -319,14 +347,14 @@ export function PercentageCalculator({ initialData, onStateChange }: { initialDa
            <div className="relative group/copy bg-rose-50 dark:bg-rose-900/10 border border-rose-100 dark:border-rose-900/20 p-6 rounded-2xl text-center">
              <div className="text-xs font-bold text-rose-600 dark:text-rose-400 uppercase tracking-widest mb-1">{t('percentage.decrease')}</div>
              <div className="text-3xl font-black text-rose-600 dark:text-rose-400 font-mono" aria-live="polite" aria-atomic="true">
-               {afterDecrease.toLocaleString(undefined, { maximumFractionDigits: 2 })}
+               {isNaN(afterDecrease) ? '0' : afterDecrease.toLocaleString(undefined, { maximumFractionDigits: 2 })}
              </div>
              <button
               onClick={() => copyToClipboard(afterDecrease.toFixed(2), 'copy5')}
-              disabled={!valAfter && !percentAfter}
+              disabled={isNaN(afterDecrease)}
               className={`absolute top-2 right-2 p-2 rounded-xl transition-all focus-visible:ring-2 focus-visible:ring-rose-500 focus-visible:outline-none focus-visible:opacity-100 ${
                 copiedId === 'copy5'
-                  ? 'bg-white text-rose-600'
+                  ? 'bg-white text-rose-600 opacity-100'
                   : 'text-rose-400 hover:text-rose-600 bg-white/50 opacity-0 group-hover/copy:opacity-100 shadow-sm border border-rose-100'
               } disabled:opacity-0 disabled:pointer-events-none`}
               aria-label={t('percentage.copy_decrease')}

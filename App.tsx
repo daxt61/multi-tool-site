@@ -556,6 +556,7 @@ const BencodeConverter = lazy(() => import("./components/BencodeConverter").then
 const JSONToSQLDDL = lazy(() => import("./components/JSONToSQLDDL").then(m => ({ default: m.JSONToSQLDDL })));
 const CommitMessageGenerator = lazy(() => import("./components/CommitMessageGenerator").then(m => ({ default: m.CommitMessageGenerator })));
 const GzipDeflateConverter = lazy(() => import("./components/GzipDeflateConverter").then(m => ({ default: m.GzipDeflateConverter })));
+const RegexBuilder = lazy(() => import("./components/RegexBuilder").then(m => ({ default: m.RegexBuilder })));
 
 // ⚡ Bolt Optimization: Pre-calculating tool map and search index for O(1) lookups and faster filtering
 const toolsMap: Record<string, Tool> = {};
@@ -4957,6 +4958,17 @@ const tools: Tool[] = [
     Component: GzipDeflateConverter,
     category: "dev",
     keywords: ["gzip", "deflate", "compress", "decompress", "zip", "zlib", "bytes", "base64", "hex"],
+  },
+  {
+    id: "regex-builder",
+    name: "Constructeur de RegEx",
+    nameEn: "RegEx Builder",
+    icon: Wand2,
+    description: "Construire, tester et générer des expressions régulières de manière visuelle et interactive",
+    descriptionEn: "Build, test, and generate regular expressions visually and interactively",
+    Component: RegexBuilder,
+    category: "dev",
+    keywords: ["regex", "regexp", "builder", "generator", "constructeur", "visual", "interactive", "playground", "expression"],
   },
 ];
 

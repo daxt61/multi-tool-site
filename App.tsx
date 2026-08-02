@@ -558,6 +558,7 @@ const JSONToSQLDDL = lazy(() => import("./components/JSONToSQLDDL").then(m => ({
 const CommitMessageGenerator = lazy(() => import("./components/CommitMessageGenerator").then(m => ({ default: m.CommitMessageGenerator })));
 const GzipDeflateConverter = lazy(() => import("./components/GzipDeflateConverter").then(m => ({ default: m.GzipDeflateConverter })));
 const RegexBuilder = lazy(() => import("./components/RegexBuilder").then(m => ({ default: m.RegexBuilder })));
+const JWKGenerator = lazy(() => import("./components/JWKGenerator").then(m => ({ default: m.JWKGenerator })));
 
 // ⚡ Bolt Optimization: Pre-calculating tool map and search index for O(1) lookups and faster filtering
 const toolsMap: Record<string, Tool> = {};
@@ -4981,6 +4982,17 @@ const tools: Tool[] = [
     Component: RegexBuilder,
     category: "dev",
     keywords: ["regex", "regexp", "builder", "generator", "constructeur", "visual", "interactive", "playground", "expression"],
+  },
+  {
+    id: "jwk-generator",
+    name: "Générateur JWK",
+    nameEn: "JWK Generator",
+    icon: Key,
+    description: "Générer des clés Web JSON (JWK) et convertir de/vers le format PEM",
+    descriptionEn: "Generate JSON Web Keys (JWK) and convert from/to PEM format",
+    Component: JWKGenerator,
+    category: "dev",
+    keywords: ["jwk", "pem", "rsa", "elliptic curve", "ec", "hmac", "oct", "key", "keypair", "web crypto"],
   },
 ];
 

@@ -6,7 +6,7 @@
 **Learning:** Utilities working with escape sequences (like AnsiEscapeStripper) can easily collide with browser-native behaviors if shortcuts are not properly isolated. Integrating a local `useRef`-backed `handlersRef` wrapper with localized `<Kbd>` key hint badges, global `sonner` toasts, and semantic label associations ensures high accessibility compliance while keeping keyboard interactions fluid.
 **Action:** Isolate keyboard events using stable closure safeguards (`handlersRef`), display visual `<Kbd>` hotkey indicators, and verify standard HTML form label-to-control links.
 
-## 2026-07-25 - [Inclusive Multi-Language Keyboard Shortcuts and Form Controls]
+## 2026-07-25 - [Identity Multi-Language Keyboard Shortcuts and Form Controls]
 **Learning:** Developer-facing generation utilities like Robots.txt often use complex multi-faceted inputs that lack proper label-to-input mapping and multi-language support. Pairing local keyboard triggers (`Escape` for reset, `C` for copy) with a `handlersRef` safeguard, clear programmatic focus restoration on clearing, and global `sonner` success toasts makes the tool feel incredibly smooth and accessible.
 **Action:** Always map complex input controls using standard `htmlFor` and unique sequential ID variables, supply helpful `<Kbd>` visual hotkey badges, and implement the programmatic focus restoration pattern on form reset.
 
@@ -23,7 +23,7 @@
 **Action:** Prioritize standard keyboard interaction patterns (Escape/Enter) for search and filter inputs in future tools.
 
 ## 2025-06-12 - [Consistency in Utility Patterns]
-**Learning:** Providing a "Reset" utility button using the `RotateCcw` icon and `rose-500` styling is a well-established pattern in this repository that users expect for clearing complex states. Additionally, enabling URL state sharing via `initialData` and `onStateChange` props allows users to share their specific configurations, which is a major UX win for utility tools.
+**Learning:** Providing a "Reset" utility button using the `RotateCcw` icon and `rose-500` style is a well-established pattern in this repository that users expect for clearing complex states. Additionally, enabling URL state sharing via `initialData` and `onStateChange` props allows users to share their specific configurations, which is a major UX win for utility tools.
 **Action:** Always check if a tool can benefit from a Reset button or state sharing to maintain repository-wide UX consistency.
 
 ## 2025-07-20 - [Dashboard Information Density & Contrast]
@@ -97,3 +97,7 @@
 ## 2026-07-27 - [Bilingual Form Accessibility and Interactive Anchors for Contact Pages]
 **Learning:** Landing-level sections like Contact forms are often implemented with hardcoded language strings, lack standard HTML form label-to-control associations, and use dead buttons as social placeholders. Providing complete localized translations, programmatic `htmlFor`/`id` linking, and keyboard-accessible anchor tags (`focus-visible:ring-2`, custom descriptive `aria-label`s, and `target="_blank"`) creates a highly professional, inclusive user experience.
 **Action:** Always replace empty placeholder buttons with fully functional external anchors, configure robust ARIA labelling and hover tooltips for icon-only components, and verify proper form-to-label associations.
+
+## 2026-08-02 - [Dual Copy Targets and Focus Management for Dimensional Calculators]
+**Learning:** For layout utilities like AspectRatioCalculator that output multiple meaningful result types (such as raw pixel dimensions vs. simplified ratios), users highly benefit from discrete copy triggers that can be clicked individually. Linking this with focus restoration back to the primary width field via an `Escape` keyboard shortcut and key hint badges ensures seamless keyboard navigation.
+**Action:** Provide specific, localized copy triggers for each distinct result subset, configure a `useRef` to programmatically focus the primary text/number input on reset, and wrap global listeners using a `useRef` closure safeguard (`handlersRef`).

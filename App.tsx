@@ -551,6 +551,7 @@ const TOTPGenerator = lazy(() => import("./components/TOTPGenerator").then(m => 
 const CollatzSequence = lazy(() => import("./components/CollatzSequence").then(m => ({ default: m.CollatzSequence })));
 const SVGToReact = lazy(() => import("./components/SVGToReact").then(m => ({ default: m.SVGToReact })));
 const QuoteListItems = lazy(() => import("./components/QuoteListItems").then(m => ({ default: m.QuoteListItems })));
+const ListZipperUnzipper = lazy(() => import("./components/ListZipperUnzipper").then(m => ({ default: m.ListZipperUnzipper })));
 const JSONToQuery = lazy(() => import("./components/JSONToQuery").then(m => ({ default: m.JSONToQuery })));
 const BencodeConverter = lazy(() => import("./components/BencodeConverter").then(m => ({ default: m.BencodeConverter })));
 const JSONToSQLDDL = lazy(() => import("./components/JSONToSQLDDL").then(m => ({ default: m.JSONToSQLDDL })));
@@ -4903,6 +4904,17 @@ const tools: Tool[] = [
     Component: QuoteListItems,
     category: "text",
     keywords: ["quote", "unquote", "list", "array", "separators", "brackets", "sql", "comma", "guillemets", "entourer"],
+  },
+  {
+    id: "list-zipper-unzipper",
+    name: "Fusionner & Séparer des Listes",
+    nameEn: "Zip & Unzip Lists",
+    icon: ArrowLeftRight,
+    description: "Fusionner ou séparer des listes d'éléments ligne par ligne avec des séparateurs et configurations personnalisés",
+    descriptionEn: "Combine or split multiple lists of elements item-by-item with custom separators and configurations",
+    Component: ListZipperUnzipper,
+    category: "text",
+    keywords: ["zip", "unzip", "merge", "combine", "split", "list", "lists", "lines", "interleaved", "fusionner", "séparer", "lignes"],
   },
   {
     id: "json-to-query",

@@ -554,6 +554,7 @@ const SVGToReact = lazy(() => import("./components/SVGToReact").then(m => ({ def
 const QuoteListItems = lazy(() => import("./components/QuoteListItems").then(m => ({ default: m.QuoteListItems })));
 const ListZipperUnzipper = lazy(() => import("./components/ListZipperUnzipper").then(m => ({ default: m.ListZipperUnzipper })));
 const JSONToQuery = lazy(() => import("./components/JSONToQuery").then(m => ({ default: m.JSONToQuery })));
+const UrlQueryModifier = lazy(() => import("./components/UrlQueryModifier").then(m => ({ default: m.UrlQueryModifier })));
 const BencodeConverter = lazy(() => import("./components/BencodeConverter").then(m => ({ default: m.BencodeConverter })));
 const JSONToSQLDDL = lazy(() => import("./components/JSONToSQLDDL").then(m => ({ default: m.JSONToSQLDDL })));
 const CommitMessageGenerator = lazy(() => import("./components/CommitMessageGenerator").then(m => ({ default: m.CommitMessageGenerator })));
@@ -4939,6 +4940,17 @@ const tools: Tool[] = [
     Component: JSONToQuery,
     category: "dev",
     keywords: ["json", "query", "url", "parameter", "qs", "querystring", "params", "parse", "stringify"],
+  },
+  {
+    id: "url-query-modifier",
+    name: "Modificateur de Requête URL",
+    nameEn: "URL Query Parameter Builder",
+    icon: LinkIcon,
+    description: "Analysez, construisez et modifiez interactivement les paramètres de requête de vos URLs",
+    descriptionEn: "Parse, build, and interactively modify URL query parameters with ease",
+    Component: UrlQueryModifier,
+    category: "dev",
+    keywords: ["url", "query", "parameters", "builder", "modifier", "search", "params", "querystring", "parse", "marketers"],
   },
   {
     id: "bencode-converter",

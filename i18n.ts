@@ -4179,7 +4179,20 @@ const resources = {
       "listzipper.unzip_result_a": "Extracted list A elements...",
       "listzipper.unzip_result_b": "Extracted list B elements...",
       "listzipper.about_title": "About List Zipper & Unzipper",
-      "listzipper.about_desc": "Zip and unzip multiple text lists together or split them back apart. This tool works entirely client-side in your browser. All your lists remain perfectly secure and never leave your computer."
+      "listzipper.about_desc": "Zip and unzip multiple text lists together or split them back apart. This tool works entirely client-side in your browser. All your lists remain perfectly secure and never leave your computer.",
+      "base85.error_z_inside_block": "Zero folding character \"z\" cannot appear inside an incomplete block",
+      "base85.error_y_disabled": "Space folding character \"y\" encountered but space compression is disabled",
+      "base85.error_y_inside_block": "Space folding character \"y\" cannot appear inside an incomplete block",
+      "base85.error_invalid_char": "Invalid character \"{{char}}\" in Ascii85 string",
+      "base85.error_overflow": "Ascii85 block value overflow (exceeds 32-bit limit)",
+      "base85.error_incomplete_single": "Incomplete Ascii85 block: single trailing character is invalid",
+      "base85.error_z85_strict_len": "Z85 requires input length to be a multiple of 4 bytes in strict mode",
+      "base85.error_z85_strict_char_len": "Z85 input length must be a multiple of 5 characters in strict mode",
+      "base85.error_invalid_z85_char": "Invalid Z85 character \"{{char}}\"",
+      "base85.encode": "Encode",
+      "base85.decode": "Decode",
+      "tool.base85-converter.name": "Base85 Converter",
+      "tool.base85-converter.description": "Convert text or bytes to Base85 and Ascii85 (Adobe or ZeroMQ Z85) format"
     }
   },
   fr: {
@@ -8362,7 +8375,20 @@ const resources = {
       "xmlformatter.toast_copied": "XML copié dans le presse-papiers !",
       "xmlformatter.toast_cleared": "Entrées XML effacées !",
       "xmlformatter.toast_formatted": "XML embelli avec succès !",
-      "xmlformatter.toast_minified": "XML minifié avec succès !"
+      "xmlformatter.toast_minified": "XML minifié avec succès !",
+      "base85.error_z_inside_block": "Le caractère de pliage de zéros \"z\" ne peut pas apparaître à l'intérieur d'un bloc incomplet",
+      "base85.error_y_disabled": "Le caractère de pliage d'espaces \"y\" a été rencontré mais la compression d'espaces est désactivée",
+      "base85.error_y_inside_block": "Le caractère de pliage d'espaces \"y\" ne peut pas apparaître à l'intérieur d'un bloc incomplet",
+      "base85.error_invalid_char": "Caractère invalide \"{{char}}\" dans la chaîne Ascii85",
+      "base85.error_overflow": "Dépassement de la valeur du bloc Ascii85 (limite de 32 bits dépassée)",
+      "base85.error_incomplete_single": "Bloc Ascii85 incomplet : un caractère de fin unique est invalide",
+      "base85.error_z85_strict_len": "Le Z85 exige que la longueur d'entrée soit un multiple de 4 octets en mode strict",
+      "base85.error_z85_strict_char_len": "La longueur d'entrée Z85 doit être un multiple de 5 caractères en mode strict",
+      "base85.error_invalid_z85_char": "Caractère Z85 invalide \"{{char}}\"",
+      "base85.encode": "Encoder",
+      "base85.decode": "Décoder",
+      "tool.base85-converter.name": "Convertisseur Base85",
+      "tool.base85-converter.description": "Convertir du texte ou des octets au format Base85 et Ascii85 (Adobe ou ZeroMQ Z85)"
     }
   }
 };

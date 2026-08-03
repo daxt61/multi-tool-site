@@ -466,6 +466,7 @@ const ImageBorderGenerator = lazy(() => import("./components/ImageBorderGenerato
 const ReactionTimeTester = lazy(() => import("./components/ReactionTimeTester").then(m => ({ default: m.ReactionTimeTester })));
 const BarcodeGenerator = lazy(() => import("./components/BarcodeGenerator").then(m => ({ default: m.BarcodeGenerator })));
 const Base32Converter = lazy(() => import("./components/Base32Converter").then(m => ({ default: m.Base32Converter })));
+const Base85Converter = lazy(() => import("./components/Base85Converter").then(m => ({ default: m.Base85Converter })));
 const ColorNameFinder = lazy(() => import("./components/ColorNameFinder").then(m => ({ default: m.ColorNameFinder })));
 const TransparentImageMaker = lazy(() => import("./components/TransparentImageMaker").then(m => ({ default: m.TransparentImageMaker })));
 const ImageCropper = lazy(() => import("./components/ImageCropper").then(m => ({ default: m.ImageCropper })));
@@ -4003,6 +4004,17 @@ const tools: Tool[] = [
     Component: Base32Converter,
     category: "dev",
     keywords: ["base32", "encoding", "decoding", "rfc4648", "binary"],
+  },
+  {
+    id: "base85-converter",
+    name: "Convertisseur Base85",
+    nameEn: "Base85 Converter",
+    icon: Binary,
+    description: "Convertir du texte ou des octets au format Base85 et Ascii85",
+    descriptionEn: "Convert text or bytes to Base85 and Ascii85 (Adobe or ZeroMQ Z85) format",
+    Component: Base85Converter,
+    category: "dev",
+    keywords: ["base85", "ascii85", "z85", "encoding", "decoding", "binary", "adobe", "zeromq"],
   },
   {
     id: "color-name-finder",

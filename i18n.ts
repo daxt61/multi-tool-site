@@ -4210,7 +4210,22 @@ const resources = {
       "tipcalculator.bill_plus_tip": "Bill + Tip",
       "tipcalculator.decrease_people": "Decrease number of people",
       "tipcalculator.increase_people": "Increase number of people",
-      "tipcalculator.copy_summary_title": "Copy summary"
+      "tipcalculator.copy_summary_title": "Copy summary",
+      "tool.url-query-modifier.name": "URL Query Parameter Builder",
+      "query_modifier.input_label": "Input URL or Query String",
+      "query_modifier.reparse": "Reparse input URL",
+      "query_modifier.parse": "Parse",
+      "query_modifier.parameters": "Query Parameters",
+      "query_modifier.normal_mode": "Visual Mode",
+      "query_modifier.bulk_mode": "Bulk Edit",
+      "query_modifier.apply_changes": "Apply Changes",
+      "query_modifier.empty_params": "No query parameters found. Add some or parse a URL.",
+      "query_modifier.base_url": "Base URL",
+      "query_modifier.final_result": "Output Result",
+      "query_modifier.copy_full": "Copy Updated URL",
+      "query_modifier.full_url": "Full URL",
+      "query_modifier.about_title": "About URL Query Builder",
+      "query_modifier.about_text": "This interactive tool allows developers, testers, and digital marketers to parse and rebuild URL query string structures with absolute ease. You can modify parameters, add keys/values on the fly, decode dynamic parameters, or perform bulk changes in standard key=value format. All evaluations are fully client-side protecting your absolute privacy."
     }
   },
   fr: {
@@ -8424,7 +8439,22 @@ const resources = {
       "tipcalculator.bill_plus_tip": "Addition + Pourboire",
       "tipcalculator.decrease_people": "Diminuer le nombre de personnes",
       "tipcalculator.increase_people": "Augmenter le nombre de personnes",
-      "tipcalculator.copy_summary_title": "Copier le résumé"
+      "tipcalculator.copy_summary_title": "Copier le résumé",
+      "tool.url-query-modifier.name": "Modificateur de Requête URL",
+      "query_modifier.input_label": "Saisir l'URL ou la chaîne de requête",
+      "query_modifier.reparse": "Analyse à nouveau l'URL",
+      "query_modifier.parse": "Analyser",
+      "query_modifier.parameters": "Paramètres de Requête",
+      "query_modifier.normal_mode": "Mode Visuel",
+      "query_modifier.bulk_mode": "Édition en Masse",
+      "query_modifier.apply_changes": "Appliquer les modifications",
+      "query_modifier.empty_params": "Aucun paramètre trouvé. Ajoutez-en ou analysez une URL.",
+      "query_modifier.base_url": "URL de base",
+      "query_modifier.final_result": "Résultat final",
+      "query_modifier.copy_full": "Copier l'URL modifiée",
+      "query_modifier.full_url": "URL complète",
+      "query_modifier.about_title": "À propos du Modificateur de Requête URL",
+      "query_modifier.about_text": "Cet outil interactif permet aux développeurs, testeurs et spécialistes en marketing de découper et reconstruire des structures de paramètres URL facilement. Vous pouvez modifier des paramètres, ajouter des clés et des valeurs, décoder des paramètres ou modifier en masse les variables d'un projet au format clé=valeur classique. Tout le calcul est effectué côté client."
     }
   }
 };

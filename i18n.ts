@@ -4192,7 +4192,22 @@ const resources = {
       "base85.encode": "Encode",
       "base85.decode": "Decode",
       "tool.base85-converter.name": "Base85 Converter",
-      "tool.base85-converter.description": "Convert text or bytes to Base85 and Ascii85 (Adobe or ZeroMQ Z85) format"
+      "tool.base85-converter.description": "Convert text or bytes to Base85 and Ascii85 (Adobe or ZeroMQ Z85) format",
+      "tipcalculator.bill_amount": "Bill Amount",
+      "tipcalculator.tip": "Tip",
+      "tipcalculator.total": "Total",
+      "tipcalculator.number_of_people": "Number of people",
+      "tipcalculator.per_person": "Per person",
+      "tipcalculator.total_per_person": "Total per person",
+      "tipcalculator.clear": "Clear",
+      "tipcalculator.copied_summary": "Summary copied to clipboard!",
+      "tipcalculator.copied_summary_toast": "Summary copied",
+      "tipcalculator.how_it_works": "The tip is usually 10% to 15% in most countries. In France and some other countries, service is included, but a small extra is always appreciated.",
+      "tipcalculator.how_it_works_title": "Practical advice",
+      "tipcalculator.bill_plus_tip": "Bill + Tip",
+      "tipcalculator.decrease_people": "Decrease number of people",
+      "tipcalculator.increase_people": "Increase number of people",
+      "tipcalculator.copy_summary_title": "Copy summary"
     }
   },
   fr: {
@@ -8388,7 +8403,22 @@ const resources = {
       "base85.encode": "Encoder",
       "base85.decode": "Décoder",
       "tool.base85-converter.name": "Convertisseur Base85",
-      "tool.base85-converter.description": "Convertir du texte ou des octets au format Base85 et Ascii85 (Adobe ou ZeroMQ Z85)"
+      "tool.base85-converter.description": "Convertir du texte ou des octets au format Base85 et Ascii85 (Adobe ou ZeroMQ Z85)",
+      "tipcalculator.bill_amount": "Montant de l'addition",
+      "tipcalculator.tip": "Pourboire",
+      "tipcalculator.total": "Total",
+      "tipcalculator.number_of_people": "Nombre de personnes",
+      "tipcalculator.per_person": "Par personne",
+      "tipcalculator.total_per_person": "Total par personne",
+      "tipcalculator.clear": "Effacer",
+      "tipcalculator.copied_summary": "Résumé copié dans le presse-papiers !",
+      "tipcalculator.copied_summary_toast": "Résumé copié",
+      "tipcalculator.how_it_works": "Le pourboire est généralement de 10% à 15% dans la plupart des pays. En France, le service est inclus, mais un petit supplément est toujours apprécié.",
+      "tipcalculator.how_it_works_title": "Conseils pratiques",
+      "tipcalculator.bill_plus_tip": "Addition + Pourboire",
+      "tipcalculator.decrease_people": "Diminuer le nombre de personnes",
+      "tipcalculator.increase_people": "Augmenter le nombre de personnes",
+      "tipcalculator.copy_summary_title": "Copier le résumé"
     }
   }
 };

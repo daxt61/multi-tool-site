@@ -1,7 +1,13 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { UtensilsCrossed, Users, Euro, Percent, Copy, Check, Trash2 } from "lucide-react";
+import { useTranslation } from "react-i18next";
+import { toast } from "sonner";
+import { Kbd } from "./ui/Kbd";
 
 export function TipCalculator({ initialData, onStateChange }: { initialData?: any; onStateChange?: (state: any) => void }) {
+  const { t } = useTranslation();
+  const billAmountRef = useRef<HTMLInputElement>(null);
+
   const [billAmount, setBillAmount] = useState<string>(initialData?.billAmount || "");
   const [tipPercent, setTipPercent] = useState<number>(initialData?.tipPercent ?? 15);
   const [numberOfPeople, setNumberOfPeople] = useState<string>(initialData?.numberOfPeople || "1");
@@ -20,9 +26,10 @@ export function TipCalculator({ initialData, onStateChange }: { initialData?: an
   const tipButtons = [10, 15, 18, 20, 25];
 
   const handleCopy = () => {
-    const text = `Addition: ${bill.toFixed(2)}€\nPourboire (${tipPercent}%): ${tipAmount.toFixed(2)}€\nTotal: ${totalAmount.toFixed(2)}€${people > 1 ? `\nPar personne: ${perPerson.toFixed(2)}€` : ''}`;
+    const text = `${t("tipcalculator.bill_amount")}: ${bill.toFixed(2)}€\n${t("tipcalculator.tip")} (${tipPercent}%): ${tipAmount.toFixed(2)}€\n${t("tipcalculator.total")}: ${totalAmount.toFixed(2)}€${people > 1 ? `\n${t("tipcalculator.per_person")}: ${perPerson.toFixed(2)}€` : ''}`;
     navigator.clipboard.writeText(text);
     setCopied(true);
+    toast.success(t("tipcalculator.copied_summary_toast"));
     setTimeout(() => setCopied(false), 2000);
   };
 
@@ -30,7 +37,45 @@ export function TipCalculator({ initialData, onStateChange }: { initialData?: an
     setBillAmount("");
     setTipPercent(15);
     setNumberOfPeople("1");
+    billAmountRef.current?.focus();
+    toast.success(t("common.reset"));
   };
+
+  const handleClearRef = useRef(handleClear);
+  const handleCopyRef = useRef(handleCopy);
+
+  useEffect(() => {
+    handleClearRef.current = handleClear;
+    handleCopyRef.current = handleCopy;
+  }, [handleClear, handleCopy]);
+
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === "Escape") {
+        e.preventDefault();
+        handleClearRef.current();
+        return;
+      }
+
+      const activeEl = document.activeElement;
+      const isEditable = activeEl && (
+        activeEl.tagName === "INPUT" ||
+        activeEl.tagName === "TEXTAREA" ||
+        activeEl.getAttribute("contenteditable") === "true"
+      );
+
+      if (isEditable) return;
+      if (e.metaKey || e.ctrlKey || e.altKey || e.shiftKey) return;
+
+      if (e.key.toLowerCase() === "c") {
+        e.preventDefault();
+        handleCopyRef.current();
+      }
+    };
+
+    window.addEventListener("keydown", handleKeyDown);
+    return () => window.removeEventListener("keydown", handleKeyDown);
+  }, []);
 
   return (
     <div className="max-w-4xl mx-auto space-y-8">
@@ -38,21 +83,25 @@ export function TipCalculator({ initialData, onStateChange }: { initialData?: an
         <div className="space-y-6">
           <div className="flex justify-between items-center px-1">
             <label htmlFor="bill-amount" className="text-xs font-black uppercase tracking-widest text-slate-400 flex items-center gap-2 cursor-pointer">
-              <Euro className="w-3 h-3" /> Montant de l'addition
+              <Euro className="w-3 h-3" aria-hidden="true" /> {t("tipcalculator.bill_amount")}
             </label>
-            <button
-              onClick={handleClear}
-              disabled={!billAmount && tipPercent === 15 && numberOfPeople === "1"}
-              className="text-xs font-bold text-rose-500 bg-rose-50 dark:bg-rose-500/10 hover:bg-rose-100 dark:hover:bg-rose-500/20 px-3 py-1.5 rounded-xl flex items-center gap-1 transition-all disabled:opacity-50 disabled:cursor-not-allowed focus-visible:ring-2 focus-visible:ring-rose-500 focus-visible:outline-none"
-              aria-label="Effacer tout"
-            >
-              <Trash2 className="w-3 h-3" /> Effacer
-            </button>
+            <div className="flex items-center gap-2">
+              <Kbd modifier={null} className="text-slate-400">Esc</Kbd>
+              <button
+                onClick={handleClear}
+                disabled={!billAmount && tipPercent === 15 && numberOfPeople === "1"}
+                className="text-xs font-bold text-rose-500 bg-rose-50 dark:bg-rose-500/10 hover:bg-rose-100 dark:hover:bg-rose-500/20 px-3 py-1.5 rounded-xl flex items-center gap-1 transition-all disabled:opacity-50 disabled:cursor-not-allowed focus-visible:ring-2 focus-visible:ring-rose-500 focus-visible:outline-none"
+                aria-label={t("tipcalculator.clear")}
+              >
+                <Trash2 className="w-3 h-3" aria-hidden="true" /> {t("tipcalculator.clear")}
+              </button>
+            </div>
           </div>
           <div className="space-y-3">
             <div className="relative">
                <input
                 id="bill-amount"
+                ref={billAmountRef}
                 type="number"
                 value={billAmount}
                 onChange={(e) => setBillAmount(e.target.value)}
@@ -66,9 +115,9 @@ export function TipCalculator({ initialData, onStateChange }: { initialData?: an
 
           <div className="space-y-3">
              <label htmlFor="tip-range" className="text-xs font-black uppercase tracking-widest text-slate-400 px-1 flex items-center gap-2 cursor-pointer">
-               <Percent className="w-3 h-3" /> Pourboire: {tipPercent}%
+               <Percent className="w-3 h-3" aria-hidden="true" /> {t("tipcalculator.tip")}: {tipPercent}%
              </label>
-             <div className="grid grid-cols-5 gap-2">
+             <div className="grid grid-cols-5 gap-2" role="group" aria-label={t("tipcalculator.tip")}>
                 {tipButtons.map((percent) => (
                   <button
                     key={percent}
@@ -97,13 +146,13 @@ export function TipCalculator({ initialData, onStateChange }: { initialData?: an
 
           <div className="space-y-3">
             <label htmlFor="people-count" className="text-xs font-black uppercase tracking-widest text-slate-400 px-1 flex items-center gap-2 cursor-pointer">
-              <Users className="w-3 h-3" /> Nombre de personnes
+              <Users className="w-3 h-3" aria-hidden="true" /> {t("tipcalculator.number_of_people")}
             </label>
             <div className="flex items-center gap-4">
               <button
                 onClick={() => setNumberOfPeople(String(Math.max(1, people - 1)))}
                 className="w-14 h-14 bg-slate-100 dark:bg-slate-800 rounded-2xl flex items-center justify-center text-2xl font-black hover:bg-slate-200 dark:hover:bg-slate-700 transition-colors focus-visible:ring-2 focus-visible:ring-indigo-500 focus-visible:outline-none"
-                aria-label="Diminuer le nombre de personnes"
+                aria-label={t("tipcalculator.decrease_people")}
               >
                 -
               </button>
@@ -118,7 +167,7 @@ export function TipCalculator({ initialData, onStateChange }: { initialData?: an
               <button
                 onClick={() => setNumberOfPeople(String(people + 1))}
                 className="w-14 h-14 bg-slate-100 dark:bg-slate-800 rounded-2xl flex items-center justify-center text-2xl font-black hover:bg-slate-200 dark:hover:bg-slate-700 transition-colors focus-visible:ring-2 focus-visible:ring-indigo-500 focus-visible:outline-none"
-                aria-label="Augmenter le nombre de personnes"
+                aria-label={t("tipcalculator.increase_people")}
               >
                 +
               </button>
@@ -127,23 +176,28 @@ export function TipCalculator({ initialData, onStateChange }: { initialData?: an
         </div>
 
         <div className="space-y-6">
-          <div className="bg-slate-900 dark:bg-black p-10 rounded-[2.5rem] shadow-xl shadow-indigo-500/10 space-y-8 relative group">
-            <button
-              onClick={handleCopy}
-              className={`absolute top-6 right-6 p-3 rounded-2xl transition-all border focus-visible:ring-2 focus-visible:ring-indigo-500 focus-visible:outline-none z-20 ${
-                copied
-                  ? "bg-emerald-50 dark:bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border-emerald-200 dark:border-emerald-500/20"
-                  : "bg-white/10 text-white/40 border-transparent hover:text-white hover:bg-white/20 md:opacity-0 md:group-hover:opacity-100 md:focus-visible:opacity-100"
-              }`}
-              title="Copier le résumé"
-              aria-label="Copier le résumé"
-            >
-              {copied ? <Check className="w-5 h-5" /> : <Copy className="w-5 h-5" />}
-            </button>
+          <div className="bg-slate-900 dark:bg-black p-10 rounded-[2.5rem] shadow-xl shadow-indigo-500/10 space-y-8 relative">
+            <div className="flex justify-between items-center border-b border-slate-800/60 pb-4">
+              <span className="text-xs font-black uppercase tracking-widest text-slate-500">{t("common.result")}</span>
+              <button
+                onClick={handleCopy}
+                className={`p-3 rounded-2xl transition-all border focus-visible:ring-2 focus-visible:ring-indigo-500 focus-visible:outline-none flex items-center gap-2 ${
+                  copied
+                    ? "bg-emerald-50 dark:bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border-emerald-200 dark:border-emerald-500/20"
+                    : "bg-white/10 text-white/40 border-transparent hover:text-white hover:bg-white/20"
+                }`}
+                title={t("tipcalculator.copy_summary_title")}
+                aria-label={t("tipcalculator.copy_summary_title")}
+              >
+                {copied ? <Check className="w-5 h-5" /> : <Copy className="w-5 h-5" />}
+                {!copied && <Kbd modifier={null} className="hidden sm:inline-flex bg-white/10 text-white border-transparent">C</Kbd>}
+              </button>
+            </div>
+
             <div className="flex justify-between items-center border-b border-slate-800 pb-6">
               <div className="space-y-1">
-                <div className="text-white font-black text-xl">Pourboire</div>
-                <div className="text-slate-500 text-xs font-bold uppercase tracking-widest">Total</div>
+                <div className="text-white font-black text-xl">{t("tipcalculator.tip")}</div>
+                <div className="text-slate-500 text-xs font-bold uppercase tracking-widest">{t("tipcalculator.total")}</div>
               </div>
               <div className="text-4xl font-black text-indigo-400 font-mono">
                 {tipAmount.toFixed(2)}€
@@ -152,8 +206,8 @@ export function TipCalculator({ initialData, onStateChange }: { initialData?: an
 
             <div className="flex justify-between items-center border-b border-slate-800 pb-6">
               <div className="space-y-1">
-                <div className="text-white font-black text-xl">Total</div>
-                <div className="text-slate-500 text-xs font-bold uppercase tracking-widest">Addition + Pourboire</div>
+                <div className="text-white font-black text-xl">{t("tipcalculator.total")}</div>
+                <div className="text-slate-500 text-xs font-bold uppercase tracking-widest">{t("tipcalculator.bill_plus_tip")}</div>
               </div>
               <div className="text-4xl font-black text-emerald-400 font-mono">
                 {totalAmount.toFixed(2)}€
@@ -163,11 +217,11 @@ export function TipCalculator({ initialData, onStateChange }: { initialData?: an
             {people > 1 && (
               <div className="pt-2 space-y-6">
                 <div className="flex justify-between items-center opacity-60">
-                   <div className="text-slate-300 font-bold text-sm">Par personne</div>
+                   <div className="text-slate-300 font-bold text-sm">{t("tipcalculator.per_person")}</div>
                    <div className="text-slate-300 font-black font-mono text-lg">{perPerson.toFixed(2)}€</div>
                 </div>
                 <div className="bg-indigo-500/10 border border-indigo-500/20 p-6 rounded-3xl text-center">
-                   <div className="text-indigo-400 text-xs font-bold uppercase tracking-widest mb-2">Total par personne</div>
+                   <div className="text-indigo-400 text-xs font-bold uppercase tracking-widest mb-2">{t("tipcalculator.total_per_person")}</div>
                    <div className="text-5xl font-black text-white font-mono tracking-tighter">
                      {perPerson.toFixed(2)}<span className="text-2xl ml-1 text-indigo-400">€</span>
                    </div>
@@ -178,11 +232,14 @@ export function TipCalculator({ initialData, onStateChange }: { initialData?: an
 
           <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 p-6 rounded-3xl flex items-start gap-4">
              <div className="p-3 bg-indigo-50 dark:bg-indigo-900/20 text-indigo-600 dark:text-indigo-400 rounded-2xl">
-                <UtensilsCrossed className="w-6 h-6" />
+                <UtensilsCrossed className="w-6 h-6" aria-hidden="true" />
              </div>
-             <p className="text-sm text-slate-500 dark:text-slate-400 leading-relaxed font-medium">
-               Le pourboire est généralement de 10% à 15% dans la plupart des pays. En France, le service est inclus, mais un petit supplément est toujours apprécié.
-             </p>
+             <div className="space-y-1">
+                <h4 className="font-bold text-sm dark:text-white">{t("tipcalculator.how_it_works_title")}</h4>
+                <p className="text-sm text-slate-500 dark:text-slate-400 leading-relaxed font-medium">
+                  {t("tipcalculator.how_it_works")}
+                </p>
+             </div>
           </div>
         </div>
       </div>

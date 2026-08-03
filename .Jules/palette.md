@@ -1,3 +1,7 @@
+## 2026-08-10 - [Fluid Flow Headers and Focus Management for Tip Estimators]
+**Learning:** Adding interactive copy controls with visual `<Kbd>` key cap shortcuts on top of dynamically updated numeric panels can cause severe layout overlaps and text clipping at tight widths if absolute positioning is used. Laying out copy button actions inline within a structured container header resolves layout collisions entirely, ensuring excellent typography legibility and perfect responsive behavior.
+**Action:** Always avoid overlaying absolute action buttons over dynamic numeric text fields; prefer structured inline container headers for copy triggers, and manage keyboard focus programmatically on input clearing.
+
 ## 2026-07-28 - [Premium Keyboard Navigation and Toast Confirmation for Calculator Tools]
 **Learning:** For multi-input calculators (such as the Percentage Calculator), user interaction can be significantly enriched by combining localized `sonner` success toasts on copy, stable keyboard listeners (`Escape` for clearing inputs, with programmatic focus restoration using `useRef`), and making hover-only copy buttons accessible via `focus-visible:opacity-100`.
 **Action:** Always provide instant visual/auditory feedback for copy actions, implement proper focus management upon clearing, and make interactive hover states keyboard-accessible.

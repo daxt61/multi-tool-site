@@ -563,6 +563,7 @@ const RegexBuilder = lazy(() => import("./components/RegexBuilder").then(m => ({
 const JWKGenerator = lazy(() => import("./components/JWKGenerator").then(m => ({ default: m.JWKGenerator })));
 const CartesianProductGenerator = lazy(() => import("./components/CartesianProductGenerator").then(m => ({ default: m.CartesianProductGenerator })));
 const KeyCodeFinder = lazy(() => import("./components/KeyCodeFinder").then(m => ({ default: m.KeyCodeFinder })));
+const UniversalEncoderDecoder = lazy(() => import("./components/UniversalEncoderDecoder").then(m => ({ default: m.UniversalEncoderDecoder })));
 
 // ⚡ Bolt Optimization: Pre-calculating tool map and search index for O(1) lookups and faster filtering
 const toolsMap: Record<string, Tool> = {};
@@ -600,6 +601,18 @@ const categories: Category[] = [
 ];
 
 const tools: Tool[] = [
+  // Universal Encoder & Decoder
+  {
+    id: "universal-encoder-decoder",
+    name: "Encodeur & Décodeur Universel",
+    nameEn: "Universal Text Encoder & Decoder",
+    icon: ArrowLeftRight,
+    description: "Convertir bidirectionnellement du texte ou des octets entre 12 formats d'encodage différents en temps réel",
+    descriptionEn: "Bidirectionally convert text or byte sequences between 12 different encoding formats in real-time",
+    Component: UniversalEncoderDecoder,
+    category: "dev",
+    keywords: ["encoder", "decoder", "base64", "hex", "binary", "urlencode", "html entities", "caesar", "ascii", "octal", "base58", "base85", "base32"],
+  },
   // KeyCode Finder
   {
     id: "keycode-finder",

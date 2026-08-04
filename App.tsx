@@ -562,6 +562,7 @@ const GzipDeflateConverter = lazy(() => import("./components/GzipDeflateConverte
 const RegexBuilder = lazy(() => import("./components/RegexBuilder").then(m => ({ default: m.RegexBuilder })));
 const JWKGenerator = lazy(() => import("./components/JWKGenerator").then(m => ({ default: m.JWKGenerator })));
 const CartesianProductGenerator = lazy(() => import("./components/CartesianProductGenerator").then(m => ({ default: m.CartesianProductGenerator })));
+const KeyCodeFinder = lazy(() => import("./components/KeyCodeFinder").then(m => ({ default: m.KeyCodeFinder })));
 
 // ⚡ Bolt Optimization: Pre-calculating tool map and search index for O(1) lookups and faster filtering
 const toolsMap: Record<string, Tool> = {};
@@ -599,6 +600,18 @@ const categories: Category[] = [
 ];
 
 const tools: Tool[] = [
+  // KeyCode Finder
+  {
+    id: "keycode-finder",
+    name: "Détecteur de touches (KeyCode)",
+    nameEn: "KeyCode Finder & Key Event Info",
+    icon: Keyboard,
+    description: "Trouver event.keyCode, event.key et event.code instantanément pour n'importe quelle touche de clavier",
+    descriptionEn: "Find keyboard event.keyCode, event.key, and event.code attributes instantaneously for any key press",
+    Component: KeyCodeFinder,
+    category: "dev",
+    keywords: ["keycode", "key event", "keyboard", "javascript", "react", "shortcut", "debugging", "touch", "clavier"],
+  },
   // Business Tools
   {
     id: "work-hours-calculator",

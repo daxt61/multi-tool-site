@@ -561,6 +561,7 @@ const CommitMessageGenerator = lazy(() => import("./components/CommitMessageGene
 const GzipDeflateConverter = lazy(() => import("./components/GzipDeflateConverter").then(m => ({ default: m.GzipDeflateConverter })));
 const RegexBuilder = lazy(() => import("./components/RegexBuilder").then(m => ({ default: m.RegexBuilder })));
 const JWKGenerator = lazy(() => import("./components/JWKGenerator").then(m => ({ default: m.JWKGenerator })));
+const CartesianProductGenerator = lazy(() => import("./components/CartesianProductGenerator").then(m => ({ default: m.CartesianProductGenerator })));
 
 // ⚡ Bolt Optimization: Pre-calculating tool map and search index for O(1) lookups and faster filtering
 const toolsMap: Record<string, Tool> = {};
@@ -5017,6 +5018,17 @@ const tools: Tool[] = [
     Component: JWKGenerator,
     category: "dev",
     keywords: ["jwk", "pem", "rsa", "elliptic curve", "ec", "hmac", "oct", "key", "keypair", "web crypto"],
+  },
+  {
+    id: "cartesian-product",
+    name: "Produit Cartésien",
+    nameEn: "Cartesian Product Generator",
+    icon: Grid3X3,
+    description: "Générer le produit cartésien de plusieurs listes/ensembles",
+    descriptionEn: "Generate the mathematical Cartesian product of multiple lists/sets with custom delimiters and formatting",
+    Component: CartesianProductGenerator,
+    category: "text",
+    keywords: ["cartesian", "product", "combinations", "sets", "lists", "permutations", "produit", "cartesien", "combinaisons", "line"],
   },
 ];
 

@@ -529,6 +529,7 @@ const JSONToOpenAPI = lazy(() => import("./components/JSONToOpenAPI").then(m => 
 const CSSAnimationGenerator = lazy(() => import("./components/CSSAnimationGenerator").then(m => ({ default: m.CSSAnimationGenerator })));
 const SQLToMongoDB = lazy(() => import("./components/SQLToMongoDB").then(m => ({ default: m.SQLToMongoDB })));
 const SQLToOpenAPI = lazy(() => import("./components/SQLToOpenAPI").then(m => ({ default: m.SQLToOpenAPI })));
+const SQLToMermaid = lazy(() => import("./components/SQLToMermaid").then(m => ({ default: m.SQLToMermaid })));
 const YAMLToTOML = lazy(() => import("./components/YAMLToTOML").then(m => ({ default: m.YAMLToTOML })));
 const YamlIniConverter = lazy(() => import("./components/YamlIniConverter").then(m => ({ default: m.YamlIniConverter })));
 const SubstitutionCipher = lazy(() => import("./components/SubstitutionCipher").then(m => ({ default: m.SubstitutionCipher })));
@@ -4728,6 +4729,17 @@ const tools: Tool[] = [
     Component: SQLToOpenAPI,
     category: "dev",
     keywords: ["sql", "openapi", "swagger", "api", "schema", "documentation"],
+  },
+  {
+    id: "sql-to-mermaid",
+    name: "SQL en Mermaid ER",
+    nameEn: "SQL to Mermaid ER Diagram",
+    icon: Network,
+    description: "Générer des diagrammes d'entité-relation Mermaid à partir d'instructions SQL DDL",
+    descriptionEn: "Generate Mermaid entity-relationship (ER) diagrams from SQL DDL CREATE TABLE statements",
+    Component: SQLToMermaid,
+    category: "dev",
+    keywords: ["sql", "mermaid", "er", "diagram", "entity", "relationship", "database", "ddl", "create table"],
   },
   {
     id: "yaml-toml",

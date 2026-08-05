@@ -4,9 +4,12 @@ import { useTranslation } from 'react-i18next';
 import { toast } from 'sonner';
 import { Kbd } from './ui/Kbd';
 
+const MAX_LENGTH = 128;
+
 export function PasswordStrengthMeter({ initialData, onStateChange }: { initialData?: any; onStateChange?: (state: any) => void }) {
   const { t } = useTranslation();
-  const [password, setPassword] = useState(initialData?.password || '');
+  // Sentinel: Always initialize as empty string to prevent sensitive state leakage.
+  const [password, setPassword] = useState('');
   const [copied, setCopied] = useState(false);
   const inputRef = useRef<HTMLInputElement>(null);
 
@@ -147,7 +150,8 @@ export function PasswordStrengthMeter({ initialData, onStateChange }: { initialD
           ref={inputRef}
           type="text"
           value={password}
-          onChange={(e) => setPassword(e.target.value)}
+          onChange={(e) => setPassword(e.target.value.slice(0, MAX_LENGTH))}
+          maxLength={MAX_LENGTH}
           placeholder="Enter a password to test..."
           className="w-full p-6 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-3xl outline-none focus:ring-2 focus:ring-indigo-500/20 transition-all text-xl font-mono text-center dark:text-slate-200"
         />

@@ -138,6 +138,7 @@ import {
   Cloud,
   Keyboard,
   Quote,
+  Indent,
 } from "lucide-react";
 import { Toaster } from "./components/ui/sonner";
 import { toast } from "sonner";
@@ -564,6 +565,7 @@ const JWKGenerator = lazy(() => import("./components/JWKGenerator").then(m => ({
 const CartesianProductGenerator = lazy(() => import("./components/CartesianProductGenerator").then(m => ({ default: m.CartesianProductGenerator })));
 const KeyCodeFinder = lazy(() => import("./components/KeyCodeFinder").then(m => ({ default: m.KeyCodeFinder })));
 const UniversalEncoderDecoder = lazy(() => import("./components/UniversalEncoderDecoder").then(m => ({ default: m.UniversalEncoderDecoder })));
+const TextIndentationConverter = lazy(() => import("./components/TextIndentationConverter").then(m => ({ default: m.TextIndentationConverter })));
 
 // ⚡ Bolt Optimization: Pre-calculating tool map and search index for O(1) lookups and faster filtering
 const toolsMap: Record<string, Tool> = {};
@@ -601,6 +603,18 @@ const categories: Category[] = [
 ];
 
 const tools: Tool[] = [
+  // Text Indentation Converter
+  {
+    id: "text-indentation-converter",
+    name: "Convertisseur d'Indentation",
+    nameEn: "Text Indentation Converter",
+    icon: Indent,
+    description: "Convertir l'indentation de vos fichiers (espaces et tabulations), augmenter/diminuer les niveaux ou nettoyer les espaces vides",
+    descriptionEn: "Convert text indentation (tabs and spaces), increase/decrease indentation levels, or clean up whitespace",
+    Component: TextIndentationConverter,
+    category: "dev",
+    keywords: ["indent", "tabs", "spaces", "indentation", "tabulation", "unindent", "formatage", "code", "trim"],
+  },
   // Universal Encoder & Decoder
   {
     id: "universal-encoder-decoder",

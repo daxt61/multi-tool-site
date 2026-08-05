@@ -13,7 +13,10 @@ test('verify category tool counts and contrast improvements', async ({ page }) =
 
   // Visit a tool to make "Recent Tools" section appear
   await page.goto('http://localhost:5173/fr/outil/calculator');
+  await page.waitForLoadState('networkidle');
+  await page.waitForTimeout(500); // Give React state time to trigger localStorage write
   await page.goto('http://localhost:5173/fr');
+  await page.waitForLoadState('networkidle');
 
   // Verify Recent Tools heading has correct contrast class (slate-500)
   const recentHeading = page.locator('h2#recent-tools-title');

@@ -4402,7 +4402,27 @@ const resources = {
       "indent_converter.faq_q2": "How does Auto-Detection work?",
       "indent_converter.faq_a2": "The offline analyzer automatically scans the first 100 lines of text, calculating statistical patterns of tabs versus spaces and sizing to configure matching operations in one click.",
       "indent_converter.faq_q3": "Is my code secure and private?",
-      "indent_converter.faq_a3": "Yes, 100% private. All processing occurs locally in your browser using pure JavaScript variables. No inputs, codes, or file fragments are ever uploaded or transmitted."
+      "indent_converter.faq_a3": "Yes, 100% private. All processing occurs locally in your browser using pure JavaScript variables. No inputs, codes, or file fragments are ever uploaded or transmitted.",
+      "dns_lookup.domain_label": "Domain Name",
+      "dns_lookup.record_type_label": "Record Type",
+      "dns_lookup.provider_label": "DNS Server (DoH Provider)",
+      "dns_lookup.query_btn": "Resolve DNS",
+      "dns_lookup.loading": "Resolving...",
+      "dns_lookup.cleared": "Input and results cleared",
+      "dns_lookup.query_success": "DNS query successful!",
+      "dns_lookup.query_no_records": "Query completed, but no records were returned.",
+      "dns_lookup.error_invalid_domain": "Please enter a valid domain name (e.g., google.com)",
+      "dns_lookup.error_failed_fetch": "Failed to fetch DNS records. Please verify your connection or try another provider.",
+      "dns_lookup.results_title": "DNS Records",
+      "dns_lookup.copy_json": "Copy Response",
+      "dns_lookup.table_type": "Type",
+      "dns_lookup.table_name": "Name",
+      "dns_lookup.table_ttl": "TTL",
+      "dns_lookup.table_data": "Data / Value",
+      "dns_lookup.no_records_found": "No answers returned for this query.",
+      "dns_lookup.raw_json": "Raw DoH JSON Response",
+      "dns_lookup.about_title": "About DNS Lookup",
+      "dns_lookup.about_text": "This tool performs real-time DNS queries securely in your browser using DNS-over-HTTPS (DoH) protocols. You can query A, AAAA, TXT, MX, NS, CNAME, and CAA records directly using Google Public DNS or Cloudflare servers without leaking local network configurations."
     }
   },
   fr: {
@@ -8808,7 +8828,27 @@ const resources = {
       "indent_converter.faq_q2": "Comment fonctionne la détection automatique ?",
       "indent_converter.faq_a2": "L'analyseur hors ligne scanne automatiquement les 100 premières lignes de texte, calculant la proportion de tabulations et d'espaces pour configurer l'outil en un seul clic.",
       "indent_converter.faq_q3": "Mes données sont-elles sécurisées et privées ?",
-      "indent_converter.faq_a3": "Oui, 100% privé. Tout le traitement se fait localement dans votre navigateur en JavaScript. Aucun texte, code ou fragment de fichier n'est jamais transféré ou collecté."
+      "indent_converter.faq_a3": "Oui, 100% privé. Tout le traitement se fait localement dans votre navigateur en JavaScript. Aucun texte, code ou fragment de fichier n'est jamais transféré ou collecté.",
+      "dns_lookup.domain_label": "Nom de domaine",
+      "dns_lookup.record_type_label": "Type d'enregistrement",
+      "dns_lookup.provider_label": "Serveur DNS (Fournisseur DoH)",
+      "dns_lookup.query_btn": "Résoudre le DNS",
+      "dns_lookup.loading": "Résolution...",
+      "dns_lookup.cleared": "Saisie et résultats effacés",
+      "dns_lookup.query_success": "Requête DNS réussie !",
+      "dns_lookup.query_no_records": "Requête terminée, mais aucun enregistrement n'a été retourné.",
+      "dns_lookup.error_invalid_domain": "Veuillez entrer un nom de domaine valide (ex: google.com)",
+      "dns_lookup.error_failed_fetch": "Échec de la récupération des enregistrements DNS. Veuillez vérifier votre connexion ou essayer un autre fournisseur.",
+      "dns_lookup.results_title": "Enregistrements DNS",
+      "dns_lookup.copy_json": "Copier la Réponse",
+      "dns_lookup.table_type": "Type",
+      "dns_lookup.table_name": "Nom",
+      "dns_lookup.table_ttl": "TTL",
+      "dns_lookup.table_data": "Données / Valeur",
+      "dns_lookup.no_records_found": "Aucune réponse renvoyée pour cette requête.",
+      "dns_lookup.raw_json": "Réponse JSON DoH brute",
+      "dns_lookup.about_title": "À propos de la résolution DNS",
+      "dns_lookup.about_text": "Cet outil effectue des requêtes DNS en temps réel de manière sécurisée dans votre navigateur en utilisant les protocoles DNS-over-HTTPS (DoH). Vous pouvez interroger les enregistrements A, AAAA, TXT, MX, NS, CNAME et CAA directement à l'aide des serveurs Google Public DNS ou Cloudflare sans fuite de configurations réseau locales."
     }
   }
 };

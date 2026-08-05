@@ -567,6 +567,7 @@ const CartesianProductGenerator = lazy(() => import("./components/CartesianProdu
 const KeyCodeFinder = lazy(() => import("./components/KeyCodeFinder").then(m => ({ default: m.KeyCodeFinder })));
 const UniversalEncoderDecoder = lazy(() => import("./components/UniversalEncoderDecoder").then(m => ({ default: m.UniversalEncoderDecoder })));
 const TextIndentationConverter = lazy(() => import("./components/TextIndentationConverter").then(m => ({ default: m.TextIndentationConverter })));
+const DNSLookup = lazy(() => import("./components/DNSLookup").then(m => ({ default: m.DNSLookup })));
 
 // ⚡ Bolt Optimization: Pre-calculating tool map and search index for O(1) lookups and faster filtering
 const toolsMap: Record<string, Tool> = {};
@@ -604,6 +605,18 @@ const categories: Category[] = [
 ];
 
 const tools: Tool[] = [
+  // DNS Lookup Tool
+  {
+    id: "dns-lookup",
+    name: "Résolution DNS",
+    nameEn: "DNS Lookup & Resolver",
+    icon: Globe,
+    description: "Interroger des enregistrements DNS (A, AAAA, CNAME, MX, TXT, NS, CAA) en temps réel avec DNS-over-HTTPS sécurisé",
+    descriptionEn: "Perform real-time secure DNS queries (A, AAAA, CNAME, MX, TXT, NS, CAA) using DNS-over-HTTPS APIs",
+    Component: DNSLookup,
+    category: "dev",
+    keywords: ["dns", "lookup", "resolve", "doh", "dns-over-https", "records", "domain", "ip", "cloudflare", "google", "network"],
+  },
   // Text Indentation Converter
   {
     id: "text-indentation-converter",

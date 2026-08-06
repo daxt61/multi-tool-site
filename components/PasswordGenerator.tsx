@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback, useMemo } from 'react';
+import { useState, useEffect, useCallback, useMemo, useRef } from 'react';
 import { Copy, RefreshCw, Check, Shield, ShieldAlert, ShieldCheck, Key, BookOpen, Trash2, Download, Eye, EyeOff, AlertCircle, Info, Activity } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import { toast } from 'sonner';
@@ -69,6 +69,7 @@ export function PasswordGenerator({ initialData, onStateChange }: { initialData?
   const [copiedHistoryIndex, setCopiedHistoryIndex] = useState<number | null>(null);
   const [copiedHistoryAll, setCopiedHistoryAll] = useState(false);
   const [history, setHistory] = useState<string[]>([]);
+  const quantityInputRef = useRef<HTMLInputElement>(null);
 
   const generatePassword = useCallback(() => {
     const newPasswords: string[] = [];
@@ -198,10 +199,13 @@ export function PasswordGenerator({ initialData, onStateChange }: { initialData?
     return { label: t('passwordgenerator.strength.excellent'), color: 'bg-indigo-600', icon: <ShieldCheck className="w-4 h-4" />, feedback: t('passwordgenerator.feedback.excellent') };
   }, [t]);
 
-  const handleClear = () => {
+  const handleClear = useCallback(() => {
     setPasswords([]);
     setHistory([]);
-  };
+    setTimeout(() => {
+      quantityInputRef.current?.focus();
+    }, 0);
+  }, []);
 
   const copyHistoryItem = (item: string, index: number) => {
     navigator.clipboard.writeText(item);
@@ -233,32 +237,65 @@ export function PasswordGenerator({ initialData, onStateChange }: { initialData?
     URL.revokeObjectURL(url);
   };
 
+  const handlersRef = useRef({
+    generatePassword,
+    copyToClipboard,
+    setShowPassword,
+    showPassword,
+    handleClear,
+    passwords,
+  });
+
+  useEffect(() => {
+    handlersRef.current = {
+      generatePassword,
+      copyToClipboard,
+      setShowPassword,
+      showPassword,
+      handleClear,
+      passwords,
+    };
+  }, [generatePassword, copyToClipboard, showPassword, passwords, handleClear]);
+
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
-      if (document.activeElement?.tagName === "INPUT" || document.activeElement?.tagName === "TEXTAREA") {
+      const activeElement = document.activeElement;
+      const isEditable =
+        activeElement instanceof HTMLInputElement ||
+        activeElement instanceof HTMLTextAreaElement ||
+        activeElement instanceof HTMLSelectElement ||
+        activeElement?.getAttribute("contenteditable") === "true";
+
+      const isInputFocused = activeElement === quantityInputRef.current ||
+        (activeElement instanceof HTMLInputElement && activeElement.closest('.max-w-4xl') !== null);
+
+      if (e.key === 'Escape') {
+        if (isInputFocused || !isEditable) {
+          e.preventDefault();
+          handlersRef.current.handleClear();
+        }
         return;
       }
 
-      const isBodyFocused = document.activeElement === document.body;
+      if (isEditable) return;
+
+      const isBodyFocused = activeElement === document.body;
 
       if ((e.key.toLowerCase() === 'r' || e.key === 'Enter') || (e.code === 'Space' && isBodyFocused)) {
         e.preventDefault();
-        generatePassword();
+        handlersRef.current.generatePassword();
       } else if (e.key.toLowerCase() === 'c') {
         e.preventDefault();
-        copyToClipboard();
+        handlersRef.current.copyToClipboard();
       } else if (e.key.toLowerCase() === 'v') {
         e.preventDefault();
-        setShowPassword(prev => !prev);
-      } else if (e.key === 'Escape') {
-        e.preventDefault();
-        handleClear();
+        handlersRef.current.setShowPassword(prev => !prev);
       }
     };
 
     window.addEventListener('keydown', handleKeyDown);
     return () => window.removeEventListener('keydown', handleKeyDown);
-  }, [generatePassword, copyToClipboard, showPassword]);
+  }, []);
 
   return (
     <div className="max-w-4xl mx-auto space-y-8">
@@ -480,6 +517,7 @@ export function PasswordGenerator({ initialData, onStateChange }: { initialData?
             </div>
             <input
               id="password-quantity"
+              ref={quantityInputRef}
               type="range"
               min="1"
               max="50"

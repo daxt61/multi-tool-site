@@ -530,6 +530,7 @@ const CSSAnimationGenerator = lazy(() => import("./components/CSSAnimationGenera
 const SQLToMongoDB = lazy(() => import("./components/SQLToMongoDB").then(m => ({ default: m.SQLToMongoDB })));
 const SQLToOpenAPI = lazy(() => import("./components/SQLToOpenAPI").then(m => ({ default: m.SQLToOpenAPI })));
 const SQLToMermaid = lazy(() => import("./components/SQLToMermaid").then(m => ({ default: m.SQLToMermaid })));
+const SQLQueryBuilder = lazy(() => import("./components/SQLQueryBuilder").then(m => ({ default: m.SQLQueryBuilder })));
 const YAMLToTOML = lazy(() => import("./components/YAMLToTOML").then(m => ({ default: m.YAMLToTOML })));
 const YamlIniConverter = lazy(() => import("./components/YamlIniConverter").then(m => ({ default: m.YamlIniConverter })));
 const SubstitutionCipher = lazy(() => import("./components/SubstitutionCipher").then(m => ({ default: m.SubstitutionCipher })));
@@ -4754,6 +4755,17 @@ const tools: Tool[] = [
     Component: SQLToMermaid,
     category: "dev",
     keywords: ["sql", "mermaid", "er", "diagram", "entity", "relationship", "database", "ddl", "create table"],
+  },
+  {
+    id: "sql-query-builder",
+    name: "Générateur Visuel de Requête SQL",
+    nameEn: "Visual SQL Query Builder",
+    icon: Database,
+    description: "Construisez visuellement des requêtes SQL complexes avec des clauses de sélection, jointures, filtres WHERE, groupages, tris et pagination",
+    descriptionEn: "Visually build complex SQL queries with select, joins, where filters, group, sorting, and pagination",
+    Component: SQLQueryBuilder,
+    category: "dev",
+    keywords: ["sql", "query", "builder", "generator", "join", "select", "where", "group by", "order by", "database", "postgres", "mysql", "sqlite", "sql server"],
   },
   {
     id: "yaml-toml",

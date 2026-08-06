@@ -7,17 +7,17 @@ const MAX_LENGTH = 100000;
 
 export function AESCipher({ initialData, onStateChange }: { initialData?: any; onStateChange?: (state: any) => void }) {
   const { t } = useTranslation();
-  const [input, setInput] = useState(initialData?.input || '');
+  const [input, setInput] = useState('');
   const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
   const [output, setOutput] = useState('');
   const [error, setError] = useState<string | null>(null);
   const [copied, setCopied] = useState(false);
-  const [isEncrypting, setIsEncrypting] = useState(true);
+  const [isEncrypting, setIsEncrypting] = useState(initialData?.isEncrypting ?? true);
 
   useEffect(() => {
-    onStateChange?.({ input, isEncrypting });
-  }, [input, isEncrypting, onStateChange]);
+    onStateChange?.({ isEncrypting });
+  }, [isEncrypting, onStateChange]);
 
   const deriveKey = async (pass: string, salt: Uint8Array) => {
     const enc = new TextEncoder();

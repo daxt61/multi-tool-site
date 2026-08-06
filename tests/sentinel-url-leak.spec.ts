@@ -156,4 +156,39 @@ test.describe('Sentinel: URL Leak Prevention', () => {
       expect(decodedData.mode).toBeDefined();
     }
   });
+
+  test('AESCipher does not leak plaintext/ciphertext input in shared state', async ({ page }) => {
+    await page.goto('http://localhost:5173/fr/outil/aes-cipher');
+
+    const secretInput = 'MY_ULTRA_CONFIDENTIAL_PLAINTEXT';
+    await page.fill('#aes-input', secretInput);
+
+    let sharedUrl = '';
+    await page.exposeFunction('captureClipboardAES', (text: string) => {
+      sharedUrl = text;
+    });
+    await page.evaluate(() => {
+      navigator.clipboard.writeText = async (text: string) => {
+        (window as any).captureClipboardAES(text);
+      };
+    });
+
+    const shareBtn = page.locator('button:has-text("Partager"), button:has-text("Share config")');
+    await shareBtn.waitFor({ state: 'visible' });
+    await shareBtn.click();
+
+    await expect.poll(() => sharedUrl).toContain('data=');
+    const urlObj = new URL(sharedUrl);
+    const data = urlObj.searchParams.get('data');
+
+    if (data) {
+      const decodedData = JSON.parse(decodeURIComponent(Array.prototype.map.call(atob(data), (c: string) => {
+        return '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2);
+      }).join('')));
+
+      // Sentinel: AES plaintext/ciphertext input must NOT be included in shared state for privacy.
+      expect(decodedData.input).toBeUndefined();
+      expect(decodedData.isEncrypting).toBeDefined();
+    }
+  });
 });

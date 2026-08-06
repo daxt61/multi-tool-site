@@ -251,3 +251,8 @@
 **Vulnerability:** The SVGToCSS component had no maximum length constraints on the raw SVG input source. Processing and base64-encoding extremely large, nested, or malformed SVG structures on the main UI thread could trigger browser tab freezing, memory bloat, or browser crashes.
 **Learning:** Utilities performing client-side string transformations (such as base64 encoding or percentage-based escaping on SVG markup) are vulnerable to Denial of Service (DoS) if they operate with unbounded input limits.
 **Prevention:** Enforce a strict standard input length limit (such as `MAX_LENGTH = 100000`) on textareas, and halt the conversion if the limit is exceeded.
+
+## 2026-08-06 - [Plaintext and Secret Key Leakage in AESCipher URL State Sharing]
+**Vulnerability:** The AESCipher component serialized and shared user inputs (including highly sensitive plaintexts to be encrypted, or ciphertexts to be decrypted) inside the shared state URL search parameters, exposing private user data inside browser history, referrer headers, and shareable links.
+**Learning:** Security-sensitive components (especially secure ciphers) supporting deep linking or configuration sharing must strictly blocklist sensitive properties like user plaintexts, secrets, and generated outputs from URL serialization or deep-link parsing.
+**Prevention:** Maintain a strict allowlist or blocklist for deep-link state properties, only serializing UI flags (like `isEncrypting`) and keeping all user texts, keys, and credentials strictly local to the component's runtime memory state.

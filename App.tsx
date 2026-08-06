@@ -568,6 +568,7 @@ const KeyCodeFinder = lazy(() => import("./components/KeyCodeFinder").then(m => 
 const UniversalEncoderDecoder = lazy(() => import("./components/UniversalEncoderDecoder").then(m => ({ default: m.UniversalEncoderDecoder })));
 const TextIndentationConverter = lazy(() => import("./components/TextIndentationConverter").then(m => ({ default: m.TextIndentationConverter })));
 const DNSLookup = lazy(() => import("./components/DNSLookup").then(m => ({ default: m.DNSLookup })));
+const ListPermutationsCombinations = lazy(() => import("./components/ListPermutationsCombinations").then(m => ({ default: m.ListPermutationsCombinations })));
 
 // ⚡ Bolt Optimization: Pre-calculating tool map and search index for O(1) lookups and faster filtering
 const toolsMap: Record<string, Tool> = {};
@@ -5094,6 +5095,17 @@ const tools: Tool[] = [
     Component: CartesianProductGenerator,
     category: "text",
     keywords: ["cartesian", "product", "combinations", "sets", "lists", "permutations", "produit", "cartesien", "combinaisons", "line"],
+  },
+  {
+    id: "list-permutations-combinations",
+    name: "Permutations & Combinaisons",
+    nameEn: "Permutations & Combinations Generator",
+    icon: Shuffle,
+    description: "Générer toutes les permutations, combinaisons ou variations d'une liste ou de caractères",
+    descriptionEn: "Generate all possible permutations, combinations, or variations from a set of list items or characters",
+    Component: ListPermutationsCombinations,
+    category: "text",
+    keywords: ["permutation", "combinations", "variations", "sets", "lists", "combinatorial", "subset", "letters", "order", "repetition"],
   },
 ];
 

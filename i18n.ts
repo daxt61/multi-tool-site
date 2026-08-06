@@ -4422,7 +4422,22 @@ const resources = {
       "dns_lookup.no_records_found": "No answers returned for this query.",
       "dns_lookup.raw_json": "Raw DoH JSON Response",
       "dns_lookup.about_title": "About DNS Lookup",
-      "dns_lookup.about_text": "This tool performs real-time DNS queries securely in your browser using DNS-over-HTTPS (DoH) protocols. You can query A, AAAA, TXT, MX, NS, CNAME, and CAA records directly using Google Public DNS or Cloudflare servers without leaking local network configurations."
+      "dns_lookup.about_text": "This tool performs real-time DNS queries securely in your browser using DNS-over-HTTPS (DoH) protocols. You can query A, AAAA, TXT, MX, NS, CNAME, and CAA records directly using Google Public DNS or Cloudflare servers without leaking local network configurations.",
+      "tool.list-permutations-combinations.name": "Permutations & Combinations Generator",
+      "tool.list-permutations-combinations.description": "Generate all possible permutations, combinations, or variations from a set of list items or characters",
+      "listpermcomb.mode_label": "Generation Mode",
+      "listpermcomb.mode_lines": "List Lines",
+      "listpermcomb.mode_chars": "Characters",
+      "listpermcomb.operation_label": "Combinatorial Operation",
+      "listpermcomb.op_permutations": "Permutations (No repetition)",
+      "listpermcomb.op_combinations": "Combinations (No repetition)",
+      "listpermcomb.op_combinations_rep": "Combinations (With repetition)",
+      "listpermcomb.op_variations": "Variations (No repetition)",
+      "listpermcomb.op_variations_rep": "Variations (With repetition)",
+      "listpermcomb.k_value_label": "Subset size (k)",
+      "listpermcomb.ensure_unique": "Ensure unique results",
+      "listpermcomb.about_title": "About Permutations & Combinations",
+      "listpermcomb.about_text": "Easily generate arrangements of list items (lines) or individual letters (characters). This tool supports full-size permutations, combination subsets of size K (with or without repetition), and ordered variations of size K. All calculations execute entirely on the client-side inside your browser sandbox to ensure absolute privacy."
     }
   },
   fr: {
@@ -8848,7 +8863,22 @@ const resources = {
       "dns_lookup.no_records_found": "Aucune réponse renvoyée pour cette requête.",
       "dns_lookup.raw_json": "Réponse JSON DoH brute",
       "dns_lookup.about_title": "À propos de la résolution DNS",
-      "dns_lookup.about_text": "Cet outil effectue des requêtes DNS en temps réel de manière sécurisée dans votre navigateur en utilisant les protocoles DNS-over-HTTPS (DoH). Vous pouvez interroger les enregistrements A, AAAA, TXT, MX, NS, CNAME et CAA directement à l'aide des serveurs Google Public DNS ou Cloudflare sans fuite de configurations réseau locales."
+      "dns_lookup.about_text": "Cet outil effectue des requêtes DNS en temps réel de manière sécurisée dans votre navigateur en utilisant les protocoles DNS-over-HTTPS (DoH). Vous pouvez interroger les enregistrements A, AAAA, TXT, MX, NS, CNAME et CAA directement à l'aide des serveurs Google Public DNS ou Cloudflare sans fuite de configurations réseau locales.",
+      "tool.list-permutations-combinations.name": "Générateur de Permutations & Combinaisons",
+      "tool.list-permutations-combinations.description": "Générer toutes les permutations, combinaisons ou variations possibles à partir d'un ensemble d'éléments ou de caractères",
+      "listpermcomb.mode_label": "Mode de Génération",
+      "listpermcomb.mode_lines": "Lignes de liste",
+      "listpermcomb.mode_chars": "Caractères",
+      "listpermcomb.operation_label": "Opération Combinatoire",
+      "listpermcomb.op_permutations": "Permutations (Sans répétition)",
+      "listpermcomb.op_combinations": "Combinaisons (Sans répétition)",
+      "listpermcomb.op_combinations_rep": "Combinaisons (Avec répétition)",
+      "listpermcomb.op_variations": "Variations (Sans répétition)",
+      "listpermcomb.op_variations_rep": "Variations (Avec répétition)",
+      "listpermcomb.k_value_label": "Taille du sous-ensemble (k)",
+      "listpermcomb.ensure_unique": "Garantir des résultats uniques",
+      "listpermcomb.about_title": "À propos des Permutations & Combinaisons",
+      "listpermcomb.about_text": "Générez facilement des arrangements d'éléments d'une liste (lignes) ou des lettres individuelles (caractères). Cet outil prend en charge les permutations de taille complète N, les combinaisons de taille K (avec ou sans répétitions) et les variations ordonnées de taille K. Toutes les opérations s'exécutent entièrement côté client pour assurer une confidentialité absolue."
     }
   }
 };

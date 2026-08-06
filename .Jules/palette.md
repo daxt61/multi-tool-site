@@ -1,3 +1,7 @@
+## 2026-08-20 - [Stable Event Listeners and Focus Preservation for Password Tools]
+**Learning:** Implementing keydown event listeners without React's standard `handlersRef` safeguard causes frequent teardown and re-registration of global listeners, leading to performance stutter and potential stale closure references. Additionally, clearing password states without programmatically returning focus to a primary input control (such as the quantity slider) leaves assistive technology users disoriented.
+**Action:** Always isolate event listeners via a stable closure safeguard (`handlersRef`), integrate comprehensive input-collision checks, and programmatically restore focus to the primary setting input on clear/reset.
+
 ## 2026-08-10 - [Fluid Flow Headers and Focus Management for Tip Estimators]
 **Learning:** Adding interactive copy controls with visual `<Kbd>` key cap shortcuts on top of dynamically updated numeric panels can cause severe layout overlaps and text clipping at tight widths if absolute positioning is used. Laying out copy button actions inline within a structured container header resolves layout collisions entirely, ensuring excellent typography legibility and perfect responsive behavior.
 **Action:** Always avoid overlaying absolute action buttons over dynamic numeric text fields; prefer structured inline container headers for copy triggers, and manage keyboard focus programmatically on input clearing.

@@ -570,6 +570,7 @@ const TextIndentationConverter = lazy(() => import("./components/TextIndentation
 const DNSLookup = lazy(() => import("./components/DNSLookup").then(m => ({ default: m.DNSLookup })));
 const ListPermutationsCombinations = lazy(() => import("./components/ListPermutationsCombinations").then(m => ({ default: m.ListPermutationsCombinations })));
 const HTMLTableToJSON = lazy(() => import("./components/HTMLTableToJSON").then(m => ({ default: m.HTMLTableToJSON })));
+const JSONCasingConverter = lazy(() => import("./components/JSONCasingConverter").then(m => ({ default: m.JSONCasingConverter })));
 
 // ⚡ Bolt Optimization: Pre-calculating tool map and search index for O(1) lookups and faster filtering
 const toolsMap: Record<string, Tool> = {};
@@ -607,6 +608,18 @@ const categories: Category[] = [
 ];
 
 const tools: Tool[] = [
+  // JSON Key Case Converter Tool
+  {
+    id: "json-casing-converter",
+    name: "Casse des clés JSON",
+    nameEn: "JSON Key Case Converter",
+    icon: CaseSensitive,
+    description: "Convertir récursivement la casse des clés d'un objet JSON (camelCase, snake_case, PascalCase, kebab-case, CONSTANT_CASE)",
+    descriptionEn: "Recursively convert JSON object keys to camelCase, snake_case, PascalCase, kebab-case, or CONSTANT_CASE",
+    Component: JSONCasingConverter,
+    category: "dev",
+    keywords: ["json", "casing", "case", "keys", "camelcase", "snakecase", "kebabcase", "pascalcase", "converter", "format", "recursif"],
+  },
   // HTML Table to JSON Tool
   {
     id: "html-table-to-json",

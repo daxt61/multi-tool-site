@@ -569,6 +569,7 @@ const UniversalEncoderDecoder = lazy(() => import("./components/UniversalEncoder
 const TextIndentationConverter = lazy(() => import("./components/TextIndentationConverter").then(m => ({ default: m.TextIndentationConverter })));
 const DNSLookup = lazy(() => import("./components/DNSLookup").then(m => ({ default: m.DNSLookup })));
 const ListPermutationsCombinations = lazy(() => import("./components/ListPermutationsCombinations").then(m => ({ default: m.ListPermutationsCombinations })));
+const HTMLTableToJSON = lazy(() => import("./components/HTMLTableToJSON").then(m => ({ default: m.HTMLTableToJSON })));
 
 // ⚡ Bolt Optimization: Pre-calculating tool map and search index for O(1) lookups and faster filtering
 const toolsMap: Record<string, Tool> = {};
@@ -606,6 +607,18 @@ const categories: Category[] = [
 ];
 
 const tools: Tool[] = [
+  // HTML Table to JSON Tool
+  {
+    id: "html-table-to-json",
+    name: "HTML Table en JSON",
+    nameEn: "HTML Table to JSON Converter",
+    icon: Table,
+    description: "Convertisseur interactif de tableaux HTML (table) en format JSON structuré avec support des colspan/rowspan",
+    descriptionEn: "Interactive converter to parse HTML <table> code into structured, safe JSON format handling colspans & rowspans",
+    Component: HTMLTableToJSON,
+    category: "dev",
+    keywords: ["html", "table", "json", "converter", "parse", "colspan", "rowspan", "matrix", "crawler", "data", "developer"],
+  },
   // DNS Lookup Tool
   {
     id: "dns-lookup",

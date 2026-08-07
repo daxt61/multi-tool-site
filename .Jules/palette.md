@@ -1,3 +1,7 @@
+## 2026-08-11 - [ARIA Attribute Integrity and Precise Focus on Cipher Range Inputs]
+**Learning:** Standard range slider inputs (such as shift sliders in Caesar Cipher) are often neglected in terms of screen reader readability, leaving assistive technology users without accurate indicators of the values they control. Dynamically supplying standard ARIA variables (`aria-valuemin`, `aria-valuemax`, `aria-valuenow`, and descriptive `aria-label`s) coupled with programmatic focus-refinement via `useRef` to target text fields upon resetting provides a seamless and standard-compliant experience.
+**Action:** Always provide explicit ARIA value properties on interactive sliders, standardise all tool shortcut badges using the centralized `<Kbd>` component, and restore active focus programmatically after reset triggers.
+
 ## 2026-08-10 - [Fluid Flow Headers and Focus Management for Tip Estimators]
 **Learning:** Adding interactive copy controls with visual `<Kbd>` key cap shortcuts on top of dynamically updated numeric panels can cause severe layout overlaps and text clipping at tight widths if absolute positioning is used. Laying out copy button actions inline within a structured container header resolves layout collisions entirely, ensuring excellent typography legibility and perfect responsive behavior.
 **Action:** Always avoid overlaying absolute action buttons over dynamic numeric text fields; prefer structured inline container headers for copy triggers, and manage keyboard focus programmatically on input clearing.

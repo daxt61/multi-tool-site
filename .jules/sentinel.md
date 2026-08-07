@@ -251,3 +251,8 @@
 **Vulnerability:** The SVGToCSS component had no maximum length constraints on the raw SVG input source. Processing and base64-encoding extremely large, nested, or malformed SVG structures on the main UI thread could trigger browser tab freezing, memory bloat, or browser crashes.
 **Learning:** Utilities performing client-side string transformations (such as base64 encoding or percentage-based escaping on SVG markup) are vulnerable to Denial of Service (DoS) if they operate with unbounded input limits.
 **Prevention:** Enforce a strict standard input length limit (such as `MAX_LENGTH = 100000`) on textareas, and halt the conversion if the limit is exceeded.
+
+## 2026-08-07 - [Data Leakage and Code Pollution in HTML to Markdown Converter]
+**Vulnerability:** The HTMLToMarkdown converter recurred over parsed DOM nodes without removing script or style tags. Malicious inputs containing script/style tags could leak internal script commands or CSS properties as plain text in the converted Markdown file or preview.
+**Learning:** Standard DOM parsers (like DOMParser) parse all document contents including inline script/style tags, but dynamic content conversions must explicitly strip unwanted tags like `<script>` and `<style>` to prevent exposing active code payloads in clean text-only outputs.
+**Prevention:** Always use `querySelectorAll('script, style').forEach(el => el.remove())` on parsed document nodes to completely strip script and style contents before walking element sub-trees for serialization.

@@ -4476,7 +4476,17 @@ const resources = {
       "htmltabletojson.about_title": "How does the colspan/rowspan handler work?",
       "htmltabletojson.about_desc": "Unlike basic HTML table parsers that align columns purely by TD index, this utility features a fully responsive virtual grid expansion algorithm. It correctly propagates rowspan and colspan cells, guaranteeing tabular structures containing split headers or spanned profiles are translated into fully complete, syntactically correct datasets.",
       "htmltabletojson.modes_title": "What are the output modes?",
-      "htmltabletojson.modes_desc": "Array of Objects maps table headers to JSON property keys for each row. 2D Value Array constructs simple raw tables including headers as the first element. Key-Value Map uses the cells in the very first column as main dictionary keys, clustering succeeding cell configurations as their nested values."
+      "htmltabletojson.modes_desc": "Array of Objects maps table headers to JSON property keys for each row. 2D Value Array constructs simple raw tables including headers as the first element. Key-Value Map uses the cells in the very first column as main dictionary keys, clustering succeeding cell configurations as their nested values.",
+      "jsoncasing.title": "JSON Key Case Converter",
+      "jsoncasing.input_label": "Raw JSON Input",
+      "jsoncasing.output_label": "Converted JSON Output",
+      "jsoncasing.output_placeholder": "Converted JSON will appear here...",
+      "jsoncasing.toast_copied": "Converted JSON copied to clipboard!",
+      "jsoncasing.toast_cleared": "Cleared successfully!",
+      "jsoncasing.error_max_length": "JSON text is too large (maximum {{max}} characters).",
+      "jsoncasing.error_invalid_json": "Invalid JSON syntax: {{message}}",
+      "jsoncasing.how_title": "How does it work?",
+      "jsoncasing.how_text": "Paste any valid JSON in the left panel, then choose your target key casing. The tool will recursively map over all keys and apply the transformation, while keeping values intact. Built-in prototype pollution prevention ignores special fields such as __proto__ to keep your environment secure."
     }
   },
   fr: {
@@ -8956,7 +8966,17 @@ const resources = {
       "htmltabletojson.about_title": "Comment fonctionnent les colspan et rowspan ?",
       "htmltabletojson.about_desc": "Contrairement aux extracteurs basiques qui associent les cellules uniquement par leur index, cette suite dispose d'un algorithme d'expansion de grille virtuelle. Elle propage correctement les cellules fusionnées (rowspan et colspan) afin que les profils complexes soient traduits en objets JSON d'une grande intégrité syntaxique.",
       "htmltabletojson.modes_title": "Quels sont les modes de sortie ?",
-      "htmltabletojson.modes_desc": "Le Tableau d'Objets mappe les en-têtes aux propriétés de chaque ligne. Le Tableau 2D crée une simple grille incluant les en-têtes en première ligne. Le Dictionnaire Clé-Valeur utilise la première colonne comme clés parentes, regroupant les colonnes suivantes dans un sous-objet."
+      "htmltabletojson.modes_desc": "Le Tableau d'Objets mappe les en-têtes aux propriétés de chaque ligne. Le Tableau 2D crée une simple grille incluant les en-têtes en première ligne. Le Dictionnaire Clé-Valeur utilise la première colonne comme clés parentes, regroupant les colonnes suivantes dans un sous-objet.",
+      "jsoncasing.title": "Convertisseur de casse des clés JSON",
+      "jsoncasing.input_label": "Entrée JSON brute",
+      "jsoncasing.output_label": "Résultat JSON converti",
+      "jsoncasing.output_placeholder": "Le JSON converti apparaîtra ici...",
+      "jsoncasing.toast_copied": "JSON converti copié dans le presse-papiers !",
+      "jsoncasing.toast_cleared": "Effacé avec succès !",
+      "jsoncasing.error_max_length": "Le texte JSON est trop grand (maximum {{max}} caractères).",
+      "jsoncasing.error_invalid_json": "Syntaxe JSON invalide: {{message}}",
+      "jsoncasing.how_title": "Comment ça marche ?",
+      "jsoncasing.how_text": "Collez n'importe quel JSON valide dans le panneau de gauche, puis choisissez la casse de clé cible. L'outil parcourra récursivement toutes les clés et appliquera la transformation, tout en conservant les valeurs intactes. La protection intégrée contre la pollution de prototype ignore les champs spéciaux tels que __proto__ pour maintenir votre environnement sécurisé."
     }
   }
 };

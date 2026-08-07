@@ -38,13 +38,15 @@ export function MarkdownTableGenerator({ initialData, onStateChange }: { initial
   const [isImporting, setIsImporting] = useState(false);
   const [csvInput, setCsvInput] = useState('');
 
+  const firstInputRef = useRef<HTMLInputElement>(null);
+
   useEffect(() => {
     onStateChange?.({ data, alignments });
   }, [data, alignments]);
 
   const updateCell = (r: number, c: number, val: string) => {
     if (val.length > MAX_CELL_LENGTH) {
-      setError(t('error.max_length', { max: MAX_CELL_LENGTH }));
+      setError(t('error.max_length', { max: MAX_CELL_LENGTH }) || `Maximum cellular length of ${MAX_CELL_LENGTH} characters exceeded.`);
       return;
     }
     setError(null);
@@ -61,6 +63,7 @@ export function MarkdownTableGenerator({ initialData, onStateChange }: { initial
     }
     setError(null);
     setData([...data, Array(data[0].length).fill('')]);
+    toast.success(t('markdown.toast_row_added') || 'Row added!');
   };
 
   const addCol = () => {
@@ -71,12 +74,14 @@ export function MarkdownTableGenerator({ initialData, onStateChange }: { initial
     setError(null);
     setData(data.map(row => [...row, '']));
     setAlignments([...alignments, 'left']);
+    toast.success(t('markdown.toast_col_added') || 'Column added!');
   };
 
   const removeRow = (r: number) => {
     if (data.length <= 1) return;
     setError(null);
     setData(data.filter((_, index) => index !== r));
+    toast.success(t('markdown.toast_row_removed') || 'Row removed!');
   };
 
   const removeCol = (c: number) => {
@@ -84,6 +89,7 @@ export function MarkdownTableGenerator({ initialData, onStateChange }: { initial
     setError(null);
     setData(data.map(row => row.filter((_, index) => index !== c)));
     setAlignments(alignments.filter((_, index) => index !== c));
+    toast.success(t('markdown.toast_col_removed') || 'Column removed!');
   };
 
   const generateMarkdown = () => {
@@ -138,14 +144,14 @@ export function MarkdownTableGenerator({ initialData, onStateChange }: { initial
   const copyToClipboard = useCallback(() => {
     navigator.clipboard.writeText(generateMarkdown());
     setCopied(true);
-    toast.success(t('common.copied'));
+    toast.success(t('markdown.toast_copied_markdown') || 'Markdown table copied!');
     setTimeout(() => setCopied(false), 2000);
   }, [data, alignments, t]);
 
   const copyHtmlToClipboard = useCallback(() => {
     navigator.clipboard.writeText(generateHtml());
     setCopiedHtml(true);
-    toast.success(t('common.copied'));
+    toast.success(t('markdown.toast_copied_html') || 'HTML table copied!');
     setTimeout(() => setCopiedHtml(false), 2000);
   }, [data, alignments, t]);
 
@@ -158,6 +164,7 @@ export function MarkdownTableGenerator({ initialData, onStateChange }: { initial
     link.download = `table-${Date.now()}.md`;
     link.click();
     URL.revokeObjectURL(url);
+    toast.success(t('markdown.toast_downloaded') || 'Downloaded successfully!');
   };
 
   const reset = useCallback(() => {
@@ -168,6 +175,8 @@ export function MarkdownTableGenerator({ initialData, onStateChange }: { initial
     ]);
     setAlignments(['left', 'left', 'left']);
     setError(null);
+    toast.success(t('markdown.toast_reset') || 'Table reset!');
+    firstInputRef.current?.focus();
   }, [t]);
 
   const handlersRef = useRef({ copyToClipboard, copyHtmlToClipboard, reset });
@@ -210,10 +219,26 @@ export function MarkdownTableGenerator({ initialData, onStateChange }: { initial
     setAlignments(newAlignments);
   };
 
+  // Smart delimiter auto-detection
+  const detectDelimiter = (input: string): string => {
+    const sample = input.slice(0, 5000);
+    const candidateDelimiters = [',', ';', '\t', '|'];
+    const delimiterCounts = candidateDelimiters.map(delim => {
+      const regex = new RegExp(`\\${delim}`, 'g');
+      const count = (sample.match(regex) || []).length;
+      return { delim, count };
+    });
+
+    const maxCandidate = delimiterCounts.reduce((prev, current) => (prev.count > current.count) ? prev : current);
+    return maxCandidate.count > 0 ? maxCandidate.delim : ',';
+  };
+
   const handleImportCsv = () => {
     try {
       const lines = csvInput.trim().split('\n');
       if (lines.length === 0 || (lines.length === 1 && !lines[0])) return;
+
+      const delimiter = detectDelimiter(csvInput);
 
       const parseLine = (line: string) => {
         const result = [];
@@ -221,7 +246,7 @@ export function MarkdownTableGenerator({ initialData, onStateChange }: { initial
         let inQuotes = false;
         for (let i = 0; i < line.length; i++) {
           if (line[i] === '"') inQuotes = !inQuotes;
-          if (line[i] === ',' && !inQuotes) {
+          if (line[i] === delimiter && !inQuotes) {
             result.push(line.substring(startValueIndex, i));
             startValueIndex = i + 1;
           }
@@ -243,6 +268,7 @@ export function MarkdownTableGenerator({ initialData, onStateChange }: { initial
         setIsImporting(false);
         setCsvInput('');
         setError(null);
+        toast.success(t('markdown.toast_imported') || 'Table imported successfully!');
       }
     } catch (e) {
       setError(t('markdown.import_csv_error'));
@@ -250,7 +276,7 @@ export function MarkdownTableGenerator({ initialData, onStateChange }: { initial
   };
 
   return (
-    <div className="max-w-6xl mx-auto space-y-8">
+    <div className="max-w-6xl mx-auto space-y-8" role="region" aria-label={t('tool.markdown-table.name') || "Markdown Table Generator"}>
       {error && (
         <div className="bg-rose-50 dark:bg-rose-500/10 border border-rose-200 dark:border-rose-800 p-4 rounded-2xl flex items-center gap-3 text-rose-600 dark:text-rose-400 font-bold animate-in fade-in slide-in-from-top-2">
           <AlertCircle className="w-5 h-5" />
@@ -262,19 +288,19 @@ export function MarkdownTableGenerator({ initialData, onStateChange }: { initial
         <div className="flex gap-3">
           <button
             onClick={addRow}
-            className="px-4 py-2 bg-slate-900 dark:bg-white text-white dark:text-slate-900 rounded-xl font-bold text-sm flex items-center gap-2 hover:opacity-90 transition-all"
+            className="px-4 py-2 bg-slate-900 dark:bg-white text-white dark:text-slate-900 rounded-xl font-bold text-sm flex items-center gap-2 hover:opacity-90 transition-all focus-visible:ring-2 focus-visible:ring-indigo-500 focus-visible:outline-none"
           >
             <Plus className="w-4 h-4" /> {t('markdown.add_row')}
           </button>
           <button
             onClick={addCol}
-            className="px-4 py-2 bg-slate-900 dark:bg-white text-white dark:text-slate-900 rounded-xl font-bold text-sm flex items-center gap-2 hover:opacity-90 transition-all"
+            className="px-4 py-2 bg-slate-900 dark:bg-white text-white dark:text-slate-900 rounded-xl font-bold text-sm flex items-center gap-2 hover:opacity-90 transition-all focus-visible:ring-2 focus-visible:ring-indigo-500 focus-visible:outline-none"
           >
             <Plus className="w-4 h-4" /> {t('markdown.add_col')}
           </button>
           <button
             onClick={() => setIsImporting(!isImporting)}
-            className={`px-4 py-2 rounded-xl font-bold text-sm flex items-center gap-2 transition-all ${isImporting ? 'bg-indigo-600 text-white' : 'bg-indigo-50 dark:bg-indigo-900/20 text-indigo-600'}`}
+            className={`px-4 py-2 rounded-xl font-bold text-sm flex items-center gap-2 transition-all focus-visible:ring-2 focus-visible:ring-indigo-500 focus-visible:outline-none ${isImporting ? 'bg-indigo-600 text-white' : 'bg-indigo-50 dark:bg-indigo-900/20 text-indigo-600'}`}
           >
             <FileSpreadsheet className="w-4 h-4" /> {t('markdown.import_csv')}
           </button>
@@ -374,6 +400,7 @@ export function MarkdownTableGenerator({ initialData, onStateChange }: { initial
                       ))}
                     </div>
                     <input
+                      ref={c === 0 ? firstInputRef : null}
                       type="text"
                       value={data[0][c]}
                       onChange={(e) => updateCell(0, c, e.target.value)}

@@ -571,6 +571,7 @@ const DNSLookup = lazy(() => import("./components/DNSLookup").then(m => ({ defau
 const ListPermutationsCombinations = lazy(() => import("./components/ListPermutationsCombinations").then(m => ({ default: m.ListPermutationsCombinations })));
 const HTMLTableToJSON = lazy(() => import("./components/HTMLTableToJSON").then(m => ({ default: m.HTMLTableToJSON })));
 const JSONCasingConverter = lazy(() => import("./components/JSONCasingConverter").then(m => ({ default: m.JSONCasingConverter })));
+const ListShuffler = lazy(() => import("./components/ListShuffler").then(m => ({ default: m.ListShuffler })));
 
 // ⚡ Bolt Optimization: Pre-calculating tool map and search index for O(1) lookups and faster filtering
 const toolsMap: Record<string, Tool> = {};
@@ -608,6 +609,18 @@ const categories: Category[] = [
 ];
 
 const tools: Tool[] = [
+  // List Shuffler Tool
+  {
+    id: "list-shuffler",
+    name: "Mélangeur de Liste",
+    nameEn: "List Shuffler & Randomizer",
+    icon: Shuffle,
+    description: "Mélanger et randomiser des listes d'éléments avec des algorithmes standards ou cryptographiques sûrs",
+    descriptionEn: "Shuffle and randomize list items using standard or cryptographically secure algorithms",
+    Component: ListShuffler,
+    category: "text",
+    keywords: ["list", "shuffle", "randomize", "mélanger", "raffle", "deck", "cards", "crypto", "unbiased"],
+  },
   // JSON Key Case Converter Tool
   {
     id: "json-casing-converter",

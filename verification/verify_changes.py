@@ -1,48 +1,59 @@
-from playwright.sync_api import sync_playwright
 import os
+from playwright.sync_api import sync_playwright, expect
 
-def run_cuj(page):
-    print("Navigating to JSON to Query tool...")
-    page.goto("http://localhost:5173/fr/outil/json-to-query")
-    page.wait_for_timeout(1000)
-
-    # Fill in some JSON
-    print("Inputting JSON data...")
-    json_input = page.locator("#json-input")
-    json_input.fill('{\n  "id": 101,\n  "tags": ["web", "utility", "dev"]\n}')
-    page.wait_for_timeout(1000)
-
-    # Toggle options - change array format to repeat
-    print("Changing array format option...")
-    page.select_option("#array-format", "repeat")
-    page.wait_for_timeout(1000)
-
-    # Sort keys alphabetically by clicking the first checkbox
-    print("Sorting keys alphabetically...")
-    page.locator('input[type="checkbox"]').first.click()
-    page.wait_for_timeout(1000)
-
-    # Take screenshot of final state
-    screenshot_path = "/home/jules/verification/screenshots/verification.png"
-    print(f"Saving screenshot to {screenshot_path}...")
-    page.screenshot(path=screenshot_path)
-    page.wait_for_timeout(1000)
-
-if __name__ == "__main__":
-    os.makedirs("/home/jules/verification/videos", exist_ok=True)
-    os.makedirs("/home/jules/verification/screenshots", exist_ok=True)
+def main():
+    os.makedirs('/home/jules/verification', exist_ok=True)
 
     with sync_playwright() as p:
-        print("Launching browser...")
+        # Launch browser
         browser = p.chromium.launch(headless=True)
-        context = browser.new_context(
-            record_video_dir="/home/jules/verification/videos"
-        )
+        context = browser.new_context(viewport={"width": 1280, "height": 800})
         page = context.new_page()
-        try:
-            run_cuj(page)
-        finally:
-            print("Closing browser context...")
-            context.close()
-            browser.close()
-        print("Verification complete.")
+
+        # 1. Verify List Shuffler
+        print("Navigating to List Shuffler...")
+        page.goto("http://localhost:5173/en/outil/list-shuffler")
+        page.wait_for_selector("#shuffler-input")
+
+        # Fill in custom values or click preset
+        print("Loading Numbers 1-20 preset...")
+        page.click("button:has-text('Numbers 1-20')")
+        page.wait_for_timeout(500)
+
+        # Click shuffle
+        print("Shuffling...")
+        page.click("button:has-text('Shuffle')")
+        page.wait_for_timeout(500)
+
+        # Change delimiter to comma
+        page.select_option("#shuffler-out-delim", "comma")
+        page.wait_for_timeout(500)
+
+        # Take a screenshot of the Shuffler
+        screenshot_shuffler_path = "/home/jules/verification/list_shuffler.png"
+        page.screenshot(path=screenshot_shuffler_path)
+        print(f"List Shuffler screenshot saved to {screenshot_shuffler_path}")
+
+        # 2. Verify List Cleaner
+        print("Navigating to List Cleaner...")
+        page.goto("http://localhost:5173/en/outil/list-cleaner")
+        page.wait_for_selector("#list-input")
+
+        # Fill in items
+        page.fill("#list-input", "pear\napple\norange\napple\nbanana")
+        page.wait_for_timeout(300)
+
+        # Add prefix
+        page.fill("#cleaner-prefix", "* ")
+        page.click("button:has-text('Add')")
+        page.wait_for_timeout(300)
+
+        # Take a screenshot of the Cleaner
+        screenshot_cleaner_path = "/home/jules/verification/list_cleaner.png"
+        page.screenshot(path=screenshot_cleaner_path)
+        print(f"List Cleaner screenshot saved to {screenshot_cleaner_path}")
+
+        browser.close()
+
+if __name__ == "__main__":
+    main()

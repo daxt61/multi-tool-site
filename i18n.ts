@@ -4617,7 +4617,21 @@ const resources = {
       "discount.copied_toast": "Summary results copied to clipboard!",
       "discount.cleared_toast": "All inputs cleared!",
       "discount.copy_btn": "Copy Results",
-      "discount.copied_text_format": "Original Price: {{original}}€\nFinal Price: {{final}}€\nTotal Savings: -{{savings}}€ ({{percent}}%)"
+      "discount.copied_text_format": "Original Price: {{original}}€\nFinal Price: {{final}}€\nTotal Savings: -{{savings}}€ ({{percent}}%)",
+      "xslt.xml_data": "XML Document",
+      "xslt.xslt_stylesheet": "XSLT Stylesheet",
+      "xslt.result": "Transformed Output",
+      "xslt.placeholder_result": "Transformed output will appear here...",
+      "xslt.presets_title": "Interactive Presets",
+      "xslt.preset_catalog": "E-Commerce Catalog (HTML Table)",
+      "xslt.preset_report_card": "Student Report Card",
+      "xslt.about_title": "About XSLT Transformer",
+      "xslt.about_text_1": "XSLT (Extensible Stylesheet Language Transformations) is a language for transforming XML documents into other XML documents, HTML, SVG, or plain text.",
+      "xslt.about_text_2": "This tool processes your transformation entirely client-side using standard browser-native XSLT processors. No data is sent to a server, guaranteeing complete privacy for your documents and stylesheets.",
+      "xslt.copied_toast": "Transformed output copied to clipboard!",
+      "xslt.cleared_toast": "XML and XSLT inputs cleared!",
+      "xslt.preset_loaded": "Preset loaded successfully!",
+      "tool.xslt-transformer.name": "XSLT Transformer & Tester"
     }
   },
   fr: {
@@ -9238,7 +9252,21 @@ const resources = {
       "discount.copied_toast": "Résumé des remises copié dans le presse-papiers !",
       "discount.cleared_toast": "Entrées effacées avec succès !",
       "discount.copy_btn": "Copier les résultats",
-      "discount.copied_text_format": "Prix d'origine : {{original}}€\nPrix après remise : {{final}}€\nÉconomie totale : -{{savings}}€ ({{percent}}%)"
+      "discount.copied_text_format": "Prix d'origine : {{original}}€\nPrix après remise : {{final}}€\nÉconomie totale : -{{savings}}€ ({{percent}}%)",
+      "xslt.xml_data": "Document XML",
+      "xslt.xslt_stylesheet": "Feuille de style XSLT",
+      "xslt.result": "Résultat de la Transformation",
+      "xslt.placeholder_result": "Le résultat de la transformation apparaîtra ici...",
+      "xslt.presets_title": "Préréglages Interactifs",
+      "xslt.preset_catalog": "Catalogue de Produits (Tableau HTML)",
+      "xslt.preset_report_card": "Bulletin de Notes Scolaires",
+      "xslt.about_title": "À propos du Transformateur XSLT",
+      "xslt.about_text_1": "L'XSLT (Extensible Stylesheet Language Transformations) est un langage permettant de transformer des documents XML en d'autres documents XML, HTML, SVG ou texte brut.",
+      "xslt.about_text_2": "Cet outil effectue le traitement entièrement côté client à l'aide des processeurs XSLT natifs de votre navigateur. Aucune donnée n'est transmise à un serveur, garantissant la confidentialité absolue de vos documents et feuilles de style.",
+      "xslt.copied_toast": "Résultat de la transformation copié !",
+      "xslt.cleared_toast": "Entrées XML et XSLT réinitialisées !",
+      "xslt.preset_loaded": "Préréglage chargé avec succès !",
+      "tool.xslt-transformer.name": "Transformateur XSLT"
     }
   }
 };

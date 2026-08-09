@@ -573,6 +573,7 @@ const HTMLTableToJSON = lazy(() => import("./components/HTMLTableToJSON").then(m
 const JSONCasingConverter = lazy(() => import("./components/JSONCasingConverter").then(m => ({ default: m.JSONCasingConverter })));
 const ListShuffler = lazy(() => import("./components/ListShuffler").then(m => ({ default: m.ListShuffler })));
 const JSONDataExtractor = lazy(() => import("./components/JSONDataExtractor").then(m => ({ default: m.JSONDataExtractor })));
+const XSLTTransformer = lazy(() => import("./components/XSLTTransformer").then(m => ({ default: m.XSLTTransformer })));
 
 // ⚡ Bolt Optimization: Pre-calculating tool map and search index for O(1) lookups and faster filtering
 const toolsMap: Record<string, Tool> = {};
@@ -610,6 +611,18 @@ const categories: Category[] = [
 ];
 
 const tools: Tool[] = [
+  // XSLT Transformer & Tester Tool
+  {
+    id: "xslt-transformer",
+    name: "Transformateur XSLT",
+    nameEn: "XSLT Transformer & Tester",
+    icon: Wand2,
+    description: "Transformer des documents XML à l'aide de feuilles de style XSLT directement dans votre navigateur",
+    descriptionEn: "Transform XML documents using XSLT stylesheets entirely client-side in your browser",
+    Component: XSLTTransformer,
+    category: "dev",
+    keywords: ["xml", "xslt", "transform", "transformer", "stylesheet", "processor", "html", "browser", "parser", "preset"],
+  },
   // JSON Data & Key Extractor Tool
   {
     id: "json-data-extractor",

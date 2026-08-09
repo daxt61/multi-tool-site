@@ -572,6 +572,7 @@ const ListPermutationsCombinations = lazy(() => import("./components/ListPermuta
 const HTMLTableToJSON = lazy(() => import("./components/HTMLTableToJSON").then(m => ({ default: m.HTMLTableToJSON })));
 const JSONCasingConverter = lazy(() => import("./components/JSONCasingConverter").then(m => ({ default: m.JSONCasingConverter })));
 const ListShuffler = lazy(() => import("./components/ListShuffler").then(m => ({ default: m.ListShuffler })));
+const JSONDataExtractor = lazy(() => import("./components/JSONDataExtractor").then(m => ({ default: m.JSONDataExtractor })));
 
 // ⚡ Bolt Optimization: Pre-calculating tool map and search index for O(1) lookups and faster filtering
 const toolsMap: Record<string, Tool> = {};
@@ -609,6 +610,18 @@ const categories: Category[] = [
 ];
 
 const tools: Tool[] = [
+  // JSON Data & Key Extractor Tool
+  {
+    id: "json-data-extractor",
+    name: "Extracteur de données JSON",
+    nameEn: "JSON Data & Key Extractor",
+    icon: Scissors,
+    description: "Extraire récursivement des clés, des chemins imbriqués ou des valeurs typées d'un objet JSON",
+    descriptionEn: "Recursively extract keys, nested paths, or typed values from any JSON array or object",
+    Component: JSONDataExtractor,
+    category: "dev",
+    keywords: ["json", "extractor", "keys", "values", "paths", "strings", "numbers", "booleans", "recursive", "filter", "unique", "sort", "preset"],
+  },
   // List Shuffler Tool
   {
     id: "list-shuffler",

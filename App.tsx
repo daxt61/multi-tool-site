@@ -574,6 +574,7 @@ const JSONCasingConverter = lazy(() => import("./components/JSONCasingConverter"
 const ListShuffler = lazy(() => import("./components/ListShuffler").then(m => ({ default: m.ListShuffler })));
 const JSONDataExtractor = lazy(() => import("./components/JSONDataExtractor").then(m => ({ default: m.JSONDataExtractor })));
 const XSLTTransformer = lazy(() => import("./components/XSLTTransformer").then(m => ({ default: m.XSLTTransformer })));
+const CSSSpecificityCalculator = lazy(() => import("./components/CSSSpecificityCalculator").then(m => ({ default: m.CSSSpecificityCalculator })));
 
 // ⚡ Bolt Optimization: Pre-calculating tool map and search index for O(1) lookups and faster filtering
 const toolsMap: Record<string, Tool> = {};
@@ -611,6 +612,18 @@ const categories: Category[] = [
 ];
 
 const tools: Tool[] = [
+  // CSS Specificity Calculator & Analyzer Tool
+  {
+    id: "css-specificity",
+    name: "Spécificité CSS",
+    nameEn: "CSS Selector Specificity",
+    icon: Palette,
+    description: "Calculer, analyser et trier la spécificité des sélecteurs CSS à la volée selon la priorité de cascade",
+    descriptionEn: "Calculate, analyze, and compare CSS selectors specificity scores and sort them by cascade priority",
+    Component: CSSSpecificityCalculator,
+    category: "dev",
+    keywords: ["css", "specificity", "selector", "priority", "cascade", "weight", "id", "class", "element", "developer"],
+  },
   // XSLT Transformer & Tester Tool
   {
     id: "xslt-transformer",

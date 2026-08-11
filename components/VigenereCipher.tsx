@@ -7,8 +7,9 @@ const MAX_LENGTH = 10000;
 
 export function VigenereCipher({ initialData, onStateChange }: { initialData?: any; onStateChange?: (state: any) => void }) {
   const { t } = useTranslation();
-  const [text, setText] = useState(initialData?.text || '');
-  const [key, setKey] = useState(initialData?.key || '');
+  // Sentinel: Always initialize text and key as empty strings to prevent sensitive state leakage.
+  const [text, setText] = useState('');
+  const [key, setKey] = useState('');
   const [mode, setMode] = useState<'encrypt' | 'decrypt'>(initialData?.mode || 'encrypt');
   const [result, setResult] = useState('');
   const [copied, setCopied] = useState(false);

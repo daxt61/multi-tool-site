@@ -24,15 +24,17 @@ const BACONIAN_EXTENDED: Record<string, string> = {
 export function BaconianCipher({ initialData, onStateChange }: { initialData?: any; onStateChange?: (state: any) => void }) {
   const { t } = useTranslation();
   const textareaRef = useRef<HTMLTextAreaElement>(null);
-  const [text, setText] = useState(initialData?.text || '');
-  const [cipher, setCipher] = useState(initialData?.cipher || '');
+  // Sentinel: Always initialize text and cipher as empty strings to prevent sensitive state leakage.
+  const [text, setText] = useState('');
+  const [cipher, setCipher] = useState('');
   const [mode, setMode] = useState<'standard' | 'extended'>(initialData?.mode || 'standard');
   const [copied, setCopied] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    onStateChange?.({ text, cipher, mode });
-  }, [text, cipher, mode, onStateChange]);
+    // Sentinel: Never share plain text or cipher results in the URL state.
+    onStateChange?.({ mode });
+  }, [mode, onStateChange]);
 
   const getMap = useCallback(() => mode === 'standard' ? BACONIAN_STANDARD : BACONIAN_EXTENDED, [mode]);
 

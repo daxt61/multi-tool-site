@@ -8,16 +8,18 @@ const MAX_LENGTH = 50000;
 export function PolybiusSquare({ initialData, onStateChange }: { initialData?: any; onStateChange?: (state: any) => void }) {
   const { t } = useTranslation();
   const textareaRef = useRef<HTMLTextAreaElement>(null);
-  const [text, setText] = useState(initialData?.text || '');
-  const [cipher, setCipher] = useState(initialData?.cipher || '');
+  // Sentinel: Always initialize text, cipher, and key as empty strings to prevent sensitive state leakage.
+  const [text, setText] = useState('');
+  const [cipher, setCipher] = useState('');
   const [size, setSize] = useState<5 | 6>(initialData?.size || 5);
-  const [key, setKey] = useState(initialData?.key || '');
+  const [key, setKey] = useState('');
   const [copied, setCopied] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    onStateChange?.({ text, cipher, size, key });
-  }, [text, cipher, size, key, onStateChange]);
+    // Sentinel: Never share plain text, secret key or cipher results in the URL state.
+    onStateChange?.({ size });
+  }, [size, onStateChange]);
 
   const square = useMemo(() => {
     const alphabet = size === 5

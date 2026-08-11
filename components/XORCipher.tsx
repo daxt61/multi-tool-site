@@ -12,9 +12,10 @@ export function XORCipher({ initialData, onStateChange }: { initialData?: any; o
   const keyRef = useRef<HTMLInputElement>(null);
 
   // Core State
-  const [input, setInput] = useState(initialData?.input || "");
+  // Sentinel: Always initialize input and key as empty strings to prevent sensitive state leakage.
+  const [input, setInput] = useState("");
   const [inputFormat, setInputFormat] = useState<"text" | "hex" | "binary">(initialData?.inputFormat || "text");
-  const [key, setKey] = useState(initialData?.key || "key");
+  const [key, setKey] = useState("");
   const [keyFormat, setKeyFormat] = useState<"text" | "hex" | "binary">(initialData?.keyFormat || "text");
   const [outputFormat, setOutputFormat] = useState<"text" | "hex" | "binary" | "base64">(initialData?.outputFormat || "hex");
   const [escapeNonPrintable, setEscapeNonPrintable] = useState(initialData?.escapeNonPrintable ?? true);
@@ -23,15 +24,14 @@ export function XORCipher({ initialData, onStateChange }: { initialData?: any; o
 
   // Sync state to parent for URL sharing
   useEffect(() => {
+    // Sentinel: Never share the input (plaintext) or key (secret key) in the URL state.
     onStateChange?.({
-      input,
       inputFormat,
-      key,
       keyFormat,
       outputFormat,
       escapeNonPrintable,
     });
-  }, [input, inputFormat, key, keyFormat, outputFormat, escapeNonPrintable, onStateChange]);
+  }, [inputFormat, keyFormat, outputFormat, escapeNonPrintable, onStateChange]);
 
   // Convert string to bytes according to selected format
   const parseToBytes = useCallback((str: string, format: "text" | "hex" | "binary"): { bytes: Uint8Array; err: string | null } => {

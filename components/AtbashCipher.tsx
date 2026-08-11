@@ -6,7 +6,8 @@ const MAX_LENGTH = 50000;
 
 export function AtbashCipher({ initialData, onStateChange }: { initialData?: any; onStateChange?: (state: any) => void }) {
   const { t } = useTranslation();
-  const [text, setText] = useState(initialData?.text || '');
+  // Sentinel: Always initialize text as empty string to prevent sensitive state leakage.
+  const [text, setText] = useState('');
   const [copied, setCopied] = useState(false);
   const [error, setError] = useState<string | null>(null);
 

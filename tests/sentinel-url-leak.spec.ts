@@ -156,4 +156,43 @@ test.describe('Sentinel: URL Leak Prevention', () => {
       expect(decodedData.mode).toBeDefined();
     }
   });
+
+  test('XORCipher does not leak input or key in shared state', async ({ page }) => {
+    await page.goto('http://localhost:5173/fr/outil/xor-cipher');
+
+    const secretInput = 'CONFIDENTIAL XOR DATA';
+    const secretKey = 'SECRET_XOR_KEY';
+
+    await page.fill('#xor-input-textarea', secretInput);
+    await page.fill('#xor-key-input', secretKey);
+
+    let sharedUrl = '';
+    await page.exposeFunction('captureClipboardXOR', (text: string) => {
+      sharedUrl = text;
+    });
+    await page.evaluate(() => {
+      navigator.clipboard.writeText = async (text: string) => {
+        (window as any).captureClipboardXOR(text);
+      };
+    });
+
+    const shareBtn = page.locator('button:has-text("Partager"), button:has-text("Share config")');
+    await shareBtn.waitFor({ state: 'visible' });
+    await shareBtn.click();
+
+    await expect.poll(() => sharedUrl).toContain('data=');
+    const urlObj = new URL(sharedUrl);
+    const data = urlObj.searchParams.get('data');
+
+    if (data) {
+      const decodedData = JSON.parse(decodeURIComponent(Array.prototype.map.call(atob(data), (c: string) => {
+        return '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2);
+      }).join('')));
+
+      // Sentinel: Neither the input plaintext nor the secret XOR key should be shared.
+      expect(decodedData.input).toBeUndefined();
+      expect(decodedData.key).toBeUndefined();
+      expect(decodedData.inputFormat).toBeDefined();
+    }
+  });
 });

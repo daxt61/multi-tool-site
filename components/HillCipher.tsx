@@ -8,18 +8,20 @@ type MatrixSize = 2 | 3;
 
 export function HillCipher({ initialData, onStateChange }: { initialData?: any; onStateChange?: (state: any) => void }) {
   const { t } = useTranslation();
-  const [input, setInput] = useState(initialData?.input || '');
+  // Sentinel: Always initialize input and matrix securely to prevent sensitive state leakage.
+  const [input, setInput] = useState('');
   const [output, setOutput] = useState('');
   const [mode, setMode] = useState<'encrypt' | 'decrypt'>(initialData?.mode || 'encrypt');
   const [matrixSize, setMatrixSize] = useState<MatrixSize>(initialData?.matrixSize || 2);
-  const [matrix, setMatrix] = useState<number[][]>(initialData?.matrix || [[3, 3], [2, 5]]);
+  const [matrix, setMatrix] = useState<number[][]>([[3, 3], [2, 5]]);
   const [error, setError] = useState<string | null>(null);
   const [copied, setCopied] = useState(false);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
 
   useEffect(() => {
-    onStateChange?.({ input, mode, matrixSize, matrix });
-  }, [input, mode, matrixSize, matrix, onStateChange]);
+    // Sentinel: Never share input or secret matrix key in the URL state.
+    onStateChange?.({ mode, matrixSize });
+  }, [mode, matrixSize, onStateChange]);
 
   const mod = (n: number, m: number) => ((n % m) + m) % m;
 

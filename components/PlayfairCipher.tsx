@@ -6,14 +6,16 @@ const MAX_LENGTH = 5000;
 
 export function PlayfairCipher({ initialData, onStateChange }: { initialData?: any; onStateChange?: (state: any) => void }) {
   const { t } = useTranslation();
-  const [text, setText] = useState(initialData?.text || '');
-  const [key, setKey] = useState(initialData?.key || 'KEYWORD');
+  // Sentinel: Always initialize text and key securely to prevent sensitive state leakage.
+  const [text, setText] = useState('');
+  const [key, setKey] = useState('KEYWORD');
   const [isEncrypt, setIsEncrypt] = useState(initialData?.isEncrypt ?? true);
   const [copied, setCopied] = useState(false);
 
   useEffect(() => {
-    onStateChange?.({ text, key, isEncrypt });
-  }, [text, key, isEncrypt, onStateChange]);
+    // Sentinel: Never share plain text or secret key in the URL state.
+    onStateChange?.({ isEncrypt });
+  }, [isEncrypt, onStateChange]);
 
   const matrix = useMemo(() => {
     const alphabet = 'ABCDEFGHIKLMNOPQRSTUVWXYZ'; // J is omitted, usually merged with I

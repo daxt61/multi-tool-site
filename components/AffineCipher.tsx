@@ -8,16 +8,18 @@ const MAX_LENGTH = 100000;
 export function AffineCipher({ initialData, onStateChange }: { initialData?: any; onStateChange?: (state: any) => void }) {
   const { t } = useTranslation();
   const textareaRef = useRef<HTMLTextAreaElement>(null);
-  const [text, setText] = useState(initialData?.text || '');
-  const [cipher, setCipher] = useState(initialData?.cipher || '');
+  // Sentinel: Always initialize text and cipher as empty strings to prevent sensitive state leakage.
+  const [text, setText] = useState('');
+  const [cipher, setCipher] = useState('');
   const [a, setA] = useState<number>(initialData?.a || 5);
   const [b, setB] = useState<number>(initialData?.b || 8);
   const [copied, setCopied] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    onStateChange?.({ text, cipher, a, b });
-  }, [text, cipher, a, b, onStateChange]);
+    // Sentinel: Never share plain text or cipher results in the URL state.
+    onStateChange?.({ a, b });
+  }, [a, b, onStateChange]);
 
   const gcd = (x: number, y: number): number => {
     while (y) {

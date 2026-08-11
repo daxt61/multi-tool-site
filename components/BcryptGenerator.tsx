@@ -23,8 +23,9 @@ export function BcryptGenerator({ initialData, onStateChange }: { initialData?: 
   const [hashCopied, setHashCopied] = useState(false);
 
   // Verification state
-  const [checkPassword, setCheckPassword] = useState(() => (initialData?.checkPassword || '').slice(0, MAX_PASSWORD_LENGTH));
-  const [checkHash, setCheckHash] = useState(() => (initialData?.checkHash || '').slice(0, MAX_HASH_LENGTH));
+  // Sentinel: Always initialize verification fields as empty strings to prevent sensitive state leakage.
+  const [checkPassword, setCheckPassword] = useState('');
+  const [checkHash, setCheckHash] = useState('');
   const [isMatch, setIsMatch] = useState<boolean | null>(null);
   const [verifying, setVerifying] = useState(false);
 

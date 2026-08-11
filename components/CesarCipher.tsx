@@ -10,7 +10,8 @@ const MAX_LENGTH = 100000;
 export function CesarCipher({ initialData, onStateChange }: { initialData?: any; onStateChange?: (state: any) => void }) {
   const inputRef = useRef<HTMLTextAreaElement>(null);
   const { t } = useTranslation();
-  const [text, setText] = useState(initialData?.text || '');
+  // Sentinel: Always initialize text as empty string to prevent sensitive state leakage.
+  const [text, setText] = useState('');
   const [shift, setShift] = useState(initialData?.shift ?? 3);
   const [isEncrypt, setIsEncrypt] = useState(initialData?.isEncrypt ?? true);
   const [error, setError] = useState<string | null>(null);

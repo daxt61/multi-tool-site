@@ -5,6 +5,8 @@ import { toast } from 'sonner';
 import { Kbd } from './ui/Kbd';
 
 const MAX_LENGTH = 100000;
+const MAX_QUERY_LENGTH = 1000;
+const MAX_RESULTS = 1000;
 
 export function XPathTester({ initialData, onStateChange }: { initialData?: any; onStateChange?: (state: any) => void }) {
   const { t } = useTranslation();
@@ -36,6 +38,12 @@ export function XPathTester({ initialData, onStateChange }: { initialData?: any;
       return;
     }
 
+    if (xpathQuery.length > MAX_QUERY_LENGTH) {
+      setError(t('xpathtester.error_query_length', { max: MAX_QUERY_LENGTH.toLocaleString() }));
+      setResults([]);
+      return;
+    }
+
     try {
       const parser = new DOMParser();
       const doc = parser.parseFromString(xmlInput, 'text/xml');
@@ -61,7 +69,12 @@ export function XPathTester({ initialData, onStateChange }: { initialData?: any;
       } else {
         let node = result.iterateNext();
         const serializer = new XMLSerializer();
+        let count = 0;
         while (node) {
+          if (count >= MAX_RESULTS) {
+            items.push(t('xpathtester.error_max_results', '... results truncated to 1,000 matches ...'));
+            break;
+          }
           if (node.nodeType === Node.ATTRIBUTE_NODE) {
             items.push(`${node.nodeName}="${node.nodeValue}"`);
           } else if (node.nodeType === Node.TEXT_NODE || node.nodeType === Node.CDATA_SECTION_NODE) {
@@ -69,6 +82,7 @@ export function XPathTester({ initialData, onStateChange }: { initialData?: any;
           } else {
             items.push(serializer.serializeToString(node));
           }
+          count++;
           node = result.iterateNext();
         }
       }

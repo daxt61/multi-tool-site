@@ -1,3 +1,7 @@
+## 2026-08-12 - [Focused Input Escape Key Event Routing standard]
+**Learning:** Checking focused states purely to block keyboard shortcuts while a user is editing can disable critical shortcuts like `Escape` (clear/reset) when typing inside text inputs. Allowing `Escape` to bypass focused state blocks while preventing other character-based shortcuts (like `C` for copy) provides a seamless power-user experience that enables instant clearing with focus preservation.
+**Action:** Always exempt the `Escape` key from focused input blocks in global keydown listeners to keep clearing simple and accessible.
+
 ## 2026-08-11 - [ARIA Attribute Integrity and Precise Focus on Cipher Range Inputs]
 **Learning:** Standard range slider inputs (such as shift sliders in Caesar Cipher) are often neglected in terms of screen reader readability, leaving assistive technology users without accurate indicators of the values they control. Dynamically supplying standard ARIA variables (`aria-valuemin`, `aria-valuemax`, `aria-valuenow`, and descriptive `aria-label`s) coupled with programmatic focus-refinement via `useRef` to target text fields upon resetting provides a seamless and standard-compliant experience.
 **Action:** Always provide explicit ARIA value properties on interactive sliders, standardise all tool shortcut badges using the centralized `<Kbd>` component, and restore active focus programmatically after reset triggers.

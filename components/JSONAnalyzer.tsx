@@ -126,7 +126,7 @@ ${t('jsonanalyzer.type_dist')}:
         activeElement instanceof HTMLSelectElement ||
         activeElement?.getAttribute("contenteditable") === "true";
 
-      if (isInputFocused) return;
+      if (isInputFocused && e.key !== 'Escape') return;
       if (e.metaKey || e.ctrlKey || e.altKey || e.shiftKey) return;
 
       if (e.key === "Escape") {

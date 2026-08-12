@@ -18,7 +18,15 @@ test('JSON Analyzer UX improvements', async ({ page }) => {
   // The button text should change to "Copié"
   await expect(page.getByText('Copié')).toBeVisible();
 
-  // 3. Test Escape shortcut for clearing
+  // 3. Test Escape shortcut for clearing when blurred
+  await page.keyboard.press('Escape');
+  await expect(textarea).toHaveValue('');
+  await expect(textarea).toBeFocused();
+
+  // 4. Test Escape shortcut for clearing when focused
+  await textarea.fill('{"a": 10}');
+  await expect(textarea).toHaveValue('{"a": 10}');
+  await textarea.focus();
   await page.keyboard.press('Escape');
   await expect(textarea).toHaveValue('');
   await expect(textarea).toBeFocused();

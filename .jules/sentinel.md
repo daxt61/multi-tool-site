@@ -256,3 +256,8 @@
 **Vulnerability:** The HTMLToMarkdown converter recurred over parsed DOM nodes without removing script or style tags. Malicious inputs containing script/style tags could leak internal script commands or CSS properties as plain text in the converted Markdown file or preview.
 **Learning:** Standard DOM parsers (like DOMParser) parse all document contents including inline script/style tags, but dynamic content conversions must explicitly strip unwanted tags like `<script>` and `<style>` to prevent exposing active code payloads in clean text-only outputs.
 **Prevention:** Always use `querySelectorAll('script, style').forEach(el => el.remove())` on parsed document nodes to completely strip script and style contents before walking element sub-trees for serialization.
+
+## 2026-08-10 - [Client-side DoS in XPath Tester Query and Matches]
+**Vulnerability:** The XPathTester allowed executing arbitrary-length XPath queries and looping over an unlimited number of matching elements synchronously on the main thread, risking severe browser freezing/Denial of Service.
+**Learning:** Real-time, debounced query tools must bound not only input content size but also query syntax length and result output size. Synchronous DOM/XPath iterations can quickly consume all CPU threads if matching lists are unbounded.
+**Prevention:** Restrict query expressions to a reasonable length (e.g., `MAX_QUERY_LENGTH = 1000`) and enforce strict limits on results iteration (e.g., `MAX_RESULTS = 1000`) with a localized truncation message.

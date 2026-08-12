@@ -572,6 +572,7 @@ const ListPermutationsCombinations = lazy(() => import("./components/ListPermuta
 const HTMLTableToJSON = lazy(() => import("./components/HTMLTableToJSON").then(m => ({ default: m.HTMLTableToJSON })));
 const JSONCasingConverter = lazy(() => import("./components/JSONCasingConverter").then(m => ({ default: m.JSONCasingConverter })));
 const ListShuffler = lazy(() => import("./components/ListShuffler").then(m => ({ default: m.ListShuffler })));
+const ListRandomPicker = lazy(() => import("./components/ListRandomPicker").then(m => ({ default: m.ListRandomPicker })));
 const JSONDataExtractor = lazy(() => import("./components/JSONDataExtractor").then(m => ({ default: m.JSONDataExtractor })));
 const XSLTTransformer = lazy(() => import("./components/XSLTTransformer").then(m => ({ default: m.XSLTTransformer })));
 const CSSSpecificityCalculator = lazy(() => import("./components/CSSSpecificityCalculator").then(m => ({ default: m.CSSSpecificityCalculator })));
@@ -659,6 +660,18 @@ const tools: Tool[] = [
     Component: ListShuffler,
     category: "text",
     keywords: ["list", "shuffle", "randomize", "mélanger", "raffle", "deck", "cards", "crypto", "unbiased"],
+  },
+  // Random List Item Picker Tool
+  {
+    id: "list-random-picker",
+    name: "Sélecteur Aléatoire",
+    nameEn: "Random List Item Picker",
+    icon: Shuffle,
+    description: "Sélectionner un sous-ensemble d'éléments aléatoires dans une liste avec ou sans remise",
+    descriptionEn: "Select a random subset of items from a provided list with or without replacement",
+    Component: ListRandomPicker,
+    category: "text",
+    keywords: ["picker", "random", "list", "select", "raffle", "dinner", "subset", "unbiased", "crypto"],
   },
   // JSON Key Case Converter Tool
   {

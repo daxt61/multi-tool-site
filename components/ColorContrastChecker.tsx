@@ -1,12 +1,16 @@
-import { useState, useMemo, useCallback, useEffect } from 'react';
+import { useState, useMemo, useCallback, useEffect, useRef } from 'react';
 import { Palette, Type, Check, X, Info, Copy, RotateCcw, ArrowUpDown, Download } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
+import { toast } from 'sonner';
+import { Kbd } from './ui/Kbd';
 
 export function ColorContrastChecker({ initialData, onStateChange }: { initialData?: any; onStateChange?: (state: any) => void }) {
   const { t } = useTranslation();
   const [foreground, setForeground] = useState(initialData?.foreground || '#FFFFFF');
   const [background, setBackground] = useState(initialData?.background || '#4F46E5');
   const [copied, setCopied] = useState<string | null>(null);
+
+  const foregroundInputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
     onStateChange?.({ foreground, background });
@@ -46,21 +50,80 @@ export function ColorContrastChecker({ initialData, onStateChange }: { initialDa
     return (brightest + 0.05) / (darkest + 0.05);
   }, [foreground, background]);
 
-  const copyToClipboard = (text: string, id: string) => {
+  const copyToClipboard = useCallback((text: string, id: string) => {
     navigator.clipboard.writeText(text);
     setCopied(id);
+    toast.success(t('common.copied'));
     setTimeout(() => setCopied(null), 2000);
-  };
+  }, [t]);
+
+  const copyRatio = useCallback(() => {
+    const text = `${contrastRatio.toFixed(2)}:1`;
+    copyToClipboard(text, 'ratio');
+  }, [contrastRatio, copyToClipboard]);
 
   const swapColors = useCallback(() => {
-    const temp = foreground;
-    setForeground(background);
-    setBackground(temp);
-  }, [foreground, background]);
+    setForeground((prevFg: string) => {
+      setBackground(prevFg);
+      return background;
+    });
+  }, [background]);
 
   const handleReset = useCallback(() => {
     setForeground('#FFFFFF');
     setBackground('#4F46E5');
+    toast.success(t('common.reset'));
+    foregroundInputRef.current?.focus();
+  }, [t]);
+
+  const handlersRef = useRef({
+    swapColors,
+    handleReset,
+    copyRatio
+  });
+
+  useEffect(() => {
+    handlersRef.current = {
+      swapColors,
+      handleReset,
+      copyRatio
+    };
+  }, [swapColors, handleReset, copyRatio]);
+
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      const activeEl = document.activeElement;
+      const isInputFocused =
+        activeEl?.tagName === 'INPUT' ||
+        activeEl?.tagName === 'TEXTAREA' ||
+        activeEl?.tagName === 'SELECT' ||
+        ((activeEl as HTMLElement)?.isContentEditable ?? false);
+
+      if (e.key === 'Escape') {
+        e.preventDefault();
+        handlersRef.current.handleReset();
+        return;
+      }
+
+      if (isInputFocused) return;
+
+      const isModifierPressed = e.altKey || e.ctrlKey || e.metaKey || e.shiftKey;
+      if (isModifierPressed) return;
+
+      if (e.key.toLowerCase() === 's') {
+        e.preventDefault();
+        handlersRef.current.swapColors();
+      } else if (e.key.toLowerCase() === 'r') {
+        e.preventDefault();
+        handlersRef.current.handleReset();
+      } else if (e.key.toLowerCase() === 'c') {
+        e.preventDefault();
+        handlersRef.current.copyRatio();
+      }
+    };
+
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
   }, []);
 
   const handleDownload = useCallback(() => {
@@ -84,28 +147,6 @@ WCAG 2.1 Compliance:
     URL.revokeObjectURL(url);
   }, [contrastRatio, foreground, background, t]);
 
-  useEffect(() => {
-    const handleKeyDown = (e: KeyboardEvent) => {
-      if (document.activeElement?.tagName === "INPUT" || document.activeElement?.tagName === "TEXTAREA" || document.activeElement?.tagName === "SELECT") {
-        return;
-      }
-
-      const isModifierPressed = e.altKey || e.ctrlKey || e.metaKey || e.shiftKey;
-      if (isModifierPressed) return;
-
-      if (e.key.toLowerCase() === 's') {
-        e.preventDefault();
-        swapColors();
-      } else if (e.key.toLowerCase() === 'r') {
-        e.preventDefault();
-        handleReset();
-      }
-    };
-
-    window.addEventListener('keydown', handleKeyDown);
-    return () => window.removeEventListener('keydown', handleKeyDown);
-  }, [swapColors, handleReset]);
-
   const getStatus = (ratio: number, threshold: number) => ratio >= threshold;
 
   return (
@@ -115,15 +156,15 @@ WCAG 2.1 Compliance:
           onClick={handleDownload}
           className="text-xs font-bold text-indigo-600 bg-indigo-50 dark:bg-indigo-500/10 hover:bg-indigo-100 dark:hover:bg-indigo-500/20 px-3 py-1.5 rounded-xl flex items-center gap-1 transition-all focus-visible:ring-2 focus-visible:ring-indigo-500 focus-visible:outline-none"
         >
-          <Download className="w-3 h-3" /> {t('contrastchecker.download_report')}
+          <Download className="w-3 h-3" aria-hidden="true" /> {t('contrastchecker.download_report')}
         </button>
         <button
           onClick={handleReset}
           className="text-xs font-bold text-rose-500 bg-rose-50 dark:bg-rose-500/10 hover:bg-rose-100 dark:hover:bg-rose-500/20 px-3 py-1.5 rounded-xl flex items-center gap-1 transition-all focus-visible:ring-2 focus-visible:ring-rose-500 focus-visible:outline-none"
           aria-label={t('common.reset')}
         >
-          <RotateCcw className="w-3 h-3" /> {t('common.reset')}
-          <kbd className="ml-1 hidden sm:inline-flex items-center justify-center w-4 h-4 border border-rose-200 dark:border-rose-800 rounded text-[8px] font-bold bg-white/50 dark:bg-black/20">R</kbd>
+          <RotateCcw className="w-3 h-3" aria-hidden="true" /> {t('common.reset')}
+          <Kbd modifier={null} className="ml-1 border-rose-200 dark:border-rose-800 text-[8px] bg-white/50 dark:bg-black/20">Esc</Kbd>
         </button>
       </div>
 
@@ -136,30 +177,32 @@ WCAG 2.1 Compliance:
               <div className="space-y-3">
                 <div className="flex justify-between items-center px-1">
                   <label htmlFor="foreground" className="text-xs font-black uppercase tracking-widest text-slate-400 flex items-center gap-2 cursor-pointer">
-                    <Type className="w-4 h-4" /> {t('contrastchecker.foreground')}
+                    <Type className="w-4 h-4" aria-hidden="true" /> {t('contrastchecker.foreground')}
                   </label>
                   <button
                     onClick={() => copyToClipboard(foreground, 'fg')}
                     aria-label={copied === 'fg' ? t('common.copied') : t('contrastchecker.copy_fg')}
-                    className={`p-1.5 rounded-lg transition-all border ${
+                    className={`p-1.5 rounded-lg transition-all border focus-visible:ring-2 focus-visible:ring-indigo-500 focus-visible:outline-none ${
                       copied === 'fg'
                         ? 'bg-emerald-50 dark:bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border-emerald-200 dark:border-emerald-500/20'
                         : 'text-slate-400 hover:text-indigo-500 border-transparent'
                     }`}
                   >
-                    {copied === 'fg' ? <Check className="w-4 h-4" /> : <Copy className="w-4 h-4" />}
+                    {copied === 'fg' ? <Check className="w-4 h-4" aria-hidden="true" /> : <Copy className="w-4 h-4" aria-hidden="true" />}
                   </button>
                 </div>
                 <div className="flex gap-3">
                   <input
-                    id="foreground"
+                    id="foreground-color"
                     type="color"
                     value={foreground}
                     onChange={(e) => setForeground(e.target.value.toUpperCase())}
-                    className="w-16 h-16 rounded-2xl cursor-pointer border-4 border-white dark:border-slate-800 shadow-sm"
+                    className="w-16 h-16 rounded-2xl cursor-pointer border-4 border-white dark:border-slate-800 shadow-sm focus-visible:ring-2 focus-visible:ring-indigo-500 focus-visible:outline-none"
                     aria-label={t('contrastchecker.choose_fg')}
                   />
                   <input
+                    id="foreground"
+                    ref={foregroundInputRef}
                     type="text"
                     value={foreground}
                     onChange={(e) => setForeground(e.target.value.toUpperCase())}
@@ -178,39 +221,40 @@ WCAG 2.1 Compliance:
                   aria-label={t('contrastchecker.swap_aria')}
                   title={t('contrastchecker.swap_aria')}
                 >
-                  <ArrowUpDown className="w-5 h-5 transition-transform group-hover:rotate-180 duration-500" />
+                  <ArrowUpDown className="w-5 h-5 transition-transform group-hover:rotate-180 duration-500" aria-hidden="true" />
                 </button>
-                <kbd className="hidden sm:inline-flex items-center justify-center w-5 h-5 border border-slate-200 dark:border-slate-800 rounded text-[10px] font-bold text-slate-400 bg-white dark:bg-slate-900">S</kbd>
+                <Kbd modifier={null} className="w-5 h-5 text-[10px]">S</Kbd>
               </div>
 
               {/* Background */}
               <div className="space-y-3">
                 <div className="flex justify-between items-center px-1">
                   <label htmlFor="background" className="text-xs font-black uppercase tracking-widest text-slate-400 flex items-center gap-2 cursor-pointer">
-                    <Palette className="w-4 h-4" /> {t('contrastchecker.background')}
+                    <Palette className="w-4 h-4" aria-hidden="true" /> {t('contrastchecker.background')}
                   </label>
                   <button
                     onClick={() => copyToClipboard(background, 'bg')}
                     aria-label={copied === 'bg' ? t('common.copied') : t('contrastchecker.copy_bg')}
-                    className={`p-1.5 rounded-lg transition-all border ${
+                    className={`p-1.5 rounded-lg transition-all border focus-visible:ring-2 focus-visible:ring-indigo-500 focus-visible:outline-none ${
                       copied === 'bg'
                         ? 'bg-emerald-50 dark:bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border-emerald-200 dark:border-emerald-500/20'
                         : 'text-slate-400 hover:text-indigo-500 border-transparent'
                     }`}
                   >
-                    {copied === 'bg' ? <Check className="w-4 h-4" /> : <Copy className="w-4 h-4" />}
+                    {copied === 'bg' ? <Check className="w-4 h-4" aria-hidden="true" /> : <Copy className="w-4 h-4" aria-hidden="true" />}
                   </button>
                 </div>
                 <div className="flex gap-3">
                   <input
-                    id="background"
+                    id="background-color"
                     type="color"
                     value={background}
                     onChange={(e) => setBackground(e.target.value.toUpperCase())}
-                    className="w-16 h-16 rounded-2xl cursor-pointer border-4 border-white dark:border-slate-800 shadow-sm"
+                    className="w-16 h-16 rounded-2xl cursor-pointer border-4 border-white dark:border-slate-800 shadow-sm focus-visible:ring-2 focus-visible:ring-indigo-500 focus-visible:outline-none"
                     aria-label={t('contrastchecker.choose_bg')}
                   />
                   <input
+                    id="background"
                     type="text"
                     value={background}
                     onChange={(e) => setBackground(e.target.value.toUpperCase())}
@@ -229,6 +273,21 @@ WCAG 2.1 Compliance:
           {/* Ratio Card */}
           <div className="bg-slate-900 dark:bg-black p-10 rounded-[2.5rem] shadow-xl shadow-indigo-500/10 flex flex-col items-center justify-center space-y-4 relative overflow-hidden text-center">
             <div className="absolute top-0 right-0 w-32 h-32 bg-indigo-500/10 rounded-full -mr-16 -mt-16 blur-3xl"></div>
+
+            <button
+              onClick={copyRatio}
+              className={`absolute top-6 right-6 p-2.5 rounded-xl transition-all border flex items-center gap-1.5 focus-visible:ring-2 focus-visible:ring-indigo-500 focus-visible:outline-none ${
+                copied === 'ratio'
+                  ? 'bg-emerald-500/20 text-emerald-400 border-emerald-500/30'
+                  : 'bg-white/10 text-white/60 hover:text-white hover:bg-white/20 border-white/10'
+              }`}
+              aria-label={copied === 'ratio' ? t('common.copied') : t('contrastchecker.copy_ratio')}
+              title={t('contrastchecker.copy_ratio')}
+            >
+              {copied === 'ratio' ? <Check className="w-4 h-4" aria-hidden="true" /> : <Copy className="w-4 h-4" aria-hidden="true" />}
+              <Kbd modifier={null} className="bg-white/20 text-white border-white/30 text-[9px]">C</Kbd>
+            </button>
+
             <div className="text-slate-400 font-bold uppercase tracking-widest text-xs">{t('contrastchecker.ratio_title')}</div>
             <div className="text-6xl md:text-8xl font-black text-white font-mono tracking-tighter" aria-live="polite" aria-atomic="true">
               {contrastRatio.toFixed(2)}:1
@@ -243,17 +302,17 @@ WCAG 2.1 Compliance:
                 <div className="flex items-center justify-between">
                   <span className="text-sm font-bold dark:text-slate-300">{t('contrastchecker.normal_text')}</span>
                   {getStatus(contrastRatio, 4.5) ? (
-                    <div className="flex items-center gap-1.5 text-emerald-500 font-black text-xs uppercase"><Check className="w-4 h-4" /> {t('contrastchecker.success')}</div>
+                    <div className="flex items-center gap-1.5 text-emerald-500 font-black text-xs uppercase"><Check className="w-4 h-4" aria-hidden="true" /> {t('contrastchecker.success')}</div>
                   ) : (
-                    <div className="flex items-center gap-1.5 text-rose-500 font-black text-xs uppercase"><X className="w-4 h-4" /> {t('contrastchecker.fail')}</div>
+                    <div className="flex items-center gap-1.5 text-rose-500 font-black text-xs uppercase"><X className="w-4 h-4" aria-hidden="true" /> {t('contrastchecker.fail')}</div>
                   )}
                 </div>
                 <div className="flex items-center justify-between">
                   <span className="text-sm font-bold dark:text-slate-300">{t('contrastchecker.large_text')}</span>
                   {getStatus(contrastRatio, 3.0) ? (
-                    <div className="flex items-center gap-1.5 text-emerald-500 font-black text-xs uppercase"><Check className="w-4 h-4" /> {t('contrastchecker.success')}</div>
+                    <div className="flex items-center gap-1.5 text-emerald-500 font-black text-xs uppercase"><Check className="w-4 h-4" aria-hidden="true" /> {t('contrastchecker.success')}</div>
                   ) : (
-                    <div className="flex items-center gap-1.5 text-rose-500 font-black text-xs uppercase"><X className="w-4 h-4" /> {t('contrastchecker.fail')}</div>
+                    <div className="flex items-center gap-1.5 text-rose-500 font-black text-xs uppercase"><X className="w-4 h-4" aria-hidden="true" /> {t('contrastchecker.fail')}</div>
                   )}
                 </div>
               </div>
@@ -265,17 +324,17 @@ WCAG 2.1 Compliance:
                 <div className="flex items-center justify-between">
                   <span className="text-sm font-bold dark:text-slate-300">{t('contrastchecker.normal_text_aaa')}</span>
                   {getStatus(contrastRatio, 7.0) ? (
-                    <div className="flex items-center gap-1.5 text-emerald-500 font-black text-xs uppercase"><Check className="w-4 h-4" /> {t('contrastchecker.success')}</div>
+                    <div className="flex items-center gap-1.5 text-emerald-500 font-black text-xs uppercase"><Check className="w-4 h-4" aria-hidden="true" /> {t('contrastchecker.success')}</div>
                   ) : (
-                    <div className="flex items-center gap-1.5 text-rose-500 font-black text-xs uppercase"><X className="w-4 h-4" /> {t('contrastchecker.fail')}</div>
+                    <div className="flex items-center gap-1.5 text-rose-500 font-black text-xs uppercase"><X className="w-4 h-4" aria-hidden="true" /> {t('contrastchecker.fail')}</div>
                   )}
                 </div>
                 <div className="flex items-center justify-between">
                   <span className="text-sm font-bold dark:text-slate-300">{t('contrastchecker.large_text_aaa')}</span>
                   {getStatus(contrastRatio, 4.5) ? (
-                    <div className="flex items-center gap-1.5 text-emerald-500 font-black text-xs uppercase"><Check className="w-4 h-4" /> {t('contrastchecker.success')}</div>
+                    <div className="flex items-center gap-1.5 text-emerald-500 font-black text-xs uppercase"><Check className="w-4 h-4" aria-hidden="true" /> {t('contrastchecker.success')}</div>
                   ) : (
-                    <div className="flex items-center gap-1.5 text-rose-500 font-black text-xs uppercase"><X className="w-4 h-4" /> {t('contrastchecker.fail')}</div>
+                    <div className="flex items-center gap-1.5 text-rose-500 font-black text-xs uppercase"><X className="w-4 h-4" aria-hidden="true" /> {t('contrastchecker.fail')}</div>
                   )}
                 </div>
               </div>
@@ -301,7 +360,7 @@ WCAG 2.1 Compliance:
       <div className="grid grid-cols-1 md:grid-cols-3 gap-8 pt-12 border-t border-slate-100 dark:border-slate-800">
         <div className="space-y-4">
           <div className="w-12 h-12 bg-indigo-50 dark:bg-indigo-900/20 rounded-2xl flex items-center justify-center text-indigo-600">
-            <Info className="w-6 h-6" />
+            <Info className="w-6 h-6" aria-hidden="true" />
           </div>
           <h3 className="text-lg font-black">{t('contrastchecker.what_is_title')}</h3>
           <p className="text-sm text-slate-500 dark:text-slate-400 leading-relaxed">
@@ -311,7 +370,7 @@ WCAG 2.1 Compliance:
 
         <div className="space-y-4">
           <div className="w-12 h-12 bg-emerald-50 dark:bg-emerald-900/20 rounded-2xl flex items-center justify-center text-emerald-600">
-            <Check className="w-6 h-6" />
+            <Check className="w-6 h-6" aria-hidden="true" />
           </div>
           <h3 className="text-lg font-black">{t('contrastchecker.levels_title')}</h3>
           <p className="text-sm text-slate-500 dark:text-slate-400 leading-relaxed">
@@ -321,7 +380,7 @@ WCAG 2.1 Compliance:
 
         <div className="space-y-4">
           <div className="w-12 h-12 bg-amber-50 dark:bg-amber-900/20 rounded-2xl flex items-center justify-center text-amber-600">
-            <Palette className="w-6 h-6" />
+            <Palette className="w-6 h-6" aria-hidden="true" />
           </div>
           <h3 className="text-lg font-black">{t('contrastchecker.tips_title')}</h3>
           <p className="text-sm text-slate-500 dark:text-slate-400 leading-relaxed">

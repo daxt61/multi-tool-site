@@ -4721,7 +4721,22 @@ const resources = {
       "listpicker.prefix_index": "Prefix picked items with numbering (1., 2...)",
       "listpicker.trim": "Trim list items whitespace",
       "listpicker.remove_empty": "Remove empty items",
-      "tool.list-random-picker.name": "Random List Item Picker"
+      "tool.list-random-picker.name": "Random List Item Picker",
+      "tool.json-to-xsd.name": "JSON to XSD Generator",
+      "tool.json-to-xsd.description": "Convert JSON objects or arrays into W3C-compliant XML Schema Definition (XSD) markup",
+      "json_to_xsd.json_input": "JSON Input",
+      "json_to_xsd.xsd_output": "Generated XSD Schema",
+      "json_to_xsd.root_element": "Root Element",
+      "json_to_xsd.target_namespace": "Target Namespace",
+      "json_to_xsd.invalid_json": "Invalid JSON syntax",
+      "json_to_xsd.xsd_placeholder": "XSD Schema will appear here...",
+      "json_to_xsd.presets_title": "Quick Presets",
+      "json_to_xsd.preset_order": "E-Commerce Order",
+      "json_to_xsd.preset_user": "User Profile",
+      "json_to_xsd.preset_loaded": "Preset loaded successfully!",
+      "json_to_xsd.copied_toast": "XSD Schema copied to clipboard!",
+      "json_to_xsd.cleared_toast": "Inputs cleared!",
+      "json_to_xsd.downloaded_toast": "XSD file downloaded!"
     }
   },
   fr: {
@@ -9446,7 +9461,22 @@ const resources = {
       "listpicker.prefix_index": "Préfixer les éléments avec leur index (1., 2...)",
       "listpicker.trim": "Nettoyer les espaces blancs des éléments",
       "listpicker.remove_empty": "Supprimer les éléments vides",
-      "tool.list-random-picker.name": "Tirage au sort"
+      "tool.list-random-picker.name": "Tirage au sort",
+      "tool.json-to-xsd.name": "JSON en Schéma XSD",
+      "tool.json-to-xsd.description": "Convertir des objets ou tableaux JSON en schéma XML (XSD) conforme aux normes W3C",
+      "json_to_xsd.json_input": "Entrée JSON",
+      "json_to_xsd.xsd_output": "Schéma XSD Généré",
+      "json_to_xsd.root_element": "Élément Racine",
+      "json_to_xsd.target_namespace": "Espace de Noms (Target Namespace)",
+      "json_to_xsd.invalid_json": "Syntaxe JSON invalide",
+      "json_to_xsd.xsd_placeholder": "Le schéma XSD apparaîtra ici...",
+      "json_to_xsd.presets_title": "Préréglages Rapides",
+      "json_to_xsd.preset_order": "Commande E-Commerce",
+      "json_to_xsd.preset_user": "Profil Utilisateur",
+      "json_to_xsd.preset_loaded": "Préréglage chargé avec succès !",
+      "json_to_xsd.copied_toast": "Schéma XSD copié dans le presse-papiers !",
+      "json_to_xsd.cleared_toast": "Entrées effacées avec succès !",
+      "json_to_xsd.downloaded_toast": "Fichier XSD téléchargé avec succès !"
     }
   }
 };

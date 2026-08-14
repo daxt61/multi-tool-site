@@ -195,4 +195,49 @@ test.describe('Sentinel: URL Leak Prevention', () => {
       expect(decodedData.inputFormat).toBeDefined();
     }
   });
+
+  test('EnigmaCipher does not leak plugboard or text in shared state', async ({ page }) => {
+    await page.goto('http://localhost:5173/fr/outil/enigma-cipher');
+
+    // Enter input message
+    const inputArea = page.locator('textarea').first();
+    await inputArea.fill('SECRETENIGMAMESSAGE');
+
+    // Add a plugboard pair
+    const plugInput = page.locator('input[placeholder="AB..."]').first();
+    await plugInput.fill('AZ');
+    await plugInput.press('Enter');
+
+    let sharedUrl = '';
+    await page.exposeFunction('captureClipboardEnigma', (text: string) => {
+      sharedUrl = text;
+    });
+    await page.evaluate(() => {
+      navigator.clipboard.writeText = async (text: string) => {
+        (window as any).captureClipboardEnigma(text);
+      };
+    });
+
+    const shareBtn = page.locator('button:has-text("Partager"), button:has-text("Share config")');
+    await shareBtn.waitFor({ state: 'visible' });
+    await shareBtn.click();
+
+    await expect.poll(() => sharedUrl).toContain('data=');
+    const urlObj = new URL(sharedUrl);
+    const data = urlObj.searchParams.get('data');
+
+    if (data) {
+      const decodedData = JSON.parse(decodeURIComponent(Array.prototype.map.call(atob(data), (c: string) => {
+        return '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2);
+      }).join('')));
+
+      // Sentinel: Neither the input plaintext nor secret plugboard pairs should be shared.
+      expect(decodedData.input).toBeUndefined();
+      expect(decodedData.output).toBeUndefined();
+      expect(decodedData.state).toBeDefined();
+      expect(decodedData.state.plugboard).toBeUndefined();
+      expect(decodedData.state.rotors).toBeDefined();
+      expect(decodedData.state.reflector).toBeDefined();
+    }
+  });
 });

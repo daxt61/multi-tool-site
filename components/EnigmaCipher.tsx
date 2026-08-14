@@ -29,19 +29,38 @@ interface EnigmaState {
 
 export function EnigmaCipher({ initialData, onStateChange }: { initialData?: any; onStateChange?: (state: any) => void }) {
   const { t } = useTranslation();
+  // Sentinel: Always initialize input and output securely to empty strings
   const [input, setInput] = useState('');
   const [output, setOutput] = useState('');
-  const [state, setState] = useState<EnigmaState>(initialData?.state || {
-    rotors: ['I', 'II', 'III'] as (keyof typeof ROTORS)[],
-    reflector: 'B' as keyof typeof REFLECTORS,
-    positions: ['A', 'A', 'A'],
-    rings: [1, 1, 1],
-    plugboard: [],
+  // Sentinel: Always initialize plugboard securely as [] to prevent secret key leakage in URL state
+  const [state, setState] = useState<EnigmaState>(() => {
+    const defaultState = {
+      rotors: ['I', 'II', 'III'] as (keyof typeof ROTORS)[],
+      reflector: 'B' as keyof typeof REFLECTORS,
+      positions: ['A', 'A', 'A'],
+      rings: [1, 1, 1],
+      plugboard: [] as string[],
+    };
+    if (!initialData?.state) return defaultState;
+    return {
+      rotors: initialData.state.rotors || defaultState.rotors,
+      reflector: initialData.state.reflector || defaultState.reflector,
+      positions: initialData.state.positions || defaultState.positions,
+      rings: initialData.state.rings || defaultState.rings,
+      plugboard: [], // Exclude plugboard key settings from URL state initialization
+    };
   });
   const [copied, setCopied] = useState(false);
 
   useEffect(() => {
-    onStateChange?.({ state });
+    // Sentinel: Never share secret plugboard pairs or user inputs in shared URL parameters
+    const safeState = {
+      rotors: state.rotors,
+      reflector: state.reflector,
+      positions: state.positions,
+      rings: state.rings,
+    };
+    onStateChange?.({ state: safeState });
   }, [state, onStateChange]);
 
   const processChar = useCallback((char: string, currentState: EnigmaState) => {

@@ -283,6 +283,7 @@ const CSSTriangleGenerator = lazy(() => import("./components/CSSTriangleGenerato
 const CSSGridGenerator = lazy(() => import("./components/CSSGridGenerator").then(m => ({ default: m.CSSGridGenerator })));
 const CSSBorderRadiusGenerator = lazy(() => import("./components/CSSBorderRadiusGenerator").then(m => ({ default: m.CSSBorderRadiusGenerator })));
 const JSONPathTester = lazy(() => import("./components/JSONPathTester").then(m => ({ default: m.JSONPathTester })));
+const JSONToXSD = lazy(() => import("./components/JSONToXSD").then(m => ({ default: m.JSONToXSD })));
 const SitemapGenerator = lazy(() => import("./components/SitemapGenerator").then(m => ({ default: m.SitemapGenerator })));
 const JSONToSQL = lazy(() => import("./components/JSONToSQL").then(m => ({ default: m.JSONToSQL })));
 const SQLToCSV = lazy(() => import("./components/SQLToCSV").then(m => ({ default: m.SQLToCSV })));
@@ -613,6 +614,18 @@ const categories: Category[] = [
 ];
 
 const tools: Tool[] = [
+  // JSON to XML Schema (XSD) Generator Tool
+  {
+    id: "json-to-xsd",
+    name: "JSON en Schéma XSD",
+    nameEn: "JSON to XSD Generator",
+    icon: FileCode,
+    description: "Convertir des objets ou tableaux JSON en schéma XML (XSD) conforme aux normes W3C",
+    descriptionEn: "Convert JSON objects or arrays into W3C-compliant XML Schema Definition (XSD) markup",
+    Component: JSONToXSD,
+    category: "dev",
+    keywords: ["json", "xml", "xsd", "schema", "xmlschema", "converter", "generator", "w3c", "types", "developer"],
+  },
   // CSS Specificity Calculator & Analyzer Tool
   {
     id: "css-specificity",

@@ -532,6 +532,7 @@ const CSSAnimationGenerator = lazy(() => import("./components/CSSAnimationGenera
 const SQLToMongoDB = lazy(() => import("./components/SQLToMongoDB").then(m => ({ default: m.SQLToMongoDB })));
 const SQLToOpenAPI = lazy(() => import("./components/SQLToOpenAPI").then(m => ({ default: m.SQLToOpenAPI })));
 const SQLToMermaid = lazy(() => import("./components/SQLToMermaid").then(m => ({ default: m.SQLToMermaid })));
+const SQLToPydantic = lazy(() => import("./components/SQLToPydantic").then(m => ({ default: m.SQLToPydantic })));
 const YAMLToTOML = lazy(() => import("./components/YAMLToTOML").then(m => ({ default: m.YAMLToTOML })));
 const YamlIniConverter = lazy(() => import("./components/YamlIniConverter").then(m => ({ default: m.YamlIniConverter })));
 const SubstitutionCipher = lazy(() => import("./components/SubstitutionCipher").then(m => ({ default: m.SubstitutionCipher })));
@@ -4870,6 +4871,17 @@ const tools: Tool[] = [
     Component: SQLToMermaid,
     category: "dev",
     keywords: ["sql", "mermaid", "er", "diagram", "entity", "relationship", "database", "ddl", "create table"],
+  },
+  {
+    id: "sql-to-pydantic",
+    name: "SQL en Pydantic",
+    nameEn: "SQL to Pydantic",
+    icon: Database,
+    description: "Convertir des instructions SQL CREATE TABLE en modèles Pydantic V2/V1 ou Dataclasses Python",
+    descriptionEn: "Convert SQL CREATE TABLE DDL statements into Pydantic V2/V1 models or Python dataclasses",
+    Component: SQLToPydantic,
+    category: "dev",
+    keywords: ["sql", "pydantic", "python", "fastapi", "dataclass", "model", "database", "ddl", "create table"],
   },
   {
     id: "yaml-toml",

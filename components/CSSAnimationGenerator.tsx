@@ -6,22 +6,50 @@ import { Kbd } from './ui/Kbd';
 
 type AnimationPreset = 'fade' | 'rotate' | 'scale' | 'bounce' | 'pulse' | 'slide' | 'shake';
 
+const presets: AnimationPreset[] = ['fade', 'rotate', 'scale', 'bounce', 'pulse', 'slide', 'shake'];
+const timingFunctions = ['linear', 'ease', 'ease-in', 'ease-out', 'ease-in-out'];
+const directions = ['normal', 'reverse', 'alternate', 'alternate-reverse'];
+const fillModes = ['none', 'forwards', 'backwards', 'both'];
+
+function sanitizePreset(val: any): AnimationPreset {
+  return presets.includes(val) ? val : 'fade';
+}
+
+function sanitizeTimingFunction(val: any): string {
+  return timingFunctions.includes(val) ? val : 'ease-in-out';
+}
+
+function sanitizeDirection(val: any): string {
+  return directions.includes(val) ? val : 'normal';
+}
+
+function sanitizeFillMode(val: any): string {
+  return fillModes.includes(val) ? val : 'both';
+}
+
+function sanitizeIterationCount(val: any): string {
+  if (val === 'infinite') return 'infinite';
+  const num = parseInt(val, 10);
+  return !isNaN(num) && num > 0 && num <= 100 ? String(num) : 'infinite';
+}
+
+function clampNumber(val: any, defaultVal: number, min = 0, max = 60): number {
+  const num = parseFloat(val);
+  if (isNaN(num) || !isFinite(num)) return defaultVal;
+  return Math.min(Math.max(num, min), max);
+}
+
 export function CSSAnimationGenerator({ initialData, onStateChange }: { initialData?: any; onStateChange?: (state: any) => void }) {
   const { t } = useTranslation();
-  const [preset, setPreset] = useState<AnimationPreset>(initialData?.preset || 'fade');
-  const [duration, setDuration] = useState(initialData?.duration ?? 1);
-  const [delay, setDurationDelay] = useState(initialData?.delay ?? 0);
-  const [iterationCount, setIterationCount] = useState<string>(initialData?.iterationCount || 'infinite');
-  const [timingFunction, setTimingFunction] = useState(initialData?.timingFunction || 'ease-in-out');
-  const [direction, setDirection] = useState(initialData?.direction || 'normal');
-  const [fillMode, setFillMode] = useState(initialData?.fillMode || 'both');
+  const [preset, setPreset] = useState<AnimationPreset>(() => sanitizePreset(initialData?.preset));
+  const [duration, setDuration] = useState(() => clampNumber(initialData?.duration, 1, 0.1, 60));
+  const [delay, setDurationDelay] = useState(() => clampNumber(initialData?.delay, 0, 0, 60));
+  const [iterationCount, setIterationCount] = useState<string>(() => sanitizeIterationCount(initialData?.iterationCount));
+  const [timingFunction, setTimingFunction] = useState(() => sanitizeTimingFunction(initialData?.timingFunction));
+  const [direction, setDirection] = useState(() => sanitizeDirection(initialData?.direction));
+  const [fillMode, setFillMode] = useState(() => sanitizeFillMode(initialData?.fillMode));
   const [isPlaying, setIsPlaying] = useState(true);
   const [copied, setCopied] = useState(false);
-
-  const presets: AnimationPreset[] = ['fade', 'rotate', 'scale', 'bounce', 'pulse', 'slide', 'shake'];
-  const timingFunctions = ['linear', 'ease', 'ease-in', 'ease-out', 'ease-in-out'];
-  const directions = ['normal', 'reverse', 'alternate', 'alternate-reverse'];
-  const fillModes = ['none', 'forwards', 'backwards', 'both'];
 
   useEffect(() => {
     onStateChange?.({ preset, duration, delay, iterationCount, timingFunction, direction, fillMode });

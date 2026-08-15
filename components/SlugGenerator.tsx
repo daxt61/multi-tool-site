@@ -1,6 +1,8 @@
 import { useState, useMemo, useEffect, useCallback, useRef } from 'react';
 import { Link as LinkIcon, Copy, Check, Info, Settings, Trash2 } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
+import { toast } from 'sonner';
+import { Kbd } from './ui/Kbd';
 
 export function SlugGenerator({ initialData, onStateChange }: { initialData?: any; onStateChange?: (state: any) => void }) {
   const { t } = useTranslation();
@@ -40,21 +42,20 @@ export function SlugGenerator({ initialData, onStateChange }: { initialData?: an
     if (!slug) return;
     navigator.clipboard.writeText(slug);
     setCopied(true);
+    toast.success(t('common.copied'));
     setTimeout(() => setCopied(false), 2000);
-  }, [slug]);
+  }, [slug, t]);
 
   const handleClear = useCallback(() => {
     setText('');
     setCopied(false);
+    toast.success(t('common.reset'));
     inputRef.current?.focus();
-  }, []);
+  }, [t]);
 
-  const handleCopyRef = useRef(handleCopy);
-  const handleClearRef = useRef(handleClear);
-
+  const handlersRef = useRef({ handleCopy, handleClear });
   useEffect(() => {
-    handleCopyRef.current = handleCopy;
-    handleClearRef.current = handleClear;
+    handlersRef.current = { handleCopy, handleClear };
   }, [handleCopy, handleClear]);
 
   useEffect(() => {
@@ -68,7 +69,7 @@ export function SlugGenerator({ initialData, onStateChange }: { initialData?: an
 
       if (isInputFocused && e.key === "Escape") {
         e.preventDefault();
-        handleClearRef.current();
+        handlersRef.current.handleClear();
         return;
       }
 
@@ -77,10 +78,10 @@ export function SlugGenerator({ initialData, onStateChange }: { initialData?: an
 
       if (e.key === "Escape") {
         e.preventDefault();
-        handleClearRef.current();
+        handlersRef.current.handleClear();
       } else if (e.key.toLowerCase() === "c") {
         e.preventDefault();
-        handleCopyRef.current();
+        handlersRef.current.handleCopy();
       }
     };
 
@@ -115,7 +116,7 @@ export function SlugGenerator({ initialData, onStateChange }: { initialData?: an
               {copied ? <Check className="w-6 h-6" /> : <Copy className="w-6 h-6" />}
               <span>{copied ? t('common.copied') : t('common.copy')}</span>
               {!copied && (
-                <kbd className="hidden sm:inline-flex items-center justify-center w-6 h-6 border rounded text-xs font-bold ml-1 transition-all bg-black/5 border-black/10 text-slate-400 group-hover:bg-black/10 dark:bg-white/5 dark:border-white/10 dark:text-slate-500 dark:group-hover:bg-white/10">C</kbd>
+                <Kbd modifier={null} className="hidden sm:inline-flex ml-1 bg-black/5 border-black/10 text-slate-400 dark:bg-white/5 dark:border-white/10 dark:text-slate-500">C</Kbd>
               )}
             </button>
           </div>
@@ -127,21 +128,24 @@ export function SlugGenerator({ initialData, onStateChange }: { initialData?: an
         <section className="bg-slate-50 dark:bg-slate-900/50 p-8 rounded-[2.5rem] border border-slate-200 dark:border-slate-800 space-y-6">
           <div className="flex items-center justify-between px-1">
             <div className="flex items-center gap-2">
-              <LinkIcon className="w-4 h-4 text-indigo-500" />
-              <h3 className="text-xs font-black uppercase tracking-widest text-slate-400">{t('slug.source_label')}</h3>
+              <LinkIcon className="w-4 h-4 text-indigo-500" aria-hidden="true" />
+              <label htmlFor="slug-source-input" className="text-xs font-black uppercase tracking-widest text-slate-400 cursor-pointer">
+                {t('slug.source_label')}
+              </label>
             </div>
             <div className="flex items-center gap-2">
-              <kbd className="hidden sm:inline-flex items-center justify-center px-1.5 py-0.5 border border-rose-200 dark:border-rose-800 rounded text-[10px] font-bold text-rose-400 bg-white dark:bg-slate-900">Esc</kbd>
+              <Kbd modifier={null} className="hidden sm:inline-flex border-rose-200 dark:border-rose-800 text-rose-400 bg-white dark:bg-slate-900">Esc</Kbd>
               <button
                 onClick={handleClear}
                 disabled={!text}
                 className="text-xs font-bold text-rose-500 bg-rose-50 dark:bg-rose-500/10 hover:bg-rose-100 dark:hover:bg-rose-500/20 px-3 py-1.5 rounded-xl flex items-center gap-1 transition-all disabled:opacity-50 disabled:cursor-not-allowed focus-visible:ring-2 focus-visible:ring-rose-500 focus-visible:outline-none"
               >
-                <Trash2 className="w-3 h-3" /> {t('common.clear')}
+                <Trash2 className="w-3 h-3" aria-hidden="true" /> {t('common.clear')}
               </button>
             </div>
           </div>
           <textarea
+            id="slug-source-input"
             ref={inputRef}
             value={text}
             onChange={(e) => setText(e.target.value)}
@@ -160,7 +164,7 @@ export function SlugGenerator({ initialData, onStateChange }: { initialData?: an
         <div className="space-y-6">
           <section className="bg-slate-50 dark:bg-slate-900/50 p-8 rounded-[2.5rem] border border-slate-200 dark:border-slate-800 space-y-6">
             <div className="flex items-center gap-2 px-1">
-              <Settings className="w-4 h-4 text-indigo-500" />
+              <Settings className="w-4 h-4 text-indigo-500" aria-hidden="true" />
               <h3 className="text-xs font-black uppercase tracking-widest text-slate-400">{t('slug.options_label')}</h3>
             </div>
             <div className="space-y-3">
@@ -170,8 +174,10 @@ export function SlugGenerator({ initialData, onStateChange }: { initialData?: an
               ].map((opt) => (
                 <button
                   key={opt.label}
+                  type="button"
+                  aria-pressed={opt.state}
                   onClick={() => opt.set(!opt.state)}
-                  className={`w-full flex items-center justify-between p-4 rounded-2xl border transition-all ${
+                  className={`w-full flex items-center justify-between p-4 rounded-2xl border transition-all focus-visible:ring-2 focus-visible:ring-indigo-500 focus-visible:outline-none ${
                     opt.state
                     ? 'bg-indigo-50 dark:bg-indigo-500/10 border-indigo-200 dark:border-indigo-500/20 text-indigo-600 dark:text-indigo-400'
                     : 'bg-white dark:bg-slate-800 border-slate-200 dark:border-slate-700 text-slate-500'
@@ -181,7 +187,7 @@ export function SlugGenerator({ initialData, onStateChange }: { initialData?: an
                   <div className={`w-5 h-5 rounded-md border flex items-center justify-center transition-all ${
                     opt.state ? 'bg-indigo-600 border-indigo-600 text-white' : 'border-slate-300 dark:border-slate-600'
                   }`}>
-                    {opt.state && <Check className="w-3 h-3 stroke-[3]" />}
+                    {opt.state && <Check className="w-3 h-3 stroke-[3]" aria-hidden="true" />}
                   </div>
                 </button>
               ))}
@@ -190,7 +196,7 @@ export function SlugGenerator({ initialData, onStateChange }: { initialData?: an
 
           <section className="bg-white dark:bg-slate-900/40 p-8 rounded-[2.5rem] border border-slate-200 dark:border-slate-800 space-y-4">
             <div className="flex items-center gap-2 px-1">
-              <Info className="w-4 h-4 text-indigo-500" />
+              <Info className="w-4 h-4 text-indigo-500" aria-hidden="true" />
               <h3 className="text-xs font-black uppercase tracking-widest text-slate-400">{t('slug.about_title')}</h3>
             </div>
             <p className="text-sm text-slate-500 dark:text-slate-400 leading-relaxed px-1">

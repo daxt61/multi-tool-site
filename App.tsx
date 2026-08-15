@@ -335,6 +335,7 @@ const Stopwatch = lazy(() => import("./components/Stopwatch").then(m => ({ defau
 const UnicodeTable = lazy(() => import("./components/UnicodeTable").then(m => ({ default: m.UnicodeTable })));
 const ASCIIArtGenerator = lazy(() => import("./components/ASCIIArtGenerator").then(m => ({ default: m.ASCIIArtGenerator })));
 const NumberStatistics = lazy(() => import("./components/NumberStatistics").then(m => ({ default: m.NumberStatistics })));
+const NumberSumCalculator = lazy(() => import("./components/NumberSumCalculator").then(m => ({ default: m.NumberSumCalculator })));
 const SequenceGenerator = lazy(() => import("./components/SequenceGenerator").then(m => ({ default: m.SequenceGenerator })));
 const ImageEffects = lazy(() => import("./components/ImageEffects").then(m => ({ default: m.ImageEffects })));
 const BcryptGenerator = lazy(() => import("./components/BcryptGenerator").then(m => ({ default: m.BcryptGenerator })));
@@ -1079,6 +1080,17 @@ const tools: Tool[] = [
     Component: CollatzSequence,
     category: "calculators",
     keywords: ["collatz", "sequence", "trajectory", "3n+1", "conjecture", "math", "syracuse"],
+  },
+  {
+    id: "number-sum-calculator",
+    name: "Somme de Nombres",
+    nameEn: "Number Sum Calculator",
+    icon: Sigma,
+    description: "Calculer la somme de listes de nombres ou extraire des nombres à partir de texte brut",
+    descriptionEn: "Calculate the sum of a list of numbers or automatically extract and sum numbers from text",
+    Component: NumberSumCalculator,
+    category: "calculators",
+    keywords: ["sum", "total", "add", "addition", "numbers", "somme", "compte", "smart sum", "running sum", "receipt"],
   },
   {
     id: "calculator",

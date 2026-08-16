@@ -4,11 +4,14 @@ import { CreditCard, CheckCircle2, AlertCircle, Copy, Trash2, ShieldCheck, Info 
 type CardNetwork = 'visa' | 'mastercard' | 'amex' | 'discover' | 'jcb' | 'diners' | 'maestro' | 'unknown';
 
 export function CreditCardValidator({ initialData, onStateChange }: { initialData?: any; onStateChange?: (state: any) => void }) {
-  const [cardNumber, setCardNumber] = useState(initialData?.cardNumber || '');
+  // Sentinel: Sensitive fields like card numbers (PAN) must never be initialized
+  // from initialData (URL state) or synced via onStateChange to prevent leaking sensitive data into shareable URLs.
+  const [cardNumber, setCardNumber] = useState('');
 
   useEffect(() => {
-    onStateChange?.({ cardNumber });
-  }, [cardNumber]);
+    // Exclude cardNumber from shared URL state serialization
+    onStateChange?.({});
+  }, [onStateChange]);
   const [copied, setCopied] = useState(false);
 
   const cleanNumber = cardNumber.replace(/\D/g, '');

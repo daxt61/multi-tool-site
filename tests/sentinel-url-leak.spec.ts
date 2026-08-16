@@ -240,4 +240,38 @@ test.describe('Sentinel: URL Leak Prevention', () => {
       expect(decodedData.state.reflector).toBeDefined();
     }
   });
+
+  test('CreditCardValidator does not leak cardNumber in shared state', async ({ page }) => {
+    await page.goto('http://localhost:5173/fr/outil/credit-card-validator');
+
+    const cardNum = '4532 0123 4567 8910';
+    await page.fill('#card-input', cardNum);
+
+    let sharedUrl = '';
+    await page.exposeFunction('captureClipboardCC', (text: string) => {
+      sharedUrl = text;
+    });
+    await page.evaluate(() => {
+      navigator.clipboard.writeText = async (text: string) => {
+        (window as any).captureClipboardCC(text);
+      };
+    });
+
+    const shareBtn = page.locator('button:has-text("Partager"), button:has-text("Share config")');
+    await shareBtn.waitFor({ state: 'visible' });
+    await shareBtn.click();
+
+    await expect.poll(() => sharedUrl).toContain('data=');
+    const urlObj = new URL(sharedUrl);
+    const data = urlObj.searchParams.get('data');
+
+    if (data) {
+      const decodedData = JSON.parse(decodeURIComponent(Array.prototype.map.call(atob(data), (c: string) => {
+        return '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2);
+      }).join('')));
+
+      // Sentinel: Primary Account Number (PAN) / Credit card number must NEVER be serialized into shared URLs.
+      expect(decodedData.cardNumber).toBeUndefined();
+    }
+  });
 });

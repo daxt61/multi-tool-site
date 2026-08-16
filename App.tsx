@@ -575,6 +575,7 @@ const ListPermutationsCombinations = lazy(() => import("./components/ListPermuta
 const HTMLTableToJSON = lazy(() => import("./components/HTMLTableToJSON").then(m => ({ default: m.HTMLTableToJSON })));
 const JSONCasingConverter = lazy(() => import("./components/JSONCasingConverter").then(m => ({ default: m.JSONCasingConverter })));
 const ListShuffler = lazy(() => import("./components/ListShuffler").then(m => ({ default: m.ListShuffler })));
+const ListMinifier = lazy(() => import("./components/ListMinifier").then(m => ({ default: m.ListMinifier })));
 const ListRandomPicker = lazy(() => import("./components/ListRandomPicker").then(m => ({ default: m.ListRandomPicker })));
 const JSONDataExtractor = lazy(() => import("./components/JSONDataExtractor").then(m => ({ default: m.JSONDataExtractor })));
 const XSLTTransformer = lazy(() => import("./components/XSLTTransformer").then(m => ({ default: m.XSLTTransformer })));
@@ -675,6 +676,18 @@ const tools: Tool[] = [
     Component: ListShuffler,
     category: "text",
     keywords: ["list", "shuffle", "randomize", "mélanger", "raffle", "deck", "cards", "crypto", "unbiased"],
+  },
+  // List Minifier Tool
+  {
+    id: "list-minifier",
+    name: "Minificateur de Liste",
+    nameEn: "List Minifier & Space Cleaner",
+    icon: Scissors,
+    description: "Compresser et compacter des listes en nettoyant les espaces, supprimer les lignes vides et fusionner avec délimiteurs",
+    descriptionEn: "Minify and compact text lists by cleaning whitespace, stripping blank lines, and joining with custom delimiters",
+    Component: ListMinifier,
+    category: "text",
+    keywords: ["list", "minify", "minifier", "compress", "trim", "whitespace", "spaces", "clean", "delimiter", "join", "compact"],
   },
   // Random List Item Picker Tool
   {

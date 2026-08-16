@@ -4843,7 +4843,25 @@ const resources = {
       "sqltots.use_readonly": "Add readonly modifier",
       "sqltots.use_null_type": "Use \"| null\" instead of \"?\"",
       "sqltots.zod_schemas": "Zod Schemas",
-      "sqltots.preset_loaded": "Loaded SQL preset!"
+      "sqltots.preset_loaded": "Loaded SQL preset!",
+      "margin.cost_price": "Cost Price",
+      "margin.selling_price": "Selling Price",
+      "margin.margin_percent": "Margin (%)",
+      "margin.markup_percent": "Markup (%)",
+      "margin.calc_margin_markup": "Calculate Margin & Markup",
+      "margin.calculate": "Calculate",
+      "margin.profit_per_unit": "Profit per unit",
+      "margin.profit": "Profit",
+      "margin.loss": "Loss",
+      "margin.formulas": "Formulas",
+      "margin.formula_margin_title": "Margin",
+      "margin.formula_margin": "(Selling Price - Cost) / Selling Price × 100",
+      "margin.formula_markup_title": "Markup",
+      "margin.formula_markup": "(Selling Price - Cost) / Cost × 100",
+      "margin.clear": "Clear",
+      "margin.copy_summary": "Copy Summary",
+      "margin.copied_toast": "Margin summary copied to clipboard!",
+      "margin.cleared_toast": "Margin calculator reset!"
     }
   },
   fr: {
@@ -9652,7 +9670,25 @@ const resources = {
       "sqltots.use_readonly": "Ajouter le modificateur readonly",
       "sqltots.use_null_type": "Utiliser \"| null\" au lieu de \"?\"",
       "sqltots.zod_schemas": "Schémas Zod",
-      "sqltots.preset_loaded": "Préréglage SQL chargé !"
+      "sqltots.preset_loaded": "Préréglage SQL chargé !",
+      "margin.cost_price": "Prix d'achat (Coût)",
+      "margin.selling_price": "Prix de vente",
+      "margin.margin_percent": "Marge (%)",
+      "margin.markup_percent": "Coefficient (Markup %)",
+      "margin.calc_margin_markup": "Calculer marge et coefficient",
+      "margin.calculate": "Calculer",
+      "margin.profit_per_unit": "Bénéfice par unité",
+      "margin.profit": "Profit",
+      "margin.loss": "Perte",
+      "margin.formulas": "Formules",
+      "margin.formula_margin_title": "Marge",
+      "margin.formula_margin": "(Prix de vente - Coût) / Prix de vente × 100",
+      "margin.formula_markup_title": "Markup (Coefficient)",
+      "margin.formula_markup": "(Prix de vente - Coût) / Coût × 100",
+      "margin.clear": "Effacer",
+      "margin.copy_summary": "Copier le résumé",
+      "margin.copied_toast": "Résumé de la marge copié dans le presse-papiers !",
+      "margin.cleared_toast": "Calculateur de marge réinitialisé !"
     }
   }
 };

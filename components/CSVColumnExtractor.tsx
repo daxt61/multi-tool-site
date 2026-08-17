@@ -1,14 +1,52 @@
-import { useState, useEffect, useCallback, useMemo } from 'react';
-import { FileSpreadsheet, Copy, Check, Trash2, Download, Settings2, Sliders, ListChecks, ChevronUp, ChevronDown } from 'lucide-react';
+import { useState, useEffect, useCallback, useMemo, useRef } from 'react';
+import { FileSpreadsheet, Copy, Check, Trash2, Download, Settings2, Sliders, ListChecks, ChevronUp, ChevronDown, Sparkles } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
+import { toast } from 'sonner';
+import { Kbd } from './ui/Kbd';
 
-const MAX_LENGTH = 1000000;
+const MAX_LENGTH = 100000;
 
 const DELIMITERS = [
   { label: 'Comma (,)', value: ',' },
   { label: 'Semicolon (;)', value: ';' },
   { label: 'Tab (\\t)', value: '\t' },
   { label: 'Pipe (|)', value: '|' },
+];
+
+interface Preset {
+  id: string;
+  nameKey: string;
+  delimiter: string;
+  hasHeader: boolean;
+  selectedColumns: number[];
+  input: string;
+}
+
+const PRESETS: Preset[] = [
+  {
+    id: 'ecommerce',
+    nameKey: 'csv_extractor.preset_ecommerce',
+    delimiter: ',',
+    hasHeader: true,
+    selectedColumns: [1, 2, 4],
+    input: `OrderID,Customer,Email,Category,Total,Status\n1001,Alice Smith,alice@example.com,Electronics,249.99,Completed\n1002,Bob Jones,bob@example.com,Home,89.50,Pending\n1003,Charlie Brown,charlie@example.com,Apparel,120.00,Completed\n1004,Diana Prince,diana@example.com,Electronics,499.00,Shipped`,
+  },
+  {
+    id: 'directory',
+    nameKey: 'csv_extractor.preset_directory',
+    delimiter: ';',
+    hasHeader: true,
+    selectedColumns: [0, 2, 3],
+    input: `Name;Role;Department;Location;Phone\nJean Dupont;Software Engineer;Engineering;Paris;+33123456789\nMarie Curie;Research Lead;R&D;Lyon;+33987654321\nPierre Martin;Product Manager;Product;Marseille;+33555666777`,
+  },
+  {
+    id: 'financial',
+    nameKey: 'csv_extractor.preset_financial',
+    delimiter: ',',
+    hasHeader: true,
+    selectedColumns: [0, 2, 3],
+    input: `Date,TransactionID,Description,Amount,Currency\n2025-01-15,TXN-901,Cloud Hosting Subscription,-150.00,USD\n2025-01-16,TXN-902,Client Payment Invoice #402,+3200.00,USD\n2025-01-18,TXN-903,Office Supplies Expense,-84.20,USD`,
+  },
 ];
 
 export function CSVColumnExtractor({ initialData, onStateChange }: { initialData?: any; onStateChange?: (state: any) => void }) {
@@ -18,6 +56,8 @@ export function CSVColumnExtractor({ initialData, onStateChange }: { initialData
   const [selectedColumns, setSelectedColumns] = useState<number[]>(initialData?.selectedColumns || []);
   const [hasHeader, setHasHeader] = useState(initialData?.hasHeader ?? true);
   const [copied, setCopied] = useState(false);
+
+  const inputRef = useRef<HTMLTextAreaElement>(null);
 
   useEffect(() => {
     onStateChange?.({ input, delimiter, selectedColumns, hasHeader });
@@ -103,14 +143,15 @@ export function CSVColumnExtractor({ initialData, onStateChange }: { initialData
     }
   };
 
-  const handleCopy = () => {
+  const handleCopy = useCallback(() => {
     if (!output) return;
     navigator.clipboard.writeText(output);
     setCopied(true);
+    toast.success(t('csv_extractor.toast_copied', { defaultValue: 'Extracted CSV copied to clipboard!' }));
     setTimeout(() => setCopied(false), 2000);
-  };
+  }, [output, t]);
 
-  const handleDownload = () => {
+  const handleDownload = useCallback(() => {
     if (!output) return;
     const blob = new Blob([output], { type: 'text/csv;charset=utf-8' });
     const url = URL.createObjectURL(blob);
@@ -119,27 +160,95 @@ export function CSVColumnExtractor({ initialData, onStateChange }: { initialData
     link.download = `extracted-columns-${Date.now()}.csv`;
     link.click();
     URL.revokeObjectURL(url);
-  };
+    toast.success(t('csv_extractor.toast_downloaded', { defaultValue: 'CSV downloaded successfully!' }));
+  }, [output, t]);
+
+  const handleClear = useCallback(() => {
+    setInput('');
+    setSelectedColumns([]);
+    toast.success(t('csv_extractor.toast_cleared', { defaultValue: 'Input cleared!' }));
+    inputRef.current?.focus();
+  }, [t]);
+
+  const applyPreset = useCallback((preset: Preset) => {
+    setInput(preset.input);
+    setDelimiter(preset.delimiter);
+    setHasHeader(preset.hasHeader);
+    setSelectedColumns(preset.selectedColumns);
+    toast.success(t('csv_extractor.toast_preset_loaded', { defaultValue: 'Preset loaded!' }));
+  }, [t]);
+
+  // Keyboard shortcut safeguards
+  const handlersRef = useRef({
+    handleClear,
+    handleCopy,
+    output
+  });
+
+  useEffect(() => {
+    handlersRef.current = { handleClear, handleCopy, output };
+  }, [handleClear, handleCopy, output]);
+
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      const activeEl = document.activeElement;
+      const isInputFocused = activeEl && (activeEl.tagName === 'INPUT' || activeEl.tagName === 'TEXTAREA' || (activeEl as HTMLElement).isContentEditable);
+
+      if (e.key === 'Escape') {
+        e.preventDefault();
+        handlersRef.current.handleClear();
+      } else if ((e.key === 'c' || e.key === 'C') && !e.ctrlKey && !e.metaKey && !e.altKey && !isInputFocused) {
+        if (handlersRef.current.output) {
+          e.preventDefault();
+          handlersRef.current.handleCopy();
+        }
+      }
+    };
+
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, []);
 
   return (
-    <div className="max-w-6xl mx-auto space-y-8">
+    <div className="max-w-6xl mx-auto space-y-8" data-testid="csv-extractor-container">
+      {/* Presets Bar */}
+      <div className="flex flex-wrap items-center gap-2 p-4 bg-slate-50 dark:bg-slate-900/50 border border-slate-200 dark:border-slate-800 rounded-2xl">
+        <span className="text-xs font-bold text-slate-400 uppercase tracking-wider flex items-center gap-1.5 mr-2">
+          <Sparkles className="w-3.5 h-3.5 text-amber-500" aria-hidden="true" />
+          {t('csv_extractor.presets', { defaultValue: 'Quick Presets' })}:
+        </span>
+        {PRESETS.map((preset) => (
+          <button
+            key={preset.id}
+            onClick={() => applyPreset(preset)}
+            className="px-3 py-1.5 bg-white dark:bg-slate-800 hover:bg-indigo-50 dark:hover:bg-indigo-900/30 text-slate-700 dark:text-slate-200 border border-slate-200 dark:border-slate-700 rounded-xl text-xs font-semibold transition-all hover:border-indigo-300 shadow-sm"
+          >
+            {t(preset.nameKey, { defaultValue: preset.id })}
+          </button>
+        ))}
+      </div>
+
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
         <div className="lg:col-span-8 space-y-6">
           <div className="space-y-4">
             <div className="flex justify-between items-center px-1">
               <label htmlFor="csv-input" className="text-xs font-black uppercase tracking-widest text-slate-400 flex items-center gap-2">
-                <FileSpreadsheet className="w-4 h-4 text-indigo-500" /> {t('common.input')} CSV
+                <FileSpreadsheet className="w-4 h-4 text-indigo-500" aria-hidden="true" /> {t('common.input')} CSV
               </label>
-              <button
-                onClick={() => setInput('')}
-                disabled={!input}
-                className="text-xs font-bold text-rose-500 bg-rose-50 dark:bg-rose-500/10 hover:bg-rose-100 dark:hover:bg-rose-500/20 px-3 py-1.5 rounded-xl flex items-center gap-1 transition-all disabled:opacity-50"
-              >
-                <Trash2 className="w-3.5 h-3.5" /> {t('common.clear')}
-              </button>
+              <div className="flex items-center gap-2">
+                <Kbd modifier={null} className="text-[10px]">Esc</Kbd>
+                <button
+                  onClick={handleClear}
+                  disabled={!input}
+                  className="text-xs font-bold text-rose-500 bg-rose-50 dark:bg-rose-500/10 hover:bg-rose-100 dark:hover:bg-rose-500/20 px-3 py-1.5 rounded-xl flex items-center gap-1 transition-all disabled:opacity-50"
+                >
+                  <Trash2 className="w-3.5 h-3.5" aria-hidden="true" /> {t('common.clear')}
+                </button>
+              </div>
             </div>
             <textarea
               id="csv-input"
+              ref={inputRef}
               value={input}
               onChange={(e) => setInput(e.target.value.slice(0, MAX_LENGTH))}
               placeholder={t('csv_extractor.placeholder_input')}
@@ -150,16 +259,17 @@ export function CSVColumnExtractor({ initialData, onStateChange }: { initialData
           <div className="space-y-4">
             <div className="flex justify-between items-center px-1">
               <label htmlFor="csv-output" className="text-xs font-black uppercase tracking-widest text-slate-400 flex items-center gap-2">
-                <ListChecks className="w-4 h-4 text-emerald-500" /> {t('common.output')} CSV
+                <ListChecks className="w-4 h-4 text-emerald-500" aria-hidden="true" /> {t('common.output')} CSV
               </label>
-              <div className="flex gap-2">
+              <div className="flex items-center gap-2">
+                <Kbd modifier={null} className="text-[10px]">C</Kbd>
                 <button
                   onClick={handleDownload}
                   disabled={!output}
                   className="p-2 text-indigo-600 bg-indigo-50 dark:bg-indigo-900/20 rounded-lg hover:bg-indigo-100 disabled:opacity-50 transition-all"
                   title={t('common.download')}
                 >
-                  <Download className="w-4 h-4" />
+                  <Download className="w-4 h-4" aria-hidden="true" />
                 </button>
                 <button
                   onClick={handleCopy}
@@ -170,7 +280,7 @@ export function CSVColumnExtractor({ initialData, onStateChange }: { initialData
                       : 'text-slate-500 bg-slate-100 dark:bg-slate-800 border-transparent hover:bg-slate-200 dark:hover:bg-slate-700'
                   } disabled:opacity-50 disabled:cursor-not-allowed`}
                 >
-                  {copied ? <Check className="w-4 h-4" /> : <Copy className="w-4 h-4" />}
+                  {copied ? <Check className="w-4 h-4" aria-hidden="true" /> : <Copy className="w-4 h-4" aria-hidden="true" />}
                   {copied ? t('common.copied') : t('common.copy')}
                 </button>
               </div>
@@ -188,7 +298,7 @@ export function CSVColumnExtractor({ initialData, onStateChange }: { initialData
         <div className="lg:col-span-4 space-y-6">
           <div className="p-8 bg-slate-50 dark:bg-slate-900/50 border border-slate-200 dark:border-slate-800 rounded-[2rem] space-y-6">
             <div className="flex items-center gap-2 px-1">
-              <Settings2 className="w-4 h-4 text-indigo-500" />
+              <Settings2 className="w-4 h-4 text-indigo-500" aria-hidden="true" />
               <h3 className="text-xs font-black uppercase tracking-widest text-slate-400">{t('common.options')}</h3>
             </div>
 
@@ -222,7 +332,7 @@ export function CSVColumnExtractor({ initialData, onStateChange }: { initialData
               >
                 <span>{t('csv_extractor.header_checkbox')}</span>
                 <div className={`w-5 h-5 rounded-full border-2 flex items-center justify-center transition-colors ${hasHeader ? 'bg-indigo-500 border-indigo-500' : 'border-slate-300'}`}>
-                  {hasHeader && <Check className="w-3 h-3 text-white" />}
+                  {hasHeader && <Check className="w-3 h-3 text-white" aria-hidden="true" />}
                 </div>
               </button>
             </div>
@@ -230,7 +340,7 @@ export function CSVColumnExtractor({ initialData, onStateChange }: { initialData
 
           <div className="p-8 bg-white dark:bg-slate-900/40 border border-slate-200 dark:border-slate-800 rounded-[2rem] space-y-6 shadow-sm">
             <div className="flex items-center gap-2 px-1">
-              <Sliders className="w-4 h-4 text-indigo-500" />
+              <Sliders className="w-4 h-4 text-indigo-500" aria-hidden="true" />
               <h3 className="text-xs font-black uppercase tracking-widest text-slate-400">{t('csv_extractor.select_columns')}</h3>
             </div>
 
@@ -246,7 +356,7 @@ export function CSVColumnExtractor({ initialData, onStateChange }: { initialData
                     }`}
                   >
                     <span className="truncate">{col.name}</span>
-                    {selectedColumns.includes(col.index) && <Check className="w-3.5 h-3.5" />}
+                    {selectedColumns.includes(col.index) && <Check className="w-3.5 h-3.5" aria-hidden="true" />}
                   </button>
                   {selectedColumns.includes(col.index) && (
                     <div className="flex flex-col gap-0 opacity-0 group-hover:opacity-100 transition-opacity">
@@ -255,14 +365,14 @@ export function CSVColumnExtractor({ initialData, onStateChange }: { initialData
                         disabled={selectedColumns.indexOf(col.index) === 0}
                         className="p-0.5 text-slate-400 hover:text-indigo-500 disabled:opacity-30"
                       >
-                        <ChevronUp className="w-3.5 h-3.5" />
+                        <ChevronUp className="w-3.5 h-3.5" aria-hidden="true" />
                       </button>
                       <button
                         onClick={() => moveColumn(col.index, 'down')}
                         disabled={selectedColumns.indexOf(col.index) === selectedColumns.length - 1}
                         className="p-0.5 text-slate-400 hover:text-indigo-500 disabled:opacity-30"
                       >
-                        <ChevronDown className="w-3.5 h-3.5" />
+                        <ChevronDown className="w-3.5 h-3.5" aria-hidden="true" />
                       </button>
                     </div>
                   )}

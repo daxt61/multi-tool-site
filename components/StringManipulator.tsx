@@ -1,11 +1,57 @@
-import { useState, useEffect, useMemo, useCallback } from 'react';
-import { Type, Copy, Check, Trash2, Download, AlertCircle, Info, Settings2, AlignLeft, AlignCenter, AlignRight, Scissors } from 'lucide-react';
+import { useState, useEffect, useMemo, useCallback, useRef } from 'react';
+import { Type, Copy, Check, Trash2, Download, Info, Settings2, AlignLeft, AlignCenter, AlignRight, Sparkles } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
+import { toast } from 'sonner';
+import { Kbd } from './ui/Kbd';
 
 const MAX_LENGTH = 100000;
 
 type PaddingType = 'left' | 'right' | 'center' | 'none';
 type TruncationType = 'start' | 'end' | 'middle' | 'none';
+
+interface Preset {
+  id: string;
+  nameKey: string;
+  targetLength: number;
+  paddingChar: string;
+  paddingType: PaddingType;
+  truncationType: TruncationType;
+  truncationSuffix: string;
+  input: string;
+}
+
+const PRESETS: Preset[] = [
+  {
+    id: 'fixed_width',
+    nameKey: 'string_manipulator.preset_fixed_width',
+    targetLength: 20,
+    paddingChar: ' ',
+    paddingType: 'right',
+    truncationType: 'end',
+    truncationSuffix: '...',
+    input: `Customer 101\nShort\nVery long account holder name here\nAlice Smith`,
+  },
+  {
+    id: 'centered_banner',
+    nameKey: 'string_manipulator.preset_centered_banner',
+    targetLength: 30,
+    paddingChar: '=',
+    paddingType: 'center',
+    truncationType: 'none',
+    truncationSuffix: '...',
+    input: `SYSTEM LOG\nWARNING REPORT\nSUMMARY`,
+  },
+  {
+    id: 'truncated_log',
+    nameKey: 'string_manipulator.preset_truncated_log',
+    targetLength: 35,
+    paddingChar: ' ',
+    paddingType: 'none',
+    truncationType: 'end',
+    truncationSuffix: ' [TRUNCATED]',
+    input: `[INFO] Application initialized successfully in 240ms\n[ERROR] Failed to connect to database host at database.internal.production.local:5432 after 3 retries\n[DEBUG] Session created for user_id=8921`,
+  },
+];
 
 export function StringManipulator({ initialData, onStateChange }: { initialData?: any; onStateChange?: (state: any) => void }) {
   const { t } = useTranslation();
@@ -16,7 +62,8 @@ export function StringManipulator({ initialData, onStateChange }: { initialData?
   const [truncationType, setTruncationType] = useState<TruncationType>(initialData?.truncationType || 'none');
   const [truncationSuffix, setTruncationSuffix] = useState(initialData?.truncationSuffix || '...');
   const [copied, setCopied] = useState(false);
-  const [error, setError] = useState<string | null>(null);
+
+  const inputRef = useRef<HTMLTextAreaElement>(null);
 
   useEffect(() => {
     onStateChange?.({ input, targetLength, paddingChar, paddingType, truncationType, truncationSuffix });
@@ -61,14 +108,15 @@ export function StringManipulator({ initialData, onStateChange }: { initialData?
     return input.split('\n').map(processLine).join('\n');
   }, [input, processLine, t]);
 
-  const handleCopy = () => {
+  const handleCopy = useCallback(() => {
     if (!output) return;
     navigator.clipboard.writeText(output);
     setCopied(true);
+    toast.success(t('string_manipulator.toast_copied', { defaultValue: 'Processed text copied to clipboard!' }));
     setTimeout(() => setCopied(false), 2000);
-  };
+  }, [output, t]);
 
-  const handleDownload = () => {
+  const handleDownload = useCallback(() => {
     if (!output) return;
     const blob = new Blob([output], { type: 'text/plain' });
     const url = URL.createObjectURL(blob);
@@ -79,49 +127,124 @@ export function StringManipulator({ initialData, onStateChange }: { initialData?
     a.click();
     document.body.removeChild(a);
     URL.revokeObjectURL(url);
-  };
+    toast.success(t('string_manipulator.toast_downloaded', { defaultValue: 'File downloaded successfully!' }));
+  }, [output, t]);
+
+  const handleClear = useCallback(() => {
+    setInput('');
+    toast.success(t('string_manipulator.toast_cleared', { defaultValue: 'Input cleared!' }));
+    inputRef.current?.focus();
+  }, [t]);
+
+  const applyPreset = useCallback((preset: Preset) => {
+    setInput(preset.input);
+    setTargetLength(preset.targetLength);
+    setPaddingChar(preset.paddingChar);
+    setPaddingType(preset.paddingType);
+    setTruncationType(preset.truncationType);
+    setTruncationSuffix(preset.truncationSuffix);
+    toast.success(t('string_manipulator.toast_preset_loaded', { defaultValue: 'Preset loaded!' }));
+  }, [t]);
+
+  // Keyboard shortcut safeguards
+  const handlersRef = useRef({
+    handleClear,
+    handleCopy,
+    output
+  });
+
+  useEffect(() => {
+    handlersRef.current = { handleClear, handleCopy, output };
+  }, [handleClear, handleCopy, output]);
+
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      const activeEl = document.activeElement;
+      const isInputFocused = activeEl && (activeEl.tagName === 'INPUT' || activeEl.tagName === 'TEXTAREA' || (activeEl as HTMLElement).isContentEditable);
+
+      if (e.key === 'Escape') {
+        e.preventDefault();
+        handlersRef.current.handleClear();
+      } else if ((e.key === 'c' || e.key === 'C') && !e.ctrlKey && !e.metaKey && !e.altKey && !isInputFocused) {
+        if (handlersRef.current.output) {
+          e.preventDefault();
+          handlersRef.current.handleCopy();
+        }
+      }
+    };
+
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, []);
 
   return (
-    <div className="max-w-6xl mx-auto space-y-8">
-      <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
-        {/* Input Area */}
-        <div className="lg:col-span-8 space-y-4">
-          <div className="flex justify-between items-center px-1">
-            <label htmlFor="manip-input" className="text-xs font-black uppercase tracking-widest text-slate-400 flex items-center gap-2">
-              <Type className="w-4 h-4 text-indigo-500" /> {t('common.input')}
-            </label>
-            <button
-              onClick={() => setInput('')}
-              className="text-xs font-bold text-rose-500 hover:text-rose-600 transition-colors"
-            >
-              {t('common.clear')}
-            </button>
-          </div>
-          <textarea
-            id="manip-input"
-            value={input}
-            onChange={(e) => setInput(e.target.value)}
-            placeholder="Line 1\nLonger line 2\nShort 3..."
-            className="w-full h-80 p-6 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-3xl outline-none focus:ring-2 focus:ring-indigo-500/20 transition-all font-mono text-sm leading-relaxed dark:text-slate-300 resize-none"
-          />
+    <div className="max-w-6xl mx-auto space-y-8" data-testid="string-manipulator-container">
+      {/* Quick Presets */}
+      <div className="flex flex-wrap items-center gap-2 p-4 bg-slate-50 dark:bg-slate-900/50 border border-slate-200 dark:border-slate-800 rounded-2xl">
+        <span className="text-xs font-bold text-slate-400 uppercase tracking-wider flex items-center gap-1.5 mr-2">
+          <Sparkles className="w-3.5 h-3.5 text-amber-500" aria-hidden="true" />
+          {t('string_manipulator.presets', { defaultValue: 'Quick Presets' })}:
+        </span>
+        {PRESETS.map((preset) => (
+          <button
+            key={preset.id}
+            onClick={() => applyPreset(preset)}
+            className="px-3 py-1.5 bg-white dark:bg-slate-800 hover:bg-indigo-50 dark:hover:bg-indigo-900/30 text-slate-700 dark:text-slate-200 border border-slate-200 dark:border-slate-700 rounded-xl text-xs font-semibold transition-all hover:border-indigo-300 shadow-sm"
+          >
+            {t(preset.nameKey, { defaultValue: preset.id })}
+          </button>
+        ))}
+      </div>
 
-          <div className="space-y-4 pt-4">
+      <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
+        {/* Input & Output Area */}
+        <div className="lg:col-span-8 space-y-4">
+          <div className="space-y-2">
+            <div className="flex justify-between items-center px-1">
+              <label htmlFor="manip-input" className="text-xs font-black uppercase tracking-widest text-slate-400 flex items-center gap-2">
+                <Type className="w-4 h-4 text-indigo-500" aria-hidden="true" /> {t('common.input')}
+              </label>
+              <div className="flex items-center gap-2">
+                <Kbd modifier={null} className="text-[10px]">Esc</Kbd>
+                <button
+                  onClick={handleClear}
+                  disabled={!input}
+                  className="text-xs font-bold text-rose-500 hover:text-rose-600 transition-colors disabled:opacity-50"
+                >
+                  {t('common.clear')}
+                </button>
+              </div>
+            </div>
+            <textarea
+              id="manip-input"
+              ref={inputRef}
+              value={input}
+              onChange={(e) => setInput(e.target.value.slice(0, MAX_LENGTH))}
+              placeholder="Line 1\nLonger line 2\nShort 3..."
+              className="w-full h-80 p-6 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-3xl outline-none focus:ring-2 focus:ring-indigo-500/20 transition-all font-mono text-sm leading-relaxed dark:text-slate-300 resize-none"
+            />
+          </div>
+
+          <div className="space-y-2 pt-4">
             <div className="flex justify-between items-center px-1">
               <label htmlFor="manip-output" className="text-xs font-black uppercase tracking-widest text-slate-400">{t('common.output')}</label>
-              <div className="flex gap-2">
+              <div className="flex items-center gap-2">
+                <Kbd modifier={null} className="text-[10px]">C</Kbd>
                 <button
                   onClick={handleDownload}
                   disabled={!output}
                   className="text-xs font-bold px-3 py-1.5 rounded-xl text-indigo-600 bg-indigo-50 dark:bg-indigo-900/20 hover:bg-indigo-100 transition-all disabled:opacity-50"
+                  title={t('common.download')}
                 >
-                  <Download className="w-3.5 h-3.5" />
+                  <Download className="w-3.5 h-3.5" aria-hidden="true" />
                 </button>
                 <button
                   onClick={handleCopy}
                   disabled={!output}
-                  className={`text-xs font-bold px-4 py-1.5 rounded-xl transition-all flex items-center gap-2 focus-visible:ring-2 focus-visible:ring-indigo-500 focus-visible:outline-none ${copied ? 'bg-emerald-500 text-white' : 'text-slate-600 bg-slate-100 dark:bg-slate-800 border border-transparent'}`}
+                  className={`text-xs font-bold px-4 py-1.5 rounded-xl transition-all flex items-center gap-2 focus-visible:ring-2 focus-visible:ring-indigo-500 focus-visible:outline-none ${copied ? 'bg-emerald-500 text-white' : 'text-slate-600 bg-slate-100 dark:bg-slate-800 border border-transparent'} disabled:opacity-50`}
                 >
-                  {copied ? <Check className="w-3.5 h-3.5" /> : <Copy className="w-3.5 h-3.5" />} {copied ? t('common.copied') : t('common.copy')}
+                  {copied ? <Check className="w-3.5 h-3.5" aria-hidden="true" /> : <Copy className="w-3.5 h-3.5" aria-hidden="true" />}
+                  {copied ? t('common.copied') : t('common.copy')}
                 </button>
               </div>
             </div>
@@ -138,7 +261,7 @@ export function StringManipulator({ initialData, onStateChange }: { initialData?
         <div className="lg:col-span-4 space-y-6">
           <div className="p-8 bg-slate-50 dark:bg-slate-900/50 border border-slate-200 dark:border-slate-800 rounded-[2rem] space-y-6">
             <div className="flex items-center gap-2 text-indigo-500 px-1">
-              <Settings2 className="w-4 h-4" />
+              <Settings2 className="w-4 h-4" aria-hidden="true" />
               <h3 className="font-black uppercase tracking-widest text-[10px] text-slate-400">{t('common.options')}</h3>
             </div>
 
@@ -146,10 +269,11 @@ export function StringManipulator({ initialData, onStateChange }: { initialData?
               {/* Length */}
               <div className="space-y-3">
                 <div className="flex justify-between items-center px-1">
-                  <label className="text-[10px] font-bold text-slate-400 uppercase">Target Length</label>
+                  <label htmlFor="target-length-input" className="text-[10px] font-bold text-slate-400 uppercase">{t('string_manipulator.target_length', { defaultValue: 'Target Length' })}</label>
                   <span className="text-xs font-bold text-indigo-500 font-mono">{targetLength}</span>
                 </div>
                 <input
+                  id="target-length-input"
                   type="range"
                   min="1"
                   max="100"
@@ -161,9 +285,10 @@ export function StringManipulator({ initialData, onStateChange }: { initialData?
 
               {/* Padding */}
               <div className="space-y-3">
-                <label className="text-[10px] font-bold text-slate-400 uppercase block px-1">Padding</label>
+                <label htmlFor="padding-char-input" className="text-[10px] font-bold text-slate-400 uppercase block px-1">{t('string_manipulator.padding', { defaultValue: 'Padding' })}</label>
                 <div className="grid grid-cols-2 gap-2">
                   <input
+                    id="padding-char-input"
                     type="text"
                     value={paddingChar}
                     onChange={(e) => setPaddingChar(e.target.value)}
@@ -178,9 +303,9 @@ export function StringManipulator({ initialData, onStateChange }: { initialData?
                         className={`flex-1 flex items-center justify-center p-1.5 rounded-lg transition-all ${paddingType === type ? 'bg-indigo-600 text-white shadow-sm' : 'text-slate-400 hover:text-slate-600'}`}
                         title={type}
                       >
-                        {type === 'left' && <AlignLeft className="w-3.5 h-3.5" />}
-                        {type === 'center' && <AlignCenter className="w-3.5 h-3.5" />}
-                        {type === 'right' && <AlignRight className="w-3.5 h-3.5" />}
+                        {type === 'left' && <AlignLeft className="w-3.5 h-3.5" aria-hidden="true" />}
+                        {type === 'center' && <AlignCenter className="w-3.5 h-3.5" aria-hidden="true" />}
+                        {type === 'right' && <AlignRight className="w-3.5 h-3.5" aria-hidden="true" />}
                         {type === 'none' && <span className="text-[10px] font-black">Ø</span>}
                       </button>
                     ))}
@@ -190,9 +315,10 @@ export function StringManipulator({ initialData, onStateChange }: { initialData?
 
               {/* Truncation */}
               <div className="space-y-3">
-                <label className="text-[10px] font-bold text-slate-400 uppercase block px-1">Truncation</label>
+                <label htmlFor="truncation-suffix-input" className="text-[10px] font-bold text-slate-400 uppercase block px-1">{t('string_manipulator.truncation', { defaultValue: 'Truncation' })}</label>
                 <div className="grid grid-cols-2 gap-2">
                   <input
+                    id="truncation-suffix-input"
                     type="text"
                     value={truncationSuffix}
                     onChange={(e) => setTruncationSuffix(e.target.value)}
@@ -220,11 +346,11 @@ export function StringManipulator({ initialData, onStateChange }: { initialData?
           </div>
 
           <div className="bg-indigo-50 dark:bg-indigo-900/10 p-6 rounded-[2rem] border border-indigo-100 dark:border-indigo-900/20 flex gap-4">
-            <Info className="w-6 h-6 text-indigo-600 shrink-0" />
+            <Info className="w-6 h-6 text-indigo-600 shrink-0" aria-hidden="true" />
             <div className="space-y-2">
-              <h4 className="font-bold dark:text-white">Padding & Truncation</h4>
+              <h4 className="font-bold dark:text-white">{t('string_manipulator.info_title', { defaultValue: 'Padding & Truncation' })}</h4>
               <p className="text-sm text-slate-500 dark:text-slate-400 leading-relaxed">
-                Padding adds characters to reach the target length, while truncation cuts lines that exceed it.
+                {t('string_manipulator.info_desc', { defaultValue: 'Padding adds characters to reach the target length, while truncation cuts lines that exceed it.' })}
               </p>
             </div>
           </div>

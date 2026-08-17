@@ -309,12 +309,13 @@ const encodeHtmlEntities = (str: string): string => {
 };
 
 const decodeHtmlEntities = (str: string): string => {
-  const element = document.createElement('div');
-  if (str) {
-    element.innerHTML = str;
-    return element.textContent || '';
+  if (!str) return '';
+  try {
+    const doc = new DOMParser().parseFromString(str, 'text/html');
+    return doc.documentElement.textContent || '';
+  } catch {
+    return '';
   }
-  return '';
 };
 
 type ActiveFormat =

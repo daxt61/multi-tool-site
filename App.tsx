@@ -580,6 +580,7 @@ const ListRandomPicker = lazy(() => import("./components/ListRandomPicker").then
 const JSONDataExtractor = lazy(() => import("./components/JSONDataExtractor").then(m => ({ default: m.JSONDataExtractor })));
 const XSLTTransformer = lazy(() => import("./components/XSLTTransformer").then(m => ({ default: m.XSLTTransformer })));
 const CSSSpecificityCalculator = lazy(() => import("./components/CSSSpecificityCalculator").then(m => ({ default: m.CSSSpecificityCalculator })));
+const WordExtractor = lazy(() => import("./components/WordExtractor").then(m => ({ default: m.WordExtractor })));
 
 // ⚡ Bolt Optimization: Pre-calculating tool map and search index for O(1) lookups and faster filtering
 const toolsMap: Record<string, Tool> = {};
@@ -628,6 +629,18 @@ const tools: Tool[] = [
     Component: JSONToXSD,
     category: "dev",
     keywords: ["json", "xml", "xsd", "schema", "xmlschema", "converter", "generator", "w3c", "types", "developer"],
+  },
+  // Word Extractor & Frequency Analyzer Tool
+  {
+    id: "word-extractor",
+    name: "Extracteur de Mots",
+    nameEn: "Word Extractor & Frequency Analyzer",
+    icon: FileSearch,
+    description: "Extraire, filtrer, trier et analyser la fréquence des mots à partir d'un texte brut",
+    descriptionEn: "Extract, filter, sort, and analyze word frequencies from raw text",
+    Component: WordExtractor,
+    category: "text",
+    keywords: ["word", "words", "extractor", "frequency", "vocabulary", "filter", "words list", "count", "mots", "texte"],
   },
   // CSS Specificity Calculator & Analyzer Tool
   {

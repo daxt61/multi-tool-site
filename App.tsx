@@ -359,6 +359,7 @@ const ZalgoGenerator = lazy(() => import("./components/ZalgoGenerator").then(m =
 const UnicodeSpoofer = lazy(() => import("./components/UnicodeSpoofer").then(m => ({ default: m.UnicodeSpoofer })));
 const CSVColumnExtractor = lazy(() => import("./components/CSVColumnExtractor").then(m => ({ default: m.CSVColumnExtractor })));
 const SQLToJSON = lazy(() => import("./components/SQLToJSON").then(m => ({ default: m.SQLToJSON })));
+const SQLQueryBuilder = lazy(() => import("./components/SQLQueryBuilder").then(m => ({ default: m.SQLQueryBuilder })));
 const UAGenerator = lazy(() => import("./components/UAGenerator").then(m => ({ default: m.UAGenerator })));
 const WordsToNumbers = lazy(() => import("./components/WordsToNumbers").then(m => ({ default: m.WordsToNumbers })));
 const PiGenerator = lazy(() => import("./components/PiGenerator").then(m => ({ default: m.PiGenerator })));
@@ -3061,6 +3062,17 @@ const tools: Tool[] = [
     Component: SQLToJSON,
     category: "dev",
     keywords: ["sql", "json", "convert", "database", "insert"],
+  },
+  {
+    id: "sql-query-builder",
+    name: "Générateur de Requête SQL",
+    nameEn: "Visual SQL Query Builder",
+    icon: Database,
+    description: "Construire visuellement des requêtes SQL (SELECT, JOIN, WHERE, GROUP BY, ORDER BY, LIMIT) pour PostgreSQL, MySQL, SQLite, MS SQL Server",
+    descriptionEn: "Visually construct SQL SELECT queries with JOINs, WHERE conditions, GROUP BY, ORDER BY, and LIMIT/OFFSET",
+    Component: SQLQueryBuilder,
+    category: "dev",
+    keywords: ["sql", "query", "builder", "generator", "select", "join", "where", "group by", "order by", "database", "postgresql", "mysql", "sqlite", "sqlserver"],
   },
   {
     id: "ua-generator",

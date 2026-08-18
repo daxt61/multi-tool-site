@@ -202,6 +202,7 @@ const SQLFormatter = lazy(() => import("./components/SQLFormatter").then(m => ({
 const YAMLFormatter = lazy(() => import("./components/YAMLFormatter").then(m => ({ default: m.YAMLFormatter })));
 const YAMLJSONConverter = lazy(() => import("./components/YAMLJSONConverter").then(m => ({ default: m.YAMLJSONConverter })));
 const CronGenerator = lazy(() => import("./components/CronGenerator").then(m => ({ default: m.CronGenerator })));
+const CronParser = lazy(() => import("./components/CronParser").then(m => ({ default: m.CronParser })));
 const HTMLEntityConverter = lazy(() => import("./components/HTMLEntityConverter").then(m => ({ default: m.HTMLEntityConverter })));
 const JSONToTS = lazy(() => import("./components/JSONToTS").then(m => ({ default: m.JSONToTS })));
 const JSONToCPP = lazy(() => import("./components/JSONToCPP").then(m => ({ default: m.JSONToCPP })));
@@ -1969,6 +1970,17 @@ const tools: Tool[] = [
     Component: CronGenerator,
     category: "dev",
     keywords: ["schedule", "linux", "crontab", "planificateur", "tâche"],
+  },
+  {
+    id: "cron-parser",
+    name: "Analyseur de Cron",
+    nameEn: "Cron Expression Parser",
+    icon: Clock,
+    description: "Analyser, expliquer et calculer le calendrier d'exécution des expressions cron",
+    descriptionEn: "Parse, explain, and calculate execution schedules for 5-part cron expressions",
+    Component: CronParser,
+    category: "dev",
+    keywords: ["cron", "schedule", "crontab", "parser", "explainer", "expression", "time", "upcoming", "execution"],
   },
   {
     id: "html-entity",

@@ -146,7 +146,8 @@ export function JSONToPHP({ initialData, onStateChange }: { initialData?: any; o
             classStr += `        return new self(\n`;
             classStr += properties.map(prop => {
               const fallback = prop.type === 'array' ? '[]' : (prop.type === 'int' || prop.type === 'float' ? '0' : (prop.type === 'bool' ? 'false' : 'null'));
-              return `            $data['${prop.originalKey}'] ?? ${fallback}`;
+              const safeArrayKey = prop.originalKey.replace(/\\/g, '\\\\').replace(/'/g, "\\'");
+              return `            $data['${safeArrayKey}'] ?? ${fallback}`;
             }).join(',\n');
             classStr += `\n        );\n`;
             classStr += `    }\n`;

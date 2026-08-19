@@ -583,6 +583,7 @@ const JSONDataExtractor = lazy(() => import("./components/JSONDataExtractor").th
 const XSLTTransformer = lazy(() => import("./components/XSLTTransformer").then(m => ({ default: m.XSLTTransformer })));
 const CSSSpecificityCalculator = lazy(() => import("./components/CSSSpecificityCalculator").then(m => ({ default: m.CSSSpecificityCalculator })));
 const WordExtractor = lazy(() => import("./components/WordExtractor").then(m => ({ default: m.WordExtractor })));
+const ListSlicer = lazy(() => import("./components/ListSlicer").then(m => ({ default: m.ListSlicer })));
 
 // ⚡ Bolt Optimization: Pre-calculating tool map and search index for O(1) lookups and faster filtering
 const toolsMap: Record<string, Tool> = {};
@@ -631,6 +632,18 @@ const tools: Tool[] = [
     Component: JSONToXSD,
     category: "dev",
     keywords: ["json", "xml", "xsd", "schema", "xmlschema", "converter", "generator", "w3c", "types", "developer"],
+  },
+  // List Slicer & Sub-list Extractor Tool
+  {
+    id: "list-slicer",
+    name: "Découpeur de Liste",
+    nameEn: "List Slicer & Sub-list Extractor",
+    icon: Scissors,
+    description: "Extraire des sous-listes, plages, intervalles d'éléments ou morceaux (chunks) d'une liste",
+    descriptionEn: "Extract specific sub-lists, ranges, step intervals, or chunks from a list",
+    Component: ListSlicer,
+    category: "text",
+    keywords: ["list", "slice", "slicer", "range", "step", "chunk", "sublist", "head", "tail", "interval", "découper", "extraire"],
   },
   // Word Extractor & Frequency Analyzer Tool
   {

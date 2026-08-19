@@ -1,8 +1,23 @@
 import { useState, useMemo, useEffect, useCallback, useRef } from 'react';
-import { Type, Copy, Check, RotateCcw, Languages, Info, FileText, Hash } from 'lucide-react';
+import { Type, Copy, Check, RotateCcw, Languages, Info, FileText, Hash, Sparkles } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
+import { toast } from 'sonner';
+import { Kbd } from './ui/Kbd';
 
 type Language = 'fr' | 'en';
+
+interface Preset {
+  id: string;
+  number: string;
+  labelKey: string;
+}
+
+const PRESETS: Preset[] = [
+  { id: 'simple', number: '123', labelKey: 'numbertowords.preset_simple' },
+  { id: 'thousands', number: '456789', labelKey: 'numbertowords.preset_thousands' },
+  { id: 'million', number: '1000000', labelKey: 'numbertowords.preset_million' },
+  { id: 'year', number: '2025', labelKey: 'numbertowords.preset_year' }
+];
 
 const units_fr = ['', 'un', 'deux', 'trois', 'quatre', 'cinq', 'six', 'sept', 'huit', 'neuf'];
 const tens_fr = ['', 'dix', 'vingt', 'trente', 'quarante', 'cinquante', 'soixante', 'soixante-dix', 'quatre-vingts', 'quatre-vingt-dix'];
@@ -65,15 +80,14 @@ export function NumberToWords({ initialData, onStateChange }: { initialData?: an
   const inputRef = useRef<HTMLInputElement>(null);
   const [number, setNumber] = useState<string>(initialData?.number || '123');
   const [lang, setLang] = useState<Language>(initialData?.lang || 'fr');
+  const [copied, setCopied] = useState(false);
 
   useEffect(() => {
     onStateChange?.({ number, lang });
   }, [number, lang, onStateChange]);
 
-  const [copied, setCopied] = useState(false);
-
   const words = useMemo(() => {
-    const n = parseInt(number);
+    const n = parseInt(number, 10);
     if (isNaN(n)) return '';
     if (n > 999999999999) return t('numbertowords.error_too_large');
     return convertToWords(n, lang);
@@ -81,15 +95,30 @@ export function NumberToWords({ initialData, onStateChange }: { initialData?: an
 
   const handleClear = useCallback(() => {
     setNumber('');
+    toast.success(t('numbertowords.cleared_toast'));
     inputRef.current?.focus();
-  }, []);
+  }, [t]);
 
   const handleCopy = useCallback(() => {
     if (!words || words === t('numbertowords.error_too_large')) return;
-    navigator.clipboard.writeText(words);
+    try {
+      navigator.clipboard.writeText(words);
+    } catch {}
     setCopied(true);
+    toast.success(t('numbertowords.copied_toast'));
     setTimeout(() => setCopied(false), 2000);
   }, [words, t]);
+
+  const handlePreset = useCallback((numStr: string) => {
+    setNumber(numStr);
+    toast.success(t('numbertowords.preset_loaded'));
+    inputRef.current?.focus();
+  }, [t]);
+
+  const handlersRef = useRef({ handleClear, handleCopy });
+  useEffect(() => {
+    handlersRef.current = { handleClear, handleCopy };
+  }, [handleClear, handleCopy]);
 
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
@@ -105,33 +134,52 @@ export function NumberToWords({ initialData, onStateChange }: { initialData?: an
 
       if (e.key === "Escape") {
         e.preventDefault();
-        handleClear();
+        handlersRef.current.handleClear();
       } else if (e.key.toLowerCase() === "c") {
         e.preventDefault();
-        handleCopy();
+        handlersRef.current.handleCopy();
       }
     };
 
     window.addEventListener("keydown", handleKeyDown);
     return () => window.removeEventListener("keydown", handleKeyDown);
-  }, [handleClear, handleCopy]);
+  }, []);
 
   return (
     <div className="max-w-4xl mx-auto space-y-12">
+      {/* Quick Presets */}
+      <div className="bg-slate-50 dark:bg-slate-900/50 p-4 rounded-2xl border border-slate-200 dark:border-slate-800 space-y-3">
+        <div className="flex items-center gap-2 text-xs font-bold text-slate-500 uppercase tracking-wider">
+          <Sparkles className="w-3.5 h-3.5 text-indigo-500" aria-hidden="true" />
+          <span>{t('numbertowords.presets_label')}</span>
+        </div>
+        <div className="flex flex-wrap gap-2">
+          {PRESETS.map((preset) => (
+            <button
+              key={preset.id}
+              onClick={() => handlePreset(preset.number)}
+              className="text-xs font-semibold px-3 py-1.5 rounded-xl bg-white dark:bg-slate-800 text-slate-700 dark:text-slate-300 border border-slate-200 dark:border-slate-700 hover:border-indigo-500 dark:hover:border-indigo-500 hover:text-indigo-600 dark:hover:text-indigo-400 transition-all focus-visible:ring-2 focus-visible:ring-indigo-500 focus-visible:outline-none"
+            >
+              {t(preset.labelKey)} ({preset.number})
+            </button>
+          ))}
+        </div>
+      </div>
+
       <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
         <div className="space-y-6">
           <div className="flex justify-between items-center px-1">
             <label htmlFor="number-input" className="text-xs font-black uppercase tracking-widest text-slate-400 flex items-center gap-2">
-              <Hash className="w-3 h-3" /> {t('numbertowords.label')}
+              <Hash className="w-3.5 h-3.5" aria-hidden="true" /> {t('numbertowords.label')}
             </label>
             <div className="flex gap-2 items-center">
-              <kbd className="hidden sm:inline-flex items-center justify-center px-1.5 py-0.5 border border-rose-200 dark:border-rose-800 rounded text-[10px] font-bold text-rose-400 bg-white dark:bg-slate-900">Esc</kbd>
+              <Kbd modifier={null} className="hidden sm:inline-flex border-rose-200 dark:border-rose-800 text-rose-400 dark:bg-slate-900">Esc</Kbd>
               <button
                 onClick={handleClear}
                 disabled={!number}
                 className="text-xs font-bold text-rose-500 bg-rose-50 dark:bg-rose-500/10 hover:bg-rose-100 dark:hover:bg-rose-500/20 px-3 py-1 rounded-full transition-all flex items-center gap-1 disabled:opacity-50 disabled:cursor-not-allowed focus-visible:ring-2 focus-visible:ring-rose-500 focus-visible:outline-none"
               >
-                <RotateCcw className="w-3 h-3" /> {t('numbertowords.clear')}
+                <RotateCcw className="w-3.5 h-3.5" aria-hidden="true" /> {t('numbertowords.clear')}
               </button>
             </div>
           </div>
@@ -149,7 +197,7 @@ export function NumberToWords({ initialData, onStateChange }: { initialData?: an
 
           <div className="space-y-3">
             <label className="text-xs font-black uppercase tracking-widest text-slate-400 px-1 flex items-center gap-2">
-              <Languages className="w-3 h-3" /> {t('numbertowords.lang_label')}
+              <Languages className="w-3.5 h-3.5" aria-hidden="true" /> {t('numbertowords.lang_label')}
             </label>
             <div className="grid grid-cols-2 gap-3">
               <button
@@ -181,7 +229,7 @@ export function NumberToWords({ initialData, onStateChange }: { initialData?: an
         <div className="space-y-6">
           <div className="flex justify-between items-center px-1">
             <label className="text-xs font-black uppercase tracking-widest text-slate-400 flex items-center gap-2">
-              <FileText className="w-3 h-3" /> {t('numbertowords.result_label')}
+              <FileText className="w-3.5 h-3.5" aria-hidden="true" /> {t('numbertowords.result_label')}
             </label>
             <button
               onClick={handleCopy}
@@ -192,12 +240,15 @@ export function NumberToWords({ initialData, onStateChange }: { initialData?: an
                   : 'text-indigo-500 bg-indigo-50 dark:bg-indigo-500/10 border-transparent hover:bg-indigo-100 dark:hover:bg-indigo-500/20 disabled:opacity-50 disabled:cursor-not-allowed'
               }`}
             >
-              {copied ? <Check className="w-3 h-3" /> : <Copy className="w-3 h-3" />}
+              {copied ? <Check className="w-3.5 h-3.5" aria-hidden="true" /> : <Copy className="w-3.5 h-3.5" aria-hidden="true" />}
               {copied ? t('common.copied') : t('common.copy')}
-              {!copied && <kbd className="hidden sm:inline-flex items-center justify-center w-4 h-4 border border-slate-200 dark:border-slate-700 rounded text-[10px] font-bold bg-white/50 dark:bg-black/20 ml-1">C</kbd>}
+              {!copied && <Kbd modifier={null} className="hidden sm:inline-flex border-indigo-200 dark:border-indigo-800 text-indigo-500 ml-1">C</Kbd>}
             </button>
           </div>
-          <div className="bg-slate-900 dark:bg-black p-8 md:p-10 rounded-[2.5rem] shadow-xl shadow-indigo-500/10 min-h-[250px] flex items-center justify-center relative overflow-hidden">
+          <div
+            aria-live="polite"
+            className="bg-slate-900 dark:bg-black p-8 md:p-10 rounded-[2.5rem] shadow-xl shadow-indigo-500/10 min-h-[250px] flex items-center justify-center relative overflow-hidden"
+          >
             <div className="absolute top-0 left-0 w-32 h-32 bg-indigo-500/5 rounded-full -ml-16 -mt-16 blur-3xl"></div>
             <p className="text-xl md:text-2xl font-bold text-white text-center leading-relaxed">
               {words || '...'}
@@ -210,7 +261,7 @@ export function NumberToWords({ initialData, onStateChange }: { initialData?: an
       <div className="grid grid-cols-1 md:grid-cols-2 gap-12 pt-16 border-t border-slate-100 dark:border-slate-800">
         <div className="space-y-4">
           <h4 className="font-bold dark:text-white flex items-center gap-2">
-            <Info className="w-4 h-4 text-indigo-500" /> {t('numbertowords.guide_title')}
+            <Info className="w-4 h-4 text-indigo-500" aria-hidden="true" /> {t('numbertowords.guide_title')}
           </h4>
           <p className="text-sm text-slate-500 dark:text-slate-400 leading-relaxed">
             {t('numbertowords.guide_text')}
@@ -218,7 +269,7 @@ export function NumberToWords({ initialData, onStateChange }: { initialData?: an
         </div>
         <div className="space-y-4">
           <h4 className="font-bold dark:text-white flex items-center gap-2">
-            <Check className="w-4 h-4 text-indigo-500" /> {t('numbertowords.rules_title')}
+            <Check className="w-4 h-4 text-indigo-500" aria-hidden="true" /> {t('numbertowords.rules_title')}
           </h4>
           <p className="text-sm text-slate-500 dark:text-slate-400 leading-relaxed">
             {t('numbertowords.rules_text')}

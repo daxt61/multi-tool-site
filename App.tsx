@@ -139,6 +139,7 @@ import {
   Keyboard,
   Quote,
   Indent,
+  Filter,
 } from "lucide-react";
 import { Toaster } from "./components/ui/sonner";
 import { toast } from "sonner";
@@ -155,6 +156,7 @@ const UnitConverter = lazy(() => import("./components/UnitConverter").then(m => 
 const PasswordGenerator = lazy(() => import("./components/PasswordGenerator").then(m => ({ default: m.PasswordGenerator })));
 const WordCounter = lazy(() => import("./components/WordCounter").then(m => ({ default: m.WordCounter })));
 const LineSorter = lazy(() => import("./components/LineSorter").then(m => ({ default: m.LineSorter })));
+const ListFilter = lazy(() => import("./components/ListFilter").then(m => ({ default: m.ListFilter })));
 const ColorConverter = lazy(() => import("./components/ColorConverter").then(m => ({ default: m.ColorConverter })));
 const TimerTool = lazy(() => import("./components/TimerTool").then(m => ({ default: m.TimerTool })));
 const TextFormatter = lazy(() => import("./components/TextFormatter").then(m => ({ default: m.TextFormatter })));
@@ -1368,6 +1370,17 @@ const tools: Tool[] = [
     Component: LineSorter,
     category: "text",
     keywords: ["sort", "lines", "alphabetical", "numeric", "natural", "length", "shuffle", "order", "trier", "ordre", "lignes", "texte"],
+  },
+  {
+    id: "list-filter",
+    name: "Filtre de Liste",
+    nameEn: "List Filter",
+    icon: Filter,
+    description: "Filtrer et extraire des lignes selon des critères de sous-chaîne, regex ou longueur",
+    descriptionEn: "Filter and extract lines matching substring, regex, or length constraints",
+    Component: ListFilter,
+    category: "text",
+    keywords: ["filter", "extract", "regex", "search", "lines", "list", "contains", "match", "log", "filtrer", "extraire", "lignes"],
   },
   {
     id: "text-transformer",

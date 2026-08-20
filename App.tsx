@@ -587,6 +587,7 @@ const CSSSpecificityCalculator = lazy(() => import("./components/CSSSpecificityC
 const WordExtractor = lazy(() => import("./components/WordExtractor").then(m => ({ default: m.WordExtractor })));
 const ListSlicer = lazy(() => import("./components/ListSlicer").then(m => ({ default: m.ListSlicer })));
 const CSVColumnMerger = lazy(() => import("./components/CSVColumnMerger").then(m => ({ default: m.CSVColumnMerger })));
+const CSVColumnSplitter = lazy(() => import("./components/CSVColumnSplitter").then(m => ({ default: m.CSVColumnSplitter })));
 const ListRepeater = lazy(() => import("./components/ListRepeater").then(m => ({ default: m.ListRepeater })));
 
 // ⚡ Bolt Optimization: Pre-calculating tool map and search index for O(1) lookups and faster filtering
@@ -660,6 +661,18 @@ const tools: Tool[] = [
     Component: CSVColumnMerger,
     category: "dev",
     keywords: ["csv", "merge", "columns", "combine", "join", "glue", "fusionner", "colonnes", "table", "delimiter"],
+  },
+  // CSV Column Splitter Tool
+  {
+    id: "csv-column-splitter",
+    name: "Séparateur de Colonnes CSV",
+    nameEn: "Split CSV Columns",
+    icon: Columns,
+    description: "Découper une colonne d'un fichier CSV en plusieurs colonnes selon un délimiteur",
+    descriptionEn: "Split a CSV column into multiple columns using a custom delimiter",
+    Component: CSVColumnSplitter,
+    category: "dev",
+    keywords: ["csv", "split", "columns", "splitter", "delimiter", "séparer", "découper", "colonnes", "table"],
   },
   // List Slicer & Sub-list Extractor Tool
   {

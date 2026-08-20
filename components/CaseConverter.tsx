@@ -1,6 +1,7 @@
 import { useState, useEffect, useCallback, useRef } from 'react';
 import { Copy, Check, Type, FileText, Trash2, AlertCircle, Download, LayoutGrid } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
+import { toast } from 'sonner';
 import { Kbd } from './ui/Kbd';
 import { getSecureRandomInt } from './ui/crypto';
 
@@ -89,11 +90,13 @@ export function CaseConverter({ initialData, onStateChange }: { initialData?: an
     }).join(' ')
   };
 
-  const copyToClipboard = (converted: string, type: string) => {
+  const copyToClipboard = useCallback((converted: string, type: string) => {
+    if (!converted) return;
     navigator.clipboard.writeText(converted);
     setCopied(type);
+    toast.success(t('common.copied', { defaultValue: 'Copied!' }));
     setTimeout(() => setCopied(''), 2000);
-  };
+  }, [t]);
 
   const handleTextChange = (val: string) => {
     setText(val);
@@ -107,15 +110,11 @@ export function CaseConverter({ initialData, onStateChange }: { initialData?: an
   const handleClear = useCallback(() => {
     setText('');
     setError(null);
+    toast.success(t('common.cleared', { defaultValue: 'Cleared!' }));
     setTimeout(() => textareaRef.current?.focus(), 0);
-  }, []);
+  }, [t]);
 
-  const handlersRef = useRef({ handleClear });
-  useEffect(() => {
-    handlersRef.current = { handleClear };
-  }, [handleClear]);
-
-  const handleDownload = (content: string, name: string) => {
+  const handleDownload = useCallback((content: string, name: string) => {
     if (!content || error) return;
     const blob = new Blob([content], { type: 'text/plain' });
     const url = URL.createObjectURL(blob);
@@ -124,7 +123,8 @@ export function CaseConverter({ initialData, onStateChange }: { initialData?: an
     link.download = `${name}-${Date.now()}.txt`;
     link.click();
     URL.revokeObjectURL(url);
-  };
+    toast.success(t('common.download_success', { defaultValue: 'Download successful' }));
+  }, [error, t]);
 
   const handleDownloadAll = useCallback(() => {
     if (!text || error) return;
@@ -133,11 +133,16 @@ export function CaseConverter({ initialData, onStateChange }: { initialData?: an
       content += `${name.toUpperCase()}\n${converter(text)}\n\n`;
     });
     handleDownload(content, 'all-variations');
-  }, [text, error, conversions]);
+  }, [text, error, conversions, handleDownload]);
 
   const handleDownloadOriginal = useCallback(() => {
     handleDownload(text, 'texte-original');
-  }, [text, error]);
+  }, [text, error, handleDownload]);
+
+  const handlersRef = useRef({ handleClear, copyToClipboard, text, conversions });
+  useEffect(() => {
+    handlersRef.current = { handleClear, copyToClipboard, text, conversions };
+  }, [handleClear, copyToClipboard, text, conversions]);
 
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
@@ -147,14 +152,16 @@ export function CaseConverter({ initialData, onStateChange }: { initialData?: an
         activeElement instanceof HTMLTextAreaElement ||
         activeElement?.getAttribute("contenteditable") === "true";
 
-      const { handleClear } = handlersRef.current;
-
-      if (isEditable && e.key !== 'Escape') return;
-      if (e.metaKey || e.ctrlKey || e.altKey || e.shiftKey) return;
+      const { handleClear, copyToClipboard, text, conversions } = handlersRef.current;
 
       if (e.key === 'Escape') {
         e.preventDefault();
         handleClear();
+      } else if ((e.key === 'c' || e.key === 'C') && !e.ctrlKey && !e.metaKey && !e.altKey && !isEditable) {
+        if (text && conversions['camelCase']) {
+          e.preventDefault();
+          copyToClipboard(conversions['camelCase'](text), 'camelCase');
+        }
       }
     };
 

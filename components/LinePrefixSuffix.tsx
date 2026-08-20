@@ -1,5 +1,5 @@
 import { useState, useEffect, useMemo, useCallback, useRef } from 'react';
-import { WrapText, Copy, Check, Trash2, Download, Settings2, Type, Info, ListOrdered } from 'lucide-react';
+import { WrapText, Copy, Check, Trash2, Download, Settings2, Type, Info, ListOrdered, Sparkles } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import { Kbd } from './ui/Kbd';
 import { toast } from 'sonner';
@@ -125,30 +125,129 @@ export function LinePrefixSuffix({ initialData, onStateChange }: { initialData?:
     setNumStep(1);
     setNumSeparator('. ');
     setNumPadding(0);
-    inputRef.current?.focus();
-  }, []);
-
-  const handlersRef = useRef({ handleClear });
-  useEffect(() => {
-    handlersRef.current = { handleClear };
-  }, [handleClear]);
-
-  // Local keydown handler to prevent global collision
-  const handleKeyDown = (e: React.KeyboardEvent) => {
-    if (e.key === 'Escape') {
-      e.preventDefault();
-      handlersRef.current.handleClear();
+    if (inputRef.current) {
+      inputRef.current.focus();
     }
+    toast.success(t('lineprefixsuffix.cleared', 'Inputs reset'));
+  }, [t]);
+
+  // Presets loader
+  const loadPreset = (preset: 'sql' | 'json' | 'bullet' | 'css') => {
+    if (preset === 'sql') {
+      setInput('USR-1001\nUSR-1002\nUSR-1003');
+      setPrefix("'");
+      setSuffix("',");
+      setTrimLines(true);
+      setSkipEmpty(true);
+      setEnableNumbering(false);
+    } else if (preset === 'json') {
+      setInput('apple\nbanana\ncherry');
+      setPrefix('"');
+      setSuffix('",');
+      setTrimLines(true);
+      setSkipEmpty(true);
+      setEnableNumbering(false);
+    } else if (preset === 'bullet') {
+      setInput('First item\nSecond item\nThird item');
+      setPrefix('- ');
+      setSuffix('');
+      setTrimLines(true);
+      setSkipEmpty(true);
+      setEnableNumbering(false);
+    } else if (preset === 'css') {
+      setInput('btn\ncard\nmodal');
+      setPrefix('.app-');
+      setSuffix(' {}');
+      setTrimLines(true);
+      setSkipEmpty(true);
+      setEnableNumbering(true);
+      setNumPosition('suffix');
+      setNumStart(1);
+      setNumStep(1);
+      setNumSeparator('-');
+      setNumPadding(2);
+    }
+    toast.success(t('lineprefixsuffix.preset_loaded', 'Preset loaded successfully!'));
   };
 
+  const handlersRef = useRef({ handleClear, handleCopy });
+  useEffect(() => {
+    handlersRef.current = { handleClear, handleCopy };
+  }, [handleClear, handleCopy]);
+
+  // Global keydown handler with handlersRef
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      const active = document.activeElement as HTMLElement | null;
+      const isEditable =
+        active &&
+        (active.tagName === 'INPUT' ||
+          active.tagName === 'TEXTAREA' ||
+          active.isContentEditable);
+
+      if (e.key === 'Escape') {
+        e.preventDefault();
+        handlersRef.current.handleClear();
+      } else if (
+        e.key.toLowerCase() === 'c' &&
+        !e.ctrlKey &&
+        !e.metaKey &&
+        !e.altKey &&
+        !isEditable
+      ) {
+        e.preventDefault();
+        handlersRef.current.handleCopy();
+      }
+    };
+
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, []);
+
   return (
-    <div className="max-w-6xl mx-auto space-y-8" onKeyDown={handleKeyDown}>
+    <div className="max-w-6xl mx-auto space-y-8" data-testid="line-prefix-suffix-container">
+      {/* Quick Presets */}
+      <div className="flex flex-wrap items-center gap-2 p-1">
+        <span className="text-xs font-black uppercase tracking-widest text-slate-400 mr-2 flex items-center gap-1.5">
+          <Sparkles className="w-3.5 h-3.5 text-indigo-500" aria-hidden="true" />
+          {t('lineprefixsuffix.presets', 'Presets')}:
+        </span>
+        <button
+          type="button"
+          onClick={() => loadPreset('sql')}
+          className="text-xs font-bold px-3 py-1.5 rounded-xl bg-slate-50 dark:bg-slate-800 hover:bg-indigo-50 dark:hover:bg-indigo-950/30 border border-slate-200 dark:border-slate-700 hover:border-indigo-500/30 text-slate-600 dark:text-slate-300 transition-all"
+        >
+          🗄️ {t('lineprefixsuffix.preset_sql', 'SQL Quotes')}
+        </button>
+        <button
+          type="button"
+          onClick={() => loadPreset('json')}
+          className="text-xs font-bold px-3 py-1.5 rounded-xl bg-slate-50 dark:bg-slate-800 hover:bg-indigo-50 dark:hover:bg-indigo-950/30 border border-slate-200 dark:border-slate-700 hover:border-indigo-500/30 text-slate-600 dark:text-slate-300 transition-all"
+        >
+          📦 {t('lineprefixsuffix.preset_json', 'JSON Array Quotes')}
+        </button>
+        <button
+          type="button"
+          onClick={() => loadPreset('bullet')}
+          className="text-xs font-bold px-3 py-1.5 rounded-xl bg-slate-50 dark:bg-slate-800 hover:bg-indigo-50 dark:hover:bg-indigo-950/30 border border-slate-200 dark:border-slate-700 hover:border-indigo-500/30 text-slate-600 dark:text-slate-300 transition-all"
+        >
+          📝 {t('lineprefixsuffix.preset_bullet', 'Markdown Bullets')}
+        </button>
+        <button
+          type="button"
+          onClick={() => loadPreset('css')}
+          className="text-xs font-bold px-3 py-1.5 rounded-xl bg-slate-50 dark:bg-slate-800 hover:bg-indigo-50 dark:hover:bg-indigo-950/30 border border-slate-200 dark:border-slate-700 hover:border-indigo-500/30 text-slate-600 dark:text-slate-300 transition-all"
+        >
+          🎨 {t('lineprefixsuffix.preset_css', 'Numbered Classes')}
+        </button>
+      </div>
+
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
         {/* Left column - Options */}
         <div className="lg:col-span-1 space-y-6">
           <div className="bg-slate-50 dark:bg-slate-900/50 p-6 rounded-[2rem] border border-slate-200 dark:border-slate-800 space-y-6">
             <div className="flex items-center gap-2 text-xs font-black uppercase tracking-widest text-slate-400 px-1">
-              <Settings2 className="w-4 h-4 text-indigo-500" /> {t('common.options')}
+              <Settings2 className="w-4 h-4 text-indigo-500" aria-hidden="true" /> {t('common.options')}
             </div>
 
             <div className="space-y-4">
@@ -219,7 +318,7 @@ export function LinePrefixSuffix({ initialData, onStateChange }: { initialData?:
                     className="w-4 h-4 rounded border-slate-300 text-indigo-600 focus:ring-indigo-500"
                   />
                   <span className="text-xs font-black uppercase tracking-wider text-slate-500 flex items-center gap-1.5">
-                    <ListOrdered className="w-3.5 h-3.5 text-indigo-500" /> {t('lineprefixsuffix.enable_numbering', 'Add Line Numbers')}
+                    <ListOrdered className="w-3.5 h-3.5 text-indigo-500" aria-hidden="true" /> {t('lineprefixsuffix.enable_numbering', 'Add Line Numbers')}
                   </span>
                 </label>
 
@@ -317,7 +416,7 @@ export function LinePrefixSuffix({ initialData, onStateChange }: { initialData?:
           <div className="space-y-4">
             <div className="flex justify-between items-center px-1">
               <label htmlFor="input-text" className="text-xs font-black uppercase tracking-widest text-slate-400 flex items-center gap-2">
-                <Type className="w-4 h-4 text-indigo-500" /> {t('common.input')}
+                <Type className="w-4 h-4 text-indigo-500" aria-hidden="true" /> {t('common.input')}
               </label>
               <button
                 type="button"
@@ -325,7 +424,7 @@ export function LinePrefixSuffix({ initialData, onStateChange }: { initialData?:
                 className="text-xs font-bold text-rose-500 hover:text-rose-600 transition-colors flex items-center gap-1.5 focus-visible:ring-2 focus-visible:ring-rose-500 focus-visible:outline-none rounded-lg px-2 py-1"
                 aria-label={t('common.clear')}
               >
-                <Trash2 className="w-3.5 h-3.5" /> {t('common.clear')}
+                <Trash2 className="w-3.5 h-3.5" aria-hidden="true" /> {t('common.clear')}
                 <Kbd modifier={null} className="ml-1 border-rose-200 dark:border-rose-800 text-rose-400 dark:bg-slate-900">Esc</Kbd>
               </button>
             </div>
@@ -343,7 +442,7 @@ export function LinePrefixSuffix({ initialData, onStateChange }: { initialData?:
           <div className="space-y-4">
             <div className="flex justify-between items-center px-1">
               <label htmlFor="output-text" className="text-xs font-black uppercase tracking-widest text-slate-400 flex items-center gap-2">
-                <WrapText className="w-4 h-4 text-indigo-500" /> {t('common.output')}
+                <WrapText className="w-4 h-4 text-indigo-500" aria-hidden="true" /> {t('common.output')}
               </label>
               <div className="flex gap-2">
                 <button
@@ -353,7 +452,7 @@ export function LinePrefixSuffix({ initialData, onStateChange }: { initialData?:
                   className="text-xs font-bold px-3 py-1.5 rounded-xl text-indigo-600 bg-indigo-50 dark:bg-indigo-900/20 hover:bg-indigo-100 transition-all flex items-center gap-1 disabled:opacity-50"
                   aria-label={t('common.download')}
                 >
-                  <Download className="w-3.5 h-3.5" /> {t('common.download')}
+                  <Download className="w-3.5 h-3.5" aria-hidden="true" /> {t('common.download')}
                 </button>
                 <button
                   type="button"
@@ -365,8 +464,9 @@ export function LinePrefixSuffix({ initialData, onStateChange }: { initialData?:
                       : 'bg-white dark:bg-slate-800 text-indigo-600 dark:text-indigo-400 border border-slate-200 dark:border-slate-700 hover:border-indigo-500/50'
                   } disabled:opacity-50`}
                 >
-                  {copied ? <Check className="w-3.5 h-3.5" /> : <Copy className="w-3.5 h-3.5" />}
+                  {copied ? <Check className="w-3.5 h-3.5" aria-hidden="true" /> : <Copy className="w-3.5 h-3.5" aria-hidden="true" />}
                   {copied ? t('common.copied') : t('common.copy')}
+                  <Kbd className="ml-1 bg-white/50 dark:bg-slate-700/20 border-slate-300 dark:border-slate-700 text-slate-400">C</Kbd>
                 </button>
               </div>
             </div>
@@ -383,7 +483,7 @@ export function LinePrefixSuffix({ initialData, onStateChange }: { initialData?:
 
       {/* Educational Block */}
       <div className="bg-indigo-50 dark:bg-indigo-900/10 p-8 rounded-[2.5rem] border border-indigo-100 dark:border-indigo-900/20 flex items-start gap-4">
-        <Info className="w-6 h-6 text-indigo-500 mt-1 shrink-0" />
+        <Info className="w-6 h-6 text-indigo-500 mt-1 shrink-0" aria-hidden="true" />
         <div className="space-y-2">
           <h4 className="font-bold dark:text-white">{t('lineprefixsuffix.about_title', 'About Line Prefix & Suffix')}</h4>
           <p className="text-sm text-slate-500 dark:text-slate-400 leading-relaxed">

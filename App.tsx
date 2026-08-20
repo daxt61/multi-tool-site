@@ -586,6 +586,7 @@ const XSLTTransformer = lazy(() => import("./components/XSLTTransformer").then(m
 const CSSSpecificityCalculator = lazy(() => import("./components/CSSSpecificityCalculator").then(m => ({ default: m.CSSSpecificityCalculator })));
 const WordExtractor = lazy(() => import("./components/WordExtractor").then(m => ({ default: m.WordExtractor })));
 const ListSlicer = lazy(() => import("./components/ListSlicer").then(m => ({ default: m.ListSlicer })));
+const CSVColumnMerger = lazy(() => import("./components/CSVColumnMerger").then(m => ({ default: m.CSVColumnMerger })));
 
 // ⚡ Bolt Optimization: Pre-calculating tool map and search index for O(1) lookups and faster filtering
 const toolsMap: Record<string, Tool> = {};
@@ -634,6 +635,18 @@ const tools: Tool[] = [
     Component: JSONToXSD,
     category: "dev",
     keywords: ["json", "xml", "xsd", "schema", "xmlschema", "converter", "generator", "w3c", "types", "developer"],
+  },
+  // CSV Column Merger & Combiner Tool
+  {
+    id: "csv-column-merger",
+    name: "Fusionneur de Colonnes CSV",
+    nameEn: "Merge CSV Columns",
+    icon: FileSpreadsheet,
+    description: "Fusionner et combiner deux ou plusieurs colonnes d'un tableau CSV avec un liant personnalisé",
+    descriptionEn: "Combine and merge two or more CSV columns into a single column with a custom separator",
+    Component: CSVColumnMerger,
+    category: "dev",
+    keywords: ["csv", "merge", "columns", "combine", "join", "glue", "fusionner", "colonnes", "table", "delimiter"],
   },
   // List Slicer & Sub-list Extractor Tool
   {

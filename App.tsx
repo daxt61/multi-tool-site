@@ -587,6 +587,7 @@ const CSSSpecificityCalculator = lazy(() => import("./components/CSSSpecificityC
 const WordExtractor = lazy(() => import("./components/WordExtractor").then(m => ({ default: m.WordExtractor })));
 const ListSlicer = lazy(() => import("./components/ListSlicer").then(m => ({ default: m.ListSlicer })));
 const CSVColumnMerger = lazy(() => import("./components/CSVColumnMerger").then(m => ({ default: m.CSVColumnMerger })));
+const ListRepeater = lazy(() => import("./components/ListRepeater").then(m => ({ default: m.ListRepeater })));
 
 // ⚡ Bolt Optimization: Pre-calculating tool map and search index for O(1) lookups and faster filtering
 const toolsMap: Record<string, Tool> = {};
@@ -624,6 +625,18 @@ const categories: Category[] = [
 ];
 
 const tools: Tool[] = [
+  // List Duplicator & Repeater Tool
+  {
+    id: "list-repeater",
+    name: "Répétiteur de Liste",
+    nameEn: "List Duplicator & Repeater",
+    icon: Repeat,
+    description: "Dupliquer et répéter des éléments de liste individuellement ou en séquence avec numérotation",
+    descriptionEn: "Duplicate and repeat list items individually or sequentially with custom indexing",
+    Component: ListRepeater,
+    category: "text",
+    keywords: ["list", "repeater", "duplicate", "repeat", "multiply", "indexing", "sequence", "dupliquer", "répéter", "liste"],
+  },
   // JSON to XML Schema (XSD) Generator Tool
   {
     id: "json-to-xsd",

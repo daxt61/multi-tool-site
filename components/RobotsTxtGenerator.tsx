@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef, useCallback } from 'react';
 import { Download, Trash2, FileSearch, Plus, X, Copy, Check, Info, AlertCircle } from 'lucide-react';
-import { useTranslation } from 'react-i18next';
+import { useTranslation, Trans } from 'react-i18next';
 import { toast } from 'sonner';
 import { Kbd } from './ui/Kbd';
 
@@ -332,7 +332,11 @@ export function RobotsTxtGenerator({ initialData, onStateChange }: { initialData
                <Info className="w-5 h-5 text-indigo-500" />
                <span className="text-xs font-black uppercase tracking-widest text-slate-400">{t('robotstxt.what_is_title')}</span>
              </div>
-             <p className="text-sm text-slate-600 dark:text-slate-300 leading-relaxed" dangerouslySetInnerHTML={{ __html: t('robotstxt.what_is_desc') }} />
+             <p className="text-sm text-slate-600 dark:text-slate-300 leading-relaxed">
+               <Trans i18nKey="robotstxt.what_is_desc">
+                 A <strong>robots.txt</strong> file tells search engine crawlers (like Googlebot) which pages or files they can or can't request from your site.
+               </Trans>
+             </p>
              <ul className="text-xs text-slate-500 dark:text-slate-400 space-y-2 list-disc list-inside">
                <li><strong>*</strong> {t('robotstxt.guide_all')}</li>
                <li><strong>Disallow</strong> {t('robotstxt.guide_disallow')}</li>

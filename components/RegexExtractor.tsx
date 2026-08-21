@@ -231,24 +231,19 @@ export function RegexExtractor({ initialData, onStateChange }: { initialData?: a
 
     // Helper to format/replace template variables ($1, $2, $<name>)
     const formatWithTemplate = (m: MatchItem, tmpl: string): string => {
-      let output = tmpl;
-
-      // 1. Replace named groups $<name>
-      if (m.namedGroups) {
-        Object.entries(m.namedGroups).forEach(([name, val]) => {
-          output = output.replace(new RegExp(`\\$<${name}>`, 'g'), val || '');
-        });
-      }
-
-      // 2. Replace numeric groups $1, $2, ...
-      for (let i = 1; i < m.groups.length; i++) {
-        output = output.replace(new RegExp(`\\$${i}`, 'g'), m.groups[i] || '');
-      }
-
-      // 3. Replace $0 with full match
-      output = output.replace(/\$0/g, m.full);
-
-      return output;
+      // Sentinel: Use single-pass regex replacement to prevent replacement string injection
+      // and multi-pass secondary template expansion when match values contain $ tokens
+      return tmpl.replace(/\$<([a-zA-Z_$][a-zA-Z0-9_$]*)>|\$(\d+)/g, (_, namedGroup, numGroup) => {
+        if (namedGroup !== undefined) {
+          return (m.namedGroups && m.namedGroups[namedGroup] !== undefined) ? m.namedGroups[namedGroup] : '';
+        }
+        if (numGroup !== undefined) {
+          if (numGroup === '0') return m.full;
+          const idx = parseInt(numGroup, 10);
+          return m.groups[idx] !== undefined ? m.groups[idx] : '';
+        }
+        return '';
+      });
     };
 
     // Extract item based on chosen mode

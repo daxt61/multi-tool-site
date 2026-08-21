@@ -261,3 +261,8 @@
 **Vulnerability:** The XPathTester allowed executing arbitrary-length XPath queries and looping over an unlimited number of matching elements synchronously on the main thread, risking severe browser freezing/Denial of Service.
 **Learning:** Real-time, debounced query tools must bound not only input content size but also query syntax length and result output size. Synchronous DOM/XPath iterations can quickly consume all CPU threads if matching lists are unbounded.
 **Prevention:** Restrict query expressions to a reasonable length (e.g., `MAX_QUERY_LENGTH = 1000`) and enforce strict limits on results iteration (e.g., `MAX_RESULTS = 1000`) with a localized truncation message.
+
+## 2026-08-15 - [Multi-pass Template Injection and Replacement String Pattern Injection in Regex Extractor]
+**Vulnerability:** The RegexExtractor component formatted extracted matches using multi-pass `.replace()` calls with string arguments. This allowed extracted match strings containing `$` tokens (like `$1`, `$&`, `$'`, `$\``) to trigger both JS replacement pattern evaluation and multi-pass secondary template expansion.
+**Learning:** Sequential `.replace()` string passes over user-controlled text allow values injected in step 1 to be interpreted as template placeholders in step 2. Furthermore, passing raw string arguments to `.replace()` evaluates special replacement patterns like `$&` or `$'`.
+**Prevention:** Always use single-pass regex matching with a replacer callback function `(_, named, num) => ...` for template substitutions. Callback return values are treated strictly as literal strings and are never re-evaluated for replacement patterns.

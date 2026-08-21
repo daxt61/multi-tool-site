@@ -13,7 +13,25 @@ test("URL Encoder UX: keyboard shortcuts and focus management", async ({
   await expect(page.locator("kbd", { hasText: /^Esc$/ })).toBeVisible();
   await expect(page.locator("kbd", { hasText: /^C$/ })).toBeVisible();
 
-  // 2. Enter text and verify bidirectional conversion
+  // 2. Test interactive presets
+  const presetButton = page.getByRole("button", { name: "API Search Query" });
+  await expect(presetButton).toBeVisible();
+  await presetButton.click();
+  await expect(decodedTextarea).toHaveValue(
+    "https://api.example.com/v1/search?q=hello world & caffeine=100%&category=dev/tools"
+  );
+  await expect(encodedTextarea).toHaveValue(
+    "https%3A%2F%2Fapi.example.com%2Fv1%2Fsearch%3Fq%3Dhello%20world%20%26%20caffeine%3D100%25%26category%3Ddev%2Ftools"
+  );
+  await expect(decodedTextarea).toBeFocused();
+
+  // 3. Clear inputs
+  await clearButton.click();
+  await expect(decodedTextarea).toHaveValue("");
+  await expect(encodedTextarea).toHaveValue("");
+  await expect(decodedTextarea).toBeFocused();
+
+  // 4. Enter text and verify bidirectional conversion
   await decodedTextarea.fill("hello world");
   await expect(encodedTextarea).toHaveValue("hello%20world");
 
@@ -47,7 +65,8 @@ test("URL Encoder UX: keyboard shortcuts and focus management", async ({
 
   // Press C globally
   // We can't easily verify the clipboard content in most CI environments without permissions,
-  // but we can check if the button state changes (showing "Copied")
+  // but we can check if the button state changes (showing "Copied") and toast appears
   await page.keyboard.press("c");
-  await expect(page.getByText("Copied")).toBeVisible();
+  await expect(page.getByRole("button", { name: "Copied" })).toBeVisible();
+  await expect(page.getByText("Copied to clipboard!")).toBeVisible();
 });

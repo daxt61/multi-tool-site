@@ -589,6 +589,7 @@ const ListSlicer = lazy(() => import("./components/ListSlicer").then(m => ({ def
 const CSVColumnMerger = lazy(() => import("./components/CSVColumnMerger").then(m => ({ default: m.CSVColumnMerger })));
 const CSVColumnSplitter = lazy(() => import("./components/CSVColumnSplitter").then(m => ({ default: m.CSVColumnSplitter })));
 const CSVColumnReorderer = lazy(() => import("./components/CSVColumnReorderer").then(m => ({ default: m.CSVColumnReorderer })));
+const CSVColumnFilter = lazy(() => import("./components/CSVColumnFilter").then(m => ({ default: m.CSVColumnFilter })));
 const ListRepeater = lazy(() => import("./components/ListRepeater").then(m => ({ default: m.ListRepeater })));
 
 // ⚡ Bolt Optimization: Pre-calculating tool map and search index for O(1) lookups and faster filtering
@@ -650,6 +651,18 @@ const tools: Tool[] = [
     Component: JSONToXSD,
     category: "dev",
     keywords: ["json", "xml", "xsd", "schema", "xmlschema", "converter", "generator", "w3c", "types", "developer"],
+  },
+  // CSV Column Filter Tool
+  {
+    id: "csv-column-filter",
+    name: "Filtre de Colonnes CSV",
+    nameEn: "Filter CSV Columns & Rows",
+    icon: Filter,
+    description: "Filtrer les lignes d'un tableau CSV ou TSV selon les valeurs et conditions d'une colonne",
+    descriptionEn: "Filter CSV or TSV rows matching text, numerical, or regex conditions on target columns",
+    Component: CSVColumnFilter,
+    category: "dev",
+    keywords: ["csv", "filter", "column", "rows", "condition", "where", "equals", "greater than", "regex", "filtrer", "colonnes", "table"],
   },
   // CSV Column Reorderer Tool
   {

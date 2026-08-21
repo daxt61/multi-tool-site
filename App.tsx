@@ -588,6 +588,7 @@ const WordExtractor = lazy(() => import("./components/WordExtractor").then(m => 
 const ListSlicer = lazy(() => import("./components/ListSlicer").then(m => ({ default: m.ListSlicer })));
 const CSVColumnMerger = lazy(() => import("./components/CSVColumnMerger").then(m => ({ default: m.CSVColumnMerger })));
 const CSVColumnSplitter = lazy(() => import("./components/CSVColumnSplitter").then(m => ({ default: m.CSVColumnSplitter })));
+const CSVColumnReorderer = lazy(() => import("./components/CSVColumnReorderer").then(m => ({ default: m.CSVColumnReorderer })));
 const ListRepeater = lazy(() => import("./components/ListRepeater").then(m => ({ default: m.ListRepeater })));
 
 // ⚡ Bolt Optimization: Pre-calculating tool map and search index for O(1) lookups and faster filtering
@@ -649,6 +650,18 @@ const tools: Tool[] = [
     Component: JSONToXSD,
     category: "dev",
     keywords: ["json", "xml", "xsd", "schema", "xmlschema", "converter", "generator", "w3c", "types", "developer"],
+  },
+  // CSV Column Reorderer Tool
+  {
+    id: "csv-column-reorderer",
+    name: "Réorganisateur de Colonnes CSV",
+    nameEn: "Reorder CSV Columns",
+    icon: FileSpreadsheet,
+    description: "Réorganiser, renommer, masquer ou réordonner les colonnes d'un fichier CSV ou TSV",
+    descriptionEn: "Reorder, arrange, rename, or toggle visibility of CSV or TSV columns",
+    Component: CSVColumnReorderer,
+    category: "dev",
+    keywords: ["csv", "reorder", "columns", "arrange", "rename", "move", "sort", "colonnes", "réorganiser", "table"],
   },
   // CSV Column Merger & Combiner Tool
   {

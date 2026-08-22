@@ -82,7 +82,45 @@ export function ChmodCalculator({ initialData, onStateChange }: { initialData?: 
     firstButtonRef.current?.focus();
   };
 
-  // Keyboard shortcut listener for Esc
+  const applyPreset = (code: string) => {
+    if (code === '755') {
+      setPermissions({
+        owner: { read: true, write: true, execute: true },
+        group: { read: true, write: false, execute: true },
+        public: { read: true, write: false, execute: true },
+      });
+    } else if (code === '644') {
+      setPermissions({
+        owner: { read: true, write: true, execute: false },
+        group: { read: true, write: false, execute: false },
+        public: { read: true, write: false, execute: false },
+      });
+    } else if (code === '700') {
+      setPermissions({
+        owner: { read: true, write: true, execute: true },
+        group: { read: false, write: false, execute: false },
+        public: { read: false, write: false, execute: false },
+      });
+    } else if (code === '600') {
+      setPermissions({
+        owner: { read: true, write: true, execute: false },
+        group: { read: false, write: false, execute: false },
+        public: { read: false, write: false, execute: false },
+      });
+    }
+    navigator.clipboard.writeText(code);
+    setCopied('octal');
+    toast.success(t('common.copied'));
+    setTimeout(() => setCopied(null), 2000);
+  };
+
+  // Keep handlers fresh in ref for global shortcuts
+  const handlersRef = useRef({ handleClear, handleCopy, octal });
+  useEffect(() => {
+    handlersRef.current = { handleClear, handleCopy, octal };
+  });
+
+  // Global Keyboard shortcut listener for Esc and C
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
       const activeEl = document.activeElement;
@@ -95,7 +133,10 @@ export function ChmodCalculator({ initialData, onStateChange }: { initialData?: 
 
       if (e.key === 'Escape') {
         e.preventDefault();
-        handleClear();
+        handlersRef.current.handleClear();
+      } else if ((e.key === 'c' || e.key === 'C') && !e.metaKey && !e.ctrlKey && !e.altKey) {
+        e.preventDefault();
+        handlersRef.current.handleCopy(handlersRef.current.octal, 'octal');
       }
     };
     window.addEventListener('keydown', handleKeyDown);
@@ -113,14 +154,47 @@ export function ChmodCalculator({ initialData, onStateChange }: { initialData?: 
 
   return (
     <div className="max-w-4xl mx-auto space-y-12">
-      <div className="flex justify-end px-1 gap-2 items-center">
-        <Kbd modifier={null} className="text-slate-400">Esc</Kbd>
-        <button
-          onClick={handleClear}
-          className="text-xs font-bold text-rose-500 bg-rose-50 dark:bg-rose-500/10 hover:bg-rose-100 dark:hover:bg-rose-500/20 px-3 py-1.5 rounded-xl flex items-center gap-2 transition-all focus-visible:ring-2 focus-visible:ring-rose-500 focus-visible:outline-none"
-        >
-          <Trash2 className="w-3.5 h-3.5" /> {t('chmod.clear_all')}
-        </button>
+      {/* Quick Presets & Toolbar */}
+      <div className="flex flex-wrap items-center justify-between gap-4 bg-slate-50 dark:bg-slate-900/40 p-4 rounded-2xl border border-slate-200 dark:border-slate-800">
+        <div className="flex flex-wrap items-center gap-2">
+          <span className="text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider mr-1">
+            {t('chmod.quick_presets')}:
+          </span>
+          <button
+            onClick={() => applyPreset('755')}
+            className="text-xs font-semibold px-3 py-1.5 rounded-xl bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-700 dark:text-slate-300 hover:border-indigo-500 dark:hover:border-indigo-500 transition-all focus-visible:ring-2 focus-visible:ring-indigo-500 focus-visible:outline-none"
+          >
+            {t('chmod.preset_755')}
+          </button>
+          <button
+            onClick={() => applyPreset('644')}
+            className="text-xs font-semibold px-3 py-1.5 rounded-xl bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-700 dark:text-slate-300 hover:border-indigo-500 dark:hover:border-indigo-500 transition-all focus-visible:ring-2 focus-visible:ring-indigo-500 focus-visible:outline-none"
+          >
+            {t('chmod.preset_644')}
+          </button>
+          <button
+            onClick={() => applyPreset('700')}
+            className="text-xs font-semibold px-3 py-1.5 rounded-xl bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-700 dark:text-slate-300 hover:border-indigo-500 dark:hover:border-indigo-500 transition-all focus-visible:ring-2 focus-visible:ring-indigo-500 focus-visible:outline-none"
+          >
+            {t('chmod.preset_700')}
+          </button>
+          <button
+            onClick={() => applyPreset('600')}
+            className="text-xs font-semibold px-3 py-1.5 rounded-xl bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-700 dark:text-slate-300 hover:border-indigo-500 dark:hover:border-indigo-500 transition-all focus-visible:ring-2 focus-visible:ring-indigo-500 focus-visible:outline-none"
+          >
+            {t('chmod.preset_600')}
+          </button>
+        </div>
+
+        <div className="flex items-center gap-2">
+          <Kbd modifier={null} className="text-slate-400">Esc</Kbd>
+          <button
+            onClick={handleClear}
+            className="text-xs font-bold text-rose-500 bg-rose-50 dark:bg-rose-500/10 hover:bg-rose-100 dark:hover:bg-rose-500/20 px-3 py-1.5 rounded-xl flex items-center gap-2 transition-all focus-visible:ring-2 focus-visible:ring-rose-500 focus-visible:outline-none"
+          >
+            <Trash2 className="w-3.5 h-3.5" /> {t('chmod.clear_all')}
+          </button>
+        </div>
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
@@ -165,17 +239,20 @@ export function ChmodCalculator({ initialData, onStateChange }: { initialData?: 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
         <div className="bg-slate-900 dark:bg-black p-8 rounded-[2.5rem] shadow-xl shadow-indigo-500/10 relative group overflow-hidden">
           <div className="absolute top-0 right-0 w-32 h-32 bg-indigo-500/10 rounded-full -mr-16 -mt-16 blur-3xl"></div>
-          <button
-            onClick={() => handleCopy(octal, 'octal')}
-            className={`absolute top-6 right-6 p-2.5 rounded-xl transition-all border focus-visible:ring-2 focus-visible:ring-white focus-visible:outline-none ${
-              copied === 'octal'
-                ? 'bg-emerald-50 dark:bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border-emerald-200 dark:border-emerald-500/20'
-                : 'bg-white/10 text-white/40 border-transparent hover:text-white hover:bg-white/20'
-            }`}
-            aria-label={t('common.copy') + ' - ' + t('chmod.octal_code')}
-          >
-            {copied === 'octal' ? <Check className="w-4 h-4" /> : <Copy className="w-4 h-4" />}
-          </button>
+          <div className="absolute top-6 right-6 flex items-center gap-2">
+            <Kbd modifier={null} className="bg-white/10 text-white/60 border-white/20">C</Kbd>
+            <button
+              onClick={() => handleCopy(octal, 'octal')}
+              className={`p-2.5 rounded-xl transition-all border focus-visible:ring-2 focus-visible:ring-white focus-visible:outline-none ${
+                copied === 'octal'
+                  ? 'bg-emerald-50 dark:bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border-emerald-200 dark:border-emerald-500/20'
+                  : 'bg-white/10 text-white/40 border-transparent hover:text-white hover:bg-white/20'
+              }`}
+              aria-label={t('common.copy') + ' - ' + t('chmod.octal_code')}
+            >
+              {copied === 'octal' ? <Check className="w-4 h-4" /> : <Copy className="w-4 h-4" />}
+            </button>
+          </div>
           <div className="text-slate-400 font-bold uppercase tracking-widest text-xs mb-2">{t('chmod.octal_code')}</div>
           <div className="text-6xl md:text-7xl font-black text-white font-mono tracking-tighter">
             {octal}

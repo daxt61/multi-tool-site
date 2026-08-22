@@ -590,6 +590,7 @@ const CSVColumnMerger = lazy(() => import("./components/CSVColumnMerger").then(m
 const CSVColumnSplitter = lazy(() => import("./components/CSVColumnSplitter").then(m => ({ default: m.CSVColumnSplitter })));
 const CSVColumnReorderer = lazy(() => import("./components/CSVColumnReorderer").then(m => ({ default: m.CSVColumnReorderer })));
 const CSVColumnFilter = lazy(() => import("./components/CSVColumnFilter").then(m => ({ default: m.CSVColumnFilter })));
+const CSVRowSorter = lazy(() => import("./components/CSVRowSorter").then(m => ({ default: m.CSVRowSorter })));
 const ListRepeater = lazy(() => import("./components/ListRepeater").then(m => ({ default: m.ListRepeater })));
 
 // ⚡ Bolt Optimization: Pre-calculating tool map and search index for O(1) lookups and faster filtering
@@ -663,6 +664,18 @@ const tools: Tool[] = [
     Component: CSVColumnFilter,
     category: "dev",
     keywords: ["csv", "filter", "column", "rows", "condition", "where", "equals", "greater than", "regex", "filtrer", "colonnes", "table"],
+  },
+  // Sort CSV Rows Tool
+  {
+    id: "csv-row-sorter",
+    name: "Trier les Lignes CSV",
+    nameEn: "Sort CSV Rows",
+    icon: ArrowUpDown,
+    description: "Trier les lignes d'un fichier CSV ou TSV par colonne selon des critères textuels, numériques, temporels ou de longueur",
+    descriptionEn: "Sort CSV or TSV dataset rows by column index or header using text, numeric, date, or length comparison",
+    Component: CSVRowSorter,
+    category: "dev",
+    keywords: ["csv", "sort", "rows", "order", "column", "numeric", "date", "alphabetical", "ascending", "descending", "trier", "lignes", "table"],
   },
   // CSV Column Reorderer Tool
   {

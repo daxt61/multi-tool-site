@@ -24,7 +24,13 @@ export function EmojiToImage({ initialData, onStateChange }: { initialData?: any
     const ctx = canvas.getContext('2d');
     if (!ctx) return;
 
-    const size = fontSize + padding * 2;
+    // Sentinel: Enforce safe bounds on canvas dimensions to prevent memory exhaustion DoS
+    const MAX_CANVAS_DIMENSION = 4096;
+    const clampedFontSize = Math.min(1024, Math.max(16, fontSize));
+    const clampedPadding = Math.min(512, Math.max(0, padding));
+    const rawSize = clampedFontSize + clampedPadding * 2;
+    const size = Math.min(MAX_CANVAS_DIMENSION, Math.max(16, rawSize));
+
     canvas.width = size;
     canvas.height = size;
 

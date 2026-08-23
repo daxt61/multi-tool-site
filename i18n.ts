@@ -5322,7 +5322,25 @@ const resources = {
       "csv_delimiter_changer.cleared": "Inputs cleared and focus restored",
       "csv_delimiter_changer.preset_loaded": "Preset loaded!",
       "csv_delimiter_changer.about_title": "About CSV Delimiter Converter",
-      "csv_delimiter_changer.about_text": "Convert delimiters in CSV or TSV files (comma, semicolon, tab, pipe, colon) seamlessly without corrupting enclosed text quotes. Includes quote escaping rules, trimming, and instant file export."
+      "csv_delimiter_changer.about_text": "Convert delimiters in CSV or TSV files (comma, semicolon, tab, pipe, colon) seamlessly without corrupting enclosed text quotes. Includes quote escaping rules, trimming, and instant file export.",
+      "unixtimestamp.title": "Unix Timestamp Converter",
+      "unixtimestamp.label": "Unix Timestamp",
+      "unixtimestamp.use_current": "Use current time",
+      "unixtimestamp.clear": "Clear",
+      "unixtimestamp.input_placeholder": "e.g. 1712345678",
+      "unixtimestamp.milliseconds": "Milliseconds",
+      "unixtimestamp.seconds": "Seconds",
+      "unixtimestamp.local_time": "Local Time",
+      "unixtimestamp.iso_8601": "ISO 8601",
+      "unixtimestamp.utc_gmt": "UTC / GMT",
+      "unixtimestamp.relative": "Relative",
+      "unixtimestamp.invalid": "Invalid Timestamp",
+      "unixtimestamp.convert_date_title": "Convert Date to Timestamp",
+      "unixtimestamp.select_date_label": "Select Date & Time",
+      "unixtimestamp.copy_result": "Copy result",
+      "unixtimestamp.toast_copied": "Copied to clipboard!",
+      "unixtimestamp.toast_now": "Updated to current timestamp!",
+      "unixtimestamp.toast_cleared": "Timestamp input cleared!"
     }
   },
   fr: {
@@ -10634,7 +10652,25 @@ const resources = {
       "csv_delimiter_changer.cleared": "Entrées effacées et focus restauré",
       "csv_delimiter_changer.preset_loaded": "Préréglage chargé !",
       "csv_delimiter_changer.about_title": "À propos du Convertisseur de Séparateur CSV",
-      "csv_delimiter_changer.about_text": "Convertissez les séparateurs des fichiers CSV ou TSV (virgule, point-virgule, tabulation, pipe, deux-points) facilement sans altérer les guillemets. Inclut des règles d'échappement, nettoyage d'espaces et export direct."
+      "csv_delimiter_changer.about_text": "Convertissez les séparateurs des fichiers CSV ou TSV (virgule, point-virgule, tabulation, pipe, deux-points) facilement sans altérer les guillemets. Inclut des règles d'échappement, nettoyage d'espaces et export direct.",
+      "unixtimestamp.title": "Convertisseur de Timestamp Unix",
+      "unixtimestamp.label": "Timestamp Unix",
+      "unixtimestamp.use_current": "Utiliser le temps actuel",
+      "unixtimestamp.clear": "Effacer",
+      "unixtimestamp.input_placeholder": "ex. 1712345678",
+      "unixtimestamp.milliseconds": "Millisecondes",
+      "unixtimestamp.seconds": "Secondes",
+      "unixtimestamp.local_time": "Heure Locale",
+      "unixtimestamp.iso_8601": "ISO 8601",
+      "unixtimestamp.utc_gmt": "UTC / GMT",
+      "unixtimestamp.relative": "Relatif",
+      "unixtimestamp.invalid": "Timestamp Invalide",
+      "unixtimestamp.convert_date_title": "Convertir une date en Timestamp",
+      "unixtimestamp.select_date_label": "Sélectionner Date et Heure",
+      "unixtimestamp.copy_result": "Copier le résultat",
+      "unixtimestamp.toast_copied": "Copié dans le presse-papiers !",
+      "unixtimestamp.toast_now": "Timestamp mis à jour au temps actuel !",
+      "unixtimestamp.toast_cleared": "Saisie effacée et focus restauré !"
     }
   }
 };

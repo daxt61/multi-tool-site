@@ -590,6 +590,7 @@ const CSVColumnMerger = lazy(() => import("./components/CSVColumnMerger").then(m
 const CSVColumnSplitter = lazy(() => import("./components/CSVColumnSplitter").then(m => ({ default: m.CSVColumnSplitter })));
 const CSVColumnReorderer = lazy(() => import("./components/CSVColumnReorderer").then(m => ({ default: m.CSVColumnReorderer })));
 const CSVColumnFilter = lazy(() => import("./components/CSVColumnFilter").then(m => ({ default: m.CSVColumnFilter })));
+const CSVDelimiterChanger = lazy(() => import("./components/CSVDelimiterChanger").then(m => ({ default: m.CSVDelimiterChanger })));
 const ListRepeater = lazy(() => import("./components/ListRepeater").then(m => ({ default: m.ListRepeater })));
 
 // ⚡ Bolt Optimization: Pre-calculating tool map and search index for O(1) lookups and faster filtering
@@ -651,6 +652,18 @@ const tools: Tool[] = [
     Component: JSONToXSD,
     category: "dev",
     keywords: ["json", "xml", "xsd", "schema", "xmlschema", "converter", "generator", "w3c", "types", "developer"],
+  },
+  // CSV Delimiter Changer Tool
+  {
+    id: "csv-delimiter-changer",
+    name: "Changeur de Séparateur CSV",
+    nameEn: "Change CSV Delimiter",
+    icon: FileSpreadsheet,
+    description: "Convertir les séparateurs de fichiers CSV et TSV (virgule, point-virgule, tabulation, pipe, deux-points)",
+    descriptionEn: "Convert delimiters in CSV or TSV datasets (comma, semicolon, tab, pipe, colon) with quote preservation",
+    Component: CSVDelimiterChanger,
+    category: "dev",
+    keywords: ["csv", "tsv", "delimiter", "separator", "changer", "converter", "comma", "semicolon", "tab", "pipe", "quotes"],
   },
   // CSV Column Filter Tool
   {

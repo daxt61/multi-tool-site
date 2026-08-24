@@ -2,7 +2,7 @@ import { test, expect } from '@playwright/test';
 
 test('verify RegexBuilder functionalities', async ({ page }) => {
   // Navigation to the Regex Builder tool path
-  await page.goto('http://localhost:5173/fr/outil/regex-builder');
+  await page.goto('http://localhost:4173/fr/outil/regex-builder');
 
   // Verify compiled expression display
   const expressionDisplay = page.locator('div.font-mono').first();

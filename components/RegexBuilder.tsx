@@ -350,15 +350,40 @@ export function RegexBuilder({ initialData, onStateChange }: { initialData?: any
 
   // Multi-language code snippets
   const codeSnippets = useMemo(() => {
-    const cleanPattern = compiledRegexString.replace(/\\/g, '\\\\');
+    // Helper to format safe string literals for code generators
+    const toPHPLiteral = (val: string) => `'${val.replace(/\\/g, '\\\\').replace(/'/g, "\\'")}'`;
+    const toJavaLiteral = (val: string) => `"${val.replace(/\\/g, '\\\\').replace(/"/g, '\\"')}"`;
+
+    const jsPat = JSON.stringify(compiledRegexString);
+    const jsFlags = JSON.stringify(compiledFlags);
+    const jsText = JSON.stringify(testText);
+
+    const pyPat = JSON.stringify(compiledRegexString);
+    const pyText = JSON.stringify(testText);
+
+    const goPat = `\`${compiledRegexString.replace(/`/g, '` + "`" + `')}\``;
+    const goText = `\`${testText.replace(/`/g, '` + "`" + `')}\``;
+
+    const rustPat = JSON.stringify(compiledRegexString);
+    const rustText = JSON.stringify(testText);
+
+    const phpPat = `'/' . ${toPHPLiteral(compiledRegexString.replace(/\//g, '\\/'))} . '/${compiledFlags.replace(/[^imsuxADJSU]/g, '')}'`;
+    const phpText = toPHPLiteral(testText);
+
+    const javaPat = toJavaLiteral(compiledRegexString);
+    const javaText = toJavaLiteral(testText);
+
+    const csPat = `@"${compiledRegexString.replace(/"/g, '""')}"`;
+    const csText = `@"${testText.replace(/"/g, '""')}"`;
+
     return {
-      js: `// JavaScript / TypeScript\nconst regex = new RegExp("${cleanPattern}", "${compiledFlags}");\nconst text = \`${testText.replace(/`/g, '\\`').replace(/\$/g, '\\$')}\`;\nconst matches = [...text.matchAll(regex)];\nconsole.log(matches.map(m => m[0]));`,
-      python: `# Python 3\nimport re\n\npattern = re.compile(r"${compiledRegexString}", ${compiledFlags.includes('i') ? 're.IGNORECASE' : '0'}${compiledFlags.includes('m') ? ' | re.MULTILINE' : ''})\ntext = """${testText}"""\nmatches = pattern.findall(text)\nprint(matches)`,
-      go: `// Go\npackage main\n\nimport (\n\t"fmt"\n\t"regexp"\n)\n\nfunc main() {\n\tpattern := \`${compiledRegexString}\`\n\t// Note: Go doesn't support case-insensitive inline flag the same way, prefix (?i) instead\n\tregex := regexp.MustCompile(pattern)\n\ttext := \`${testText}\`\n\tmatches := regex.FindAllString(text, -1)\n\tfmt.Println(matches)\n}`,
-      rust: `// Rust\n// Add to Cargo.toml: regex = "1.9"\nuse regex::Regex;\n\nfn main() {\n    let re = Regex::new(r"${compiledRegexString}").unwrap();\n    let text = "${testText.replace(/\n/g, "\\n")}";\n    let matches: Vec<&str> = re.find_iter(text).map(|mat| mat.as_str()).collect();\n    println!("{:?}", matches);\n}`,
-      php: `<?php\n// PHP\n$pattern = '/${compiledRegexString}/${compiledFlags}';\n$text = "${testText.replace(/"/g, '\\"')}";\npreg_match_all($pattern, $text, $matches);\nprint_r($matches[0]);`,
-      java: `// Java\nimport java.util.regex.Matcher;\nimport java.util.regex.Pattern;\n\npublic class Main {\n    public static void main(String[] args) {\n        Pattern pattern = Pattern.compile("${cleanPattern}", ${compiledFlags.includes('i') ? 'Pattern.CASE_INSENSITIVE' : '0'}${compiledFlags.includes('m') ? ' | Pattern.MULTILINE' : ''});\n        Matcher matcher = pattern.matcher("${testText.replace(/\n/g, "\\n").replace(/"/g, '\\"')}");\n        while (matcher.find()) {\n            System.out.println(matcher.group());\n        }\n    }\n}`,
-      csharp: `// C# (.NET)\nusing System;\nusing System.Text.RegularExpressions;\n\nclass Program {\n    static void main() {\n        var options = RegexOptions.None;\n        ${compiledFlags.includes('i') ? 'options |= RegexOptions.IgnoreCase;' : ''}\n        ${compiledFlags.includes('m') ? 'options |= RegexOptions.Multiline;' : ''}\n        var regex = new Regex(@"${compiledRegexString}", options);\n        var text = @"${testText.replace(/"/g, '""')}";\n        foreach (Match match in regex.Matches(text)) {\n            Console.WriteLine(match.Value);\n        }\n    }\n}`
+      js: `// JavaScript / TypeScript\nconst regex = new RegExp(${jsPat}, ${jsFlags});\nconst text = ${jsText};\nconst matches = [...text.matchAll(regex)];\nconsole.log(matches.map(m => m[0]));`,
+      python: `# Python 3\nimport re\n\npattern = re.compile(${pyPat}, ${compiledFlags.includes('i') ? 're.IGNORECASE' : '0'}${compiledFlags.includes('m') ? ' | re.MULTILINE' : ''})\ntext = ${pyText}\nmatches = pattern.findall(text)\nprint(matches)`,
+      go: `// Go\npackage main\n\nimport (\n\t"fmt"\n\t"regexp"\n)\n\nfunc main() {\n\tpattern := ${goPat}\n\t// Note: Go doesn't support case-insensitive inline flag the same way, prefix (?i) instead\n\tregex := regexp.MustCompile(pattern)\n\ttext := ${goText}\n\tmatches := regex.FindAllString(text, -1)\n\tfmt.Println(matches)\n}`,
+      rust: `// Rust\n// Add to Cargo.toml: regex = "1.9"\nuse regex::Regex;\n\nfn main() {\n    let re = Regex::new(${rustPat}).unwrap();\n    let text = ${rustText};\n    let matches: Vec<&str> = re.find_iter(text).map(|mat| mat.as_str()).collect();\n    println!("{:?}", matches);\n}`,
+      php: `<?php\n// PHP\n$pattern = ${phpPat};\n$text = ${phpText};\npreg_match_all($pattern, $text, $matches);\nprint_r($matches[0]);`,
+      java: `// Java\nimport java.util.regex.Matcher;\nimport java.util.regex.Pattern;\n\npublic class Main {\n    public static void main(String[] args) {\n        Pattern pattern = Pattern.compile(${javaPat}, ${compiledFlags.includes('i') ? 'Pattern.CASE_INSENSITIVE' : '0'}${compiledFlags.includes('m') ? ' | Pattern.MULTILINE' : ''});\n        Matcher matcher = pattern.matcher(${javaText});\n        while (matcher.find()) {\n            System.out.println(matcher.group());\n        }\n    }\n}`,
+      csharp: `// C# (.NET)\nusing System;\nusing System.Text.RegularExpressions;\n\nclass Program {\n    static void main() {\n        var options = RegexOptions.None;\n        ${compiledFlags.includes('i') ? 'options |= RegexOptions.IgnoreCase;' : ''}\n        ${compiledFlags.includes('m') ? 'options |= RegexOptions.Multiline;' : ''}\n        var regex = new Regex(${csPat}, options);\n        var text = ${csText};\n        foreach (Match match in regex.Matches(text)) {\n            Console.WriteLine(match.Value);\n        }\n    }\n}`
     };
   }, [compiledRegexString, compiledFlags, testText]);
 

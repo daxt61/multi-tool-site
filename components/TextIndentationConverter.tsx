@@ -304,7 +304,7 @@ export function TextIndentationConverter({
     <div className="max-w-6xl mx-auto space-y-8">
       {error && (
         <div role="alert" className="bg-rose-50 dark:bg-rose-500/10 border border-rose-200 dark:border-rose-800 p-4 rounded-2xl flex items-center gap-3 text-rose-600 dark:text-rose-400 font-bold animate-in fade-in slide-in-from-top-2">
-          <AlertCircle className="w-5 h-5 shrink-0" />
+          <AlertCircle className="w-5 h-5 shrink-0" aria-hidden="true" />
           {error}
         </div>
       )}
@@ -352,10 +352,11 @@ export function TextIndentationConverter({
                 <button
                   onClick={handleDownload}
                   disabled={!output}
+                  aria-label={t("common.download", "Download as .txt")}
                   title={t("common.download", "Download as .txt")}
-                  className="text-xs font-bold px-3 py-1.5 rounded-xl text-indigo-600 bg-indigo-50 dark:bg-indigo-900/20 hover:bg-indigo-100 transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+                  className="text-xs font-bold px-3 py-1.5 rounded-xl text-indigo-600 bg-indigo-50 dark:bg-indigo-900/20 hover:bg-indigo-100 transition-all focus-visible:ring-2 focus-visible:ring-indigo-500 focus-visible:outline-none disabled:opacity-50 disabled:cursor-not-allowed"
                 >
-                  <Download className="w-4 h-4" />
+                  <Download className="w-4 h-4" aria-hidden="true" />
                 </button>
                 <button
                   onClick={handleCopy}
@@ -367,7 +368,7 @@ export function TextIndentationConverter({
                       : "text-slate-600 bg-slate-100 dark:bg-slate-800 border border-transparent hover:bg-slate-200"
                   } disabled:opacity-50 disabled:cursor-not-allowed`}
                 >
-                  {copied ? <Check className="w-4 h-4" /> : <Copy className="w-4 h-4" />}
+                  {copied ? <Check className="w-4 h-4" aria-hidden="true" /> : <Copy className="w-4 h-4" aria-hidden="true" />}
                   {copied ? t("common.copied") : t("common.copy")}
                 </button>
               </div>
@@ -387,17 +388,18 @@ export function TextIndentationConverter({
           <div className="p-8 bg-slate-50 dark:bg-slate-900/50 border border-slate-200 dark:border-slate-800 rounded-[2rem] space-y-6">
             <div className="flex items-center justify-between px-1">
               <div className="flex items-center gap-2 text-indigo-500">
-                <Settings2 className="w-4 h-4" />
+                <Settings2 className="w-4 h-4" aria-hidden="true" />
                 <h3 className="font-black uppercase tracking-widest text-[10px] text-slate-400">
                   {t("common.options", "Options")}
                 </h3>
               </div>
               <button
                 onClick={handleReset}
+                aria-label={`${t("common.reset", "Reset")} (Esc)`}
                 title={`${t("common.reset", "Reset")} (Esc)`}
-                className="p-1.5 rounded-lg text-rose-500 hover:bg-rose-50 dark:hover:bg-rose-950/20 transition-all flex items-center gap-1.5"
+                className="p-1.5 rounded-lg text-rose-500 hover:bg-rose-50 dark:hover:bg-rose-950/20 transition-all flex items-center gap-1.5 focus-visible:ring-2 focus-visible:ring-rose-500 focus-visible:outline-none"
               >
-                <RotateCcw className="w-4 h-4" />
+                <RotateCcw className="w-4 h-4" aria-hidden="true" />
               </button>
             </div>
 
@@ -417,13 +419,14 @@ export function TextIndentationConverter({
                   <button
                     key={item.id}
                     onClick={() => setMode(item.id as ModeType)}
-                    className={`flex items-center gap-3 p-3.5 rounded-xl font-bold text-sm transition-all border ${
+                    aria-pressed={mode === item.id}
+                    className={`flex items-center gap-3 p-3.5 rounded-xl font-bold text-sm transition-all border focus-visible:ring-2 focus-visible:ring-indigo-500 focus-visible:outline-none ${
                       mode === item.id
                         ? "bg-indigo-600 border-indigo-600 text-white shadow-md shadow-indigo-500/10"
                         : "bg-white dark:bg-slate-800 text-slate-600 dark:text-slate-300 border-slate-200 dark:border-slate-700 hover:border-slate-300"
                     }`}
                   >
-                    <item.icon className="w-4 h-4 shrink-0" />
+                    <item.icon className="w-4 h-4 shrink-0" aria-hidden="true" />
                     <span>{item.label}</span>
                   </button>
                 ))}
@@ -471,7 +474,8 @@ export function TextIndentationConverter({
                         key={opt.id}
                         type="button"
                         onClick={() => setIndentChar(opt.id as "space" | "tab")}
-                        className={`py-2 rounded-xl text-xs font-bold transition-all border ${
+                        aria-pressed={indentChar === opt.id}
+                        className={`py-2 rounded-xl text-xs font-bold transition-all border focus-visible:ring-2 focus-visible:ring-indigo-500 focus-visible:outline-none ${
                           indentChar === opt.id
                             ? "bg-slate-900 border-slate-900 text-white dark:bg-white dark:text-slate-950 dark:border-white"
                             : "bg-white dark:bg-slate-800 text-slate-500 border-slate-200 dark:border-slate-700"
@@ -564,7 +568,7 @@ export function TextIndentationConverter({
       <div className="pt-8 border-t border-slate-100 dark:border-slate-800 grid grid-cols-1 md:grid-cols-3 gap-8 text-sm">
         <div className="space-y-3">
           <h4 className="font-bold dark:text-white flex items-center gap-2">
-            <Info className="w-4 h-4 text-indigo-500" />
+            <Info className="w-4 h-4 text-indigo-500" aria-hidden="true" />
             <span>{t("indent_converter.faq_q1", "What is Indentation Conversion?")}</span>
           </h4>
           <p className="text-slate-500 dark:text-slate-400 leading-relaxed">
@@ -573,7 +577,7 @@ export function TextIndentationConverter({
         </div>
         <div className="space-y-3">
           <h4 className="font-bold dark:text-white flex items-center gap-2">
-            <Sparkles className="w-4 h-4 text-indigo-500" />
+            <Sparkles className="w-4 h-4 text-indigo-500" aria-hidden="true" />
             <span>{t("indent_converter.faq_q2", "How does Auto-Detection work?")}</span>
           </h4>
           <p className="text-slate-500 dark:text-slate-400 leading-relaxed">
@@ -582,7 +586,7 @@ export function TextIndentationConverter({
         </div>
         <div className="space-y-3">
           <h4 className="font-bold dark:text-white flex items-center gap-2">
-            <AlertCircle className="w-4 h-4 text-indigo-500" />
+            <AlertCircle className="w-4 h-4 text-indigo-500" aria-hidden="true" />
             <span>{t("indent_converter.faq_q3", "Is my code secure and private?")}</span>
           </h4>
           <p className="text-slate-500 dark:text-slate-400 leading-relaxed">

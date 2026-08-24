@@ -537,6 +537,7 @@ const SQLToMongoDB = lazy(() => import("./components/SQLToMongoDB").then(m => ({
 const SQLToOpenAPI = lazy(() => import("./components/SQLToOpenAPI").then(m => ({ default: m.SQLToOpenAPI })));
 const SQLToMermaid = lazy(() => import("./components/SQLToMermaid").then(m => ({ default: m.SQLToMermaid })));
 const SQLToPydantic = lazy(() => import("./components/SQLToPydantic").then(m => ({ default: m.SQLToPydantic })));
+const SQLToGraphQL = lazy(() => import("./components/SQLToGraphQL").then(m => ({ default: m.SQLToGraphQL })));
 const YAMLToTOML = lazy(() => import("./components/YAMLToTOML").then(m => ({ default: m.YAMLToTOML })));
 const YamlIniConverter = lazy(() => import("./components/YamlIniConverter").then(m => ({ default: m.YamlIniConverter })));
 const SubstitutionCipher = lazy(() => import("./components/SubstitutionCipher").then(m => ({ default: m.SubstitutionCipher })));
@@ -5049,6 +5050,17 @@ const tools: Tool[] = [
     Component: SQLToPydantic,
     category: "dev",
     keywords: ["sql", "pydantic", "python", "fastapi", "dataclass", "model", "database", "ddl", "create table"],
+  },
+  {
+    id: "sql-to-graphql",
+    name: "SQL en GraphQL",
+    nameEn: "SQL to GraphQL Schema",
+    icon: Database,
+    description: "Convertir des instructions SQL CREATE TABLE DDL en types et schémas GraphQL SDL",
+    descriptionEn: "Convert SQL CREATE TABLE DDL statements into GraphQL SDL types and schemas",
+    Component: SQLToGraphQL,
+    category: "dev",
+    keywords: ["sql", "graphql", "sdl", "schema", "type", "mutation", "query", "database", "ddl", "create table"],
   },
   {
     id: "yaml-toml",

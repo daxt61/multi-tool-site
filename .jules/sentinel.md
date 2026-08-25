@@ -242,7 +242,7 @@
 **Learning:** Client-side list processing utilities are highly prone to DoS when performing parsing, set conversion and sorting without an upper boundary. Enforcing standard limits is a required security control.
 **Prevention:** Always define and enforce `MAX_LENGTH = 100000` on input text areas for list/string transformation tools before starting computational loops.
 
-## 2026-07-31 - [ReDoS and State Exposure in Password Analyzer]
+## 2026-08-31 - [ReDoS and State Exposure in Password Analyzer]
 **Vulnerability:** The PasswordAnalyzer component calculated entropy, scores, and validated repeating/common patterns using complex regex checks on dynamic password inputs. Unbounded input length permitted pasting massive strings that would trigger catastrophic backtracking (ReDoS) or local browser CPU/thread exhaustion. Additionally, password tools must never leak user-typed passwords into shareable URL parameters.
 **Learning:** Any component executing multi-pass regexes (such as `/(.)\1{2,}/`) on user-typed text must limit input length natively and dynamically to avoid ReDoS. Furthermore, security tools must strictly sanitize internal state to prevent leaking sensitive fields into global URL serialization.
 **Prevention:** Enforce a strict standard `MAX_LENGTH = 128` on password analysis text inputs, pair it with `maxLength` elements, and configure state handlers to exclude sensitive user plaintexts from `onStateChange` and `initialData` synchronization.
@@ -266,3 +266,8 @@
 **Vulnerability:** The RegexExtractor component formatted extracted matches using multi-pass `.replace()` calls with string arguments. This allowed extracted match strings containing `$` tokens (like `$1`, `$&`, `$'`, `$\``) to trigger both JS replacement pattern evaluation and multi-pass secondary template expansion.
 **Learning:** Sequential `.replace()` string passes over user-controlled text allow values injected in step 1 to be interpreted as template placeholders in step 2. Furthermore, passing raw string arguments to `.replace()` evaluates special replacement patterns like `$&` or `$'`.
 **Prevention:** Always use single-pass regex matching with a replacer callback function `(_, named, num) => ...` for template substitutions. Callback return values are treated strictly as literal strings and are never re-evaluated for replacement patterns.
+
+## 2026-08-20 - [Prototype Pollution in HTML-to-JSX Style Conversion]
+**Vulnerability:** The HTMLToJSX component used a plain object literal (`{}`) to collect converted inline CSS properties from style attributes (`style="..."`), allowing user-controlled CSS property names like `__proto__`, `constructor`, or `prototype` to collide with Object prototype properties.
+**Learning:** When parsing user-controlled CSS declarations or key-value attributes into objects, property names derived from raw input strings can overwrite inherited Object methods if standard object literals are used.
+**Prevention:** Always use `Object.create(null)` for intermediate dictionary objects and filter out dangerous keys (`__proto__`, `constructor`, `prototype`) before assignment.

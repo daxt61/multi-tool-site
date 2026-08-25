@@ -15,13 +15,17 @@ export function HTMLToJSX({ initialData, onStateChange }: { initialData?: any; o
     onStateChange?.({ htmlInput });
   }, [htmlInput, onStateChange]);
 
+  const DANGEROUS_KEYS = ['__proto__', 'constructor', 'prototype'];
+
   const convertStyle = (styleStr: string) => {
-    const styles: Record<string, string> = {};
+    const styles: Record<string, string> = Object.create(null);
     styleStr.split(';').forEach(style => {
       const [prop, val] = style.split(':');
       if (prop && val) {
         const camelProp = prop.trim().replace(/-([a-z])/g, g => g[1].toUpperCase());
-        styles[camelProp] = val.trim();
+        if (!DANGEROUS_KEYS.includes(camelProp)) {
+          styles[camelProp] = val.trim();
+        }
       }
     });
     return `{{${Object.entries(styles).map(([k, v]) => `${k}: '${v}'`).join(', ')}}}`;

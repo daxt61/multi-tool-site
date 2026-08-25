@@ -593,7 +593,9 @@ const CSVColumnReorderer = lazy(() => import("./components/CSVColumnReorderer").
 const CSVColumnFilter = lazy(() => import("./components/CSVColumnFilter").then(m => ({ default: m.CSVColumnFilter })));
 const CSVDelimiterChanger = lazy(() => import("./components/CSVDelimiterChanger").then(m => ({ default: m.CSVDelimiterChanger })));
 const CSVRowSorter = lazy(() => import("./components/CSVRowSorter").then(m => ({ default: m.CSVRowSorter })));
+const CSVColumnRenamer = lazy(() => import("./components/CSVColumnRenamer").then(m => ({ default: m.CSVColumnRenamer })));
 const ListRepeater = lazy(() => import("./components/ListRepeater").then(m => ({ default: m.ListRepeater })));
+const ListTruncator = lazy(() => import("./components/ListTruncator").then(m => ({ default: m.ListTruncator })));
 
 // ⚡ Bolt Optimization: Pre-calculating tool map and search index for O(1) lookups and faster filtering
 const toolsMap: Record<string, Tool> = {};
@@ -631,6 +633,30 @@ const categories: Category[] = [
 ];
 
 const tools: Tool[] = [
+  // List Truncator & Line Limiter Tool
+  {
+    id: "list-truncator",
+    name: "Tronqueur de Liste",
+    nameEn: "List Truncator & Line Limiter",
+    icon: Scissors,
+    description: "Tronquer la longueur des lignes ou limiter le nombre total de lignes d'une liste de texte",
+    descriptionEn: "Truncate list line lengths or limit the total line count with customizable ellipsis and position",
+    Component: ListTruncator,
+    category: "text",
+    keywords: ["list", "truncator", "truncate", "limit", "ellipsis", "lines", "characters", "shorten", "length", "tronquer", "limiter"],
+  },
+  // CSV Column Renamer & Transformer Tool
+  {
+    id: "csv-column-renamer",
+    name: "Renommeur de Colonnes CSV",
+    nameEn: "Rename & Transform CSV Columns",
+    icon: FileSpreadsheet,
+    description: "Renommer les en-têtes de colonnes CSV/TSV, modifier la casse des cellules et ajouter préfixe/suffixe",
+    descriptionEn: "Rename CSV/TSV column headers, transform cell value casing, and apply prefix, suffix, or default fallbacks",
+    Component: CSVColumnRenamer,
+    category: "dev",
+    keywords: ["csv", "tsv", "rename", "columns", "headers", "transform", "casing", "prefix", "suffix", "fallback", "colonnes", "renommer"],
+  },
   // List Duplicator & Repeater Tool
   {
     id: "list-repeater",

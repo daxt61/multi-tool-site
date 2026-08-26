@@ -15,7 +15,7 @@ test("URL Extractor UX: keyboard shortcuts and focus management", async ({
   // 2. Enter text and verify extraction
   const sampleText = "Check out https://example.com and http://test.org/path";
   await textarea.fill(sampleText);
-  await expect(page.getByText("2")).toBeVisible(); // Number of URLs found
+  await expect(page.getByText("2", { exact: true })).toBeVisible(); // Number of URLs found
 
   // 3. Test focus restoration after clicking Clear
   await clearButton.click();
@@ -46,5 +46,5 @@ test("URL Extractor UX: keyboard shortcuts and focus management", async ({
 
   // Press C globally
   await page.keyboard.press("c");
-  await expect(page.getByText("Copied")).toBeVisible();
+  await expect(page.getByRole("button", { name: /Copied/i })).toBeVisible();
 });

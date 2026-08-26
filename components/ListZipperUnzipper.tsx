@@ -1,5 +1,5 @@
 import React, { useState, useMemo, useEffect, useCallback, useRef } from 'react';
-import { ArrowLeftRight, Copy, Check, Trash2, Download, Settings2, Sliders, ListFilter, Info, AlertCircle } from 'lucide-react';
+import { ArrowLeftRight, Copy, Check, Trash2, Download, Settings2, Sliders, ListFilter, Info, AlertCircle, Sparkles } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import { toast } from 'sonner';
 import { Kbd } from './ui/Kbd';
@@ -103,43 +103,18 @@ export function ListZipperUnzipper({ initialData, onStateChange }: { initialData
     if (activeTab === 'zip') {
       setListA('');
       setListB('');
+      setZipPrefix('');
+      setZipSuffix('');
       setError(null);
+      toast.success(t('listzipper.toast_cleared', 'List inputs cleared'));
       setTimeout(() => listARef.current?.focus(), 0);
     } else {
       setCombinedInput('');
       setError(null);
+      toast.success(t('listzipper.toast_cleared', 'List inputs cleared'));
       setTimeout(() => combinedRef.current?.focus(), 0);
     }
-  }, [activeTab]);
-
-  // keyboard handlers via ref to avoid stale closures
-  const handlersRef = useRef({ handleClear });
-  useEffect(() => {
-    handlersRef.current = { handleClear };
-  }, [handleClear]);
-
-  // Global keydown listeners for shortcuts
-  useEffect(() => {
-    const handleKeyDown = (e: KeyboardEvent) => {
-      const active = document.activeElement;
-      const isEditable =
-        active instanceof HTMLInputElement ||
-        active instanceof HTMLTextAreaElement ||
-        active?.getAttribute('contenteditable') === 'true';
-
-      if (isEditable && e.key !== 'Escape') return;
-
-      if (e.metaKey || e.ctrlKey || e.altKey || e.shiftKey) return;
-
-      if (e.key === 'Escape') {
-        e.preventDefault();
-        handlersRef.current.handleClear();
-      }
-    };
-
-    window.addEventListener('keydown', handleKeyDown);
-    return () => window.removeEventListener('keydown', handleKeyDown);
-  }, []);
+  }, [activeTab, t]);
 
   // ZIP separators mapping
   const getZipSeparatorString = useCallback(() => {
@@ -241,28 +216,133 @@ export function ListZipperUnzipper({ initialData, onStateChange }: { initialData
   }, [combinedInput, unzipStrategy, unzipDelimiter, customUnzipDelim, getUnzipDelimiterString]);
 
   // Copy Actions
-  const handleCopyZip = () => {
+  const handleCopyZip = useCallback(() => {
     if (!zipResult) return;
     navigator.clipboard.writeText(zipResult);
     setCopiedZip(true);
-    toast.success(t('common.copied'));
+    toast.success(t('common.copied', 'Copied to clipboard!'));
     setTimeout(() => setCopiedZip(false), 2000);
-  };
+  }, [zipResult, t]);
 
-  const handleCopyUnzipA = () => {
+  const handleCopyUnzipA = useCallback(() => {
     if (!unzipResult.listA) return;
     navigator.clipboard.writeText(unzipResult.listA);
     setCopiedUnzipA(true);
-    toast.success(t('common.copied'));
+    toast.success(t('common.copied', 'Copied to clipboard!'));
     setTimeout(() => setCopiedUnzipA(false), 2000);
-  };
+  }, [unzipResult.listA, t]);
 
-  const handleCopyUnzipB = () => {
+  const handleCopyUnzipB = useCallback(() => {
     if (!unzipResult.listB) return;
     navigator.clipboard.writeText(unzipResult.listB);
     setCopiedUnzipB(true);
-    toast.success(t('common.copied'));
+    toast.success(t('common.copied', 'Copied to clipboard!'));
     setTimeout(() => setCopiedUnzipB(false), 2000);
+  }, [unzipResult.listB, t]);
+
+  // Master copy trigger for global 'C' key
+  const handleMasterCopy = useCallback(() => {
+    if (activeTab === 'zip') {
+      if (zipResult) handleCopyZip();
+    } else {
+      if (unzipResult.listA) handleCopyUnzipA();
+    }
+  }, [activeTab, zipResult, unzipResult.listA, handleCopyZip, handleCopyUnzipA]);
+
+  // keyboard handlers via ref to avoid stale closures
+  const handlersRef = useRef({ handleClear, handleMasterCopy });
+  useEffect(() => {
+    handlersRef.current = { handleClear, handleMasterCopy };
+  }, [handleClear, handleMasterCopy]);
+
+  // Global keydown listeners for shortcuts
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      const active = document.activeElement;
+      const isEditable =
+        active instanceof HTMLInputElement ||
+        active instanceof HTMLTextAreaElement ||
+        active?.getAttribute('contenteditable') === 'true';
+
+      if (isEditable && e.key !== 'Escape') return;
+
+      if (e.metaKey || e.ctrlKey || e.altKey || e.shiftKey) return;
+
+      if (e.key === 'Escape') {
+        e.preventDefault();
+        handlersRef.current.handleClear();
+      } else if (e.key.toLowerCase() === 'c') {
+        e.preventDefault();
+        handlersRef.current.handleMasterCopy();
+      }
+    };
+
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, []);
+
+  // Preset Loaders
+  const applyZipPreset = (type: 'names' | 'keyvalue' | 'csv' | 'query') => {
+    setError(null);
+    if (type === 'names') {
+      setListA('Alice\nBob\nCharlie\nDiana');
+      setListB('Smith\nJohnson\nBrown\nPrince');
+      setZipSeparator('space');
+      setMismatchStrategy('pad');
+      setPadValue('');
+      setZipPrefix('');
+      setZipSuffix('');
+      toast.success(t('listzipper.preset_loaded', 'Preset loaded!'));
+    } else if (type === 'keyvalue') {
+      setListA('host\nport\ndatabase\nusername');
+      setListB('localhost\n5432\nproduction_db\nadmin');
+      setZipSeparator('custom');
+      setCustomZipSep(' = ');
+      setMismatchStrategy('pad');
+      setPadValue('N/A');
+      setZipPrefix('');
+      setZipSuffix('');
+      toast.success(t('listzipper.preset_loaded', 'Preset loaded!'));
+    } else if (type === 'csv') {
+      setListA('ID-001\nID-002\nID-003\nID-004');
+      setListB('Active\nPending\nInactive\nSuspended');
+      setZipSeparator('comma');
+      setMismatchStrategy('pad');
+      setPadValue('Unknown');
+      setZipPrefix('');
+      setZipSuffix('');
+      toast.success(t('listzipper.preset_loaded', 'Preset loaded!'));
+    } else if (type === 'query') {
+      setListA('user\nrole\nstatus\npage');
+      setListB('john_doe\nadmin\nactive\n1');
+      setZipSeparator('custom');
+      setCustomZipSep('=');
+      setMismatchStrategy('truncate');
+      setZipPrefix('?');
+      setZipSuffix('&');
+      toast.success(t('listzipper.preset_loaded', 'Preset loaded!'));
+    }
+  };
+
+  const applyUnzipPreset = (type: 'keyvalue' | 'email' | 'alternating') => {
+    setError(null);
+    if (type === 'keyvalue') {
+      setCombinedInput('host = localhost\nport = 5432\ndatabase = production_db\nusername = admin');
+      setUnzipStrategy('delimiter');
+      setUnzipDelimiter('custom');
+      setCustomUnzipDelim(' = ');
+      toast.success(t('listzipper.preset_loaded', 'Preset loaded!'));
+    } else if (type === 'email') {
+      setCombinedInput('alice@example.com\nbob@domain.org\ncharlie@company.com\ndiana@tech.io');
+      setUnzipStrategy('delimiter');
+      setUnzipDelimiter('custom');
+      setCustomUnzipDelim('@');
+      toast.success(t('listzipper.preset_loaded', 'Preset loaded!'));
+    } else if (type === 'alternating') {
+      setCombinedInput('First Name\nAlice\nLast Name\nSmith\nEmail\nalice@example.com');
+      setUnzipStrategy('alternating');
+      toast.success(t('listzipper.preset_loaded', 'Preset loaded!'));
+    }
   };
 
   // Download Actions
@@ -275,10 +355,11 @@ export function ListZipperUnzipper({ initialData, onStateChange }: { initialData
     link.download = `${filename}.txt`;
     link.click();
     URL.revokeObjectURL(url);
+    toast.success(t('common.downloaded', 'Downloaded file successfully!'));
   };
 
   return (
-    <div className="max-w-6xl mx-auto space-y-8">
+    <div className="max-w-6xl mx-auto space-y-8" role="region" aria-label={t('tool.list-zipper-unzipper.name', 'Zip & Unzip Lists')}>
       {error && (
         <div className="bg-rose-50 dark:bg-rose-500/10 border border-rose-200 dark:border-rose-800 p-4 rounded-2xl flex items-center gap-3 text-rose-600 dark:text-rose-400 font-bold animate-in fade-in slide-in-from-top-2">
           <AlertCircle className="w-5 h-5" aria-hidden="true" />
@@ -317,6 +398,46 @@ export function ListZipperUnzipper({ initialData, onStateChange }: { initialData
       {activeTab === 'zip' ? (
         // ================== ZIP OPERATION PANEL ==================
         <div className="space-y-8 animate-in fade-in duration-300">
+          {/* Quick Presets Bar */}
+          <div className="flex flex-wrap items-center justify-between gap-4 bg-slate-50 dark:bg-slate-900/50 p-4 rounded-2xl border border-slate-200 dark:border-slate-800">
+            <div className="flex items-center gap-2 text-indigo-600 dark:text-indigo-400">
+              <Sparkles className="w-4 h-4" aria-hidden="true" />
+              <span className="text-xs font-bold uppercase tracking-wider">
+                {t('listzipper.presets_label', 'Quick Presets')}
+              </span>
+            </div>
+            <div className="flex flex-wrap gap-2">
+              <button
+                type="button"
+                onClick={() => applyZipPreset('names')}
+                className="px-3 py-1.5 bg-white dark:bg-slate-800 hover:bg-indigo-50 dark:hover:bg-indigo-900/20 text-slate-700 dark:text-slate-300 rounded-lg text-xs font-medium border border-slate-200 dark:border-slate-700 transition-all"
+              >
+                {t('listzipper.preset_names', 'First & Last Names')}
+              </button>
+              <button
+                type="button"
+                onClick={() => applyZipPreset('keyvalue')}
+                className="px-3 py-1.5 bg-white dark:bg-slate-800 hover:bg-indigo-50 dark:hover:bg-indigo-900/20 text-slate-700 dark:text-slate-300 rounded-lg text-xs font-medium border border-slate-200 dark:border-slate-700 transition-all"
+              >
+                {t('listzipper.preset_keyvalue', 'Key-Value Pairs (=)')}
+              </button>
+              <button
+                type="button"
+                onClick={() => applyZipPreset('csv')}
+                className="px-3 py-1.5 bg-white dark:bg-slate-800 hover:bg-indigo-50 dark:hover:bg-indigo-900/20 text-slate-700 dark:text-slate-300 rounded-lg text-xs font-medium border border-slate-200 dark:border-slate-700 transition-all"
+              >
+                {t('listzipper.preset_csv', 'CSV Columns (,)')}
+              </button>
+              <button
+                type="button"
+                onClick={() => applyZipPreset('query')}
+                className="px-3 py-1.5 bg-white dark:bg-slate-800 hover:bg-indigo-50 dark:hover:bg-indigo-900/20 text-slate-700 dark:text-slate-300 rounded-lg text-xs font-medium border border-slate-200 dark:border-slate-700 transition-all"
+              >
+                {t('listzipper.preset_query', 'URL Query Params')}
+              </button>
+            </div>
+          </div>
+
           <div className="flex justify-between items-center px-1">
             <div className="flex items-center gap-2 text-indigo-500">
               <Sliders className="w-4 h-4" aria-hidden="true" />
@@ -389,7 +510,7 @@ export function ListZipperUnzipper({ initialData, onStateChange }: { initialData
                 id="zip-sep-select"
                 value={zipSeparator}
                 onChange={(e) => setZipSeparator(e.target.value)}
-                className="w-full px-4 py-2.5 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-xs font-bold outline-none focus:ring-2 focus:ring-indigo-500/20"
+                className="w-full px-4 py-2.5 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-xs font-bold outline-none focus:ring-2 focus:ring-indigo-500/20 cursor-pointer"
               >
                 <option value="comma">{t('listseparatorchanger.separator_comma', 'Comma (, )')}</option>
                 <option value="semicolon">{t('listseparatorchanger.separator_semicolon', 'Semicolon (; )')}</option>
@@ -422,6 +543,7 @@ export function ListZipperUnzipper({ initialData, onStateChange }: { initialData
               </div>
               <div className="grid grid-cols-2 gap-2">
                 <button
+                  type="button"
                   onClick={() => setMismatchStrategy('truncate')}
                   className={`px-3 py-2 rounded-xl text-xs font-black transition-all border ${
                     mismatchStrategy === 'truncate'
@@ -432,6 +554,7 @@ export function ListZipperUnzipper({ initialData, onStateChange }: { initialData
                   {t('listzipper.opt_truncate', 'Ignore extra')}
                 </button>
                 <button
+                  type="button"
                   onClick={() => setMismatchStrategy('pad')}
                   className={`px-3 py-2 rounded-xl text-xs font-black transition-all border ${
                     mismatchStrategy === 'pad'
@@ -493,17 +616,17 @@ export function ListZipperUnzipper({ initialData, onStateChange }: { initialData
           {/* Results Block */}
           <div className="space-y-4">
             <div className="flex justify-between items-center px-1">
-              <label htmlFor="zip-output" className="text-xs font-black uppercase tracking-widest text-slate-400 flex items-center gap-2">
+              <label htmlFor="zip-output" className="text-xs font-black uppercase tracking-widest text-slate-400 flex items-center gap-2 cursor-pointer">
                 <ListFilter className="w-4 h-4 text-emerald-500" aria-hidden="true" /> {t('common.output', 'Output')}
               </label>
-              <div className="flex gap-2">
+              <div className="flex gap-2 items-center">
                 <button
                   onClick={() => handleDownloadText(zipResult, `zipped-list-${Date.now()}`)}
                   disabled={!zipResult}
                   className="p-2 text-indigo-600 bg-indigo-50 dark:bg-indigo-900/20 rounded-lg hover:bg-indigo-100 disabled:opacity-50 transition-all focus-visible:ring-2 focus-visible:ring-indigo-500 focus-visible:outline-none"
                   title={t('common.download')}
                 >
-                  <Download className="w-4 h-4" />
+                  <Download className="w-4 h-4" aria-hidden="true" />
                 </button>
                 <button
                   onClick={handleCopyZip}
@@ -514,8 +637,9 @@ export function ListZipperUnzipper({ initialData, onStateChange }: { initialData
                       : 'text-slate-500 bg-slate-100 dark:bg-slate-800 border-transparent hover:bg-slate-200 dark:hover:bg-slate-700'
                   } disabled:opacity-50 disabled:cursor-not-allowed`}
                 >
-                  {copiedZip ? <Check className="w-4 h-4" /> : <Copy className="w-4 h-4" />}
+                  {copiedZip ? <Check className="w-4 h-4" aria-hidden="true" /> : <Copy className="w-4 h-4" aria-hidden="true" />}
                   {copiedZip ? t('common.copied') : t('common.copy')}
+                  <Kbd modifier={null} className="ml-1 hidden sm:inline-flex border-slate-200 dark:border-slate-700 text-slate-400">C</Kbd>
                 </button>
               </div>
             </div>
@@ -532,6 +656,39 @@ export function ListZipperUnzipper({ initialData, onStateChange }: { initialData
       ) : (
         // ================== UNZIP OPERATION PANEL ==================
         <div className="space-y-8 animate-in fade-in duration-300">
+          {/* Quick Presets Bar */}
+          <div className="flex flex-wrap items-center justify-between gap-4 bg-slate-50 dark:bg-slate-900/50 p-4 rounded-2xl border border-slate-200 dark:border-slate-800">
+            <div className="flex items-center gap-2 text-indigo-600 dark:text-indigo-400">
+              <Sparkles className="w-4 h-4" aria-hidden="true" />
+              <span className="text-xs font-bold uppercase tracking-wider">
+                {t('listzipper.presets_label', 'Quick Presets')}
+              </span>
+            </div>
+            <div className="flex flex-wrap gap-2">
+              <button
+                type="button"
+                onClick={() => applyUnzipPreset('keyvalue')}
+                className="px-3 py-1.5 bg-white dark:bg-slate-800 hover:bg-indigo-50 dark:hover:bg-indigo-900/20 text-slate-700 dark:text-slate-300 rounded-lg text-xs font-medium border border-slate-200 dark:border-slate-700 transition-all"
+              >
+                {t('listzipper.preset_unzip_keyvalue', 'Key-Value Split (=)')}
+              </button>
+              <button
+                type="button"
+                onClick={() => applyUnzipPreset('email')}
+                className="px-3 py-1.5 bg-white dark:bg-slate-800 hover:bg-indigo-50 dark:hover:bg-indigo-900/20 text-slate-700 dark:text-slate-300 rounded-lg text-xs font-medium border border-slate-200 dark:border-slate-700 transition-all"
+              >
+                {t('listzipper.preset_unzip_email', 'Email Split (@)')}
+              </button>
+              <button
+                type="button"
+                onClick={() => applyUnzipPreset('alternating')}
+                className="px-3 py-1.5 bg-white dark:bg-slate-800 hover:bg-indigo-50 dark:hover:bg-indigo-900/20 text-slate-700 dark:text-slate-300 rounded-lg text-xs font-medium border border-slate-200 dark:border-slate-700 transition-all"
+              >
+                {t('listzipper.preset_unzip_alternating', 'Interleaved Lines')}
+              </button>
+            </div>
+          </div>
+
           <div className="flex justify-between items-center px-1">
             <div className="flex items-center gap-2 text-indigo-500">
               <Sliders className="w-4 h-4" aria-hidden="true" />
@@ -581,6 +738,7 @@ export function ListZipperUnzipper({ initialData, onStateChange }: { initialData
                 </div>
                 <div className="grid grid-cols-1 gap-2">
                   <button
+                    type="button"
                     onClick={() => setUnzipStrategy('delimiter')}
                     className={`px-3 py-2.5 rounded-xl text-xs font-black transition-all border ${
                       unzipStrategy === 'delimiter'
@@ -591,6 +749,7 @@ export function ListZipperUnzipper({ initialData, onStateChange }: { initialData
                     {t('listzipper.opt_delimiter', 'Split lines by separator')}
                   </button>
                   <button
+                    type="button"
                     onClick={() => setUnzipStrategy('alternating')}
                     className={`px-3 py-2.5 rounded-xl text-xs font-black transition-all border ${
                       unzipStrategy === 'alternating'
@@ -606,14 +765,14 @@ export function ListZipperUnzipper({ initialData, onStateChange }: { initialData
               {unzipStrategy === 'delimiter' && (
                 <div className="space-y-4 pt-4 border-t border-slate-100 dark:border-slate-800 animate-in fade-in duration-200">
                   <div className="space-y-2">
-                    <label htmlFor="unzip-delim-select" className="text-[10px] font-bold text-slate-400 uppercase">
+                    <label htmlFor="unzip-delim-select" className="text-[10px] font-bold text-slate-400 uppercase cursor-pointer">
                       {t('listzipper.split_delimiter', 'Separator Delimiter')}
                     </label>
                     <select
                       id="unzip-delim-select"
                       value={unzipDelimiter}
                       onChange={(e) => setUnzipDelimiter(e.target.value)}
-                      className="w-full px-3 py-2 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-xs font-bold outline-none focus:ring-2 focus:ring-indigo-500/20"
+                      className="w-full px-3 py-2 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-xs font-bold outline-none focus:ring-2 focus:ring-indigo-500/20 cursor-pointer"
                     >
                       <option value="comma">{t('listseparatorchanger.separator_comma', 'Comma (, )')}</option>
                       <option value="semicolon">{t('listseparatorchanger.separator_semicolon', 'Semicolon (; )')}</option>
@@ -648,14 +807,14 @@ export function ListZipperUnzipper({ initialData, onStateChange }: { initialData
                 <label htmlFor="unzip-output-a" className="text-xs font-black uppercase tracking-widest text-slate-400 cursor-pointer">
                   {t('listzipper.extracted_a', 'Extracted List A')}
                 </label>
-                <div className="flex gap-2">
+                <div className="flex gap-2 items-center">
                   <button
                     onClick={() => handleDownloadText(unzipResult.listA, `unzipped-list-A-${Date.now()}`)}
                     disabled={!unzipResult.listA}
                     className="p-1.5 text-indigo-600 bg-indigo-50 dark:bg-indigo-900/20 rounded-lg hover:bg-indigo-100 disabled:opacity-50 transition-all focus-visible:ring-2 focus-visible:ring-indigo-500 focus-visible:outline-none"
                     title={t('common.download')}
                   >
-                    <Download className="w-3.5 h-3.5" />
+                    <Download className="w-3.5 h-3.5" aria-hidden="true" />
                   </button>
                   <button
                     onClick={handleCopyUnzipA}
@@ -666,8 +825,9 @@ export function ListZipperUnzipper({ initialData, onStateChange }: { initialData
                         : 'text-slate-500 bg-slate-100 dark:bg-slate-800 border-transparent hover:bg-slate-200 dark:hover:bg-slate-700'
                     } disabled:opacity-50 disabled:cursor-not-allowed`}
                   >
-                    {copiedUnzipA ? <Check className="w-3.5 h-3.5" /> : <Copy className="w-3.5 h-3.5" />}
+                    {copiedUnzipA ? <Check className="w-3.5 h-3.5" aria-hidden="true" /> : <Copy className="w-3.5 h-3.5" aria-hidden="true" />}
                     {copiedUnzipA ? t('common.copied') : t('common.copy')}
+                    <Kbd modifier={null} className="ml-1 hidden sm:inline-flex border-slate-200 dark:border-slate-700 text-slate-400">C</Kbd>
                   </button>
                 </div>
               </div>
@@ -693,7 +853,7 @@ export function ListZipperUnzipper({ initialData, onStateChange }: { initialData
                     className="p-1.5 text-indigo-600 bg-indigo-50 dark:bg-indigo-900/20 rounded-lg hover:bg-indigo-100 disabled:opacity-50 transition-all focus-visible:ring-2 focus-visible:ring-indigo-500 focus-visible:outline-none"
                     title={t('common.download')}
                   >
-                    <Download className="w-3.5 h-3.5" />
+                    <Download className="w-3.5 h-3.5" aria-hidden="true" />
                   </button>
                   <button
                     onClick={handleCopyUnzipB}
@@ -704,7 +864,7 @@ export function ListZipperUnzipper({ initialData, onStateChange }: { initialData
                         : 'text-slate-500 bg-slate-100 dark:bg-slate-800 border-transparent hover:bg-slate-200 dark:hover:bg-slate-700'
                     } disabled:opacity-50 disabled:cursor-not-allowed`}
                   >
-                    {copiedUnzipB ? <Check className="w-3.5 h-3.5" /> : <Copy className="w-3.5 h-3.5" />}
+                    {copiedUnzipB ? <Check className="w-3.5 h-3.5" aria-hidden="true" /> : <Copy className="w-3.5 h-3.5" aria-hidden="true" />}
                     {copiedUnzipB ? t('common.copied') : t('common.copy')}
                   </button>
                 </div>

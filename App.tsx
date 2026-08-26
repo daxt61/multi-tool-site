@@ -596,6 +596,7 @@ const CSVRowSorter = lazy(() => import("./components/CSVRowSorter").then(m => ({
 const CSVColumnRenamer = lazy(() => import("./components/CSVColumnRenamer").then(m => ({ default: m.CSVColumnRenamer })));
 const ListRepeater = lazy(() => import("./components/ListRepeater").then(m => ({ default: m.ListRepeater })));
 const ListTruncator = lazy(() => import("./components/ListTruncator").then(m => ({ default: m.ListTruncator })));
+const CSVToMarkdownTable = lazy(() => import("./components/CSVToMarkdownTable").then(m => ({ default: m.CSVToMarkdownTable })));
 
 // ⚡ Bolt Optimization: Pre-calculating tool map and search index for O(1) lookups and faster filtering
 const toolsMap: Record<string, Tool> = {};
@@ -633,6 +634,18 @@ const categories: Category[] = [
 ];
 
 const tools: Tool[] = [
+  // CSV to Markdown Table Tool
+  {
+    id: "csv-to-markdown-table",
+    name: "Convertisseur CSV en Tableau Markdown",
+    nameEn: "CSV to Markdown Table Converter",
+    icon: Table,
+    description: "Convertir des fichiers ou données CSV/TSV en tableau Markdown propre avec options d'alignement",
+    descriptionEn: "Convert CSV, TSV, or separated dataset tables into formatted Markdown table markup with alignment controls",
+    Component: CSVToMarkdownTable,
+    category: "dev",
+    keywords: ["csv", "markdown", "table", "converter", "tsv", "pipe", "alignment", "pretty", "markup", "convertir", "tableau"],
+  },
   // List Truncator & Line Limiter Tool
   {
     id: "list-truncator",

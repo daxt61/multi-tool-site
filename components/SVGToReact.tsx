@@ -245,6 +245,44 @@ const ATTRIBUTE_MAP: Record<string, string> = {
 
 const DANGEROUS_ATTRIBUTES = ['__proto__', 'constructor', 'prototype', 'onmouseover', 'onclick', 'onerror'];
 
+function SafeSvgPreview({ svgString }: { svgString: string }) {
+  const containerRef = useRef<HTMLSpanElement>(null);
+
+  useEffect(() => {
+    if (!containerRef.current) return;
+    try {
+      const parser = new DOMParser();
+      const doc = parser.parseFromString(svgString, 'image/svg+xml');
+      const svgEl = doc.documentElement;
+      if (svgEl && svgEl.nodeName.toLowerCase() === 'svg' && !doc.querySelector('parsererror')) {
+        svgEl.querySelectorAll('script, style').forEach(el => el.remove());
+
+        const sanitizeNode = (node: Element) => {
+          const attrsToRemove: string[] = [];
+          for (let i = 0; i < node.attributes.length; i++) {
+            const attr = node.attributes[i];
+            if (attr.name.startsWith('on') || attr.value.toLowerCase().includes('javascript:')) {
+              attrsToRemove.push(attr.name);
+            }
+          }
+          attrsToRemove.forEach(a => node.removeAttribute(a));
+          Array.from(node.children).forEach(sanitizeNode);
+        };
+        sanitizeNode(svgEl);
+
+        svgEl.setAttribute('width', '16');
+        svgEl.setAttribute('height', '16');
+
+        containerRef.current.replaceChildren(svgEl);
+      }
+    } catch {
+      // Fallback
+    }
+  }, [svgString]);
+
+  return <span ref={containerRef} className="w-4 h-4 inline-flex items-center justify-center flex-shrink-0" />;
+}
+
 export function SVGToReact({ initialData, onStateChange }: { initialData?: any; onStateChange?: (state: any) => void }) {
   const { t } = useTranslation();
   const textareaRef = useRef<HTMLTextAreaElement>(null);
@@ -540,7 +578,7 @@ export function SVGToReact({ initialData, onStateChange }: { initialData?: any; 
               onClick={() => handleLoadPreset(preset.svg)}
               className="flex items-center gap-2 px-4 py-2 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-xs font-bold hover:border-indigo-500 transition-all text-slate-700 dark:text-slate-300"
             >
-              <span dangerouslySetInnerHTML={{ __html: preset.svg }} className="w-4 h-4" />
+              <SafeSvgPreview svgString={preset.svg} />
               {preset.name}
             </button>
           ))}

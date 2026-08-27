@@ -538,6 +538,7 @@ const SQLToOpenAPI = lazy(() => import("./components/SQLToOpenAPI").then(m => ({
 const SQLToMermaid = lazy(() => import("./components/SQLToMermaid").then(m => ({ default: m.SQLToMermaid })));
 const SQLToPydantic = lazy(() => import("./components/SQLToPydantic").then(m => ({ default: m.SQLToPydantic })));
 const SQLToGraphQL = lazy(() => import("./components/SQLToGraphQL").then(m => ({ default: m.SQLToGraphQL })));
+const SQLToPrisma = lazy(() => import("./components/SQLToPrisma").then(m => ({ default: m.SQLToPrisma })));
 const YAMLToTOML = lazy(() => import("./components/YAMLToTOML").then(m => ({ default: m.YAMLToTOML })));
 const YamlIniConverter = lazy(() => import("./components/YamlIniConverter").then(m => ({ default: m.YamlIniConverter })));
 const SubstitutionCipher = lazy(() => import("./components/SubstitutionCipher").then(m => ({ default: m.SubstitutionCipher })));
@@ -5100,6 +5101,17 @@ const tools: Tool[] = [
     Component: SQLToGraphQL,
     category: "dev",
     keywords: ["sql", "graphql", "sdl", "schema", "type", "mutation", "query", "database", "ddl", "create table"],
+  },
+  {
+    id: "sql-to-prisma",
+    name: "SQL en Schéma Prisma",
+    nameEn: "SQL to Prisma Schema",
+    icon: Database,
+    description: "Convertir des instructions SQL CREATE TABLE DDL en modèles de schéma Prisma",
+    descriptionEn: "Convert SQL CREATE TABLE DDL statements into Prisma Schema models",
+    Component: SQLToPrisma,
+    category: "dev",
+    keywords: ["sql", "prisma", "schema", "model", "orm", "database", "ddl", "create table", "postgresql", "mysql"],
   },
   {
     id: "yaml-toml",

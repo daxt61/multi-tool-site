@@ -3,6 +3,7 @@ import { useTranslation } from 'react-i18next';
 import { Link as LinkIcon, Plus, Trash2, Copy, Check, ArrowRight, AlertCircle, RefreshCw, Layers, Edit } from 'lucide-react';
 import { toast } from 'sonner';
 import { Kbd } from './ui/Kbd';
+import { getSecureRandomInt } from './ui/crypto';
 
 const MAX_LENGTH = 100000;
 
@@ -163,7 +164,7 @@ export function UrlQueryModifier({ initialData, onStateChange }: { initialData?:
 
   // Add new parameter row
   const addParam = () => {
-    setParams(prev => [...prev, { id: `${Date.now()}-${Math.random()}`, key: '', value: '' }]);
+    setParams(prev => [...prev, { id: `${Date.now()}-${getSecureRandomInt(1000000)}`, key: '', value: '' }]);
     toast.success(t('query_modifier.param_added', { defaultValue: 'Parameter added' }));
   };
 

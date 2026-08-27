@@ -596,6 +596,7 @@ const CSVRowSorter = lazy(() => import("./components/CSVRowSorter").then(m => ({
 const CSVColumnRenamer = lazy(() => import("./components/CSVColumnRenamer").then(m => ({ default: m.CSVColumnRenamer })));
 const ListRepeater = lazy(() => import("./components/ListRepeater").then(m => ({ default: m.ListRepeater })));
 const ListTruncator = lazy(() => import("./components/ListTruncator").then(m => ({ default: m.ListTruncator })));
+const MarkdownTableToCSV = lazy(() => import("./components/MarkdownTableToCSV").then(m => ({ default: m.MarkdownTableToCSV })));
 
 // ⚡ Bolt Optimization: Pre-calculating tool map and search index for O(1) lookups and faster filtering
 const toolsMap: Record<string, Tool> = {};
@@ -633,6 +634,18 @@ const categories: Category[] = [
 ];
 
 const tools: Tool[] = [
+  // Markdown Table to CSV / TSV Converter Tool
+  {
+    id: "markdown-table-to-csv",
+    name: "Tableau Markdown en CSV",
+    nameEn: "Markdown Table to CSV / TSV",
+    icon: Table,
+    description: "Convertir des tableaux Markdown en données CSV, TSV ou délimitées personnalisées",
+    descriptionEn: "Convert Markdown tables into CSV, TSV, or custom character-delimited datasets",
+    Component: MarkdownTableToCSV,
+    category: "dev",
+    keywords: ["markdown", "table", "csv", "tsv", "convert", "export", "delimited", "excel", "sheets", "tableau", "convertir"],
+  },
   // List Truncator & Line Limiter Tool
   {
     id: "list-truncator",

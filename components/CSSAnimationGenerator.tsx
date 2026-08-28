@@ -183,7 +183,7 @@ export function CSSAnimationGenerator({ initialData, onStateChange }: { initialD
                   min="0.1"
                   step="0.1"
                   value={duration}
-                  onChange={(e) => setDuration(parseFloat(e.target.value) || 1)}
+                  onChange={(e) => setDuration(clampNumber(e.target.value, 1, 0.1, 60))}
                   className="w-full p-3 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl outline-none focus:ring-2 focus:ring-indigo-500/20 transition-all dark:text-slate-300"
                 />
               </div>
@@ -195,7 +195,7 @@ export function CSSAnimationGenerator({ initialData, onStateChange }: { initialD
                   min="0"
                   step="0.1"
                   value={delay}
-                  onChange={(e) => setDurationDelay(parseFloat(e.target.value) || 0)}
+                  onChange={(e) => setDurationDelay(clampNumber(e.target.value, 0, 0, 60))}
                   className="w-full p-3 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl outline-none focus:ring-2 focus:ring-indigo-500/20 transition-all dark:text-slate-300"
                 />
               </div>
@@ -206,7 +206,7 @@ export function CSSAnimationGenerator({ initialData, onStateChange }: { initialD
                 <label className="text-xs font-bold text-slate-500 px-1">{t('animation.timing', 'Timing Function')}</label>
                 <select
                   value={timingFunction}
-                  onChange={(e) => setTimingFunction(e.target.value)}
+                  onChange={(e) => setTimingFunction(sanitizeTimingFunction(e.target.value))}
                   className="w-full p-3 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl outline-none focus:ring-2 focus:ring-indigo-500/20 transition-all dark:text-slate-300 cursor-pointer"
                 >
                   {timingFunctions.map(f => <option key={f} value={f}>{f}</option>)}
@@ -216,7 +216,7 @@ export function CSSAnimationGenerator({ initialData, onStateChange }: { initialD
                 <label className="text-xs font-bold text-slate-500 px-1">{t('animation.iterations', 'Iterations')}</label>
                 <select
                   value={iterationCount}
-                  onChange={(e) => setIterationCount(e.target.value)}
+                  onChange={(e) => setIterationCount(sanitizeIterationCount(e.target.value))}
                   className="w-full p-3 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl outline-none focus:ring-2 focus:ring-indigo-500/20 transition-all dark:text-slate-300 cursor-pointer"
                 >
                   <option value="infinite">Infinite</option>
@@ -233,7 +233,7 @@ export function CSSAnimationGenerator({ initialData, onStateChange }: { initialD
                 <label className="text-xs font-bold text-slate-500 px-1">{t('animation.direction', 'Direction')}</label>
                 <select
                   value={direction}
-                  onChange={(e) => setDirection(e.target.value)}
+                  onChange={(e) => setDirection(sanitizeDirection(e.target.value))}
                   className="w-full p-3 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl outline-none focus:ring-2 focus:ring-indigo-500/20 transition-all dark:text-slate-300 cursor-pointer"
                 >
                   {directions.map(d => <option key={d} value={d}>{d}</option>)}
@@ -243,7 +243,7 @@ export function CSSAnimationGenerator({ initialData, onStateChange }: { initialD
                 <label className="text-xs font-bold text-slate-500 px-1">{t('animation.fill_mode', 'Fill Mode')}</label>
                 <select
                   value={fillMode}
-                  onChange={(e) => setFillMode(e.target.value)}
+                  onChange={(e) => setFillMode(sanitizeFillMode(e.target.value))}
                   className="w-full p-3 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl outline-none focus:ring-2 focus:ring-indigo-500/20 transition-all dark:text-slate-300 cursor-pointer"
                 >
                   {fillModes.map(m => <option key={m} value={m}>{m}</option>)}

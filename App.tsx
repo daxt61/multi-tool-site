@@ -319,6 +319,7 @@ const MarkdownToHTML = lazy(() => import("./components/MarkdownToHTML").then(m =
 const HTMLFormatter = lazy(() => import("./components/HTMLFormatter").then(m => ({ default: m.HTMLFormatter })));
 const PasswordStrengthMeter = lazy(() => import("./components/PasswordStrengthMeter").then(m => ({ default: m.PasswordStrengthMeter })));
 const JSONToProtobuf = lazy(() => import("./components/JSONToProtobuf").then(m => ({ default: m.JSONToProtobuf })));
+const XMLToJSONSchema = lazy(() => import("./components/XMLToJSONSchema").then(m => ({ default: m.XMLToJSONSchema })));
 const JSObjectConverter = lazy(() => import("./components/JSObjectConverter").then(m => ({ default: m.JSObjectConverter })));
 const JSONToJoi = lazy(() => import("./components/JSONToJoi").then(m => ({ default: m.JSONToJoi })));
 const JSONToTOML = lazy(() => import("./components/JSONToTOML").then(m => ({ default: m.JSONToTOML })));
@@ -2791,6 +2792,17 @@ const tools: Tool[] = [
     Component: JSONToProtobuf,
     category: "dev",
     keywords: ["grpc", "protobuf", "proto3", "serialization", "json", "types"],
+  },
+  {
+    id: "xml-to-json-schema",
+    name: "XML en JSON Schema",
+    nameEn: "XML to JSON Schema",
+    icon: FileCode,
+    description: "Convertir des documents XML en définitions JSON Schema Draft",
+    descriptionEn: "Convert XML documents into standard JSON Schema Draft definitions",
+    Component: XMLToJSONSchema,
+    category: "dev",
+    keywords: ["xml", "json", "schema", "draft", "validation", "converter", "types"],
   },
   {
     id: "js-object-converter",

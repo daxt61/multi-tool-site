@@ -600,6 +600,8 @@ const CSVColumnRenamer = lazy(() => import("./components/CSVColumnRenamer").then
 const ListRepeater = lazy(() => import("./components/ListRepeater").then(m => ({ default: m.ListRepeater })));
 const ListTruncator = lazy(() => import("./components/ListTruncator").then(m => ({ default: m.ListTruncator })));
 const MarkdownTableToCSV = lazy(() => import("./components/MarkdownTableToCSV").then(m => ({ default: m.MarkdownTableToCSV })));
+const CSVToMarkdownTable = lazy(() => import("./components/CSVToMarkdownTable").then(m => ({ default: m.CSVToMarkdownTable })));
+const CSVToHTMLTable = lazy(() => import("./components/CSVToHTMLTable").then(m => ({ default: m.CSVToHTMLTable })));
 
 // ⚡ Bolt Optimization: Pre-calculating tool map and search index for O(1) lookups and faster filtering
 const toolsMap: Record<string, Tool> = {};
@@ -648,6 +650,30 @@ const tools: Tool[] = [
     Component: MarkdownTableToCSV,
     category: "dev",
     keywords: ["markdown", "table", "csv", "tsv", "convert", "export", "delimited", "excel", "sheets", "tableau", "convertir"],
+  },
+  // CSV / TSV to Markdown Table Converter Tool
+  {
+    id: "csv-to-markdown-table",
+    name: "CSV en Tableau Markdown",
+    nameEn: "CSV / TSV to Markdown Table",
+    icon: Table,
+    description: "Convertir des fichiers ou données CSV et TSV en tableaux Markdown personnalisables",
+    descriptionEn: "Convert CSV or TSV data into customizable Markdown table markup with column alignments",
+    Component: CSVToMarkdownTable,
+    category: "dev",
+    keywords: ["csv", "tsv", "markdown", "table", "convert", "delimiter", "tableau", "convertir"],
+  },
+  // CSV / TSV to HTML Table Converter Tool
+  {
+    id: "csv-to-html-table",
+    name: "CSV en Tableau HTML",
+    nameEn: "CSV / TSV to HTML Table",
+    icon: Table,
+    description: "Convertir des fichiers ou données CSV et TSV en code HTML <table> personnalisable",
+    descriptionEn: "Convert CSV or TSV data into customizable HTML <table> markup with CSS styles",
+    Component: CSVToHTMLTable,
+    category: "dev",
+    keywords: ["csv", "tsv", "html", "table", "convert", "styles", "tableau", "convertir"],
   },
   // List Truncator & Line Limiter Tool
   {

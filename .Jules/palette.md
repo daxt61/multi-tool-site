@@ -1,3 +1,7 @@
+## 2026-08-29 - [Bilingual ROI & Financial Estimator Accessibility and Keybinding Isolation]
+**Learning:** Financial calculators like ROI Calculator often lack accessibility features such as keyboard shortcuts, clear toast notifications, and focus management. Providing container-isolated global keydown listeners (`Esc` to reset and focus `#initialInvestment`, `C` to copy summary), visual `<Kbd>` key hint badges, and complete English/French translations significantly improves keyboard flow and screen-reader usability.
+**Action:** Always wrap financial calculator components with container-isolated keyboard listeners (`containerRef`), provide explicit form label associations (`htmlFor`/`id`), trigger `sonner` success toasts for copy/reset/download actions, and programmatically focus primary inputs on reset.
+
 ## 2026-08-15 - [Container-Scoped Keyboard Listener Isolation for Interactive Tools]
 **Learning:** Global keyboard listeners attached to `window` (e.g. `Escape` to reset or `C` to copy) can interfere with global modals, command menus, or search bars unless gated by active element boundaries. Scoping shortcut execution to check if the currently active element is inside the tool container (`containerRef.current.contains(activeElement)`) or `document.body` avoids key interception collisions across application-wide components.
 **Action:** Always wrap keydown listeners with container boundary checks using `containerRef.current?.contains(activeElement)` or body checks before intercepting hotkeys like `Escape` or `C`.

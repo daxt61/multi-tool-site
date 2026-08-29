@@ -535,6 +535,7 @@ const JSONToJSDoc = lazy(() => import("./components/JSONToJSDoc").then(m => ({ d
 const JSONToOpenAPI = lazy(() => import("./components/JSONToOpenAPI").then(m => ({ default: m.JSONToOpenAPI })));
 const CSSAnimationGenerator = lazy(() => import("./components/CSSAnimationGenerator").then(m => ({ default: m.CSSAnimationGenerator })));
 const SQLToMongoDB = lazy(() => import("./components/SQLToMongoDB").then(m => ({ default: m.SQLToMongoDB })));
+const SQLToElasticsearch = lazy(() => import("./components/SQLToElasticsearch").then(m => ({ default: m.SQLToElasticsearch })));
 const SQLToOpenAPI = lazy(() => import("./components/SQLToOpenAPI").then(m => ({ default: m.SQLToOpenAPI })));
 const SQLToMermaid = lazy(() => import("./components/SQLToMermaid").then(m => ({ default: m.SQLToMermaid })));
 const SQLToPydantic = lazy(() => import("./components/SQLToPydantic").then(m => ({ default: m.SQLToPydantic })));
@@ -5069,6 +5070,17 @@ const tools: Tool[] = [
     Component: SQLToMongoDB,
     category: "dev",
     keywords: ["sql", "mongodb", "nosql", "convert", "database", "query"],
+  },
+  {
+    id: "sql-to-elasticsearch",
+    name: "SQL en Elasticsearch",
+    nameEn: "SQL to Elasticsearch Query DSL",
+    icon: Database,
+    description: "Convertir des requêtes SQL SELECT en requêtes Query DSL Elasticsearch ou commandes cURL",
+    descriptionEn: "Convert SQL SELECT queries into Elasticsearch Query DSL JSON or cURL requests",
+    Component: SQLToElasticsearch,
+    category: "dev",
+    keywords: ["sql", "elasticsearch", "elastic", "dsl", "query", "search", "curl", "json", "database"],
   },
   {
     id: "sql-to-openapi",

@@ -24,11 +24,30 @@ export function JSONToPydantic({ initialData, onStateChange }: { initialData?: a
   };
 
   const toSnakeCase = (str: string) => {
-    return str
+    let result = str
       .replace(/[A-Z]/g, (letter) => `_${letter.toLowerCase()}`)
       .replace(/^_/, '')
       .replace(/[^a-z0-9_]/g, '_')
       .replace(/_+/g, '_');
+
+    // Python identifiers cannot start with a digit
+    if (/^[0-9]/.test(result)) {
+      result = 'f_' + result;
+    }
+
+    // Handle Python keywords to prevent syntax breakout in generated code
+    const keywords = [
+      'False', 'None', 'True', 'and', 'as', 'assert', 'async', 'await',
+      'break', 'class', 'continue', 'def', 'del', 'elif', 'else', 'except',
+      'finally', 'for', 'from', 'global', 'if', 'import', 'in', 'is',
+      'lambda', 'nonlocal', 'not', 'or', 'pass', 'raise', 'return', 'try',
+      'while', 'with', 'yield'
+    ];
+    if (keywords.includes(result)) {
+      result += '_';
+    }
+
+    return result || 'field';
   };
 
   const generatePydantic = useCallback((json: string) => {

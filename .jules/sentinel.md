@@ -271,3 +271,8 @@
 **Vulnerability:** The HTMLToJSX component used a plain object literal (`{}`) to collect converted inline CSS properties from style attributes (`style="..."`), allowing user-controlled CSS property names like `__proto__`, `constructor`, or `prototype` to collide with Object prototype properties.
 **Learning:** When parsing user-controlled CSS declarations or key-value attributes into objects, property names derived from raw input strings can overwrite inherited Object methods if standard object literals are used.
 **Prevention:** Always use `Object.create(null)` for intermediate dictionary objects and filter out dangerous keys (`__proto__`, `constructor`, `prototype`) before assignment.
+
+## 2026-08-25 - [Python Keyword and Digit Breakout in JSON-to-Pydantic Generator]
+**Vulnerability:** The JSONToPydantic component generated invalid Python class field declarations when user JSON keys contained Python reserved keywords (`class`, `def`, `import`, etc.) or started with digits.
+**Learning:** Code generation tools must normalize and escape identifiers according to language rules. If a key equals a reserved keyword or starts with a digit, raw interpolation produces invalid code syntax in downstream environments.
+**Prevention:** Sanitize Python snake_case identifiers by prepending `f_` to keys starting with digits and appending `_` to reserved Python keywords, ensuring `snakeKey !== key` triggers Pydantic's `Field(alias="...")` mapping.

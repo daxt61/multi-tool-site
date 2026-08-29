@@ -26,4 +26,23 @@ test.describe('JSON to Pydantic Security', () => {
     const inputValue = await page.inputValue('#json-input');
     expect(inputValue).toBe('');
   });
+
+  test('should safely escape Python keywords and digit-starting keys with Field alias', async ({ page }) => {
+    const input = JSON.stringify({
+      "class": "10A",
+      "def": "definition",
+      "123_count": 42
+    });
+
+    await page.fill('#json-input', input);
+
+    const output = await page.inputValue('#pydantic-output');
+
+    // Keywords should append an underscore and set alias
+    expect(output).toContain('class_: str = Field(alias="class")');
+    expect(output).toContain('def_: str = Field(alias="def")');
+
+    // Keys starting with digits should prepend 'f_' and set alias
+    expect(output).toContain('f_123_count: int = Field(alias="123_count")');
+  });
 });

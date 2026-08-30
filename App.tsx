@@ -602,6 +602,7 @@ const ListTruncator = lazy(() => import("./components/ListTruncator").then(m => 
 const MarkdownTableToCSV = lazy(() => import("./components/MarkdownTableToCSV").then(m => ({ default: m.MarkdownTableToCSV })));
 const CSVToMarkdownTable = lazy(() => import("./components/CSVToMarkdownTable").then(m => ({ default: m.CSVToMarkdownTable })));
 const CSVToHTMLTable = lazy(() => import("./components/CSVToHTMLTable").then(m => ({ default: m.CSVToHTMLTable })));
+const CSVToLaTeX = lazy(() => import("./components/CSVToLaTeX").then(m => ({ default: m.CSVToLaTeX })));
 
 // ⚡ Bolt Optimization: Pre-calculating tool map and search index for O(1) lookups and faster filtering
 const toolsMap: Record<string, Tool> = {};
@@ -662,6 +663,18 @@ const tools: Tool[] = [
     Component: CSVToMarkdownTable,
     category: "dev",
     keywords: ["csv", "tsv", "markdown", "table", "convert", "delimiter", "tableau", "convertir"],
+  },
+  // CSV / TSV to LaTeX Table Converter Tool
+  {
+    id: "csv-to-latex",
+    name: "CSV en Tableau LaTeX",
+    nameEn: "CSV / TSV to LaTeX Table",
+    icon: FileCode,
+    description: "Convertir des fichiers ou données CSV et TSV en code LaTeX tabular personnalisable",
+    descriptionEn: "Convert CSV or TSV data into customizable LaTeX tabular environment markup",
+    Component: CSVToLaTeX,
+    category: "dev",
+    keywords: ["csv", "tsv", "latex", "tabular", "tex", "table", "booktabs", "overleaf", "tableau", "convertir"],
   },
   // CSV / TSV to HTML Table Converter Tool
   {

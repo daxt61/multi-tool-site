@@ -78,11 +78,12 @@ export function MarkdownToHTML({ initialData, onStateChange }: { initialData?: a
 
     // 9. Links
     processed = processed.replace(/\[(.*?)\]\(([^)\s\<\>"\']+)\)/g, (match, linkText, url) => {
+      const lowerUrl = url.toLowerCase();
       const isSafe = /^(https?:\/\/|mailto:|tel:|\/|#)/i.test(url) &&
                     !/[\u0000-\u001F\u007F-\u009F]/.test(url) &&
                     !url.includes('&#') &&
-                    !url.toLowerCase().includes('&colon;') &&
-                    !url.toLowerCase().includes('javascript:');
+                    !lowerUrl.includes('&colon;') &&
+                    !lowerUrl.includes('javascript:');
 
       return isSafe ? `<a href="${escapeHTML(url)}">${linkText}</a>` : linkText;
     });

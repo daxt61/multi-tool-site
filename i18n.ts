@@ -11163,7 +11163,32 @@ const resources = {
       "markdowntabletocsv.placeholder_output": "Les données CSV / TSV converties apparaîtront ici...",
       "markdowntabletocsv.toast_copied": "Données CSV copiées dans le presse-papiers !",
       "markdowntabletocsv.toast_cleared": "Entrées effacées et focus restauré !",
-      "markdowntabletocsv.toast_preset_loaded": "Préréglage chargé avec succès !"
+      "markdowntabletocsv.toast_preset_loaded": "Préréglage chargé avec succès !",
+      "tool.csv-to-latex.name": "CSV / TSV to LaTeX Table",
+      "tool.csv-to-latex.description": "Convert CSV or TSV data into customizable LaTeX tabular environment markup",
+      "csvtolatex.preset_academic": "Academic Results",
+      "csvtolatex.preset_inventory": "Product Inventory",
+      "csvtolatex.preset_financial": "Financial Report",
+      "csvtolatex.presets_title": "Quick Presets:",
+      "csvtolatex.input_label": "CSV / TSV Input Data",
+      "csvtolatex.output_label": "LaTeX Table Markup",
+      "csvtolatex.placeholder_output": "Generated LaTeX table code will appear here...",
+      "csvtolatex.bold_header": "Bold headers (\\textbf{})",
+      "csvtolatex.vlines": "Vertical gridlines (|c|c|)",
+      "csvtolatex.table_style": "Table Package Style",
+      "csvtolatex.toast_copied": "LaTeX table code copied to clipboard!",
+      "csvtolatex.toast_cleared": "Input cleared and focus restored!",
+      "csvtolatex.toast_preset_loaded": "Preset loaded successfully!",
+      "csvtolatex.about_title": "About CSV to LaTeX Table Converter",
+      "csvtolatex.about_text": "Convert raw CSV, TSV, or delimited data files directly into LaTeX tabular markup. Special characters (&, %, $, #, _, {, }, ~, ^, \\) are automatically escaped to prevent compilation errors in Overleaf or TeX compilers.",
+      "csvtoascii.preset_employees": "Employee Directory",
+      "csvtoascii.preset_catalog": "Product Catalog",
+      "csvtoascii.preset_servers": "Server Inventory",
+      "csvtoascii.presets_title": "Quick Presets:",
+      "csvtoascii.table_style": "Table Style",
+      "csvtoascii.toast_copied": "ASCII table copied to clipboard!",
+      "csvtoascii.toast_cleared": "Input cleared and focus restored!",
+      "csvtoascii.toast_preset_loaded": "Preset loaded successfully!"
     }
   }
 };

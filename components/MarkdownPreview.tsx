@@ -105,11 +105,12 @@ export function MarkdownPreview({ initialData, onStateChange }: { initialData?: 
     
     // 10. Links
     html = html.replace(/\[(.*?)\]\(([^)\s\<\>"\']+)\)/g, (match, linkText, url) => {
+      const lowerUrl = url.toLowerCase();
       const isSafe = /^(https?:\/\/|mailto:|tel:|\/|#)/i.test(url) &&
                     !/[\u0000-\u001F\u007F-\u009F]/.test(url) &&
                     !url.includes('&#') &&
-                    !url.toLowerCase().includes('&colon;') &&
-                    !url.toLowerCase().includes('javascript:');
+                    !lowerUrl.includes('&colon;') &&
+                    !lowerUrl.includes('javascript:');
 
       return isSafe
         ? `<a href="${escapeHTML(url)}" class="text-indigo-600 dark:text-indigo-400 underline underline-offset-4 hover:text-indigo-500 transition-colors" rel="noopener noreferrer" target="_blank">${linkText}</a>`

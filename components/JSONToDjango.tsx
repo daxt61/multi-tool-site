@@ -1,6 +1,7 @@
 import { useState, useEffect, useCallback, useRef } from 'react';
-import { FileCode, Copy, Check, Trash2, AlertCircle, Download, Info, Code, Braces } from 'lucide-react';
+import { FileCode, Copy, Check, Trash2, AlertCircle, Download, Info, Code, Braces, Sparkles } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
+import { toast } from 'sonner';
 import { Kbd } from './ui/Kbd';
 
 const MAX_LENGTH = 100000;
@@ -13,8 +14,63 @@ const PYTHON_KEYWORDS = new Set([
   'try', 'while', 'with', 'yield'
 ]);
 
+interface Preset {
+  nameKey: string;
+  data: object;
+}
+
+const PRESETS: Preset[] = [
+  {
+    nameKey: 'jsontodjango.preset_order',
+    data: {
+      order_id: 'ORD-2025-8891',
+      total_amount: 149.99,
+      is_paid: true,
+      created_at: '2025-05-15T14:30:00Z',
+      customer: {
+        full_name: 'Alice Dupont',
+        email: 'alice@example.com',
+        phone: '+33612345678'
+      },
+      items: [
+        { product_name: 'Wireless Headphones', price: 99.99, quantity: 1 },
+        { product_name: 'USB-C Cable', price: 50.00, quantity: 1 }
+      ]
+    }
+  },
+  {
+    nameKey: 'jsontodjango.preset_user',
+    data: {
+      user_id: 1042,
+      username: 'johndoe',
+      email: 'john.doe@company.com',
+      is_active: true,
+      profile: {
+        bio: 'Senior Software Engineer & Django developer',
+        avatar_url: 'https://example.com/avatar.jpg',
+        birth_date: '1992-08-24'
+      }
+    }
+  },
+  {
+    nameKey: 'jsontodjango.preset_blog',
+    data: {
+      post_id: 42,
+      title: 'Building Modern Web Apps with Django & React',
+      content: 'Django is a high-level Python web framework that encourages rapid development...',
+      published_at: '2025-01-10T10:00:00Z',
+      view_count: 1250,
+      comments: [
+        { author: 'Jane', message: 'Great article! Very helpful.' },
+        { author: 'Bob', message: 'Thanks for sharing these insights.' }
+      ]
+    }
+  }
+];
+
 export function JSONToDjango({ initialData, onStateChange }: { initialData?: any; onStateChange?: (state: any) => void }) {
   const { t } = useTranslation();
+  const inputRef = useRef<HTMLTextAreaElement>(null);
   const [input, setInput] = useState(initialData?.input || '');
   const [output, setOutput] = useState(initialData?.output || '');
   const [error, setError] = useState('');
@@ -62,6 +118,50 @@ export function JSONToDjango({ initialData, onStateChange }: { initialData?: any
       name += '_field';
     }
     return name || 'unnamed_field';
+  };
+
+  const generatedClassesRef = useRef<Set<string>>(new Set());
+
+  const generateDjangoModel = (obj: any, modelName: string, depth: number, models: string[]) => {
+    if (!obj || typeof obj !== 'object') return;
+    const className = toPascalCase(modelName);
+    if (generatedClassesRef.current.has(className)) return;
+    generatedClassesRef.current.add(className);
+
+    let modelCode = `class ${className}(models.Model):\n`;
+    const fields: string[] = [];
+    const fieldNamesList: string[] = [];
+
+    Object.keys(obj).forEach((key) => {
+      if (!Object.prototype.hasOwnProperty.call(obj, key)) return;
+      const value = obj[key];
+      const pythonName = toValidPythonIdentifier(key);
+      const { fieldType } = inferDjangoField(value, key, depth, models);
+      const comment = pythonName !== key ? `  # Original JSON key: ${key}` : '';
+      fields.push(`    ${pythonName} = ${fieldType}${comment}`);
+      fieldNamesList.push(pythonName);
+    });
+
+    if (fields.length === 0) {
+      fields.push('    pass');
+    }
+
+    modelCode += fields.join('\n') + '\n';
+
+    // Meta class
+    if (generateMetaClass && fieldNamesList.length > 0) {
+      modelCode += `\n    class Meta:\n`;
+      modelCode += `        ordering = ['-${fieldNamesList[0]}']\n`;
+    }
+
+    // __str__ method
+    if (generateStrMethod) {
+      const strField = fieldNamesList.find(f => f.includes('name') || f.includes('title')) || fieldNamesList[0] || 'id';
+      modelCode += `\n    def __str__(self):\n`;
+      modelCode += `        return str(self.${strField})\n`;
+    }
+
+    models.push(modelCode);
   };
 
   const inferDjangoField = (val: any, fieldName: string, depth: number, models: string[]): { fieldType: string; isNested: boolean } => {
@@ -123,47 +223,6 @@ export function JSONToDjango({ initialData, onStateChange }: { initialData?: any
     return { fieldType: 'models.JSONField()', isNested: false };
   };
 
-  const generatedClasses = new Set<string>();
-
-  const generateDjangoModel = (obj: any, modelName: string, depth: number, models: string[]) => {
-    const className = toPascalCase(modelName);
-    if (generatedClasses.has(className)) return;
-    generatedClasses.add(className);
-
-    let modelCode = `class ${className}(models.Model):\n`;
-    const fields: string[] = [];
-    const fieldNamesList: string[] = [];
-
-    Object.entries(obj).forEach(([key, value]) => {
-      const pythonName = toValidPythonIdentifier(key);
-      const { fieldType } = inferDjangoField(value, key, depth, models);
-      const comment = pythonName !== key ? `  # Original JSON key: ${key}` : '';
-      fields.push(`    ${pythonName} = ${fieldType}${comment}`);
-      fieldNamesList.push(pythonName);
-    });
-
-    if (fields.length === 0) {
-      fields.push('    pass');
-    }
-
-    modelCode += fields.join('\n') + '\n';
-
-    // Meta class
-    if (generateMetaClass && fieldNamesList.length > 0) {
-      modelCode += `\n    class Meta:\n`;
-      modelCode += `        ordering = ['-${fieldNamesList[0]}']\n`;
-    }
-
-    // __str__ method
-    if (generateStrMethod) {
-      const strField = fieldNamesList.find(f => f.includes('name') || f.includes('title')) || fieldNamesList[0] || 'id';
-      modelCode += `\n    def __str__(self):\n`;
-      modelCode += `        return str(self.${strField})\n`;
-    }
-
-    models.push(modelCode);
-  };
-
   const handleConvert = useCallback(() => {
     try {
       if (!input.trim()) {
@@ -178,16 +237,16 @@ export function JSONToDjango({ initialData, onStateChange }: { initialData?: any
 
       const parsed = JSON.parse(input);
       const models: string[] = [];
-      generatedClasses.clear();
+      generatedClassesRef.current.clear();
 
       generateDjangoModel(parsed, 'Root', 0, models);
 
       let finalOutput = `from django.db import models\n\n`;
       finalOutput += models.reverse().join('\n\n');
 
-      if (generateAdminCode && generatedClasses.size > 0) {
+      if (generateAdminCode && generatedClassesRef.current.size > 0) {
         finalOutput += `\n\n# admin.py\nfrom django.contrib import admin\n`;
-        const registered = Array.from(generatedClasses);
+        const registered = Array.from(generatedClassesRef.current);
         finalOutput += `from .models import ${registered.join(', ')}\n\n`;
         registered.forEach(cls => {
           finalOutput += `@admin.register(${cls})\nclass ${cls}Admin(admin.ModelAdmin):\n    pass\n\n`;
@@ -210,14 +269,19 @@ export function JSONToDjango({ initialData, onStateChange }: { initialData?: any
     if (!output) return;
     navigator.clipboard.writeText(output);
     setCopied(true);
+    toast.success(t('jsontodjango.toast_copied'));
     setTimeout(() => setCopied(false), 2000);
-  }, [output]);
+  }, [output, t]);
 
   const handleClear = useCallback(() => {
     setInput('');
     setOutput('');
     setError('');
-  }, []);
+    toast.success(t('jsontodjango.toast_cleared'));
+    setTimeout(() => {
+      inputRef.current?.focus();
+    }, 50);
+  }, [t]);
 
   const handleDownload = () => {
     if (!output) return;
@@ -230,10 +294,65 @@ export function JSONToDjango({ initialData, onStateChange }: { initialData?: any
     link.click();
     document.body.removeChild(link);
     URL.revokeObjectURL(url);
+    toast.success(t('jsontodjango.toast_downloaded'));
   };
+
+  const loadPreset = (preset: Preset) => {
+    setInput(JSON.stringify(preset.data, null, 2));
+    toast.success(t('jsontodjango.toast_preset_loaded'));
+    setTimeout(() => {
+      inputRef.current?.focus();
+    }, 50);
+  };
+
+  const handlersRef = useRef({ handleClear, handleCopy });
+  useEffect(() => {
+    handlersRef.current = { handleClear, handleCopy };
+  }, [handleClear, handleCopy]);
+
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') {
+        handlersRef.current.handleClear();
+      } else if (
+        (e.key === 'c' || e.key === 'C') &&
+        !e.ctrlKey &&
+        !e.metaKey &&
+        !e.altKey &&
+        document.activeElement?.tagName !== 'INPUT' &&
+        document.activeElement?.tagName !== 'TEXTAREA' &&
+        document.activeElement?.tagName !== 'SELECT'
+      ) {
+        e.preventDefault();
+        handlersRef.current.handleCopy();
+      }
+    };
+
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, []);
 
   return (
     <div className="max-w-6xl mx-auto space-y-8">
+      {/* Quick Presets */}
+      <div className="bg-slate-50 dark:bg-slate-900/50 p-6 rounded-[2rem] border border-slate-200 dark:border-slate-800 space-y-3">
+        <div className="flex items-center gap-2 px-1">
+          <Sparkles className="w-4 h-4 text-indigo-500" />
+          <h3 className="text-xs font-black uppercase tracking-widest text-slate-400">{t('jsontodjango.presets_title')}</h3>
+        </div>
+        <div className="flex flex-wrap gap-2">
+          {PRESETS.map((preset, idx) => (
+            <button
+              key={idx}
+              onClick={() => loadPreset(preset)}
+              className="px-4 py-2 bg-white dark:bg-slate-800 hover:bg-indigo-50 dark:hover:bg-indigo-900/30 text-slate-700 dark:text-slate-300 hover:text-indigo-600 dark:hover:text-indigo-400 border border-slate-200 dark:border-slate-700 rounded-xl text-xs font-bold transition-all shadow-sm focus-visible:ring-2 focus-visible:ring-indigo-500 outline-none"
+            >
+              {t(preset.nameKey)}
+            </button>
+          ))}
+        </div>
+      </div>
+
       {/* Configuration options */}
       <div className="bg-slate-50 dark:bg-slate-900/50 p-6 rounded-[2rem] border border-slate-200 dark:border-slate-800 space-y-4">
         <h3 className="text-xs font-black uppercase tracking-widest text-slate-400 px-1">{t('common.options')}</h3>
@@ -246,7 +365,7 @@ export function JSONToDjango({ initialData, onStateChange }: { initialData?: any
               className="w-4 h-4 rounded border-slate-300 text-indigo-600 focus:ring-indigo-500"
             />
             <span className="text-sm font-medium text-slate-600 dark:text-slate-400 group-hover:text-slate-900 dark:group-hover:text-slate-200 transition-colors">
-              Allow null=True, blank=True
+              {t('jsontodjango.allow_null_blank')}
             </span>
           </label>
 
@@ -258,7 +377,7 @@ export function JSONToDjango({ initialData, onStateChange }: { initialData?: any
               className="w-4 h-4 rounded border-slate-300 text-indigo-600 focus:ring-indigo-500"
             />
             <span className="text-sm font-medium text-slate-600 dark:text-slate-400 group-hover:text-slate-900 dark:group-hover:text-slate-200 transition-colors">
-              Generate __str__ method
+              {t('jsontodjango.generate_str')}
             </span>
           </label>
 
@@ -270,7 +389,7 @@ export function JSONToDjango({ initialData, onStateChange }: { initialData?: any
               className="w-4 h-4 rounded border-slate-300 text-indigo-600 focus:ring-indigo-500"
             />
             <span className="text-sm font-medium text-slate-600 dark:text-slate-400 group-hover:text-slate-900 dark:group-hover:text-slate-200 transition-colors">
-              Generate Meta options
+              {t('jsontodjango.generate_meta')}
             </span>
           </label>
 
@@ -282,7 +401,7 @@ export function JSONToDjango({ initialData, onStateChange }: { initialData?: any
               className="w-4 h-4 rounded border-slate-300 text-indigo-600 focus:ring-indigo-500"
             />
             <span className="text-sm font-medium text-slate-600 dark:text-slate-400 group-hover:text-slate-900 dark:group-hover:text-slate-200 transition-colors">
-              Generate Admin Reg Code
+              {t('jsontodjango.generate_admin')}
             </span>
           </label>
         </div>
@@ -308,6 +427,7 @@ export function JSONToDjango({ initialData, onStateChange }: { initialData?: any
           </div>
           <textarea
             id="json-input"
+            ref={inputRef}
             value={input}
             onChange={(e) => setInput(e.target.value)}
             placeholder='{"id": 1, "title": "My Post", "body": "Hello world", "author": {"name": "Admin"}}'
@@ -362,9 +482,9 @@ export function JSONToDjango({ initialData, onStateChange }: { initialData?: any
       <div className="bg-indigo-50 dark:bg-indigo-900/10 p-8 rounded-[2.5rem] border border-indigo-100 dark:border-indigo-900/20 flex items-start gap-4">
         <Info className="w-6 h-6 text-indigo-500 mt-1" />
         <div className="space-y-2">
-          <h4 className="font-bold dark:text-white">About JSON to Django Models Converter</h4>
+          <h4 className="font-bold dark:text-white">{t('jsontodjango.about_title')}</h4>
           <p className="text-sm text-slate-500 dark:text-slate-400 leading-relaxed">
-            Convert complex JSON objects or payloads directly into clean Python Django Model class structures. Nested objects and relational models are extracted into their own model definitions and dynamically linked via `OneToOneField` or `ForeignKey` relationship descriptors with cascades.
+            {t('jsontodjango.about_text')}
           </p>
         </div>
       </div>

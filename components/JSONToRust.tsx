@@ -1,21 +1,92 @@
 import { useState, useEffect, useCallback, useRef } from 'react';
-import { FileCode, Copy, Check, Trash2, AlertCircle, Download, Info } from 'lucide-react';
+import { FileCode, Copy, Check, Trash2, AlertCircle, Download, Info, Sparkles, Code, Braces } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
+import { toast } from 'sonner';
 import { Kbd } from './ui/Kbd';
 
 const MAX_LENGTH = 100000;
 const MAX_DEPTH = 20;
 
+const RUST_KEYWORDS = new Set([
+  'as', 'break', 'const', 'continue', 'crate', 'else', 'enum', 'extern', 'false', 'fn',
+  'for', 'if', 'impl', 'in', 'let', 'loop', 'match', 'mod', 'move', 'mut', 'pub', 'ref',
+  'return', 'self', 'Self', 'static', 'struct', 'super', 'trait', 'true', 'type', 'unsafe',
+  'use', 'where', 'while', 'async', 'await', 'dyn', 'abstract', 'become', 'box', 'do',
+  'final', 'macro', 'override', 'priv', 'typeof', 'unsized', 'virtual', 'yield', 'try'
+]);
+
+interface Preset {
+  nameKey: string;
+  data: object;
+}
+
+const PRESETS: Preset[] = [
+  {
+    nameKey: 'jsontorust.preset_user',
+    data: {
+      user_id: 1042,
+      username: 'rustacean',
+      email: 'alex@example.com',
+      is_active: true,
+      profile: {
+        bio: 'Rust systems developer',
+        avatar_url: 'https://example.com/avatar.png',
+        created_at: '2025-01-15T12:00:00Z'
+      },
+      roles: ['admin', 'developer']
+    }
+  },
+  {
+    nameKey: 'jsontorust.preset_order',
+    data: {
+      order_id: 'ORD-2025-772',
+      total_amount: 299.95,
+      is_paid: true,
+      items: [
+        { product_id: 'P-100', name: 'Mechanical Keyboard', price: 149.99, quantity: 1 },
+        { product_id: 'P-200', name: 'Ergonomic Mouse', price: 149.96, quantity: 1 }
+      ],
+      shipping_address: {
+        street: '123 Tech Lane',
+        city: 'Seattle',
+        postal_code: '98101',
+        country: 'USA'
+      }
+    }
+  },
+  {
+    nameKey: 'jsontorust.preset_error',
+    data: {
+      error: {
+        code: 404,
+        message: 'Resource not found',
+        details: ['Invalid ID provided', 'Entity does not exist in database'],
+        timestamp: 1735689600
+      },
+      success: false
+    }
+  }
+];
+
 export function JSONToRust({ initialData, onStateChange }: { initialData?: any; onStateChange?: (state: any) => void }) {
   const { t } = useTranslation();
+  const inputRef = useRef<HTMLTextAreaElement>(null);
   const [input, setInput] = useState(initialData?.input || '');
   const [output, setOutput] = useState(initialData?.output || '');
   const [error, setError] = useState('');
   const [copied, setCopied] = useState(false);
 
+  // Configuration options
+  const [casing, setCasing] = useState<'snake_case' | 'camelCase' | 'PascalCase' | 'original'>(
+    initialData?.casing || 'snake_case'
+  );
+  const [deriveClone, setDeriveClone] = useState(initialData?.deriveClone ?? true);
+  const [derivePartialEq, setDerivePartialEq] = useState(initialData?.derivePartialEq ?? true);
+  const [deriveDefault, setDeriveDefault] = useState(initialData?.deriveDefault ?? false);
+
   useEffect(() => {
-    onStateChange?.({ input, output });
-  }, [input, output, onStateChange]);
+    onStateChange?.({ input, output, casing, deriveClone, derivePartialEq, deriveDefault });
+  }, [input, output, casing, deriveClone, derivePartialEq, deriveDefault, onStateChange]);
 
   const toPascalCase = (str: string) => {
     return str
@@ -27,23 +98,40 @@ export function JSONToRust({ initialData, onStateChange }: { initialData?: any; 
   };
 
   const toSnakeCase = (str: string) => {
-    let result = str
-      .replace(/([a-z])([A-Z])/g, '$1_$2')
-      .replace(/[^a-z0-9]/gi, '_')
+    return str
+      .replace(/([a-z0-9])([A-Z])/g, '$1_$2')
+      .replace(/[^a-zA-Z0-9]/g, '_')
       .toLowerCase();
+  };
 
-    // Rust identifiers cannot start with a digit
-    if (/^[0-9]/.test(result)) {
-      result = 'f_' + result;
+  const toCamelCase = (str: string) => {
+    const pascal = toPascalCase(str);
+    return pascal.charAt(0).toLowerCase() + pascal.slice(1);
+  };
+
+  const formatFieldName = (fieldName: string): { rustKey: string; renameAlias?: string } => {
+    let formattedKey = fieldName;
+    if (casing === 'snake_case') {
+      formattedKey = toSnakeCase(fieldName);
+    } else if (casing === 'camelCase') {
+      formattedKey = toCamelCase(fieldName);
+    } else if (casing === 'PascalCase') {
+      formattedKey = toPascalCase(fieldName);
+    }
+
+    // Handle digits start
+    let rustKey = formattedKey;
+    if (/^[0-9]/.test(rustKey)) {
+      rustKey = 'f_' + rustKey;
     }
 
     // Handle Rust keywords
-    const keywords = ['as', 'break', 'const', 'continue', 'crate', 'else', 'enum', 'extern', 'false', 'fn', 'for', 'if', 'impl', 'in', 'let', 'loop', 'match', 'mod', 'move', 'mut', 'pub', 'ref', 'return', 'self', 'Self', 'static', 'struct', 'super', 'trait', 'true', 'type', 'unsafe', 'use', 'where', 'while', 'async', 'await', 'dyn', 'abstract', 'become', 'box', 'do', 'final', 'macro', 'override', 'priv', 'typeof', 'unsized', 'virtual', 'yield', 'try'];
-    if (keywords.includes(result)) {
-      result = 'r#' + result;
+    if (RUST_KEYWORDS.has(rustKey)) {
+      rustKey = 'r#' + rustKey;
     }
 
-    return result;
+    const renameAlias = (rustKey !== fieldName) ? fieldName : undefined;
+    return { rustKey, renameAlias };
   };
 
   const escapeRustString = (str: string) => {
@@ -66,6 +154,7 @@ export function JSONToRust({ initialData, onStateChange }: { initialData?: any; 
         setError(t('error.max_length', { max: MAX_LENGTH.toLocaleString() }));
         return;
       }
+
       const parsed = JSON.parse(input);
       const structs: string[] = [];
       const structNames = new Set<string>();
@@ -90,17 +179,22 @@ export function JSONToRust({ initialData, onStateChange }: { initialData?: any; 
           }
 
           const fields = Object.entries(val).map(([key, value]) => {
-            const rustKey = toSnakeCase(key);
+            const { rustKey, renameAlias } = formatFieldName(key);
             const type = getRustType(value, key, depth + 1);
             let fieldStr = '';
-            if (rustKey !== key) {
-              fieldStr += `    #[serde(rename = "${escapeRustString(key)}")]\n`;
+            if (renameAlias) {
+              fieldStr += `    #[serde(rename = "${escapeRustString(renameAlias)}")]\n`;
             }
             fieldStr += `    pub ${rustKey}: ${type},`;
             return fieldStr;
           });
 
-          let structStr = '#[derive(Debug, Serialize, Deserialize)]\n';
+          const derives = ['Debug', 'Serialize', 'Deserialize'];
+          if (deriveClone) derives.push('Clone');
+          if (derivePartialEq) derives.push('PartialEq');
+          if (deriveDefault) derives.push('Default');
+
+          let structStr = `#[derive(${derives.join(', ')})]\n`;
           structStr += `pub struct ${finalName} {\n`;
           structStr += fields.join('\n');
           structStr += '\n}';
@@ -133,7 +227,7 @@ export function JSONToRust({ initialData, onStateChange }: { initialData?: any; 
       setError(t('error.invalid_json') + ': ' + e.message);
       setOutput('');
     }
-  }, [input, t]);
+  }, [input, casing, deriveClone, derivePartialEq, deriveDefault, t]);
 
   useEffect(() => {
     handleConvert();
@@ -143,14 +237,19 @@ export function JSONToRust({ initialData, onStateChange }: { initialData?: any; 
     if (!output) return;
     navigator.clipboard.writeText(output);
     setCopied(true);
+    toast.success(t('jsontorust.toast_copied'));
     setTimeout(() => setCopied(false), 2000);
-  }, [output]);
+  }, [output, t]);
 
   const handleClear = useCallback(() => {
     setInput('');
     setOutput('');
     setError('');
-  }, []);
+    toast.success(t('jsontorust.toast_cleared'));
+    setTimeout(() => {
+      inputRef.current?.focus();
+    }, 50);
+  }, [t]);
 
   const handleDownload = () => {
     if (!output) return;
@@ -163,13 +262,18 @@ export function JSONToRust({ initialData, onStateChange }: { initialData?: any; 
     link.click();
     document.body.removeChild(link);
     URL.revokeObjectURL(url);
+    toast.success(t('jsontorust.toast_downloaded'));
   };
 
-  const handlersRef = useRef({
-    handleCopy,
-    handleClear
-  });
+  const loadPreset = (preset: Preset) => {
+    setInput(JSON.stringify(preset.data, null, 2));
+    toast.success(t('jsontorust.toast_preset_loaded'));
+    setTimeout(() => {
+      inputRef.current?.focus();
+    }, 50);
+  };
 
+  const handlersRef = useRef({ handleCopy, handleClear });
   useEffect(() => {
     handlersRef.current = { handleCopy, handleClear };
   }, [handleCopy, handleClear]);
@@ -177,9 +281,9 @@ export function JSONToRust({ initialData, onStateChange }: { initialData?: any; 
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
       const isEditable =
-        document.activeElement?.tagName === "INPUT" ||
-        document.activeElement?.tagName === "TEXTAREA" ||
-        document.activeElement?.tagName === "SELECT" ||
+        document.activeElement?.tagName === 'INPUT' ||
+        document.activeElement?.tagName === 'TEXTAREA' ||
+        document.activeElement?.tagName === 'SELECT' ||
         document.activeElement?.getAttribute('contenteditable') === 'true';
 
       if (isEditable) return;
@@ -200,11 +304,89 @@ export function JSONToRust({ initialData, onStateChange }: { initialData?: any; 
 
   return (
     <div className="max-w-6xl mx-auto space-y-8">
+      {/* Presets */}
+      <div className="bg-slate-50 dark:bg-slate-900/50 p-6 rounded-[2rem] border border-slate-200 dark:border-slate-800 space-y-3">
+        <div className="flex items-center gap-2 px-1">
+          <Sparkles className="w-4 h-4 text-indigo-500" />
+          <h3 className="text-xs font-black uppercase tracking-widest text-slate-400">{t('jsontorust.presets_title')}</h3>
+        </div>
+        <div className="flex flex-wrap gap-2">
+          {PRESETS.map((preset, idx) => (
+            <button
+              key={idx}
+              onClick={() => loadPreset(preset)}
+              className="px-4 py-2 bg-white dark:bg-slate-800 hover:bg-indigo-50 dark:hover:bg-indigo-900/30 text-slate-700 dark:text-slate-300 hover:text-indigo-600 dark:hover:text-indigo-400 border border-slate-200 dark:border-slate-700 rounded-xl text-xs font-bold transition-all shadow-sm focus-visible:ring-2 focus-visible:ring-indigo-500 outline-none"
+            >
+              {t(preset.nameKey)}
+            </button>
+          ))}
+        </div>
+      </div>
+
+      {/* Options */}
+      <div className="bg-slate-50 dark:bg-slate-900/50 p-6 rounded-[2rem] border border-slate-200 dark:border-slate-800 space-y-4">
+        <h3 className="text-xs font-black uppercase tracking-widest text-slate-400 px-1">{t('jsontorust.options_title')}</h3>
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 px-1">
+          <div>
+            <label htmlFor="rust-casing" className="text-xs font-bold text-slate-600 dark:text-slate-400 block mb-1">
+              {t('jsontorust.casing_label')}
+            </label>
+            <select
+              id="rust-casing"
+              value={casing}
+              onChange={(e) => setCasing(e.target.value as any)}
+              className="w-full px-3 py-2 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-xs font-semibold text-slate-700 dark:text-slate-300 outline-none focus:ring-2 focus:ring-indigo-500"
+            >
+              <option value="snake_case">{t('jsontorust.casing_snake')}</option>
+              <option value="camelCase">{t('jsontorust.casing_camel')}</option>
+              <option value="PascalCase">{t('jsontorust.casing_pascal')}</option>
+              <option value="original">{t('jsontorust.casing_original')}</option>
+            </select>
+          </div>
+
+          <label className="flex items-center gap-2 cursor-pointer group mt-5">
+            <input
+              type="checkbox"
+              checked={deriveClone}
+              onChange={(e) => setDeriveClone(e.target.checked)}
+              className="w-4 h-4 rounded border-slate-300 text-indigo-600 focus:ring-indigo-500"
+            />
+            <span className="text-sm font-medium text-slate-600 dark:text-slate-400 group-hover:text-slate-900 dark:group-hover:text-slate-200 transition-colors">
+              {t('jsontorust.derive_clone')}
+            </span>
+          </label>
+
+          <label className="flex items-center gap-2 cursor-pointer group mt-5">
+            <input
+              type="checkbox"
+              checked={derivePartialEq}
+              onChange={(e) => setDerivePartialEq(e.target.checked)}
+              className="w-4 h-4 rounded border-slate-300 text-indigo-600 focus:ring-indigo-500"
+            />
+            <span className="text-sm font-medium text-slate-600 dark:text-slate-400 group-hover:text-slate-900 dark:group-hover:text-slate-200 transition-colors">
+              {t('jsontorust.derive_partialeq')}
+            </span>
+          </label>
+
+          <label className="flex items-center gap-2 cursor-pointer group mt-5">
+            <input
+              type="checkbox"
+              checked={deriveDefault}
+              onChange={(e) => setDeriveDefault(e.target.checked)}
+              className="w-4 h-4 rounded border-slate-300 text-indigo-600 focus:ring-indigo-500"
+            />
+            <span className="text-sm font-medium text-slate-600 dark:text-slate-400 group-hover:text-slate-900 dark:group-hover:text-slate-200 transition-colors">
+              {t('jsontorust.derive_default')}
+            </span>
+          </label>
+        </div>
+      </div>
+
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
         <div className="space-y-4">
           <div className="flex justify-between items-center px-1">
             <div className="flex items-center gap-2">
-              <FileCode className="w-4 h-4 text-indigo-500" />
+              <Braces className="w-4 h-4 text-indigo-500" />
               <label htmlFor="json-input" className="text-xs font-black uppercase tracking-widest text-slate-400 cursor-pointer">{t('common.input')} JSON</label>
             </div>
             <div className="flex items-center gap-2">
@@ -220,6 +402,7 @@ export function JSONToRust({ initialData, onStateChange }: { initialData?: any; 
           </div>
           <textarea
             id="json-input"
+            ref={inputRef}
             value={input}
             onChange={(e) => setInput(e.target.value)}
             placeholder='{"id": 1, "name": "Rust"}'
@@ -230,7 +413,7 @@ export function JSONToRust({ initialData, onStateChange }: { initialData?: any; 
         <div className="space-y-4">
           <div className="flex justify-between items-center px-1">
             <div className="flex items-center gap-2">
-              <FileCode className="w-4 h-4 text-emerald-500" />
+              <Code className="w-4 h-4 text-emerald-500" />
               <label htmlFor="rust-output" className="text-xs font-black uppercase tracking-widest text-slate-400 cursor-pointer">{t('jsontorust.output_label')}</label>
             </div>
             <div className="flex gap-2">

@@ -1,5 +1,5 @@
 import { useState, useMemo, useEffect, useCallback, useRef } from 'react';
-import { Copy, Check, Trash2, Braces, FileCode, Info, AlertCircle, Download, Settings, ShieldAlert, ListFilter } from 'lucide-react';
+import { Copy, Check, Trash2, Braces, FileCode, Info, AlertCircle, Download, Settings, Sparkles } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import { toast } from 'sonner';
 import { Kbd } from './ui/Kbd';
@@ -14,6 +14,55 @@ const DRAFT_URLS: Record<string, string> = {
   'Draft 2019-09': 'https://json-schema.org/draft/2019-09/schema',
   'Draft 2020-12': 'https://json-schema.org/draft/2020-12/schema',
 };
+
+const PRESETS = [
+  {
+    key: 'user',
+    nameKey: 'jsonschema.preset_user',
+    data: {
+      id: 101,
+      name: "Alice Vance",
+      email: "alice@example.com",
+      role: "admin",
+      isVerified: true,
+      tags: ["engineering", "lead"],
+      createdAt: "2025-02-28T14:30:00Z"
+    }
+  },
+  {
+    key: 'order',
+    nameKey: 'jsonschema.preset_order',
+    data: {
+      orderId: "ORD-98234",
+      customer: {
+        id: "CUST-402",
+        name: "Bob Smith"
+      },
+      items: [
+        { sku: "WIRELESS-MOUSE", quantity: 2, price: 29.99 },
+        { sku: "USB-KEYBOARD", quantity: 1, price: 89.50 }
+      ],
+      totalAmount: 149.48,
+      status: "SHIPPED",
+      isPaid: true
+    }
+  },
+  {
+    key: 'api',
+    nameKey: 'jsonschema.preset_api',
+    data: {
+      status: "ok",
+      uptimeSeconds: 86400,
+      timestamp: "2025-02-28T12:00:00Z",
+      services: {
+        database: "connected",
+        redisCache: "healthy",
+        searchEngine: "degraded"
+      },
+      activeUsers: 1420
+    }
+  }
+];
 
 const sanitizeKey = (key: string): string => {
   if (key === '__proto__' || key === 'constructor' || key === 'prototype') {
@@ -164,8 +213,9 @@ export function JSONSchemaGenerator({ initialData, onStateChange }: { initialDat
   const handleClear = useCallback(() => {
     setJsonInput('');
     setError(null);
+    toast.info(t('jsonschema.toast_cleared'));
     setTimeout(() => textareaRef.current?.focus(), 0);
-  }, []);
+  }, [t]);
 
   const handleDownload = () => {
     if (!schemaResult) return;
@@ -178,6 +228,15 @@ export function JSONSchemaGenerator({ initialData, onStateChange }: { initialDat
     link.click();
     document.body.removeChild(link);
     URL.revokeObjectURL(url);
+    toast.success(t('jsonschema.toast_downloaded'));
+  };
+
+  const applyPreset = (preset: typeof PRESETS[number]) => {
+    setJsonInput(JSON.stringify(preset.data, null, 2));
+    setError(null);
+    const label = t(preset.nameKey);
+    toast.success(t('jsonschema.toast_preset', { name: label }));
+    setTimeout(() => textareaRef.current?.focus(), 0);
   };
 
   // Setup keyboard shortcuts securely with useRef-backed handlers
@@ -195,7 +254,13 @@ export function JSONSchemaGenerator({ initialData, onStateChange }: { initialDat
         activeElement instanceof HTMLSelectElement ||
         activeElement?.getAttribute("contenteditable") === "true";
 
-      if (isEditable && e.key !== 'Escape') return;
+      if (isEditable) {
+        if (e.key === 'Escape' && activeElement === textareaRef.current) {
+          e.preventDefault();
+          handlersRef.current.handleClear();
+        }
+        return;
+      }
 
       if (e.metaKey || e.ctrlKey || e.altKey || e.shiftKey) return;
 
@@ -214,6 +279,28 @@ export function JSONSchemaGenerator({ initialData, onStateChange }: { initialDat
 
   return (
     <div className="max-w-6xl mx-auto space-y-8">
+      {/* Presets Header */}
+      <div className="bg-slate-50 dark:bg-slate-900/50 p-6 rounded-[2rem] border border-slate-200 dark:border-slate-800 space-y-4">
+        <div className="flex items-center gap-2 px-1">
+          <Sparkles className="w-4 h-4 text-indigo-500" />
+          <h2 className="text-xs font-black uppercase tracking-widest text-slate-400">
+            {t('jsonschema.presets_title')}
+          </h2>
+        </div>
+        <div className="flex flex-wrap gap-2">
+          {PRESETS.map((preset) => (
+            <button
+              key={preset.key}
+              type="button"
+              onClick={() => applyPreset(preset)}
+              className="px-3 py-1.5 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 hover:border-indigo-500 dark:hover:border-indigo-500 text-xs font-bold rounded-xl text-slate-700 dark:text-slate-300 transition-all hover:shadow-md focus-visible:ring-2 focus-visible:ring-indigo-500 focus-visible:outline-none"
+            >
+              {t(preset.nameKey)}
+            </button>
+          ))}
+        </div>
+      </div>
+
       {/* Configuration Card */}
       <div className="bg-slate-50 dark:bg-slate-900/50 p-6 rounded-[2rem] border border-slate-200 dark:border-slate-800 space-y-6">
         <div className="flex items-center gap-2 px-1">

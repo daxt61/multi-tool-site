@@ -13,6 +13,25 @@ test.describe('JSON Schema Generator E2E and UX', () => {
     await expect(page.locator('label[for="schema-output"]')).toContainText('JSON Schema généré');
   });
 
+  test('should load presets and display toast notifications', async ({ page }) => {
+    await page.goto('http://localhost:5173/en/outil/json-schema');
+
+    // Click User Profile preset
+    await page.click('button:has-text("User Profile")');
+    await expect(page.locator('#json-input')).toHaveValue(/Alice Vance/);
+    await expect(page.locator('text=Applied preset: User Profile')).toBeVisible();
+
+    // Click E-Commerce Order preset
+    await page.click('button:has-text("E-Commerce Order")');
+    await expect(page.locator('#json-input')).toHaveValue(/ORD-98234/);
+    await expect(page.locator('text=Applied preset: E-Commerce Order')).toBeVisible();
+
+    // Click API Health Response preset
+    await page.click('button:has-text("API Health Response")');
+    await expect(page.locator('#json-input')).toHaveValue(/uptimeSeconds/);
+    await expect(page.locator('text=Applied preset: API Health Response')).toBeVisible();
+  });
+
   test('should generate a valid JSON Schema with option toggles', async ({ page }) => {
     await page.goto('http://localhost:5173/en/outil/json-schema');
 
@@ -48,18 +67,18 @@ test.describe('JSON Schema Generator E2E and UX', () => {
     expect(outputText).not.toContain('"required"');
 
     // Toggle additional properties (disallow them)
-    await page.click('text="Allow additional properties"');
+    await page.click('button:has-text("Allow additional properties")');
     outputText = await outputArea.textContent();
     expect(outputText).toContain('"additionalProperties": false');
 
     // Toggle defaults (include defaults)
-    await page.click('text="Include default values"');
+    await page.click('button:has-text("Include default values")');
     outputText = await outputArea.textContent();
     expect(outputText).toContain('"default": ""');
     expect(outputText).toContain('"default": 0');
 
     // Toggle examples (include examples)
-    await page.click('text="Include example values"');
+    await page.click('button:has-text("Include example values")');
     outputText = await outputArea.textContent();
     expect(outputText).toContain('"examples"');
   });

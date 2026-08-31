@@ -5,6 +5,15 @@ import { useTranslation } from 'react-i18next';
 const MAX_LENGTH = 100000;
 const MAX_DEPTH = 20;
 
+// Sentinel: Sanitize dangerous keys to prevent prototype pollution property collisions
+const sanitizeKey = (key: string): string => {
+  const lower = key.toLowerCase();
+  if (lower === '__proto__' || lower === 'constructor' || lower === 'prototype') {
+    return `_${key}`;
+  }
+  return key;
+};
+
 export function JSONToValibot({ initialData, onStateChange }: { initialData?: any; onStateChange?: (state: any) => void }) {
   const { t } = useTranslation();
   const textareaRef = useRef<HTMLTextAreaElement>(null);
@@ -46,7 +55,8 @@ export function JSONToValibot({ initialData, onStateChange }: { initialData?: an
           let res = 'v.object({\n';
           const entries = Object.entries(obj);
           entries.forEach(([key, value], index) => {
-            const safeKey = /^[a-z_$][a-z0-9_$]*$/i.test(key) ? key : JSON.stringify(key);
+            const cleanKey = sanitizeKey(key);
+            const safeKey = /^[a-z_$][a-z0-9_$]*$/i.test(cleanKey) ? cleanKey : JSON.stringify(cleanKey);
             res += `${indent}  ${safeKey}: ${generateValibot(value, indent + '  ', depth + 1)}${index === entries.length - 1 ? '' : ','}\n`;
           });
           res += `${indent}})`;

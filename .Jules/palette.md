@@ -1,3 +1,7 @@
+## 2026-08-31 - [Interactive Presets and Slider ARIA Properties in CSS Generators]
+**Learning:** CSS visual generators (like CSS Border Radius Generator) often lack ARIA value bounds on range sliders (`aria-valuemin`, `aria-valuemax`, `aria-valuenow`), toggle button state communication (`aria-pressed`), and instant preset configurations. Adding interactive quick-start presets, `sonner` toasts on copy/reset, `handlersRef`-guarded hotkeys (`Esc` reset & focus `#tl`, `C` copy CSS), and visual `<Kbd>` badges creates an intuitive, accessible micro-UX.
+**Action:** Always supply explicit ARIA slider attributes on range inputs, add `aria-pressed` to mode toggles, incorporate quick presets, and restore keyboard focus to the primary slider input upon reset.
+
 ## 2026-08-30 - [Accessible State Communication and Focus Management in WiFi QR Generators]
 **Learning:** Network QR generators often omit `aria-pressed` attributes on security protocol and hidden network toggle buttons, and omit `aria-label`s on icon-only password visibility buttons. Providing explicit ARIA toggle states (`aria-pressed`, `aria-label`), `handlersRef`-guarded keyboard shortcuts (`Esc` reset, `C` copy raw string), visual `<Kbd>` key hint badges, `sonner` success toasts, and programmatic focus restoration (`#ssid`) delivers an accessible, WCAG-compliant micro-UX.
 **Action:** Always add `aria-pressed` to mutual-exclusion and toggle buttons, add `aria-label` to icon-only toggle buttons, trigger `sonner` toasts on copy/reset, and restore focus to primary inputs upon clearing.

@@ -48,7 +48,9 @@ export function JSONToYup({ initialData, onStateChange }: { initialData?: any; o
 
       entries.forEach(([key, value]) => {
         const valueSchema = generateYupSchema(value, nextIndent, depth + 1);
-        const safeKey = /^[a-z_$][a-z0-9_$]*$/i.test(key) ? key : JSON.stringify(key);
+        // Sentinel: Sanitize keys to prevent breakout from the Yup schema object literal.
+        const isValidIdent = /^[a-zA-Z_$][a-zA-Z0-9_$]*$/.test(key);
+        const safeKey = isValidIdent ? key : JSON.stringify(key);
         result += `${nextIndent}${safeKey}: ${valueSchema},\n`;
       });
       result += `${indent}})`;

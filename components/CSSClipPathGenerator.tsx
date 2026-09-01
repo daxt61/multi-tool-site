@@ -142,6 +142,7 @@ export function CSSClipPathGenerator({ initialData, onStateChange }: { initialDa
   const { t } = useTranslation();
   const containerRef = useRef<HTMLDivElement>(null);
   const svgRef = useRef<SVGSVGElement>(null);
+  const resetButtonRef = useRef<HTMLButtonElement>(null);
 
   // Tool states
   const [shapeType, setShapeType] = useState<ShapeType>(initialData?.shapeType || 'polygon');
@@ -410,6 +411,7 @@ export function CSSClipPathGenerator({ initialData, onStateChange }: { initialDa
   // Reset functionality
   const handleReset = () => {
     selectPreset(PRESETS[0]);
+    resetButtonRef.current?.focus();
     toast.success(t('common.reset'));
   };
 
@@ -442,6 +444,10 @@ export function CSSClipPathGenerator({ initialData, onStateChange }: { initialDa
 
       if (isEditable) return;
 
+      const isInsideContainer =
+        containerRef.current?.contains(activeElement) || activeElement === document.body;
+      if (!isInsideContainer) return;
+
       if (e.metaKey || e.ctrlKey || e.altKey || e.shiftKey) return;
 
       const handlers = handlersRef.current;
@@ -465,7 +471,7 @@ export function CSSClipPathGenerator({ initialData, onStateChange }: { initialDa
   }, []);
 
   return (
-    <div className="max-w-6xl mx-auto space-y-8">
+    <div ref={containerRef} className="max-w-6xl mx-auto space-y-8">
       {/* Top Presets Navigation */}
       <div className="bg-slate-50 dark:bg-slate-900/50 p-4 rounded-3xl border border-slate-200 dark:border-slate-800 space-y-4">
         <div className="flex items-center gap-2 px-1">
@@ -716,6 +722,7 @@ export function CSSClipPathGenerator({ initialData, onStateChange }: { initialDa
               />
             </div>
             <button
+              ref={resetButtonRef}
               onClick={handleReset}
               className="text-xs font-bold px-3 py-1.5 rounded-xl bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-600 dark:text-slate-300 transition-all flex items-center gap-1.5 focus-visible:ring-2 focus-visible:ring-indigo-500 focus-visible:outline-none"
               title={`${t('common.reset')} (Esc)`}
@@ -743,6 +750,7 @@ export function CSSClipPathGenerator({ initialData, onStateChange }: { initialDa
                 {(['polygon', 'circle', 'ellipse', 'inset'] as ShapeType[]).map((type) => (
                   <button
                     key={type}
+                    aria-pressed={shapeType === type}
                     onClick={() => {
                       setShapeType(type);
                       // load standard preset for the type
@@ -841,6 +849,9 @@ export function CSSClipPathGenerator({ initialData, onStateChange }: { initialDa
                     value={circleR}
                     min={1}
                     max={100}
+                    aria-valuemin={1}
+                    aria-valuemax={100}
+                    aria-valuenow={circleR}
                     onChange={(e) => setCircleR(parseInt(e.target.value))}
                     className="w-full accent-indigo-600"
                   />
@@ -857,6 +868,9 @@ export function CSSClipPathGenerator({ initialData, onStateChange }: { initialDa
                     value={circleX}
                     min={0}
                     max={100}
+                    aria-valuemin={0}
+                    aria-valuemax={100}
+                    aria-valuenow={circleX}
                     onChange={(e) => setCircleX(parseInt(e.target.value))}
                     className="w-full accent-indigo-600"
                   />
@@ -873,6 +887,9 @@ export function CSSClipPathGenerator({ initialData, onStateChange }: { initialDa
                     value={circleY}
                     min={0}
                     max={100}
+                    aria-valuemin={0}
+                    aria-valuemax={100}
+                    aria-valuenow={circleY}
                     onChange={(e) => setCircleY(parseInt(e.target.value))}
                     className="w-full accent-indigo-600"
                   />
@@ -894,6 +911,9 @@ export function CSSClipPathGenerator({ initialData, onStateChange }: { initialDa
                       value={ellipseRx}
                       min={1}
                       max={100}
+                      aria-valuemin={1}
+                      aria-valuemax={100}
+                      aria-valuenow={ellipseRx}
                       onChange={(e) => setEllipseRx(parseInt(e.target.value))}
                       className="w-full accent-indigo-600"
                     />
@@ -909,6 +929,9 @@ export function CSSClipPathGenerator({ initialData, onStateChange }: { initialDa
                       value={ellipseRy}
                       min={1}
                       max={100}
+                      aria-valuemin={1}
+                      aria-valuemax={100}
+                      aria-valuenow={ellipseRy}
                       onChange={(e) => setEllipseRy(parseInt(e.target.value))}
                       className="w-full accent-indigo-600"
                     />
@@ -926,6 +949,9 @@ export function CSSClipPathGenerator({ initialData, onStateChange }: { initialDa
                     value={ellipseX}
                     min={0}
                     max={100}
+                    aria-valuemin={0}
+                    aria-valuemax={100}
+                    aria-valuenow={ellipseX}
                     onChange={(e) => setEllipseX(parseInt(e.target.value))}
                     className="w-full accent-indigo-600"
                   />
@@ -942,6 +968,9 @@ export function CSSClipPathGenerator({ initialData, onStateChange }: { initialDa
                     value={ellipseY}
                     min={0}
                     max={100}
+                    aria-valuemin={0}
+                    aria-valuemax={100}
+                    aria-valuenow={ellipseY}
                     onChange={(e) => setEllipseY(parseInt(e.target.value))}
                     className="w-full accent-indigo-600"
                   />
@@ -963,6 +992,9 @@ export function CSSClipPathGenerator({ initialData, onStateChange }: { initialDa
                       value={insetTop}
                       min={0}
                       max={100 - insetBottom}
+                      aria-valuemin={0}
+                      aria-valuemax={100 - insetBottom}
+                      aria-valuenow={insetTop}
                       onChange={(e) => setInsetTop(parseInt(e.target.value))}
                       className="w-full accent-indigo-600"
                     />
@@ -978,6 +1010,9 @@ export function CSSClipPathGenerator({ initialData, onStateChange }: { initialDa
                       value={insetRight}
                       min={0}
                       max={100 - insetLeft}
+                      aria-valuemin={0}
+                      aria-valuemax={100 - insetLeft}
+                      aria-valuenow={insetRight}
                       onChange={(e) => setInsetRight(parseInt(e.target.value))}
                       className="w-full accent-indigo-600"
                     />
@@ -993,6 +1028,9 @@ export function CSSClipPathGenerator({ initialData, onStateChange }: { initialDa
                       value={insetBottom}
                       min={0}
                       max={100 - insetTop}
+                      aria-valuemin={0}
+                      aria-valuemax={100 - insetTop}
+                      aria-valuenow={insetBottom}
                       onChange={(e) => setInsetBottom(parseInt(e.target.value))}
                       className="w-full accent-indigo-600"
                     />
@@ -1008,6 +1046,9 @@ export function CSSClipPathGenerator({ initialData, onStateChange }: { initialDa
                       value={insetLeft}
                       min={0}
                       max={100 - insetRight}
+                      aria-valuemin={0}
+                      aria-valuemax={100 - insetRight}
+                      aria-valuenow={insetLeft}
                       onChange={(e) => setInsetLeft(parseInt(e.target.value))}
                       className="w-full accent-indigo-600"
                     />
@@ -1025,6 +1066,9 @@ export function CSSClipPathGenerator({ initialData, onStateChange }: { initialDa
                     value={insetRound}
                     min={0}
                     max={100}
+                    aria-valuemin={0}
+                    aria-valuemax={100}
+                    aria-valuenow={insetRound}
                     onChange={(e) => setInsetRound(parseInt(e.target.value))}
                     className="w-full accent-indigo-600"
                   />

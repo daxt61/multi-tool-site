@@ -137,3 +137,7 @@
 ## 2026-08-02 - [Dual Copy Targets and Focus Management for Dimensional Calculators]
 **Learning:** For layout utilities like AspectRatioCalculator that output multiple meaningful result types (such as raw pixel dimensions vs. simplified ratios), users highly benefit from discrete copy triggers that can be clicked individually. Linking this with focus restoration back to the primary width field via an `Escape` keyboard shortcut and key hint badges ensures seamless keyboard navigation.
 **Action:** Provide specific, localized copy triggers for each distinct result subset, configure a `useRef` to programmatically focus the primary text/number input on reset, and wrap global listeners using a `useRef` closure safeguard (`handlersRef`).
+
+## 2026-09-01 - [ARIA Range Properties & Container-Isolated Keybindings in Clip Path Generators]
+**Learning:** Visual CSS generators with range sliders (like CSS Clip Path Generator) often miss `aria-valuenow`, `aria-valuemin`, and `aria-valuemax` attributes on range inputs and `aria-pressed` states on shape selector toggle buttons. Adding explicit ARIA attributes, gating global keydown listeners with `containerRef.current?.contains(activeElement)`, and programmatically restoring focus to the reset button upon reset creates an accessible, WCAG-compliant experience.
+**Action:** Always supply dynamic ARIA range attributes on sliders, toggle states (`aria-pressed`) on mutually exclusive shape selection buttons, gate global hotkeys with `containerRef`, and focus the reset button on reset.

@@ -601,6 +601,7 @@ const ListRepeater = lazy(() => import("./components/ListRepeater").then(m => ({
 const ListTruncator = lazy(() => import("./components/ListTruncator").then(m => ({ default: m.ListTruncator })));
 const MarkdownTableToCSV = lazy(() => import("./components/MarkdownTableToCSV").then(m => ({ default: m.MarkdownTableToCSV })));
 const CSVToMarkdownTable = lazy(() => import("./components/CSVToMarkdownTable").then(m => ({ default: m.CSVToMarkdownTable })));
+const TSVToMarkdownTable = lazy(() => import("./components/TSVToMarkdownTable").then(m => ({ default: m.TSVToMarkdownTable })));
 const CSVToHTMLTable = lazy(() => import("./components/CSVToHTMLTable").then(m => ({ default: m.CSVToHTMLTable })));
 const CSVToLaTeX = lazy(() => import("./components/CSVToLaTeX").then(m => ({ default: m.CSVToLaTeX })));
 
@@ -663,6 +664,18 @@ const tools: Tool[] = [
     Component: CSVToMarkdownTable,
     category: "dev",
     keywords: ["csv", "tsv", "markdown", "table", "convert", "delimiter", "tableau", "convertir"],
+  },
+  // TSV to Markdown Table Converter Tool
+  {
+    id: "tsv-to-markdown-table",
+    name: "TSV en Tableau Markdown",
+    nameEn: "TSV to Markdown Table",
+    icon: Table,
+    description: "Convertir des données TSV (séparées par tabulations) en tableaux Markdown personnalisables",
+    descriptionEn: "Convert TSV (tab-separated values) data into customizable Markdown table markup",
+    Component: TSVToMarkdownTable,
+    category: "dev",
+    keywords: ["tsv", "tab", "markdown", "table", "convert", "export", "tableau", "convertir"],
   },
   // CSV / TSV to LaTeX Table Converter Tool
   {

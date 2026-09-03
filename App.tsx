@@ -604,6 +604,9 @@ const CSVToMarkdownTable = lazy(() => import("./components/CSVToMarkdownTable").
 const TSVToMarkdownTable = lazy(() => import("./components/TSVToMarkdownTable").then(m => ({ default: m.TSVToMarkdownTable })));
 const CSVToHTMLTable = lazy(() => import("./components/CSVToHTMLTable").then(m => ({ default: m.CSVToHTMLTable })));
 const CSVToLaTeX = lazy(() => import("./components/CSVToLaTeX").then(m => ({ default: m.CSVToLaTeX })));
+const HTMLTableToCSV = lazy(() => import("./components/HTMLTableToCSV").then(m => ({ default: m.HTMLTableToCSV })));
+const HTMLTableToMarkdown = lazy(() => import("./components/HTMLTableToMarkdown").then(m => ({ default: m.HTMLTableToMarkdown })));
+const MarkdownTableToJSON = lazy(() => import("./components/MarkdownTableToJSON").then(m => ({ default: m.MarkdownTableToJSON })));
 
 // ⚡ Bolt Optimization: Pre-calculating tool map and search index for O(1) lookups and faster filtering
 const toolsMap: Record<string, Tool> = {};
@@ -700,6 +703,42 @@ const tools: Tool[] = [
     Component: CSVToHTMLTable,
     category: "dev",
     keywords: ["csv", "tsv", "html", "table", "convert", "styles", "tableau", "convertir"],
+  },
+  // HTML Table to CSV / TSV Converter Tool
+  {
+    id: "html-table-to-csv",
+    name: "HTML Table en CSV",
+    nameEn: "HTML Table to CSV / TSV",
+    icon: Table,
+    description: "Convertir du code HTML <table> en données CSV, TSV ou délimitées personnalisées",
+    descriptionEn: "Convert HTML <table> code into clean CSV, TSV, or custom character-delimited datasets",
+    Component: HTMLTableToCSV,
+    category: "dev",
+    keywords: ["html", "table", "csv", "tsv", "convert", "export", "delimited", "tableau", "convertir"],
+  },
+  // HTML Table to Markdown Table Converter Tool
+  {
+    id: "html-table-to-markdown",
+    name: "HTML Table en Tableau Markdown",
+    nameEn: "HTML Table to Markdown Table",
+    icon: Table,
+    description: "Convertir du code HTML <table> en tableaux Markdown formatés avec mise en forme",
+    descriptionEn: "Convert HTML <table> code into formatted Markdown table markup",
+    Component: HTMLTableToMarkdown,
+    category: "dev",
+    keywords: ["html", "table", "markdown", "convert", "export", "tableau", "convertir"],
+  },
+  // Markdown Table to JSON Converter Tool
+  {
+    id: "markdown-table-to-json",
+    name: "Tableau Markdown en JSON",
+    nameEn: "Markdown Table to JSON",
+    icon: Table,
+    description: "Convertir des tableaux Markdown en format JSON structuré avec casse de clés personnalisable",
+    descriptionEn: "Convert Markdown table markup into structured JSON format with custom key casing",
+    Component: MarkdownTableToJSON,
+    category: "dev",
+    keywords: ["markdown", "table", "json", "convert", "export", "casing", "tableau", "convertir"],
   },
   // List Truncator & Line Limiter Tool
   {

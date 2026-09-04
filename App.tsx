@@ -607,6 +607,7 @@ const CSVToLaTeX = lazy(() => import("./components/CSVToLaTeX").then(m => ({ def
 const HTMLTableToCSV = lazy(() => import("./components/HTMLTableToCSV").then(m => ({ default: m.HTMLTableToCSV })));
 const HTMLTableToMarkdown = lazy(() => import("./components/HTMLTableToMarkdown").then(m => ({ default: m.HTMLTableToMarkdown })));
 const MarkdownTableToJSON = lazy(() => import("./components/MarkdownTableToJSON").then(m => ({ default: m.MarkdownTableToJSON })));
+const MarkdownTableToHTML = lazy(() => import("./components/MarkdownTableToHTML").then(m => ({ default: m.MarkdownTableToHTML })));
 
 // ⚡ Bolt Optimization: Pre-calculating tool map and search index for O(1) lookups and faster filtering
 const toolsMap: Record<string, Tool> = {};
@@ -739,6 +740,18 @@ const tools: Tool[] = [
     Component: MarkdownTableToJSON,
     category: "dev",
     keywords: ["markdown", "table", "json", "convert", "export", "casing", "tableau", "convertir"],
+  },
+  // Markdown Table to HTML Table Converter Tool
+  {
+    id: "markdown-table-to-html",
+    name: "Tableau Markdown en HTML",
+    nameEn: "Markdown Table to HTML Table",
+    icon: Table,
+    description: "Convertir des tableaux Markdown en code HTML <table> personnalisable",
+    descriptionEn: "Convert Markdown table markup into customizable HTML <table> markup",
+    Component: MarkdownTableToHTML,
+    category: "dev",
+    keywords: ["markdown", "table", "html", "convert", "export", "align", "styles", "tableau", "convertir"],
   },
   // List Truncator & Line Limiter Tool
   {

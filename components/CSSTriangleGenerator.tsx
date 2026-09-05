@@ -1,5 +1,7 @@
-import React, { useState, useEffect } from 'react';
-import { Play, Copy, Check, RotateCcw, Layout, Maximize, Palette } from 'lucide-react';
+import React, { useState, useEffect, useCallback, useRef } from 'react';
+import { Copy, Check, RotateCcw, Layout, Maximize, Palette, Sparkles } from 'lucide-react';
+import { toast } from 'sonner';
+import { Kbd } from './ui/Kbd';
 
 type Direction = 'top' | 'bottom' | 'left' | 'right' | 'top-left' | 'top-right' | 'bottom-left' | 'bottom-right';
 
@@ -9,6 +11,22 @@ interface TriangleState {
   height: number;
   color: string;
 }
+
+interface Preset {
+  id: string;
+  name: string;
+  direction: Direction;
+  width: number;
+  height: number;
+  color: string;
+}
+
+const PRESETS: Preset[] = [
+  { id: 'tooltip-arrow', name: 'Tooltip Arrow', direction: 'top', width: 16, height: 10, color: '#1e293b' },
+  { id: 'dropdown-caret', name: 'Dropdown Caret', direction: 'bottom', width: 12, height: 8, color: '#64748b' },
+  { id: 'banner-ribbon', name: 'Banner Ribbon', direction: 'right', width: 24, height: 40, color: '#6366f1' },
+  { id: 'corner-badge', name: 'Corner Badge', direction: 'top-right', width: 50, height: 50, color: '#ef4444' },
+];
 
 const DEFAULT_STATE: TriangleState = {
   direction: 'top',
@@ -24,11 +42,14 @@ export function CSSTriangleGenerator({ initialData, onStateChange }: { initialDa
   const [color, setColor] = useState<string>(initialData?.color || DEFAULT_STATE.color);
   const [copied, setCopied] = useState(false);
 
+  const containerRef = useRef<HTMLDivElement>(null);
+  const primaryInputRef = useRef<HTMLInputElement>(null);
+
   useEffect(() => {
     onStateChange?.({ direction, width, height, color });
-  }, [direction, width, height, color]);
+  }, [direction, width, height, color, onStateChange]);
 
-  const getCss = () => {
+  const getCss = useCallback(() => {
     const w = width / 2;
     const h = height / 2;
 
@@ -52,7 +73,7 @@ export function CSSTriangleGenerator({ initialData, onStateChange }: { initialDa
       default:
         return '';
     }
-  };
+  }, [direction, width, height, color]);
 
   const getPreviewStyle = (): React.CSSProperties => {
     const w = width / 2;
@@ -80,18 +101,65 @@ export function CSSTriangleGenerator({ initialData, onStateChange }: { initialDa
     }
   };
 
-  const handleCopy = () => {
+  const handleCopy = useCallback(() => {
     navigator.clipboard.writeText(getCss());
     setCopied(true);
+    toast.success('CSS code copied to clipboard!');
     setTimeout(() => setCopied(false), 2000);
-  };
+  }, [getCss]);
 
-  const handleReset = () => {
+  const handleReset = useCallback(() => {
     setDirection(DEFAULT_STATE.direction);
     setWidth(DEFAULT_STATE.width);
     setHeight(DEFAULT_STATE.height);
     setColor(DEFAULT_STATE.color);
+    toast.success('Triangle generator reset');
+    primaryInputRef.current?.focus();
+  }, []);
+
+  const handleApplyPreset = (preset: Preset) => {
+    setDirection(preset.direction);
+    setWidth(preset.width);
+    setHeight(preset.height);
+    setColor(preset.color);
+    toast.success(`Preset "${preset.name}" applied!`);
   };
+
+  const handlersRef = useRef({ handleReset, handleCopy });
+  useEffect(() => {
+    handlersRef.current = { handleReset, handleCopy };
+  }, [handleReset, handleCopy]);
+
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      const activeElement = document.activeElement;
+      const isEditable =
+        activeElement instanceof HTMLInputElement ||
+        activeElement instanceof HTMLTextAreaElement ||
+        (activeElement as HTMLElement)?.isContentEditable;
+
+      const isBodyOrComponent =
+        !activeElement ||
+        activeElement === document.body ||
+        containerRef.current?.contains(activeElement as Node);
+
+      if (e.key === 'Escape' && isBodyOrComponent) {
+        e.preventDefault();
+        handlersRef.current.handleReset();
+        return;
+      }
+
+      if ((e.key === 'c' || e.key === 'C') && !e.metaKey && !e.ctrlKey && !e.altKey) {
+        if (!isEditable && isBodyOrComponent) {
+          e.preventDefault();
+          handlersRef.current.handleCopy();
+        }
+      }
+    };
+
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, []);
 
   const directions: { id: Direction; label: string }[] = [
     { id: 'top', label: 'Haut' },
@@ -105,13 +173,41 @@ export function CSSTriangleGenerator({ initialData, onStateChange }: { initialDa
   ];
 
   return (
-    <div className="max-w-4xl mx-auto space-y-12">
+    <div ref={containerRef} className="max-w-4xl mx-auto space-y-12">
+      {/* Quick Presets */}
+      <div className="bg-slate-50 dark:bg-slate-900/50 p-6 rounded-[2rem] border border-slate-200 dark:border-slate-800 space-y-4">
+        <div className="flex items-center gap-2 text-xs font-black uppercase tracking-widest text-slate-400 px-1">
+          <Sparkles className="w-4 h-4 text-indigo-500" aria-hidden="true" /> Quick Presets
+        </div>
+        <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+          {PRESETS.map((preset) => (
+            <button
+              key={preset.id}
+              type="button"
+              onClick={() => handleApplyPreset(preset)}
+              className="px-4 py-3 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-2xl hover:border-indigo-500 dark:hover:border-indigo-500 hover:shadow-md transition-all text-left group"
+            >
+              <span className="text-xs font-bold text-slate-700 dark:text-slate-200 group-hover:text-indigo-600 dark:group-hover:text-indigo-400 transition-colors block">
+                {preset.name}
+              </span>
+              <span className="text-[10px] text-slate-400 font-mono block mt-0.5">
+                {preset.width}x{preset.height}px ({preset.direction})
+              </span>
+            </button>
+          ))}
+        </div>
+      </div>
+
       <div className="flex justify-end">
         <button
+          type="button"
           onClick={handleReset}
-          className="text-xs font-bold text-rose-500 bg-rose-50 dark:bg-rose-500/10 hover:bg-rose-100 dark:hover:bg-rose-500/20 px-3 py-1.5 rounded-xl flex items-center gap-2 transition-all focus-visible:ring-2 focus-visible:ring-rose-500 focus-visible:outline-none"
+          className="text-xs font-bold text-rose-500 bg-rose-50 dark:bg-rose-500/10 hover:bg-rose-100 dark:hover:bg-rose-500/20 px-3.5 py-1.5 rounded-xl flex items-center gap-2 transition-all focus-visible:ring-2 focus-visible:ring-rose-500 focus-visible:outline-none"
+          aria-label="Réinitialiser les paramètres du triangle (Esc)"
         >
-          <RotateCcw className="w-3.5 h-3.5" /> Réinitialiser
+          <RotateCcw className="w-3.5 h-3.5" aria-hidden="true" />
+          Réinitialiser
+          <Kbd modifier={null} className="hidden sm:inline-flex bg-rose-100 dark:bg-rose-900/30 border-rose-200 dark:border-rose-800 text-rose-500">Esc</Kbd>
         </button>
       </div>
 
@@ -120,12 +216,13 @@ export function CSSTriangleGenerator({ initialData, onStateChange }: { initialDa
         <div className="space-y-8">
           <div className="space-y-4">
             <h4 className="text-xs font-black uppercase tracking-widest text-slate-400 flex items-center gap-2 px-1">
-              <Layout className="w-4 h-4 text-indigo-500" /> Direction
+              <Layout className="w-4 h-4 text-indigo-500" aria-hidden="true" /> Direction
             </h4>
             <div className="grid grid-cols-4 gap-2">
               {directions.map((dir) => (
                 <button
                   key={dir.id}
+                  type="button"
                   onClick={() => setDirection(dir.id)}
                   className={`p-3 rounded-xl border-2 transition-all flex flex-col items-center gap-2 group ${
                     direction === dir.id
@@ -155,16 +252,21 @@ export function CSSTriangleGenerator({ initialData, onStateChange }: { initialDa
             <div className="space-y-2">
               <div className="flex justify-between items-center px-1">
                 <label htmlFor="width" className="text-xs font-bold text-slate-500 flex items-center gap-2">
-                  <Maximize className="w-3 h-3" /> Largeur (px)
+                  <Maximize className="w-3 h-3" aria-hidden="true" /> Largeur (px)
                 </label>
                 <span className="text-sm font-black font-mono dark:text-slate-300">{width}</span>
               </div>
               <input
                 id="width"
+                ref={primaryInputRef}
                 type="range"
                 min="10"
                 max="300"
                 value={width}
+                aria-valuemin={10}
+                aria-valuemax={300}
+                aria-valuenow={width}
+                aria-label="Largeur du triangle en pixels"
                 onChange={(e) => setWidth(Number(e.target.value))}
                 className="w-full h-1.5 rounded-lg appearance-none cursor-pointer bg-slate-100 dark:bg-slate-800 accent-indigo-600"
               />
@@ -173,7 +275,7 @@ export function CSSTriangleGenerator({ initialData, onStateChange }: { initialDa
             <div className="space-y-2">
               <div className="flex justify-between items-center px-1">
                 <label htmlFor="height" className="text-xs font-bold text-slate-500 flex items-center gap-2">
-                  <Maximize className="w-3 h-3 rotate-90" /> Hauteur (px)
+                  <Maximize className="w-3 h-3 rotate-90" aria-hidden="true" /> Hauteur (px)
                 </label>
                 <span className="text-sm font-black font-mono dark:text-slate-300">{height}</span>
               </div>
@@ -183,6 +285,10 @@ export function CSSTriangleGenerator({ initialData, onStateChange }: { initialDa
                 min="10"
                 max="300"
                 value={height}
+                aria-valuemin={10}
+                aria-valuemax={300}
+                aria-valuenow={height}
+                aria-label="Hauteur du triangle en pixels"
                 onChange={(e) => setHeight(Number(e.target.value))}
                 className="w-full h-1.5 rounded-lg appearance-none cursor-pointer bg-slate-100 dark:bg-slate-800 accent-indigo-600"
               />
@@ -190,22 +296,25 @@ export function CSSTriangleGenerator({ initialData, onStateChange }: { initialDa
 
             <div className="space-y-2">
               <div className="flex justify-between items-center px-1">
-                <label htmlFor="color" className="text-xs font-bold text-slate-500 flex items-center gap-2">
-                  <Palette className="w-3 h-3" /> Couleur
+                <label htmlFor="color-hex" className="text-xs font-bold text-slate-500 flex items-center gap-2">
+                  <Palette className="w-3 h-3" aria-hidden="true" /> Couleur
                 </label>
                 <span className="text-sm font-black font-mono dark:text-slate-300">{color.toUpperCase()}</span>
               </div>
               <div className="flex gap-4 items-center">
                 <input
-                  id="color"
+                  id="color-picker"
                   type="color"
                   value={color}
+                  aria-label="Sélecteur de couleur"
                   onChange={(e) => setColor(e.target.value)}
                   className="w-12 h-12 rounded-xl border-2 border-slate-100 dark:border-slate-800 cursor-pointer overflow-hidden"
                 />
                 <input
+                  id="color-hex"
                   type="text"
                   value={color}
+                  aria-label="Code couleur hexadécimal"
                   onChange={(e) => setColor(e.target.value)}
                   className="flex-1 p-3 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl font-mono text-sm outline-none focus:border-indigo-500 transition-colors dark:text-white"
                 />
@@ -224,20 +333,23 @@ export function CSSTriangleGenerator({ initialData, onStateChange }: { initialDa
 
           <div className="space-y-4">
             <div className="flex justify-between items-center px-1">
-              <h4 className="text-xs font-black uppercase tracking-widest text-slate-400">CSS Code</h4>
+              <span id="css-triangle-code-label" className="text-xs font-black uppercase tracking-widest text-slate-400">CSS Code</span>
               <button
+                type="button"
                 onClick={handleCopy}
                 className={`flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-bold transition-all border ${
                   copied
                     ? 'bg-emerald-50 dark:bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border-emerald-200 dark:border-emerald-500/20'
                     : 'bg-white dark:bg-slate-800 text-indigo-600 border-slate-200 dark:border-slate-700 hover:border-indigo-500'
                 }`}
+                aria-label="Copier le code CSS (C)"
               >
-                {copied ? <Check className="w-4 h-4" /> : <Copy className="w-4 h-4" />}
+                {copied ? <Check className="w-4 h-4" aria-hidden="true" /> : <Copy className="w-4 h-4" aria-hidden="true" />}
                 {copied ? 'Copié !' : 'Copier le CSS'}
+                {!copied && <Kbd modifier={null} className="hidden sm:inline-flex ml-1">C</Kbd>}
               </button>
             </div>
-            <pre className="p-6 bg-slate-900 text-indigo-400 rounded-3xl font-mono text-sm overflow-x-auto border border-slate-800">
+            <pre aria-labelledby="css-triangle-code-label" className="p-6 bg-slate-900 text-indigo-400 rounded-3xl font-mono text-sm overflow-x-auto border border-slate-800">
               {`.triangle {\n  ${getCss().replace(/\n/g, '\n  ')}\n}`}
             </pre>
           </div>

@@ -32,13 +32,24 @@ export function JSONToBigQuery({ initialData, onStateChange }: { initialData?: a
     return 'STRING';
   };
 
+  const sanitizeBigQueryName = (key: string): string => {
+    // Sentinel: Sanitize keys to ensure they are valid BigQuery field identifiers
+    // BigQuery column names must contain only [a-zA-Z0-9_] and start with a letter or underscore.
+    let safeKey = key.replace(/[^a-zA-Z0-9_]/g, '_');
+    if (/^[0-9]/.test(safeKey)) safeKey = '_' + safeKey;
+    if (['__proto__', 'constructor', 'prototype'].includes(key) || !safeKey) {
+      safeKey = '_' + (safeKey || 'field');
+    }
+    return safeKey;
+  };
+
   const generateSchema = (obj: any, depth = 0): any[] => {
     if (depth > MAX_DEPTH) return [];
     if (typeof obj !== 'object' || obj === null) return [];
 
     return Object.entries(obj).map(([key, value]) => {
       const field: any = {
-        name: key,
+        name: sanitizeBigQueryName(key),
         mode: 'NULLABLE'
       };
 
@@ -83,13 +94,15 @@ export function JSONToBigQuery({ initialData, onStateChange }: { initialData?: a
           setError(t('jsontosql.error_empty'));
           return;
         }
-        // Merge top level keys for sample
-        sample = parsed.slice(0, 5).reduce((acc, curr) => {
+        // Merge top level keys for sample using null-prototype object to prevent prototype pollution
+        sample = parsed.slice(0, 5).reduce((acc: any, curr: any) => {
           if (typeof curr === 'object' && curr !== null) {
-            return { ...acc, ...curr };
+            const merged = Object.create(null);
+            Object.assign(merged, acc, curr);
+            return merged;
           }
           return acc;
-        }, {});
+        }, Object.create(null));
       }
 
       const schema = generateSchema(sample);

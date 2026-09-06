@@ -603,6 +603,8 @@ const MarkdownTableToCSV = lazy(() => import("./components/MarkdownTableToCSV").
 const CSVToMarkdownTable = lazy(() => import("./components/CSVToMarkdownTable").then(m => ({ default: m.CSVToMarkdownTable })));
 const TSVToMarkdownTable = lazy(() => import("./components/TSVToMarkdownTable").then(m => ({ default: m.TSVToMarkdownTable })));
 const CSVToHTMLTable = lazy(() => import("./components/CSVToHTMLTable").then(m => ({ default: m.CSVToHTMLTable })));
+const TSVToHTMLTable = lazy(() => import("./components/TSVToHTMLTable").then(m => ({ default: m.TSVToHTMLTable })));
+const CSVToTypeScript = lazy(() => import("./components/CSVToTypeScript").then(m => ({ default: m.CSVToTypeScript })));
 const CSVToLaTeX = lazy(() => import("./components/CSVToLaTeX").then(m => ({ default: m.CSVToLaTeX })));
 const HTMLTableToCSV = lazy(() => import("./components/HTMLTableToCSV").then(m => ({ default: m.HTMLTableToCSV })));
 const HTMLTableToMarkdown = lazy(() => import("./components/HTMLTableToMarkdown").then(m => ({ default: m.HTMLTableToMarkdown })));
@@ -680,6 +682,30 @@ const tools: Tool[] = [
     Component: TSVToMarkdownTable,
     category: "dev",
     keywords: ["tsv", "tab", "markdown", "table", "convert", "export", "tableau", "convertir"],
+  },
+  // TSV to HTML Table Converter Tool
+  {
+    id: "tsv-to-html-table",
+    name: "TSV en Tableau HTML",
+    nameEn: "TSV to HTML Table",
+    icon: Table,
+    description: "Convertir des données TSV (séparées par tabulations) en code HTML <table> personnalisable",
+    descriptionEn: "Convert TSV (tab-separated values) data into customizable HTML <table> markup",
+    Component: TSVToHTMLTable,
+    category: "dev",
+    keywords: ["tsv", "tab", "html", "table", "convert", "styles", "tableau", "convertir"],
+  },
+  // CSV / TSV to TypeScript Converter Tool
+  {
+    id: "csv-to-typescript",
+    name: "CSV en TypeScript",
+    nameEn: "CSV / TSV to TypeScript",
+    icon: FileCode,
+    description: "Convertir des données CSV et TSV en interfaces ou types TypeScript avec inférence de types",
+    descriptionEn: "Convert CSV or TSV data into TypeScript interfaces or type aliases with column type inference",
+    Component: CSVToTypeScript,
+    category: "dev",
+    keywords: ["csv", "tsv", "typescript", "interface", "type", "convert", "infer", "convertir"],
   },
   // CSV / TSV to LaTeX Table Converter Tool
   {

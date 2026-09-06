@@ -137,7 +137,9 @@ export function JSONToDjango({ initialData, onStateChange }: { initialData?: any
       const value = obj[key];
       const pythonName = toValidPythonIdentifier(key);
       const { fieldType } = inferDjangoField(value, key, depth, models);
-      const comment = pythonName !== key ? `  # Original JSON key: ${key}` : '';
+      // Sentinel: Sanitize key in comment to prevent breakout from single-line comment via newline characters
+      const safeCommentKey = key.replace(/[\n\r\t\v\f]/g, ' ');
+      const comment = pythonName !== key ? `  # Original JSON key: ${safeCommentKey}` : '';
       fields.push(`    ${pythonName} = ${fieldType}${comment}`);
       fieldNamesList.push(pythonName);
     });

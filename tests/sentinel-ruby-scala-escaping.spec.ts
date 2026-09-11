@@ -26,7 +26,10 @@ test.describe('Sentinel: Ruby and Scala Key Escaping', () => {
 
     const inputJson = JSON.stringify({
       "type": "some-type",
-      "123val": true
+      "123val": true,
+      "macro": 10,
+      "given": true,
+      "enum": "ACTIVE"
     });
 
     await page.fill('#json-input', inputJson);
@@ -37,5 +40,8 @@ test.describe('Sentinel: Ruby and Scala Key Escaping', () => {
     // keywords and digits should be wrapped in backticks
     expect(output).toContain('`type`: String');
     expect(output).toContain('`123val`: Boolean');
+    expect(output).toContain('`macro`: Int');
+    expect(output).toContain('`given`: Boolean');
+    expect(output).toContain('`enum`: String');
   });
 });

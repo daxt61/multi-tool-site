@@ -51,6 +51,38 @@ test('verify ZodSchemaGenerator upgrades', async ({ page }) => {
   const customVarText = await zodOutput.textContent();
   expect(customVarText).toContain('export const userProfileSchema =');
 
+  // Test quick presets
+  const orderPresetBtn = page.getByRole('button', { name: 'Commande E-Commerce' });
+  await expect(orderPresetBtn).toBeVisible();
+  await orderPresetBtn.click();
+  const presetText = await zodOutput.textContent();
+  expect(presetText).toContain('orderId: z.string()');
+  expect(presetText).toContain('totalAmount: z.number().positive()');
+
+  // Test coerce types toggle
+  const coerceToggle = page.locator('button[aria-label="Coercition de types (z.coerce)"]');
+  await expect(coerceToggle).toBeVisible();
+  await coerceToggle.click();
+  const coerceText = await zodOutput.textContent();
+  expect(coerceText).toContain('z.coerce.string()');
+  expect(coerceText).toContain('z.coerce.number()');
+
+  // Test readonly modifier toggle
+  const readonlyToggle = page.locator('button[aria-label="Schéma en lecture seule (.readonly())"]');
+  await expect(readonlyToggle).toBeVisible();
+  await readonlyToggle.click();
+  const readonlyText = await zodOutput.textContent();
+  expect(readonlyText).toContain('.readonly()');
+
+  // Test prototype pollution sanitization
+  const pollutionJson = JSON.parse('{"__proto__": "malicious", "constructor": "dangerous", "prototype": "polluted", "normalKey": "safe"}');
+  await jsonTextarea.fill(JSON.stringify(pollutionJson, null, 2));
+  const sanitizedText = await zodOutput.textContent();
+  expect(sanitizedText).toContain('___proto__:');
+  expect(sanitizedText).toContain('_constructor:');
+  expect(sanitizedText).toContain('_prototype:');
+  expect(sanitizedText).toContain('normalKey:');
+
   // Test clear shortcut (Escape)
   await jsonTextarea.focus();
   await page.keyboard.press('Escape');

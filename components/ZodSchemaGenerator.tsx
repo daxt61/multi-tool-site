@@ -20,6 +20,8 @@ export function ZodSchemaGenerator({ initialData, onStateChange }: { initialData
   const [detectFormats, setDetectFormats] = useState<boolean>(initialData?.detectFormats ?? true);
   const [detectNumbers, setDetectNumbers] = useState<boolean>(initialData?.detectNumbers ?? true);
   const [minOneString, setMinOneString] = useState<boolean>(initialData?.minOneString ?? false);
+  const [useCoerce, setUseCoerce] = useState<boolean>(initialData?.useCoerce ?? false);
+  const [useReadonly, setUseReadonly] = useState<boolean>(initialData?.useReadonly ?? false);
   const [strictObject, setStrictObject] = useState<boolean>(initialData?.strictObject ?? false);
   const [passthroughObject, setPassthroughObject] = useState<boolean>(initialData?.passthroughObject ?? false);
   const [partialObject, setPartialObject] = useState<boolean>(initialData?.partialObject ?? false);
@@ -27,12 +29,65 @@ export function ZodSchemaGenerator({ initialData, onStateChange }: { initialData
   const [outputStyle, setOutputStyle] = useState<'full' | 'schema_only'>(initialData?.outputStyle || 'full');
   const [variableName, setVariableName] = useState<string>(initialData?.variableName || 'schema');
 
+  const PRESETS = [
+    {
+      name: t('zod.preset_user') || 'User Profile',
+      json: JSON.stringify(
+        {
+          id: '123e4567-e89b-12d3-a456-426614174000',
+          username: 'john_doe',
+          email: 'john@example.com',
+          age: 28,
+          isActive: true,
+          tags: ['admin', 'developer']
+        },
+        null,
+        2
+      )
+    },
+    {
+      name: t('zod.preset_order') || 'E-Commerce Order',
+      json: JSON.stringify(
+        {
+          orderId: 'ORD-98765',
+          totalAmount: 149.99,
+          currency: 'USD',
+          items: [
+            { productId: 'P100', name: 'Wireless Headphones', quantity: 1, price: 99.99 },
+            { productId: 'P101', name: 'USB-C Cable', quantity: 2, price: 25.0 }
+          ],
+          paidAt: '2023-11-20T14:30:00Z'
+        },
+        null,
+        2
+      )
+    },
+    {
+      name: t('zod.preset_health') || 'API Health Response',
+      json: JSON.stringify(
+        {
+          status: 'ok',
+          timestamp: '2023-11-20T14:30:00Z',
+          uptimeSeconds: 86400,
+          services: {
+            database: 'healthy',
+            cache: 'healthy'
+          }
+        },
+        null,
+        2
+      )
+    }
+  ];
+
   useEffect(() => {
     onStateChange?.({
       jsonInput,
       detectFormats,
       detectNumbers,
       minOneString,
+      useCoerce,
+      useReadonly,
       strictObject,
       passthroughObject,
       partialObject,
@@ -45,6 +100,8 @@ export function ZodSchemaGenerator({ initialData, onStateChange }: { initialData
     detectFormats,
     detectNumbers,
     minOneString,
+    useCoerce,
+    useReadonly,
     strictObject,
     passthroughObject,
     partialObject,
@@ -96,9 +153,11 @@ export function ZodSchemaGenerator({ initialData, onStateChange }: { initialData
 
       if (entries.length === 0) return 'z.object({})';
 
-      entries.forEach(([key, value]) => {
+      entries.forEach(([rawKey, value]) => {
+        // Prototype pollution sanitization
+        const cleanKey = ['__proto__', 'constructor', 'prototype'].includes(rawKey) ? `_${rawKey}` : rawKey;
         const valueSchema = generateZodSchema(value, nextIndent, depth + 1);
-        const safeKey = /^[a-z_$][a-z0-9_$]*$/i.test(key) ? key : JSON.stringify(key);
+        const safeKey = /^[a-z_$][a-z0-9_$]*$/i.test(cleanKey) ? cleanKey : JSON.stringify(cleanKey);
         result += `${nextIndent}${safeKey}: ${valueSchema},\n`;
       });
       result += `${indent}})`;
@@ -116,11 +175,15 @@ export function ZodSchemaGenerator({ initialData, onStateChange }: { initialData
         result += '.required()';
       }
 
+      if (useReadonly) {
+        result += '.readonly()';
+      }
+
       return result;
     }
 
     if (type === 'string') {
-      let zodStr = 'z.string()';
+      let zodStr = useCoerce ? 'z.coerce.string()' : 'z.string()';
 
       if (minOneString) {
         zodStr += '.min(1)';
@@ -150,7 +213,7 @@ export function ZodSchemaGenerator({ initialData, onStateChange }: { initialData
     }
 
     if (type === 'number') {
-      let zodNum = 'z.number()';
+      let zodNum = useCoerce ? 'z.coerce.number()' : 'z.number()';
 
       if (detectNumbers) {
         if (Number.isInteger(obj)) {
@@ -168,10 +231,10 @@ export function ZodSchemaGenerator({ initialData, onStateChange }: { initialData
       return zodNum;
     }
 
-    if (type === 'boolean') return 'z.boolean()';
+    if (type === 'boolean') return useCoerce ? 'z.coerce.boolean()' : 'z.boolean()';
 
     return 'z.any()';
-  }, [detectFormats, detectNumbers, minOneString, strictObject, passthroughObject, partialObject, requiredObject]);
+  }, [detectFormats, detectNumbers, minOneString, useCoerce, useReadonly, strictObject, passthroughObject, partialObject, requiredObject]);
 
   const zodResult = useMemo(() => {
     if (!jsonInput.trim()) {
@@ -274,6 +337,30 @@ export function ZodSchemaGenerator({ initialData, onStateChange }: { initialData
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
         {/* Left Column: Input + Config */}
         <div className="lg:col-span-6 space-y-8">
+          {/* Presets */}
+          <div className="space-y-2">
+            <span className="text-xs font-black uppercase tracking-widest text-slate-400 block px-1">
+              {t('common.presets') || 'Quick Presets'}
+            </span>
+            <div className="flex flex-wrap gap-2">
+              {PRESETS.map((preset, idx) => (
+                <button
+                  key={idx}
+                  type="button"
+                  onClick={() => {
+                    setJsonInput(preset.json);
+                    setError(null);
+                    toast.success(t('zod.toast_preset_loaded', { name: preset.name }) || `Loaded ${preset.name} preset`);
+                    inputRef.current?.focus();
+                  }}
+                  className="px-3 py-1.5 text-xs font-semibold rounded-xl bg-slate-100 dark:bg-slate-800/60 hover:bg-indigo-50 dark:hover:bg-indigo-950/40 hover:text-indigo-600 dark:hover:text-indigo-400 text-slate-600 dark:text-slate-300 transition-all border border-slate-200/60 dark:border-slate-800 focus-visible:ring-2 focus-visible:ring-indigo-500 focus-visible:outline-none"
+                >
+                  {preset.name}
+                </button>
+              ))}
+            </div>
+          </div>
+
           {/* Input JSON */}
           <div className="space-y-4">
             <label htmlFor="json-input" className="text-xs font-black uppercase tracking-widest text-slate-400 flex items-center gap-2 px-1">
@@ -413,6 +500,46 @@ export function ZodSchemaGenerator({ initialData, onStateChange }: { initialData
                   aria-label={t('zod.min_one_string') || 'Disallow empty strings'}
                 >
                   {minOneString ? <ToggleRight className="w-8 h-8" /> : <ToggleLeft className="w-8 h-8 text-slate-400" />}
+                </button>
+              </div>
+
+              <div className="flex items-center justify-between">
+                <div>
+                  <span className="text-xs font-bold text-slate-700 dark:text-slate-300 block">
+                    {t('zod.use_coerce') || 'Coerce types (z.coerce)'}
+                  </span>
+                  <span className="text-[10px] text-slate-400 block">
+                    {t('zod.use_coerce_desc') || 'Coerces strings, numbers, booleans before parsing'}
+                  </span>
+                </div>
+                <button
+                  type="button"
+                  onClick={() => setUseCoerce(!useCoerce)}
+                  aria-pressed={useCoerce}
+                  className="text-indigo-500 hover:text-indigo-600 focus:outline-none"
+                  aria-label={t('zod.use_coerce') || 'Coerce types (z.coerce)'}
+                >
+                  {useCoerce ? <ToggleRight className="w-8 h-8" /> : <ToggleLeft className="w-8 h-8 text-slate-400" />}
+                </button>
+              </div>
+
+              <div className="flex items-center justify-between">
+                <div>
+                  <span className="text-xs font-bold text-slate-700 dark:text-slate-300 block">
+                    {t('zod.use_readonly') || 'Readonly schema (.readonly())'}
+                  </span>
+                  <span className="text-[10px] text-slate-400 block">
+                    {t('zod.use_readonly_desc') || 'Makes the inferred type frozen and readonly'}
+                  </span>
+                </div>
+                <button
+                  type="button"
+                  onClick={() => setUseReadonly(!useReadonly)}
+                  aria-pressed={useReadonly}
+                  className="text-indigo-500 hover:text-indigo-600 focus:outline-none"
+                  aria-label={t('zod.use_readonly') || 'Readonly schema (.readonly())'}
+                >
+                  {useReadonly ? <ToggleRight className="w-8 h-8" /> : <ToggleLeft className="w-8 h-8 text-slate-400" />}
                 </button>
               </div>
             </div>

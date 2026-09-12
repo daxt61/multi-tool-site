@@ -29,7 +29,13 @@ export function JSONToRuby({ initialData, onStateChange }: { initialData?: any; 
     let result = str
       .replace(/([a-z])([A-Z])/g, '$1_$2')
       .replace(/[^a-z0-9]/gi, '_')
-      .toLowerCase();
+      .toLowerCase()
+      .replace(/_+/g, '_')
+      .replace(/^_+|_+$/g, '');
+
+    if (!result) {
+      result = 'property';
+    }
 
     // Ruby identifiers cannot start with a digit
     if (/^[0-9]/.test(result)) {
@@ -48,7 +54,7 @@ export function JSONToRuby({ initialData, onStateChange }: { initialData?: any; 
       result += '_';
     }
 
-    return result || 'property';
+    return result;
   };
 
   const handleConvert = useCallback(() => {

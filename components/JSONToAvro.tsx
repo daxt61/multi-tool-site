@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback, useRef } from 'react';
-import { Database, Copy, Check, Trash2, FileCode, AlertCircle, Info, Download } from 'lucide-react';
+import { Database, Copy, Check, Trash2, FileCode, AlertCircle, Info, Download, Sparkles } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import { toast } from 'sonner';
 import { Kbd } from './ui/Kbd';
@@ -7,13 +7,93 @@ import { Kbd } from './ui/Kbd';
 const MAX_LENGTH = 100000;
 const MAX_DEPTH = 20;
 
+const DANGEROUS_KEYS = new Set(['__proto__', 'constructor', 'prototype']);
+
+// Helper to sanitize Avro names (Record and Field names) according to Avro spec: [A-Za-z_][A-Za-z0-9_]*
+function sanitizeAvroName(name: string, fallback: string): string {
+  if (!name || typeof name !== 'string') return fallback;
+
+  let sanitized = name.replace(/[^a-zA-Z0-9_]/g, '_');
+  if (/^[0-9]/.test(sanitized)) {
+    sanitized = `f_${sanitized}`;
+  }
+  if (!sanitized || DANGEROUS_KEYS.has(sanitized)) {
+    sanitized = fallback;
+  }
+  return sanitized;
+}
+
+const PRESETS = [
+  {
+    id: 'user_profile',
+    labelKey: 'json_avro.preset_user',
+    defaultLabel: 'User Profile',
+    schemaName: 'UserProfile',
+    namespace: 'com.example.user',
+    nullable: false,
+    json: JSON.stringify({
+      id: 101,
+      name: "Alice Smith",
+      email: "alice@example.com",
+      active: true,
+      score: 98.5,
+      roles: ["admin", "developer"],
+      metadata: {
+        login_count: 42,
+        last_login: "2026-03-15T10:30:00Z"
+      }
+    }, null, 2)
+  },
+  {
+    id: 'ecommerce_order',
+    labelKey: 'json_avro.preset_order',
+    defaultLabel: 'E-Commerce Order',
+    schemaName: 'Order',
+    namespace: 'com.shop.orders',
+    nullable: true,
+    json: JSON.stringify({
+      order_id: "ORD-98214",
+      total_amount: 149.99,
+      is_paid: true,
+      items: [
+        { item_id: "ITEM-1", quantity: 2, price: 49.99 },
+        { item_id: "ITEM-2", quantity: 1, price: 50.00 }
+      ],
+      shipping_address: {
+        street: "123 Main St",
+        city: "Techville",
+        zip_code: "90210"
+      }
+    }, null, 2)
+  },
+  {
+    id: 'sensor_telemetry',
+    labelKey: 'json_avro.preset_telemetry',
+    defaultLabel: 'Sensor Telemetry',
+    schemaName: 'TelemetryReading',
+    namespace: 'io.iot.telemetry',
+    nullable: false,
+    json: JSON.stringify({
+      device_id: "sensor-alpha-09",
+      timestamp: 1773590400000,
+      temperature: 22.4,
+      humidity: 45.8,
+      status_codes: [200, 201],
+      location: {
+        latitude: 37.7749,
+        longitude: -122.4194
+      }
+    }, null, 2)
+  }
+];
+
 export function JSONToAvro({ initialData, onStateChange }: { initialData?: any; onStateChange?: (state: any) => void }) {
   const { t } = useTranslation();
   const textareaRef = useRef<HTMLTextAreaElement>(null);
-  const [json, setJson] = useState(initialData?.json || '{\n  "id": 1,\n  "name": "John Doe",\n  "active": true,\n  "scores": [95, 88],\n  "address": {\n    "city": "New York",\n    "zip": "10001"\n  }\n}');
-  const [schemaName, setSchemaName] = useState(initialData?.schemaName || 'User');
-  const [namespace, setNamespace] = useState(initialData?.namespace || 'com.example');
-  const [nullable, setNullable] = useState(initialData?.nullable || false);
+  const [json, setJson] = useState(initialData?.json || PRESETS[0].json);
+  const [schemaName, setSchemaName] = useState(initialData?.schemaName || PRESETS[0].schemaName);
+  const [namespace, setNamespace] = useState(initialData?.namespace || PRESETS[0].namespace);
+  const [nullable, setNullable] = useState(initialData?.nullable ?? PRESETS[0].nullable);
   const [output, setOutput] = useState('');
   const [error, setError] = useState<string | null>(null);
   const [copied, setCopied] = useState(false);
@@ -35,8 +115,9 @@ export function JSONToAvro({ initialData, onStateChange }: { initialData?: any; 
         type: "array",
         items: itemType
       };
-    } else if (typeof val === 'object') {
-      let name = fieldName.charAt(0).toUpperCase() + fieldName.slice(1);
+    } else if (typeof val === 'object' && val !== null) {
+      const safeName = sanitizeAvroName(fieldName, "NestedRecord");
+      let name = safeName.charAt(0).toUpperCase() + safeName.slice(1);
       let finalName = name;
       let counter = 1;
       while (recordNames.has(finalName)) {
@@ -44,13 +125,22 @@ export function JSONToAvro({ initialData, onStateChange }: { initialData?: any; 
       }
       recordNames.add(finalName);
 
+      const fields: any[] = [];
+      const safeObj = Object.assign(Object.create(null), val);
+
+      for (const [key, value] of Object.entries(safeObj)) {
+        if (DANGEROUS_KEYS.has(key)) continue;
+        const safeKey = sanitizeAvroName(key, `field_${fields.length}`);
+        fields.push({
+          name: safeKey,
+          type: inferAvroType(value, safeKey, depth + 1, recordNames)
+        });
+      }
+
       avroType = {
         type: "record",
         name: finalName,
-        fields: Object.entries(val).map(([key, value]) => ({
-          name: key,
-          type: inferAvroType(value, key, depth + 1, recordNames)
-        }))
+        fields
       };
     } else if (typeof val === 'number') {
       if (Number.isInteger(val)) {
@@ -63,9 +153,7 @@ export function JSONToAvro({ initialData, onStateChange }: { initialData?: any; 
     }
 
     if (nullable) {
-      if (typeof avroType === 'string') {
-        return ["null", avroType];
-      } else if (typeof avroType === 'object' && !Array.isArray(avroType)) {
+      if (typeof avroType === 'string' || (typeof avroType === 'object' && !Array.isArray(avroType))) {
         return ["null", avroType];
       }
     }
@@ -93,24 +181,45 @@ export function JSONToAvro({ initialData, onStateChange }: { initialData?: any; 
       const recordNames = new Set<string>();
 
       let avroSchema: any;
+      const safeSchemaName = sanitizeAvroName(schemaName || "AutoGeneratedSchema", "AutoGeneratedSchema");
+      const safeNamespace = (namespace || "").trim() ? namespace.trim().replace(/[^a-zA-Z0-9_.]/g, '_') : "com.example";
 
       if (Array.isArray(parsed)) {
-        // If the root is an array, we represent it as an array of items
-        const itemType = parsed.length > 0 ? inferAvroType(parsed[0], schemaName || "Item", 1, recordNames) : "string";
+        const itemType = parsed.length > 0 ? inferAvroType(parsed[0], safeSchemaName + "Item", 1, recordNames) : "string";
         avroSchema = {
           type: "array",
           items: itemType
         };
-      } else {
-        // If the root is an object, we represent it as a record
+      } else if (typeof parsed === 'object' && parsed !== null) {
+        const fields: any[] = [];
+        const safeObj = Object.assign(Object.create(null), parsed);
+
+        for (const [key, value] of Object.entries(safeObj)) {
+          if (DANGEROUS_KEYS.has(key)) continue;
+          const safeKey = sanitizeAvroName(key, `field_${fields.length}`);
+          fields.push({
+            name: safeKey,
+            type: inferAvroType(value, safeKey, 1, recordNames)
+          });
+        }
+
         avroSchema = {
           type: "record",
-          name: schemaName || "AutoGeneratedSchema",
-          namespace: namespace || "com.example",
-          fields: Object.entries(parsed).map(([key, value]) => ({
-            name: key,
-            type: inferAvroType(value, key, 1, recordNames)
-          }))
+          name: safeSchemaName,
+          namespace: safeNamespace,
+          fields
+        };
+      } else {
+        avroSchema = {
+          type: "record",
+          name: safeSchemaName,
+          namespace: safeNamespace,
+          fields: [
+            {
+              name: "value",
+              type: inferAvroType(parsed, "value", 1, recordNames)
+            }
+          ]
         };
       }
 
@@ -123,7 +232,7 @@ export function JSONToAvro({ initialData, onStateChange }: { initialData?: any; 
   }, [json, schemaName, namespace, nullable, t]);
 
   useEffect(() => {
-    const timeout = setTimeout(generateAvro, 300);
+    const timeout = setTimeout(generateAvro, 200);
     return () => clearTimeout(timeout);
   }, [generateAvro]);
 
@@ -139,8 +248,19 @@ export function JSONToAvro({ initialData, onStateChange }: { initialData?: any; 
     setJson('');
     setOutput('');
     setError(null);
+    toast.success(t('common.cleared'));
     textareaRef.current?.focus();
-  }, []);
+  }, [t]);
+
+  const loadPreset = (preset: typeof PRESETS[0]) => {
+    setJson(preset.json);
+    setSchemaName(preset.schemaName);
+    setNamespace(preset.namespace);
+    setNullable(preset.nullable);
+    const label = t(preset.labelKey, { defaultValue: preset.defaultLabel });
+    toast.success(t('common.preset_loaded', { name: label }));
+    textareaRef.current?.focus();
+  };
 
   const handlersRef = useRef({ handleCopy, handleClear });
   useEffect(() => {
@@ -181,10 +301,30 @@ export function JSONToAvro({ initialData, onStateChange }: { initialData?: any; 
     link.download = `${schemaName || 'schema'}.avsc`;
     link.click();
     URL.revokeObjectURL(url);
+    toast.success(t('common.downloaded', { defaultValue: 'File downloaded' }));
   };
 
   return (
     <div className="max-w-6xl mx-auto space-y-8">
+      {/* Quick Start Presets */}
+      <div className="bg-white dark:bg-slate-900/40 p-6 rounded-3xl border border-slate-200 dark:border-slate-800 space-y-4">
+        <div className="flex items-center gap-2 text-xs font-black uppercase tracking-widest text-indigo-500">
+          <Sparkles className="w-4 h-4" />
+          <span>{t('common.presets', { defaultValue: 'Quick Start Presets' })}</span>
+        </div>
+        <div className="flex flex-wrap gap-2">
+          {PRESETS.map((preset) => (
+            <button
+              key={preset.id}
+              onClick={() => loadPreset(preset)}
+              className="px-4 py-2 rounded-xl text-xs font-bold bg-slate-100 dark:bg-slate-800 hover:bg-indigo-50 dark:hover:bg-indigo-900/30 text-slate-700 dark:text-slate-300 hover:text-indigo-600 dark:hover:text-indigo-400 transition-all border border-transparent hover:border-indigo-200 dark:hover:border-indigo-800"
+            >
+              {t(preset.labelKey, { defaultValue: preset.defaultLabel })}
+            </button>
+          ))}
+        </div>
+      </div>
+
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 items-start">
         {/* Input Section */}
         <div className="space-y-6">

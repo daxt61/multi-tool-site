@@ -139,15 +139,27 @@ export function JSONToKotlin({ initialData, onStateChange }: { initialData?: any
       propName = 'field' + propName;
     }
 
-    if (KOTLIN_KEYWORDS.has(propName)) {
-      propName = '`' + propName + '`';
+    const isValidStandardIdentifier = /^[a-zA-Z_][a-zA-Z0-9_]*$/.test(propName);
+
+    if (!isValidStandardIdentifier || KOTLIN_KEYWORDS.has(propName)) {
+      // Sentinel: Sanitize backticks and newlines to prevent backtick identifier breakout
+      const sanitized = propName.replace(/`/g, '').replace(/[\n\r]/g, '_');
+      propName = '`' + (sanitized || 'field') + '`';
     }
 
     return { propName: propName || 'unnamed', originalKey: key };
   };
 
   const escapeString = (str: string) => {
-    return str.replace(/\\/g, '\\\\').replace(/"/g, '\\"');
+    // Sentinel: Escape backslashes, double quotes, dollar signs, and control characters to prevent
+    // string interpolation and newline breakout in Kotlin string annotations.
+    return str
+      .replace(/\\/g, '\\\\')
+      .replace(/"/g, '\\"')
+      .replace(/\$/g, '\\$')
+      .replace(/\n/g, '\\n')
+      .replace(/\r/g, '\\r')
+      .replace(/\t/g, '\\t');
   };
 
   const handleConvert = useCallback(() => {
@@ -243,7 +255,10 @@ export function JSONToKotlin({ initialData, onStateChange }: { initialData?: any
 
       let result = '';
       if (packageName.trim()) {
-        result += `package ${packageName.trim()}\n\n`;
+        const sanitizedPackage = packageName.trim().replace(/[^a-zA-Z0-9_.]/g, '');
+        if (sanitizedPackage) {
+          result += `package ${sanitizedPackage}\n\n`;
+        }
       }
       result += imports;
       result += dataClasses.reverse().join('\n\n');

@@ -62,4 +62,29 @@ test.describe('JSON to Rust & Kotlin Converters', () => {
     await expect(page.locator('#json-input')).toHaveValue('');
     await expect(page.locator('#json-input')).toBeFocused();
   });
+
+  test('JSON to Kotlin converter sanitizes malicious keys to prevent string interpolation & breakout', async ({ page }) => {
+    await page.goto('http://localhost:5173/fr/outil/json-to-kotlin');
+
+    const maliciousJson = JSON.stringify({
+      "user$name": "John",
+      "escaped\"key": "test",
+      "new\nline": "value",
+      "back`tick": "code"
+    });
+
+    await page.fill('#json-input', maliciousJson);
+    const output = await page.locator('#kotlin-output').inputValue();
+
+    // Verify dollar signs, quotes, and newlines in SerialName annotations are escaped
+    expect(output).toContain('@SerialName("user\\$name")');
+    expect(output).toContain('@SerialName("escaped\\"key")');
+    expect(output).toContain('@SerialName("new\\nline")');
+
+    // Verify backticks in property identifiers are stripped
+    expect(output).toContain('`user$name`');
+    expect(output).toContain('`escaped"key`');
+    expect(output).toContain('`new_line`');
+    expect(output).toContain('`backtick`');
+  });
 });

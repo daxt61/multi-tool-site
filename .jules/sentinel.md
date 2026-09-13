@@ -276,3 +276,8 @@
 **Vulnerability:** The JSONToPydantic component generated invalid Python class field declarations when user JSON keys contained Python reserved keywords (`class`, `def`, `import`, etc.) or started with digits.
 **Learning:** Code generation tools must normalize and escape identifiers according to language rules. If a key equals a reserved keyword or starts with a digit, raw interpolation produces invalid code syntax in downstream environments.
 **Prevention:** Sanitize Python snake_case identifiers by prepending `f_` to keys starting with digits and appending `_` to reserved Python keywords, ensuring `snakeKey !== key` triggers Pydantic's `Field(alias="...")` mapping.
+
+## 2026-08-28 - [String Interpolation and Backtick Breakout in Kotlin Code Generator]
+**Vulnerability:** The JSONToKotlin component was vulnerable to string interpolation breakout, control character injection, and backtick identifier breakout in generated Kotlin data models. Unescaped dollar signs (`$`), double quotes (`"`), newlines (`\n`), and backticks (`` ` ``) in JSON keys allowed breaking out of `@SerialName`, `@JsonProperty`, or `@Json` string annotation attributes and backtick identifiers.
+**Learning:** In Kotlin, double-quoted string literals process dollar-sign variable interpolations (`$var` or `${expr}`), and backtick identifiers (`` `identifier` ``) allow arbitrary property names unless backticks or newlines are present inside them.
+**Prevention:** Always escape dollar signs (`\$`), double quotes (`\"`), backslashes (`\\`), and control characters (`\n`, `\r`, `\t`) when generating string attributes for Kotlin annotations, and sanitize backticks and newlines when constructing backtick-escaped Kotlin property names.

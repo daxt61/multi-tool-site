@@ -1,3 +1,7 @@
+## 2026-09-02 - [Focused Micro-UX & Explicit Form Associations in CSS Clamp Generator]
+**Learning:** Adding explicit HTML form label pairings (`htmlFor`/`id`), toggle state communication (`aria-pressed`), and programmatic focus restoration upon reset provides immediate accessibility and usability wins for CSS calculation tools without altering component layout or adding visual clutter.
+**Action:** Connect all numeric and text inputs to explicit `<label htmlFor="...">` elements, apply `aria-pressed` to mode toggles, and use `useRef` focus restoration to return focus to the primary input on reset.
+
 ## 2026-08-31 - [Interactive Presets and Slider ARIA Properties in CSS Generators]
 **Learning:** CSS visual generators (like CSS Border Radius Generator) often lack ARIA value bounds on range sliders (`aria-valuemin`, `aria-valuemax`, `aria-valuenow`), toggle button state communication (`aria-pressed`), and instant preset configurations. Adding interactive quick-start presets, `sonner` toasts on copy/reset, `handlersRef`-guarded hotkeys (`Esc` reset & focus `#tl`, `C` copy CSS), and visual `<Kbd>` badges creates an intuitive, accessible micro-UX.
 **Action:** Always supply explicit ARIA slider attributes on range inputs, add `aria-pressed` to mode toggles, incorporate quick presets, and restore keyboard focus to the primary slider input upon reset.

@@ -1,6 +1,7 @@
-import { useState, useMemo, useEffect } from 'react';
+import { useState, useMemo, useEffect, useRef } from 'react';
 import { Copy, Check, RotateCcw, Info, Maximize, MousePointer2, Monitor, Layout } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
+import { toast } from 'sonner';
 
 export function CSSClampGenerator({ initialData, onStateChange }: { initialData?: any; onStateChange?: (state: any) => void }) {
   const { t } = useTranslation();
@@ -11,6 +12,8 @@ export function CSSClampGenerator({ initialData, onStateChange }: { initialData?
   const [useRem, setUseRem] = useState(initialData?.useRem ?? true);
   const [baseFontSize, setBaseFontSize] = useState(initialData?.baseFontSize || 16);
   const [copied, setCopied] = useState(false);
+
+  const primaryInputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
     onStateChange?.({ minSize, maxSize, minViewport, maxViewport, useRem, baseFontSize });
@@ -50,6 +53,7 @@ export function CSSClampGenerator({ initialData, onStateChange }: { initialData?
     if (!clampResult) return;
     navigator.clipboard.writeText(clampResult);
     setCopied(true);
+    toast.success(t('tool.copied') || 'Copié');
     setTimeout(() => setCopied(false), 2000);
   };
 
@@ -60,16 +64,19 @@ export function CSSClampGenerator({ initialData, onStateChange }: { initialData?
     setMaxViewport(1280);
     setUseRem(true);
     setBaseFontSize(16);
+    toast.success(t('common.reset') || 'Réinitialiser');
+    primaryInputRef.current?.focus();
   };
 
   return (
     <div className="max-w-4xl mx-auto space-y-8">
       <div className="flex justify-end">
         <button
+          type="button"
           onClick={handleReset}
           className="text-xs font-bold text-slate-500 bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 px-3 py-1.5 rounded-xl flex items-center gap-1 transition-all focus-visible:ring-2 focus-visible:ring-indigo-500 focus-visible:outline-none"
         >
-          <RotateCcw className="w-3 h-3" /> {t('common.reset')}
+          <RotateCcw className="w-3 h-3" aria-hidden="true" /> {t('common.reset')}
         </button>
       </div>
 
@@ -78,14 +85,16 @@ export function CSSClampGenerator({ initialData, onStateChange }: { initialData?
         <div className="space-y-6">
           <div className="bg-slate-50 dark:bg-slate-900/50 p-6 rounded-[2rem] border border-slate-200 dark:border-slate-800 space-y-6">
             <div className="flex items-center gap-2 px-1">
-              <Layout className="w-4 h-4 text-indigo-500" />
+              <Layout className="w-4 h-4 text-indigo-500" aria-hidden="true" />
               <h3 className="text-xs font-black uppercase tracking-widest text-slate-400">{t('cssclamp.size_config')}</h3>
             </div>
 
             <div className="grid grid-cols-2 gap-4">
               <div className="space-y-2">
-                <label className="text-xs font-bold text-slate-500 px-1">{t('cssclamp.min_size')} (px)</label>
+                <label htmlFor="min-size-input" className="text-xs font-bold text-slate-500 px-1 cursor-pointer block">{t('cssclamp.min_size')} (px)</label>
                 <input
+                  id="min-size-input"
+                  ref={primaryInputRef}
                   type="number"
                   value={minSize}
                   onChange={(e) => setMinSize(Number(e.target.value))}
@@ -93,8 +102,9 @@ export function CSSClampGenerator({ initialData, onStateChange }: { initialData?
                 />
               </div>
               <div className="space-y-2">
-                <label className="text-xs font-bold text-slate-500 px-1">{t('cssclamp.max_size')} (px)</label>
+                <label htmlFor="max-size-input" className="text-xs font-bold text-slate-500 px-1 cursor-pointer block">{t('cssclamp.max_size')} (px)</label>
                 <input
+                  id="max-size-input"
                   type="number"
                   value={maxSize}
                   onChange={(e) => setMaxSize(Number(e.target.value))}
@@ -104,14 +114,15 @@ export function CSSClampGenerator({ initialData, onStateChange }: { initialData?
             </div>
 
             <div className="flex items-center gap-2 px-1 pt-2">
-              <Monitor className="w-4 h-4 text-indigo-500" />
+              <Monitor className="w-4 h-4 text-indigo-500" aria-hidden="true" />
               <h3 className="text-xs font-black uppercase tracking-widest text-slate-400">{t('cssclamp.viewport_config')}</h3>
             </div>
 
             <div className="grid grid-cols-2 gap-4">
               <div className="space-y-2">
-                <label className="text-xs font-bold text-slate-500 px-1">{t('cssclamp.min_viewport')} (px)</label>
+                <label htmlFor="min-viewport-input" className="text-xs font-bold text-slate-500 px-1 cursor-pointer block">{t('cssclamp.min_viewport')} (px)</label>
                 <input
+                  id="min-viewport-input"
                   type="number"
                   value={minViewport}
                   onChange={(e) => setMinViewport(Number(e.target.value))}
@@ -119,8 +130,9 @@ export function CSSClampGenerator({ initialData, onStateChange }: { initialData?
                 />
               </div>
               <div className="space-y-2">
-                <label className="text-xs font-bold text-slate-500 px-1">{t('cssclamp.max_viewport')} (px)</label>
+                <label htmlFor="max-viewport-input" className="text-xs font-bold text-slate-500 px-1 cursor-pointer block">{t('cssclamp.max_viewport')} (px)</label>
                 <input
+                  id="max-viewport-input"
                   type="number"
                   value={maxViewport}
                   onChange={(e) => setMaxViewport(Number(e.target.value))}
@@ -131,9 +143,12 @@ export function CSSClampGenerator({ initialData, onStateChange }: { initialData?
 
             <div className="pt-4 border-t border-slate-200 dark:border-slate-800 space-y-4">
               <div className="flex items-center justify-between">
-                <label className="text-sm font-bold text-slate-600 dark:text-slate-400">{t('cssclamp.use_rem')}</label>
+                <label htmlFor="use-rem-toggle" className="text-sm font-bold text-slate-600 dark:text-slate-400 cursor-pointer">{t('cssclamp.use_rem')}</label>
                 <button
+                  id="use-rem-toggle"
+                  type="button"
                   onClick={() => setUseRem(!useRem)}
+                  aria-pressed={useRem}
                   className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 ${useRem ? 'bg-indigo-600' : 'bg-slate-200 dark:bg-slate-700'}`}
                 >
                   <span className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform ${useRem ? 'translate-x-6' : 'translate-x-1'}`} />
@@ -142,8 +157,9 @@ export function CSSClampGenerator({ initialData, onStateChange }: { initialData?
 
               {useRem && (
                 <div className="space-y-2 animate-in fade-in slide-in-from-top-1">
-                  <label className="text-xs font-bold text-slate-500 px-1">{t('cssclamp.base_font_size')} (px)</label>
+                  <label htmlFor="base-font-size-input" className="text-xs font-bold text-slate-500 px-1 cursor-pointer block">{t('cssclamp.base_font_size')} (px)</label>
                   <input
+                    id="base-font-size-input"
                     type="number"
                     value={baseFontSize}
                     onChange={(e) => setBaseFontSize(Number(e.target.value))}
@@ -161,18 +177,20 @@ export function CSSClampGenerator({ initialData, onStateChange }: { initialData?
             <div className="absolute top-0 right-0 w-32 h-32 bg-indigo-500/10 rounded-full blur-3xl -mr-16 -mt-16"></div>
 
             <div className="flex justify-between items-center relative z-10">
-              <h3 className="text-xs font-black uppercase tracking-widest text-indigo-400">Result CSS</h3>
+              <h3 id="result-css-heading" className="text-xs font-black uppercase tracking-widest text-indigo-400">Result CSS</h3>
               <button
+                type="button"
                 onClick={handleCopy}
                 disabled={!clampResult}
-                className={`p-2 rounded-lg transition-all ${copied ? 'bg-emerald-500 text-white' : 'bg-white/10 text-white hover:bg-white/20'} disabled:opacity-50`}
+                aria-label="Copy CSS clamp value"
+                className={`p-2 rounded-lg transition-all ${copied ? 'bg-emerald-500 text-white' : 'bg-white/10 text-white hover:bg-white/20'} disabled:opacity-50 focus-visible:ring-2 focus-visible:ring-indigo-400 focus-visible:outline-none`}
               >
-                {copied ? <Check className="w-5 h-5" /> : <Copy className="w-5 h-5" />}
+                {copied ? <Check className="w-5 h-5" aria-hidden="true" /> : <Copy className="w-5 h-5" aria-hidden="true" />}
               </button>
             </div>
 
             <div className="bg-white/5 p-6 rounded-2xl border border-white/10 relative z-10">
-              <code className="text-indigo-300 font-mono text-sm md:text-base break-all leading-relaxed">
+              <code aria-labelledby="result-css-heading" className="text-indigo-300 font-mono text-sm md:text-base break-all leading-relaxed block">
                 {clampResult || 'Waiting for valid input...'}
               </code>
             </div>
@@ -187,7 +205,7 @@ export function CSSClampGenerator({ initialData, onStateChange }: { initialData?
 
           <div className="bg-slate-50 dark:bg-slate-900/50 p-8 rounded-[2rem] border border-slate-200 dark:border-slate-800 space-y-4">
             <h4 className="text-sm font-black uppercase tracking-widest text-slate-400 flex items-center gap-2">
-              <Maximize className="w-4 h-4" /> {t('cssclamp.preview')}
+              <Maximize className="w-4 h-4" aria-hidden="true" /> {t('cssclamp.preview')}
             </h4>
             <div className="bg-white dark:bg-slate-800 p-8 rounded-2xl border border-slate-200 dark:border-slate-700 overflow-hidden">
                <p
@@ -207,7 +225,7 @@ export function CSSClampGenerator({ initialData, onStateChange }: { initialData?
       <div className="grid grid-cols-1 md:grid-cols-3 gap-8 pt-12 border-t border-slate-100 dark:border-slate-800">
         <div className="space-y-4">
           <h4 className="font-bold dark:text-white flex items-center gap-2">
-            <Info className="w-4 h-4 text-indigo-500" /> {t('cssclamp.what_is_title')}
+            <Info className="w-4 h-4 text-indigo-500" aria-hidden="true" /> {t('cssclamp.what_is_title')}
           </h4>
           <p className="text-sm text-slate-500 dark:text-slate-400 leading-relaxed">
             {t('cssclamp.what_is_text')}
@@ -215,7 +233,7 @@ export function CSSClampGenerator({ initialData, onStateChange }: { initialData?
         </div>
         <div className="space-y-4">
           <h4 className="font-bold dark:text-white flex items-center gap-2">
-            <MousePointer2 className="w-4 h-4 text-indigo-500" /> {t('cssclamp.how_it_works_title')}
+            <MousePointer2 className="w-4 h-4 text-indigo-500" aria-hidden="true" /> {t('cssclamp.how_it_works_title')}
           </h4>
           <p className="text-sm text-slate-500 dark:text-slate-400 leading-relaxed">
             {t('cssclamp.how_it_works_text')}
@@ -223,7 +241,7 @@ export function CSSClampGenerator({ initialData, onStateChange }: { initialData?
         </div>
         <div className="space-y-4">
           <h4 className="font-bold dark:text-white flex items-center gap-2">
-            <Layout className="w-4 h-4 text-indigo-500" /> {t('cssclamp.advantages_title')}
+            <Layout className="w-4 h-4 text-indigo-500" aria-hidden="true" /> {t('cssclamp.advantages_title')}
           </h4>
           <p className="text-sm text-slate-500 dark:text-slate-400 leading-relaxed">
             {t('cssclamp.advantages_text')}

@@ -611,6 +611,8 @@ const HTMLTableToMarkdown = lazy(() => import("./components/HTMLTableToMarkdown"
 const MarkdownTableToJSON = lazy(() => import("./components/MarkdownTableToJSON").then(m => ({ default: m.MarkdownTableToJSON })));
 const MarkdownTableToHTML = lazy(() => import("./components/MarkdownTableToHTML").then(m => ({ default: m.MarkdownTableToHTML })));
 const TOMLToCSV = lazy(() => import("./components/TOMLToCSV").then(m => ({ default: m.TOMLToCSV })));
+const JSONToTypeBox = lazy(() => import("./components/JSONToTypeBox").then(m => ({ default: m.JSONToTypeBox })));
+const CSVToNDJSON = lazy(() => import("./components/CSVToNDJSON").then(m => ({ default: m.CSVToNDJSON })));
 
 // ⚡ Bolt Optimization: Pre-calculating tool map and search index for O(1) lookups and faster filtering
 const toolsMap: Record<string, Tool> = {};
@@ -648,6 +650,30 @@ const categories: Category[] = [
 ];
 
 const tools: Tool[] = [
+  // JSON to TypeBox Schema Converter Tool
+  {
+    id: "json-to-typebox",
+    name: "JSON en TypeBox",
+    nameEn: "JSON to TypeBox Schema",
+    icon: FileCode,
+    description: "Générer des schémas de validation TypeBox et types statiques à partir de JSON",
+    descriptionEn: "Generate TypeBox validation schemas and static types from JSON payloads",
+    Component: JSONToTypeBox,
+    category: "dev",
+    keywords: ["json", "typebox", "schema", "validation", "typescript", "static", "convert", "convertir"],
+  },
+  // CSV / TSV to NDJSON Converter Tool
+  {
+    id: "csv-to-ndjson",
+    name: "CSV / TSV en NDJSON",
+    nameEn: "CSV / TSV to NDJSON",
+    icon: FileCode,
+    description: "Convertir des fichiers CSV ou TSV en format NDJSON (JSON lignes)",
+    descriptionEn: "Convert CSV or TSV data into newline-delimited JSON (NDJSON) lines",
+    Component: CSVToNDJSON,
+    category: "dev",
+    keywords: ["csv", "tsv", "ndjson", "jsonlines", "json", "convert", "stream", "convertir"],
+  },
   // TOML to CSV / TSV Converter Tool
   {
     id: "toml-to-csv",

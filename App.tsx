@@ -610,6 +610,7 @@ const HTMLTableToCSV = lazy(() => import("./components/HTMLTableToCSV").then(m =
 const HTMLTableToMarkdown = lazy(() => import("./components/HTMLTableToMarkdown").then(m => ({ default: m.HTMLTableToMarkdown })));
 const MarkdownTableToJSON = lazy(() => import("./components/MarkdownTableToJSON").then(m => ({ default: m.MarkdownTableToJSON })));
 const MarkdownTableToHTML = lazy(() => import("./components/MarkdownTableToHTML").then(m => ({ default: m.MarkdownTableToHTML })));
+const TOMLToCSV = lazy(() => import("./components/TOMLToCSV").then(m => ({ default: m.TOMLToCSV })));
 
 // ⚡ Bolt Optimization: Pre-calculating tool map and search index for O(1) lookups and faster filtering
 const toolsMap: Record<string, Tool> = {};
@@ -647,6 +648,18 @@ const categories: Category[] = [
 ];
 
 const tools: Tool[] = [
+  // TOML to CSV / TSV Converter Tool
+  {
+    id: "toml-to-csv",
+    name: "TOML en CSV / TSV",
+    nameEn: "TOML to CSV / TSV",
+    icon: FileSpreadsheet,
+    description: "Convertir des documents et tableaux TOML en données CSV, TSV ou délimitées",
+    descriptionEn: "Convert TOML documents and array of tables into clean CSV, TSV, or character-delimited datasets",
+    Component: TOMLToCSV,
+    category: "dev",
+    keywords: ["toml", "csv", "tsv", "convert", "export", "delimited", "tables", "parser", "convertir"],
+  },
   // Markdown Table to CSV / TSV Converter Tool
   {
     id: "markdown-table-to-csv",

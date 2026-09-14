@@ -1,14 +1,58 @@
 import { useState, useMemo, useEffect, useCallback, useRef } from 'react';
-import { Copy, Check, Trash2, Braces, FileCode, Info, AlertCircle, Download } from 'lucide-react';
+import { Copy, Check, Trash2, Braces, FileCode, Info, AlertCircle, Download, Sparkles } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
+import { toast } from 'sonner';
 
 const MAX_LENGTH = 100000;
 const MAX_DEPTH = 20;
 
+const PRESETS = [
+  {
+    nameKey: 'jsontoyup.preset_user',
+    defaultName: 'User Profile',
+    json: JSON.stringify({
+      id: 101,
+      username: 'johndoe',
+      email: 'john@example.com',
+      isVerified: true,
+      age: 28,
+      tags: ['developer', 'admin']
+    }, null, 2)
+  },
+  {
+    nameKey: 'jsontoyup.preset_product',
+    defaultName: 'E-Commerce Product',
+    json: JSON.stringify({
+      sku: 'PROD-12345',
+      name: 'Wireless Ergonomic Keyboard',
+      price: 99.99,
+      inStock: true,
+      dimensions: {
+        width: 45,
+        height: 15,
+        depth: 3
+      }
+    }, null, 2)
+  },
+  {
+    nameKey: 'jsontoyup.preset_config',
+    defaultName: 'Server Config',
+    json: JSON.stringify({
+      port: 8080,
+      host: '0.0.0.0',
+      ssl: {
+        enabled: true,
+        cert: '/etc/ssl/cert.pem'
+      },
+      allowedOrigins: ['https://example.com', 'https://admin.example.com']
+    }, null, 2)
+  }
+];
+
 export function JSONToYup({ initialData, onStateChange }: { initialData?: any; onStateChange?: (state: any) => void }) {
   const { t } = useTranslation();
   const inputRef = useRef<HTMLTextAreaElement>(null);
-  const [jsonInput, setJsonInput] = useState(initialData?.jsonInput || '');
+  const [jsonInput, setJsonInput] = useState(initialData?.jsonInput || PRESETS[0].json);
   const [copied, setCopied] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
@@ -19,8 +63,9 @@ export function JSONToYup({ initialData, onStateChange }: { initialData?: any; o
   const handleClear = useCallback(() => {
     setJsonInput('');
     setError(null);
+    toast.success(t('jsontoyup.cleared', 'JSON input cleared'));
     inputRef.current?.focus();
-  }, []);
+  }, [t]);
 
   const generateYupSchema = (obj: any, indent: string = '', depth: number = 0): string => {
     if (depth > MAX_DEPTH) {
@@ -48,7 +93,6 @@ export function JSONToYup({ initialData, onStateChange }: { initialData?: any; o
 
       entries.forEach(([key, value]) => {
         const valueSchema = generateYupSchema(value, nextIndent, depth + 1);
-        // Sentinel: Sanitize keys to prevent breakout from the Yup schema object literal.
         const isValidIdent = /^[a-zA-Z_$][a-zA-Z0-9_$]*$/.test(key);
         const safeKey = isValidIdent ? key : JSON.stringify(key);
         result += `${nextIndent}${safeKey}: ${valueSchema},\n`;
@@ -85,8 +129,9 @@ export function JSONToYup({ initialData, onStateChange }: { initialData?: any; o
     if (!yupResult) return;
     navigator.clipboard.writeText(yupResult);
     setCopied(true);
+    toast.success(t('jsontoyup.copied', 'Yup schema copied to clipboard'));
     setTimeout(() => setCopied(false), 2000);
-  }, [yupResult]);
+  }, [yupResult, t]);
 
   const handleClearRef = useRef(handleClear);
   const handleCopyRef = useRef(handleCopy);
@@ -130,15 +175,39 @@ export function JSONToYup({ initialData, onStateChange }: { initialData?: any; o
     link.download = 'schema.ts';
     link.click();
     URL.revokeObjectURL(url);
+    toast.success(t('jsontoyup.downloaded', 'Downloaded schema.ts'));
   };
 
   return (
     <div className="max-w-5xl mx-auto space-y-8">
+      {/* Presets */}
+      <div className="flex flex-wrap gap-2 items-center justify-between bg-slate-50 dark:bg-slate-900/50 p-4 rounded-2xl border border-slate-200 dark:border-slate-800">
+        <div className="flex items-center gap-2">
+          <Sparkles className="w-4 h-4 text-indigo-500" />
+          <span className="text-xs font-bold text-slate-500 uppercase tracking-wider">{t('jsontoyup.presets', 'Presets')}</span>
+        </div>
+        <div className="flex flex-wrap gap-2">
+          {PRESETS.map((preset, idx) => (
+            <button
+              key={idx}
+              onClick={() => {
+                setJsonInput(preset.json);
+                setError(null);
+                toast.success(t('jsontoyup.preset_loaded', 'Loaded preset: {{name}}', { name: preset.defaultName }));
+              }}
+              className="px-3 py-1.5 text-xs font-semibold rounded-xl bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 hover:border-indigo-500 dark:hover:border-indigo-500 transition-all text-slate-700 dark:text-slate-300"
+            >
+              {t(preset.nameKey, preset.defaultName)}
+            </button>
+          ))}
+        </div>
+      </div>
+
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
         {/* Input */}
         <div className="space-y-4">
           <div className="flex justify-between items-center px-1">
-            <label htmlFor="json-input" className="text-xs font-black uppercase tracking-widest text-slate-400 flex items-center gap-2">
+            <label htmlFor="json-yup-input" className="text-xs font-black uppercase tracking-widest text-slate-400 flex items-center gap-2">
               <Braces className="w-4 h-4 text-indigo-500" /> {t('common.input')} JSON
             </label>
             <div className="flex gap-2 items-center">
@@ -154,7 +223,7 @@ export function JSONToYup({ initialData, onStateChange }: { initialData?: any; o
           </div>
           <div className="relative group">
             <textarea
-              id="json-input"
+              id="json-yup-input"
               ref={inputRef}
               value={jsonInput}
               onChange={(e) => {
@@ -181,8 +250,8 @@ export function JSONToYup({ initialData, onStateChange }: { initialData?: any; o
         {/* Output */}
         <div className="space-y-4">
           <div className="flex justify-between items-center px-1">
-            <label htmlFor="yup-output" className="text-xs font-black uppercase tracking-widest text-slate-400 flex items-center gap-2">
-              <FileCode className="w-4 h-4 text-indigo-500" /> {t('yup.generated_schema')}
+            <label htmlFor="yup-schema-output" className="text-xs font-black uppercase tracking-widest text-slate-400 flex items-center gap-2">
+              <FileCode className="w-4 h-4 text-indigo-500" /> {t('yup.generated_schema', 'Generated Yup Schema')}
             </label>
             <div className="flex gap-2">
               <button
@@ -205,43 +274,14 @@ export function JSONToYup({ initialData, onStateChange }: { initialData?: any; o
             </div>
           </div>
           <div className="bg-slate-900 dark:bg-black rounded-[2.5rem] p-6 h-[500px] overflow-auto border border-slate-800 shadow-xl shadow-indigo-500/5">
-            <pre className="text-sm font-mono text-emerald-400 leading-relaxed">
-              {yupResult || <span className="text-slate-600 italic">{t('yup.waiting')}</span>}
-            </pre>
+            <textarea
+              id="yup-schema-output"
+              readOnly
+              value={yupResult}
+              className="w-full h-full bg-transparent text-emerald-400 font-mono text-sm leading-relaxed outline-none resize-none"
+              placeholder={t('yup.waiting', 'Yup schema will appear here...')}
+            />
           </div>
-        </div>
-      </div>
-
-      {/* Info Content */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-8 pt-12 border-t border-slate-100 dark:border-slate-800">
-        <div className="space-y-4">
-          <div className="w-12 h-12 bg-indigo-50 dark:bg-indigo-900/20 rounded-2xl flex items-center justify-center text-indigo-600">
-            <Braces className="w-6 h-6" />
-          </div>
-          <h3 className="text-lg font-black">{t('yup.what_is_title')}</h3>
-          <p className="text-sm text-slate-500 dark:text-slate-400 leading-relaxed">
-            {t('yup.what_is_text')}
-          </p>
-        </div>
-
-        <div className="space-y-4">
-          <div className="w-12 h-12 bg-emerald-50 dark:bg-emerald-900/20 rounded-2xl flex items-center justify-center text-emerald-600">
-            <Info className="w-6 h-6" />
-          </div>
-          <h3 className="text-lg font-black">{t('yup.how_it_works_title')}</h3>
-          <p className="text-sm text-slate-500 dark:text-slate-400 leading-relaxed">
-            {t('yup.how_it_works_text')}
-          </p>
-        </div>
-
-        <div className="space-y-4">
-          <div className="w-12 h-12 bg-amber-50 dark:bg-amber-900/20 rounded-2xl flex items-center justify-center text-amber-600">
-            <FileCode className="w-6 h-6" />
-          </div>
-          <h3 className="text-lg font-black">{t('yup.advantages_title')}</h3>
-          <p className="text-sm text-slate-500 dark:text-slate-400 leading-relaxed">
-            {t('yup.advantages_text')}
-          </p>
         </div>
       </div>
     </div>

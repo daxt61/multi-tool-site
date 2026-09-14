@@ -613,6 +613,7 @@ const MarkdownTableToHTML = lazy(() => import("./components/MarkdownTableToHTML"
 const TOMLToCSV = lazy(() => import("./components/TOMLToCSV").then(m => ({ default: m.TOMLToCSV })));
 const JSONToTypeBox = lazy(() => import("./components/JSONToTypeBox").then(m => ({ default: m.JSONToTypeBox })));
 const CSVToNDJSON = lazy(() => import("./components/CSVToNDJSON").then(m => ({ default: m.CSVToNDJSON })));
+const SQLToJSONSchema = lazy(() => import("./components/SQLToJSONSchema").then(m => ({ default: m.SQLToJSONSchema })));
 
 // ⚡ Bolt Optimization: Pre-calculating tool map and search index for O(1) lookups and faster filtering
 const toolsMap: Record<string, Tool> = {};
@@ -650,6 +651,18 @@ const categories: Category[] = [
 ];
 
 const tools: Tool[] = [
+  // SQL DDL to JSON Schema Converter Tool
+  {
+    id: "sql-to-json-schema",
+    name: "SQL DDL en JSON Schema",
+    nameEn: "SQL DDL to JSON Schema",
+    icon: Database,
+    description: "Convertir des instructions SQL CREATE TABLE en schémas JSON Schema standards",
+    descriptionEn: "Convert SQL CREATE TABLE DDL statements into standard JSON Schema definitions",
+    Component: SQLToJSONSchema,
+    category: "dev",
+    keywords: ["sql", "ddl", "create table", "json", "schema", "draft", "validation", "database", "convert", "convertir"],
+  },
   // JSON to TypeBox Schema Converter Tool
   {
     id: "json-to-typebox",

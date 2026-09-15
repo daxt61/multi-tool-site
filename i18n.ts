@@ -11565,7 +11565,26 @@ const resources = {
       "ndjson.preset_users": "Flux Utilisateurs NDJSON",
       "ndjson.preset_events": "Journaux d'Événements",
       "ndjson.preset_ecommerce": "Transactions E-Commerce",
-      "ndjson.swapped": "Sens de conversion inversé !"
+      "ndjson.swapped": "Sens de conversion inversé !",
+      "tool.image-pixelator.name": "Pixeliser une Image",
+      "tool.image-pixelator.description": "Pixeliser et anonymiser des images ou créer du pixel art 8-bit instantanément dans votre navigateur",
+      "imagepixelator.presets_label": "Préréglages Rapides",
+      "imagepixelator.upload_label": "Image Source",
+      "imagepixelator.drop_text": "Cliquez ou glissez une image ici",
+      "imagepixelator.drop_subtext": "PNG, JPG, WebP, GIF jusqu'à 20Mo ou Coller",
+      "imagepixelator.block_size": "Taille du Bloc Pixel",
+      "imagepixelator.format_label": "Format d'Exportation",
+      "imagepixelator.preview_title": "Aperçu Pixelisé en Direct",
+      "imagepixelator.copy_data_url": "Copier la Data URL",
+      "imagepixelator.about_title": "À propos du Pixeliseur d'Images",
+      "imagepixelator.about_text": "Pixelisez et anonymisez vos photos ou créez du pixel art rétro 8-bit instantanément dans votre navigateur. Tout le traitement est réalisé localement à l'aide de l'API Canvas HTML5 sans aucune transmission de données.",
+      "imagepixelator.error_invalid_type": "Veuillez sélectionner un fichier image valide (PNG, JPG, WebP, GIF).",
+      "imagepixelator.error_too_large": "La taille du fichier dépasse la limite de 20 Mo.",
+      "imagepixelator.image_loaded": "Image chargée avec succès !",
+      "imagepixelator.download_success": "Image pixelisée téléchargée !",
+      "imagepixelator.copy_success": "Data URL de l'image copié dans le presse-papiers !",
+      "imagepixelator.reset_success": "Image et paramètres réinitialisés !",
+      "imagepixelator.preset_applied": "Préréglage appliqué !"
     }
   }
 };

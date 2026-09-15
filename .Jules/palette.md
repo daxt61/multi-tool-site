@@ -1,3 +1,7 @@
+## 2026-09-03 - [Container-Isolated Shortcuts & ARIA State Attributes in CSS Animation Generators]
+**Learning:** Visual animation generators often omit `aria-pressed` attributes on preset selection buttons and play/pause controls, and lack explicit form-label associations (`htmlFor`/`id`) on select dropdowns and code textareas. Adding explicit label pairings, `aria-pressed` toggle states, container-isolated hotkeys (`Escape` reset & focus `#duration-input`, `C` copy CSS, `Space` play/pause when no input is focused), and Sonner reset toasts ensures WCAG AA compliance and fluid keyboard navigation.
+**Action:** Always supply explicit HTML label pairings (`htmlFor`/`id`) for all dropdown and code output controls, add `aria-pressed` to interactive mode toggles and preset buttons, isolate keydown listeners to `containerRef`, and restore focus to the primary input upon reset.
+
 ## 2026-09-02 - [Focused Micro-UX & Explicit Form Associations in CSS Clamp Generator]
 **Learning:** Adding explicit HTML form label pairings (`htmlFor`/`id`), toggle state communication (`aria-pressed`), and programmatic focus restoration upon reset provides immediate accessibility and usability wins for CSS calculation tools without altering component layout or adding visual clutter.
 **Action:** Connect all numeric and text inputs to explicit `<label htmlFor="...">` elements, apply `aria-pressed` to mode toggles, and use `useRef` focus restoration to return focus to the primary input on reset.

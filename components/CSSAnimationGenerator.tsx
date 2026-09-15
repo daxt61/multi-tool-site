@@ -51,6 +51,9 @@ export function CSSAnimationGenerator({ initialData, onStateChange }: { initialD
   const [isPlaying, setIsPlaying] = useState(true);
   const [copied, setCopied] = useState(false);
 
+  const containerRef = useRef<HTMLDivElement>(null);
+  const primaryInputRef = useRef<HTMLInputElement>(null);
+
   useEffect(() => {
     onStateChange?.({ preset, duration, delay, iterationCount, timingFunction, direction, fillMode });
   }, [preset, duration, delay, iterationCount, timingFunction, direction, fillMode, onStateChange]);
@@ -107,7 +110,9 @@ export function CSSAnimationGenerator({ initialData, onStateChange }: { initialD
     setDirection('normal');
     setFillMode('both');
     setIsPlaying(true);
-  }, []);
+    toast.success(t('common.reset', 'Reset to defaults'));
+    primaryInputRef.current?.focus();
+  }, [t]);
 
   const handlersRef = useRef({ handleCopy, handleReset });
   useEffect(() => {
@@ -116,7 +121,9 @@ export function CSSAnimationGenerator({ initialData, onStateChange }: { initialD
 
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
-      if (document.activeElement?.tagName === "INPUT" || document.activeElement?.tagName === "TEXTAREA" || document.activeElement?.tagName === "SELECT") return;
+      const activeElement = document.activeElement;
+      if (activeElement?.tagName === "INPUT" || activeElement?.tagName === "TEXTAREA" || activeElement?.tagName === "SELECT") return;
+      if (containerRef.current && !containerRef.current.contains(activeElement) && activeElement !== document.body) return;
       if (e.metaKey || e.ctrlKey || e.altKey || e.shiftKey) return;
 
       if (e.key === 'Escape') {
@@ -135,7 +142,7 @@ export function CSSAnimationGenerator({ initialData, onStateChange }: { initialD
   }, []);
 
   return (
-    <div className="max-w-6xl mx-auto space-y-8">
+    <div ref={containerRef} className="max-w-6xl mx-auto space-y-8">
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
         <div className="space-y-6">
           <div className="flex justify-between items-center px-1">
@@ -162,6 +169,7 @@ export function CSSAnimationGenerator({ initialData, onStateChange }: { initialD
                   <button
                     key={p}
                     onClick={() => setPreset(p)}
+                    aria-pressed={preset === p}
                     className={`px-4 py-2 rounded-xl text-sm font-bold transition-all border ${
                       preset === p
                         ? 'bg-indigo-600 text-white border-indigo-600 shadow-lg shadow-indigo-600/20'
@@ -178,6 +186,7 @@ export function CSSAnimationGenerator({ initialData, onStateChange }: { initialD
               <div className="space-y-2">
                 <label htmlFor="duration-input" className="text-xs font-bold text-slate-500 px-1 cursor-pointer">{t('animation.duration', 'Duration (s)')}</label>
                 <input
+                  ref={primaryInputRef}
                   id="duration-input"
                   type="number"
                   min="0.1"
@@ -203,8 +212,9 @@ export function CSSAnimationGenerator({ initialData, onStateChange }: { initialD
 
             <div className="grid grid-cols-2 gap-4">
                <div className="space-y-2">
-                <label className="text-xs font-bold text-slate-500 px-1">{t('animation.timing', 'Timing Function')}</label>
+                <label htmlFor="timing-select" className="text-xs font-bold text-slate-500 px-1 cursor-pointer">{t('animation.timing', 'Timing Function')}</label>
                 <select
+                  id="timing-select"
                   value={timingFunction}
                   onChange={(e) => setTimingFunction(sanitizeTimingFunction(e.target.value))}
                   className="w-full p-3 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl outline-none focus:ring-2 focus:ring-indigo-500/20 transition-all dark:text-slate-300 cursor-pointer"
@@ -213,8 +223,9 @@ export function CSSAnimationGenerator({ initialData, onStateChange }: { initialD
                 </select>
               </div>
               <div className="space-y-2">
-                <label className="text-xs font-bold text-slate-500 px-1">{t('animation.iterations', 'Iterations')}</label>
+                <label htmlFor="iterations-select" className="text-xs font-bold text-slate-500 px-1 cursor-pointer">{t('animation.iterations', 'Iterations')}</label>
                 <select
+                  id="iterations-select"
                   value={iterationCount}
                   onChange={(e) => setIterationCount(sanitizeIterationCount(e.target.value))}
                   className="w-full p-3 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl outline-none focus:ring-2 focus:ring-indigo-500/20 transition-all dark:text-slate-300 cursor-pointer"
@@ -230,8 +241,9 @@ export function CSSAnimationGenerator({ initialData, onStateChange }: { initialD
 
             <div className="grid grid-cols-2 gap-4">
                <div className="space-y-2">
-                <label className="text-xs font-bold text-slate-500 px-1">{t('animation.direction', 'Direction')}</label>
+                <label htmlFor="direction-select" className="text-xs font-bold text-slate-500 px-1 cursor-pointer">{t('animation.direction', 'Direction')}</label>
                 <select
+                  id="direction-select"
                   value={direction}
                   onChange={(e) => setDirection(sanitizeDirection(e.target.value))}
                   className="w-full p-3 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl outline-none focus:ring-2 focus:ring-indigo-500/20 transition-all dark:text-slate-300 cursor-pointer"
@@ -240,8 +252,9 @@ export function CSSAnimationGenerator({ initialData, onStateChange }: { initialD
                 </select>
               </div>
               <div className="space-y-2">
-                <label className="text-xs font-bold text-slate-500 px-1">{t('animation.fill_mode', 'Fill Mode')}</label>
+                <label htmlFor="fill-mode-select" className="text-xs font-bold text-slate-500 px-1 cursor-pointer">{t('animation.fill_mode', 'Fill Mode')}</label>
                 <select
+                  id="fill-mode-select"
                   value={fillMode}
                   onChange={(e) => setFillMode(sanitizeFillMode(e.target.value))}
                   className="w-full p-3 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl outline-none focus:ring-2 focus:ring-indigo-500/20 transition-all dark:text-slate-300 cursor-pointer"
@@ -258,6 +271,8 @@ export function CSSAnimationGenerator({ initialData, onStateChange }: { initialD
             <h3 className="text-xs font-black uppercase tracking-widest text-slate-400">{t('animation.preview', 'Live Preview')}</h3>
             <button
               onClick={() => setIsPlaying(!isPlaying)}
+              aria-label={isPlaying ? t('common.pause', 'Pause animation') : t('common.play', 'Play animation')}
+              aria-pressed={isPlaying}
               title={`${isPlaying ? t('common.pause') : t('common.play')} (Space)`}
               className={`p-2 rounded-xl transition-all ${isPlaying ? 'bg-amber-50 dark:bg-amber-500/10 text-amber-600' : 'bg-indigo-50 dark:bg-indigo-500/10 text-indigo-600'}`}
             >
@@ -280,7 +295,7 @@ export function CSSAnimationGenerator({ initialData, onStateChange }: { initialD
              <div className="flex justify-between items-center px-1">
                 <div className="flex items-center gap-2 text-indigo-500">
                   <Code className="w-4 h-4" />
-                  <label className="text-xs font-black uppercase tracking-widest text-slate-400">{t('animation.code', 'Generated CSS')}</label>
+                  <label htmlFor="generated-css-output" className="text-xs font-black uppercase tracking-widest text-slate-400 cursor-pointer">{t('animation.code', 'Generated CSS')}</label>
                 </div>
                 <button
                   onClick={handleCopy}
@@ -296,6 +311,7 @@ export function CSSAnimationGenerator({ initialData, onStateChange }: { initialD
                 </button>
              </div>
              <textarea
+               id="generated-css-output"
                readOnly
                value={generatedCSS}
                className="w-full h-48 p-6 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-[2rem] outline-none font-mono text-xs leading-relaxed text-indigo-600 dark:text-indigo-400 resize-none"

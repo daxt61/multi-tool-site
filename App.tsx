@@ -614,6 +614,7 @@ const TOMLToCSV = lazy(() => import("./components/TOMLToCSV").then(m => ({ defau
 const JSONToTypeBox = lazy(() => import("./components/JSONToTypeBox").then(m => ({ default: m.JSONToTypeBox })));
 const CSVToNDJSON = lazy(() => import("./components/CSVToNDJSON").then(m => ({ default: m.CSVToNDJSON })));
 const SQLToJSONSchema = lazy(() => import("./components/SQLToJSONSchema").then(m => ({ default: m.SQLToJSONSchema })));
+const ImagePixelator = lazy(() => import("./components/ImagePixelator").then(m => ({ default: m.ImagePixelator })));
 
 // ⚡ Bolt Optimization: Pre-calculating tool map and search index for O(1) lookups and faster filtering
 const toolsMap: Record<string, Tool> = {};
@@ -651,6 +652,18 @@ const categories: Category[] = [
 ];
 
 const tools: Tool[] = [
+  // Image Pixelator Tool
+  {
+    id: "image-pixelator",
+    name: "Pixeliser une Image",
+    nameEn: "Pixelate an Image",
+    icon: ImageIcon,
+    description: "Pixeliser et anonymiser des images ou créer du pixel art 8-bit instantanément",
+    descriptionEn: "Pixelate and anonymize photos or create 8-bit retro pixel art graphics instantly",
+    Component: ImagePixelator,
+    category: "other",
+    keywords: ["image", "pixelate", "pixel", "mosaic", "8-bit", "anonymize", "blur", "retro", "graphics", "photo", "canvas"],
+  },
   // SQL DDL to JSON Schema Converter Tool
   {
     id: "sql-to-json-schema",

@@ -613,6 +613,7 @@ const MarkdownTableToHTML = lazy(() => import("./components/MarkdownTableToHTML"
 const TOMLToCSV = lazy(() => import("./components/TOMLToCSV").then(m => ({ default: m.TOMLToCSV })));
 const JSONToTypeBox = lazy(() => import("./components/JSONToTypeBox").then(m => ({ default: m.JSONToTypeBox })));
 const CSVToNDJSON = lazy(() => import("./components/CSVToNDJSON").then(m => ({ default: m.CSVToNDJSON })));
+const NDJSONToCSV = lazy(() => import("./components/NDJSONToCSV").then(m => ({ default: m.NDJSONToCSV })));
 const SQLToJSONSchema = lazy(() => import("./components/SQLToJSONSchema").then(m => ({ default: m.SQLToJSONSchema })));
 const ImagePixelator = lazy(() => import("./components/ImagePixelator").then(m => ({ default: m.ImagePixelator })));
 
@@ -699,6 +700,18 @@ const tools: Tool[] = [
     Component: CSVToNDJSON,
     category: "dev",
     keywords: ["csv", "tsv", "ndjson", "jsonlines", "json", "convert", "stream", "convertir"],
+  },
+  // NDJSON to CSV / TSV Converter Tool
+  {
+    id: "ndjson-to-csv",
+    name: "NDJSON en CSV / TSV",
+    nameEn: "NDJSON to CSV / TSV",
+    icon: FileSpreadsheet,
+    description: "Convertir des fichiers et flux NDJSON (JSON lignes) en tableaux CSV ou TSV",
+    descriptionEn: "Convert NDJSON (newline-delimited JSON) lines into formatted CSV or TSV datasets",
+    Component: NDJSONToCSV,
+    category: "dev",
+    keywords: ["ndjson", "jsonlines", "csv", "tsv", "convert", "flatten", "stream", "export", "convertir"],
   },
   // TOML to CSV / TSV Converter Tool
   {

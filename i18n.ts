@@ -11584,7 +11584,21 @@ const resources = {
       "imagepixelator.download_success": "Image pixelisée téléchargée !",
       "imagepixelator.copy_success": "Data URL de l'image copié dans le presse-papiers !",
       "imagepixelator.reset_success": "Image et paramètres réinitialisés !",
-      "imagepixelator.preset_applied": "Préréglage appliqué !"
+      "imagepixelator.preset_applied": "Préréglage appliqué !",
+      "tool.ndjson-to-csv.name": "NDJSON en CSV / TSV",
+      "tool.ndjson-to-csv.description": "Convertir des fichiers et flux NDJSON (JSON Lignes) en tableaux CSV, TSV ou délimités",
+      "ndjsontocsv.formatting_options": "Options de Conversion",
+      "ndjsontocsv.delimiter": "Séparateur",
+      "ndjsontocsv.header_casing": "Casse des En-têtes",
+      "ndjsontocsv.flatten_nested": "Aplatir les Objets Imbriqués",
+      "ndjsontocsv.include_headers": "Inclure Ligne d'En-tête",
+      "ndjsontocsv.force_quotes": "Guillemets sur Tous les Champs",
+      "ndjsontocsv.input_ndjson": "Flux NDJSON d'Entrée",
+      "ndjsontocsv.preset_events": "Journaux Événements",
+      "ndjsontocsv.preset_users": "Profils Utilisateurs",
+      "ndjsontocsv.preset_ecommerce": "Commandes E-Commerce",
+      "ndjsontocsv.about_title": "À propos du Convertisseur NDJSON en CSV / TSV",
+      "ndjsontocsv.about_text": "Le format Newline-Delimited JSON (NDJSON / JSON Lines) émet des enregistrements JSON individuels sur des lignes séparées. Cet outil aplatit automatiquement les structures imbriquées, harmonise les clés d'en-tête et exporte des données CSV ou TSV formatées."
     }
   }
 };

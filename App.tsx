@@ -616,6 +616,7 @@ const CSVToNDJSON = lazy(() => import("./components/CSVToNDJSON").then(m => ({ d
 const NDJSONToCSV = lazy(() => import("./components/NDJSONToCSV").then(m => ({ default: m.NDJSONToCSV })));
 const SQLToJSONSchema = lazy(() => import("./components/SQLToJSONSchema").then(m => ({ default: m.SQLToJSONSchema })));
 const SQLToCSharp = lazy(() => import("./components/SQLToCSharp").then(m => ({ default: m.SQLToCSharp })));
+const SQLToZod = lazy(() => import("./components/SQLToZod").then(m => ({ default: m.SQLToZod })));
 const ImagePixelator = lazy(() => import("./components/ImagePixelator").then(m => ({ default: m.ImagePixelator })));
 
 // ⚡ Bolt Optimization: Pre-calculating tool map and search index for O(1) lookups and faster filtering
@@ -654,6 +655,18 @@ const categories: Category[] = [
 ];
 
 const tools: Tool[] = [
+  // SQL DDL to Zod Schema Converter Tool
+  {
+    id: "sql-to-zod",
+    name: "SQL DDL en Zod",
+    nameEn: "SQL DDL to Zod Schema",
+    icon: ShieldCheck,
+    description: "Convertir des instructions SQL CREATE TABLE DDL en schémas de validation Zod TypeScript",
+    descriptionEn: "Convert SQL CREATE TABLE DDL statements into strongly-typed TypeScript Zod validation schemas",
+    Component: SQLToZod,
+    category: "dev",
+    keywords: ["sql", "ddl", "create table", "zod", "schema", "validation", "typescript", "convert", "convertir"],
+  },
   // Image Pixelator Tool
   {
     id: "image-pixelator",

@@ -615,6 +615,7 @@ const JSONToTypeBox = lazy(() => import("./components/JSONToTypeBox").then(m => 
 const CSVToNDJSON = lazy(() => import("./components/CSVToNDJSON").then(m => ({ default: m.CSVToNDJSON })));
 const NDJSONToCSV = lazy(() => import("./components/NDJSONToCSV").then(m => ({ default: m.NDJSONToCSV })));
 const SQLToJSONSchema = lazy(() => import("./components/SQLToJSONSchema").then(m => ({ default: m.SQLToJSONSchema })));
+const SQLToCSharp = lazy(() => import("./components/SQLToCSharp").then(m => ({ default: m.SQLToCSharp })));
 const ImagePixelator = lazy(() => import("./components/ImagePixelator").then(m => ({ default: m.ImagePixelator })));
 
 // ⚡ Bolt Optimization: Pre-calculating tool map and search index for O(1) lookups and faster filtering
@@ -664,6 +665,18 @@ const tools: Tool[] = [
     Component: ImagePixelator,
     category: "other",
     keywords: ["image", "pixelate", "pixel", "mosaic", "8-bit", "anonymize", "blur", "retro", "graphics", "photo", "canvas"],
+  },
+  // SQL DDL to C# Class Generator Tool
+  {
+    id: "sql-to-csharp",
+    name: "SQL DDL en C#",
+    nameEn: "SQL DDL to C# Classes",
+    icon: Database,
+    description: "Convertir des instructions SQL CREATE TABLE en classes ou records C# avec EF Core & JSON",
+    descriptionEn: "Convert SQL CREATE TABLE DDL statements into C# classes or records with EF Core & JSON attributes",
+    Component: SQLToCSharp,
+    category: "dev",
+    keywords: ["sql", "ddl", "create table", "csharp", "c#", "entity framework", "ef core", "class", "record", "convert", "convertir"],
   },
   // SQL DDL to JSON Schema Converter Tool
   {

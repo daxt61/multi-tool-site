@@ -5788,7 +5788,26 @@ const resources = {
       "sqltocsharp.error_parsing": "Error parsing SQL DDL",
       "sqltocsharp.preset_loaded": "Loaded SQL preset!",
       "sqltocsharp.about_title": "About SQL to C# Class Generator",
-      "sqltocsharp.about_text": "Convert SQL CREATE TABLE DDL queries directly into typed C# model classes or records. Supports EF Core DataAnnotations ([Table], [Key], [Column]), JSON attributes (System.Text.Json / Newtonsoft.Json), property casing options, init-only setters, and custom namespaces."
+      "sqltocsharp.about_text": "Convert SQL CREATE TABLE DDL queries directly into typed C# model classes or records. Supports EF Core DataAnnotations ([Table], [Key], [Column]), JSON attributes (System.Text.Json / Newtonsoft.Json), property casing options, init-only setters, and custom namespaces.",
+      "tool.glassmorphism-generator.name": "Glassmorphism Generator",
+      "tool.glassmorphism-generator.description": "Visual glassmorphism design generator with backdrop blur, opacity, and borders",
+      "glassmorphism.presets": "Quick Presets:",
+      "glassmorphism.preset_frosted": "Frosted Glass",
+      "glassmorphism.preset_subtle": "Subtle Blur",
+      "glassmorphism.preset_vibrant": "Vibrant Frost",
+      "glassmorphism.preset_dark": "Dark Velvet",
+      "glassmorphism.blur": "Blur",
+      "glassmorphism.opacity": "Opacity",
+      "glassmorphism.color": "Color",
+      "glassmorphism.saturation": "Saturation",
+      "glassmorphism.border_opacity": "Border Opacity",
+      "glassmorphism.css_code": "CSS Code",
+      "glassmorphism.preview": "Real-time Glassmorphism Preview",
+      "glassmorphism.about_title": "What is Glassmorphism?",
+      "glassmorphism.about_text": "Glassmorphism is a UI design trend based on a frosted-glass effect created using background blur, transparency, and subtle borders.",
+      "glassmorphism.copied_msg": "CSS copied to clipboard!",
+      "glassmorphism.reset_msg": "Glassmorphism settings reset!",
+      "glassmorphism.preset_applied": "Preset \"{{name}}\" loaded!"
     }
   },
   fr: {
@@ -11642,7 +11661,26 @@ const resources = {
       "ndjsontocsv.preset_users": "Profils Utilisateurs",
       "ndjsontocsv.preset_ecommerce": "Commandes E-Commerce",
       "ndjsontocsv.about_title": "À propos du Convertisseur NDJSON en CSV / TSV",
-      "ndjsontocsv.about_text": "Le format Newline-Delimited JSON (NDJSON / JSON Lines) émet des enregistrements JSON individuels sur des lignes séparées. Cet outil aplatit automatiquement les structures imbriquées, harmonise les clés d'en-tête et exporte des données CSV ou TSV formatées."
+      "ndjsontocsv.about_text": "Le format Newline-Delimited JSON (NDJSON / JSON Lines) émet des enregistrements JSON individuels sur des lignes séparées. Cet outil aplatit automatiquement les structures imbriquées, harmonise les clés d'en-tête et exporte des données CSV ou TSV formatées.",
+      "tool.glassmorphism-generator.name": "Générateur de Glassmorphism",
+      "tool.glassmorphism-generator.description": "Générateur visuel de design glassmorphism avec flou d'arrière-plan, opacité et bordures",
+      "glassmorphism.presets": "Préréglages Rapides :",
+      "glassmorphism.preset_frosted": "Verre Dépoli",
+      "glassmorphism.preset_subtle": "Flou Subtil",
+      "glassmorphism.preset_vibrant": "Givre Vibrant",
+      "glassmorphism.preset_dark": "Velours Sombre",
+      "glassmorphism.blur": "Flou (Blur)",
+      "glassmorphism.opacity": "Opacité",
+      "glassmorphism.color": "Couleur",
+      "glassmorphism.saturation": "Saturation",
+      "glassmorphism.border_opacity": "Opacité Bordure",
+      "glassmorphism.css_code": "Code CSS",
+      "glassmorphism.preview": "Aperçu en temps réel de votre effet de verre",
+      "glassmorphism.about_title": "Qu'est-ce que le Glassmorphism ?",
+      "glassmorphism.about_text": "Le Glassmorphism est un style de design UI basé sur l'effet de verre dépoli, créé par une combinaison de transparence, de flou d'arrière-plan et de bordures fines.",
+      "glassmorphism.copied_msg": "Code CSS copié dans le presse-papiers !",
+      "glassmorphism.reset_msg": "Paramètres du Glassmorphism réinitialisés !",
+      "glassmorphism.preset_applied": "Préréglage \"{{name}}\" appliqué !"
     }
   }
 };

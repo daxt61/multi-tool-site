@@ -617,6 +617,7 @@ const NDJSONToCSV = lazy(() => import("./components/NDJSONToCSV").then(m => ({ d
 const SQLToJSONSchema = lazy(() => import("./components/SQLToJSONSchema").then(m => ({ default: m.SQLToJSONSchema })));
 const SQLToCSharp = lazy(() => import("./components/SQLToCSharp").then(m => ({ default: m.SQLToCSharp })));
 const SQLToZod = lazy(() => import("./components/SQLToZod").then(m => ({ default: m.SQLToZod })));
+const SQLToTypeBox = lazy(() => import("./components/SQLToTypeBox").then(m => ({ default: m.SQLToTypeBox })));
 const ImagePixelator = lazy(() => import("./components/ImagePixelator").then(m => ({ default: m.ImagePixelator })));
 
 // ⚡ Bolt Optimization: Pre-calculating tool map and search index for O(1) lookups and faster filtering
@@ -655,6 +656,18 @@ const categories: Category[] = [
 ];
 
 const tools: Tool[] = [
+  // SQL DDL to TypeBox Schema Converter Tool
+  {
+    id: "sql-to-typebox",
+    name: "SQL DDL en TypeBox",
+    nameEn: "SQL DDL to TypeBox Schema",
+    icon: FileCode,
+    description: "Convertir des instructions SQL CREATE TABLE DDL en schémas de validation TypeBox TypeScript",
+    descriptionEn: "Convert SQL CREATE TABLE DDL statements into strongly-typed TypeScript TypeBox validation schemas",
+    Component: SQLToTypeBox,
+    category: "dev",
+    keywords: ["sql", "ddl", "create table", "typebox", "schema", "validation", "typescript", "convert", "convertir"],
+  },
   // SQL DDL to Zod Schema Converter Tool
   {
     id: "sql-to-zod",

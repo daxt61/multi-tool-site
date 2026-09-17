@@ -1,20 +1,101 @@
-import { useState, useEffect, useCallback } from 'react';
-import { FileCode, Copy, Check, Trash2, AlertCircle, Download, Info } from 'lucide-react';
+import { useState, useEffect, useCallback, useRef } from 'react';
+import { FileCode, Copy, Check, Trash2, AlertCircle, Download, Info, Braces, Sparkles, Code } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
+import { toast } from 'sonner';
+import { Kbd } from './ui/Kbd';
 
 const MAX_LENGTH = 100000;
 const MAX_DEPTH = 20;
 
+type Framework = 'circe' | 'play' | 'jackson' | 'none';
+
+interface Preset {
+  nameKey: string;
+  data: object;
+}
+
+const PRESETS: Preset[] = [
+  {
+    nameKey: 'jsontoscala.preset_user',
+    data: {
+      id: 101,
+      username: 'scala_dev',
+      email: 'dev@company.com',
+      is_verified: true,
+      profile: {
+        full_name: 'Martin Odersky',
+        avatar_url: 'https://example.com/martin.jpg',
+        created_at: '2025-03-01T09:00:00Z'
+      },
+      tags: ['scala', 'fp', 'type-system']
+    }
+  },
+  {
+    nameKey: 'jsontoscala.preset_order',
+    data: {
+      order_number: 'ORD-8812',
+      grand_total: 249.99,
+      is_shipped: true,
+      shipping_address: {
+        street_address: '100 University Ave',
+        city: 'Lausanne',
+        postal_code: '1015',
+        country_code: 'CH'
+      },
+      items: [
+        { item_id: 'SKU-A', title: 'Programming in Scala', price: 59.99, qty: 1 },
+        { item_id: 'SKU-B', title: 'Functional Design Book', price: 190.00, qty: 1 }
+      ]
+    }
+  },
+  {
+    nameKey: 'jsontoscala.preset_health',
+    data: {
+      status: 'HEALTHY',
+      uptime_seconds: 31536000,
+      subsystems: {
+        database: { active: true, latency_ms: 2 },
+        cache: { active: true, latency_ms: 1 }
+      },
+      version: '3.3.1'
+    }
+  }
+];
+
 export function JSONToScala({ initialData, onStateChange }: { initialData?: any; onStateChange?: (state: any) => void }) {
   const { t } = useTranslation();
+  const inputRef = useRef<HTMLTextAreaElement>(null);
   const [input, setInput] = useState(initialData?.input || '');
   const [output, setOutput] = useState(initialData?.output || '');
+  const [framework, setFramework] = useState<Framework>(initialData?.framework || 'circe');
+  const [casing, setCasing] = useState<'camelCase' | 'snake_case' | 'PascalCase' | 'original'>(
+    initialData?.casing || 'camelCase'
+  );
+  const [packageName, setPackageName] = useState(initialData?.packageName || 'com.example.models');
+  const [useOption, setUseOption] = useState(initialData?.useOption ?? true);
   const [error, setError] = useState('');
   const [copied, setCopied] = useState(false);
 
   useEffect(() => {
-    onStateChange?.({ input, output });
-  }, [input, output, onStateChange]);
+    onStateChange?.({ input, output, framework, casing, packageName, useOption });
+  }, [input, output, framework, casing, packageName, useOption, onStateChange]);
+
+  const SCALA_KEYWORDS = new Set([
+    'abstract', 'case', 'catch', 'class', 'def', 'do', 'else', 'enum', 'export', 'extends',
+    'false', 'final', 'finally', 'for', 'forSome', 'given', 'if', 'implicit', 'import',
+    'lazy', 'macro', 'match', 'new', 'null', 'object', 'override', 'package', 'private',
+    'protected', 'return', 'sealed', 'super', 'then', 'this', 'throw', 'trait', 'true',
+    'try', 'type', 'using', 'val', 'var', 'while', 'with', 'yield'
+  ]);
+
+  const escapeScalaString = (str: string) => {
+    return str
+      .replace(/\\/g, '\\\\')
+      .replace(/"/g, '\\"')
+      .replace(/\n/g, '\\n')
+      .replace(/\r/g, '\\r')
+      .replace(/\t/g, '\\t');
+  };
 
   const toPascalCase = (str: string) => {
     return str
@@ -28,6 +109,38 @@ export function JSONToScala({ initialData, onStateChange }: { initialData?: any;
   const toCamelCase = (str: string) => {
     const pascal = toPascalCase(str);
     return pascal.charAt(0).toLowerCase() + pascal.slice(1);
+  };
+
+  const toSnakeCase = (str: string) => {
+    return str
+      .replace(/([a-z0-9])([A-Z])/g, '$1_$2')
+      .replace(/[^a-zA-Z0-9]/g, '_')
+      .toLowerCase();
+  };
+
+  const formatPropName = (key: string): { propName: string; originalKey: string } => {
+    let formatted = key;
+    if (casing === 'camelCase') {
+      formatted = toCamelCase(key);
+    } else if (casing === 'snake_case') {
+      formatted = toSnakeCase(key);
+    } else if (casing === 'PascalCase') {
+      formatted = toPascalCase(key);
+    }
+
+    let propName = formatted;
+    if (/^[0-9]/.test(propName)) {
+      propName = 'field' + propName;
+    }
+
+    const isKeyword = SCALA_KEYWORDS.has(propName.toLowerCase());
+    const startsWithDigit = /^[0-9]/.test(propName);
+    if (isKeyword || startsWithDigit) {
+      const sanitized = propName.replace(/`/g, '').replace(/[\n\r]/g, '_');
+      propName = '`' + (sanitized || 'field') + '`';
+    }
+
+    return { propName: propName || 'unnamed', originalKey: key };
   };
 
   const handleConvert = useCallback(() => {
@@ -65,25 +178,37 @@ export function JSONToScala({ initialData, onStateChange }: { initialData?: any;
           }
 
           const fields = Object.entries(val).map(([key, value]) => {
-            const scalaKey = toCamelCase(key);
-            const isKeyword = [
-              'abstract', 'case', 'catch', 'class', 'def', 'do', 'else', 'enum', 'export', 'extends',
-              'false', 'final', 'finally', 'for', 'forSome', 'given', 'if', 'implicit', 'import',
-              'lazy', 'macro', 'match', 'new', 'null', 'object', 'override', 'package', 'private',
-              'protected', 'return', 'sealed', 'super', 'then', 'this', 'throw', 'trait', 'true',
-              'try', 'type', 'using', 'val', 'var', 'while', 'with', 'yield'
-            ].includes(scalaKey);
-            const startsWithDigit = /^[0-9]/.test(scalaKey);
-            const ident = (isKeyword || startsWithDigit) ? `\`${scalaKey}\`` : scalaKey;
-            const type = getScalaType(value, key, depth + 1);
-            return `  ${ident}: ${type}`;
+            const { propName, originalKey } = formatPropName(key);
+            const rawType = getScalaType(value, key, depth + 1);
+            const isNull = value === null || value === undefined;
+            const finalType = (useOption && isNull) ? `Option[Any]` : rawType;
+
+            let annotations = '';
+            const escapedOriginalKey = escapeScalaString(originalKey);
+            if (framework === 'circe') {
+              if (originalKey !== propName) {
+                annotations = `  @key("${escapedOriginalKey}")\n`;
+              }
+            } else if (framework === 'jackson') {
+              if (originalKey !== propName) {
+                annotations = `  @JsonProperty("${escapedOriginalKey}")\n`;
+              }
+            }
+
+            return `${annotations}  ${propName}: ${finalType}`;
           });
 
-          let classStr = `case class ${finalName}(\n`;
-          classStr += fields.join(',\n');
-          classStr += '\n)';
+          let classHeader = '';
+          if (framework === 'circe') {
+            classHeader += `@configured\n`;
+          } else if (framework === 'play') {
+            classHeader += `// Play JSON implicit format generated below\n`;
+          }
+          classHeader += `case class ${finalName}(\n`;
+          classHeader += fields.join(',\n');
+          classHeader += '\n)';
 
-          caseClasses.push(classStr);
+          caseClasses.push(classHeader);
           classNames.add(finalName);
           return finalName;
         }
@@ -97,38 +222,67 @@ export function JSONToScala({ initialData, onStateChange }: { initialData?: any;
 
       getScalaType(parsed, 'Root', 0);
 
-      let result = "// Scala Case Classes generated from JSON\n\n";
+      let imports = '';
+      if (framework === 'circe') {
+        imports = 'import io.circe._\nimport io.circe.generic.extras._\nimport io.circe.generic.extras.semiauto._\n\n';
+      } else if (framework === 'play') {
+        imports = 'import play.api.libs.json._\n\n';
+      } else if (framework === 'jackson') {
+        imports = 'import com.fasterxml.jackson.annotation.JsonProperty\n\n';
+      }
+
+      let result = '';
+      if (packageName.trim()) {
+        const sanitizedPackage = packageName.trim().replace(/[^a-zA-Z0-9_.]/g, '');
+        if (sanitizedPackage) {
+          result += `package ${sanitizedPackage}\n\n`;
+        }
+      }
+      result += imports;
       result += caseClasses.reverse().join('\n\n');
+
+      if (framework === 'play' && classNames.size > 0) {
+        result += '\n\nobject Formats {\n';
+        Array.from(classNames).forEach(name => {
+          result += `  implicit val ${toCamelCase(name)}Format: OFormat[${name}] = Json.format[${name}]\n`;
+        });
+        result += '}';
+      }
 
       if (caseClasses.length === 0) {
         const simpleType = getScalaType(parsed, 'Root', 0);
-        result = `// Scala type representation\n\ntype RootObject = ${simpleType}`;
+        result += `type RootObject = ${simpleType}`;
       }
 
-      setOutput(result);
+      setOutput(result.trim());
       setError('');
     } catch (e: any) {
       setError(t('error.invalid_json') + ': ' + e.message);
       setOutput('');
     }
-  }, [input, t]);
+  }, [input, framework, casing, packageName, useOption, t]);
 
   useEffect(() => {
     handleConvert();
   }, [handleConvert]);
 
-  const handleCopy = () => {
+  const handleCopy = useCallback(() => {
     if (!output) return;
     navigator.clipboard.writeText(output);
     setCopied(true);
+    toast.success(t('jsontoscala.toast_copied', 'Scala code copied to clipboard!'));
     setTimeout(() => setCopied(false), 2000);
-  };
+  }, [output, t]);
 
-  const handleClear = () => {
+  const handleClear = useCallback(() => {
     setInput('');
     setOutput('');
     setError('');
-  };
+    toast.success(t('jsontoscala.toast_cleared', 'Cleared!'));
+    setTimeout(() => {
+      inputRef.current?.focus();
+    }, 50);
+  }, [t]);
 
   const handleDownload = () => {
     if (!output) return;
@@ -141,30 +295,162 @@ export function JSONToScala({ initialData, onStateChange }: { initialData?: any;
     link.click();
     document.body.removeChild(link);
     URL.revokeObjectURL(url);
+    toast.success(t('jsontoscala.toast_downloaded', 'Downloaded Models.scala!'));
   };
 
+  const loadPreset = (preset: Preset) => {
+    setInput(JSON.stringify(preset.data, null, 2));
+    toast.success(t('jsontoscala.toast_preset_loaded', 'Preset loaded successfully!'));
+    setTimeout(() => {
+      inputRef.current?.focus();
+    }, 50);
+  };
+
+  const handlersRef = useRef({ handleCopy, handleClear });
+  useEffect(() => {
+    handlersRef.current = { handleCopy, handleClear };
+  }, [handleCopy, handleClear]);
+
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      const isEditable =
+        document.activeElement?.tagName === 'INPUT' ||
+        document.activeElement?.tagName === 'TEXTAREA' ||
+        document.activeElement?.tagName === 'SELECT' ||
+        document.activeElement?.getAttribute('contenteditable') === 'true';
+
+      if (isEditable && e.key !== 'Escape') return;
+      if (e.metaKey || e.ctrlKey || e.altKey || e.shiftKey) return;
+
+      if (e.key === 'Escape') {
+        e.preventDefault();
+        handlersRef.current.handleClear();
+      } else if (e.key.toLowerCase() === 'c') {
+        e.preventDefault();
+        handlersRef.current.handleCopy();
+      }
+    };
+
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, []);
+
   return (
-    <div className="max-w-6xl mx-auto space-y-8">
+    <div className="max-w-6xl mx-auto space-y-8 animate-in fade-in duration-500">
+      {/* Presets Bar */}
+      <div className="flex flex-wrap items-center justify-between gap-4 p-4 bg-slate-50 dark:bg-slate-900/50 rounded-2xl border border-slate-200 dark:border-slate-800">
+        <div className="flex items-center gap-2">
+          <Sparkles className="w-4 h-4 text-amber-500" aria-hidden="true" />
+          <span className="text-xs font-bold uppercase tracking-widest text-slate-500 dark:text-slate-400">
+            {t('jsontoscala.presets_title', 'Quick Presets')}
+          </span>
+        </div>
+        <div className="flex flex-wrap items-center gap-2">
+          {PRESETS.map((preset, idx) => (
+            <button
+              key={idx}
+              onClick={() => loadPreset(preset)}
+              className="px-3 py-1.5 text-xs font-bold bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 hover:border-indigo-500 rounded-xl transition-all shadow-sm focus-visible:ring-2 focus-visible:ring-indigo-500 focus-visible:outline-none"
+            >
+              {t(preset.nameKey)}
+            </button>
+          ))}
+        </div>
+      </div>
+
+      {/* Options Panel */}
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-4 p-5 bg-white dark:bg-slate-900/60 rounded-2xl border border-slate-200 dark:border-slate-800">
+        <div className="space-y-1.5">
+          <label htmlFor="scala-framework" className="text-xs font-bold uppercase tracking-widest text-slate-500 dark:text-slate-400">
+            {t('jsontoscala.framework_label', 'JSON Framework')}
+          </label>
+          <select
+            id="scala-framework"
+            value={framework}
+            onChange={(e) => setFramework(e.target.value as Framework)}
+            className="w-full p-2.5 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-sm font-semibold outline-none focus:ring-2 focus:ring-indigo-500"
+          >
+            <option value="circe">Circe (@configured / @key)</option>
+            <option value="play">Play JSON (OFormat implicits)</option>
+            <option value="jackson">Jackson (@JsonProperty)</option>
+            <option value="none">None</option>
+          </select>
+        </div>
+
+        <div className="space-y-1.5">
+          <label htmlFor="scala-casing" className="text-xs font-bold uppercase tracking-widest text-slate-500 dark:text-slate-400">
+            {t('jsontoscala.casing_label', 'Property Casing')}
+          </label>
+          <select
+            id="scala-casing"
+            value={casing}
+            onChange={(e) => setCasing(e.target.value as any)}
+            className="w-full p-2.5 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-sm font-semibold outline-none focus:ring-2 focus:ring-indigo-500"
+          >
+            <option value="camelCase">camelCase (Standard Scala)</option>
+            <option value="snake_case">snake_case</option>
+            <option value="PascalCase">PascalCase</option>
+            <option value="original">Original Column Name</option>
+          </select>
+        </div>
+
+        <div className="space-y-1.5">
+          <label htmlFor="scala-package" className="text-xs font-bold uppercase tracking-widest text-slate-500 dark:text-slate-400">
+            {t('jsontoscala.package_name', 'Package Name')}
+          </label>
+          <input
+            id="scala-package"
+            type="text"
+            value={packageName}
+            onChange={(e) => setPackageName(e.target.value)}
+            placeholder="e.g. com.example.models"
+            className="w-full p-2.5 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-sm font-semibold outline-none focus:ring-2 focus:ring-indigo-500"
+          />
+        </div>
+
+        <div className="col-span-1 md:col-span-3 flex flex-wrap items-center gap-6 pt-2 border-t border-slate-100 dark:border-slate-800">
+          <div className="flex items-center gap-2">
+            <input
+              id="use-option-nulls"
+              type="checkbox"
+              checked={useOption}
+              onChange={(e) => setUseOption(e.target.checked)}
+              className="w-4 h-4 text-indigo-600 rounded border-slate-300 focus:ring-indigo-500"
+            />
+            <label htmlFor="use-option-nulls" className="text-xs font-bold text-slate-700 dark:text-slate-300 cursor-pointer">
+              {t('jsontoscala.use_option_nulls', 'Use Option[T] for null values')}
+            </label>
+          </div>
+        </div>
+      </div>
+
+      {/* Editor Grid */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
         <div className="space-y-4">
           <div className="flex justify-between items-center px-1">
             <div className="flex items-center gap-2">
-              <FileCode className="w-4 h-4 text-indigo-500" />
-              <label htmlFor="json-input" className="text-xs font-black uppercase tracking-widest text-slate-400 cursor-pointer">{t('common.input')} JSON</label>
+              <Braces className="w-4 h-4 text-indigo-500" aria-hidden="true" />
+              <label htmlFor="json-scala-input" className="text-xs font-black uppercase tracking-widest text-slate-400 cursor-pointer">
+                {t('common.input')} JSON
+              </label>
             </div>
-            <button
-              onClick={handleClear}
-              disabled={!input && !output}
-              className="text-xs font-bold px-3 py-1 rounded-full text-rose-500 bg-rose-50 dark:bg-rose-500/10 hover:bg-rose-100 transition-all flex items-center gap-1 disabled:opacity-50"
-            >
-              <Trash2 className="w-3 h-3" /> {t('common.clear')}
-            </button>
+            <div className="flex items-center gap-2">
+              <Kbd modifier={null} className="hidden sm:inline-flex border-rose-200 dark:border-rose-800 text-rose-400 dark:bg-slate-900">Esc</Kbd>
+              <button
+                onClick={handleClear}
+                disabled={!input && !output}
+                className="text-xs font-bold px-3 py-1.5 rounded-xl text-rose-500 bg-rose-50 dark:bg-rose-500/10 hover:bg-rose-100 dark:hover:bg-rose-500/20 transition-all flex items-center gap-1 disabled:opacity-50 focus-visible:ring-2 focus-visible:ring-rose-500 focus-visible:outline-none"
+              >
+                <Trash2 className="w-3 h-3" aria-hidden="true" /> {t('common.clear')}
+              </button>
+            </div>
           </div>
           <textarea
-            id="json-input"
+            id="json-scala-input"
+            ref={inputRef}
             value={input}
             onChange={(e) => setInput(e.target.value)}
-            placeholder='{"id": 1, "name": "John"}'
+            placeholder='{"id": 1, "name": "Scala"}'
             className="w-full h-[450px] p-6 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-3xl outline-none focus:ring-2 focus:ring-indigo-500/20 transition-all font-mono text-sm leading-relaxed dark:text-slate-300 resize-none"
           />
         </div>
@@ -172,27 +458,30 @@ export function JSONToScala({ initialData, onStateChange }: { initialData?: any;
         <div className="space-y-4">
           <div className="flex justify-between items-center px-1">
             <div className="flex items-center gap-2">
-              <FileCode className="w-4 h-4 text-emerald-500" />
-              <label htmlFor="scala-output" className="text-xs font-black uppercase tracking-widest text-slate-400 cursor-pointer">Scala Case Classes</label>
+              <Code className="w-4 h-4 text-emerald-500" aria-hidden="true" />
+              <label htmlFor="scala-output" className="text-xs font-black uppercase tracking-widest text-slate-400 cursor-pointer">
+                {t('jsontoscala.output_label', 'Generated Scala Case Classes')}
+              </label>
             </div>
             <div className="flex gap-2">
               <button
                 onClick={handleDownload}
                 disabled={!output}
-                className="text-xs font-bold px-3 py-1 rounded-full text-indigo-500 bg-indigo-50 dark:bg-indigo-500/10 hover:bg-indigo-100 transition-all flex items-center gap-1 disabled:opacity-50"
+                className="text-xs font-bold px-3 py-1.5 rounded-xl text-indigo-500 bg-indigo-50 dark:bg-indigo-500/10 hover:bg-indigo-100 transition-all flex items-center gap-1 disabled:opacity-50 focus-visible:ring-2 focus-visible:ring-indigo-500 focus-visible:outline-none"
               >
-                <Download className="w-3 h-3" /> {t('common.download')}
+                <Download className="w-3 h-3" aria-hidden="true" /> {t('common.download')}
               </button>
               <button
                 onClick={handleCopy}
                 disabled={!output}
-                className={`text-xs font-bold px-3 py-1 rounded-full transition-all flex items-center gap-1 focus-visible:ring-2 focus-visible:ring-indigo-500 focus-visible:outline-none ${
+                className={`text-xs font-bold px-3 py-1.5 rounded-xl transition-all flex items-center gap-1 border focus-visible:ring-2 focus-visible:ring-indigo-500 focus-visible:outline-none ${
                   copied
                     ? 'bg-emerald-50 dark:bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border border-emerald-200 dark:border-emerald-500/20'
-                    : 'text-slate-500 bg-slate-100 dark:bg-slate-800 hover:bg-slate-200'
-                } disabled:opacity-50 disabled:cursor-not-allowed`}
+                    : 'text-slate-500 bg-slate-100 dark:bg-slate-800 border-transparent hover:bg-slate-200 dark:hover:bg-slate-700 disabled:opacity-50 disabled:cursor-not-allowed'
+                }`}
               >
-                {copied ? <Check className="w-3 h-3" /> : <Copy className="w-3 h-3" />} {copied ? t('common.copied') : t('common.copy')}
+                {copied ? <Check className="w-3 h-3" aria-hidden="true" /> : <Copy className="w-3 h-3" aria-hidden="true" />} {copied ? t('common.copied') : t('common.copy')}
+                {!copied && input && <Kbd modifier={null} className="hidden sm:inline-flex w-4 h-4 bg-white/50 dark:bg-black/20 ml-1">C</Kbd>}
               </button>
             </div>
           </div>
@@ -200,24 +489,25 @@ export function JSONToScala({ initialData, onStateChange }: { initialData?: any;
             id="scala-output"
             value={output}
             readOnly
+            placeholder={t('jsontoscala.placeholder_output', 'Generated Scala code will appear here...')}
             className="w-full h-[450px] p-6 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-3xl outline-none font-mono text-sm leading-relaxed text-indigo-600 dark:text-indigo-400 resize-none"
           />
         </div>
       </div>
 
       {error && (
-        <div className="bg-rose-50 dark:bg-rose-500/10 border border-rose-200 dark:border-rose-800 p-4 rounded-2xl flex items-center gap-3 text-rose-600 dark:text-rose-400 font-bold">
-          <AlertCircle className="w-5 h-5" />
+        <div className="bg-rose-50 dark:bg-rose-500/10 border border-rose-200 dark:border-rose-800 p-4 rounded-2xl flex items-center gap-3 text-rose-600 dark:text-rose-400 font-bold animate-in fade-in slide-in-from-top-2">
+          <AlertCircle className="w-5 h-5" aria-hidden="true" />
           {error}
         </div>
       )}
 
       <div className="bg-indigo-50 dark:bg-indigo-900/10 p-8 rounded-[2.5rem] border border-indigo-100 dark:border-indigo-900/20 flex items-start gap-4">
-        <Info className="w-6 h-6 text-indigo-500 mt-1" />
+        <Info className="w-6 h-6 text-indigo-500 mt-1" aria-hidden="true" />
         <div className="space-y-2">
-          <h4 className="font-bold dark:text-white">{t('jsontoscala.about_title', 'À propos de la conversion JSON en Scala')}</h4>
+          <h4 className="font-bold dark:text-white">{t('jsontoscala.about_title', 'About JSON to Scala Converter')}</h4>
           <p className="text-sm text-slate-500 dark:text-slate-400 leading-relaxed">
-            {t('jsontoscala.about_text', 'Cet outil génère des case classes Scala à partir de vos données JSON. Idéal pour le développement avec Play Framework, Akka ou Spark. Il gère les types Option pour les valeurs nulles et les List pour les tableaux.')}
+            {t('jsontoscala.about_text', 'Convert JSON payloads into strongly typed Scala case classes. Supports Circe, Play JSON, and Jackson annotations, custom property casing, package names, and Option[T] nullability.')}
           </p>
         </div>
       </div>

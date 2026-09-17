@@ -83,6 +83,7 @@ export function JSONToPython({ initialData, onStateChange }: { initialData?: any
           const fields = Object.entries(val).map(([key, value]) => {
             const pythonKey = toSnakeCase(key);
             const type = getPythonType(value, key, depth + 1);
+            // Sentinel: Sanitize user-provided key in Python comments to prevent single-line comment breakout
             const safeCommentKey = key.replace(/[\n\r\t\v\f]/g, ' ').replace(/#/g, '');
             const comment = pythonKey !== key ? `  # Original JSON key: ${safeCommentKey}` : '';
             return `    ${pythonKey}: ${type}${comment}`;

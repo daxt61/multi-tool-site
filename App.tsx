@@ -616,6 +616,8 @@ const CSVToNDJSON = lazy(() => import("./components/CSVToNDJSON").then(m => ({ d
 const NDJSONToCSV = lazy(() => import("./components/NDJSONToCSV").then(m => ({ default: m.NDJSONToCSV })));
 const SQLToJSONSchema = lazy(() => import("./components/SQLToJSONSchema").then(m => ({ default: m.SQLToJSONSchema })));
 const SQLToCSharp = lazy(() => import("./components/SQLToCSharp").then(m => ({ default: m.SQLToCSharp })));
+const SQLToKotlin = lazy(() => import("./components/SQLToKotlin").then(m => ({ default: m.SQLToKotlin })));
+const SQLToGo = lazy(() => import("./components/SQLToGo").then(m => ({ default: m.SQLToGo })));
 const SQLToZod = lazy(() => import("./components/SQLToZod").then(m => ({ default: m.SQLToZod })));
 const SQLToTypeBox = lazy(() => import("./components/SQLToTypeBox").then(m => ({ default: m.SQLToTypeBox })));
 const ImagePixelator = lazy(() => import("./components/ImagePixelator").then(m => ({ default: m.ImagePixelator })));
@@ -691,6 +693,30 @@ const tools: Tool[] = [
     Component: ImagePixelator,
     category: "other",
     keywords: ["image", "pixelate", "pixel", "mosaic", "8-bit", "anonymize", "blur", "retro", "graphics", "photo", "canvas"],
+  },
+  // SQL DDL to Kotlin Data Class Generator Tool
+  {
+    id: "sql-to-kotlin",
+    name: "SQL DDL en Kotlin",
+    nameEn: "SQL DDL to Kotlin",
+    icon: FileCode,
+    description: "Convertir des instructions SQL CREATE TABLE DDL en modèles data class Kotlin",
+    descriptionEn: "Convert SQL CREATE TABLE DDL statements into Kotlin data class models",
+    Component: SQLToKotlin,
+    category: "dev",
+    keywords: ["sql", "ddl", "create table", "kotlin", "data class", "kotlinx", "jackson", "moshi", "convert", "convertir"],
+  },
+  // SQL DDL to Go Struct Generator Tool
+  {
+    id: "sql-to-go",
+    name: "SQL DDL en Go",
+    nameEn: "SQL DDL to Go Struct",
+    icon: FileCode,
+    description: "Convertir des instructions SQL CREATE TABLE DDL en structures Go struct",
+    descriptionEn: "Convert SQL CREATE TABLE DDL statements into Go struct definitions",
+    Component: SQLToGo,
+    category: "dev",
+    keywords: ["sql", "ddl", "create table", "go", "golang", "struct", "gorm", "json", "convert", "convertir"],
   },
   // SQL DDL to C# Class Generator Tool
   {

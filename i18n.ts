@@ -11872,7 +11872,23 @@ const resources = {
       "glassmorphism.about_text": "Le Glassmorphism est un style de design UI basé sur l'effet de verre dépoli, créé par une combinaison de transparence, de flou d'arrière-plan et de bordures fines.",
       "glassmorphism.copied_msg": "Code CSS copié dans le presse-papiers !",
       "glassmorphism.reset_msg": "Paramètres du Glassmorphism réinitialisés !",
-      "glassmorphism.preset_applied": "Préréglage \"{{name}}\" appliqué !"
+      "glassmorphism.preset_applied": "Préréglage \"{{name}}\" appliqué !",
+      "tool.sql-to-rust.name": "SQL DDL en Rust",
+      "tool.sql-to-rust.description": "Convertir des instructions SQL CREATE TABLE DDL en structures Rust struct",
+      "sqltorust.presets_title": "Préréglages Rapides",
+      "sqltorust.preset_ecommerce": "Catalogue E-Commerce",
+      "sqltorust.preset_user_auth": "Authentification & Rôles",
+      "sqltorust.framework_label": "Framework / Derives",
+      "sqltorust.casing_label": "Casse des Propriétés",
+      "sqltorust.sql_input_label": "SQL CREATE TABLE DDL",
+      "sqltorust.output_label": "Définitions de Structures Rust",
+      "sqltorust.placeholder_sql": "Collez vos instructions SQL CREATE TABLE DDL ici...",
+      "sqltorust.placeholder_output": "Le code des structures Rust apparaîtra ici...",
+      "sqltorust.no_tables_found": "Aucune instruction CREATE TABLE DDL valide n'a été trouvée.",
+      "sqltorust.error_parsing": "Erreur lors de l'analyse du SQL DDL",
+      "sqltorust.preset_loaded": "Préréglage SQL chargé !",
+      "sqltorust.about_title": "À propos du Convertisseur SQL en Rust",
+      "sqltorust.about_text": "Convertissez des requêtes SQL CREATE TABLE DDL en structures Rust struct fortement typées. Prise en charge des attributs serde, sqlx et diesel, de la nullabilité avec Option<T>, des types de date/heure chrono, de uuid::Uuid et de l'échappement des mots-clés réservés Rust."
     }
   }
 };

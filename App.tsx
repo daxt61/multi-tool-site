@@ -618,6 +618,7 @@ const SQLToJSONSchema = lazy(() => import("./components/SQLToJSONSchema").then(m
 const SQLToCSharp = lazy(() => import("./components/SQLToCSharp").then(m => ({ default: m.SQLToCSharp })));
 const SQLToKotlin = lazy(() => import("./components/SQLToKotlin").then(m => ({ default: m.SQLToKotlin })));
 const SQLToGo = lazy(() => import("./components/SQLToGo").then(m => ({ default: m.SQLToGo })));
+const SQLToRust = lazy(() => import("./components/SQLToRust").then(m => ({ default: m.SQLToRust })));
 const SQLToZod = lazy(() => import("./components/SQLToZod").then(m => ({ default: m.SQLToZod })));
 const SQLToTypeBox = lazy(() => import("./components/SQLToTypeBox").then(m => ({ default: m.SQLToTypeBox })));
 const ImagePixelator = lazy(() => import("./components/ImagePixelator").then(m => ({ default: m.ImagePixelator })));
@@ -658,6 +659,18 @@ const categories: Category[] = [
 ];
 
 const tools: Tool[] = [
+  // SQL DDL to Rust Struct Generator Tool
+  {
+    id: "sql-to-rust",
+    name: "SQL DDL en Rust",
+    nameEn: "SQL DDL to Rust Structs",
+    icon: FileCode,
+    description: "Convertir des instructions SQL CREATE TABLE DDL en structures Rust struct typées",
+    descriptionEn: "Convert SQL CREATE TABLE DDL statements into strongly-typed Rust struct definitions",
+    Component: SQLToRust,
+    category: "dev",
+    keywords: ["sql", "ddl", "create table", "rust", "struct", "serde", "sqlx", "diesel", "convert", "convertir"],
+  },
   // SQL DDL to TypeBox Schema Converter Tool
   {
     id: "sql-to-typebox",

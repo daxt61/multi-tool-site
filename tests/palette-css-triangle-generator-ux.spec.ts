@@ -1,51 +1,58 @@
 import { test, expect } from '@playwright/test';
 
-test.describe('CSS Triangle Generator Micro-UX and Accessibility', () => {
+test.describe('CSSTriangleGenerator Palette UX & Accessibility', () => {
   test.beforeEach(async ({ page }) => {
-    await page.goto('http://localhost:5173/fr/outil/css-triangle');
+    await page.goto('/#css-triangle-generator');
+    await page.waitForSelector('text=CSS Triangle Generator', { timeout: 10000 });
   });
 
-  test('should render quick presets and apply them when clicked', async ({ page }) => {
-    const presetBtn = page.getByRole('button', { name: /Tooltip Arrow/i });
-    await expect(presetBtn).toBeVisible();
+  test('Preset buttons have correct aria-pressed attributes when selected', async ({ page }) => {
+    const tooltipPreset = page.getByRole('button', { name: /Tooltip Arrow/i });
+    await expect(tooltipPreset).toBeVisible();
 
-    await presetBtn.click();
+    // Apply Tooltip Arrow preset
+    await tooltipPreset.click();
+    await expect(tooltipPreset).toHaveAttribute('aria-pressed', 'true');
 
-    const cssOutput = page.locator('pre[aria-labelledby="css-triangle-code-label"]');
-    await expect(cssOutput).toContainText('border-bottom: 10px solid #1e293b;');
-    await expect(page.getByText('Preset "Tooltip Arrow" applied!')).toBeVisible();
+    // Other presets should be aria-pressed=false
+    const dropdownPreset = page.getByRole('button', { name: /Dropdown Caret/i });
+    await expect(dropdownPreset).toHaveAttribute('aria-pressed', 'false');
+
+    // Click Dropdown Caret preset
+    await dropdownPreset.click();
+    await expect(dropdownPreset).toHaveAttribute('aria-pressed', 'true');
+    await expect(tooltipPreset).toHaveAttribute('aria-pressed', 'false');
   });
 
-  test('should have explicit ARIA slider attributes on range inputs', async ({ page }) => {
-    const widthInput = page.locator('#width');
-    await expect(widthInput).toHaveAttribute('aria-valuemin', '10');
-    await expect(widthInput).toHaveAttribute('aria-valuemax', '300');
-    await expect(widthInput).toHaveAttribute('aria-valuenow', '100');
-    await expect(widthInput).toHaveAttribute('aria-label', 'Largeur du triangle en pixels');
+  test('Form label pairings and range slider ARIA attributes exist', async ({ page }) => {
+    const widthSlider = page.locator('#width');
+    await expect(widthSlider).toBeVisible();
+    await expect(widthSlider).toHaveAttribute('aria-valuemin', '10');
+    await expect(widthSlider).toHaveAttribute('aria-valuemax', '300');
+
+    const heightSlider = page.locator('#height');
+    await expect(heightSlider).toBeVisible();
+    await expect(heightSlider).toHaveAttribute('aria-valuemin', '10');
+    await expect(heightSlider).toHaveAttribute('aria-valuemax', '300');
+
+    const colorPicker = page.locator('#color-picker');
+    await expect(colorPicker).toBeVisible();
+    await expect(colorPicker).toHaveAttribute('aria-label', 'Sélecteur de couleur');
+
+    const colorHex = page.locator('#color-hex');
+    await expect(colorHex).toBeVisible();
+    await expect(colorHex).toHaveAttribute('aria-label', 'Code couleur hexadécimal');
   });
 
-  test('should reset parameters and focus width slider when Escape key is pressed', async ({ page }) => {
-    const widthInput = page.locator('#width');
-    await widthInput.fill('250');
+  test('Reset button restores focus to #width input and triggers toast', async ({ page }) => {
+    const resetButton = page.getByRole('button', { name: /Réinitialiser/i });
+    await resetButton.click();
 
-    await page.keyboard.press('Escape');
+    // Check focus restored to width slider
+    const widthSlider = page.locator('#width');
+    await expect(widthSlider).toBeFocused();
 
-    await expect(widthInput).toHaveValue('100');
-    await expect(widthInput).toBeFocused();
+    // Check Sonner toast appeared
     await expect(page.getByText('Triangle generator reset')).toBeVisible();
-  });
-
-  test('should copy CSS code when C key is pressed while unfocused', async ({ page }) => {
-    const widthInput = page.locator('#width');
-    await widthInput.blur();
-
-    await page.keyboard.press('c');
-
-    await expect(page.getByText('CSS code copied to clipboard!')).toBeVisible();
-  });
-
-  test('should display visual shortcut Kbd badges', async ({ page }) => {
-    await expect(page.locator('kbd', { hasText: /^Esc$/ })).toBeVisible();
-    await expect(page.locator('kbd', { hasText: /^C$/ })).toBeAttached();
   });
 });

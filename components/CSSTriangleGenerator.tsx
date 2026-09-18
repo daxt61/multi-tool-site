@@ -133,24 +133,27 @@ export function CSSTriangleGenerator({ initialData, onStateChange }: { initialDa
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
       const activeElement = document.activeElement;
-      const isEditable =
-        activeElement instanceof HTMLInputElement ||
+      const isTextInput =
+        (activeElement instanceof HTMLInputElement &&
+          ['text', 'search', 'email', 'password', 'url', 'number', 'tel'].includes(activeElement.type)) ||
         activeElement instanceof HTMLTextAreaElement ||
         (activeElement as HTMLElement)?.isContentEditable;
 
-      const isBodyOrComponent =
-        !activeElement ||
+      const isInsideContainer =
+        containerRef.current?.contains(activeElement as Node) ||
         activeElement === document.body ||
-        containerRef.current?.contains(activeElement as Node);
+        !activeElement;
 
-      if (e.key === 'Escape' && isBodyOrComponent) {
+      if (!isInsideContainer) return;
+
+      if (e.key === 'Escape') {
         e.preventDefault();
         handlersRef.current.handleReset();
         return;
       }
 
       if ((e.key === 'c' || e.key === 'C') && !e.metaKey && !e.ctrlKey && !e.altKey) {
-        if (!isEditable && isBodyOrComponent) {
+        if (!isTextInput) {
           e.preventDefault();
           handlersRef.current.handleCopy();
         }
@@ -180,21 +183,38 @@ export function CSSTriangleGenerator({ initialData, onStateChange }: { initialDa
           <Sparkles className="w-4 h-4 text-indigo-500" aria-hidden="true" /> Quick Presets
         </div>
         <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
-          {PRESETS.map((preset) => (
-            <button
-              key={preset.id}
-              type="button"
-              onClick={() => handleApplyPreset(preset)}
-              className="px-4 py-3 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-2xl hover:border-indigo-500 dark:hover:border-indigo-500 hover:shadow-md transition-all text-left group"
-            >
-              <span className="text-xs font-bold text-slate-700 dark:text-slate-200 group-hover:text-indigo-600 dark:group-hover:text-indigo-400 transition-colors block">
-                {preset.name}
-              </span>
-              <span className="text-[10px] text-slate-400 font-mono block mt-0.5">
-                {preset.width}x{preset.height}px ({preset.direction})
-              </span>
-            </button>
-          ))}
+          {PRESETS.map((preset) => {
+            const isSelected =
+              preset.direction === direction &&
+              preset.width === width &&
+              preset.height === height &&
+              preset.color.toLowerCase() === color.toLowerCase();
+
+            return (
+              <button
+                key={preset.id}
+                type="button"
+                onClick={() => handleApplyPreset(preset)}
+                aria-pressed={isSelected}
+                className={`px-4 py-3 rounded-2xl border transition-all text-left group ${
+                  isSelected
+                    ? 'bg-indigo-50 dark:bg-indigo-900/30 border-indigo-500 dark:border-indigo-500 ring-2 ring-indigo-500/20 shadow-sm'
+                    : 'bg-white dark:bg-slate-800 border-slate-200 dark:border-slate-700 hover:border-indigo-500 dark:hover:border-indigo-500 hover:shadow-md'
+                }`}
+              >
+                <span className={`text-xs font-bold transition-colors block ${
+                  isSelected
+                    ? 'text-indigo-600 dark:text-indigo-400'
+                    : 'text-slate-700 dark:text-slate-200 group-hover:text-indigo-600 dark:group-hover:text-indigo-400'
+                }`}>
+                  {preset.name}
+                </span>
+                <span className="text-[10px] text-slate-400 font-mono block mt-0.5">
+                  {preset.width}x{preset.height}px ({preset.direction})
+                </span>
+              </button>
+            );
+          })}
         </div>
       </div>
 

@@ -616,6 +616,7 @@ const CSVToNDJSON = lazy(() => import("./components/CSVToNDJSON").then(m => ({ d
 const NDJSONToCSV = lazy(() => import("./components/NDJSONToCSV").then(m => ({ default: m.NDJSONToCSV })));
 const SQLToJSONSchema = lazy(() => import("./components/SQLToJSONSchema").then(m => ({ default: m.SQLToJSONSchema })));
 const SQLToCSharp = lazy(() => import("./components/SQLToCSharp").then(m => ({ default: m.SQLToCSharp })));
+const SQLToSQLAlchemy = lazy(() => import("./components/SQLToSQLAlchemy").then(m => ({ default: m.SQLToSQLAlchemy })));
 const SQLToKotlin = lazy(() => import("./components/SQLToKotlin").then(m => ({ default: m.SQLToKotlin })));
 const SQLToGo = lazy(() => import("./components/SQLToGo").then(m => ({ default: m.SQLToGo })));
 const SQLToRust = lazy(() => import("./components/SQLToRust").then(m => ({ default: m.SQLToRust })));
@@ -743,6 +744,18 @@ const tools: Tool[] = [
     Component: SQLToGo,
     category: "dev",
     keywords: ["sql", "ddl", "create table", "go", "golang", "struct", "gorm", "json", "convert", "convertir"],
+  },
+  // SQL DDL to SQLAlchemy Models Generator Tool
+  {
+    id: "sql-to-sqlalchemy",
+    name: "SQL DDL en SQLAlchemy",
+    nameEn: "SQL DDL to SQLAlchemy",
+    icon: Database,
+    description: "Convertir des instructions SQL CREATE TABLE DDL en modèles ORM Python SQLAlchemy 2.0 / 1.4",
+    descriptionEn: "Convert SQL CREATE TABLE DDL statements into Python SQLAlchemy 2.0 / 1.4 ORM models",
+    Component: SQLToSQLAlchemy,
+    category: "dev",
+    keywords: ["sql", "ddl", "create table", "sqlalchemy", "orm", "python", "base", "mapped", "column", "convert", "convertir"],
   },
   // SQL DDL to C# Class Generator Tool
   {

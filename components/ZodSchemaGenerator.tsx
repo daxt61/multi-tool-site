@@ -314,7 +314,7 @@ export function ZodSchemaGenerator({ initialData, onStateChange }: { initialData
   };
 
   return (
-    <div className="max-w-5xl mx-auto space-y-8" role="region" aria-label={t('zonschemato_ts.title') || 'Zod Schema Generator'}>
+    <div className="max-w-5xl mx-auto space-y-8" role="region" aria-label={t('zodschema.title') || 'Zod Schema Generator'}>
       {/* Header controls & badges */}
       <div className="flex justify-end gap-3 px-1 items-center">
         <span className="flex items-center gap-1.5 text-xs font-bold text-slate-400">
@@ -411,7 +411,7 @@ export function ZodSchemaGenerator({ initialData, onStateChange }: { initialData
               {/* Output Style */}
               <div className="space-y-2">
                 <label htmlFor="output-style" className="text-xs font-bold text-slate-500 dark:text-slate-400 block">
-                  {t('jsonschemato_ts.output_format') || 'Output Style'}
+                  {t('zod.output_format') || 'Output Style'}
                 </label>
                 <select
                   id="output-style"
@@ -427,7 +427,7 @@ export function ZodSchemaGenerator({ initialData, onStateChange }: { initialData
               {/* Variable Name */}
               <div className="space-y-2">
                 <label htmlFor="variable-name" className="text-xs font-bold text-slate-500 dark:text-slate-400 block">
-                  {t('jsonschemato_ts.root_name') || 'Variable / Schema Name'}
+                  {t('zod.root_name') || 'Variable / Schema Name'}
                 </label>
                 <input
                   id="variable-name"

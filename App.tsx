@@ -622,6 +622,7 @@ const SQLToRust = lazy(() => import("./components/SQLToRust").then(m => ({ defau
 const SQLToZod = lazy(() => import("./components/SQLToZod").then(m => ({ default: m.SQLToZod })));
 const SQLToTypeBox = lazy(() => import("./components/SQLToTypeBox").then(m => ({ default: m.SQLToTypeBox })));
 const ImagePixelator = lazy(() => import("./components/ImagePixelator").then(m => ({ default: m.ImagePixelator })));
+const TSVTester = lazy(() => import("./components/TSVTester").then(m => ({ default: m.TSVTester })));
 
 // ⚡ Bolt Optimization: Pre-calculating tool map and search index for O(1) lookups and faster filtering
 const toolsMap: Record<string, Tool> = {};
@@ -659,6 +660,18 @@ const categories: Category[] = [
 ];
 
 const tools: Tool[] = [
+  // TSV Tester & Validator Tool
+  {
+    id: "tsv-tester",
+    name: "Testeur & Validateur TSV",
+    nameEn: "TSV Tester & Validator",
+    icon: FileSearch,
+    description: "Analyser, valider et vérifier la qualité des données des fichiers TSV",
+    descriptionEn: "Test, validate, and check data quality in tab-separated value (TSV) files",
+    Component: TSVTester,
+    category: "dev",
+    keywords: ["tsv", "tab", "validator", "tester", "quality", "columns", "empty cells", "duplicates", "types", "testeur", "valider"],
+  },
   // SQL DDL to Rust Struct Generator Tool
   {
     id: "sql-to-rust",

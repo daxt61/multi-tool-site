@@ -17,16 +17,18 @@ export function JSONToProperties({ initialData, onStateChange }: { initialData?:
   }, [input, output, onStateChange]);
 
   const escapeKey = (str: string) => {
+    // Sentinel: Sanitize and escape key characters to prevent Java .properties key breakout or comment injection
     return str
       .replace(/\\/g, '\\\\')
       .replace(/\n/g, '\\n')
       .replace(/\r/g, '\\r')
       .replace(/\t/g, '\\t')
       .replace(/\f/g, '\\f')
-      .replace(/[ =:]/g, (m) => `\\${m}`);
+      .replace(/[ =:#!]/g, (m) => `\\${m}`);
   };
 
   const escapeValue = (val: any) => {
+    // Sentinel: Escape control characters and newlines in values to prevent .properties line breakout
     return String(val)
       .replace(/\\/g, '\\\\')
       .replace(/\n/g, '\\n')
@@ -43,6 +45,7 @@ export function JSONToProperties({ initialData, onStateChange }: { initialData?:
     if (obj === null || obj === undefined) return '';
 
     for (const [key, value] of Object.entries(obj)) {
+      if (!Object.prototype.hasOwnProperty.call(obj, key)) continue;
       const escapedKey = escapeKey(key);
       const fullKey = prefix ? `${prefix}.${escapedKey}` : escapedKey;
 

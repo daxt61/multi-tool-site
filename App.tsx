@@ -615,6 +615,7 @@ const JSONToTypeBox = lazy(() => import("./components/JSONToTypeBox").then(m => 
 const CSVToNDJSON = lazy(() => import("./components/CSVToNDJSON").then(m => ({ default: m.CSVToNDJSON })));
 const NDJSONToCSV = lazy(() => import("./components/NDJSONToCSV").then(m => ({ default: m.NDJSONToCSV })));
 const SQLToJSONSchema = lazy(() => import("./components/SQLToJSONSchema").then(m => ({ default: m.SQLToJSONSchema })));
+const SQLToJava = lazy(() => import("./components/SQLToJava").then(m => ({ default: m.SQLToJava })));
 const SQLToCSharp = lazy(() => import("./components/SQLToCSharp").then(m => ({ default: m.SQLToCSharp })));
 const SQLToSQLAlchemy = lazy(() => import("./components/SQLToSQLAlchemy").then(m => ({ default: m.SQLToSQLAlchemy })));
 const SQLToKotlin = lazy(() => import("./components/SQLToKotlin").then(m => ({ default: m.SQLToKotlin })));
@@ -756,6 +757,18 @@ const tools: Tool[] = [
     Component: SQLToSQLAlchemy,
     category: "dev",
     keywords: ["sql", "ddl", "create table", "sqlalchemy", "orm", "python", "base", "mapped", "column", "convert", "convertir"],
+  },
+  // SQL DDL to Java Class Generator Tool
+  {
+    id: "sql-to-java",
+    name: "SQL DDL en Java",
+    nameEn: "SQL DDL to Java POJOs",
+    icon: Database,
+    description: "Convertir des instructions SQL CREATE TABLE DDL en classes Java POJO, entités JPA ou records",
+    descriptionEn: "Convert SQL CREATE TABLE DDL statements into Java POJOs, JPA entities, or Java records",
+    Component: SQLToJava,
+    category: "dev",
+    keywords: ["sql", "ddl", "create table", "java", "pojo", "jpa", "hibernate", "lombok", "jackson", "record", "convert", "convertir"],
   },
   // SQL DDL to C# Class Generator Tool
   {

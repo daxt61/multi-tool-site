@@ -291,6 +291,7 @@ const SitemapGenerator = lazy(() => import("./components/SitemapGenerator").then
 const JSONToSQL = lazy(() => import("./components/JSONToSQL").then(m => ({ default: m.JSONToSQL })));
 const SQLToCSV = lazy(() => import("./components/SQLToCSV").then(m => ({ default: m.SQLToCSV })));
 const JSONToBigQuery = lazy(() => import("./components/JSONToBigQuery").then(m => ({ default: m.JSONToBigQuery })));
+const SQLToBigQuery = lazy(() => import("./components/SQLToBigQuery").then(m => ({ default: m.SQLToBigQuery })));
 const StringEscaper = lazy(() => import("./components/StringEscaper").then(m => ({ default: m.StringEscaper })));
 const FlexboxGenerator = lazy(() => import("./components/FlexboxGenerator").then(m => ({ default: m.FlexboxGenerator })));
 const JSONToGo = lazy(() => import("./components/JSONToGo").then(m => ({ default: m.JSONToGo })));
@@ -2372,6 +2373,17 @@ const tools: Tool[] = [
     Component: JSONToBigQuery,
     category: "dev",
     keywords: ["bigquery", "google", "cloud", "schema", "json", "sql", "data warehouse"],
+  },
+  {
+    id: "sql-to-bigquery",
+    name: "SQL DDL en BigQuery",
+    nameEn: "SQL DDL to BigQuery",
+    icon: Database,
+    description: "Convertir des requêtes SQL CREATE TABLE en schéma BigQuery",
+    descriptionEn: "Convert SQL CREATE TABLE DDL statements into BigQuery schema",
+    Component: SQLToBigQuery,
+    category: "dev",
+    keywords: ["sql", "bigquery", "ddl", "schema", "google", "cloud", "create table", "data warehouse"],
   },
   {
     id: "json-formatter",

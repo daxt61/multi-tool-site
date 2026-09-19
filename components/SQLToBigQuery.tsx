@@ -1,14 +1,12 @@
 import React, { useState, useEffect, useCallback, useRef } from 'react';
-import { FileCode, Braces, Copy, Check, Trash2, AlertCircle, Download, Database, Sparkles, RefreshCw } from 'lucide-react';
+import { Database, FileCode, Copy, Check, Trash2, AlertCircle, Download, Sparkles, RefreshCw } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import { toast } from 'sonner';
 
 const MAX_LENGTH = 100000;
-const MAX_DEPTH = 20;
 
 type CasingOption = 'original' | 'camelCase' | 'snake_case' | 'PascalCase';
 type OutputFormatMode = 'json_schema' | 'sql_ddl';
-type NullabilityMode = 'NULLABLE' | 'REQUIRED';
 
 interface Preset {
   id: string;
@@ -16,92 +14,61 @@ interface Preset {
   data: string;
 }
 
-const JSON_BIGQUERY_PRESETS: Preset[] = [
+const SQL_BIGQUERY_PRESETS: Preset[] = [
   {
-    id: 'user_auth',
-    label: 'User Auth & Sessions',
-    data: JSON.stringify(
-      [
-        {
-          user_id: 'usr_88910a',
-          email: 'alex.dev@example.com',
-          profile: {
-            full_name: 'Alex Rivera',
-            age: 29,
-            is_verified: true,
-            created_at: '2023-08-15T10:30:00Z'
-          },
-          roles: ['admin', 'developer'],
-          login_attempts: 3,
-          last_login_date: '2024-02-20'
-        }
-      ],
-      null,
-      2
-    )
+    id: 'ecommerce_orders',
+    label: 'E-Commerce Orders',
+    data: `CREATE TABLE orders (
+  order_id INT PRIMARY KEY,
+  customer_id INT NOT NULL,
+  total_amount DECIMAL(10,2) NOT NULL,
+  status VARCHAR(50) DEFAULT 'pending',
+  is_paid BOOLEAN DEFAULT FALSE,
+  created_at TIMESTAMP NOT NULL,
+  shipping_address TEXT,
+  items JSON
+);`
   },
   {
-    id: 'ecommerce_order',
-    label: 'E-Commerce Order Payload',
-    data: JSON.stringify(
-      {
-        order_id: 'ord_9021',
-        customer_id: 10452,
-        total_amount: 149.99,
-        status: 'SHIPPED',
-        is_paid: true,
-        order_date: '2024-01-15',
-        shipping_address: {
-          street: '123 Tech Boulevard',
-          city: 'San Francisco',
-          zip_code: '94105',
-          country: 'USA'
-        },
-        items: [
-          { item_id: 'p_101', title: 'Wireless Ergonomic Keyboard', quantity: 1, unit_price: 99.99 },
-          { item_id: 'p_102', title: 'Precision Optical Mouse', quantity: 1, unit_price: 50.00 }
-        ]
-      },
-      null,
-      2
-    )
+    id: 'user_profiles',
+    label: 'User Accounts & Profiles',
+    data: `CREATE TABLE users (
+  user_id VARCHAR(36) NOT NULL,
+  email VARCHAR(255) NOT NULL,
+  full_name VARCHAR(100),
+  bio TEXT,
+  age INT,
+  is_active BOOLEAN NOT NULL DEFAULT TRUE,
+  joined_at DATE NOT NULL,
+  last_login_at DATETIME
+);`
   },
   {
-    id: 'iot_sensor',
-    label: 'IoT Device Sensor Data',
-    data: JSON.stringify(
-      [
-        {
-          device_id: 'sensor-node-07',
-          firmware_version: 'v2.4.1',
-          uptime_seconds: 86400,
-          readings: {
-            temperature_c: 21.8,
-            humidity_pct: 45.2,
-            pressure_hpa: 1013.25
-          },
-          tags: ['datacenter', 'zone-a', 'rack-12'],
-          recorded_at: '2024-02-28T14:22:10.500Z'
-        }
-      ],
-      null,
-      2
-    )
+    id: 'analytics_events',
+    label: 'Analytics Events Log',
+    data: `CREATE TABLE event_logs (
+  event_id VARCHAR(64) NOT NULL,
+  event_name VARCHAR(100) NOT NULL,
+  user_id INT,
+  session_id VARCHAR(128),
+  payload JSON,
+  ip_address VARCHAR(45),
+  user_agent TEXT,
+  created_at TIMESTAMP NOT NULL
+);`
   }
 ];
 
-export function JSONToBigQuery({ initialData, onStateChange }: { initialData?: any; onStateChange?: (state: any) => void }) {
+export function SQLToBigQuery({ initialData, onStateChange }: { initialData?: any; onStateChange?: (state: any) => void }) {
   const { t } = useTranslation();
-  const [input, setInput] = useState(initialData?.input || JSON_BIGQUERY_PRESETS[0].data);
+  const [input, setInput] = useState(initialData?.input || SQL_BIGQUERY_PRESETS[0].data);
   const [output, setOutput] = useState(initialData?.output || '');
   const [error, setError] = useState('');
   const [copied, setCopied] = useState(false);
-  const [activePreset, setActivePreset] = useState<string | null>('user_auth');
+  const [activePreset, setActivePreset] = useState<string | null>('ecommerce_orders');
   const [casing, setCasing] = useState<CasingOption>('original');
   const [outputFormat, setOutputFormat] = useState<OutputFormatMode>('json_schema');
-  const [defaultMode, setDefaultMode] = useState<NullabilityMode>('NULLABLE');
   const [datasetName, setDatasetName] = useState('analytics');
-  const [tableName, setTableName] = useState('events');
 
   const primaryInputRef = useRef<HTMLTextAreaElement>(null);
   const containerRef = useRef<HTMLDivElement>(null);
@@ -150,82 +117,90 @@ export function JSONToBigQuery({ initialData, onStateChange }: { initialData?: a
     return safeKey;
   };
 
-  const inferBigQueryType = (val: any): string => {
-    if (val === null || val === undefined) return 'STRING';
-    if (typeof val === 'boolean') return 'BOOL';
-    if (typeof val === 'number') {
-      return Number.isInteger(val) ? 'INT64' : 'FLOAT64';
-    }
-    if (typeof val === 'string') {
-      if (/^\d{4}-\d{2}-\d{2}$/.test(val)) return 'DATE';
-      if (/^\d{4}-\d{2}-\d{2}[T ]\d{2}:\d{2}:\d{2}(\.\d+)?Z?$/.test(val)) return 'TIMESTAMP';
-      return 'STRING';
-    }
+  const mapSqlTypeToBigQuery = (typeStr: string): string => {
+    const cleanType = typeStr.toUpperCase().trim();
+
+    if (cleanType.includes('INT') || cleanType.includes('SERIAL')) return 'INT64';
+    if (cleanType.includes('FLOAT') || cleanType.includes('DOUBLE') || cleanType.includes('REAL')) return 'FLOAT64';
+    if (cleanType.includes('DECIMAL') || cleanType.includes('NUMERIC')) return 'NUMERIC';
+    if (cleanType.includes('BOOL')) return 'BOOL';
+    if (cleanType.includes('TIMESTAMP') || cleanType.includes('TIMESTAMPTZ')) return 'TIMESTAMP';
+    if (cleanType.includes('DATETIME')) return 'DATETIME';
+    if (cleanType.includes('DATE')) return 'DATE';
+    if (cleanType.includes('TIME')) return 'TIME';
+    if (cleanType.includes('BLOB') || cleanType.includes('BYTEA') || cleanType.includes('BINARY')) return 'BYTES';
+    if (cleanType.includes('JSON')) return 'JSON';
+    if (cleanType.includes('GEOMETRY') || cleanType.includes('GEOGRAPHY')) return 'GEOGRAPHY';
+
     return 'STRING';
   };
 
-  const generateSchema = (obj: any, depth = 0, currentCasing = casing, mode = defaultMode): any[] => {
-    if (depth > MAX_DEPTH) return [];
-    if (typeof obj !== 'object' || obj === null) return [];
+  const parseSqlDdl = (sql: string): { tableName: string; fields: any[] } => {
+    // Basic CREATE TABLE parser
+    const tableMatch = sql.match(/CREATE\ TABLE\s+(?:IF\ NOT\ EXISTS\s+)?\`?([a-zA-Z0-9_\.]+)\`?\s*\(([\s\S]*)\)/i);
+    if (!tableMatch) {
+      throw new Error('No valid CREATE TABLE statement found');
+    }
 
-    return Object.entries(obj).map(([key, value]) => {
-      const fieldName = sanitizeBigQueryName(key, currentCasing);
-      const field: any = Object.create(null);
-      field.name = fieldName;
-      field.mode = mode;
+    let fullTableName = tableMatch[1].replace(/[\`\"\[\]]/g, '');
+    const tableName = fullTableName.includes('.') ? fullTableName.split('.').pop()! : fullTableName;
+    const body = tableMatch[2];
 
-      if (Array.isArray(value)) {
-        field.mode = 'REPEATED';
-        const firstElem = value[0];
-        if (typeof firstElem === 'object' && firstElem !== null) {
-          field.type = 'RECORD';
-          field.fields = generateSchema(firstElem, depth + 1, currentCasing, mode);
-        } else {
-          field.type = inferBigQueryType(firstElem);
-        }
-      } else if (typeof value === 'object' && value !== null) {
-        field.type = 'RECORD';
-        field.fields = generateSchema(value, depth + 1, currentCasing, mode);
+    const lines = body.split(',\n');
+    const fields: any[] = [];
+
+    // Helper to process line-by-line
+    const linesToProcess: string[] = [];
+    let currentLine = '';
+    let parenDepth = 0;
+
+    for (let i = 0; i < body.length; i++) {
+      const char = body[i];
+      if (char === '(') parenDepth++;
+      if (char === ')') parenDepth--;
+
+      if (char === ',' && parenDepth === 0) {
+        linesToProcess.push(currentLine.trim());
+        currentLine = '';
       } else {
-        field.type = inferBigQueryType(value);
+        currentLine += char;
+      }
+    }
+    if (currentLine.trim()) {
+      linesToProcess.push(currentLine.trim());
+    }
+
+    for (const rawLine of linesToProcess) {
+      const line = rawLine.trim();
+      if (!line) continue;
+
+      // Skip table-level constraints
+      if (
+        /^(PRIMARY\ KEY|FOREIGN\ KEY|UNIQUE|CONSTRAINT|CHECK|INDEX|KEY)\b/i.test(line)
+      ) {
+        continue;
       }
 
-      return field;
-    });
-  };
+      const columnMatch = line.match(/^\`?([a-zA-Z0-9_]+)\`?\s+([a-zA-Z0-9_\(\),\s]+)(.*)$/);
+      if (columnMatch) {
+        const colName = columnMatch[1];
+        const rawType = columnMatch[2].split(/\s+/)[0];
+        const rest = columnMatch[3] || '';
 
-  const schemaToSqlDdl = (fields: any[], dataset: string, table: string, indent = 2): string => {
-    const cleanDataset = dataset.trim().replace(/[^a-zA-Z0-9_]/g, '') || 'dataset';
-    const cleanTable = table.trim().replace(/[^a-zA-Z0-9_]/g, '') || 'my_table';
+        const bqType = mapSqlTypeToBigQuery(rawType);
+        const isNotNull = /NOT\ NULL/i.test(line);
+        const isArray = /ARRAY/i.test(line) || /\[\]/.test(line);
 
-    const renderFields = (fieldList: any[], level = 1): string => {
-      const spaces = ' '.repeat(level * indent);
-      return fieldList
-        .map((f) => {
-          const fieldName = f.name;
-          const fieldType = f.type;
-          const fieldMode = f.mode === 'REPEATED' ? ' ARRAY' : '';
-          const notNull = f.mode === 'REQUIRED' ? ' NOT NULL' : '';
+        const field: any = Object.create(null);
+        field.name = sanitizeBigQueryName(colName, casing);
+        field.type = bqType;
+        field.mode = isArray ? 'REPEATED' : isNotNull ? 'REQUIRED' : 'NULLABLE';
 
-          if (fieldType === 'RECORD' && Array.isArray(f.fields)) {
-            const innerFields = renderFields(f.fields, level + 1);
-            if (f.mode === 'REPEATED') {
-              return `${spaces}${fieldName} ARRAY<STRUCT<\n${innerFields}\n${spaces}>>`;
-            }
-            return `${spaces}${fieldName} STRUCT<\n${innerFields}\n${spaces}>${notNull}`;
-          }
+        fields.push(field);
+      }
+    }
 
-          if (f.mode === 'REPEATED') {
-            return `${spaces}${fieldName} ARRAY<${fieldType}>`;
-          }
-
-          return `${spaces}${fieldName} ${fieldType}${notNull}`;
-        })
-        .join(',\n');
-    };
-
-    const body = renderFields(fields, 1);
-    return `CREATE TABLE \`${cleanDataset}.${cleanTable}\` (\n${body}\n);`;
+    return { tableName, fields };
   };
 
   const handleConvert = useCallback(() => {
@@ -241,43 +216,43 @@ export function JSONToBigQuery({ initialData, onStateChange }: { initialData?: a
         return;
       }
 
-      const parsed = JSON.parse(input);
-      let sample = parsed;
-      if (Array.isArray(parsed)) {
-        if (parsed.length === 0) {
-          setError(t('jsontosql.error_empty') || 'Array cannot be empty');
-          return;
-        }
-        sample = parsed.slice(0, 5).reduce((acc: any, curr: any) => {
-          if (typeof curr === 'object' && curr !== null) {
-            const merged = Object.create(null);
-            Object.assign(merged, acc, curr);
-            return merged;
-          }
-          return acc;
-        }, Object.create(null));
+      const { tableName, fields } = parseSqlDdl(input);
+
+      if (fields.length === 0) {
+        setError('No valid columns found in CREATE TABLE statement');
+        return;
       }
 
-      const schema = generateSchema(sample, 0, casing, defaultMode);
-
       if (outputFormat === 'sql_ddl') {
-        setOutput(schemaToSqlDdl(schema, datasetName, tableName));
+        const cleanDataset = datasetName.trim().replace(/[^a-zA-Z0-9_]/g, '') || 'dataset';
+        const cleanTable = tableName.trim().replace(/[^a-zA-Z0-9_]/g, '') || 'table';
+
+        const bodyLines = fields.map((f) => {
+          const notNull = f.mode === 'REQUIRED' ? ' NOT NULL' : '';
+          if (f.mode === 'REPEATED') {
+            return `  ${f.name} ARRAY<${f.type}>`;
+          }
+          return `  ${f.name} ${f.type}${notNull}`;
+        });
+
+        const sqlDdlOutput = `CREATE TABLE \`${cleanDataset}.${cleanTable}\` (\n${bodyLines.join(',\n')}\n);`;
+        setOutput(sqlDdlOutput);
       } else {
-        setOutput(JSON.stringify(schema, null, 2));
+        setOutput(JSON.stringify(fields, null, 2));
       }
       setError('');
     } catch (e: any) {
-      setError(t('error.invalid_json') + ': ' + e.message);
+      setError('SQL Parsing Error: ' + e.message);
     }
-  }, [input, casing, defaultMode, outputFormat, datasetName, tableName, t]);
+  }, [input, casing, outputFormat, datasetName, t]);
 
   useEffect(() => {
     handleConvert();
   }, [handleConvert]);
 
   useEffect(() => {
-    onStateChange?.({ input, output, casing, outputFormat, defaultMode, datasetName, tableName });
-  }, [input, output, casing, outputFormat, defaultMode, datasetName, tableName, onStateChange]);
+    onStateChange?.({ input, output, casing, outputFormat, datasetName });
+  }, [input, output, casing, outputFormat, datasetName, onStateChange]);
 
   const handleClear = useCallback(() => {
     setInput('');
@@ -339,7 +314,7 @@ export function JSONToBigQuery({ initialData, onStateChange }: { initialData?: a
     const url = URL.createObjectURL(blob);
     const link = document.createElement('a');
     link.href = url;
-    link.download = `bq-schema-${Date.now()}.${extension}`;
+    link.download = `bq-schema-sql-${Date.now()}.${extension}`;
     document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);
@@ -354,11 +329,11 @@ export function JSONToBigQuery({ initialData, onStateChange }: { initialData?: a
         <div className="flex items-center gap-2 mb-3 px-1">
           <Sparkles className="w-4 h-4 text-amber-500" />
           <span className="text-xs font-bold text-slate-500 uppercase tracking-wider">
-            {t('jsontobigquery.presets_title') || 'Quick Start Presets'}
+            {t('sqltobigquery.presets_title') || 'Quick Start SQL Presets'}
           </span>
         </div>
         <div className="flex flex-wrap gap-2">
-          {JSON_BIGQUERY_PRESETS.map((preset) => (
+          {SQL_BIGQUERY_PRESETS.map((preset) => (
             <button
               key={preset.id}
               onClick={() => handleApplyPreset(preset)}
@@ -369,7 +344,7 @@ export function JSONToBigQuery({ initialData, onStateChange }: { initialData?: a
                   : 'bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-slate-700'
               }`}
             >
-              <Braces className="w-3.5 h-3.5" />
+              <Database className="w-3.5 h-3.5" />
               {preset.label}
             </button>
           ))}
@@ -377,13 +352,13 @@ export function JSONToBigQuery({ initialData, onStateChange }: { initialData?: a
       </div>
 
       {/* Configuration Controls */}
-      <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 p-6 rounded-3xl shadow-sm grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+      <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 p-6 rounded-3xl shadow-sm grid grid-cols-1 md:grid-cols-3 gap-4">
         <div>
-          <label htmlFor="bq-output-format" className="block text-xs font-bold uppercase tracking-wider text-slate-500 mb-2">
-            {t('jsontobigquery.output_format') || 'Output Mode'}
+          <label htmlFor="sql-bq-output-format" className="block text-xs font-bold uppercase tracking-wider text-slate-500 mb-2">
+            {t('sqltobigquery.output_format') || 'Output Mode'}
           </label>
           <select
-            id="bq-output-format"
+            id="sql-bq-output-format"
             value={outputFormat}
             onChange={(e) => setOutputFormat(e.target.value as OutputFormatMode)}
             className="w-full p-2.5 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-xs font-bold dark:text-white outline-none focus:ring-2 focus:ring-indigo-500"
@@ -394,11 +369,11 @@ export function JSONToBigQuery({ initialData, onStateChange }: { initialData?: a
         </div>
 
         <div>
-          <label htmlFor="bq-casing-select" className="block text-xs font-bold uppercase tracking-wider text-slate-500 mb-2">
-            {t('jsontobigquery.field_casing') || 'Field Casing'}
+          <label htmlFor="sql-bq-casing-select" className="block text-xs font-bold uppercase tracking-wider text-slate-500 mb-2">
+            {t('sqltobigquery.field_casing') || 'Field Casing'}
           </label>
           <select
-            id="bq-casing-select"
+            id="sql-bq-casing-select"
             value={casing}
             onChange={(e) => setCasing(e.target.value as CasingOption)}
             className="w-full p-2.5 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-xs font-bold dark:text-white outline-none focus:ring-2 focus:ring-indigo-500"
@@ -410,47 +385,18 @@ export function JSONToBigQuery({ initialData, onStateChange }: { initialData?: a
           </select>
         </div>
 
-        <div>
-          <label htmlFor="bq-default-mode" className="block text-xs font-bold uppercase tracking-wider text-slate-500 mb-2">
-            {t('jsontobigquery.default_mode') || 'Default Field Mode'}
-          </label>
-          <select
-            id="bq-default-mode"
-            value={defaultMode}
-            onChange={(e) => setDefaultMode(e.target.value as NullabilityMode)}
-            className="w-full p-2.5 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-xs font-bold dark:text-white outline-none focus:ring-2 focus:ring-indigo-500"
-          >
-            <option value="NULLABLE">NULLABLE</option>
-            <option value="REQUIRED">REQUIRED</option>
-          </select>
-        </div>
-
         {outputFormat === 'sql_ddl' && (
-          <div className="grid grid-cols-2 gap-2">
-            <div>
-              <label htmlFor="bq-dataset-name" className="block text-xs font-bold uppercase tracking-wider text-slate-500 mb-2">
-                Dataset
-              </label>
-              <input
-                id="bq-dataset-name"
-                type="text"
-                value={datasetName}
-                onChange={(e) => setDatasetName(e.target.value)}
-                className="w-full p-2.5 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-xs font-bold dark:text-white outline-none focus:ring-2 focus:ring-indigo-500"
-              />
-            </div>
-            <div>
-              <label htmlFor="bq-table-name" className="block text-xs font-bold uppercase tracking-wider text-slate-500 mb-2">
-                Table
-              </label>
-              <input
-                id="bq-table-name"
-                type="text"
-                value={tableName}
-                onChange={(e) => setTableName(e.target.value)}
-                className="w-full p-2.5 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-xs font-bold dark:text-white outline-none focus:ring-2 focus:ring-indigo-500"
-              />
-            </div>
+          <div>
+            <label htmlFor="sql-bq-dataset-name" className="block text-xs font-bold uppercase tracking-wider text-slate-500 mb-2">
+              Dataset Name
+            </label>
+            <input
+              id="sql-bq-dataset-name"
+              type="text"
+              value={datasetName}
+              onChange={(e) => setDatasetName(e.target.value)}
+              className="w-full p-2.5 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-xs font-bold dark:text-white outline-none focus:ring-2 focus:ring-indigo-500"
+            />
           </div>
         )}
       </div>
@@ -467,9 +413,9 @@ export function JSONToBigQuery({ initialData, onStateChange }: { initialData?: a
         <div className="space-y-4">
           <div className="flex justify-between items-center px-1">
             <div className="flex items-center gap-2">
-              <Braces className="w-4 h-4 text-indigo-500" />
-              <label htmlFor="json-bq-input" className="text-xs font-black uppercase tracking-widest text-slate-400 cursor-pointer">
-                {t('jsontobigquery.input_label') || 'JSON Input'}
+              <Database className="w-4 h-4 text-indigo-500" />
+              <label htmlFor="sql-bq-input" className="text-xs font-black uppercase tracking-widest text-slate-400 cursor-pointer">
+                {t('sqltobigquery.input_label') || 'SQL DDL Input'}
               </label>
             </div>
             <div className="flex gap-2 items-center">
@@ -486,14 +432,14 @@ export function JSONToBigQuery({ initialData, onStateChange }: { initialData?: a
             </div>
           </div>
           <textarea
-            id="json-bq-input"
+            id="sql-bq-input"
             ref={primaryInputRef}
             value={input}
             onChange={(e) => {
               setInput(e.target.value);
               setActivePreset(null);
             }}
-            placeholder='[{"id": 1, "name": "Test", "meta": {"created_at": "2023-01-01"}}]'
+            placeholder="CREATE TABLE my_table (id INT PRIMARY KEY, name VARCHAR(100) NOT NULL);"
             className="w-full h-96 p-6 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-3xl outline-none focus:ring-2 focus:ring-indigo-500/20 transition-all font-mono text-sm leading-relaxed dark:text-slate-300 resize-none"
           />
         </div>
@@ -502,8 +448,8 @@ export function JSONToBigQuery({ initialData, onStateChange }: { initialData?: a
           <div className="flex justify-between items-center px-1">
             <div className="flex items-center gap-2">
               <FileCode className="w-4 h-4 text-emerald-500" />
-              <label htmlFor="bq-output" className="text-xs font-black uppercase tracking-widest text-slate-400 cursor-pointer">
-                {t('jsontobigquery.output_label') || 'BigQuery Schema Output'}
+              <label htmlFor="sql-bq-output" className="text-xs font-black uppercase tracking-widest text-slate-400 cursor-pointer">
+                {t('sqltobigquery.output_label') || 'BigQuery Schema Output'}
               </label>
             </div>
             <div className="flex gap-2 items-center">
@@ -532,10 +478,10 @@ export function JSONToBigQuery({ initialData, onStateChange }: { initialData?: a
             </div>
           </div>
           <textarea
-            id="bq-output"
+            id="sql-bq-output"
             value={output}
             readOnly
-            placeholder={t('jsontobigquery.placeholder_output') || 'BigQuery schema will appear here...'}
+            placeholder={t('sqltobigquery.placeholder_output') || 'BigQuery schema will appear here...'}
             className="w-full h-96 p-6 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-3xl outline-none font-mono text-sm leading-relaxed dark:text-slate-300 resize-none"
           />
         </div>
@@ -547,15 +493,15 @@ export function JSONToBigQuery({ initialData, onStateChange }: { initialData?: a
           <Database className="w-6 h-6" />
         </div>
         <div className="space-y-4">
-          <h4 className="font-bold dark:text-white">{t('jsontobigquery.about_title') || 'BigQuery Schema Formats'}</h4>
+          <h4 className="font-bold dark:text-white">{t('sqltobigquery.about_title') || 'SQL DDL to BigQuery Schema'}</h4>
           <p className="text-sm text-slate-500 dark:text-slate-400 leading-relaxed">
-            {t('jsontobigquery.about_text') ||
-              'Google BigQuery supports a JSON schema format and SQL DDL statements for table definitions. This tool converts JSON structures into BigQuery types including STRING, INT64, FLOAT64, BOOL, DATE, TIMESTAMP, and nested RECORD / STRUCT types.'}
+            {t('sqltobigquery.about_text') ||
+              'Convert standard SQL CREATE TABLE DDL queries (from PostgreSQL, MySQL, SQLite, Oracle, or SQL Server) into Google Cloud BigQuery JSON Schema or BigQuery SQL DDL.'}
           </p>
           <ul className="text-sm text-slate-500 dark:text-slate-400 space-y-2 list-disc pl-5">
-            <li>{t('jsontobigquery.list_item_1') || 'Arrays are automatically mapped to REPEATED mode or ARRAY<T>.'}</li>
-            <li>{t('jsontobigquery.list_item_2') || 'Nested objects are converted to RECORD or STRUCT types with sub-fields.'}</li>
-            <li>{t('jsontobigquery.list_item_3') || 'ISO dates and timestamps are detected automatically.'}</li>
+            <li>{t('sqltobigquery.list_item_1') || 'Converts SQL data types (INT, VARCHAR, TIMESTAMP, DECIMAL, JSON) to BigQuery types.'}</li>
+            <li>{t('sqltobigquery.list_item_2') || 'Handles column nullability (NOT NULL -> REQUIRED, default NULLABLE).'}</li>
+            <li>{t('sqltobigquery.list_item_3') || 'Supports field casing transformations and output as JSON Schema or BigQuery DDL.'}</li>
           </ul>
         </div>
       </div>

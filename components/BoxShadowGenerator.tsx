@@ -35,6 +35,15 @@ export function BoxShadowGenerator() {
   const primaryInputRef = useRef<HTMLInputElement>(null);
   const containerRef = useRef<HTMLDivElement>(null);
 
+  const isPresetActive = (preset: Preset) =>
+    hOffset === preset.hOffset &&
+    vOffset === preset.vOffset &&
+    blur === preset.blur &&
+    spread === preset.spread &&
+    color.toLowerCase() === preset.color.toLowerCase() &&
+    Math.abs(opacity - preset.opacity) < 0.01 &&
+    inset === preset.inset;
+
   const hexToRgba = (hex: string, alpha: number) => {
     let r = 0, g = 0, b = 0;
     try {
@@ -132,21 +141,29 @@ export function BoxShadowGenerator() {
           <Sparkles className="w-4 h-4 text-indigo-500" aria-hidden="true" /> Quick Presets
         </div>
         <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
-          {PRESETS.map((preset) => (
-            <button
-              key={preset.id}
-              type="button"
-              onClick={() => handleApplyPreset(preset)}
-              className="px-4 py-3 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-2xl hover:border-indigo-500 dark:hover:border-indigo-500 hover:shadow-md transition-all text-left group"
-            >
-              <span className="text-xs font-bold text-slate-700 dark:text-slate-200 group-hover:text-indigo-600 dark:group-hover:text-indigo-400 transition-colors block">
-                {preset.name}
-              </span>
-              <span className="text-[10px] text-slate-400 font-mono block mt-0.5">
-                {preset.inset ? 'inset ' : ''}{preset.hOffset}px {preset.vOffset}px {preset.blur}px
-              </span>
-            </button>
-          ))}
+          {PRESETS.map((preset) => {
+            const active = isPresetActive(preset);
+            return (
+              <button
+                key={preset.id}
+                type="button"
+                onClick={() => handleApplyPreset(preset)}
+                aria-pressed={active}
+                className={`px-4 py-3 border rounded-2xl transition-all text-left group ${
+                  active
+                    ? 'bg-indigo-50 dark:bg-indigo-950/40 border-indigo-500 dark:border-indigo-500 shadow-sm'
+                    : 'bg-white dark:bg-slate-800 border-slate-200 dark:border-slate-700 hover:border-indigo-500 dark:hover:border-indigo-500 hover:shadow-md'
+                }`}
+              >
+                <span className={`text-xs font-bold transition-colors block ${active ? 'text-indigo-600 dark:text-indigo-400' : 'text-slate-700 dark:text-slate-200 group-hover:text-indigo-600 dark:group-hover:text-indigo-400'}`}>
+                  {preset.name}
+                </span>
+                <span className="text-[10px] text-slate-400 font-mono block mt-0.5">
+                  {preset.inset ? 'inset ' : ''}{preset.hOffset}px {preset.vOffset}px {preset.blur}px
+                </span>
+              </button>
+            );
+          })}
         </div>
       </div>
 
@@ -165,6 +182,9 @@ export function BoxShadowGenerator() {
                 id="h-offset"
                 ref={primaryInputRef}
                 type="range" min="-100" max="100" value={hOffset}
+                aria-valuemin={-100}
+                aria-valuemax={100}
+                aria-valuenow={hOffset}
                 onChange={(e) => setHOffset(Number(e.target.value))}
                 className="w-full h-2 bg-slate-200 dark:bg-slate-700 rounded-lg appearance-none cursor-pointer accent-indigo-600"
                 aria-label="Décalage horizontal en pixels"
@@ -181,6 +201,9 @@ export function BoxShadowGenerator() {
               <input
                 id="v-offset"
                 type="range" min="-100" max="100" value={vOffset}
+                aria-valuemin={-100}
+                aria-valuemax={100}
+                aria-valuenow={vOffset}
                 onChange={(e) => setVOffset(Number(e.target.value))}
                 className="w-full h-2 bg-slate-200 dark:bg-slate-700 rounded-lg appearance-none cursor-pointer accent-indigo-600"
                 aria-label="Décalage vertical en pixels"
@@ -197,6 +220,9 @@ export function BoxShadowGenerator() {
               <input
                 id="blur"
                 type="range" min="0" max="100" value={blur}
+                aria-valuemin={0}
+                aria-valuemax={100}
+                aria-valuenow={blur}
                 onChange={(e) => setBlur(Number(e.target.value))}
                 className="w-full h-2 bg-slate-200 dark:bg-slate-700 rounded-lg appearance-none cursor-pointer accent-indigo-600"
                 aria-label="Rayon de flou en pixels"
@@ -213,6 +239,9 @@ export function BoxShadowGenerator() {
               <input
                 id="spread"
                 type="range" min="-50" max="50" value={spread}
+                aria-valuemin={-50}
+                aria-valuemax={50}
+                aria-valuenow={spread}
                 onChange={(e) => setSpread(Number(e.target.value))}
                 className="w-full h-2 bg-slate-200 dark:bg-slate-700 rounded-lg appearance-none cursor-pointer accent-indigo-600"
                 aria-label="Rayon d'étendue en pixels"
@@ -237,6 +266,9 @@ export function BoxShadowGenerator() {
                 <input
                   id="opacity"
                   type="range" min="0" max="1" step="0.01" value={opacity}
+                  aria-valuemin={0}
+                  aria-valuemax={100}
+                  aria-valuenow={Math.round(opacity * 100)}
                   onChange={(e) => setOpacity(Number(e.target.value))}
                   className="flex-1 h-2 bg-slate-200 dark:bg-slate-700 rounded-lg appearance-none cursor-pointer accent-indigo-600 self-center"
                   aria-label="Opacité de l'ombre"

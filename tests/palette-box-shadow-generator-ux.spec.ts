@@ -5,15 +5,29 @@ test.describe('Box Shadow Generator Micro-UX and Accessibility', () => {
     await page.goto('http://localhost:5173/fr/outil/box-shadow');
   });
 
-  test('should render quick presets and apply them when clicked', async ({ page }) => {
+  test('should render quick presets with aria-pressed state and apply them when clicked', async ({ page }) => {
     const presetBtn = page.getByRole('button', { name: 'Vibrant Glow' });
     await expect(presetBtn).toBeVisible();
+    await expect(presetBtn).toHaveAttribute('aria-pressed', 'false');
 
     await presetBtn.click();
 
+    await expect(presetBtn).toHaveAttribute('aria-pressed', 'true');
     const cssOutput = page.locator('#css-code-output');
     await expect(cssOutput).toContainText('box-shadow: 0px 0px 30px 5px rgba(99, 102, 241, 0.5);');
     await expect(page.getByText('Preset "Vibrant Glow" applied!')).toBeVisible();
+  });
+
+  test('should expose explicit ARIA range properties on slider inputs', async ({ page }) => {
+    const hOffsetInput = page.locator('#h-offset');
+    await expect(hOffsetInput).toHaveAttribute('aria-valuemin', '-100');
+    await expect(hOffsetInput).toHaveAttribute('aria-valuemax', '100');
+    await expect(hOffsetInput).toHaveAttribute('aria-valuenow', '10');
+
+    const blurInput = page.locator('#blur');
+    await expect(blurInput).toHaveAttribute('aria-valuemin', '0');
+    await expect(blurInput).toHaveAttribute('aria-valuemax', '100');
+    await expect(blurInput).toHaveAttribute('aria-valuenow', '20');
   });
 
   test('should toggle inset mode with correct aria-pressed attribute', async ({ page }) => {

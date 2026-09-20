@@ -1,10 +1,30 @@
-import { useState, useEffect, useCallback, useRef, useMemo } from 'react';
-import { MousePointer2, Copy, Check, RotateCcw, Info, Play, Pause, Zap } from 'lucide-react';
+import React, { useState, useEffect, useCallback, useRef, useMemo } from 'react';
+import { MousePointer2, Copy, Check, RotateCcw, Info, Play, Pause, Zap, Sparkles } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
+import { toast } from 'sonner';
+import { Kbd } from './ui/Kbd';
+
+interface Preset {
+  name: string;
+  val: [number, number, number, number];
+}
+
+const PRESETS: Preset[] = [
+  { name: 'Ease', val: [0.25, 0.1, 0.25, 1.0] },
+  { name: 'Linear', val: [0.0, 0.0, 1.0, 1.0] },
+  { name: 'Ease-In', val: [0.42, 0.0, 1.0, 1.0] },
+  { name: 'Ease-Out', val: [0.0, 0.0, 0.58, 1.0] },
+  { name: 'Ease-In-Out', val: [0.42, 0.0, 0.58, 1.0] },
+  { name: 'In-Back', val: [0.6, -0.28, 0.73, 0.05] },
+  { name: 'Out-Back', val: [0.17, 0.88, 0.32, 1.27] },
+];
 
 export function CubicBezierGenerator({ initialData, onStateChange }: { initialData?: any; onStateChange?: (state: any) => void }) {
   const { t } = useTranslation();
   const canvasRef = useRef<HTMLCanvasElement>(null);
+  const containerRef = useRef<HTMLDivElement>(null);
+  const resetButtonRef = useRef<HTMLButtonElement>(null);
+
   const [p1, setP1] = useState(initialData?.p1 || { x: 0.42, y: 0 });
   const [p2, setP2] = useState(initialData?.p2 || { x: 0.58, y: 1 });
   const [isDragging, setIsDragging] = useState<'p1' | 'p2' | null>(null);
@@ -48,7 +68,7 @@ export function CubicBezierGenerator({ initialData, onStateChange }: { initialDa
     ctx.strokeRect(padding, padding, size, size);
 
     // Coordinate conversion helpers
-    const toCanvas = (p: { x: number, y: number }) => ({
+    const toCanvas = (p: { x: number; y: number }) => ({
       x: padding + p.x * size,
       y: padding + (1 - p.y) * size
     });
@@ -78,7 +98,7 @@ export function CubicBezierGenerator({ initialData, onStateChange }: { initialDa
     ctx.stroke();
 
     // Handles
-    const drawHandle = (p: { x: number, y: number }, color: string, isActive: boolean) => {
+    const drawHandle = (p: { x: number; y: number }, color: string, isActive: boolean) => {
       ctx.fillStyle = color;
       ctx.shadowBlur = isActive ? 10 : 0;
       ctx.shadowColor = color;
@@ -105,12 +125,12 @@ export function CubicBezierGenerator({ initialData, onStateChange }: { initialDa
     const x = e.clientX - rect.left;
     const y = e.clientY - rect.top;
 
-    const toCanvas = (p: { x: number, y: number }) => ({
+    const toCanvas = (p: { x: number; y: number }) => ({
       x: padding + p.x * size,
       y: padding + (1 - p.y) * size
     });
 
-    const dist = (a: { x: number, y: number }, b: { x: number, y: number }) =>
+    const dist = (a: { x: number; y: number }, b: { x: number; y: number }) =>
       Math.sqrt((a.x - b.x) ** 2 + (a.y - b.y) ** 2);
 
     const cp1 = toCanvas(p1);
@@ -149,26 +169,91 @@ export function CubicBezierGenerator({ initialData, onStateChange }: { initialDa
     };
   }, [isDragging, handleMouseMove, handleMouseUp]);
 
-  const handleReset = () => {
+  const handleReset = useCallback(() => {
     setP1({ x: 0.42, y: 0 });
     setP2({ x: 0.58, y: 1 });
-  };
+    toast.success(t('bezier.reset_toast', 'Bezier generator reset'));
+    resetButtonRef.current?.focus();
+  }, [t]);
 
-  const handleCopy = () => {
+  const handleCopy = useCallback(() => {
     navigator.clipboard.writeText(`transition-timing-function: ${bezierString};`);
     setCopied(true);
+    toast.success(t('bezier.copy_toast', 'CSS code copied to clipboard!'));
     setTimeout(() => setCopied(false), 2000);
+  }, [bezierString, t]);
+
+  const handleToggleAnimation = useCallback(() => {
+    setIsAnimating((prev) => !prev);
+  }, []);
+
+  const handleApplyPreset = (preset: Preset) => {
+    setP1({ x: preset.val[0], y: preset.val[1] });
+    setP2({ x: preset.val[2], y: preset.val[3] });
+    toast.success(t('bezier.preset_toast', `Preset "${preset.name}" applied!`, { name: preset.name }));
   };
 
+  const handlersRef = useRef({ handleReset, handleCopy, handleToggleAnimation });
+  useEffect(() => {
+    handlersRef.current = { handleReset, handleCopy, handleToggleAnimation };
+  }, [handleReset, handleCopy, handleToggleAnimation]);
+
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      const activeElement = document.activeElement;
+      const isTextInput =
+        (activeElement instanceof HTMLInputElement &&
+          ['text', 'search', 'email', 'password', 'url', 'number', 'tel'].includes(activeElement.type)) ||
+        activeElement instanceof HTMLTextAreaElement ||
+        (activeElement as HTMLElement)?.isContentEditable;
+
+      const isStrictlyInsideContainer = containerRef.current?.contains(activeElement as Node);
+      const isBodyOrNull = activeElement === document.body || !activeElement;
+
+      if (!isStrictlyInsideContainer && !isBodyOrNull) return;
+
+      if (e.key === 'Escape') {
+        e.preventDefault();
+        handlersRef.current.handleReset();
+        return;
+      }
+
+      if ((e.key === 'c' || e.key === 'C') && !e.metaKey && !e.ctrlKey && !e.altKey) {
+        if (!isTextInput) {
+          e.preventDefault();
+          handlersRef.current.handleCopy();
+        }
+      }
+
+      if (e.key === ' ' && !e.metaKey && !e.ctrlKey && !e.altKey) {
+        if (isStrictlyInsideContainer && !isTextInput && activeElement?.tagName !== 'BUTTON') {
+          e.preventDefault();
+          handlersRef.current.handleToggleAnimation();
+        }
+      }
+    };
+
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, []);
+
   return (
-    <div className="max-w-6xl mx-auto space-y-12">
-      <div className="flex justify-end items-center px-1 gap-2">
-        <kbd className="hidden sm:inline-flex items-center justify-center px-1.5 py-0.5 border border-rose-200 dark:border-rose-800 rounded text-[10px] font-bold text-rose-400 bg-white dark:bg-slate-900">Esc</kbd>
+    <div ref={containerRef} className="max-w-6xl mx-auto space-y-12">
+      <div className="flex justify-between items-center px-1 gap-2">
+        <div className="flex items-center gap-2 text-xs font-black uppercase tracking-widest text-slate-400">
+          <Sparkles className="w-4 h-4 text-indigo-500" aria-hidden="true" />
+          {t('bezier.presets')}
+        </div>
         <button
+          ref={resetButtonRef}
+          type="button"
           onClick={handleReset}
-          className="text-xs font-bold text-rose-500 bg-rose-50 dark:bg-rose-500/10 hover:bg-rose-100 dark:hover:bg-rose-500/20 px-3 py-1.5 rounded-xl flex items-center gap-2 transition-all"
+          aria-label={`${t('common.reset')} (Esc)`}
+          className="text-xs font-bold text-rose-500 bg-rose-50 dark:bg-rose-500/10 hover:bg-rose-100 dark:hover:bg-rose-500/20 px-3.5 py-1.5 rounded-xl flex items-center gap-2 transition-all focus-visible:ring-2 focus-visible:ring-rose-500 focus-visible:outline-none"
         >
-          <RotateCcw className="w-4 h-4" /> {t('common.reset')}
+          <RotateCcw className="w-3.5 h-3.5" aria-hidden="true" />
+          {t('common.reset')}
+          <Kbd modifier={null} className="hidden sm:inline-flex bg-rose-100 dark:bg-rose-900/30 border-rose-200 dark:border-rose-800 text-rose-500">Esc</Kbd>
         </button>
       </div>
 
@@ -181,6 +266,7 @@ export function CubicBezierGenerator({ initialData, onStateChange }: { initialDa
               width={size + padding * 2}
               height={size + padding * 2}
               onMouseDown={handleMouseDown}
+              aria-label={t('bezier.canvas_label', 'Interactive cubic bezier curve editor')}
               className="cursor-crosshair touch-none"
             />
             <div className="absolute top-8 left-8 text-[10px] font-black uppercase tracking-tighter text-slate-300 pointer-events-none">
@@ -212,13 +298,17 @@ export function CubicBezierGenerator({ initialData, onStateChange }: { initialDa
           <div className="space-y-4">
              <div className="flex justify-between items-center px-1">
                <h3 className="text-xs font-black uppercase tracking-widest text-slate-400 flex items-center gap-2">
-                 <Play className="w-4 h-4 text-indigo-500" /> {t('bezier.animation_preview')}
+                 <Play className="w-4 h-4 text-indigo-500" aria-hidden="true" /> {t('bezier.animation_preview')}
                </h3>
                <button
-                 onClick={() => setIsAnimating(!isAnimating)}
-                 className="p-2 bg-slate-100 dark:bg-slate-800 rounded-lg hover:bg-slate-200 transition-colors"
+                 type="button"
+                 onClick={handleToggleAnimation}
+                 aria-label={`${isAnimating ? t('bezier.pause_animation', 'Pause animation preview') : t('bezier.play_animation', 'Play animation preview')} (Space)`}
+                 aria-pressed={isAnimating}
+                 className="p-2 bg-slate-100 dark:bg-slate-800 rounded-lg hover:bg-slate-200 dark:hover:bg-slate-700 transition-colors flex items-center gap-1.5"
                >
-                 {isAnimating ? <Pause className="w-4 h-4" /> : <Play className="w-4 h-4" />}
+                 {isAnimating ? <Pause className="w-4 h-4" aria-hidden="true" /> : <Play className="w-4 h-4" aria-hidden="true" />}
+                 <Kbd modifier={null} className="hidden sm:inline-flex text-[10px]">Space</Kbd>
                </button>
              </div>
 
@@ -251,47 +341,55 @@ export function CubicBezierGenerator({ initialData, onStateChange }: { initialDa
 
           <div className="space-y-4">
             <div className="flex justify-between items-center px-1">
-              <h3 className="text-xs font-black uppercase tracking-widest text-slate-400 flex items-center gap-2">
-                <Copy className="w-4 h-4 text-indigo-500" /> {t('bezier.css_output')}
-              </h3>
+              <span id="cubic-bezier-css-label" className="text-xs font-black uppercase tracking-widest text-slate-400 flex items-center gap-2">
+                <Copy className="w-4 h-4 text-indigo-500" aria-hidden="true" /> {t('bezier.css_output')}
+              </span>
               <button
+                type="button"
                 onClick={handleCopy}
-                className={`flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-bold transition-all ${
-                  copied ? 'bg-emerald-50 text-emerald-600 dark:bg-emerald-500/10 border border-emerald-200 dark:border-emerald-500/20' : 'bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 hover:bg-slate-200'
+                aria-label={`${t('common.copy')} (C)`}
+                className={`flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-bold transition-all border ${
+                  copied
+                    ? 'bg-emerald-50 dark:bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border-emerald-200 dark:border-emerald-500/20'
+                    : 'bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 border-slate-200 dark:border-slate-700 hover:bg-slate-200 dark:hover:bg-slate-700'
                 }`}
               >
-                {copied ? <Check className="w-4 h-4" /> : <Copy className="w-4 h-4" />}
+                {copied ? <Check className="w-4 h-4" aria-hidden="true" /> : <Copy className="w-4 h-4" aria-hidden="true" />}
                 {copied ? t('common.copied') : t('common.copy')}
+                {!copied && <Kbd modifier={null} className="hidden sm:inline-flex ml-1">C</Kbd>}
               </button>
             </div>
-            <div className="p-6 bg-slate-900 dark:bg-black rounded-3xl font-mono text-sm text-indigo-300 break-all border border-slate-800 shadow-xl">
+            <pre aria-labelledby="cubic-bezier-css-label" className="p-6 bg-slate-900 dark:bg-black rounded-3xl font-mono text-sm text-indigo-300 break-all border border-slate-800 shadow-xl overflow-x-auto">
               transition-timing-function: {bezierString};
-            </div>
+            </pre>
           </div>
 
           <div className="space-y-4 pt-4">
              <h3 className="text-xs font-black uppercase tracking-widest text-slate-400 px-1">{t('bezier.presets')}</h3>
              <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
-               {[
-                 { name: 'Ease', val: [0.25, 0.1, 0.25, 1.0] },
-                 { name: 'Linear', val: [0.0, 0.0, 1.0, 1.0] },
-                 { name: 'Ease-In', val: [0.42, 0.0, 1.0, 1.0] },
-                 { name: 'Ease-Out', val: [0.0, 0.0, 0.58, 1.0] },
-                 { name: 'Ease-In-Out', val: [0.42, 0.0, 0.58, 1.0] },
-                 { name: 'In-Back', val: [0.6, -0.28, 0.73, 0.05] },
-                 { name: 'Out-Back', val: [0.17, 0.88, 0.32, 1.27] },
-               ].map((preset) => (
-                 <button
-                   key={preset.name}
-                   onClick={() => {
-                     setP1({ x: preset.val[0], y: preset.val[1] });
-                     setP2({ x: preset.val[2], y: preset.val[3] });
-                   }}
-                   className="px-3 py-2 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-xs font-bold hover:border-indigo-500/50 transition-all"
-                 >
-                   {preset.name}
-                 </button>
-               ))}
+               {PRESETS.map((preset) => {
+                 const isSelected =
+                   Math.abs(p1.x - preset.val[0]) < 0.01 &&
+                   Math.abs(p1.y - preset.val[1]) < 0.01 &&
+                   Math.abs(p2.x - preset.val[2]) < 0.01 &&
+                   Math.abs(p2.y - preset.val[3]) < 0.01;
+
+                 return (
+                   <button
+                     key={preset.name}
+                     type="button"
+                     onClick={() => handleApplyPreset(preset)}
+                     aria-pressed={isSelected}
+                     className={`px-3 py-2 rounded-xl text-xs font-bold transition-all border text-left ${
+                       isSelected
+                         ? 'bg-indigo-50 dark:bg-indigo-900/30 border-indigo-500 dark:border-indigo-500 text-indigo-600 dark:text-indigo-400 ring-2 ring-indigo-500/20 shadow-sm'
+                         : 'bg-white dark:bg-slate-800 border-slate-200 dark:border-slate-700 text-slate-700 dark:text-slate-200 hover:border-indigo-500 dark:hover:border-indigo-500'
+                     }`}
+                   >
+                     {preset.name}
+                   </button>
+                 );
+               })}
              </div>
           </div>
         </div>
@@ -307,7 +405,7 @@ export function CubicBezierGenerator({ initialData, onStateChange }: { initialDa
       <div className="grid grid-cols-1 md:grid-cols-3 gap-8 pt-16 border-t border-slate-100 dark:border-slate-800">
         <div className="space-y-4">
           <h4 className="font-bold dark:text-white flex items-center gap-2">
-            <Info className="w-4 h-4 text-indigo-500" /> {t('tool.cubic-bezier.name')}
+            <Info className="w-4 h-4 text-indigo-500" aria-hidden="true" /> {t('tool.cubic-bezier.name')}
           </h4>
           <p className="text-sm text-slate-500 dark:text-slate-400 leading-relaxed">
             {t('bezier.about_text')}
@@ -315,7 +413,7 @@ export function CubicBezierGenerator({ initialData, onStateChange }: { initialDa
         </div>
         <div className="space-y-4">
           <h4 className="font-bold dark:text-white flex items-center gap-2">
-            <Zap className="w-4 h-4 text-indigo-500" /> {t('bezier.timing_title')}
+            <Zap className="w-4 h-4 text-indigo-500" aria-hidden="true" /> {t('bezier.timing_title')}
           </h4>
           <p className="text-sm text-slate-500 dark:text-slate-400 leading-relaxed">
             {t('bezier.timing_desc')}
@@ -323,7 +421,7 @@ export function CubicBezierGenerator({ initialData, onStateChange }: { initialDa
         </div>
         <div className="space-y-4">
           <h4 className="font-bold dark:text-white flex items-center gap-2">
-            <MousePointer2 className="w-4 h-4 text-indigo-500" /> {t('bezier.interaction_title')}
+            <MousePointer2 className="w-4 h-4 text-indigo-500" aria-hidden="true" /> {t('bezier.interaction_title')}
           </h4>
           <p className="text-sm text-slate-500 dark:text-slate-400 leading-relaxed">
             {t('bezier.interaction_desc')}

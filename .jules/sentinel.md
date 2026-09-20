@@ -291,3 +291,8 @@
 **Vulnerability:** The JSONToProperties component failed to escape comment symbols (`#`, `!`) in JSON keys when converting JSON objects into Java `.properties` file format. Unescaped `#` or `!` characters allowed user-controlled keys to be interpreted as comment lines or break key-value delimiter contexts in Java configuration parsers.
 **Learning:** Java `.properties` file specifications treat leading `#` and `!` as line comments, and `=`, `:`, or whitespace as key-value separators. Generative tools producing key-value configurations must escape all format-significant tokens.
 **Prevention:** Always escape `#`, `!`, `=`, `:`, spaces, and control characters (`\n`, `\r`, `\t`, `\f`) with a backslash (`\`) in keys and control characters in values when generating `.properties` format files.
+
+## 2026-09-10 - [Case-Insensitive Prototype Pollution Bypasses in Query String Parsers]
+**Vulnerability:** The JSONToQuery component checked for forbidden prototype properties (`__proto__`, `constructor`, `prototype`) using exact case string comparisons, allowing uppercase or mixed-case query keys (e.g. `CONSTRUCTOR[polluted]=true` or `__PROTO__[polluted]=true`) to bypass the prototype filter when reconstructing JSON objects.
+**Learning:** Query string keys can be formatted in any letter casing by attackers. When implementing prototype pollution filters on incoming raw key strings or path tokens, checks must be normalized to lowercase before matching against forbidden properties.
+**Prevention:** Always convert keys to lowercase (`key.toLowerCase()`) prior to evaluating membership in prototype blocklists (`__proto__`, `constructor`, `prototype`).

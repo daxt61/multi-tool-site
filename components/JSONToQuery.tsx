@@ -115,8 +115,9 @@ export function JSONToQuery({ initialData, onStateChange }: { initialData?: any;
           }
         }
 
-        // Avoid prototype pollution keys
-        if (key.includes('__proto__') || key.includes('constructor') || key.includes('prototype')) {
+        // Avoid prototype pollution keys (check case-insensitively for full mitigation)
+        const lowerKey = key.toLowerCase();
+        if (lowerKey.includes('__proto__') || lowerKey.includes('constructor') || lowerKey.includes('prototype')) {
           continue;
         }
 
@@ -139,8 +140,9 @@ export function JSONToQuery({ initialData, onStateChange }: { initialData?: any;
           const pathKey = pathKeys[i];
           const isLast = i === pathKeys.length - 1;
 
-          // Prevent prototype pollution check on inner keys
-          if (pathKey === '__proto__' || pathKey === 'constructor' || pathKey === 'prototype') {
+          // Prevent prototype pollution check on inner keys (case-insensitive)
+          const lowerPathKey = pathKey.toLowerCase();
+          if (lowerPathKey === '__proto__' || lowerPathKey === 'constructor' || lowerPathKey === 'prototype') {
             break;
           }
 

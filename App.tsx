@@ -626,6 +626,7 @@ const SQLToZod = lazy(() => import("./components/SQLToZod").then(m => ({ default
 const SQLToTypeBox = lazy(() => import("./components/SQLToTypeBox").then(m => ({ default: m.SQLToTypeBox })));
 const ImagePixelator = lazy(() => import("./components/ImagePixelator").then(m => ({ default: m.ImagePixelator })));
 const TSVTester = lazy(() => import("./components/TSVTester").then(m => ({ default: m.TSVTester })));
+const EnumerateIntegers = lazy(() => import("./components/EnumerateIntegers").then(m => ({ default: m.EnumerateIntegers })));
 
 // ⚡ Bolt Optimization: Pre-calculating tool map and search index for O(1) lookups and faster filtering
 const toolsMap: Record<string, Tool> = {};
@@ -663,6 +664,18 @@ const categories: Category[] = [
 ];
 
 const tools: Tool[] = [
+  // Enumerate Integers Tool
+  {
+    id: "enumerate-integers",
+    name: "Énumérateur d'Entiers",
+    nameEn: "Enumerate Integers",
+    icon: ListOrdered,
+    description: "Générer rapidement des séries d'entiers ordonnés et des listes numérotées personnalisées",
+    descriptionEn: "Quickly generate ordered integer series and custom numbered lists",
+    Component: EnumerateIntegers,
+    category: "dev",
+    keywords: ["enumerate", "integers", "sequence", "numbers", "roman", "hex", "pad", "prefix", "suffix", "count", "list", "onlinetools"],
+  },
   // TSV Tester & Validator Tool
   {
     id: "tsv-tester",

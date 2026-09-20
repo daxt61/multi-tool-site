@@ -619,6 +619,7 @@ const SQLToJSONSchema = lazy(() => import("./components/SQLToJSONSchema").then(m
 const SQLToJava = lazy(() => import("./components/SQLToJava").then(m => ({ default: m.SQLToJava })));
 const SQLToCSharp = lazy(() => import("./components/SQLToCSharp").then(m => ({ default: m.SQLToCSharp })));
 const SQLToSQLAlchemy = lazy(() => import("./components/SQLToSQLAlchemy").then(m => ({ default: m.SQLToSQLAlchemy })));
+const SQLToPHP = lazy(() => import("./components/SQLToPHP").then(m => ({ default: m.SQLToPHP })));
 const SQLToKotlin = lazy(() => import("./components/SQLToKotlin").then(m => ({ default: m.SQLToKotlin })));
 const SQLToGo = lazy(() => import("./components/SQLToGo").then(m => ({ default: m.SQLToGo })));
 const SQLToRust = lazy(() => import("./components/SQLToRust").then(m => ({ default: m.SQLToRust })));
@@ -687,6 +688,18 @@ const tools: Tool[] = [
     Component: TSVTester,
     category: "dev",
     keywords: ["tsv", "tab", "validator", "tester", "quality", "columns", "empty cells", "duplicates", "types", "testeur", "valider"],
+  },
+  // SQL DDL to PHP Class / Readonly DTO / Laravel Eloquent Generator Tool
+  {
+    id: "sql-to-php",
+    name: "SQL DDL en PHP",
+    nameEn: "SQL DDL to PHP Classes",
+    icon: Database,
+    description: "Convertir des instructions SQL CREATE TABLE DDL en classes PHP 8.1+, DTOs readonly 8.2 ou modèles Laravel Eloquent",
+    descriptionEn: "Convert SQL CREATE TABLE DDL statements into strongly-typed PHP 8.1+ classes, PHP 8.2 readonly DTOs, or Laravel Eloquent models",
+    Component: SQLToPHP,
+    category: "dev",
+    keywords: ["sql", "ddl", "create table", "php", "dto", "eloquent", "laravel", "readonly", "class", "convert", "convertir"],
   },
   // SQL DDL to Rust Struct Generator Tool
   {

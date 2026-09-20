@@ -1,23 +1,95 @@
-import { useState, useEffect, useCallback, useRef } from 'react';
+import React, { useState, useEffect, useCallback, useRef } from 'react';
 import { FileCode, Copy, Check, Trash2, AlertCircle, Download, Info } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
+import { toast } from 'sonner';
 import { Kbd } from './ui/Kbd';
 
 const MAX_LENGTH = 100000;
 const MAX_DEPTH = 20;
 
+const PRESETS = [
+  {
+    id: 'user_profile',
+    nameKey: 'jsontophp.preset_user',
+    json: JSON.stringify(
+      {
+        id: 101,
+        username: 'johndoe',
+        email: 'john@example.com',
+        is_active: true,
+        roles: ['admin', 'developer'],
+        profile: {
+          first_name: 'John',
+          last_name: 'Doe',
+          avatar_url: 'https://example.com/avatar.jpg'
+        }
+      },
+      null,
+      2
+    )
+  },
+  {
+    id: 'ecommerce_order',
+    nameKey: 'jsontophp.preset_order',
+    json: JSON.stringify(
+      {
+        order_id: 'ORD-2025-884',
+        total_amount: 149.99,
+        currency: 'EUR',
+        status: 'completed',
+        items: [
+          { item_id: 'PROD-1', title: 'Wireless Headphones', price: 99.99, quantity: 1 },
+          { item_id: 'PROD-2', title: 'USB-C Cable', price: 25.00, quantity: 2 }
+        ],
+        shipping_address: {
+          street: '123 Tech Avenue',
+          city: 'Paris',
+          zip_code: '75001',
+          country: 'France'
+        }
+      },
+      null,
+      2
+    )
+  },
+  {
+    id: 'api_config',
+    nameKey: 'jsontophp.preset_config',
+    json: JSON.stringify(
+      {
+        environment: 'production',
+        debug: false,
+        timeout_seconds: 30,
+        rate_limit: {
+          requests_per_minute: 100,
+          burst: 200
+        },
+        services: {
+          database_host: 'db.internal',
+          redis_port: 6379
+        }
+      },
+      null,
+      2
+    )
+  }
+];
+
 export function JSONToPHP({ initialData, onStateChange }: { initialData?: any; onStateChange?: (state: any) => void }) {
   const { t } = useTranslation();
-  const [input, setInput] = useState(initialData?.input || '');
+  const [input, setInput] = useState(initialData?.input || PRESETS[0].json);
   const [output, setOutput] = useState(initialData?.output || '');
   const [error, setError] = useState('');
   const [copied, setCopied] = useState(false);
+  const [activePreset, setActivePreset] = useState<string | null>(PRESETS[0].id);
 
-  // Premium toggles
+  // Configuration options
   const [constructorPromotion, setConstructorPromotion] = useState(initialData?.constructorPromotion ?? true);
   const [readonlyClasses, setReadonlyClasses] = useState(initialData?.readonlyClasses ?? false);
   const [gettersSetters, setGettersSetters] = useState(initialData?.gettersSetters ?? false);
   const [fromArrayDeserialization, setFromArrayDeserialization] = useState(initialData?.fromArrayDeserialization ?? true);
+
+  const inputRef = useRef<HTMLTextAreaElement>(null);
 
   useEffect(() => {
     onStateChange?.({
@@ -193,20 +265,42 @@ export function JSONToPHP({ initialData, onStateChange }: { initialData?: any; o
     if (!output) return;
     navigator.clipboard.writeText(output);
     setCopied(true);
+    toast.success(t('jsontophp.toast_copied', 'Code PHP copié dans le presse-papiers !'));
     setTimeout(() => setCopied(false), 2000);
-  }, [output]);
+  }, [output, t]);
 
   const handleClear = useCallback(() => {
     setInput('');
     setOutput('');
     setError('');
-  }, []);
+    setActivePreset(null);
+    toast.success(t('jsontophp.toast_cleared', 'Entrées effacées !'));
+    if (inputRef.current) {
+      inputRef.current.focus();
+    }
+  }, [t]);
 
-  const handlersRef = useRef({
-    handleCopy,
-    handleClear
-  });
+  const handleLoadPreset = (preset: typeof PRESETS[0]) => {
+    setInput(preset.json);
+    setActivePreset(preset.id);
+    toast.success(t('jsontophp.toast_preset_loaded', 'Préréglage chargé !'));
+  };
 
+  const handleDownload = () => {
+    if (!output) return;
+    const blob = new Blob([output], { type: 'text/x-php' });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    link.href = url;
+    link.download = 'Models.php';
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    URL.revokeObjectURL(url);
+    toast.success(t('common.downloaded'));
+  };
+
+  const handlersRef = useRef({ handleCopy, handleClear });
   useEffect(() => {
     handlersRef.current = { handleCopy, handleClear };
   }, [handleCopy, handleClear]);
@@ -214,9 +308,9 @@ export function JSONToPHP({ initialData, onStateChange }: { initialData?: any; o
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
       const isEditable =
-        document.activeElement?.tagName === "INPUT" ||
-        document.activeElement?.tagName === "TEXTAREA" ||
-        document.activeElement?.tagName === "SELECT" ||
+        document.activeElement?.tagName === 'INPUT' ||
+        document.activeElement?.tagName === 'TEXTAREA' ||
+        document.activeElement?.tagName === 'SELECT' ||
         document.activeElement?.getAttribute('contenteditable') === 'true';
 
       if (isEditable) return;
@@ -235,21 +329,37 @@ export function JSONToPHP({ initialData, onStateChange }: { initialData?: any; o
     return () => window.removeEventListener('keydown', handleKeyDown);
   }, []);
 
-  const handleDownload = () => {
-    if (!output) return;
-    const blob = new Blob([output], { type: 'text/x-php' });
-    const url = URL.createObjectURL(blob);
-    const link = document.createElement('a');
-    link.href = url;
-    link.download = 'Models.php';
-    document.body.appendChild(link);
-    link.click();
-    document.body.removeChild(link);
-    URL.revokeObjectURL(url);
-  };
-
   return (
     <div className="max-w-6xl mx-auto space-y-8">
+      {/* Quick Presets */}
+      <div className="bg-slate-50 dark:bg-slate-900/50 p-6 rounded-[2rem] border border-slate-200 dark:border-slate-800 space-y-4">
+        <div className="flex items-center justify-between">
+          <h3 className="text-xs font-black uppercase tracking-widest text-slate-400 px-1">
+            {t('sqltophp.presets_title', 'Préréglages Rapides')}
+          </h3>
+          <span className="text-xs text-slate-400 font-medium">PHP 8.0+ / 8.2</span>
+        </div>
+        <div className="flex flex-wrap gap-2">
+          {PRESETS.map((preset) => {
+            const isActive = activePreset === preset.id;
+            return (
+              <button
+                key={preset.id}
+                onClick={() => handleLoadPreset(preset)}
+                aria-pressed={isActive}
+                className={`px-4 py-2.5 rounded-xl text-xs font-bold transition-all border focus-visible:ring-2 focus-visible:ring-indigo-500 focus-visible:outline-none ${
+                  isActive
+                    ? 'bg-indigo-600 text-white border-indigo-600 shadow-md shadow-indigo-500/20'
+                    : 'bg-white dark:bg-slate-800 text-slate-600 dark:text-slate-300 border-slate-200 dark:border-slate-700 hover:border-indigo-300 dark:hover:border-indigo-700'
+                }`}
+              >
+                {t(preset.nameKey, preset.id)}
+              </button>
+            );
+          })}
+        </div>
+      </div>
+
       {/* Configuration options */}
       <div className="bg-slate-50 dark:bg-slate-900/50 p-6 rounded-[2rem] border border-slate-200 dark:border-slate-800 space-y-4">
         <h3 className="text-xs font-black uppercase tracking-widest text-slate-400 px-1">{t('common.options')}</h3>
@@ -309,10 +419,14 @@ export function JSONToPHP({ initialData, onStateChange }: { initialData?: any; o
           <div className="flex justify-between items-center px-1">
             <div className="flex items-center gap-2">
               <FileCode className="w-4 h-4 text-indigo-500" />
-              <label htmlFor="json-input" className="text-xs font-black uppercase tracking-widest text-slate-400 cursor-pointer">{t('common.input')} JSON</label>
+              <label htmlFor="json-php-input" className="text-xs font-black uppercase tracking-widest text-slate-400 cursor-pointer">
+                {t('common.input')} JSON
+              </label>
             </div>
             <div className="flex items-center gap-2">
-              <Kbd modifier={null} className="hidden sm:inline-flex border-rose-200 dark:border-rose-800 text-rose-400 dark:bg-slate-900">Esc</Kbd>
+              <Kbd modifier={null} className="hidden sm:inline-flex border-rose-200 dark:border-rose-800 text-rose-400 dark:bg-slate-900">
+                Esc
+              </Kbd>
               <button
                 onClick={handleClear}
                 disabled={!input && !output}
@@ -323,9 +437,13 @@ export function JSONToPHP({ initialData, onStateChange }: { initialData?: any; o
             </div>
           </div>
           <textarea
-            id="json-input"
+            id="json-php-input"
+            ref={inputRef}
             value={input}
-            onChange={(e) => setInput(e.target.value)}
+            onChange={(e) => {
+              setInput(e.target.value);
+              setActivePreset(null);
+            }}
             placeholder='{"id": 1, "name": "PHP"}'
             className="w-full h-[450px] p-6 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-3xl outline-none focus:ring-2 focus:ring-indigo-500/20 transition-all font-mono text-sm leading-relaxed dark:text-slate-300 resize-none"
           />
@@ -335,7 +453,9 @@ export function JSONToPHP({ initialData, onStateChange }: { initialData?: any; o
           <div className="flex justify-between items-center px-1">
             <div className="flex items-center gap-2">
               <FileCode className="w-4 h-4 text-emerald-500" />
-              <label htmlFor="php-output" className="text-xs font-black uppercase tracking-widest text-slate-400 cursor-pointer">{t('jsontophp.output_label')}</label>
+              <label htmlFor="php-output" className="text-xs font-black uppercase tracking-widest text-slate-400 cursor-pointer">
+                {t('jsontophp.output_label')}
+              </label>
             </div>
             <div className="flex gap-2">
               <button
@@ -370,13 +490,13 @@ export function JSONToPHP({ initialData, onStateChange }: { initialData?: any; o
 
       {error && (
         <div className="bg-rose-50 dark:bg-rose-500/10 border border-rose-200 dark:border-rose-800 p-4 rounded-2xl flex items-center gap-3 text-rose-600 dark:text-rose-400 font-bold">
-          <AlertCircle className="w-5 h-5" />
+          <AlertCircle className="w-5 h-5 flex-shrink-0" />
           {error}
         </div>
       )}
 
       <div className="bg-indigo-50 dark:bg-indigo-900/10 p-8 rounded-[2.5rem] border border-indigo-100 dark:border-indigo-900/20 flex items-start gap-4">
-        <Info className="w-6 h-6 text-indigo-500 mt-1" />
+        <Info className="w-6 h-6 text-indigo-500 mt-1 flex-shrink-0" />
         <div className="space-y-2">
           <h4 className="font-bold dark:text-white">{t('jsontophp.about_title')}</h4>
           <p className="text-sm text-slate-500 dark:text-slate-400 leading-relaxed">

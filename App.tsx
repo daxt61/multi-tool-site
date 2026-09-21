@@ -631,6 +631,7 @@ const SQLToSwift = lazy(() => import("./components/SQLToSwift").then(m => ({ def
 const ImagePixelator = lazy(() => import("./components/ImagePixelator").then(m => ({ default: m.ImagePixelator })));
 const TSVTester = lazy(() => import("./components/TSVTester").then(m => ({ default: m.TSVTester })));
 const EnumerateIntegers = lazy(() => import("./components/EnumerateIntegers").then(m => ({ default: m.EnumerateIntegers })));
+const GraphQLToTypeScript = lazy(() => import("./components/GraphQLToTypeScript").then(m => ({ default: m.GraphQLToTypeScript })));
 
 // ⚡ Bolt Optimization: Pre-calculating tool map and search index for O(1) lookups and faster filtering
 const toolsMap: Record<string, Tool> = {};
@@ -668,6 +669,18 @@ const categories: Category[] = [
 ];
 
 const tools: Tool[] = [
+  // GraphQL SDL to TypeScript Interfaces Converter Tool
+  {
+    id: "graphql-to-typescript",
+    name: "GraphQL en TypeScript",
+    nameEn: "GraphQL to TypeScript",
+    icon: FileCode,
+    description: "Convertir des schémas GraphQL SDL en interfaces et types TypeScript",
+    descriptionEn: "Convert GraphQL SDL schemas into strongly-typed TypeScript interfaces and type definitions",
+    Component: GraphQLToTypeScript,
+    category: "dev",
+    keywords: ["graphql", "sdl", "typescript", "interface", "type", "enum", "schema", "convert", "convertir"],
+  },
   // Enumerate Integers Tool
   {
     id: "enumerate-integers",

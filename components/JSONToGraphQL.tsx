@@ -1,12 +1,15 @@
-import { useState, useEffect, useCallback } from 'react';
-import { FileCode, Copy, Check, Trash2, AlertCircle, Terminal, Download, Info } from 'lucide-react';
+import { useState, useEffect, useCallback, useRef } from 'react';
+import { FileCode, Copy, Check, Trash2, AlertCircle, Terminal, Download, Info, Sparkles } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
+import { toast } from 'sonner';
+import { Kbd } from './ui/Kbd';
 
 const MAX_LENGTH = 100000;
 const MAX_DEPTH = 20;
 
 export function JSONToGraphQL({ initialData, onStateChange }: { initialData?: any; onStateChange?: (state: any) => void }) {
   const { t } = useTranslation();
+  const inputRef = useRef<HTMLTextAreaElement>(null);
   const [input, setInput] = useState(initialData?.input || '');
   const [output, setOutput] = useState(initialData?.output || '');
   const [error, setError] = useState('');
@@ -15,6 +18,55 @@ export function JSONToGraphQL({ initialData, onStateChange }: { initialData?: an
   useEffect(() => {
     onStateChange?.({ input, output });
   }, [input, output, onStateChange]);
+
+  const PRESETS = {
+    user_profile: `{
+  "id": 101,
+  "username": "johndoe",
+  "email": "john@example.com",
+  "isVerified": true,
+  "profile": {
+    "bio": "Fullstack Software Engineer",
+    "avatarUrl": "https://example.com/avatar.jpg"
+  },
+  "roles": ["ADMIN", "DEVELOPER"]
+}`,
+    ecommerce_order: `{
+  "orderId": "ORD-98721",
+  "totalAmount": 149.99,
+  "isPaid": true,
+  "customer": {
+    "id": 55,
+    "name": "Jane Smith"
+  },
+  "items": [
+    {
+      "productId": 10,
+      "title": "Wireless Mouse",
+      "quantity": 2,
+      "price": 29.99
+    },
+    {
+      "productId": 15,
+      "title": "Mechanical Keyboard",
+      "quantity": 1,
+      "price": 89.99
+    }
+  ]
+}`,
+    api_config: `{
+  "apiVersion": "2.1.0",
+  "rateLimit": 1000,
+  "debugMode": false,
+  "endpoints": [
+    {
+      "path": "/api/v1/users",
+      "method": "GET",
+      "isProtected": true
+    }
+  ]
+}`
+  };
 
   const toPascalCase = (str: string) => {
     let result = str
@@ -67,13 +119,10 @@ export function JSONToGraphQL({ initialData, onStateChange }: { initialData?: an
           }
 
           const fields = Object.entries(val).map(([key, value]) => {
-            // Sentinel: Sanitize field names to ensure they are valid GraphQL identifiers.
-            // GraphQL identifiers must match /[_A-Za-z][_0-9A-Za-z]*/.
             let safeKey = key.replace(/[^a-zA-Z0-9_]/g, '_');
             if (/^[0-9]/.test(safeKey)) safeKey = 'f_' + safeKey;
             if (!safeKey || safeKey === '_') safeKey = 'unnamed_field';
 
-            // Sentinel: Sanitize original key in comment to prevent breakout from single-line comment
             const safeCommentKey = key.replace(/[\n\r\t\v\f]/g, ' ').replace(/#/g, '');
             const comment = safeKey !== key ? ` # Original JSON key: ${safeCommentKey}` : '';
 
@@ -117,18 +166,21 @@ export function JSONToGraphQL({ initialData, onStateChange }: { initialData?: an
     handleConvert();
   }, [handleConvert]);
 
-  const handleCopy = () => {
+  const handleCopy = useCallback(() => {
     if (!output) return;
     navigator.clipboard.writeText(output);
     setCopied(true);
+    toast.success(t('jsontographql.toast_copied', 'GraphQL schema copied to clipboard!'));
     setTimeout(() => setCopied(false), 2000);
-  };
+  }, [output, t]);
 
-  const handleClear = () => {
+  const handleClear = useCallback(() => {
     setInput('');
     setOutput('');
     setError('');
-  };
+    toast.success(t('jsontographql.toast_cleared', 'Inputs cleared!'));
+    setTimeout(() => inputRef.current?.focus(), 0);
+  }, [t]);
 
   const handleDownload = () => {
     if (!output) return;
@@ -141,35 +193,104 @@ export function JSONToGraphQL({ initialData, onStateChange }: { initialData?: an
     link.click();
     document.body.removeChild(link);
     URL.revokeObjectURL(url);
+    toast.success(t('common.downloaded', 'Downloaded schema.graphql!'));
   };
 
+  const loadPreset = (presetKey: keyof typeof PRESETS) => {
+    setInput(PRESETS[presetKey]);
+    toast.success(t('jsontographql.preset_loaded', 'Loaded JSON preset!'));
+  };
+
+  const handlersRef = useRef({ handleClear, handleCopy, output });
+  useEffect(() => {
+    handlersRef.current = { handleClear, handleCopy, output };
+  }, [handleClear, handleCopy, output]);
+
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      const activeElement = document.activeElement;
+      const isEditable =
+        activeElement instanceof HTMLInputElement ||
+        activeElement instanceof HTMLTextAreaElement ||
+        activeElement instanceof HTMLSelectElement ||
+        activeElement?.getAttribute("contenteditable") === "true";
+
+      if (isEditable && e.key !== 'Escape') return;
+
+      if (e.metaKey || e.ctrlKey || e.altKey || e.shiftKey) return;
+
+      if (e.key === "Escape") {
+        e.preventDefault();
+        handlersRef.current.handleClear();
+      } else if (e.key.toLowerCase() === "c") {
+        if (handlersRef.current.output) {
+          e.preventDefault();
+          handlersRef.current.handleCopy();
+        }
+      }
+    };
+
+    window.addEventListener("keydown", handleKeyDown);
+    return () => window.removeEventListener("keydown", handleKeyDown);
+  }, []);
+
   return (
-    <div className="max-w-6xl mx-auto space-y-8">
+    <div className="max-w-6xl mx-auto space-y-8 animate-in fade-in duration-500">
+      {/* Presets Bar */}
+      <div className="flex flex-wrap items-center justify-between gap-4 p-4 bg-slate-50 dark:bg-slate-900/50 rounded-2xl border border-slate-200 dark:border-slate-800">
+        <div className="flex items-center gap-2">
+          <Sparkles className="w-4 h-4 text-amber-500" aria-hidden="true" />
+          <span className="text-xs font-bold uppercase tracking-widest text-slate-500 dark:text-slate-400">
+            {t('jsontographql.presets_title', 'Quick Start Presets:')}
+          </span>
+        </div>
+        <div className="flex flex-wrap items-center gap-2">
+          <button
+            onClick={() => loadPreset('user_profile')}
+            className="px-3 py-1.5 text-xs font-bold bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 hover:border-indigo-500 rounded-xl transition-all shadow-sm focus-visible:ring-2 focus-visible:ring-indigo-500 focus-visible:outline-none"
+          >
+            {t('jsontographql.preset_user_profile', 'User Profile JSON')}
+          </button>
+          <button
+            onClick={() => loadPreset('ecommerce_order')}
+            className="px-3 py-1.5 text-xs font-bold bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 hover:border-indigo-500 rounded-xl transition-all shadow-sm focus-visible:ring-2 focus-visible:ring-indigo-500 focus-visible:outline-none"
+          >
+            {t('jsontographql.preset_ecommerce', 'E-Commerce Order JSON')}
+          </button>
+          <button
+            onClick={() => loadPreset('api_config')}
+            className="px-3 py-1.5 text-xs font-bold bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 hover:border-indigo-500 rounded-xl transition-all shadow-sm focus-visible:ring-2 focus-visible:ring-indigo-500 focus-visible:outline-none"
+          >
+            {t('jsontographql.preset_api_config', 'API Config JSON')}
+          </button>
+        </div>
+      </div>
+
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
         <div className="space-y-4">
           <div className="flex justify-between items-center px-1">
             <div className="flex items-center gap-2">
-              <FileCode className="w-4 h-4 text-indigo-500" />
-              <label htmlFor="json-input" className="text-xs font-black uppercase tracking-widest text-slate-400 cursor-pointer">{t('common.input')} JSON</label>
+              <FileCode className="w-4 h-4 text-indigo-500" aria-hidden="true" />
+              <label htmlFor="json-input" className="text-xs font-black uppercase tracking-widest text-slate-400 cursor-pointer">
+                {t('common.input')} JSON
+              </label>
             </div>
-            <button
-              onClick={handleClear}
-              disabled={!input && !output}
-              className="text-xs font-bold px-3 py-1 rounded-full text-rose-500 bg-rose-50 dark:bg-rose-500/10 hover:bg-rose-100 dark:hover:bg-rose-500/20 transition-all flex items-center gap-1 disabled:opacity-50 disabled:cursor-not-allowed focus-visible:ring-2 focus-visible:ring-rose-500 focus-visible:outline-none"
-            >
-              <Trash2 className="w-3 h-3" /> {t('common.clear')}
-            </button>
+            <div className="flex items-center gap-2">
+              <Kbd modifier={null} className="hidden sm:inline-flex border-rose-200 dark:border-rose-800 text-rose-400 dark:bg-slate-900">Esc</Kbd>
+              <button
+                onClick={handleClear}
+                disabled={!input && !output}
+                className="text-xs font-bold px-3 py-1.5 rounded-xl text-rose-500 bg-rose-50 dark:bg-rose-500/10 hover:bg-rose-100 dark:hover:bg-rose-500/20 transition-all flex items-center gap-1 disabled:opacity-50 disabled:cursor-not-allowed focus-visible:ring-2 focus-visible:ring-rose-500 focus-visible:outline-none"
+              >
+                <Trash2 className="w-3 h-3" aria-hidden="true" /> {t('common.clear')}
+              </button>
+            </div>
           </div>
           <textarea
             id="json-input"
+            ref={inputRef}
             value={input}
             onChange={(e) => setInput(e.target.value)}
-            onKeyDown={(e) => {
-              if ((e.ctrlKey || e.metaKey) && e.key === 'Enter') {
-                e.preventDefault();
-                handleConvert();
-              }
-            }}
             placeholder='{"id": 1, "name": "John Doe", "active": true, "address": {"street": "Main St"}}'
             className="w-full h-[450px] p-6 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-3xl outline-none focus:ring-2 focus:ring-indigo-500/20 transition-all font-mono text-sm leading-relaxed dark:text-slate-300 resize-none"
           />
@@ -178,27 +299,30 @@ export function JSONToGraphQL({ initialData, onStateChange }: { initialData?: an
         <div className="space-y-4">
           <div className="flex justify-between items-center px-1">
             <div className="flex items-center gap-2">
-              <Terminal className="w-4 h-4 text-emerald-500" />
-              <label htmlFor="graphql-output" className="text-xs font-black uppercase tracking-widest text-slate-400 cursor-pointer">GraphQL Schema</label>
+              <Terminal className="w-4 h-4 text-emerald-500" aria-hidden="true" />
+              <label htmlFor="graphql-output" className="text-xs font-black uppercase tracking-widest text-slate-400 cursor-pointer">
+                GraphQL Schema
+              </label>
             </div>
             <div className="flex gap-2">
               <button
                 onClick={handleDownload}
                 disabled={!output}
-                className="text-xs font-bold px-3 py-1 rounded-full text-indigo-500 bg-indigo-50 dark:bg-indigo-500/10 hover:bg-indigo-100 transition-all flex items-center gap-1 disabled:opacity-50"
+                className="text-xs font-bold px-3 py-1.5 rounded-xl text-indigo-500 bg-indigo-50 dark:bg-indigo-500/10 hover:bg-indigo-100 transition-all flex items-center gap-1 disabled:opacity-50 focus-visible:ring-2 focus-visible:ring-indigo-500 focus-visible:outline-none"
               >
-                <Download className="w-3 h-3" /> {t('common.download')}
+                <Download className="w-3 h-3" aria-hidden="true" /> {t('common.download')}
               </button>
               <button
                 onClick={handleCopy}
                 disabled={!output}
-                className={`text-xs font-bold px-3 py-1 rounded-full transition-all flex items-center gap-1 focus-visible:ring-2 focus-visible:ring-indigo-500 focus-visible:outline-none ${
+                className={`text-xs font-bold px-3 py-1.5 rounded-xl transition-all flex items-center gap-1 border focus-visible:ring-2 focus-visible:ring-indigo-500 focus-visible:outline-none ${
                   copied
                     ? 'bg-emerald-50 dark:bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border border-emerald-200 dark:border-emerald-500/20'
-                    : 'text-slate-500 bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 disabled:opacity-50 disabled:cursor-not-allowed'
+                    : 'text-slate-500 bg-slate-100 dark:bg-slate-800 border-transparent hover:bg-slate-200 dark:hover:bg-slate-700 disabled:opacity-50 disabled:cursor-not-allowed'
                 }`}
               >
-                {copied ? <Check className="w-3 h-3" /> : <Copy className="w-3 h-3" />} {copied ? t('common.copied') : t('common.copy')}
+                {copied ? <Check className="w-3 h-3" aria-hidden="true" /> : <Copy className="w-3 h-3" aria-hidden="true" />} {copied ? t('common.copied') : t('common.copy')}
+                {!copied && input && <Kbd modifier={null} className="hidden sm:inline-flex w-4 h-4 bg-white/50 dark:bg-black/20 ml-1">C</Kbd>}
               </button>
             </div>
           </div>
@@ -214,7 +338,7 @@ export function JSONToGraphQL({ initialData, onStateChange }: { initialData?: an
 
       {error && (
         <div className="bg-rose-50 dark:bg-rose-500/10 border border-rose-200 dark:border-rose-800 p-4 rounded-2xl flex items-center gap-3 text-rose-600 dark:text-rose-400 font-bold animate-in fade-in slide-in-from-top-2">
-          <AlertCircle className="w-5 h-5" />
+          <AlertCircle className="w-5 h-5" aria-hidden="true" />
           {error}
         </div>
       )}
@@ -222,7 +346,7 @@ export function JSONToGraphQL({ initialData, onStateChange }: { initialData?: an
       {/* Info */}
       <div className="bg-indigo-50 dark:bg-indigo-900/10 p-8 rounded-[2.5rem] border border-indigo-100 dark:border-indigo-900/20 flex items-start gap-4">
         <div className="p-3 bg-white dark:bg-slate-800 text-indigo-600 rounded-2xl shadow-sm border border-slate-100 dark:border-slate-700">
-          <Info className="w-6 h-6" />
+          <Info className="w-6 h-6" aria-hidden="true" />
         </div>
         <div className="space-y-2">
           <h4 className="font-bold dark:text-white">{t('jsontographql.about_title')}</h4>

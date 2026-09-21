@@ -623,6 +623,8 @@ const SQLToPHP = lazy(() => import("./components/SQLToPHP").then(m => ({ default
 const SQLToKotlin = lazy(() => import("./components/SQLToKotlin").then(m => ({ default: m.SQLToKotlin })));
 const SQLToGo = lazy(() => import("./components/SQLToGo").then(m => ({ default: m.SQLToGo })));
 const SQLToRust = lazy(() => import("./components/SQLToRust").then(m => ({ default: m.SQLToRust })));
+const SQLToScala = lazy(() => import("./components/SQLToScala").then(m => ({ default: m.SQLToScala })));
+const SQLToDart = lazy(() => import("./components/SQLToDart").then(m => ({ default: m.SQLToDart })));
 const SQLToZod = lazy(() => import("./components/SQLToZod").then(m => ({ default: m.SQLToZod })));
 const SQLToTypeBox = lazy(() => import("./components/SQLToTypeBox").then(m => ({ default: m.SQLToTypeBox })));
 const SQLToSwift = lazy(() => import("./components/SQLToSwift").then(m => ({ default: m.SQLToSwift })));
@@ -725,6 +727,30 @@ const tools: Tool[] = [
     Component: SQLToRust,
     category: "dev",
     keywords: ["sql", "ddl", "create table", "rust", "struct", "serde", "sqlx", "diesel", "convert", "convertir"],
+  },
+  // SQL DDL to Scala Case Class Generator Tool
+  {
+    id: "sql-to-scala",
+    name: "SQL DDL en Scala",
+    nameEn: "SQL DDL to Scala Case Classes",
+    icon: Database,
+    description: "Convertir des instructions SQL CREATE TABLE DDL en case classes Scala 3 ou 2",
+    descriptionEn: "Convert SQL CREATE TABLE DDL statements into strongly-typed Scala 3 or 2 case classes",
+    Component: SQLToScala,
+    category: "dev",
+    keywords: ["sql", "ddl", "create table", "scala", "case class", "circe", "play json", "jackson", "slick", "convert", "convertir"],
+  },
+  // SQL DDL to Dart Model Class Generator Tool
+  {
+    id: "sql-to-dart",
+    name: "SQL DDL en Dart",
+    nameEn: "SQL DDL to Dart Classes",
+    icon: FileCode,
+    description: "Convertir des instructions SQL CREATE TABLE DDL en modèles de classes Dart / Flutter",
+    descriptionEn: "Convert SQL CREATE TABLE DDL statements into strongly-typed Dart / Flutter model classes",
+    Component: SQLToDart,
+    category: "dev",
+    keywords: ["sql", "ddl", "create table", "dart", "flutter", "class", "freezed", "json_serializable", "convert", "convertir"],
   },
   // SQL DDL to TypeBox Schema Converter Tool
   {

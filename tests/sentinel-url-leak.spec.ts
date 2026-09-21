@@ -274,4 +274,43 @@ test.describe('Sentinel: URL Leak Prevention', () => {
       expect(decodedData.cardNumber).toBeUndefined();
     }
   });
+
+  test('JWKGenerator does not leak pemInput or jwkOutput in shared state', async ({ page }) => {
+    await page.goto('http://localhost:5173/fr/outil/jwk-generator');
+
+    const secretPem = '-----BEGIN PRIVATE KEY-----\nMIIEvgIBADANBgkqhkiG9w0BAQEFAASCBKgwggSkAgEAAoIBAQC8u...\n-----END PRIVATE KEY-----';
+    const secretJwk = '{\n  "kty": "RSA",\n  "d": "SECRET_PRIVATE_EXPONENT_123"\n}';
+
+    await page.fill('#pem-input-field', secretPem);
+    await page.fill('#jwk-output-field', secretJwk);
+
+    let sharedUrl = '';
+    await page.exposeFunction('captureClipboardJWK', (text: string) => {
+      sharedUrl = text;
+    });
+    await page.evaluate(() => {
+      navigator.clipboard.writeText = async (text: string) => {
+        (window as any).captureClipboardJWK(text);
+      };
+    });
+
+    const shareBtn = page.locator('button:has-text("Partager"), button:has-text("Share config")');
+    await shareBtn.waitFor({ state: 'visible' });
+    await shareBtn.click();
+
+    await expect.poll(() => sharedUrl).toContain('data=');
+    const urlObj = new URL(sharedUrl);
+    const data = urlObj.searchParams.get('data');
+
+    if (data) {
+      const decodedData = JSON.parse(decodeURIComponent(Array.prototype.map.call(atob(data), (c: string) => {
+        return '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2);
+      }).join('')));
+
+      // Sentinel: pemInput and jwkOutput containing cryptographic keys must NOT be leaked into shared URL state.
+      expect(decodedData.pemInput).toBeUndefined();
+      expect(decodedData.jwkOutput).toBeUndefined();
+      expect(decodedData.keyType).toBe('RSA');
+    }
+  });
 });

@@ -296,3 +296,8 @@
 **Vulnerability:** The JSONToQuery component checked for forbidden prototype properties (`__proto__`, `constructor`, `prototype`) using exact case string comparisons, allowing uppercase or mixed-case query keys (e.g. `CONSTRUCTOR[polluted]=true` or `__PROTO__[polluted]=true`) to bypass the prototype filter when reconstructing JSON objects.
 **Learning:** Query string keys can be formatted in any letter casing by attackers. When implementing prototype pollution filters on incoming raw key strings or path tokens, checks must be normalized to lowercase before matching against forbidden properties.
 **Prevention:** Always convert keys to lowercase (`key.toLowerCase()`) prior to evaluating membership in prototype blocklists (`__proto__`, `constructor`, `prototype`).
+
+## 2026-09-15 - [Private Key Material Leakage in JWK Generator Shared State]
+**Vulnerability:** The JWKGenerator component synchronized `pemInput` and `jwkOutput` (which contain raw private RSA/EC keys and symmetric secret keys) into state callbacks for shareable URL parameter encoding (`?data=...`), exposing private cryptographic keys in browser navigation history, referrers, and shared links.
+**Learning:** Cryptographic key management tools must never expose raw key material or secret attributes in shareable URL state synchronization mechanisms.
+**Prevention:** Exclude all sensitive inputs and outputs (`pemInput`, `jwkOutput`) from `onStateChange` callbacks in cryptographic tools, keeping state synchronization restricted strictly to non-sensitive configuration options (`keyType`, `keySize`, `ecCurve`, `octLength`).

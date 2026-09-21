@@ -15,16 +15,16 @@ export function JWKGenerator({ initialData, onStateChange }: { initialData?: any
   const [keySize, setKeySize] = useState<"2048" | "4096">(initialData?.keySize || "2048");
   const [ecCurve, setEcCurve] = useState<"P-256" | "P-384" | "P-521">(initialData?.ecCurve || "P-256");
   const [octLength, setOctLength] = useState<"128" | "256" | "512">(initialData?.octLength || "256");
-  const [pemInput, setPemInput] = useState<string>(initialData?.pemInput || "");
-  const [jwkOutput, setJwkOutput] = useState<string>(initialData?.jwkOutput || "");
+  const [pemInput, setPemInput] = useState<string>("");
+  const [jwkOutput, setJwkOutput] = useState<string>("");
   const [error, setError] = useState<string>("");
   const [copied, setCopied] = useState<boolean>(false);
   const [isGenerating, setIsGenerating] = useState<boolean>(false);
 
-  // Sync state
+  // Sync state - Sentinel: Exclude pemInput and jwkOutput from shared URL state to prevent private key leakage.
   useEffect(() => {
-    onStateChange?.({ keyType, keySize, ecCurve, octLength, pemInput, jwkOutput });
-  }, [keyType, keySize, ecCurve, octLength, pemInput, jwkOutput, onStateChange]);
+    onStateChange?.({ keyType, keySize, ecCurve, octLength });
+  }, [keyType, keySize, ecCurve, octLength, onStateChange]);
 
   // Generate JWK function
   const handleGenerate = async () => {

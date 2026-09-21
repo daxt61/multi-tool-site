@@ -625,6 +625,7 @@ const SQLToGo = lazy(() => import("./components/SQLToGo").then(m => ({ default: 
 const SQLToRust = lazy(() => import("./components/SQLToRust").then(m => ({ default: m.SQLToRust })));
 const SQLToZod = lazy(() => import("./components/SQLToZod").then(m => ({ default: m.SQLToZod })));
 const SQLToTypeBox = lazy(() => import("./components/SQLToTypeBox").then(m => ({ default: m.SQLToTypeBox })));
+const SQLToSwift = lazy(() => import("./components/SQLToSwift").then(m => ({ default: m.SQLToSwift })));
 const ImagePixelator = lazy(() => import("./components/ImagePixelator").then(m => ({ default: m.ImagePixelator })));
 const TSVTester = lazy(() => import("./components/TSVTester").then(m => ({ default: m.TSVTester })));
 const EnumerateIntegers = lazy(() => import("./components/EnumerateIntegers").then(m => ({ default: m.EnumerateIntegers })));
@@ -688,6 +689,18 @@ const tools: Tool[] = [
     Component: TSVTester,
     category: "dev",
     keywords: ["tsv", "tab", "validator", "tester", "quality", "columns", "empty cells", "duplicates", "types", "testeur", "valider"],
+  },
+  // SQL DDL to Swift Codable Converter Tool
+  {
+    id: "sql-to-swift",
+    name: "SQL DDL en Swift",
+    nameEn: "SQL DDL to Swift Codable",
+    icon: FileCode,
+    description: "Convertir des instructions SQL CREATE TABLE DDL en structures ou classes Swift 5.9+ Codable",
+    descriptionEn: "Convert SQL CREATE TABLE DDL statements into strongly-typed Swift 5.9+ Codable structs or classes",
+    Component: SQLToSwift,
+    category: "dev",
+    keywords: ["sql", "ddl", "create table", "swift", "codable", "identifiable", "struct", "class", "ios", "macos", "convert", "convertir"],
   },
   // SQL DDL to PHP Class / Readonly DTO / Laravel Eloquent Generator Tool
   {

@@ -627,6 +627,7 @@ const SQLToScala = lazy(() => import("./components/SQLToScala").then(m => ({ def
 const SQLToDart = lazy(() => import("./components/SQLToDart").then(m => ({ default: m.SQLToDart })));
 const SQLToZod = lazy(() => import("./components/SQLToZod").then(m => ({ default: m.SQLToZod })));
 const SQLToTypeBox = lazy(() => import("./components/SQLToTypeBox").then(m => ({ default: m.SQLToTypeBox })));
+const SQLToDrizzle = lazy(() => import("./components/SQLToDrizzle").then(m => ({ default: m.SQLToDrizzle })));
 const SQLToSwift = lazy(() => import("./components/SQLToSwift").then(m => ({ default: m.SQLToSwift })));
 const ImagePixelator = lazy(() => import("./components/ImagePixelator").then(m => ({ default: m.ImagePixelator })));
 const TSVTester = lazy(() => import("./components/TSVTester").then(m => ({ default: m.TSVTester })));
@@ -764,6 +765,18 @@ const tools: Tool[] = [
     Component: SQLToDart,
     category: "dev",
     keywords: ["sql", "ddl", "create table", "dart", "flutter", "class", "freezed", "json_serializable", "convert", "convertir"],
+  },
+  // SQL DDL to Drizzle ORM Schema Generator Tool
+  {
+    id: "sql-to-drizzle",
+    name: "SQL DDL en Drizzle",
+    nameEn: "SQL DDL to Drizzle ORM",
+    icon: Database,
+    description: "Convertir des instructions SQL CREATE TABLE DDL en schémas Drizzle ORM fortement typés",
+    descriptionEn: "Convert SQL CREATE TABLE DDL statements into strongly-typed Drizzle ORM schema definitions",
+    Component: SQLToDrizzle,
+    category: "dev",
+    keywords: ["sql", "ddl", "create table", "drizzle", "orm", "pgTable", "mysqlTable", "sqliteTable", "schema", "convert", "convertir"],
   },
   // SQL DDL to TypeBox Schema Converter Tool
   {

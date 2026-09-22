@@ -20,7 +20,8 @@ export function HTMLToJSX({ initialData, onStateChange }: { initialData?: any; o
   const convertStyle = (styleStr: string) => {
     const styles: Record<string, string> = Object.create(null);
     styleStr.split(';').forEach(style => {
-      const [prop, val] = style.split(':');
+      const [prop, ...valParts] = style.split(':');
+      const val = valParts.join(':');
       if (prop && val) {
         const camelProp = prop.trim().replace(/-([a-z])/g, g => g[1].toUpperCase());
         if (!DANGEROUS_KEYS.includes(camelProp)) {
@@ -28,7 +29,8 @@ export function HTMLToJSX({ initialData, onStateChange }: { initialData?: any; o
         }
       }
     });
-    return `{{${Object.entries(styles).map(([k, v]) => `${k}: '${v}'`).join(', ')}}}`;
+    // Sentinel: Use JSON.stringify for style values to prevent single-quote breakout or JS expression injection in generated JSX
+    return `{{${Object.entries(styles).map(([k, v]) => `${k}: ${JSON.stringify(v)}`).join(', ')}}}`;
   };
 
   const handleConvert = useCallback(() => {

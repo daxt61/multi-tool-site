@@ -301,3 +301,8 @@
 **Vulnerability:** The JWKGenerator component synchronized `pemInput` and `jwkOutput` (which contain raw private RSA/EC keys and symmetric secret keys) into state callbacks for shareable URL parameter encoding (`?data=...`), exposing private cryptographic keys in browser navigation history, referrers, and shared links.
 **Learning:** Cryptographic key management tools must never expose raw key material or secret attributes in shareable URL state synchronization mechanisms.
 **Prevention:** Exclude all sensitive inputs and outputs (`pemInput`, `jwkOutput`) from `onStateChange` callbacks in cryptographic tools, keeping state synchronization restricted strictly to non-sensitive configuration options (`keyType`, `keySize`, `ecCurve`, `octLength`).
+
+## 2026-09-20 - [JSX Style String Breakout in HTML-to-JSX Converter]
+**Vulnerability:** The HTMLToJSX component formatted inline CSS style values in generated JSX using single-quote wrapping (`'${v}'`) without escaping. Style values containing single quotes, colons, or code expressions could break out of string literals or corrupt JSX style objects.
+**Learning:** String interpolation in code/JSX generators must handle nested quotes and special characters safely. Wrapping values with `JSON.stringify()` guarantees valid, escaped JavaScript string literals in generated JSX objects.
+**Prevention:** Always use `JSON.stringify()` when interpolating string property values into generated JavaScript/JSX object literals.

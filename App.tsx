@@ -633,6 +633,7 @@ const ImagePixelator = lazy(() => import("./components/ImagePixelator").then(m =
 const TSVTester = lazy(() => import("./components/TSVTester").then(m => ({ default: m.TSVTester })));
 const EnumerateIntegers = lazy(() => import("./components/EnumerateIntegers").then(m => ({ default: m.EnumerateIntegers })));
 const GraphQLToTypeScript = lazy(() => import("./components/GraphQLToTypeScript").then(m => ({ default: m.GraphQLToTypeScript })));
+const SQLToProtobuf = lazy(() => import("./components/SQLToProtobuf").then(m => ({ default: m.SQLToProtobuf })));
 
 // ⚡ Bolt Optimization: Pre-calculating tool map and search index for O(1) lookups and faster filtering
 const toolsMap: Record<string, Tool> = {};
@@ -705,6 +706,18 @@ const tools: Tool[] = [
     Component: TSVTester,
     category: "dev",
     keywords: ["tsv", "tab", "validator", "tester", "quality", "columns", "empty cells", "duplicates", "types", "testeur", "valider"],
+  },
+  // SQL DDL to Protocol Buffers (.proto) Converter Tool
+  {
+    id: "sql-to-protobuf",
+    name: "SQL DDL en Protobuf",
+    nameEn: "SQL DDL to Protobuf",
+    icon: FileCode,
+    description: "Convertir des instructions SQL CREATE TABLE DDL en définitions de messages Protocol Buffers (.proto)",
+    descriptionEn: "Convert SQL CREATE TABLE DDL statements into Protocol Buffers (.proto) message definitions",
+    Component: SQLToProtobuf,
+    category: "dev",
+    keywords: ["sql", "ddl", "create table", "protobuf", "proto", "proto3", "grpc", "rpc", "schema", "convert", "convertir"],
   },
   // SQL DDL to Swift Codable Converter Tool
   {

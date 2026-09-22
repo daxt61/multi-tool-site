@@ -7,6 +7,13 @@ import { Kbd } from './ui/Kbd';
 const MAX_LENGTH = 100000;
 const MAX_DEPTH = 20;
 
+const PROTO_RESERVED_KEYWORDS = new Set([
+  'package', 'import', 'message', 'service', 'syntax', 'enum', 'oneof', 'map',
+  'reserved', 'extensions', 'extend', 'option', 'repeated', 'optional', 'required',
+  'double', 'float', 'int32', 'int64', 'uint32', 'uint64', 'sint32', 'sint64',
+  'fixed32', 'fixed64', 'sfixed32', 'sfixed64', 'bool', 'string', 'bytes', 'rpc', 'returns'
+]);
+
 interface Preset {
   name: string;
   data: object;
@@ -169,6 +176,9 @@ export function JSONToProtobuf({ initialData, onStateChange }: { initialData?: a
 
             let safeKey = transformedKey.replace(/[^a-zA-Z0-9_]/g, '_');
             if (/^[0-9]/.test(safeKey)) safeKey = 'f_' + safeKey;
+            if (PROTO_RESERVED_KEYWORDS.has(safeKey.toLowerCase())) {
+              safeKey = safeKey + '_';
+            }
             if (!safeKey || safeKey === '_') safeKey = `field_${index + 1}`;
 
             const safeCommentKey = key.replace(/[\n\r\t\v\f]/g, ' ').replace(/\*\//g, '* /');

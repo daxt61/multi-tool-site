@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback, useMemo } from 'react';
+import { useState, useEffect, useCallback, useMemo, useRef } from 'react';
 import { Copy, RefreshCw, Check, Shield, ShieldAlert, ShieldCheck, Key, BookOpen, Trash2, Download, Eye, EyeOff, AlertCircle, Info, Activity } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import { toast } from 'sonner';
@@ -37,6 +37,8 @@ const WORDS_EN = [
 
 export function PasswordGenerator({ initialData, onStateChange }: { initialData?: any; onStateChange?: (state: any) => void }) {
   const { t, i18n } = useTranslation();
+  const containerRef = useRef<HTMLDivElement>(null);
+  const primaryInputRef = useRef<HTMLInputElement>(null);
   const [mode, setMode] = useState<'random' | 'passphrase'>(initialData?.mode || 'random');
   const [passwords, setPasswords] = useState<string[]>([]);
   const [quantity, setQuantity] = useState(() => {
@@ -201,6 +203,7 @@ export function PasswordGenerator({ initialData, onStateChange }: { initialData?
   const handleClear = () => {
     setPasswords([]);
     setHistory([]);
+    primaryInputRef.current?.focus();
   };
 
   const copyHistoryItem = (item: string, index: number) => {
@@ -235,11 +238,17 @@ export function PasswordGenerator({ initialData, onStateChange }: { initialData?
 
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
-      if (document.activeElement?.tagName === "INPUT" || document.activeElement?.tagName === "TEXTAREA") {
+      const activeElement = document.activeElement;
+      if (activeElement?.tagName === "INPUT" || activeElement?.tagName === "TEXTAREA") {
         return;
       }
 
-      const isBodyFocused = document.activeElement === document.body;
+      const isInsideContainer = containerRef.current?.contains(activeElement);
+      const isBodyFocused = activeElement === document.body || activeElement === document.documentElement || !activeElement;
+
+      if (!isInsideContainer && !isBodyFocused) {
+        return;
+      }
 
       if ((e.key.toLowerCase() === 'r' || e.key === 'Enter') || (e.code === 'Space' && isBodyFocused)) {
         e.preventDefault();
@@ -261,7 +270,7 @@ export function PasswordGenerator({ initialData, onStateChange }: { initialData?
   }, [generatePassword, copyToClipboard, showPassword]);
 
   return (
-    <div className="max-w-4xl mx-auto space-y-8">
+    <div ref={containerRef} className="max-w-4xl mx-auto space-y-8">
       <div className="flex justify-end items-center gap-2 px-1">
         <button
           onClick={() => copyToClipboard(passwords.join('\n'))}
@@ -479,11 +488,15 @@ export function PasswordGenerator({ initialData, onStateChange }: { initialData?
               <span className="text-2xl font-black font-mono text-indigo-600 dark:text-indigo-400">{quantity}</span>
             </div>
             <input
+              ref={primaryInputRef}
               id="password-quantity"
               type="range"
               min="1"
               max="50"
               value={quantity}
+              aria-valuemin={1}
+              aria-valuemax={50}
+              aria-valuenow={quantity}
               onChange={(e) => setQuantity(Number(e.target.value))}
               className="w-full h-2 bg-slate-200 dark:bg-slate-800 rounded-lg appearance-none cursor-pointer accent-indigo-600 focus-visible:ring-2 focus-visible:ring-indigo-500 focus-visible:outline-none"
             />
@@ -501,6 +514,9 @@ export function PasswordGenerator({ initialData, onStateChange }: { initialData?
                 min="4"
                 max="128"
                 value={length}
+                aria-valuemin={4}
+                aria-valuemax={128}
+                aria-valuenow={length}
                 onChange={(e) => setLength(Number(e.target.value))}
                 className="w-full h-2 bg-slate-200 dark:bg-slate-800 rounded-lg appearance-none cursor-pointer accent-indigo-600 focus-visible:ring-2 focus-visible:ring-indigo-500 focus-visible:outline-none"
               />
@@ -517,6 +533,9 @@ export function PasswordGenerator({ initialData, onStateChange }: { initialData?
                 min="2"
                 max="20"
                 value={wordCount}
+                aria-valuemin={2}
+                aria-valuemax={20}
+                aria-valuenow={wordCount}
                 onChange={(e) => setWordCount(Number(e.target.value))}
                 className="w-full h-2 bg-slate-200 dark:bg-slate-800 rounded-lg appearance-none cursor-pointer accent-indigo-600 focus-visible:ring-2 focus-visible:ring-indigo-500 focus-visible:outline-none"
               />

@@ -31,16 +31,19 @@ interface ParsedTable {
   modelName: string;
   columns: ParsedColumn[];
   primaryKeys: string[];
+  compositeUniques: string[][];
 }
 
 export function SQLToPrisma({ initialData, onStateChange }: { initialData?: any; onStateChange?: (state: any) => void }) {
   const { t } = useTranslation();
+  const containerRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLTextAreaElement>(null);
   const [input, setInput] = useState(initialData?.input || '');
   const [output, setOutput] = useState('');
   const [provider, setProvider] = useState<Provider>(initialData?.provider || 'postgresql');
   const [useMapAttributes, setUseMapAttributes] = useState<boolean>(initialData?.useMapAttributes ?? true);
   const [addTimestamps, setAddTimestamps] = useState<boolean>(initialData?.addTimestamps ?? false);
+  const [activePreset, setActivePreset] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [copied, setCopied] = useState(false);
 
@@ -219,25 +222,58 @@ CREATE TABLE comments (
 
         const columns: ParsedColumn[] = [];
         const primaryKeys: string[] = [];
+        const compositeUniques: string[][] = [];
         const tableForeignKeys: { colName: string; targetTable: string; targetCol: string }[] = [];
 
         // First pass: extract constraints
         columnLines.forEach(line => {
           const upper = line.toUpperCase();
 
-          if (upper.startsWith('PRIMARY KEY')) {
+          if (upper.startsWith('PRIMARY KEY') || upper.includes(' PRIMARY KEY')) {
             const pkMatch = line.match(/PRIMARY\s+KEY\s*\(([^)]+)\)/i);
             if (pkMatch) {
               const keys = pkMatch[1].split(',').map(k => k.trim().replace(/["`']/g, ''));
               primaryKeys.push(...keys);
             }
-          } else if (upper.startsWith('FOREIGN KEY')) {
+          } else if (upper.startsWith('UNIQUE') || upper.includes(' UNIQUE')) {
+            const uqMatch = line.match(/UNIQUE\s*(?:KEY|INDEX)?\s*(?:\w+\s*)?\(([^)]+)\)/i);
+            if (uqMatch) {
+              const keys = uqMatch[1].split(',').map(k => k.trim().replace(/["`']/g, ''));
+              if (keys.length > 1) {
+                compositeUniques.push(keys);
+              }
+            }
+          } else if (upper.startsWith('FOREIGN KEY') || upper.includes(' FOREIGN KEY')) {
             const fkMatch = line.match(/FOREIGN\s+KEY\s*\(([^)]+)\)\s*REFERENCES\s+["`]?(\w+)["`]?\s*\(([^)]+)\)/i);
             if (fkMatch) {
               const colName = fkMatch[1].trim().replace(/["`']/g, '');
               const targetTable = fkMatch[2].trim();
               const targetCol = fkMatch[3].trim().replace(/["`']/g, '');
               tableForeignKeys.push({ colName, targetTable, targetCol });
+            }
+          } else if (upper.startsWith('CONSTRAINT')) {
+            if (upper.includes('PRIMARY KEY')) {
+              const pkMatch = line.match(/PRIMARY\s+KEY\s*\(([^)]+)\)/i);
+              if (pkMatch) {
+                const keys = pkMatch[1].split(',').map(k => k.trim().replace(/["`']/g, ''));
+                primaryKeys.push(...keys);
+              }
+            } else if (upper.includes('UNIQUE')) {
+              const uqMatch = line.match(/UNIQUE\s*\(([^)]+)\)/i);
+              if (uqMatch) {
+                const keys = uqMatch[1].split(',').map(k => k.trim().replace(/["`']/g, ''));
+                if (keys.length > 1) {
+                  compositeUniques.push(keys);
+                }
+              }
+            } else if (upper.includes('FOREIGN KEY')) {
+              const fkMatch = line.match(/FOREIGN\s+KEY\s*\(([^)]+)\)\s*REFERENCES\s+["`]?(\w+)["`]?\s*\(([^)]+)\)/i);
+              if (fkMatch) {
+                const colName = fkMatch[1].trim().replace(/["`']/g, '');
+                const targetTable = fkMatch[2].trim();
+                const targetCol = fkMatch[3].trim().replace(/["`']/g, '');
+                tableForeignKeys.push({ colName, targetTable, targetCol });
+              }
             }
           }
         });
@@ -323,7 +359,8 @@ CREATE TABLE comments (
           tableName: rawTableName,
           modelName,
           columns,
-          primaryKeys
+          primaryKeys,
+          compositeUniques
         });
       }
 
@@ -396,6 +433,13 @@ CREATE TABLE comments (
           schemaStr += `\n  @@id([${pkFields}])\n`;
         }
 
+        if (table.compositeUniques && table.compositeUniques.length > 0) {
+          table.compositeUniques.forEach(uniqueGroup => {
+            const uqFields = uniqueGroup.map(k => useMapAttributes ? toCamelCase(k) : k).join(', ');
+            schemaStr += `  @@unique([${uqFields}])\n`;
+          });
+        }
+
         if (useMapAttributes && table.modelName.toLowerCase() !== table.tableName.toLowerCase()) {
           schemaStr += `  @@map("${table.tableName}")\n`;
         }
@@ -427,6 +471,7 @@ CREATE TABLE comments (
     setInput('');
     setOutput('');
     setError(null);
+    setActivePreset(null);
     toast.success(t('common.cleared', 'Cleared!'));
     setTimeout(() => inputRef.current?.focus(), 0);
   }, [t]);
@@ -447,6 +492,7 @@ CREATE TABLE comments (
 
   const loadPreset = (presetKey: keyof typeof PRESETS) => {
     setInput(PRESETS[presetKey]);
+    setActivePreset(presetKey);
     toast.success(t('sqltoprisma.preset_loaded', 'Loaded SQL preset!'));
   };
 
@@ -458,6 +504,10 @@ CREATE TABLE comments (
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
       const activeElement = document.activeElement;
+      if (containerRef.current && !containerRef.current.contains(activeElement) && activeElement !== document.body) {
+        return;
+      }
+
       const isEditable =
         activeElement instanceof HTMLInputElement ||
         activeElement instanceof HTMLTextAreaElement ||
@@ -483,7 +533,7 @@ CREATE TABLE comments (
   }, []);
 
   return (
-    <div className="max-w-6xl mx-auto space-y-8 animate-in fade-in duration-500">
+    <div ref={containerRef} className="max-w-6xl mx-auto space-y-8 animate-in fade-in duration-500">
       {/* Presets Bar */}
       <div className="flex flex-wrap items-center justify-between gap-4 p-4 bg-slate-50 dark:bg-slate-900/50 rounded-2xl border border-slate-200 dark:border-slate-800">
         <div className="flex items-center gap-2">
@@ -495,19 +545,34 @@ CREATE TABLE comments (
         <div className="flex flex-wrap items-center gap-2">
           <button
             onClick={() => loadPreset('ecommerce')}
-            className="px-3 py-1.5 text-xs font-bold bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 hover:border-indigo-500 rounded-xl transition-all shadow-sm focus-visible:ring-2 focus-visible:ring-indigo-500 focus-visible:outline-none"
+            aria-pressed={activePreset === 'ecommerce'}
+            className={`px-3 py-1.5 text-xs font-bold rounded-xl transition-all shadow-sm focus-visible:ring-2 focus-visible:ring-indigo-500 focus-visible:outline-none border ${
+              activePreset === 'ecommerce'
+                ? 'bg-indigo-600 text-white border-indigo-600 dark:bg-indigo-500 dark:border-indigo-500'
+                : 'bg-white dark:bg-slate-800 border-slate-200 dark:border-slate-700 hover:border-indigo-500'
+            }`}
           >
             {t('sqltoprisma.preset_ecommerce', 'E-Commerce Database')}
           </button>
           <button
             onClick={() => loadPreset('user_auth')}
-            className="px-3 py-1.5 text-xs font-bold bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 hover:border-indigo-500 rounded-xl transition-all shadow-sm focus-visible:ring-2 focus-visible:ring-indigo-500 focus-visible:outline-none"
+            aria-pressed={activePreset === 'user_auth'}
+            className={`px-3 py-1.5 text-xs font-bold rounded-xl transition-all shadow-sm focus-visible:ring-2 focus-visible:ring-indigo-500 focus-visible:outline-none border ${
+              activePreset === 'user_auth'
+                ? 'bg-indigo-600 text-white border-indigo-600 dark:bg-indigo-500 dark:border-indigo-500'
+                : 'bg-white dark:bg-slate-800 border-slate-200 dark:border-slate-700 hover:border-indigo-500'
+            }`}
           >
             {t('sqltoprisma.preset_user_auth', 'User Auth & Roles')}
           </button>
           <button
             onClick={() => loadPreset('blog')}
-            className="px-3 py-1.5 text-xs font-bold bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 hover:border-indigo-500 rounded-xl transition-all shadow-sm focus-visible:ring-2 focus-visible:ring-indigo-500 focus-visible:outline-none"
+            aria-pressed={activePreset === 'blog'}
+            className={`px-3 py-1.5 text-xs font-bold rounded-xl transition-all shadow-sm focus-visible:ring-2 focus-visible:ring-indigo-500 focus-visible:outline-none border ${
+              activePreset === 'blog'
+                ? 'bg-indigo-600 text-white border-indigo-600 dark:bg-indigo-500 dark:border-indigo-500'
+                : 'bg-white dark:bg-slate-800 border-slate-200 dark:border-slate-700 hover:border-indigo-500'
+            }`}
           >
             {t('sqltoprisma.preset_blog', 'Blog & Comments')}
           </button>

@@ -536,6 +536,7 @@ const JSONToJSDoc = lazy(() => import("./components/JSONToJSDoc").then(m => ({ d
 const JSONToOpenAPI = lazy(() => import("./components/JSONToOpenAPI").then(m => ({ default: m.JSONToOpenAPI })));
 const CSSAnimationGenerator = lazy(() => import("./components/CSSAnimationGenerator").then(m => ({ default: m.CSSAnimationGenerator })));
 const SQLToMongoDB = lazy(() => import("./components/SQLToMongoDB").then(m => ({ default: m.SQLToMongoDB })));
+const SQLToDynamoDB = lazy(() => import("./components/SQLToDynamoDB").then(m => ({ default: m.SQLToDynamoDB })));
 const SQLToElasticsearch = lazy(() => import("./components/SQLToElasticsearch").then(m => ({ default: m.SQLToElasticsearch })));
 const SQLToOpenAPI = lazy(() => import("./components/SQLToOpenAPI").then(m => ({ default: m.SQLToOpenAPI })));
 const SQLToMermaid = lazy(() => import("./components/SQLToMermaid").then(m => ({ default: m.SQLToMermaid })));
@@ -5511,6 +5512,17 @@ const tools: Tool[] = [
     Component: SQLToMongoDB,
     category: "dev",
     keywords: ["sql", "mongodb", "nosql", "convert", "database", "query"],
+  },
+  {
+    id: "sql-to-dynamodb",
+    name: "SQL en DynamoDB",
+    nameEn: "SQL to DynamoDB",
+    icon: Database,
+    description: "Convertir des requêtes DDL et SQL en schéma JSON DynamoDB, AWS SDK v3 ou PartiQL",
+    descriptionEn: "Convert SQL DDL and queries into DynamoDB CreateTable JSON, AWS SDK v3, or PartiQL",
+    Component: SQLToDynamoDB,
+    category: "dev",
+    keywords: ["sql", "dynamodb", "aws", "nosql", "partiql", "sdk", "database"],
   },
   {
     id: "sql-to-elasticsearch",

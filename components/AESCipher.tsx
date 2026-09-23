@@ -7,7 +7,8 @@ const MAX_LENGTH = 100000;
 
 export function AESCipher({ initialData, onStateChange }: { initialData?: any; onStateChange?: (state: any) => void }) {
   const { t } = useTranslation();
-  const [input, setInput] = useState(initialData?.input || '');
+  // Sentinel: Always initialize input as empty string to prevent sensitive state leakage.
+  const [input, setInput] = useState('');
   const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
   const [output, setOutput] = useState('');
@@ -16,8 +17,9 @@ export function AESCipher({ initialData, onStateChange }: { initialData?: any; o
   const [isEncrypting, setIsEncrypting] = useState(true);
 
   useEffect(() => {
-    onStateChange?.({ input, isEncrypting });
-  }, [input, isEncrypting, onStateChange]);
+    // Sentinel: Never share sensitive plaintext input or passwords in shareable URL state.
+    onStateChange?.({ isEncrypting });
+  }, [isEncrypting, onStateChange]);
 
   const deriveKey = async (pass: string, salt: Uint8Array) => {
     const enc = new TextEncoder();

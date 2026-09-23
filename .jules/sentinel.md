@@ -306,3 +306,8 @@
 **Vulnerability:** The HTMLToJSX component formatted inline CSS style values in generated JSX using single-quote wrapping (`'${v}'`) without escaping. Style values containing single quotes, colons, or code expressions could break out of string literals or corrupt JSX style objects.
 **Learning:** String interpolation in code/JSX generators must handle nested quotes and special characters safely. Wrapping values with `JSON.stringify()` guarantees valid, escaped JavaScript string literals in generated JSX objects.
 **Prevention:** Always use `JSON.stringify()` when interpolating string property values into generated JavaScript/JSX object literals.
+
+## 2026-09-25 - [Sensitive Data Leakage in AES Cipher Shared State]
+**Vulnerability:** The AESCipher component passed `input` (containing unencrypted sensitive text or secret Base64 payloads) to `onStateChange`, causing raw user plaintexts to be serialized into shareable URL parameters.
+**Learning:** Encryption utilities must never expose input plaintexts or passwords in shareable URL parameters. Only non-sensitive operational toggles (such as `isEncrypting`) should be included in shareable state synchronization.
+**Prevention:** Omit `input` and `password` from state synchronization callbacks in encryption tools, ensuring sensitive data remains local to component memory.

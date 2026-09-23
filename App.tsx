@@ -629,6 +629,7 @@ const SQLToDart = lazy(() => import("./components/SQLToDart").then(m => ({ defau
 const SQLToZod = lazy(() => import("./components/SQLToZod").then(m => ({ default: m.SQLToZod })));
 const SQLToTypeBox = lazy(() => import("./components/SQLToTypeBox").then(m => ({ default: m.SQLToTypeBox })));
 const SQLToDrizzle = lazy(() => import("./components/SQLToDrizzle").then(m => ({ default: m.SQLToDrizzle })));
+const SQLToKysely = lazy(() => import("./components/SQLToKysely").then(m => ({ default: m.SQLToKysely })));
 const SQLToSwift = lazy(() => import("./components/SQLToSwift").then(m => ({ default: m.SQLToSwift })));
 const ImagePixelator = lazy(() => import("./components/ImagePixelator").then(m => ({ default: m.ImagePixelator })));
 const TSVTester = lazy(() => import("./components/TSVTester").then(m => ({ default: m.TSVTester })));
@@ -791,6 +792,18 @@ const tools: Tool[] = [
     Component: SQLToDrizzle,
     category: "dev",
     keywords: ["sql", "ddl", "create table", "drizzle", "orm", "pgTable", "mysqlTable", "sqliteTable", "schema", "convert", "convertir"],
+  },
+  // SQL DDL to Kysely TypeScript Schema Generator Tool
+  {
+    id: "sql-to-kysely",
+    name: "SQL DDL en Kysely",
+    nameEn: "SQL DDL to Kysely Schema",
+    icon: Database,
+    description: "Convertir des instructions SQL CREATE TABLE DDL en interfaces de schéma Kysely TypeScript",
+    descriptionEn: "Convert SQL CREATE TABLE DDL statements into strongly-typed Kysely TypeScript database interfaces",
+    Component: SQLToKysely,
+    category: "dev",
+    keywords: ["sql", "ddl", "create table", "kysely", "typescript", "interface", "database", "schema", "generated", "convert", "convertir"],
   },
   // SQL DDL to TypeBox Schema Converter Tool
   {

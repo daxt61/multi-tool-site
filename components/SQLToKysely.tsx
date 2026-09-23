@@ -6,7 +6,7 @@ import { Kbd } from './ui/Kbd';
 
 const MAX_LENGTH = 100000;
 
-export function SQLToDrizzle({ initialData, onStateChange }: { initialData?: any; onStateChange?: (state: any) => void }) {
+export function SQLToKysely({ initialData, onStateChange }: { initialData?: any; onStateChange?: (state: any) => void }) {
   const { t } = useTranslation();
   const containerRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLTextAreaElement>(null);
@@ -14,16 +14,18 @@ export function SQLToDrizzle({ initialData, onStateChange }: { initialData?: any
   const [output, setOutput] = useState(initialData?.output || '');
   const [dialect, setDialect] = useState<'pg' | 'mysql' | 'sqlite'>(initialData?.dialect || 'pg');
   const [casing, setCasing] = useState<'original' | 'camelCase' | 'snake_case' | 'PascalCase'>(initialData?.casing || 'camelCase');
+  const [timestampType, setTimestampType] = useState<'Date' | 'string' | 'number'>(initialData?.timestampType || 'Date');
+  const [useGenerated, setUseGenerated] = useState(initialData?.useGenerated !== false);
+  const [useJsonType, setUseJsonType] = useState(initialData?.useJsonType !== false);
   const [includeImports, setIncludeImports] = useState(initialData?.includeImports !== false);
-  const [exportTypes, setExportTypes] = useState(initialData?.exportTypes || false);
-  const [useExport, setUseExport] = useState(initialData?.useExport !== false);
+  const [exportTypes, setExportTypes] = useState(initialData?.exportTypes !== false);
   const [error, setError] = useState('');
   const [copied, setCopied] = useState(false);
   const [activePreset, setActivePreset] = useState<string | null>(null);
 
   useEffect(() => {
-    onStateChange?.({ input, output, dialect, casing, includeImports, exportTypes, useExport });
-  }, [input, output, dialect, casing, includeImports, exportTypes, useExport, onStateChange]);
+    onStateChange?.({ input, output, dialect, casing, timestampType, useGenerated, useJsonType, includeImports, exportTypes });
+  }, [input, output, dialect, casing, timestampType, useGenerated, useJsonType, includeImports, exportTypes, onStateChange]);
 
   const PRESETS = {
     ecommerce: `-- E-Commerce Catalog Schema
@@ -105,93 +107,57 @@ CREATE TABLE comments (
     return words[0].toLowerCase() + words.slice(1).map(w => w.charAt(0).toUpperCase() + w.slice(1).toLowerCase()).join('');
   };
 
-  const toVarName = (tableName: string): string => {
-    return transformCase(tableName, 'camelCase');
-  };
-
   const toTypeName = (tableName: string): string => {
-    return transformCase(tableName, 'PascalCase');
+    const pascal = transformCase(tableName, 'PascalCase');
+    return pascal.endsWith('s') ? pascal.slice(0, -1) + 'Table' : pascal + 'Table';
   };
 
-  const mapSqlTypeToDrizzle = (
-    rawColName: string,
+  const mapSqlTypeToTs = (
     sqlType: string,
+    isPrimary: boolean,
     selectedDialect: 'pg' | 'mysql' | 'sqlite',
-    isPrimary: boolean
-  ): { drizzleFn: string; drizzleModuleImport: string } => {
+    tsTime: 'Date' | 'string' | 'number',
+    withGenerated: boolean,
+    withJson: boolean,
+    usedImports: Set<string>
+  ): string => {
     const type = (sqlType || 'VARCHAR').toUpperCase();
-    const colNameLower = rawColName.toLowerCase();
 
-    if (selectedDialect === 'pg') {
-      if ((type.includes('SERIAL') || type.includes('INT')) && isPrimary) {
-        return { drizzleFn: 'serial', drizzleModuleImport: 'serial' };
-      }
-      if (type.includes('UUID') || colNameLower.includes('uuid')) {
-        return { drizzleFn: 'uuid', drizzleModuleImport: 'uuid' };
-      }
-      if (type.includes('INT') || type.includes('SERIAL')) {
-        return { drizzleFn: 'integer', drizzleModuleImport: 'integer' };
-      }
-      if (type.includes('FLOAT') || type.includes('DOUBLE') || type.includes('REAL')) {
-        return { drizzleFn: 'real', drizzleModuleImport: 'real' };
-      }
-      if (type.includes('DECIMAL') || type.includes('NUMERIC')) {
-        return { drizzleFn: 'decimal', drizzleModuleImport: 'decimal' };
-      }
-      if (type.includes('BOOL') || type.includes('BIT')) {
-        return { drizzleFn: 'boolean', drizzleModuleImport: 'boolean' };
-      }
-      if (type.includes('TIMESTAMP') || type.includes('DATETIME') || type.includes('DATE')) {
-        return { drizzleFn: 'timestamp', drizzleModuleImport: 'timestamp' };
-      }
-      if (type.includes('JSONB')) {
-        return { drizzleFn: 'jsonb', drizzleModuleImport: 'jsonb' };
-      }
-      if (type.includes('JSON')) {
-        return { drizzleFn: 'json', drizzleModuleImport: 'json' };
-      }
-      if (type.includes('TEXT') || type.includes('CLOB')) {
-        return { drizzleFn: 'text', drizzleModuleImport: 'text' };
-      }
-      return { drizzleFn: 'varchar', drizzleModuleImport: 'varchar' };
+    if ((type.includes('SERIAL') || (type.includes('INT') && isPrimary)) && withGenerated) {
+      usedImports.add('Generated');
+      return 'Generated<number>';
     }
 
-    if (selectedDialect === 'mysql') {
-      if (type.includes('INT') || type.includes('SERIAL')) {
-        return { drizzleFn: 'int', drizzleModuleImport: 'int' };
-      }
-      if (type.includes('FLOAT') || type.includes('DOUBLE') || type.includes('REAL')) {
-        return { drizzleFn: 'float', drizzleModuleImport: 'float' };
-      }
-      if (type.includes('DECIMAL') || type.includes('NUMERIC')) {
-        return { drizzleFn: 'decimal', drizzleModuleImport: 'decimal' };
-      }
-      if (type.includes('BOOL') || type.includes('BIT')) {
-        return { drizzleFn: 'boolean', drizzleModuleImport: 'boolean' };
-      }
-      if (type.includes('TIMESTAMP') || type.includes('DATETIME')) {
-        return { drizzleFn: 'datetime', drizzleModuleImport: 'datetime' };
-      }
-      if (type.includes('JSON')) {
-        return { drizzleFn: 'json', drizzleModuleImport: 'json' };
-      }
-      if (type.includes('TEXT') || type.includes('CLOB')) {
-        return { drizzleFn: 'text', drizzleModuleImport: 'text' };
-      }
-      return { drizzleFn: 'varchar', drizzleModuleImport: 'varchar' };
+    if (type.includes('UUID') && isPrimary && withGenerated) {
+      usedImports.add('Generated');
+      return 'Generated<string>';
     }
 
-    // sqlite
-    if (type.includes('INT') || type.includes('SERIAL') || type.includes('BOOL') || type.includes('BIT')) {
-      return { drizzleFn: 'integer', drizzleModuleImport: 'integer' };
+    if (type.includes('INT') || type.includes('SERIAL')) {
+      return 'number';
     }
-    if (type.includes('FLOAT') || type.includes('DOUBLE') || type.includes('DECIMAL') || type.includes('REAL') || type.includes('NUMERIC')) {
-      return { drizzleFn: 'real', drizzleModuleImport: 'real' };
+
+    if (type.includes('FLOAT') || type.includes('DOUBLE') || type.includes('REAL') || type.includes('DECIMAL') || type.includes('NUMERIC')) {
+      return 'number';
     }
-    if (type.includes('BLOB') || type.includes('BYTEA') || type.includes('BINARY')) {
-      return { drizzleFn: 'blob', drizzleModuleImport: 'blob' };
+
+    if (type.includes('BOOL') || type.includes('BIT')) {
+      return 'boolean';
     }
-    return { drizzleFn: 'text', drizzleModuleImport: 'text' };
+
+    if (type.includes('TIMESTAMP') || type.includes('DATETIME') || type.includes('DATE')) {
+      return tsTime;
+    }
+
+    if (type.includes('JSON')) {
+      if (withJson) {
+        usedImports.add('JSONColumnType');
+        return 'JSONColumnType<Record<string, any>>';
+      }
+      return 'Record<string, any>';
+    }
+
+    return 'string';
   };
 
   const handleConvert = useCallback(() => {
@@ -214,11 +180,8 @@ CREATE TABLE comments (
 
       const tableRegex = /CREATE\s+TABLE\s+(?:IF\s+NOT\s+EXISTS\s+)?(?:["`]?(\w+)["`]?\.)?["`]?(\w+)["`]?\s*\(([\s\S]*?)\);/gi;
       let match;
-      const tables: { tableName: string; columns: { rawName: string; propName: string; drizzleExpr: string; drizzleTypeImport: string }[] }[] = [];
-      const requiredImports = new Set<string>();
-
-      const tableFnName = dialect === 'pg' ? 'pgTable' : dialect === 'mysql' ? 'mysqlTable' : 'sqliteTable';
-      requiredImports.add(tableFnName);
+      const tables: { tableName: string; typeName: string; columns: { rawName: string; propName: string; tsType: string; isNullable: boolean }[] }[] = [];
+      const usedImports = new Set<string>();
 
       while ((match = tableRegex.exec(cleanInput)) !== null) {
         const tableName = match[2];
@@ -291,110 +254,68 @@ CREATE TABLE comments (
           const upperLine = line.toUpperCase();
           const isPrimary = upperLine.includes('PRIMARY KEY');
           const isNotNull = upperLine.includes('NOT NULL') || isPrimary;
-          const isUnique = upperLine.includes('UNIQUE');
-
-          // Check for DEFAULT value
-          let defaultValue: string | null = null;
-          const defaultMatch = line.match(/DEFAULT\s+('([^']*)'|"([^"]*)"|(\w+)(?:\(\))?)/i);
-          if (defaultMatch) {
-            defaultValue = defaultMatch[2] || defaultMatch[3] || defaultMatch[4];
-          }
+          const isNullable = !isNotNull;
 
           const propName = transformCase(rawName, casing);
-          const { drizzleFn, drizzleModuleImport } = mapSqlTypeToDrizzle(rawName, sqlType || 'VARCHAR', dialect, isPrimary);
-          requiredImports.add(drizzleModuleImport);
+          let tsType = mapSqlTypeToTs(sqlType, isPrimary, dialect, timestampType, useGenerated, useJsonType, usedImports);
 
-          // Build function call expression e.g. text('column_name') or varchar('column_name', { length: 255 })
-          let args = `'${rawName}'`;
-          if (drizzleFn === 'varchar') {
-            const lenMatch = (sqlType || '').match(/\((\d+)\)/);
-            const len = lenMatch ? parseInt(lenMatch[1], 10) : 255;
-            args += `, { length: ${len} }`;
-          }
-
-          let drizzleExpr = `${drizzleFn}(${args})`;
-
-          if (isPrimary) {
-            drizzleExpr += '.primaryKey()';
-          } else if (isNotNull) {
-            drizzleExpr += '.notNull()';
-          }
-
-          if (isUnique && !isPrimary) {
-            drizzleExpr += '.unique()';
-          }
-
-          if (defaultValue !== null) {
-            if (defaultValue.toUpperCase() === 'TRUE') {
-              drizzleExpr += '.default(true)';
-            } else if (defaultValue.toUpperCase() === 'FALSE') {
-              drizzleExpr += '.default(false)';
-            } else if (defaultValue.toUpperCase() === 'NULL') {
-              // skip
-            } else if (!isNaN(Number(defaultValue))) {
-              drizzleExpr += `.default(${defaultValue})`;
-            } else {
-              drizzleExpr += `.default('${defaultValue}')`;
-            }
+          if (isNullable && !tsType.startsWith('JSONColumnType') && !tsType.startsWith('Generated')) {
+            tsType += ' | null';
           }
 
           return {
             rawName,
             propName,
-            drizzleExpr,
-            drizzleTypeImport: drizzleModuleImport
+            tsType,
+            isNullable
           };
-        }).filter(Boolean) as { rawName: string; propName: string; drizzleExpr: string; drizzleTypeImport: string }[];
+        }).filter(Boolean) as { rawName: string; propName: string; tsType: string; isNullable: boolean }[];
 
         if (columns.length > 0) {
-          tables.push({ tableName, columns });
+          tables.push({ tableName, typeName: toTypeName(tableName), columns });
         }
       }
 
       if (tables.length === 0) {
-        setError(t('sqltodrizzle.no_tables_found', 'No valid CREATE TABLE statements found.'));
+        setError(t('sqltokysely.no_tables_found', 'No valid CREATE TABLE statements found.'));
         setOutput('');
         return;
       }
 
-      const exportKeyword = useExport ? 'export ' : '';
+      const exportKeyword = exportTypes ? 'export ' : '';
       let generated = '';
 
-      if (includeImports) {
-        const packageName = dialect === 'pg' ? 'drizzle-orm/pg-core' : dialect === 'mysql' ? 'drizzle-orm/mysql-core' : 'drizzle-orm/sqlite-core';
-        const sortedImports = Array.from(requiredImports).sort().join(', ');
-        generated += `import { ${sortedImports} } from '${packageName}';\n`;
-        if (exportTypes) {
-          generated += `import { type InferSelectModel, type InferInsertModel } from 'drizzle-orm';\n`;
-        }
-        generated += `\n`;
+      if (includeImports && usedImports.size > 0) {
+        const sortedImports = Array.from(usedImports).sort().join(', ');
+        generated += `import { ${sortedImports} } from 'kysely';\n\n`;
       }
 
       tables.forEach(table => {
-        const varName = toVarName(table.tableName);
-        const typeName = toTypeName(table.tableName);
-
-        generated += `${exportKeyword}const ${varName} = ${tableFnName}('${table.tableName}', {\n`;
+        generated += `${exportKeyword}interface ${table.typeName} {\n`;
         table.columns.forEach(col => {
           const isValidIdent = /^[a-zA-Z_$][a-zA-Z0-9_$]*$/.test(col.propName);
           const keyStr = isValidIdent ? col.propName : JSON.stringify(col.propName);
-          generated += `  ${keyStr}: ${col.drizzleExpr},\n`;
+          generated += `  ${keyStr}: ${col.tsType};\n`;
         });
-        generated += `});\n\n`;
-
-        if (exportTypes) {
-          generated += `${exportKeyword}type ${typeName} = InferSelectModel<typeof ${varName}>;\n`;
-          generated += `${exportKeyword}type New${typeName} = InferInsertModel<typeof ${varName}>;\n\n`;
-        }
+        generated += `}\n\n`;
       });
+
+      // Database interface
+      generated += `${exportKeyword}interface Database {\n`;
+      tables.forEach(table => {
+        const isValidIdent = /^[a-zA-Z_$][a-zA-Z0-9_$]*$/.test(table.tableName);
+        const keyStr = isValidIdent ? table.tableName : JSON.stringify(table.tableName);
+        generated += `  ${keyStr}: ${table.typeName};\n`;
+      });
+      generated += `}\n`;
 
       setOutput(generated.trim());
       setError('');
     } catch (e: any) {
-      setError(t('sqltodrizzle.error_parsing', 'Error parsing SQL DDL') + ': ' + e.message);
+      setError(t('sqltokysely.error_parsing', 'Error parsing SQL DDL') + ': ' + e.message);
       setOutput('');
     }
-  }, [input, dialect, casing, includeImports, exportTypes, useExport, t]);
+  }, [input, dialect, casing, timestampType, useGenerated, useJsonType, includeImports, exportTypes, t]);
 
   useEffect(() => {
     handleConvert();
@@ -404,7 +325,7 @@ CREATE TABLE comments (
     if (!output) return;
     navigator.clipboard.writeText(output);
     setCopied(true);
-    toast.success(t('sqltodrizzle.toast_copied', 'Drizzle ORM schema copied to clipboard!'));
+    toast.success(t('sqltokysely.toast_copied', 'Kysely schema copied to clipboard!'));
     setTimeout(() => setCopied(false), 2000);
   }, [output, t]);
 
@@ -413,7 +334,7 @@ CREATE TABLE comments (
     setOutput('');
     setError('');
     setActivePreset(null);
-    toast.success(t('sqltodrizzle.toast_cleared', 'Inputs cleared!'));
+    toast.success(t('sqltokysely.toast_cleared', 'Inputs cleared!'));
     setTimeout(() => inputRef.current?.focus(), 0);
   }, [t]);
 
@@ -423,18 +344,18 @@ CREATE TABLE comments (
     const url = URL.createObjectURL(blob);
     const link = document.createElement('a');
     link.href = url;
-    link.download = 'schema.ts';
+    link.download = 'database.kysely.ts';
     document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);
     URL.revokeObjectURL(url);
-    toast.success(t('common.downloaded', 'Downloaded schema.ts!'));
+    toast.success(t('common.downloaded', 'Downloaded database.kysely.ts!'));
   };
 
   const loadPreset = (presetKey: keyof typeof PRESETS) => {
     setInput(PRESETS[presetKey]);
     setActivePreset(presetKey);
-    toast.success(t('sqltodrizzle.preset_loaded', 'Loaded SQL preset!'));
+    toast.success(t('sqltokysely.preset_loaded', 'Loaded SQL preset!'));
   };
 
   const handlersRef = useRef({ handleClear, handleCopy, output });
@@ -485,7 +406,7 @@ CREATE TABLE comments (
         <div className="flex items-center gap-2">
           <Sparkles className="w-4 h-4 text-amber-500" aria-hidden="true" />
           <span className="text-xs font-bold uppercase tracking-widest text-slate-500 dark:text-slate-400">
-            {t('sqltodrizzle.presets_title', 'Quick Start Presets:')}
+            {t('sqltokysely.presets_title', 'Quick Start Presets:')}
           </span>
         </div>
         <div className="flex flex-wrap items-center gap-2">
@@ -498,7 +419,7 @@ CREATE TABLE comments (
                 : 'bg-white dark:bg-slate-800 border-slate-200 dark:border-slate-700 hover:border-indigo-500'
             }`}
           >
-            {t('sqltodrizzle.preset_ecommerce', 'E-Commerce Catalog')}
+            {t('sqltokysely.preset_ecommerce', 'E-Commerce Catalog')}
           </button>
           <button
             onClick={() => loadPreset('user_auth')}
@@ -509,7 +430,7 @@ CREATE TABLE comments (
                 : 'bg-white dark:bg-slate-800 border-slate-200 dark:border-slate-700 hover:border-indigo-500'
             }`}
           >
-            {t('sqltodrizzle.preset_user_auth', 'User Auth & Roles')}
+            {t('sqltokysely.preset_user_auth', 'User Auth & Roles')}
           </button>
           <button
             onClick={() => loadPreset('blog')}
@@ -520,7 +441,7 @@ CREATE TABLE comments (
                 : 'bg-white dark:bg-slate-800 border-slate-200 dark:border-slate-700 hover:border-indigo-500'
             }`}
           >
-            {t('sqltodrizzle.preset_blog', 'Blog Posts & Comments')}
+            {t('sqltokysely.preset_blog', 'Blog Posts & Comments')}
           </button>
         </div>
       </div>
@@ -528,27 +449,27 @@ CREATE TABLE comments (
       {/* Options Panel */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 p-5 bg-white dark:bg-slate-900/60 rounded-2xl border border-slate-200 dark:border-slate-800">
         <div className="space-y-1.5">
-          <label htmlFor="drizzle-dialect" className="text-xs font-bold uppercase tracking-widest text-slate-500 dark:text-slate-400">
-            {t('sqltodrizzle.dialect', 'SQL Dialect')}
+          <label htmlFor="kysely-dialect" className="text-xs font-bold uppercase tracking-widest text-slate-500 dark:text-slate-400">
+            {t('sqltokysely.dialect', 'SQL Dialect')}
           </label>
           <select
-            id="drizzle-dialect"
+            id="kysely-dialect"
             value={dialect}
             onChange={(e) => setDialect(e.target.value as any)}
             className="w-full p-2.5 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-sm font-semibold outline-none focus:ring-2 focus:ring-indigo-500"
           >
-            <option value="pg">PostgreSQL (pgTable)</option>
-            <option value="mysql">MySQL (mysqlTable)</option>
-            <option value="sqlite">SQLite (sqliteTable)</option>
+            <option value="pg">PostgreSQL</option>
+            <option value="mysql">MySQL</option>
+            <option value="sqlite">SQLite</option>
           </select>
         </div>
 
         <div className="space-y-1.5">
-          <label htmlFor="drizzle-casing" className="text-xs font-bold uppercase tracking-widest text-slate-500 dark:text-slate-400">
-            {t('sqltodrizzle.field_casing', 'Property Casing')}
+          <label htmlFor="kysely-casing" className="text-xs font-bold uppercase tracking-widest text-slate-500 dark:text-slate-400">
+            {t('sqltokysely.field_casing', 'Property Casing')}
           </label>
           <select
-            id="drizzle-casing"
+            id="kysely-casing"
             value={casing}
             onChange={(e) => setCasing(e.target.value as any)}
             className="w-full p-2.5 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-sm font-semibold outline-none focus:ring-2 focus:ring-indigo-500"
@@ -560,39 +481,42 @@ CREATE TABLE comments (
           </select>
         </div>
 
-        <div className="flex flex-col justify-center space-y-2 pt-2">
-          <label htmlFor="drizzle-imports" className="flex items-center gap-2 text-xs font-bold text-slate-700 dark:text-slate-300 cursor-pointer">
-            <input
-              id="drizzle-imports"
-              type="checkbox"
-              checked={includeImports}
-              onChange={(e) => setIncludeImports(e.target.checked)}
-              className="w-4 h-4 text-indigo-600 rounded border-slate-300 focus:ring-indigo-500"
-            />
-            {t('sqltodrizzle.include_imports', 'Include Drizzle Imports')}
+        <div className="space-y-1.5">
+          <label htmlFor="kysely-time-type" className="text-xs font-bold uppercase tracking-widest text-slate-500 dark:text-slate-400">
+            {t('sqltokysely.timestamp_type', 'Date / Timestamp Type')}
           </label>
-          <label htmlFor="drizzle-use-export" className="flex items-center gap-2 text-xs font-bold text-slate-700 dark:text-slate-300 cursor-pointer">
-            <input
-              id="drizzle-use-export"
-              type="checkbox"
-              checked={useExport}
-              onChange={(e) => setUseExport(e.target.checked)}
-              className="w-4 h-4 text-indigo-600 rounded border-slate-300 focus:ring-indigo-500"
-            />
-            {t('sqltodrizzle.use_export', 'Export Table Definitions')}
-          </label>
+          <select
+            id="kysely-time-type"
+            value={timestampType}
+            onChange={(e) => setTimestampType(e.target.value as any)}
+            className="w-full p-2.5 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-sm font-semibold outline-none focus:ring-2 focus:ring-indigo-500"
+          >
+            <option value="Date">Date (JS Date object)</option>
+            <option value="string">string (ISO 8601)</option>
+            <option value="number">number (Unix ms)</option>
+          </select>
         </div>
 
         <div className="flex flex-col justify-center space-y-2 pt-2">
-          <label htmlFor="drizzle-export-types" className="flex items-center gap-2 text-xs font-bold text-slate-700 dark:text-slate-300 cursor-pointer">
+          <label htmlFor="kysely-use-generated" className="flex items-center gap-2 text-xs font-bold text-slate-700 dark:text-slate-300 cursor-pointer">
             <input
-              id="drizzle-export-types"
+              id="kysely-use-generated"
               type="checkbox"
-              checked={exportTypes}
-              onChange={(e) => setExportTypes(e.target.checked)}
+              checked={useGenerated}
+              onChange={(e) => setUseGenerated(e.target.checked)}
               className="w-4 h-4 text-indigo-600 rounded border-slate-300 focus:ring-indigo-500"
             />
-            {t('sqltodrizzle.export_types', 'Export InferSelect/Insert Types')}
+            {t('sqltokysely.use_generated', 'Use Generated<T> for PKs')}
+          </label>
+          <label htmlFor="kysely-use-json" className="flex items-center gap-2 text-xs font-bold text-slate-700 dark:text-slate-300 cursor-pointer">
+            <input
+              id="kysely-use-json"
+              type="checkbox"
+              checked={useJsonType}
+              onChange={(e) => setUseJsonType(e.target.checked)}
+              className="w-4 h-4 text-indigo-600 rounded border-slate-300 focus:ring-indigo-500"
+            />
+            {t('sqltokysely.use_json_type', 'Use JSONColumnType<T>')}
           </label>
         </div>
       </div>
@@ -603,8 +527,8 @@ CREATE TABLE comments (
           <div className="flex justify-between items-center px-1">
             <div className="flex items-center gap-2">
               <Database className="w-4 h-4 text-indigo-500" aria-hidden="true" />
-              <label htmlFor="sql-drizzle-input" className="text-xs font-black uppercase tracking-widest text-slate-400 cursor-pointer">
-                {t('sqltodrizzle.sql_input_label', 'SQL CREATE TABLE DDL')}
+              <label htmlFor="sql-kysely-input" className="text-xs font-black uppercase tracking-widest text-slate-400 cursor-pointer">
+                {t('sqltokysely.sql_input_label', 'SQL CREATE TABLE DDL')}
               </label>
             </div>
             <div className="flex items-center gap-2">
@@ -619,14 +543,14 @@ CREATE TABLE comments (
             </div>
           </div>
           <textarea
-            id="sql-drizzle-input"
+            id="sql-kysely-input"
             ref={inputRef}
             value={input}
             onChange={(e) => {
               setInput(e.target.value);
               if (activePreset) setActivePreset(null);
             }}
-            placeholder={t('sqltodrizzle.placeholder_sql', 'Paste SQL CREATE TABLE DDL statements here...')}
+            placeholder={t('sqltokysely.placeholder_sql', 'Paste SQL CREATE TABLE DDL statements here...')}
             className="w-full h-[450px] p-6 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-3xl outline-none focus:ring-2 focus:ring-indigo-500/20 transition-all font-mono text-sm leading-relaxed dark:text-slate-300 resize-none"
           />
         </div>
@@ -635,8 +559,8 @@ CREATE TABLE comments (
           <div className="flex justify-between items-center px-1">
             <div className="flex items-center gap-2">
               <FileCode className="w-4 h-4 text-emerald-500" aria-hidden="true" />
-              <label htmlFor="drizzle-output" className="text-xs font-black uppercase tracking-widest text-slate-400 cursor-pointer">
-                {t('sqltodrizzle.output_label', 'Generated Drizzle ORM Schema')}
+              <label htmlFor="kysely-output" className="text-xs font-black uppercase tracking-widest text-slate-400 cursor-pointer">
+                {t('sqltokysely.output_label', 'Generated Kysely Schema')}
               </label>
             </div>
             <div className="flex gap-2">
@@ -662,10 +586,10 @@ CREATE TABLE comments (
             </div>
           </div>
           <textarea
-            id="drizzle-output"
+            id="kysely-output"
             value={output}
             readOnly
-            placeholder={t('sqltodrizzle.placeholder_output', 'Drizzle ORM schema code will appear here...')}
+            placeholder={t('sqltokysely.placeholder_output', 'Kysely TypeScript interfaces will appear here...')}
             className="w-full h-[450px] p-6 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-3xl outline-none font-mono text-sm leading-relaxed text-indigo-600 dark:text-indigo-400 resize-none"
           />
         </div>
@@ -681,9 +605,9 @@ CREATE TABLE comments (
       <div className="bg-indigo-50 dark:bg-indigo-900/10 p-8 rounded-[2.5rem] border border-indigo-100 dark:border-indigo-900/20 flex items-start gap-4">
         <Info className="w-6 h-6 text-indigo-500 mt-1" aria-hidden="true" />
         <div className="space-y-2">
-          <h4 className="font-bold dark:text-white">{t('sqltodrizzle.about_title', 'About SQL to Drizzle ORM Schema Generator')}</h4>
+          <h4 className="font-bold dark:text-white">{t('sqltokysely.about_title', 'About SQL to Kysely TypeScript Schema Generator')}</h4>
           <p className="text-sm text-slate-500 dark:text-slate-400 leading-relaxed">
-            {t('sqltodrizzle.about_text', 'Convert SQL CREATE TABLE DDL queries into strongly-typed Drizzle ORM schema definitions. Supports PostgreSQL (pgTable), MySQL (mysqlTable), and SQLite (sqliteTable) dialects, property casing choices, notNull & primaryKey modifiers, and optional InferSelectModel/InferInsertModel TypeScript type exports.')}
+            {t('sqltokysely.about_text', 'Convert SQL CREATE TABLE DDL queries into strongly-typed Kysely TypeScript database interfaces. Supports Generated<T> for auto-incrementing / serial primary keys, JSONColumnType<T> for JSON fields, property casing options, and custom timestamp types.')}
           </p>
         </div>
       </div>

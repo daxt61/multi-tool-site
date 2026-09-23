@@ -12441,7 +12441,30 @@ const resources = {
       "sqltoprotobuf.toast_downloaded": "Fichier .proto téléchargé !",
       "sqltoprotobuf.preset_loaded": "Préréglage SQL chargé !",
       "sqltoprotobuf.about_title": "À propos du Générateur SQL DDL vers Protobuf",
-      "sqltoprotobuf.about_text": "Convertissez directement des requêtes SQL CREATE TABLE DDL en définitions de messages Protocol Buffers (proto3 ou proto2). Prise en charge de la conversion de casse des champs, du mappage google.protobuf.Timestamp et de l'assainissement des mots-clés réservés pour les services gRPC / RPC."
+      "sqltoprotobuf.about_text": "Convertissez directement des requêtes SQL CREATE TABLE DDL en définitions de messages Protocol Buffers (proto3 ou proto2). Prise en charge de la conversion de casse des champs, du mappage google.protobuf.Timestamp et de l'assainissement des mots-clés réservés pour les services gRPC / RPC.",
+
+      "tool.sql-to-kysely.name": "SQL DDL en Kysely",
+      "tool.sql-to-kysely.description": "Convertir des instructions SQL CREATE TABLE DDL en interfaces de schéma Kysely TypeScript",
+      "sqltokysely.presets_title": "Préréglages Rapides :",
+      "sqltokysely.preset_ecommerce": "Catalogue E-Commerce",
+      "sqltokysely.preset_user_auth": "Authentification & Rôles",
+      "sqltokysely.preset_blog": "Blog & Commentaires",
+      "sqltokysely.dialect": "Dialecte SQL",
+      "sqltokysely.field_casing": "Casse des Propriétés",
+      "sqltokysely.timestamp_type": "Type de Date/Timestamp",
+      "sqltokysely.use_generated": "Utiliser Generated<T> pour les clés primaires",
+      "sqltokysely.use_json_type": "Utiliser JSONColumnType<T> pour les champs JSON",
+      "sqltokysely.sql_input_label": "SQL CREATE TABLE DDL",
+      "sqltokysely.output_label": "Schéma Kysely Généré",
+      "sqltokysely.placeholder_sql": "Collez vos instructions SQL CREATE TABLE DDL ici...",
+      "sqltokysely.placeholder_output": "Les interfaces TypeScript Kysely apparaîtront ici...",
+      "sqltokysely.no_tables_found": "Aucune instruction CREATE TABLE DDL valide n'a été trouvée.",
+      "sqltokysely.error_parsing": "Erreur lors de l'analyse du SQL DDL",
+      "sqltokysely.toast_copied": "Schéma Kysely copié dans le presse-papiers !",
+      "sqltokysely.toast_cleared": "Entrées et options réinitialisées !",
+      "sqltokysely.preset_loaded": "Préréglage SQL chargé !",
+      "sqltokysely.about_title": "À propos du Générateur SQL vers Schéma Kysely TypeScript",
+      "sqltokysely.about_text": "Convertissez des requêtes SQL CREATE TABLE DDL en interfaces TypeScript Kysely fortement typées. Prise en charge des modificateurs Generated<T>, JSONColumnType<T>, de la conversion de casse de propriétés et des types de date personnalisés."
     }
   }
 };

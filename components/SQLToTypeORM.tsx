@@ -6,32 +6,28 @@ import { Kbd } from './ui/Kbd';
 
 const MAX_LENGTH = 100000;
 
-const JS_RESERVED_KEYWORDS = new Set([
+const TS_RESERVED_KEYWORDS = new Set([
   'break', 'case', 'catch', 'class', 'const', 'continue', 'debugger', 'default',
-  'delete', 'do', 'else', 'export', 'extends', 'finally', 'for', 'function',
-  'if', 'import', 'in', 'instanceof', 'new', 'return', 'super', 'switch',
-  'this', 'throw', 'try', 'typeof', 'var', 'void', 'while', 'with', 'yield',
-  'let', 'static', 'enum', 'await', 'implements', 'package', 'protected',
-  'interface', 'private', 'public', 'null', 'true', 'false', 'undefined'
+  'delete', 'do', 'else', 'enum', 'export', 'extends', 'false', 'finally', 'for',
+  'function', 'if', 'import', 'in', 'instanceof', 'new', 'null', 'return',
+  'super', 'switch', 'this', 'throw', 'true', 'try', 'typeof', 'var', 'void',
+  'while', 'with', 'yield', 'let', 'static', 'await', 'implements',
+  'interface', 'package', 'private', 'protected', 'public', 'readonly'
 ]);
 
-type ModelStyle = 'define' | 'class';
-type Language = 'js' | 'ts';
 type FieldCasing = 'camelCase' | 'snake_case' | 'PascalCase' | 'original';
 
-export function SQLToSequelize({ initialData, onStateChange }: { initialData?: any; onStateChange?: (state: any) => void }) {
+export function SQLToTypeORM({ initialData, onStateChange }: { initialData?: any; onStateChange?: (state: any) => void }) {
   const { t } = useTranslation();
   const inputRef = useRef<HTMLTextAreaElement>(null);
   const containerRef = useRef<HTMLDivElement>(null);
 
   const [input, setInput] = useState(initialData?.input || '');
   const [output, setOutput] = useState(initialData?.output || '');
-  const [modelStyle, setModelStyle] = useState<ModelStyle>(initialData?.modelStyle || 'define');
-  const [language, setLanguage] = useState<Language>(initialData?.language || 'ts');
   const [fieldCasing, setFieldCasing] = useState<FieldCasing>(initialData?.fieldCasing || 'camelCase');
-  const [timestamps, setTimestamps] = useState(initialData?.timestamps ?? true);
-  const [underscored, setUnderscored] = useState(initialData?.underscored ?? true);
-  const [freezeTableName, setFreezeTableName] = useState(initialData?.freezeTableName ?? true);
+  const [useClassValidator, setUseClassValidator] = useState(initialData?.useClassValidator ?? false);
+  const [useConstructor, setUseConstructor] = useState(initialData?.useConstructor ?? true);
+  const [useCreateUpdateDateColumns, setUseCreateUpdateDateColumns] = useState(initialData?.useCreateUpdateDateColumns ?? true);
   const [activePreset, setActivePreset] = useState<string | null>(null);
   const [error, setError] = useState('');
   const [copied, setCopied] = useState(false);
@@ -40,14 +36,12 @@ export function SQLToSequelize({ initialData, onStateChange }: { initialData?: a
     onStateChange?.({
       input,
       output,
-      modelStyle,
-      language,
       fieldCasing,
-      timestamps,
-      underscored,
-      freezeTableName,
+      useClassValidator,
+      useConstructor,
+      useCreateUpdateDateColumns,
     });
-  }, [input, output, modelStyle, language, fieldCasing, timestamps, underscored, freezeTableName, onStateChange]);
+  }, [input, output, fieldCasing, useClassValidator, useConstructor, useCreateUpdateDateColumns, onStateChange]);
 
   const PRESETS = {
     ecommerce: `-- E-Commerce Catalog Schema
@@ -67,7 +61,8 @@ CREATE TABLE products (
   sku VARCHAR(50) UNIQUE NOT NULL,
   is_active BOOLEAN DEFAULT TRUE,
   category_id INT NOT NULL,
-  created_at TIMESTAMP NOT NULL,
+  created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
   metadata JSON
 );`,
     user_auth: `-- User Auth & Roles Schema
@@ -79,11 +74,12 @@ CREATE TABLE users (
   is_verified BOOLEAN DEFAULT FALSE,
   login_count INT DEFAULT 0,
   last_login TIMESTAMP,
-  created_at TIMESTAMP NOT NULL
+  created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
 );
 
 CREATE TABLE roles (
-  role_id INT PRIMARY KEY,
+  role_id INT PRIMARY KEY AUTO_INCREMENT,
   role_name VARCHAR(50) NOT NULL,
   permissions JSON
 );`,
@@ -95,7 +91,9 @@ CREATE TABLE posts (
   body TEXT NOT NULL,
   published_at DATETIME,
   view_count INT DEFAULT 0,
-  is_draft BOOLEAN DEFAULT TRUE
+  is_draft BOOLEAN DEFAULT TRUE,
+  created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
 );
 
 CREATE TABLE comments (
@@ -103,7 +101,7 @@ CREATE TABLE comments (
   post_id INT NOT NULL,
   author_name VARCHAR(100) NOT NULL,
   content TEXT NOT NULL,
-  created_at DATETIME NOT NULL
+  created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP
 );`
   };
 
@@ -114,8 +112,8 @@ CREATE TABLE comments (
       .filter(Boolean)
       .map(word => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase())
       .join('');
-    if (!pascal) return 'Model';
-    return /^[0-9]/.test(pascal) ? `Model${pascal}` : pascal;
+    if (!pascal) return 'Entity';
+    return /^[0-9]/.test(pascal) ? `Entity${pascal}` : pascal;
   };
 
   const toCamelCase = (str: string) => {
@@ -141,7 +139,7 @@ CREATE TABLE comments (
       formatted = toPascalCase(name);
     }
 
-    if (JS_RESERVED_KEYWORDS.has(formatted) || /^[0-9]/.test(formatted)) {
+    if (TS_RESERVED_KEYWORDS.has(formatted) || /^[0-9]/.test(formatted)) {
       formatted = `${formatted}Field`;
     }
 
@@ -155,52 +153,64 @@ CREATE TABLE comments (
     } else if (name.endsWith('s') && name.length > 3) {
       name = name.slice(0, -1);
     }
-    if (JS_RESERVED_KEYWORDS.has(name)) {
-      name = `${name}Model`;
+    if (TS_RESERVED_KEYWORDS.has(name)) {
+      name = `${name}Entity`;
     }
     return name;
   };
 
-  const mapSqlTypeToSequelize = (sqlType: string): string => {
-    if (!sqlType) return 'DataTypes.STRING';
+  const mapSqlTypeToTypeORM = (sqlType: string): { columnType: string; tsType: string; extraOpts?: Record<string, any> } => {
+    if (!sqlType) return { columnType: 'varchar', tsType: 'string' };
     const type = sqlType.toUpperCase();
 
-    if (type.includes('BIGINT')) return 'DataTypes.BIGINT';
-    if (type.includes('SMALLINT')) return 'DataTypes.SMALLINT';
-    if (type.includes('TINYINT(1)') || type.includes('BOOLEAN') || type.includes('BOOL')) return 'DataTypes.BOOLEAN';
-    if (type.includes('TINYINT')) return 'DataTypes.TINYINT';
-    if (type.includes('INT') || type.includes('SERIAL')) return 'DataTypes.INTEGER';
+    if (type.includes('BIGINT')) return { columnType: 'bigint', tsType: 'string' };
+    if (type.includes('SMALLINT')) return { columnType: 'smallint', tsType: 'number' };
+    if (type.includes('TINYINT(1)') || type.includes('BOOLEAN') || type.includes('BOOL')) return { columnType: 'boolean', tsType: 'boolean' };
+    if (type.includes('TINYINT')) return { columnType: 'tinyint', tsType: 'number' };
+    if (type.includes('INT') || type.includes('SERIAL')) return { columnType: 'int', tsType: 'number' };
     if (type.includes('DECIMAL') || type.includes('NUMERIC')) {
       const match = type.match(/\((\d+)\s*,\s*(\d+)\)/);
-      if (match) return `DataTypes.DECIMAL(${match[1]}, ${match[2]})`;
-      return 'DataTypes.DECIMAL';
+      if (match) {
+        return {
+          columnType: 'decimal',
+          tsType: 'number',
+          extraOpts: { precision: Number(match[1]), scale: Number(match[2]) }
+        };
+      }
+      return { columnType: 'decimal', tsType: 'number' };
     }
-    if (type.includes('FLOAT') || type.includes('REAL')) return 'DataTypes.FLOAT';
-    if (type.includes('DOUBLE')) return 'DataTypes.DOUBLE';
-    if (type.includes('UUID')) return 'DataTypes.UUID';
-    if (type.includes('DATETIME') || type.includes('TIMESTAMP')) return 'DataTypes.DATE';
-    if (type.includes('DATE')) return 'DataTypes.DATEONLY';
-    if (type.includes('TIME')) return 'DataTypes.TIME';
-    if (type.includes('JSON')) return 'DataTypes.JSON';
-    if (type.includes('TEXT') || type.includes('CLOB')) return 'DataTypes.TEXT';
-    if (type.includes('BLOB') || type.includes('BYTEA')) return 'DataTypes.BLOB';
+    if (type.includes('FLOAT') || type.includes('REAL')) return { columnType: 'float', tsType: 'number' };
+    if (type.includes('DOUBLE')) return { columnType: 'double', tsType: 'number' };
+    if (type.includes('UUID')) return { columnType: 'uuid', tsType: 'string' };
+    if (type.includes('DATETIME') || type.includes('TIMESTAMP')) return { columnType: 'timestamp', tsType: 'Date' };
+    if (type.includes('DATE')) return { columnType: 'date', tsType: 'Date' };
+    if (type.includes('TIME')) return { columnType: 'time', tsType: 'string' };
+    if (type.includes('JSONB')) return { columnType: 'jsonb', tsType: 'any' };
+    if (type.includes('JSON')) return { columnType: 'json', tsType: 'any' };
+    if (type.includes('TEXT') || type.includes('CLOB')) return { columnType: 'text', tsType: 'string' };
+    if (type.includes('BLOB') || type.includes('BYTEA')) return { columnType: 'bytea', tsType: 'Buffer' };
 
     const strMatch = type.match(/VARCHAR\((\d+)\)/) || type.match(/CHAR\((\d+)\)/);
     if (strMatch) {
-      return `DataTypes.STRING(${strMatch[1]})`;
+      return {
+        columnType: 'varchar',
+        tsType: 'string',
+        extraOpts: { length: Number(strMatch[1]) }
+      };
     }
 
-    return 'DataTypes.STRING';
+    return { columnType: 'varchar', tsType: 'string' };
   };
 
-  const mapSqlTypeToTs = (sqlType: string): string => {
-    if (!sqlType) return 'string';
-    const type = sqlType.toUpperCase();
-    if (type.includes('INT') || type.includes('SERIAL') || type.includes('DECIMAL') || type.includes('FLOAT') || type.includes('DOUBLE') || type.includes('NUMERIC')) return 'number';
-    if (type.includes('BOOLEAN') || type.includes('BOOL') || type.includes('TINYINT(1)')) return 'boolean';
-    if (type.includes('JSON')) return 'object | any';
-    if (type.includes('DATETIME') || type.includes('TIMESTAMP') || type.includes('DATE') || type.includes('TIME')) return 'Date';
-    return 'string';
+  const formatDefaultValue = (defaultVal: string) => {
+    const upper = defaultVal.toUpperCase();
+    if (upper === 'TRUE') return 'true';
+    if (upper === 'FALSE') return 'false';
+    if (upper === 'NULL') return 'null';
+    if (upper === 'CURRENT_TIMESTAMP' || upper === 'NOW()' || upper === 'CURRENT_TIMESTAMP()') return "() => 'CURRENT_TIMESTAMP'";
+    if (!isNaN(Number(defaultVal))) return defaultVal;
+    if (defaultVal.startsWith("'") || defaultVal.startsWith('"')) return defaultVal;
+    return `'${defaultVal.replace(/'/g, "\\'")}'`;
   };
 
   const handleConvert = useCallback(() => {
@@ -222,7 +232,8 @@ CREATE TABLE comments (
 
       const tableRegex = /CREATE\s+TABLE\s+(?:IF\s+NOT\s+EXISTS\s+)?(?:["`]?(\w+)["`]?\.)?["`]?(\w+)["`]?\s*\(([\s\S]*?)\);/gi;
       let match;
-      const modelBlocks: string[] = [];
+      const entityBlocks: string[] = [];
+      let usesClassValidatorImports = false;
 
       while ((match = tableRegex.exec(cleanInput)) !== null) {
         const rawTableName = match[2];
@@ -330,106 +341,103 @@ CREATE TABLE comments (
           });
         });
 
-        if (modelStyle === 'define') {
-          const fieldDefs = fields.map(f => {
-            const props: string[] = [];
-            props.push(`    type: ${mapSqlTypeToSequelize(f.sqlType)}`);
+        const propertyDefs: string[] = [];
 
-            if (f.isPrimaryKey) props.push('    primaryKey: true');
-            if (f.isAutoIncrement) props.push('    autoIncrement: true');
-            if (f.isNullable === false) props.push('    allowNull: false');
-            else if (f.isNullable === true) props.push('    allowNull: true');
-            if (f.isUnique) props.push('    unique: true');
+        fields.forEach(f => {
+          const { columnType, tsType, extraOpts } = mapSqlTypeToTypeORM(f.sqlType);
+          const lowerRaw = f.rawName.toLowerCase();
 
-            if (f.defaultValue) {
-              const defUpper = f.defaultValue.toUpperCase();
-              if (defUpper === 'TRUE') props.push('    defaultValue: true');
-              else if (defUpper === 'FALSE') props.push('    defaultValue: false');
-              else if (defUpper === 'CURRENT_TIMESTAMP' || defUpper === 'NOW()' || defUpper === 'CURRENT_TIMESTAMP()') props.push('    defaultValue: DataTypes.NOW');
-              else if (!isNaN(Number(f.defaultValue))) props.push(`    defaultValue: ${f.defaultValue}`);
-              else if (f.defaultValue.startsWith("'") || f.defaultValue.startsWith('"')) props.push(`    defaultValue: ${f.defaultValue}`);
-              else props.push(`    defaultValue: '${f.defaultValue.replace(/'/g, "\\'")}'`);
+          const isCreateDate = useCreateUpdateDateColumns && (lowerRaw === 'created_at' || lowerRaw === 'createdat' || lowerRaw === 'creation_date');
+          const isUpdateDate = useCreateUpdateDateColumns && (lowerRaw === 'updated_at' || lowerRaw === 'updatedat' || lowerRaw === 'modified_at');
+
+          const decorators: string[] = [];
+
+          if (useClassValidator) {
+            usesClassValidatorImports = true;
+            if (f.isNullable) {
+              decorators.push('  @IsOptional()');
+            } else {
+              decorators.push('  @IsNotEmpty()');
             }
-
-            if (f.attrName !== f.rawName) {
-              props.push(`    field: '${f.rawName}'`);
+            if (tsType === 'string') {
+              if (lowerRaw.includes('email')) decorators.push('  @IsEmail()');
+              else decorators.push('  @IsString()');
+            } else if (tsType === 'number') {
+              decorators.push('  @IsNumber()');
+            } else if (tsType === 'boolean') {
+              decorators.push('  @IsBoolean()');
+            } else if (tsType === 'Date') {
+              decorators.push('  @IsDate()');
             }
-
-            return `  ${f.attrName}: {\n${props.join(',\n')}\n  }`;
-          });
-
-          const modelDef = language === 'ts'
-            ? `export const init${className}Model = (sequelize: Sequelize) => {\n  return sequelize.define('${className}', {\n${fieldDefs.join(',\n')}\n  }, {\n    tableName: '${rawTableName}',\n    timestamps: ${timestamps},\n    underscored: ${underscored},\n    freezeTableName: ${freezeTableName},\n  });\n};`
-            : `const ${className} = sequelize.define('${className}', {\n${fieldDefs.join(',\n')}\n}, {\n  tableName: '${rawTableName}',\n  timestamps: ${timestamps},\n  underscored: ${underscored},\n  freezeTableName: ${freezeTableName},\n});\n\nmodule.exports = ${className};`;
-
-          modelBlocks.push(modelDef);
-        } else {
-          // Class Model Style
-          if (language === 'ts') {
-            const interfacesCode = `export interface ${className}Attributes {\n` +
-              fields.map(f => `  ${f.attrName}${f.isNullable ? '?' : ''}: ${mapSqlTypeToTs(f.sqlType)};`).join('\n') +
-              `\n}\n\nexport interface ${className}CreationAttributes extends Optional<${className}Attributes, '${fields.filter(f => f.isPrimaryKey || f.isNullable || f.isAutoIncrement).map(f => f.attrName).join("' | '")}'> {}`;
-
-            const classProps = fields.map(f => `  public ${f.attrName}!: ${mapSqlTypeToTs(f.sqlType)};`).join('\n');
-
-            const initFields = fields.map(f => {
-              const props: string[] = [`    type: ${mapSqlTypeToSequelize(f.sqlType)}`];
-              if (f.isPrimaryKey) props.push('    primaryKey: true');
-              if (f.isAutoIncrement) props.push('    autoIncrement: true');
-              if (f.isNullable === false) props.push('    allowNull: false');
-              if (f.isUnique) props.push('    unique: true');
-              if (f.attrName !== f.rawName) props.push(`    field: '${f.rawName}'`);
-              return `    ${f.attrName}: {\n${props.join(',\n')}\n    }`;
-            });
-
-            const classDef = `${interfacesCode}\n\nexport class ${className} extends Model<${className}Attributes, ${className}CreationAttributes> implements ${className}Attributes {\n${classProps}\n\n  public static initModel(sequelize: Sequelize): typeof ${className} {\n    return ${className}.init({\n${initFields.join(',\n')}\n    }, {\n      sequelize,\n      tableName: '${rawTableName}',\n      timestamps: ${timestamps},\n      underscored: ${underscored},\n      freezeTableName: ${freezeTableName},\n    });\n  }\n}`;
-            modelBlocks.push(classDef);
-          } else {
-            // JS Class Style
-            const initFields = fields.map(f => {
-              const props: string[] = [`    type: ${mapSqlTypeToSequelize(f.sqlType)}`];
-              if (f.isPrimaryKey) props.push('    primaryKey: true');
-              if (f.isAutoIncrement) props.push('    autoIncrement: true');
-              if (f.isNullable === false) props.push('    allowNull: false');
-              if (f.isUnique) props.push('    unique: true');
-              if (f.attrName !== f.rawName) props.push(`    field: '${f.rawName}'`);
-              return `    ${f.attrName}: {\n${props.join(',\n')}\n    }`;
-            });
-
-            const classDef = `class ${className} extends Model {\n  static initModel(sequelize) {\n    return super.init({\n${initFields.join(',\n')}\n    }, {\n      sequelize,\n      tableName: '${rawTableName}',\n      timestamps: ${timestamps},\n      underscored: ${underscored},\n      freezeTableName: ${freezeTableName},\n    });\n  }\n}\n\nmodule.exports = ${className};`;
-            modelBlocks.push(classDef);
           }
+
+          if (f.isPrimaryKey) {
+            if (columnType === 'uuid') {
+              decorators.push("  @PrimaryGeneratedColumn('uuid')");
+            } else if (f.isAutoIncrement) {
+              decorators.push('  @PrimaryGeneratedColumn()');
+            } else {
+              decorators.push(`  @PrimaryColumn({ type: '${columnType}'${f.attrName !== f.rawName ? `, name: '${f.rawName}'` : ''} })`);
+            }
+          } else if (isCreateDate) {
+            decorators.push(`  @CreateDateColumn({ type: '${columnType}'${f.attrName !== f.rawName ? `, name: '${f.rawName}'` : ''} })`);
+          } else if (isUpdateDate) {
+            decorators.push(`  @UpdateDateColumn({ type: '${columnType}'${f.attrName !== f.rawName ? `, name: '${f.rawName}'` : ''} })`);
+          } else {
+            const colOpts: string[] = [`type: '${columnType}'`];
+            if (f.attrName !== f.rawName) colOpts.push(`name: '${f.rawName}'`);
+            if (extraOpts?.length) colOpts.push(`length: ${extraOpts.length}`);
+            if (extraOpts?.precision !== undefined) colOpts.push(`precision: ${extraOpts.precision}`);
+            if (extraOpts?.scale !== undefined) colOpts.push(`scale: ${extraOpts.scale}`);
+            if (f.isNullable) colOpts.push('nullable: true');
+            if (f.isUnique) colOpts.push('unique: true');
+            if (f.defaultValue) colOpts.push(`default: ${formatDefaultValue(f.defaultValue)}`);
+
+            decorators.push(`  @Column({ ${colOpts.join(', ')} })`);
+          }
+
+          const propType = f.isNullable ? `${tsType} | null` : tsType;
+          propertyDefs.push(`${decorators.join('\n')}\n  ${f.attrName}!: ${propType};`);
+        });
+
+        let constructorCode = '';
+        if (useConstructor) {
+          constructorCode = `\n\n  constructor(init?: Partial<${className}>) {\n    Object.assign(this, init);\n  }`;
         }
+
+        const classDef = `@Entity('${rawTableName}')\nexport class ${className} {\n${propertyDefs.join('\n\n')}${constructorCode}\n}`;
+        entityBlocks.push(classDef);
       }
 
-      if (modelBlocks.length === 0) {
-        setError(t('sqltosequelize.no_tables_found', 'No valid CREATE TABLE statements found.'));
+      if (entityBlocks.length === 0) {
+        setError(t('sqltotypeorm.no_tables_found', 'No valid CREATE TABLE statements found.'));
         setOutput('');
         return;
       }
 
-      let header = '';
-      if (modelStyle === 'define') {
-        if (language === 'ts') {
-          header = `import { Sequelize, DataTypes } from 'sequelize';\n\n`;
-        } else {
-          header = `const { DataTypes } = require('sequelize');\n\n`;
-        }
-      } else {
-        if (language === 'ts') {
-          header = `import { Model, Sequelize, DataTypes, Optional } from 'sequelize';\n\n`;
-        } else {
-          header = `const { Model, DataTypes } = require('sequelize');\n\n`;
-        }
+      const typeormImports = new Set(['Entity', 'Column']);
+      if (cleanInput.toUpperCase().includes('PRIMARY KEY')) {
+        typeormImports.add('PrimaryGeneratedColumn');
+        typeormImports.add('PrimaryColumn');
+      }
+      if (useCreateUpdateDateColumns) {
+        if (cleanInput.toLowerCase().includes('created') || cleanInput.toLowerCase().includes('creation')) typeormImports.add('CreateDateColumn');
+        if (cleanInput.toLowerCase().includes('updated') || cleanInput.toLowerCase().includes('modified')) typeormImports.add('UpdateDateColumn');
       }
 
-      setOutput((header + modelBlocks.join('\n\n')).trim());
+      let header = `import { ${Array.from(typeormImports).join(', ')} } from 'typeorm';\n`;
+      if (usesClassValidatorImports) {
+        header += `import { IsNotEmpty, IsOptional, IsString, IsNumber, IsBoolean, IsDate, IsEmail } from 'class-validator';\n`;
+      }
+      header += '\n';
+
+      setOutput((header + entityBlocks.join('\n\n')).trim());
       setError('');
     } catch (e: any) {
-      setError(t('sqltosequelize.error_parsing', 'Error parsing SQL DDL') + ': ' + e.message);
+      setError(t('sqltotypeorm.error_parsing', 'Error parsing SQL DDL') + ': ' + e.message);
       setOutput('');
     }
-  }, [input, modelStyle, language, fieldCasing, timestamps, underscored, freezeTableName, t]);
+  }, [input, fieldCasing, useClassValidator, useConstructor, useCreateUpdateDateColumns, t]);
 
   useEffect(() => {
     handleConvert();
@@ -439,7 +447,7 @@ CREATE TABLE comments (
     if (!output) return;
     navigator.clipboard.writeText(output);
     setCopied(true);
-    toast.success(t('sqltosequelize.toast_copied', 'Sequelize models copied to clipboard!'));
+    toast.success(t('sqltotypeorm.toast_copied', 'TypeORM entities copied to clipboard!'));
     setTimeout(() => setCopied(false), 2000);
   }, [output, t]);
 
@@ -454,23 +462,22 @@ CREATE TABLE comments (
 
   const handleDownload = () => {
     if (!output) return;
-    const ext = language === 'ts' ? 'ts' : 'js';
-    const blob = new Blob([output], { type: 'text/javascript' });
+    const blob = new Blob([output], { type: 'text/typescript' });
     const url = URL.createObjectURL(blob);
     const link = document.createElement('a');
     link.href = url;
-    link.download = `models.${ext}`;
+    link.download = 'entities.ts';
     document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);
     URL.revokeObjectURL(url);
-    toast.success(t('sqltosequelize.toast_downloaded', `Downloaded models.${ext}!`));
+    toast.success(t('sqltotypeorm.toast_downloaded', 'Downloaded entities.ts!'));
   };
 
   const loadPreset = (presetKey: keyof typeof PRESETS) => {
     setInput(PRESETS[presetKey]);
     setActivePreset(presetKey);
-    toast.success(t('sqltosequelize.preset_loaded', 'Loaded SQL preset!'));
+    toast.success(t('sqltotypeorm.preset_loaded', 'Loaded SQL preset!'));
   };
 
   const handlersRef = useRef({ handleClear, handleCopy, output });
@@ -514,7 +521,7 @@ CREATE TABLE comments (
         <div className="flex items-center gap-2">
           <Sparkles className="w-4 h-4 text-indigo-500" aria-hidden="true" />
           <span className="text-xs font-bold uppercase tracking-widest text-slate-500 dark:text-slate-400">
-            {t('sqltosequelize.presets_title', 'Quick Presets')}
+            {t('sqltotypeorm.presets_title', 'Quick Presets')}
           </span>
         </div>
         <div className="flex flex-wrap items-center gap-2">
@@ -532,7 +539,7 @@ CREATE TABLE comments (
                     : 'bg-white dark:bg-slate-800 text-slate-700 dark:text-slate-300 border-slate-200 dark:border-slate-700 hover:border-indigo-500'
                 }`}
               >
-                {t(`sqltosequelize.preset_${pKey}`, pKey === 'ecommerce' ? 'E-Commerce Catalog' : pKey === 'user_auth' ? 'User Auth & Roles' : 'Blog CMS')}
+                {t(`sqltotypeorm.preset_${pKey}`, pKey === 'ecommerce' ? 'E-Commerce Catalog' : pKey === 'user_auth' ? 'User Auth & Roles' : 'Blog CMS')}
               </button>
             );
           })}
@@ -542,46 +549,16 @@ CREATE TABLE comments (
       {/* Options Panel */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 p-5 bg-white dark:bg-slate-900/60 rounded-2xl border border-slate-200 dark:border-slate-800">
         <div className="space-y-1.5">
-          <label htmlFor="sequelize-model-style" className="text-xs font-bold uppercase tracking-widest text-slate-500 dark:text-slate-400">
-            {t('sqltosequelize.model_style', 'Model Style')}
+          <label htmlFor="typeorm-field-casing" className="text-xs font-bold uppercase tracking-widest text-slate-500 dark:text-slate-400">
+            {t('sqltotypeorm.field_casing', 'Field Casing')}
           </label>
           <select
-            id="sequelize-model-style"
-            value={modelStyle}
-            onChange={(e) => setModelStyle(e.target.value as ModelStyle)}
-            className="w-full p-2.5 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-sm font-semibold outline-none focus:ring-2 focus:ring-indigo-500"
-          >
-            <option value="define">sequelize.define()</option>
-            <option value="class">Class extends Model</option>
-          </select>
-        </div>
-
-        <div className="space-y-1.5">
-          <label htmlFor="sequelize-language" className="text-xs font-bold uppercase tracking-widest text-slate-500 dark:text-slate-400">
-            {t('sqltosequelize.language', 'Language')}
-          </label>
-          <select
-            id="sequelize-language"
-            value={language}
-            onChange={(e) => setLanguage(e.target.value as Language)}
-            className="w-full p-2.5 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-sm font-semibold outline-none focus:ring-2 focus:ring-indigo-500"
-          >
-            <option value="ts">TypeScript (.ts)</option>
-            <option value="js">JavaScript (.js)</option>
-          </select>
-        </div>
-
-        <div className="space-y-1.5">
-          <label htmlFor="sequelize-field-casing" className="text-xs font-bold uppercase tracking-widest text-slate-500 dark:text-slate-400">
-            {t('sqltosequelize.field_casing', 'Field Casing')}
-          </label>
-          <select
-            id="sequelize-field-casing"
+            id="typeorm-field-casing"
             value={fieldCasing}
             onChange={(e) => setFieldCasing(e.target.value as FieldCasing)}
             className="w-full p-2.5 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-sm font-semibold outline-none focus:ring-2 focus:ring-indigo-500"
           >
-            <option value="camelCase">camelCase (Sequelize Default)</option>
+            <option value="camelCase">camelCase (TypeORM Standard)</option>
             <option value="snake_case">snake_case</option>
             <option value="PascalCase">PascalCase</option>
             <option value="original">Original Column Name</option>
@@ -591,40 +568,40 @@ CREATE TABLE comments (
         <div className="flex flex-col justify-end space-y-2 pt-2 md:pt-0">
           <div className="flex items-center gap-2">
             <input
-              id="seq-timestamps"
+              id="typeorm-validator"
               type="checkbox"
-              checked={timestamps}
-              onChange={(e) => setTimestamps(e.target.checked)}
+              checked={useClassValidator}
+              onChange={(e) => setUseClassValidator(e.target.checked)}
               className="w-4 h-4 text-indigo-600 rounded border-slate-300 focus:ring-indigo-500"
             />
-            <label htmlFor="seq-timestamps" className="text-xs font-bold text-slate-700 dark:text-slate-300 cursor-pointer">
-              {t('sqltosequelize.timestamps', 'timestamps: true')}
+            <label htmlFor="typeorm-validator" className="text-xs font-bold text-slate-700 dark:text-slate-300 cursor-pointer">
+              {t('sqltotypeorm.use_class_validator', 'class-validator Decorators')}
             </label>
           </div>
 
           <div className="flex items-center gap-2">
             <input
-              id="seq-underscored"
+              id="typeorm-constructor"
               type="checkbox"
-              checked={underscored}
-              onChange={(e) => setUnderscored(e.target.checked)}
+              checked={useConstructor}
+              onChange={(e) => setUseConstructor(e.target.checked)}
               className="w-4 h-4 text-indigo-600 rounded border-slate-300 focus:ring-indigo-500"
             />
-            <label htmlFor="seq-underscored" className="text-xs font-bold text-slate-700 dark:text-slate-300 cursor-pointer">
-              {t('sqltosequelize.underscored', 'underscored: true')}
+            <label htmlFor="typeorm-constructor" className="text-xs font-bold text-slate-700 dark:text-slate-300 cursor-pointer">
+              {t('sqltotypeorm.use_constructor', 'Partial Constructor')}
             </label>
           </div>
 
           <div className="flex items-center gap-2">
             <input
-              id="seq-freezetable"
+              id="typeorm-datecols"
               type="checkbox"
-              checked={freezeTableName}
-              onChange={(e) => setFreezeTableName(e.target.checked)}
+              checked={useCreateUpdateDateColumns}
+              onChange={(e) => setUseCreateUpdateDateColumns(e.target.checked)}
               className="w-4 h-4 text-indigo-600 rounded border-slate-300 focus:ring-indigo-500"
             />
-            <label htmlFor="seq-freezetable" className="text-xs font-bold text-slate-700 dark:text-slate-300 cursor-pointer">
-              {t('sqltosequelize.freeze_table_name', 'freezeTableName: true')}
+            <label htmlFor="typeorm-datecols" className="text-xs font-bold text-slate-700 dark:text-slate-300 cursor-pointer">
+              {t('sqltotypeorm.use_date_cols', '@CreateDateColumn & @UpdateDateColumn')}
             </label>
           </div>
         </div>
@@ -636,8 +613,8 @@ CREATE TABLE comments (
           <div className="flex justify-between items-center px-1">
             <div className="flex items-center gap-2">
               <Database className="w-4 h-4 text-indigo-500" aria-hidden="true" />
-              <label htmlFor="sql-sequelize-input" className="text-xs font-black uppercase tracking-widest text-slate-400 cursor-pointer">
-                {t('sqltosequelize.sql_input_label', 'SQL CREATE TABLE DDL')}
+              <label htmlFor="sql-typeorm-input" className="text-xs font-black uppercase tracking-widest text-slate-400 cursor-pointer">
+                {t('sqltotypeorm.sql_input_label', 'SQL CREATE TABLE DDL')}
               </label>
             </div>
             <div className="flex items-center gap-2">
@@ -653,14 +630,14 @@ CREATE TABLE comments (
             </div>
           </div>
           <textarea
-            id="sql-sequelize-input"
+            id="sql-typeorm-input"
             ref={inputRef}
             value={input}
             onChange={(e) => {
               setInput(e.target.value);
               if (activePreset) setActivePreset(null);
             }}
-            placeholder={t('sqltosequelize.placeholder_sql', 'Paste SQL CREATE TABLE DDL statements here...')}
+            placeholder={t('sqltotypeorm.placeholder_sql', 'Paste SQL CREATE TABLE DDL statements here...')}
             className="w-full h-[450px] p-6 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-3xl outline-none focus:ring-2 focus:ring-indigo-500/20 transition-all font-mono text-sm leading-relaxed dark:text-slate-300 resize-none"
           />
         </div>
@@ -669,8 +646,8 @@ CREATE TABLE comments (
           <div className="flex justify-between items-center px-1">
             <div className="flex items-center gap-2">
               <FileCode className="w-4 h-4 text-emerald-500" aria-hidden="true" />
-              <label htmlFor="sequelize-output" className="text-xs font-black uppercase tracking-widest text-slate-400 cursor-pointer">
-                {t('sqltosequelize.output_label', 'Generated Sequelize Models')}
+              <label htmlFor="typeorm-output" className="text-xs font-black uppercase tracking-widest text-slate-400 cursor-pointer">
+                {t('sqltotypeorm.output_label', 'Generated TypeORM Entities')}
               </label>
             </div>
             <div className="flex gap-2">
@@ -698,10 +675,10 @@ CREATE TABLE comments (
             </div>
           </div>
           <textarea
-            id="sequelize-output"
+            id="typeorm-output"
             value={output}
             readOnly
-            placeholder={t('sqltosequelize.placeholder_output', 'Generated Sequelize models will appear here...')}
+            placeholder={t('sqltotypeorm.placeholder_output', 'Generated TypeORM entities will appear here...')}
             className="w-full h-[450px] p-6 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-3xl outline-none font-mono text-sm leading-relaxed text-indigo-600 dark:text-indigo-400 resize-none"
           />
         </div>
@@ -717,9 +694,9 @@ CREATE TABLE comments (
       <div className="bg-indigo-50 dark:bg-indigo-900/10 p-8 rounded-[2.5rem] border border-indigo-100 dark:border-indigo-900/20 flex items-start gap-4">
         <Info className="w-6 h-6 text-indigo-500 mt-1" aria-hidden="true" />
         <div className="space-y-2">
-          <h4 className="font-bold dark:text-white">{t('sqltosequelize.about_title', 'About SQL to Sequelize Generator')}</h4>
+          <h4 className="font-bold dark:text-white">{t('sqltotypeorm.about_title', 'About SQL to TypeORM Generator')}</h4>
           <p className="text-sm text-slate-500 dark:text-slate-400 leading-relaxed">
-            {t('sqltosequelize.about_text', 'Convert SQL CREATE TABLE DDL statements directly into Sequelize v6/v7 ORM model definitions. Supports TypeScript & JavaScript, sequelize.define() vs ES6 class models, data types, primary keys, auto increments, field name mappings, and table configuration options.')}
+            {t('sqltotypeorm.about_text', 'Convert SQL CREATE TABLE DDL queries into strongly-typed TypeORM Entity classes with decorators (@Entity, @PrimaryGeneratedColumn, @Column, @CreateDateColumn, @UpdateDateColumn). Supports class-validator decorators, partial constructor initializers, casing options, and TS reserved keyword escaping.')}
           </p>
         </div>
       </div>

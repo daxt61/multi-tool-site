@@ -15,6 +15,33 @@ test.describe('AnsiEscapeStripper UX and Accessibility', () => {
     await expect(outputTextArea).toHaveValue('Hello World');
   });
 
+  test('should load quick presets and set aria-pressed state', async ({ page }) => {
+    const inputTextArea = page.locator('#ansi-input');
+    const outputTextArea = page.locator('#ansi-output');
+
+    // Click 'Git Diff' preset
+    const gitDiffPreset = page.getByRole('button', { name: 'Git Diff' });
+    await expect(gitDiffPreset).toBeVisible();
+    await gitDiffPreset.click();
+
+    // Verify aria-pressed and focus
+    await expect(gitDiffPreset).toHaveAttribute('aria-pressed', 'true');
+    await expect(inputTextArea).toBeFocused();
+    await expect(outputTextArea).toHaveValue('+ const user = await fetchUser(id);\n- const user = getUserSync(id);');
+  });
+
+  test('should toggle mode buttons with aria-pressed state', async ({ page }) => {
+    const stripAllBtn = page.getByRole('button', { name: /Tout supprimer/i });
+    const colorsOnlyBtn = page.getByRole('button', { name: /Couleurs\/Styles uniquement/i });
+
+    await expect(stripAllBtn).toHaveAttribute('aria-pressed', 'true');
+    await expect(colorsOnlyBtn).toHaveAttribute('aria-pressed', 'false');
+
+    await colorsOnlyBtn.click();
+    await expect(stripAllBtn).toHaveAttribute('aria-pressed', 'false');
+    await expect(colorsOnlyBtn).toHaveAttribute('aria-pressed', 'true');
+  });
+
   test('should clear inputs and focus input textarea when Escape is pressed on input', async ({ page }) => {
     const inputTextArea = page.locator('#ansi-input');
     await inputTextArea.focus();
@@ -31,10 +58,12 @@ test.describe('AnsiEscapeStripper UX and Accessibility', () => {
     const outputTextArea = page.locator('#ansi-output');
     await expect(outputTextArea).toHaveValue('Integration Success');
 
-    // Blur from inputs to trigger global shortcut 'C'
+    // Focus input and blur to trigger container shortcut 'C'
+    await inputTextArea.focus();
     await inputTextArea.blur();
 
-    // Press C to copy
+    // Click container area to focus within container, then press 'c'
+    await page.locator('#ansi-output').click();
     await page.keyboard.press('c');
 
     // Copy button should show check icon

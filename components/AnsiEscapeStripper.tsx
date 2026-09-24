@@ -1,16 +1,39 @@
 import { useState, useEffect, useCallback, useRef } from 'react';
-import { Terminal, Copy, Check, Trash2, Download, AlertCircle, Info, Settings2 } from 'lucide-react';
+import { Terminal, Copy, Check, Trash2, Download, AlertCircle, Info, Settings2, Sparkles } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import { toast } from 'sonner';
 import { Kbd } from './ui/Kbd';
 
 const MAX_LENGTH = 100000;
 
+const PRESETS = [
+  {
+    id: 'colored_logs',
+    labelKey: 'ansiescapestripper.preset_colored_logs',
+    defaultLabel: 'Terminal Log',
+    value: '\x1b[31m[ERROR]\x1b[0m Connection failed on \x1b[1;33mport 8080\x1b[0m\n\x1b[32m[INFO]\x1b[0m Retrying in 5 seconds...',
+  },
+  {
+    id: 'git_diff',
+    labelKey: 'ansiescapestripper.preset_git_diff',
+    defaultLabel: 'Git Diff',
+    value: '\x1b[32m+ const user = await fetchUser(id);\x1b[0m\n\x1b[31m- const user = getUserSync(id);\x1b[0m',
+  },
+  {
+    id: 'cursor_control',
+    labelKey: 'ansiescapestripper.preset_cursor_control',
+    defaultLabel: 'Cursor & Control',
+    value: '\x1b[2J\x1b[H\x1b[1mDownloading assets:\x1b[0m 100% [\x1b[32m██████████\x1b[0m]',
+  },
+];
+
 export function AnsiEscapeStripper({ initialData, onStateChange }: { initialData?: any; onStateChange?: (state: any) => void }) {
   const { t } = useTranslation();
   const inputRef = useRef<HTMLTextAreaElement>(null);
+  const containerRef = useRef<HTMLDivElement>(null);
   const [input, setInput] = useState(initialData?.input || '\\x1b[31mHello\\x1b[0m \\x1b[4mWorld\\x1b[0m');
   const [mode, setMode] = useState<'all' | 'color'>(initialData?.mode || 'all');
+  const [activePreset, setActivePreset] = useState<string | null>(null);
   const [copied, setCopied] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
@@ -54,9 +77,19 @@ export function AnsiEscapeStripper({ initialData, onStateChange }: { initialData
 
   const handleClear = useCallback(() => {
     setInput('');
+    setActivePreset(null);
     setError(null);
+    toast.success(t('common.cleared', 'Cleared input'));
     inputRef.current?.focus();
-  }, []);
+  }, [t]);
+
+  const handlePresetSelect = (preset: typeof PRESETS[0]) => {
+    setActivePreset(preset.id);
+    setInput(preset.value);
+    setError(null);
+    toast.success(t('ansiescapestripper.preset_loaded', 'Preset loaded'));
+    inputRef.current?.focus();
+  };
 
   const handleDownload = () => {
     if (!processedOutput) return;
@@ -77,6 +110,7 @@ export function AnsiEscapeStripper({ initialData, onStateChange }: { initialData
     }
     setError(null);
     setInput(val);
+    setActivePreset(null);
   };
 
   // Keyboard shortcut handlers pattern with handlersRef to prevent stale closures
@@ -88,19 +122,24 @@ export function AnsiEscapeStripper({ initialData, onStateChange }: { initialData
   useEffect(() => {
     const handleGlobalKeyDown = (e: KeyboardEvent) => {
       const activeEl = document.activeElement;
-      const isEditable = activeEl && (
-        activeEl.tagName === 'INPUT' ||
-        activeEl.tagName === 'TEXTAREA' ||
-        activeEl.getAttribute('contenteditable') === 'true'
-      );
+      const isInsideContainer =
+        !containerRef.current ||
+        activeEl === document.body ||
+        containerRef.current.contains(activeEl);
 
-      // C to copy output (only when not typing in editable element)
+      if (!isInsideContainer) return;
+
+      const isEditable = activeEl &&
+        (activeEl.tagName === 'INPUT' || activeEl.tagName === 'TEXTAREA' || activeEl.getAttribute('contenteditable') === 'true') &&
+        !(activeEl as HTMLInputElement | HTMLTextAreaElement).readOnly;
+
+      // C to copy output (only when not typing in an editable non-readonly element)
       if (e.key.toLowerCase() === 'c' && !e.ctrlKey && !e.metaKey && !e.altKey && !isEditable) {
         e.preventDefault();
         handlersRef.current.handleCopy();
       }
 
-      // Escape to clear (only when not typing, or when typing inside this specific component's textarea)
+      // Escape to clear (only when not typing in another input, or when typing inside this specific component's input)
       if (e.key === 'Escape') {
         if (!isEditable || activeEl === inputRef.current) {
           e.preventDefault();
@@ -122,13 +161,37 @@ export function AnsiEscapeStripper({ initialData, onStateChange }: { initialData
   };
 
   return (
-    <div className="max-w-6xl mx-auto space-y-12">
+    <div ref={containerRef} className="max-w-6xl mx-auto space-y-12">
       {error && (
         <div className="bg-rose-50 dark:bg-rose-500/10 border border-rose-200 dark:border-rose-800 p-4 rounded-2xl flex items-center gap-3 text-rose-600 dark:text-rose-400 font-bold animate-in fade-in slide-in-from-top-2">
           <AlertCircle className="w-5 h-5" />
           {error}
         </div>
       )}
+
+      {/* Quick Presets */}
+      <div className="flex items-center gap-3 bg-slate-50 dark:bg-slate-900/50 p-4 rounded-2xl border border-slate-200 dark:border-slate-800 flex-wrap">
+        <span className="text-xs font-black uppercase tracking-widest text-slate-400 flex items-center gap-1.5 mr-2">
+          <Sparkles className="w-4 h-4 text-amber-500" />
+          {t('ansiescapestripper.presets_label', 'Quick Presets')}
+        </span>
+        <div className="flex flex-wrap gap-2">
+          {PRESETS.map((preset) => (
+            <button
+              key={preset.id}
+              onClick={() => handlePresetSelect(preset)}
+              aria-pressed={activePreset === preset.id}
+              className={`px-3 py-1.5 rounded-xl text-xs font-bold transition-all focus-visible:ring-2 focus-visible:ring-indigo-500 outline-none ${
+                activePreset === preset.id
+                  ? 'bg-indigo-600 text-white shadow-sm'
+                  : 'bg-white dark:bg-slate-800 text-slate-600 dark:text-slate-300 border border-slate-200 dark:border-slate-700 hover:bg-slate-100 dark:hover:bg-slate-700'
+              }`}
+            >
+              {t(preset.labelKey, preset.defaultLabel)}
+            </button>
+          ))}
+        </div>
+      </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 items-start">
         {/* Input */}
@@ -141,7 +204,8 @@ export function AnsiEscapeStripper({ initialData, onStateChange }: { initialData
               <button
                 onClick={handleClear}
                 disabled={!input}
-                className="text-xs font-bold text-rose-500 hover:bg-rose-50 dark:hover:bg-rose-500/10 px-3 py-1.5 rounded-xl transition-all disabled:opacity-50 flex items-center gap-1.5 focus-visible:ring-2 focus-visible:ring-rose-500"
+                aria-label={t('common.clear', 'Clear')}
+                className="text-xs font-bold text-rose-500 hover:bg-rose-50 dark:hover:bg-rose-500/10 px-3 py-1.5 rounded-xl transition-all disabled:opacity-50 flex items-center gap-1.5 focus-visible:ring-2 focus-visible:ring-rose-500 outline-none"
               >
                 <Trash2 className="w-3.5 h-3.5" />
                 {t('common.clear', 'Clear')}
@@ -171,7 +235,7 @@ export function AnsiEscapeStripper({ initialData, onStateChange }: { initialData
               <button
                 onClick={handleCopy}
                 disabled={!processedOutput}
-                className="p-2 text-slate-400 hover:text-indigo-500 transition-colors disabled:opacity-30 flex items-center gap-1.5 focus-visible:ring-2 focus-visible:ring-indigo-500 rounded-lg"
+                className="p-2 text-slate-400 hover:text-indigo-500 transition-colors disabled:opacity-30 flex items-center gap-1.5 focus-visible:ring-2 focus-visible:ring-indigo-500 rounded-lg outline-none"
                 aria-label={t('common.copy', 'Copy')}
                 title={t('common.copy', 'Copy')}
               >
@@ -181,7 +245,7 @@ export function AnsiEscapeStripper({ initialData, onStateChange }: { initialData
               <button
                 onClick={handleDownload}
                 disabled={!processedOutput}
-                className="p-2 text-slate-400 hover:text-emerald-500 transition-colors disabled:opacity-30 focus-visible:ring-2 focus-visible:ring-emerald-500 rounded-lg"
+                className="p-2 text-slate-400 hover:text-emerald-500 transition-colors disabled:opacity-30 focus-visible:ring-2 focus-visible:ring-emerald-500 rounded-lg outline-none"
                 aria-label={t('common.download', 'Download')}
                 title={t('common.download', 'Download')}
               >
@@ -212,13 +276,15 @@ export function AnsiEscapeStripper({ initialData, onStateChange }: { initialData
             <div className="flex bg-white dark:bg-slate-800 p-1 rounded-xl border border-slate-200 dark:border-slate-700">
               <button
                 onClick={() => setMode('all')}
-                className={`flex-1 py-2 rounded-lg text-[10px] font-black uppercase transition-all ${mode === 'all' ? 'bg-indigo-600 text-white shadow-sm' : 'text-slate-400 hover:text-slate-600'}`}
+                aria-pressed={mode === 'all'}
+                className={`flex-1 py-2 rounded-lg text-[10px] font-black uppercase transition-all focus-visible:ring-2 focus-visible:ring-indigo-500 outline-none ${mode === 'all' ? 'bg-indigo-600 text-white shadow-sm' : 'text-slate-400 hover:text-slate-600'}`}
               >
                 {t('ansiescapestripper.mode_all', 'Strip All (Colors & Control)')}
               </button>
               <button
                 onClick={() => setMode('color')}
-                className={`flex-1 py-2 rounded-lg text-[10px] font-black uppercase transition-all ${mode === 'color' ? 'bg-indigo-600 text-white shadow-sm' : 'text-slate-400 hover:text-slate-600'}`}
+                aria-pressed={mode === 'color'}
+                className={`flex-1 py-2 rounded-lg text-[10px] font-black uppercase transition-all focus-visible:ring-2 focus-visible:ring-indigo-500 outline-none ${mode === 'color' ? 'bg-indigo-600 text-white shadow-sm' : 'text-slate-400 hover:text-slate-600'}`}
               >
                 {t('ansiescapestripper.mode_color', 'Colors/Styling Only')}
               </button>

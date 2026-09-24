@@ -311,3 +311,8 @@
 **Vulnerability:** The AESCipher component passed `input` (containing unencrypted sensitive text or secret Base64 payloads) to `onStateChange`, causing raw user plaintexts to be serialized into shareable URL parameters.
 **Learning:** Encryption utilities must never expose input plaintexts or passwords in shareable URL parameters. Only non-sensitive operational toggles (such as `isEncrypting`) should be included in shareable state synchronization.
 **Prevention:** Omit `input` and `password` from state synchronization callbacks in encryption tools, ensuring sensitive data remains local to component memory.
+
+## 2026-09-30 - [Sensitive Bank Data Leakage in IBAN Validator Shared State]
+**Vulnerability:** The IBANValidator component passed raw user `iban` inputs (bank account numbers) to `onStateChange`, serializing sensitive bank numbers into shareable URL parameters (`?data=...`).
+**Learning:** Financial and bank account validation tools must treat account numbers as sensitive personal financial data. Exposing bank numbers in shared URL states risks leakage in browser history, logs, and shared links.
+**Prevention:** Omit sensitive financial inputs (`iban`, credit card numbers, passwords) from state synchronization callbacks in validation tools and initialize state locally.

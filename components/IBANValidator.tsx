@@ -2,12 +2,15 @@ import { useState, useEffect, useMemo } from 'react';
 import { CreditCard, Check, Copy, Trash2, ShieldCheck, ShieldAlert, Info, Globe, AlertCircle } from 'lucide-react';
 
 export function IBANValidator({ initialData, onStateChange }: { initialData?: any; onStateChange?: (state: any) => void }) {
-  const [iban, setIban] = useState(initialData?.iban || '');
+  // Sentinel: Sensitive fields like bank account numbers (IBAN) must never be initialized
+  // from initialData (URL state) or synced via onStateChange to prevent leaking sensitive data into shareable URLs.
+  const [iban, setIban] = useState('');
   const [copied, setCopied] = useState(false);
 
   useEffect(() => {
-    onStateChange?.({ iban });
-  }, [iban]);
+    // Exclude iban from shared URL state serialization
+    onStateChange?.({});
+  }, [onStateChange]);
 
   const validation = useMemo(() => {
     if (!iban.trim()) return null;

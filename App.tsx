@@ -622,6 +622,7 @@ const SQLToCSharp = lazy(() => import("./components/SQLToCSharp").then(m => ({ d
 const SQLToSQLAlchemy = lazy(() => import("./components/SQLToSQLAlchemy").then(m => ({ default: m.SQLToSQLAlchemy })));
 const SQLToDjango = lazy(() => import("./components/SQLToDjango").then(m => ({ default: m.SQLToDjango })));
 const SQLToSequelize = lazy(() => import("./components/SQLToSequelize").then(m => ({ default: m.SQLToSequelize })));
+const SQLToTypeORM = lazy(() => import("./components/SQLToTypeORM").then(m => ({ default: m.SQLToTypeORM })));
 const SQLToPHP = lazy(() => import("./components/SQLToPHP").then(m => ({ default: m.SQLToPHP })));
 const SQLToKotlin = lazy(() => import("./components/SQLToKotlin").then(m => ({ default: m.SQLToKotlin })));
 const SQLToGo = lazy(() => import("./components/SQLToGo").then(m => ({ default: m.SQLToGo })));
@@ -890,6 +891,18 @@ const tools: Tool[] = [
     Component: SQLToDjango,
     category: "dev",
     keywords: ["sql", "ddl", "create table", "django", "models", "python", "orm", "admin", "foreign key", "convert", "convertir"],
+  },
+  // SQL DDL to TypeORM Generator Tool
+  {
+    id: "sql-to-typeorm",
+    name: "SQL DDL en TypeORM",
+    nameEn: "SQL DDL to TypeORM",
+    icon: Database,
+    description: "Convertir des instructions SQL CREATE TABLE DDL en classes d'entités ORM TypeORM",
+    descriptionEn: "Convert SQL CREATE TABLE DDL queries into TypeORM Entity classes with decorators",
+    Component: SQLToTypeORM,
+    category: "dev",
+    keywords: ["sql", "typeorm", "orm", "ddl", "entity", "entities", "decorators", "class-validator", "typescript", "convert", "convertir"],
   },
   // SQL DDL to Sequelize Generator Tool
   {

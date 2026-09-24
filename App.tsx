@@ -620,6 +620,7 @@ const SQLToJSONSchema = lazy(() => import("./components/SQLToJSONSchema").then(m
 const SQLToJava = lazy(() => import("./components/SQLToJava").then(m => ({ default: m.SQLToJava })));
 const SQLToCSharp = lazy(() => import("./components/SQLToCSharp").then(m => ({ default: m.SQLToCSharp })));
 const SQLToSQLAlchemy = lazy(() => import("./components/SQLToSQLAlchemy").then(m => ({ default: m.SQLToSQLAlchemy })));
+const SQLToDjango = lazy(() => import("./components/SQLToDjango").then(m => ({ default: m.SQLToDjango })));
 const SQLToPHP = lazy(() => import("./components/SQLToPHP").then(m => ({ default: m.SQLToPHP })));
 const SQLToKotlin = lazy(() => import("./components/SQLToKotlin").then(m => ({ default: m.SQLToKotlin })));
 const SQLToGo = lazy(() => import("./components/SQLToGo").then(m => ({ default: m.SQLToGo })));
@@ -876,6 +877,18 @@ const tools: Tool[] = [
     Component: SQLToSQLAlchemy,
     category: "dev",
     keywords: ["sql", "ddl", "create table", "sqlalchemy", "orm", "python", "base", "mapped", "column", "convert", "convertir"],
+  },
+  // SQL DDL to Django Models Generator Tool
+  {
+    id: "sql-to-django",
+    name: "SQL DDL en Modèles Django",
+    nameEn: "SQL DDL to Django Models",
+    icon: Database,
+    description: "Convertir des instructions SQL CREATE TABLE DDL en modèles ORM Python Django",
+    descriptionEn: "Convert SQL CREATE TABLE DDL statements into Python Django ORM models",
+    Component: SQLToDjango,
+    category: "dev",
+    keywords: ["sql", "ddl", "create table", "django", "models", "python", "orm", "admin", "foreign key", "convert", "convertir"],
   },
   // SQL DDL to Java Class Generator Tool
   {

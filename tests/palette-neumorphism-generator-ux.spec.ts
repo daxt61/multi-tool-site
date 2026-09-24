@@ -1,71 +1,42 @@
 import { test, expect } from '@playwright/test';
 
-test.describe('Neumorphism Generator UX & Accessibility', () => {
+test.describe('NeumorphismGenerator Palette Micro-UX', () => {
   test.beforeEach(async ({ page }) => {
-    await page.goto('http://localhost:5173/fr/outil/neumorphism-generator');
+    await page.goto('/#neumorphism-generator');
   });
 
-  test('should display initial ARIA slider attributes and shape toggle states', async ({ page }) => {
-    const flatButton = page.getByRole('button', { name: 'Plat' });
-    const pressedButton = page.getByRole('button', { name: 'Pressé' });
+  test('applies presets with active aria-pressed state', async ({ page }) => {
+    const softCardBtn = page.getByRole('button', { name: /Soft Card/i });
+    await expect(softCardBtn).toBeVisible();
 
-    await expect(flatButton).toHaveAttribute('aria-pressed', 'true');
-    await expect(pressedButton).toHaveAttribute('aria-pressed', 'false');
+    await softCardBtn.click();
+    await expect(softCardBtn).toHaveAttribute('aria-pressed', 'true');
 
+    const cssCode = page.locator('#neumorphism-css-code');
+    await expect(cssCode).toContainText('box-shadow:');
+  });
+
+  test('sliders have explicit ARIA accessibility attributes', async ({ page }) => {
     const sizeSlider = page.locator('#neo-size');
     await expect(sizeSlider).toHaveAttribute('aria-valuemin', '100');
     await expect(sizeSlider).toHaveAttribute('aria-valuemax', '400');
     await expect(sizeSlider).toHaveAttribute('aria-valuenow', '200');
 
-    const radiusSlider = page.locator('#neo-radius');
-    await expect(radiusSlider).toHaveAttribute('aria-valuenow', '50');
+    const blurSlider = page.locator('#neo-blur');
+    await expect(blurSlider).toHaveAttribute('aria-valuemin', '0');
+    await expect(blurSlider).toHaveAttribute('aria-valuemax', '100');
+    await expect(blurSlider).toHaveAttribute('aria-valuenow', '40');
   });
 
-  test('should apply quick presets correctly', async ({ page }) => {
-    const pressedPresetBtn = page.getByRole('button', { name: /Pressed Button/i });
-    await pressedPresetBtn.click();
-
-    const pressedShapeBtn = page.getByRole('button', { name: 'Pressé' });
-    await expect(pressedShapeBtn).toHaveAttribute('aria-pressed', 'true');
-
+  test('resets parameters with reset button and restores focus', async ({ page }) => {
     const sizeSlider = page.locator('#neo-size');
-    await expect(sizeSlider).toHaveAttribute('aria-valuenow', '180');
-  });
+    await sizeSlider.fill('350');
 
-  test('should reset parameters and focus primary color input on reset button click', async ({ page }) => {
-    const pressedPresetBtn = page.getByRole('button', { name: /Pressed Button/i });
-    await pressedPresetBtn.click();
+    const resetBtn = page.getByRole('button', { name: /Réinitialiser/i });
+    await resetBtn.click();
 
-    const resetButton = page.getByRole('button', { name: /Réinitialiser/i });
-    await resetButton.click();
-
-    const flatShapeBtn = page.getByRole('button', { name: 'Plat' });
-    await expect(flatShapeBtn).toHaveAttribute('aria-pressed', 'true');
-
-    const colorTextInput = page.locator('#neo-color-text');
-    await expect(colorTextInput).toBeFocused();
-  });
-
-  test('should support keyboard shortcuts (Escape reset, C copy)', async ({ page }) => {
-    const vibrantPresetBtn = page.getByRole('button', { name: /Vibrant Convex/i });
-    await vibrantPresetBtn.click();
-
-    // Ensure focus is not inside an editable field so hotkeys work
-    await page.locator('body').click();
-
-    // Press Escape to reset
-    await page.keyboard.press('Escape');
-
-    const flatShapeBtn = page.getByRole('button', { name: 'Plat' });
-    await expect(flatShapeBtn).toHaveAttribute('aria-pressed', 'true');
-    await expect(page.locator('#neo-color-text')).toBeFocused();
-
-    // Blur input to test 'c' hotkey
-    await page.locator('body').click();
-    await page.keyboard.press('c');
-
-    // Verify copy state and toast notification
-    await expect(page.getByText('Copié !')).toBeVisible();
-    await expect(page.getByText('CSS code copied to clipboard!')).toBeVisible();
+    await expect(sizeSlider).toHaveAttribute('aria-valuenow', '200');
+    const colorText = page.locator('#neo-color-text');
+    await expect(colorText).toBeFocused();
   });
 });

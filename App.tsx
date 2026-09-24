@@ -621,6 +621,7 @@ const SQLToJava = lazy(() => import("./components/SQLToJava").then(m => ({ defau
 const SQLToCSharp = lazy(() => import("./components/SQLToCSharp").then(m => ({ default: m.SQLToCSharp })));
 const SQLToSQLAlchemy = lazy(() => import("./components/SQLToSQLAlchemy").then(m => ({ default: m.SQLToSQLAlchemy })));
 const SQLToDjango = lazy(() => import("./components/SQLToDjango").then(m => ({ default: m.SQLToDjango })));
+const SQLToSequelize = lazy(() => import("./components/SQLToSequelize").then(m => ({ default: m.SQLToSequelize })));
 const SQLToPHP = lazy(() => import("./components/SQLToPHP").then(m => ({ default: m.SQLToPHP })));
 const SQLToKotlin = lazy(() => import("./components/SQLToKotlin").then(m => ({ default: m.SQLToKotlin })));
 const SQLToGo = lazy(() => import("./components/SQLToGo").then(m => ({ default: m.SQLToGo })));
@@ -889,6 +890,18 @@ const tools: Tool[] = [
     Component: SQLToDjango,
     category: "dev",
     keywords: ["sql", "ddl", "create table", "django", "models", "python", "orm", "admin", "foreign key", "convert", "convertir"],
+  },
+  // SQL DDL to Sequelize Generator Tool
+  {
+    id: "sql-to-sequelize",
+    name: "SQL DDL en Sequelize",
+    nameEn: "SQL DDL to Sequelize",
+    icon: Database,
+    description: "Convertir des requêtes SQL CREATE TABLE DDL en modèles ORM Sequelize JavaScript ou TypeScript",
+    descriptionEn: "Convert SQL CREATE TABLE DDL queries into Sequelize JavaScript or TypeScript ORM models",
+    Component: SQLToSequelize,
+    category: "dev",
+    keywords: ["sql", "sequelize", "orm", "ddl", "models", "typescript", "javascript", "node", "convert", "convertir"],
   },
   // SQL DDL to Java Class Generator Tool
   {

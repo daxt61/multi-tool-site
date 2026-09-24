@@ -42,6 +42,7 @@ export function NeumorphismGenerator() {
   const [blur, setBlur] = useState(DEFAULT_STATE.blur);
   const [color, setColor] = useState(DEFAULT_STATE.color);
   const [shape, setShape] = useState<'flat' | 'concave' | 'convex' | 'pressed'>(DEFAULT_STATE.shape);
+  const [activePresetId, setActivePresetId] = useState<string | null>(null);
   const [copied, setCopied] = useState(false);
 
   const containerRef = useRef<HTMLDivElement>(null);
@@ -107,8 +108,9 @@ box-shadow: ${boxShadow};`;
     setBlur(DEFAULT_STATE.blur);
     setColor(DEFAULT_STATE.color);
     setShape(DEFAULT_STATE.shape);
+    setActivePresetId(null);
     toast.success('Neumorphism parameters reset');
-    primaryInputRef.current?.focus();
+    setTimeout(() => primaryInputRef.current?.focus(), 0);
   }, []);
 
   const handleApplyPreset = (preset: Preset) => {
@@ -119,6 +121,7 @@ box-shadow: ${boxShadow};`;
     setBlur(preset.blur);
     setColor(preset.color);
     setShape(preset.shape);
+    setActivePresetId(preset.id);
     toast.success(`Preset "${preset.name}" applied!`);
   };
 
@@ -166,21 +169,29 @@ box-shadow: ${boxShadow};`;
           <Sparkles className="w-4 h-4 text-indigo-500" aria-hidden="true" /> Quick Presets
         </div>
         <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
-          {PRESETS.map((preset) => (
-            <button
-              key={preset.id}
-              type="button"
-              onClick={() => handleApplyPreset(preset)}
-              className="px-4 py-3 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-2xl hover:border-indigo-500 dark:hover:border-indigo-500 hover:shadow-md transition-all text-left group focus-visible:ring-2 focus-visible:ring-indigo-500"
-            >
-              <span className="text-xs font-bold text-slate-700 dark:text-slate-200 group-hover:text-indigo-600 dark:group-hover:text-indigo-400 transition-colors block">
-                {preset.name}
-              </span>
-              <span className="text-[10px] text-slate-400 font-mono block mt-0.5 uppercase">
-                {preset.shape} • {preset.color}
-              </span>
-            </button>
-          ))}
+          {PRESETS.map((preset) => {
+            const isActive = activePresetId === preset.id;
+            return (
+              <button
+                key={preset.id}
+                type="button"
+                onClick={() => handleApplyPreset(preset)}
+                aria-pressed={isActive}
+                className={`px-4 py-3 border rounded-2xl transition-all text-left group focus-visible:ring-2 focus-visible:ring-indigo-500 ${
+                  isActive
+                    ? 'bg-indigo-50 dark:bg-indigo-950/40 border-indigo-500 text-indigo-700 dark:text-indigo-300 shadow-sm'
+                    : 'bg-white dark:bg-slate-800 border-slate-200 dark:border-slate-700 hover:border-indigo-500 dark:hover:border-indigo-500 hover:shadow-md'
+                }`}
+              >
+                <span className={`text-xs font-bold transition-colors block ${isActive ? 'text-indigo-600 dark:text-indigo-400' : 'text-slate-700 dark:text-slate-200 group-hover:text-indigo-600 dark:group-hover:text-indigo-400'}`}>
+                  {preset.name}
+                </span>
+                <span className="text-[10px] text-slate-400 font-mono block mt-0.5 uppercase">
+                  {preset.shape} • {preset.color}
+                </span>
+              </button>
+            );
+          })}
         </div>
       </div>
 
@@ -215,7 +226,10 @@ box-shadow: ${boxShadow};`;
                   type="color"
                   value={color}
                   aria-label="Sélectionner la couleur de fond"
-                  onChange={(e) => setColor(e.target.value)}
+                  onChange={(e) => {
+                    setColor(e.target.value);
+                    if (activePresetId) setActivePresetId(null);
+                  }}
                   className="w-12 h-12 rounded-xl cursor-pointer bg-white border border-slate-200 dark:border-slate-700 p-1"
                 />
                 <input
@@ -223,7 +237,10 @@ box-shadow: ${boxShadow};`;
                   ref={primaryInputRef}
                   type="text"
                   value={color}
-                  onChange={(e) => setColor(e.target.value)}
+                  onChange={(e) => {
+                    setColor(e.target.value);
+                    if (activePresetId) setActivePresetId(null);
+                  }}
                   className="flex-1 p-3 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl font-mono text-sm outline-none focus:ring-2 focus:ring-indigo-500/20"
                 />
               </div>
@@ -246,7 +263,10 @@ box-shadow: ${boxShadow};`;
                 aria-valuemax={400}
                 aria-valuenow={size}
                 aria-label="Taille en pixels"
-                onChange={(e) => setSize(Number(e.target.value))}
+                onChange={(e) => {
+                  setSize(Number(e.target.value));
+                  if (activePresetId) setActivePresetId(null);
+                }}
                 className="w-full h-2 bg-slate-200 dark:bg-slate-700 rounded-lg appearance-none cursor-pointer accent-indigo-600"
               />
             </div>
@@ -268,7 +288,10 @@ box-shadow: ${boxShadow};`;
                 aria-valuemax={100}
                 aria-valuenow={radius}
                 aria-label="Rayon en pixels"
-                onChange={(e) => setRadius(Number(e.target.value))}
+                onChange={(e) => {
+                  setRadius(Number(e.target.value));
+                  if (activePresetId) setActivePresetId(null);
+                }}
                 className="w-full h-2 bg-slate-200 dark:bg-slate-700 rounded-lg appearance-none cursor-pointer accent-indigo-600"
               />
             </div>
@@ -290,7 +313,10 @@ box-shadow: ${boxShadow};`;
                 aria-valuemax={50}
                 aria-valuenow={distance}
                 aria-label="Distance en pixels"
-                onChange={(e) => setDistance(Number(e.target.value))}
+                onChange={(e) => {
+                  setDistance(Number(e.target.value));
+                  if (activePresetId) setActivePresetId(null);
+                }}
                 className="w-full h-2 bg-slate-200 dark:bg-slate-700 rounded-lg appearance-none cursor-pointer accent-indigo-600"
               />
             </div>
@@ -313,7 +339,10 @@ box-shadow: ${boxShadow};`;
                 aria-valuemax={0.6}
                 aria-valuenow={intensity}
                 aria-label="Intensité de l'ombre en pourcentage"
-                onChange={(e) => setIntensity(Number(e.target.value))}
+                onChange={(e) => {
+                  setIntensity(Number(e.target.value));
+                  if (activePresetId) setActivePresetId(null);
+                }}
                 className="w-full h-2 bg-slate-200 dark:bg-slate-700 rounded-lg appearance-none cursor-pointer accent-indigo-600"
               />
             </div>
@@ -335,7 +364,10 @@ box-shadow: ${boxShadow};`;
                 aria-valuemax={100}
                 aria-valuenow={blur}
                 aria-label="Flou de l'ombre en pixels"
-                onChange={(e) => setBlur(Number(e.target.value))}
+                onChange={(e) => {
+                  setBlur(Number(e.target.value));
+                  if (activePresetId) setActivePresetId(null);
+                }}
                 className="w-full h-2 bg-slate-200 dark:bg-slate-700 rounded-lg appearance-none cursor-pointer accent-indigo-600"
               />
             </div>
@@ -347,7 +379,10 @@ box-shadow: ${boxShadow};`;
                   <button
                     key={s}
                     type="button"
-                    onClick={() => setShape(s)}
+                    onClick={() => {
+                      setShape(s);
+                      if (activePresetId) setActivePresetId(null);
+                    }}
                     aria-pressed={shape === s}
                     className={`px-4 py-2 rounded-xl text-xs font-bold transition-all border focus-visible:ring-2 focus-visible:ring-indigo-500 ${
                       shape === s

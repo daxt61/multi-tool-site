@@ -623,6 +623,7 @@ const SQLToSQLAlchemy = lazy(() => import("./components/SQLToSQLAlchemy").then(m
 const SQLToDjango = lazy(() => import("./components/SQLToDjango").then(m => ({ default: m.SQLToDjango })));
 const SQLToSequelize = lazy(() => import("./components/SQLToSequelize").then(m => ({ default: m.SQLToSequelize })));
 const SQLToTypeORM = lazy(() => import("./components/SQLToTypeORM").then(m => ({ default: m.SQLToTypeORM })));
+const SQLToKnex = lazy(() => import("./components/SQLToKnex").then(m => ({ default: m.SQLToKnex })));
 const SQLToPHP = lazy(() => import("./components/SQLToPHP").then(m => ({ default: m.SQLToPHP })));
 const SQLToKotlin = lazy(() => import("./components/SQLToKotlin").then(m => ({ default: m.SQLToKotlin })));
 const SQLToGo = lazy(() => import("./components/SQLToGo").then(m => ({ default: m.SQLToGo })));
@@ -903,6 +904,18 @@ const tools: Tool[] = [
     Component: SQLToTypeORM,
     category: "dev",
     keywords: ["sql", "typeorm", "orm", "ddl", "entity", "entities", "decorators", "class-validator", "typescript", "convert", "convertir"],
+  },
+  // SQL DDL to Knex.js Migration Generator Tool
+  {
+    id: "sql-to-knex",
+    name: "SQL DDL en Knex.js",
+    nameEn: "SQL DDL to Knex.js",
+    icon: Database,
+    description: "Convertir des instructions SQL CREATE TABLE DDL en migrations Knex.js JavaScript ou TypeScript",
+    descriptionEn: "Convert SQL CREATE TABLE DDL queries into Knex.js JavaScript or TypeScript migration scripts",
+    Component: SQLToKnex,
+    category: "dev",
+    keywords: ["sql", "knex", "knexjs", "migration", "ddl", "schema", "up", "down", "javascript", "typescript", "convert", "convertir"],
   },
   // SQL DDL to Sequelize Generator Tool
   {

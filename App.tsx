@@ -620,6 +620,8 @@ const SQLToJSONSchema = lazy(() => import("./components/SQLToJSONSchema").then(m
 const SQLToJava = lazy(() => import("./components/SQLToJava").then(m => ({ default: m.SQLToJava })));
 const SQLToCSharp = lazy(() => import("./components/SQLToCSharp").then(m => ({ default: m.SQLToCSharp })));
 const SQLToCPP = lazy(() => import("./components/SQLToCPP").then(m => ({ default: m.SQLToCPP })));
+const JSONToJulia = lazy(() => import("./components/JSONToJulia").then(m => ({ default: m.JSONToJulia })));
+const SQLToJulia = lazy(() => import("./components/SQLToJulia").then(m => ({ default: m.SQLToJulia })));
 const SQLToSQLAlchemy = lazy(() => import("./components/SQLToSQLAlchemy").then(m => ({ default: m.SQLToSQLAlchemy })));
 const SQLToDjango = lazy(() => import("./components/SQLToDjango").then(m => ({ default: m.SQLToDjango })));
 const SQLToSequelize = lazy(() => import("./components/SQLToSequelize").then(m => ({ default: m.SQLToSequelize })));
@@ -965,6 +967,30 @@ const tools: Tool[] = [
     Component: SQLToCPP,
     category: "dev",
     keywords: ["sql", "ddl", "create table", "cpp", "c++", "struct", "class", "optional", "nlohmann", "convert", "convertir"],
+  },
+  // JSON to Julia Struct Converter Tool
+  {
+    id: "json-to-julia",
+    name: "JSON en Julia",
+    nameEn: "JSON to Julia",
+    icon: FileCode,
+    description: "Convertir des objets JSON en structures Julia (struct ou mutable struct) fortement typées",
+    descriptionEn: "Convert JSON data structures into strongly-typed Julia struct definitions",
+    Component: JSONToJulia,
+    category: "dev",
+    keywords: ["json", "julia", "struct", "convert", "type", "structtypes", "json3"],
+  },
+  // SQL DDL to Julia Struct Generator Tool
+  {
+    id: "sql-to-julia",
+    name: "SQL DDL en Julia",
+    nameEn: "SQL DDL to Julia",
+    icon: Database,
+    description: "Convertir des instructions SQL CREATE TABLE DDL en structures Julia fortement typées",
+    descriptionEn: "Convert SQL CREATE TABLE DDL statements into strongly-typed Julia struct definitions",
+    Component: SQLToJulia,
+    category: "dev",
+    keywords: ["sql", "julia", "struct", "ddl", "convert", "schema", "database", "structtypes"],
   },
   // SQL DDL to JSON Schema Converter Tool
   {

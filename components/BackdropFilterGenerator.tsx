@@ -1,6 +1,8 @@
-import { useState, useMemo } from 'react';
-import { Layers, Copy, Check, Info, LayoutGrid, Sliders, Type, RefreshCcw } from 'lucide-react';
+import { useState, useMemo, useEffect, useRef } from 'react';
+import { Copy, Check, Info, LayoutGrid, Sliders, Type, RefreshCcw } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
+import { toast } from 'sonner';
+import { Kbd } from './ui/Kbd';
 
 export function BackdropFilterGenerator() {
   const { t } = useTranslation();
@@ -15,6 +17,9 @@ export function BackdropFilterGenerator() {
   const [backgroundColor, setBackgroundColor] = useState('rgba(255, 255, 255, 0.3)');
   const [previewBg, setPreviewBg] = useState('mesh');
   const [copied, setCopied] = useState(false);
+
+  const containerRef = useRef<HTMLDivElement>(null);
+  const primaryInputRef = useRef<HTMLInputElement>(null);
 
   const backdropFilter = useMemo(() => {
     const filters = [];
@@ -35,6 +40,7 @@ export function BackdropFilterGenerator() {
   const handleCopy = () => {
     navigator.clipboard.writeText(cssSnippet);
     setCopied(true);
+    toast.success(t('backdropfilter.toast_copied'));
     setTimeout(() => setCopied(false), 2000);
   };
 
@@ -48,7 +54,42 @@ export function BackdropFilterGenerator() {
     setOpacity(100);
     setSepia(0);
     setBackgroundColor('rgba(255, 255, 255, 0.3)');
+    toast.success(t('backdropfilter.toast_reset'));
+    primaryInputRef.current?.focus();
   };
+
+  const handlersRef = useRef({ handleReset, handleCopy });
+  useEffect(() => {
+    handlersRef.current = { handleReset, handleCopy };
+  });
+
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      const activeElement = document.activeElement;
+      if (
+        containerRef.current &&
+        !containerRef.current.contains(activeElement) &&
+        activeElement !== document.body
+      ) {
+        return;
+      }
+
+      if (e.key === 'Escape') {
+        e.preventDefault();
+        handlersRef.current.handleReset();
+      } else if ((e.key === 'c' || e.key === 'C') && !e.metaKey && !e.ctrlKey) {
+        const isEditingText =
+          activeElement instanceof HTMLInputElement && activeElement.type === 'text';
+        if (!isEditingText) {
+          e.preventDefault();
+          handlersRef.current.handleCopy();
+        }
+      }
+    };
+
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, []);
 
   const bgStyles = {
     mesh: 'bg-[radial-gradient(circle_at_center,_var(--tw-gradient-from)_0%,_transparent_100%)] from-indigo-500/20 via-purple-500/20 to-pink-500/20',
@@ -58,60 +99,68 @@ export function BackdropFilterGenerator() {
   };
 
   return (
-    <div className="max-w-6xl mx-auto space-y-8">
+    <div ref={containerRef} className="max-w-6xl mx-auto space-y-8">
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
         {/* Controls */}
         <div className="lg:col-span-5 space-y-6">
           <div className="bg-white dark:bg-slate-900/50 border border-slate-200 dark:border-slate-800 rounded-3xl p-6 space-y-6">
             <div className="flex justify-between items-center px-1">
               <h3 className="text-xs font-black uppercase tracking-widest text-slate-400 flex items-center gap-2">
-                <Sliders className="w-4 h-4 text-indigo-500" /> Filters
+                <Sliders className="w-4 h-4 text-indigo-500" aria-hidden="true" /> {t('backdropfilter.filters')}
               </h3>
               <button
                 onClick={handleReset}
-                className="text-[10px] font-black uppercase tracking-widest text-rose-500 hover:text-rose-600 transition-colors flex items-center gap-1"
+                className="text-[10px] font-black uppercase tracking-widest text-rose-500 hover:text-rose-600 transition-colors flex items-center gap-1 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-rose-500 rounded-lg px-2 py-1"
               >
-                <RefreshCcw className="w-3 h-3" /> {t('common.reset')}
+                <RefreshCcw className="w-3 h-3" aria-hidden="true" />
+                <span>{t('common.reset')}</span>
+                <Kbd modifier={null}>Esc</Kbd>
               </button>
             </div>
 
             <div className="space-y-4">
               {[
-                { label: 'Blur', value: blur, set: setBlur, min: 0, max: 20, unit: 'px' },
-                { label: 'Brightness', value: brightness, set: setBrightness, min: 0, max: 200, unit: '%' },
-                { label: 'Contrast', value: contrast, set: setContrast, min: 0, max: 200, unit: '%' },
-                { label: 'Grayscale', value: grayscale, set: setGrayscale, min: 0, max: 100, unit: '%' },
-                { label: 'Hue Rotate', value: hueRotate, set: setHueRotate, min: 0, max: 360, unit: 'deg' },
-                { label: 'Invert', value: invert, set: setInvert, min: 0, max: 100, unit: '%' },
-                { label: 'Opacity', value: opacity, set: setOpacity, min: 0, max: 100, unit: '%' },
-                { label: 'Sepia', value: sepia, set: setSepia, min: 0, max: 100, unit: '%' },
-              ].map((f) => (
-                <div key={f.label} className="space-y-2">
+                { id: 'Blur', label: t('backdropfilter.blur'), value: blur, set: setBlur, min: 0, max: 20, unit: 'px' },
+                { id: 'Brightness', label: t('backdropfilter.brightness'), value: brightness, set: setBrightness, min: 0, max: 200, unit: '%' },
+                { id: 'Contrast', label: t('backdropfilter.contrast'), value: contrast, set: setContrast, min: 0, max: 200, unit: '%' },
+                { id: 'Grayscale', label: t('backdropfilter.grayscale'), value: grayscale, set: setGrayscale, min: 0, max: 100, unit: '%' },
+                { id: 'HueRotate', label: t('backdropfilter.hue_rotate'), value: hueRotate, set: setHueRotate, min: 0, max: 360, unit: 'deg' },
+                { id: 'Invert', label: t('backdropfilter.invert'), value: invert, set: setInvert, min: 0, max: 100, unit: '%' },
+                { id: 'Opacity', label: t('backdropfilter.opacity'), value: opacity, set: setOpacity, min: 0, max: 100, unit: '%' },
+                { id: 'Sepia', label: t('backdropfilter.sepia'), value: sepia, set: setSepia, min: 0, max: 100, unit: '%' },
+              ].map((f, idx) => (
+                <div key={f.id} className="space-y-2">
                   <div className="flex justify-between text-[10px] font-bold uppercase tracking-widest text-slate-500">
-                    <label htmlFor={`filter-${f.label}`}>{f.label}</label>
+                    <label htmlFor={`filter-${f.id}`} className="cursor-pointer">{f.label}</label>
                     <span className="font-mono text-indigo-600 dark:text-indigo-400">{f.value}{f.unit}</span>
                   </div>
                   <input
-                    id={`filter-${f.label}`}
+                    ref={idx === 0 ? primaryInputRef : undefined}
+                    id={`filter-${f.id}`}
                     type="range"
                     min={f.min}
                     max={f.max}
                     value={f.value}
+                    aria-valuemin={f.min}
+                    aria-valuemax={f.max}
+                    aria-valuenow={f.value}
+                    aria-label={f.label}
                     onChange={(e) => f.set(Number(e.target.value))}
-                    className="w-full h-1.5 bg-slate-100 dark:bg-slate-800 rounded-lg appearance-none cursor-pointer accent-indigo-600"
+                    className="w-full h-1.5 bg-slate-100 dark:bg-slate-800 rounded-lg appearance-none cursor-pointer accent-indigo-600 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500"
                   />
                 </div>
               ))}
 
               <div className="space-y-2 pt-4 border-t border-slate-100 dark:border-slate-800">
                 <div className="flex justify-between text-[10px] font-bold uppercase tracking-widest text-slate-500">
-                  <label>Background Color (RGBA)</label>
+                  <label htmlFor="bg-color-rgba" className="cursor-pointer">{t('backdropfilter.bg_color')}</label>
                 </div>
                 <input
+                  id="bg-color-rgba"
                   type="text"
                   value={backgroundColor}
                   onChange={(e) => setBackgroundColor(e.target.value)}
-                  className="w-full px-4 py-2 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-sm font-mono focus:ring-2 focus:ring-indigo-500/20 outline-none transition-all dark:text-white"
+                  className="w-full px-4 py-2 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-sm font-mono focus:ring-2 focus:ring-indigo-500/20 outline-none transition-all dark:text-white focus-visible:ring-2 focus-visible:ring-indigo-500"
                 />
               </div>
             </div>
@@ -119,18 +168,21 @@ export function BackdropFilterGenerator() {
 
           <div className="bg-slate-900 rounded-3xl p-6 space-y-4">
              <div className="flex justify-between items-center">
-               <h3 className="text-[10px] font-black uppercase tracking-widest text-white/40">CSS Snippet</h3>
+               <label htmlFor="css-snippet-output" className="text-[10px] font-black uppercase tracking-widest text-white/40 cursor-pointer">
+                 {t('backdropfilter.css_snippet')}
+               </label>
                <button
                  onClick={handleCopy}
-                 className={`flex items-center gap-2 px-3 py-1.5 rounded-lg text-[10px] font-black uppercase transition-all ${
+                 className={`flex items-center gap-2 px-3 py-1.5 rounded-lg text-[10px] font-black uppercase transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500 ${
                    copied ? 'bg-emerald-500 text-white' : 'bg-white/10 text-white/70 hover:bg-white/20'
                  }`}
                >
-                 {copied ? <Check className="w-3 h-3" /> : <Copy className="w-3 h-3" />}
-                 {copied ? t('common.copied') : t('common.copy')}
+                 {copied ? <Check className="w-3 h-3" aria-hidden="true" /> : <Copy className="w-3 h-3" aria-hidden="true" />}
+                 <span>{copied ? t('common.copied') : t('common.copy')}</span>
+                 <Kbd modifier={null} className="bg-white/20 text-white border-white/20">C</Kbd>
                </button>
              </div>
-             <pre className="text-xs font-mono text-indigo-300 leading-relaxed overflow-x-auto whitespace-pre-wrap selection:bg-indigo-500/30">
+             <pre id="css-snippet-output" className="text-xs font-mono text-indigo-300 leading-relaxed overflow-x-auto whitespace-pre-wrap selection:bg-indigo-500/30">
                {cssSnippet}
              </pre>
           </div>
@@ -141,18 +193,19 @@ export function BackdropFilterGenerator() {
           <div className="bg-white dark:bg-slate-900/40 border border-slate-200 dark:border-slate-800 rounded-[2.5rem] p-4 md:p-8 space-y-6">
             <div className="flex justify-between items-center">
               <h3 className="text-xs font-black uppercase tracking-widest text-slate-400 flex items-center gap-2">
-                <LayoutGrid className="w-4 h-4 text-indigo-500" /> Preview
+                <LayoutGrid className="w-4 h-4 text-indigo-500" aria-hidden="true" /> {t('backdropfilter.preview')}
               </h3>
               <div className="flex bg-slate-100 dark:bg-slate-800 p-1 rounded-xl border border-slate-200 dark:border-slate-700">
                 {Object.keys(bgStyles).map((bg) => (
                   <button
                     key={bg}
                     onClick={() => setPreviewBg(bg)}
-                    className={`px-3 py-1 rounded-lg text-[10px] font-black uppercase transition-all ${
+                    aria-pressed={previewBg === bg}
+                    className={`px-3 py-1 rounded-lg text-[10px] font-black uppercase transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500 ${
                       previewBg === bg ? 'bg-white dark:bg-slate-900 text-indigo-600 shadow-sm' : 'text-slate-500 hover:text-slate-700'
                     }`}
                   >
-                    {bg}
+                    {t(`backdropfilter.${bg}`)}
                   </button>
                 ))}
               </div>

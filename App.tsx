@@ -619,6 +619,7 @@ const NDJSONToCSV = lazy(() => import("./components/NDJSONToCSV").then(m => ({ d
 const SQLToJSONSchema = lazy(() => import("./components/SQLToJSONSchema").then(m => ({ default: m.SQLToJSONSchema })));
 const SQLToJava = lazy(() => import("./components/SQLToJava").then(m => ({ default: m.SQLToJava })));
 const SQLToCSharp = lazy(() => import("./components/SQLToCSharp").then(m => ({ default: m.SQLToCSharp })));
+const SQLToCPP = lazy(() => import("./components/SQLToCPP").then(m => ({ default: m.SQLToCPP })));
 const SQLToSQLAlchemy = lazy(() => import("./components/SQLToSQLAlchemy").then(m => ({ default: m.SQLToSQLAlchemy })));
 const SQLToDjango = lazy(() => import("./components/SQLToDjango").then(m => ({ default: m.SQLToDjango })));
 const SQLToSequelize = lazy(() => import("./components/SQLToSequelize").then(m => ({ default: m.SQLToSequelize })));
@@ -952,6 +953,18 @@ const tools: Tool[] = [
     Component: SQLToCSharp,
     category: "dev",
     keywords: ["sql", "ddl", "create table", "csharp", "c#", "entity framework", "ef core", "class", "record", "convert", "convertir"],
+  },
+  // SQL DDL to C++ Struct Generator Tool
+  {
+    id: "sql-to-cpp",
+    name: "SQL DDL en C++",
+    nameEn: "SQL DDL to C++ Structs",
+    icon: Database,
+    description: "Convertir des instructions SQL CREATE TABLE DDL en structures ou classes C++ typées",
+    descriptionEn: "Convert SQL CREATE TABLE DDL statements into strongly-typed C++ structs or classes",
+    Component: SQLToCPP,
+    category: "dev",
+    keywords: ["sql", "ddl", "create table", "cpp", "c++", "struct", "class", "optional", "nlohmann", "convert", "convertir"],
   },
   // SQL DDL to JSON Schema Converter Tool
   {

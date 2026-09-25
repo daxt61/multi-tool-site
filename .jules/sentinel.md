@@ -316,3 +316,8 @@
 **Vulnerability:** The IBANValidator component passed raw user `iban` inputs (bank account numbers) to `onStateChange`, serializing sensitive bank numbers into shareable URL parameters (`?data=...`).
 **Learning:** Financial and bank account validation tools must treat account numbers as sensitive personal financial data. Exposing bank numbers in shared URL states risks leakage in browser history, logs, and shared links.
 **Prevention:** Omit sensitive financial inputs (`iban`, credit card numbers, passwords) from state synchronization callbacks in validation tools and initialize state locally.
+
+## 2026-10-05 - [Client-side DoS in Hill Cipher]
+**Vulnerability:** The HillCipher component lacked input length checks on the text input before performing matrix operations and vector multiplications, risking browser thread freezing/Denial of Service with oversized inputs.
+**Learning:** Matrix ciphers that perform vector operations on input blocks must validate input character length prior to processing to prevent browser thread starvation.
+**Prevention:** Always enforce a `MAX_LENGTH = 100000` limit on input strings before performing matrix transformations or iterative cipher algorithms.

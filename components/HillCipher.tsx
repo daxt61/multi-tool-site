@@ -6,6 +6,8 @@ import { Kbd } from './ui/Kbd';
 
 type MatrixSize = 2 | 3;
 
+const MAX_LENGTH = 100000;
+
 export function HillCipher({ initialData, onStateChange }: { initialData?: any; onStateChange?: (state: any) => void }) {
   const { t } = useTranslation();
   // Sentinel: Always initialize input and matrix securely to prevent sensitive state leakage.
@@ -82,6 +84,12 @@ export function HillCipher({ initialData, onStateChange }: { initialData?: any; 
   const processText = useCallback(() => {
     setError(null);
     if (!input.trim()) {
+      setOutput('');
+      return;
+    }
+
+    if (input.length > MAX_LENGTH) {
+      setError(t('error.max_length', { max: MAX_LENGTH.toLocaleString() }));
       setOutput('');
       return;
     }

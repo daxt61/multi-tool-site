@@ -1,9 +1,27 @@
-import { useState, useEffect, useCallback } from 'react';
-import { FileCode, Copy, Check, Trash2, AlertCircle, Terminal, Download, Info } from 'lucide-react';
+import { useState, useEffect, useCallback, useRef } from 'react';
+import { FileCode, Copy, Check, Trash2, AlertCircle, Terminal, Download, Info, Sparkles } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
+import { toast } from 'sonner';
+import { Kbd } from './ui/Kbd';
 
 const MAX_LENGTH = 100000;
 const MAX_DEPTH = 20;
+
+const CPP_KEYWORDS = new Set([
+  'alignas', 'alignof', 'and', 'and_eq', 'asm', 'atomic_cancel', 'atomic_commit',
+  'atomic_noexcept', 'auto', 'bitand', 'bitor', 'bool', 'break', 'case', 'catch',
+  'char', 'char8_t', 'char16_t', 'char32_t', 'class', 'compl', 'concept', 'const',
+  'consteval', 'constexpr', 'constinit', 'const_cast', 'continue', 'co_await',
+  'co_return', 'co_yield', 'decltype', 'default', 'delete', 'do', 'double',
+  'dynamic_cast', 'else', 'enum', 'explicit', 'export', 'extern', 'false', 'float',
+  'for', 'friend', 'goto', 'if', 'inline', 'int', 'long', 'mutable', 'namespace',
+  'new', 'noexcept', 'not', 'not_eq', 'nullptr', 'operator', 'or', 'or_eq', 'private',
+  'protected', 'public', 'reflexpr', 'register', 'reinterpret_cast', 'requires',
+  'return', 'short', 'signed', 'sizeof', 'static', 'static_assert', 'static_cast',
+  'struct', 'switch', 'synchronized', 'template', 'this', 'thread_local', 'throw',
+  'true', 'try', 'typedef', 'typeid', 'typename', 'union', 'unsigned', 'using',
+  'virtual', 'void', 'volatile', 'wchar_t', 'while', 'xor', 'xor_eq'
+]);
 
 interface CPPStruct {
   name: string;
@@ -12,14 +30,66 @@ interface CPPStruct {
 
 export function JSONToCPP({ initialData, onStateChange }: { initialData?: any; onStateChange?: (state: any) => void }) {
   const { t } = useTranslation();
+  const inputRef = useRef<HTMLTextAreaElement>(null);
   const [input, setInput] = useState(initialData?.input || '');
   const [output, setOutput] = useState(initialData?.output || '');
+  const [constructKind, setConstructKind] = useState<'struct' | 'class'>(initialData?.constructKind || 'struct');
+  const [casing, setCasing] = useState<'snake_case' | 'camelCase' | 'PascalCase' | 'original'>(initialData?.casing || 'snake_case');
+  const [useOptional, setUseOptional] = useState(initialData?.useOptional ?? true);
+  const [useNlohmannJson, setUseNlohmannJson] = useState(initialData?.useNlohmannJson ?? false);
+  const [activePreset, setActivePreset] = useState<string | null>(null);
   const [error, setError] = useState('');
   const [copied, setCopied] = useState(false);
 
   useEffect(() => {
-    onStateChange?.({ input, output });
-  }, [input, output, onStateChange]);
+    onStateChange?.({ input, output, constructKind, casing, useOptional, useNlohmannJson });
+  }, [input, output, constructKind, casing, useOptional, useNlohmannJson, onStateChange]);
+
+  const PRESETS = {
+    user: {
+      name: t('jsontocpp.preset_user', 'User Profile'),
+      json: JSON.stringify({
+        id: 101,
+        username: "johndoe",
+        email: "john@example.com",
+        is_active: true,
+        score: 98.5,
+        address: {
+          street: "123 Tech Blvd",
+          city: "San Francisco",
+          zipcode: "94107"
+        },
+        tags: ["admin", "developer"]
+      }, null, 2)
+    },
+    order: {
+      name: t('jsontocpp.preset_order', 'E-Commerce Order'),
+      json: JSON.stringify({
+        order_id: "ORD-2025-987",
+        total_amount: 149.99,
+        status: "processing",
+        items: [
+          { item_id: 1, name: "Wireless Mouse", price: 29.99, quantity: 1 },
+          { item_id: 2, name: "Mechanical Keyboard", price: 120.00, quantity: 1 }
+        ],
+        shipping_notes: null
+      }, null, 2)
+    },
+    config: {
+      name: t('jsontocpp.preset_config', 'API Config'),
+      json: JSON.stringify({
+        app_name: "MultiToolService",
+        version: "2.5.0",
+        port: 8080,
+        enable_telemetry: true,
+        database: {
+          host: "localhost",
+          port: 5432,
+          max_connections: 20
+        }
+      }, null, 2)
+    }
+  };
 
   const toPascalCase = (str: string) => {
     let result = str
@@ -35,6 +105,11 @@ export function JSONToCPP({ initialData, onStateChange }: { initialData?: any; o
     return result;
   };
 
+  const toCamelCase = (str: string) => {
+    const pascal = toPascalCase(str);
+    return pascal.charAt(0).toLowerCase() + pascal.slice(1);
+  };
+
   const toSnakeCase = (str: string) => {
     let result = str
       .replace(/([A-Z])/g, '_$1')
@@ -43,32 +118,28 @@ export function JSONToCPP({ initialData, onStateChange }: { initialData?: any; o
       .replace(/[^a-z0-9_]/gi, '_')
       .replace(/__+/g, '_');
 
-    // C++ identifiers cannot start with a digit
     if (/^[0-9]/.test(result)) {
       result = 'f_' + result;
     }
 
-    // Handle C++ reserved keywords
-    const keywords = [
-      'alignas', 'alignof', 'and', 'and_eq', 'asm', 'atomic_cancel', 'atomic_commit',
-      'atomic_noexcept', 'auto', 'bitand', 'bitor', 'bool', 'break', 'case', 'catch',
-      'char', 'char8_t', 'char16_t', 'char32_t', 'class', 'compl', 'concept', 'const',
-      'consteval', 'constexpr', 'constinit', 'const_cast', 'continue', 'co_await',
-      'co_return', 'co_yield', 'decltype', 'default', 'delete', 'do', 'double',
-      'dynamic_cast', 'else', 'enum', 'explicit', 'export', 'extern', 'false', 'float',
-      'for', 'friend', 'goto', 'if', 'inline', 'int', 'long', 'mutable', 'namespace',
-      'new', 'noexcept', 'not', 'not_eq', 'nullptr', 'operator', 'or', 'or_eq', 'private',
-      'protected', 'public', 'reflexpr', 'register', 'reinterpret_cast', 'requires',
-      'return', 'short', 'signed', 'sizeof', 'static', 'static_assert', 'static_cast',
-      'struct', 'switch', 'synchronized', 'template', 'this', 'thread_local', 'throw',
-      'true', 'try', 'typedef', 'typeid', 'typename', 'union', 'unsigned', 'using',
-      'virtual', 'void', 'volatile', 'wchar_t', 'while', 'xor', 'xor_eq'
-    ];
-    if (keywords.includes(result)) {
-      result += '_';
+    return result || 'property';
+  };
+
+  const formatMemberName = (str: string) => {
+    let formatted = str;
+    if (casing === 'PascalCase') {
+      formatted = toPascalCase(str);
+    } else if (casing === 'camelCase') {
+      formatted = toCamelCase(str);
+    } else if (casing === 'snake_case') {
+      formatted = toSnakeCase(str);
     }
 
-    return result || 'property';
+    if (CPP_KEYWORDS.has(formatted) || /^[0-9]/.test(formatted)) {
+      formatted += '_';
+    }
+
+    return formatted || 'field_';
   };
 
   const handleConvert = useCallback(() => {
@@ -85,12 +156,22 @@ export function JSONToCPP({ initialData, onStateChange }: { initialData?: any; o
       const parsed = JSON.parse(input);
       const structs: CPPStruct[] = [];
       const structNames = new Set<string>();
+      const includes = new Set<string>();
+
+      includes.add('#include <string>');
 
       const getCPPType = (val: any, fieldName: string, depth: number): string => {
-        if (depth > MAX_DEPTH) return 'std::any';
-        if (val === null || val === undefined) return 'std::string';
+        if (depth > MAX_DEPTH) return 'std::string';
+        if (val === null || val === undefined) {
+          if (useOptional) {
+            includes.add('#include <optional>');
+            return 'std::optional<std::string>';
+          }
+          return 'std::string';
+        }
 
         if (Array.isArray(val)) {
+          includes.add('#include <vector>');
           const itemType = val.length > 0 ? getCPPType(val[0], fieldName, depth + 1) : 'std::string';
           return `std::vector<${itemType}>`;
         }
@@ -106,7 +187,7 @@ export function JSONToCPP({ initialData, onStateChange }: { initialData?: any; o
           }
 
           const fields = Object.entries(val).map(([key, value]) => ({
-            name: toSnakeCase(key),
+            name: formatMemberName(key),
             type: getCPPType(value, key, depth + 1)
           }));
 
@@ -116,7 +197,11 @@ export function JSONToCPP({ initialData, onStateChange }: { initialData?: any; o
         }
 
         if (typeof val === 'number') {
-          return Number.isInteger(val) ? 'int' : 'double';
+          if (Number.isInteger(val)) {
+            includes.add('#include <cstdint>');
+            return 'int32_t';
+          }
+          return 'double';
         }
         if (typeof val === 'boolean') return 'bool';
         return 'std::string';
@@ -124,15 +209,26 @@ export function JSONToCPP({ initialData, onStateChange }: { initialData?: any; o
 
       const rootType = getCPPType(parsed, 'Root', 0);
 
-      let result = '#include <string>\n#include <vector>\n\n';
+      if (useNlohmannJson) {
+        includes.add('#include <nlohmann/json.hpp>');
+      }
+
+      const sortedIncludes = Array.from(includes).sort().join('\n');
+      let result = `${sortedIncludes}\n\n`;
 
       if (structs.length > 0) {
         result += structs.map(st => {
-          let str = `struct ${st.name} {\n`;
+          let str = constructKind === 'class' ? `class ${st.name} {\npublic:\n` : `struct ${st.name} {\n`;
           st.fields.forEach(f => {
             str += `    ${f.type} ${f.name};\n`;
           });
           str += '};';
+
+          if (useNlohmannJson && st.fields.length > 0) {
+            const memberList = st.fields.map(f => f.name).join(', ');
+            str += `\n\nNLOHMANN_DEFINE_TYPE_NON_INTRUSIVE(${st.name}, ${memberList})`;
+          }
+
           return str;
         }).join('\n\n');
 
@@ -149,24 +245,28 @@ export function JSONToCPP({ initialData, onStateChange }: { initialData?: any; o
       setError(t('error.invalid_json') + ': ' + e.message);
       setOutput('');
     }
-  }, [input, t]);
+  }, [input, constructKind, casing, useOptional, useNlohmannJson, t]);
 
   useEffect(() => {
     handleConvert();
   }, [handleConvert]);
 
-  const handleCopy = () => {
+  const handleCopy = useCallback(() => {
     if (!output) return;
     navigator.clipboard.writeText(output);
     setCopied(true);
+    toast.success(t('common.copied', 'Copied to clipboard!'));
     setTimeout(() => setCopied(false), 2000);
-  };
+  }, [output, t]);
 
-  const handleClear = () => {
+  const handleClear = useCallback(() => {
     setInput('');
     setOutput('');
     setError('');
-  };
+    setActivePreset(null);
+    toast.success(t('common.cleared', 'Cleared!'));
+    setTimeout(() => inputRef.current?.focus(), 0);
+  }, [t]);
 
   const handleDownload = () => {
     if (!output) return;
@@ -179,29 +279,170 @@ export function JSONToCPP({ initialData, onStateChange }: { initialData?: any; o
     link.click();
     document.body.removeChild(link);
     URL.revokeObjectURL(url);
+    toast.success(t('common.downloaded', 'Downloaded models.hpp!'));
   };
 
+  const loadPreset = (presetKey: keyof typeof PRESETS) => {
+    setInput(PRESETS[presetKey].json);
+    setActivePreset(presetKey);
+    toast.success(t('common.preset_applied', { name: PRESETS[presetKey].name }));
+  };
+
+  const handlersRef = useRef({ handleClear, handleCopy, output });
+  useEffect(() => {
+    handlersRef.current = { handleClear, handleCopy, output };
+  }, [handleClear, handleCopy, output]);
+
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      const activeElement = document.activeElement;
+      const isEditable =
+        activeElement instanceof HTMLInputElement ||
+        activeElement instanceof HTMLTextAreaElement ||
+        activeElement instanceof HTMLSelectElement ||
+        activeElement?.getAttribute('contenteditable') === 'true';
+
+      if (isEditable && e.key !== 'Escape') return;
+
+      if (e.metaKey || e.ctrlKey || e.altKey || e.shiftKey) return;
+
+      if (e.key === 'Escape') {
+        e.preventDefault();
+        handlersRef.current.handleClear();
+      } else if (e.key.toLowerCase() === 'c') {
+        if (handlersRef.current.output) {
+          e.preventDefault();
+          handlersRef.current.handleCopy();
+        }
+      }
+    };
+
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, []);
+
   return (
-    <div className="max-w-6xl mx-auto space-y-8">
+    <div className="max-w-6xl mx-auto space-y-8 animate-in fade-in duration-500">
+      {/* Presets Bar */}
+      <div className="flex flex-wrap items-center justify-between gap-4 p-4 bg-slate-50 dark:bg-slate-900/50 rounded-2xl border border-slate-200 dark:border-slate-800">
+        <div className="flex items-center gap-2">
+          <Sparkles className="w-4 h-4 text-amber-500" aria-hidden="true" />
+          <span className="text-xs font-bold uppercase tracking-widest text-slate-500 dark:text-slate-400">
+            {t('jsontocpp.presets_title', 'Quick Presets:')}
+          </span>
+        </div>
+        <div className="flex flex-wrap items-center gap-2">
+          {(Object.keys(PRESETS) as Array<keyof typeof PRESETS>).map((key) => (
+            <button
+              key={key}
+              onClick={() => loadPreset(key)}
+              aria-pressed={activePreset === key}
+              className={`px-3 py-1.5 text-xs font-bold rounded-xl transition-all shadow-sm focus-visible:ring-2 focus-visible:ring-indigo-500 focus-visible:outline-none border ${
+                activePreset === key
+                  ? 'bg-indigo-600 text-white border-indigo-600'
+                  : 'bg-white dark:bg-slate-800 border-slate-200 dark:border-slate-700 hover:border-indigo-500 text-slate-700 dark:text-slate-200'
+              }`}
+            >
+              {PRESETS[key].name}
+            </button>
+          ))}
+        </div>
+      </div>
+
+      {/* Options Panel */}
+      <div className="grid grid-cols-1 md:grid-cols-4 gap-4 p-5 bg-white dark:bg-slate-900/60 rounded-2xl border border-slate-200 dark:border-slate-800">
+        <div className="space-y-1.5">
+          <label htmlFor="json-cpp-construct-kind" className="text-xs font-bold uppercase tracking-widest text-slate-500 dark:text-slate-400">
+            {t('jsontocpp.construct_kind', 'C++ Construct')}
+          </label>
+          <select
+            id="json-cpp-construct-kind"
+            value={constructKind}
+            onChange={(e) => setConstructKind(e.target.value as any)}
+            className="w-full p-2.5 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-sm font-semibold outline-none focus:ring-2 focus:ring-indigo-500"
+          >
+            <option value="struct">struct (Public members)</option>
+            <option value="class">class (Public section)</option>
+          </select>
+        </div>
+
+        <div className="space-y-1.5">
+          <label htmlFor="json-cpp-casing" className="text-xs font-bold uppercase tracking-widest text-slate-500 dark:text-slate-400">
+            {t('jsontocpp.casing', 'Member Casing')}
+          </label>
+          <select
+            id="json-cpp-casing"
+            value={casing}
+            onChange={(e) => setCasing(e.target.value as any)}
+            className="w-full p-2.5 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-sm font-semibold outline-none focus:ring-2 focus:ring-indigo-500"
+          >
+            <option value="snake_case">snake_case (Standard C++)</option>
+            <option value="camelCase">camelCase</option>
+            <option value="PascalCase">PascalCase</option>
+            <option value="original">Original JSON Key</option>
+          </select>
+        </div>
+
+        <div className="space-y-3 pt-6 flex flex-col justify-center">
+          <div className="flex items-center gap-2">
+            <input
+              id="json-cpp-use-optional"
+              type="checkbox"
+              checked={useOptional}
+              onChange={(e) => setUseOptional(e.target.checked)}
+              className="w-4 h-4 text-indigo-600 rounded border-slate-300 focus:ring-indigo-500"
+            />
+            <label htmlFor="json-cpp-use-optional" className="text-xs font-bold text-slate-700 dark:text-slate-300 cursor-pointer">
+              {t('jsontocpp.use_optional', 'std::optional<T> for nulls')}
+            </label>
+          </div>
+        </div>
+
+        <div className="space-y-3 pt-6 flex flex-col justify-center">
+          <div className="flex items-center gap-2">
+            <input
+              id="json-cpp-use-nlohmann"
+              type="checkbox"
+              checked={useNlohmannJson}
+              onChange={(e) => setUseNlohmannJson(e.target.checked)}
+              className="w-4 h-4 text-indigo-600 rounded border-slate-300 focus:ring-indigo-500"
+            />
+            <label htmlFor="json-cpp-use-nlohmann" className="text-xs font-bold text-slate-700 dark:text-slate-300 cursor-pointer">
+              {t('jsontocpp.use_nlohmann', 'nlohmann::json binding macros')}
+            </label>
+          </div>
+        </div>
+      </div>
+
+      {/* Editor Grid */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
         <div className="space-y-4">
           <div className="flex justify-between items-center px-1">
             <div className="flex items-center gap-2">
-              <FileCode className="w-4 h-4 text-indigo-500" />
-              <label htmlFor="json-input" className="text-xs font-black uppercase tracking-widest text-slate-400 cursor-pointer">{t('jsontots.json_input')}</label>
+              <FileCode className="w-4 h-4 text-indigo-500" aria-hidden="true" />
+              <label htmlFor="json-cpp-input" className="text-xs font-black uppercase tracking-widest text-slate-400 cursor-pointer">
+                {t('jsontots.json_input', 'JSON Input')}
+              </label>
             </div>
-            <button
-              onClick={handleClear}
-              disabled={!input && !output}
-              className="text-xs font-bold px-3 py-1 rounded-full text-rose-500 bg-rose-50 dark:bg-rose-500/10 hover:bg-rose-100 dark:hover:bg-rose-500/20 transition-all flex items-center gap-1 disabled:opacity-50 disabled:cursor-not-allowed focus-visible:ring-2 focus-visible:ring-rose-500 focus-visible:outline-none"
-            >
-              <Trash2 className="w-3 h-3" /> {t('common.clear')}
-            </button>
+            <div className="flex items-center gap-2">
+              <Kbd modifier={null} className="hidden sm:inline-flex border-rose-200 dark:border-rose-800 text-rose-400 dark:bg-slate-900">Esc</Kbd>
+              <button
+                onClick={handleClear}
+                disabled={!input && !output}
+                className="text-xs font-bold px-3 py-1.5 rounded-xl text-rose-500 bg-rose-50 dark:bg-rose-500/10 hover:bg-rose-100 dark:hover:bg-rose-500/20 transition-all flex items-center gap-1 disabled:opacity-50 focus-visible:ring-2 focus-visible:ring-rose-500 focus-visible:outline-none"
+              >
+                <Trash2 className="w-3 h-3" aria-hidden="true" /> {t('common.clear')}
+              </button>
+            </div>
           </div>
           <textarea
-            id="json-input"
+            id="json-cpp-input"
+            ref={inputRef}
             value={input}
-            onChange={(e) => setInput(e.target.value)}
+            onChange={(e) => {
+              setInput(e.target.value);
+              if (activePreset) setActivePreset(null);
+            }}
             placeholder='{"id": 1, "name": "John Doe", "active": true, "address": {"street": "Main St"}}'
             className="w-full h-[450px] p-6 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-3xl outline-none focus:ring-2 focus:ring-indigo-500/20 transition-all font-mono text-sm leading-relaxed dark:text-slate-300 resize-none"
           />
@@ -210,27 +451,30 @@ export function JSONToCPP({ initialData, onStateChange }: { initialData?: any; o
         <div className="space-y-4">
           <div className="flex justify-between items-center px-1">
             <div className="flex items-center gap-2">
-              <Terminal className="w-4 h-4 text-emerald-500" />
-              <label htmlFor="cpp-output" className="text-xs font-black uppercase tracking-widest text-slate-400 cursor-pointer">C++ Structs</label>
+              <Terminal className="w-4 h-4 text-emerald-500" aria-hidden="true" />
+              <label htmlFor="cpp-output" className="text-xs font-black uppercase tracking-widest text-slate-400 cursor-pointer">
+                C++ Structs / Classes
+              </label>
             </div>
             <div className="flex gap-2">
               <button
                 onClick={handleDownload}
                 disabled={!output}
-                className="text-xs font-bold px-3 py-1 rounded-full text-indigo-500 bg-indigo-50 dark:bg-indigo-500/10 hover:bg-indigo-100 transition-all flex items-center gap-1 disabled:opacity-50"
+                className="text-xs font-bold px-3 py-1.5 rounded-xl text-indigo-500 bg-indigo-50 dark:bg-indigo-500/10 hover:bg-indigo-100 transition-all flex items-center gap-1 disabled:opacity-50 focus-visible:ring-2 focus-visible:ring-indigo-500 focus-visible:outline-none"
               >
-                <Download className="w-3 h-3" /> {t('common.download')}
+                <Download className="w-3 h-3" aria-hidden="true" /> {t('common.download')}
               </button>
               <button
                 onClick={handleCopy}
                 disabled={!output}
-                className={`text-xs font-bold px-3 py-1 rounded-full transition-all flex items-center gap-1 focus-visible:ring-2 focus-visible:ring-indigo-500 focus-visible:outline-none ${
+                className={`text-xs font-bold px-3 py-1.5 rounded-xl transition-all flex items-center gap-1 border focus-visible:ring-2 focus-visible:ring-indigo-500 focus-visible:outline-none ${
                   copied
                     ? 'bg-emerald-50 dark:bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border border-emerald-200 dark:border-emerald-500/20'
-                    : 'text-slate-500 bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 disabled:opacity-50 disabled:cursor-not-allowed'
+                    : 'text-slate-500 bg-slate-100 dark:bg-slate-800 border-transparent hover:bg-slate-200 dark:hover:bg-slate-700 disabled:opacity-50 disabled:cursor-not-allowed'
                 }`}
               >
-                {copied ? <Check className="w-3 h-3" /> : <Copy className="w-3 h-3" />} {copied ? t('common.copied') : t('common.copy')}
+                {copied ? <Check className="w-3 h-3" aria-hidden="true" /> : <Copy className="w-3 h-3" aria-hidden="true" />} {copied ? t('common.copied') : t('common.copy')}
+                {!copied && input && <Kbd modifier={null} className="hidden sm:inline-flex w-4 h-4 bg-white/50 dark:bg-black/20 ml-1">C</Kbd>}
               </button>
             </div>
           </div>
@@ -246,7 +490,7 @@ export function JSONToCPP({ initialData, onStateChange }: { initialData?: any; o
 
       {error && (
         <div className="bg-rose-50 dark:bg-rose-500/10 border border-rose-200 dark:border-rose-800 p-4 rounded-2xl flex items-center gap-3 text-rose-600 dark:text-rose-400 font-bold animate-in fade-in slide-in-from-top-2">
-          <AlertCircle className="w-5 h-5" />
+          <AlertCircle className="w-5 h-5" aria-hidden="true" />
           {error}
         </div>
       )}
@@ -254,12 +498,12 @@ export function JSONToCPP({ initialData, onStateChange }: { initialData?: any; o
       {/* Info */}
       <div className="bg-indigo-50 dark:bg-indigo-900/10 p-8 rounded-[2.5rem] border border-indigo-100 dark:border-indigo-900/20 flex items-start gap-4">
         <div className="p-3 bg-white dark:bg-slate-800 text-indigo-600 rounded-2xl shadow-sm border border-slate-100 dark:border-slate-700">
-          <Info className="w-6 h-6" />
+          <Info className="w-6 h-6" aria-hidden="true" />
         </div>
         <div className="space-y-2">
-          <h4 className="font-bold dark:text-white">{t('jsontocpp.about_title')}</h4>
+          <h4 className="font-bold dark:text-white">{t('jsontocpp.about_title', 'About JSON to C++ conversion')}</h4>
           <p className="text-sm text-slate-500 dark:text-slate-400 leading-relaxed">
-            {t('jsontocpp.about_text')}
+            {t('jsontocpp.about_text', 'This tool generates C++ structs or classes from your JSON data. It handles nested objects and arrays using std::vector, optional nullability with std::optional, and nlohmann::json binding macros.')}
           </p>
         </div>
       </div>

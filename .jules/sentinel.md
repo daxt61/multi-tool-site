@@ -321,3 +321,8 @@
 **Vulnerability:** The HillCipher component lacked input length checks on the text input before performing matrix operations and vector multiplications, risking browser thread freezing/Denial of Service with oversized inputs.
 **Learning:** Matrix ciphers that perform vector operations on input blocks must validate input character length prior to processing to prevent browser thread starvation.
 **Prevention:** Always enforce a `MAX_LENGTH = 100000` limit on input strings before performing matrix transformations or iterative cipher algorithms.
+
+## 2026-10-10 - [Directive Injection / CRLF Breakout in Robots.txt Generator]
+**Vulnerability:** The RobotsTxtGenerator component allowed user-provided string inputs (`userAgent`, `disallow`, `allow`, `sitemap`) to contain unescaped newline characters (`\n`, `\r`), allowing directive injection into generated `robots.txt` files.
+**Learning:** File generator tools that format line-based plain text files (like `robots.txt`, `.env`, `vCard`) must neutralize or strip carriage returns and newlines from user-controlled inputs before assembling lines to prevent structure breakout or directive injection.
+**Prevention:** Always strip or escape carriage returns and line feeds (`.replace(/[\r\n]+/g, '')`) from user-controlled strings when constructing line-oriented text files.

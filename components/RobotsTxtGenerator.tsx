@@ -80,12 +80,21 @@ export function RobotsTxtGenerator({ initialData, onStateChange }: { initialData
     setRules(newRules);
   };
 
+  const sanitizeLine = (str: string) => str.replace(/[\r\n]+/g, '').trim();
+
   const robotsContent = rules.map(rule => {
-    let res = `User-agent: ${rule.userAgent}\n`;
-    rule.disallow.forEach(path => { if (path) res += `Disallow: ${path}\n`; });
-    rule.allow.forEach(path => { if (path) res += `Allow: ${path}\n`; });
+    const cleanUserAgent = sanitizeLine(rule.userAgent);
+    let res = `User-agent: ${cleanUserAgent || '*'}\n`;
+    rule.disallow.forEach(path => {
+      const cleanPath = sanitizeLine(path);
+      if (cleanPath) res += `Disallow: ${cleanPath}\n`;
+    });
+    rule.allow.forEach(path => {
+      const cleanPath = sanitizeLine(path);
+      if (cleanPath) res += `Allow: ${cleanPath}\n`;
+    });
     return res;
-  }).join('\n') + (sitemap ? `\nSitemap: ${sitemap}` : '');
+  }).join('\n') + (sanitizeLine(sitemap) ? `\nSitemap: ${sanitizeLine(sitemap)}` : '');
 
   const handleCopy = useCallback(() => {
     navigator.clipboard.writeText(robotsContent);

@@ -633,6 +633,8 @@ const SQLToGo = lazy(() => import("./components/SQLToGo").then(m => ({ default: 
 const SQLToRust = lazy(() => import("./components/SQLToRust").then(m => ({ default: m.SQLToRust })));
 const SQLToScala = lazy(() => import("./components/SQLToScala").then(m => ({ default: m.SQLToScala })));
 const SQLToDart = lazy(() => import("./components/SQLToDart").then(m => ({ default: m.SQLToDart })));
+const SQLToElixir = lazy(() => import("./components/SQLToElixir").then(m => ({ default: m.SQLToElixir })));
+const JSONToElixir = lazy(() => import("./components/JSONToElixir").then(m => ({ default: m.JSONToElixir })));
 const SQLToZod = lazy(() => import("./components/SQLToZod").then(m => ({ default: m.SQLToZod })));
 const SQLToTypeBox = lazy(() => import("./components/SQLToTypeBox").then(m => ({ default: m.SQLToTypeBox })));
 const SQLToDrizzle = lazy(() => import("./components/SQLToDrizzle").then(m => ({ default: m.SQLToDrizzle })));
@@ -813,6 +815,28 @@ const tools: Tool[] = [
     Component: SQLToDart,
     category: "dev",
     keywords: ["sql", "ddl", "create table", "dart", "flutter", "class", "freezed", "json_serializable", "convert", "convertir"],
+  },
+  {
+    id: "sql-to-elixir",
+    name: "SQL vers Elixir Ecto",
+    nameEn: "SQL to Elixir Ecto",
+    icon: Database,
+    description: "Convertir des instructions SQL CREATE TABLE DDL en schémas Elixir Ecto",
+    descriptionEn: "Convert SQL CREATE TABLE DDL into Elixir Ecto Schemas",
+    Component: SQLToElixir,
+    category: "dev",
+    keywords: ["sql", "ddl", "elixir", "ecto", "schema", "phoenix", "changeset", "convert", "convertir"],
+  },
+  {
+    id: "json-to-elixir",
+    name: "JSON vers Elixir",
+    nameEn: "JSON to Elixir",
+    icon: FileCode,
+    description: "Convertir du JSON en structs Elixir ou schémas imbriqués Ecto",
+    descriptionEn: "Convert JSON into Elixir structs or Ecto embedded schemas",
+    Component: JSONToElixir,
+    category: "dev",
+    keywords: ["json", "elixir", "defstruct", "ecto", "embedded_schema", "typespec", "convert", "convertir"],
   },
   // SQL DDL to Drizzle ORM Schema Generator Tool
   {

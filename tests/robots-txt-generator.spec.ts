@@ -42,6 +42,34 @@ test.describe('RobotsTxtGenerator DoS Mitigations', () => {
   });
 });
 
+test.describe('RobotsTxtGenerator Security & Directive Injection Protection', () => {
+  test.beforeEach(async ({ page }) => {
+    await page.goto('http://localhost:5173/fr/outil/robots-txt');
+  });
+
+  test('prevents CRLF / directive injection via newlines in inputs', async ({ page }) => {
+    const firstUAInput = page.locator('#ua-input-0');
+
+    // Attempt newline directive injection into User-Agent
+    await firstUAInput.fill('Googlebot\nDisallow: /injected-admin\nUser-agent: MaliciousBot');
+
+    const preview = page.locator('pre');
+    const previewContent = await preview.innerText();
+
+    // Verify newline was stripped and not injected as separate lines
+    expect(previewContent).not.toContain('Disallow: /injected-admin');
+    expect(previewContent).toContain('User-agent: GooglebotDisallow: /injected-adminUser-agent: MaliciousBot');
+
+    // Attempt newline directive injection into Sitemap
+    const sitemapInput = page.locator('#sitemap');
+    await sitemapInput.fill('https://example.com/sitemap.xml\nUser-agent: InjectedBot\nDisallow: /secret');
+
+    const updatedContent = await preview.innerText();
+    expect(updatedContent).not.toContain('User-agent: InjectedBot');
+    expect(updatedContent).toContain('Sitemap: https://example.com/sitemap.xmlUser-agent: InjectedBotDisallow: /secret');
+  });
+});
+
 test.describe('RobotsTxtGenerator Premium UX & Accessibility', () => {
   test.beforeEach(async ({ page }) => {
     await page.goto('http://localhost:5173/fr/outil/robots-txt');

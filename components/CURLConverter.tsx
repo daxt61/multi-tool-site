@@ -28,7 +28,9 @@ export function CURLConverter({ initialData, onStateChange }: { initialData?: an
       });
       code += `  },\n`;
     }
-    if (data) code += `  body: ${JSON.stringify(data)},\n`;
+    if (data && method !== 'GET' && method !== 'HEAD') {
+      code += `  body: ${JSON.stringify(data)},\n`;
+    }
     code += `})\n.then(response => response.json())\n.then(data => console.log(data))\n.catch(error => console.error('Error:', error));`;
     return code;
   };
@@ -44,7 +46,7 @@ export function CURLConverter({ initialData, onStateChange }: { initialData?: an
       });
       code += `  },\n`;
     }
-    if (data) {
+    if (data && method !== 'GET' && method !== 'HEAD') {
       try {
         const jsonData = JSON.parse(data);
         code += `  data: ${JSON.stringify(jsonData, null, 2).split('\n').join('\n  ')},\n`;
@@ -179,14 +181,18 @@ export function CURLConverter({ initialData, onStateChange }: { initialData?: an
     code += `  public static void main(String[] args) throws IOException {\n`;
     code += `    OkHttpClient client = new OkHttpClient().newBuilder().build();\n`;
 
+    const isBodyMethod = method === 'POST' || method === 'PUT' || method === 'PATCH';
     if (data) {
       code += `    MediaType mediaType = MediaType.parse(${JSON.stringify(headers['Content-Type'] || 'text/plain')});\n`;
       code += `    RequestBody body = RequestBody.create(mediaType, ${JSON.stringify(data)});\n`;
+    } else if (isBodyMethod) {
+      code += `    MediaType mediaType = MediaType.parse(${JSON.stringify(headers['Content-Type'] || 'text/plain')});\n`;
+      code += `    RequestBody body = RequestBody.create(mediaType, "");\n`;
     }
 
     code += `    Request request = new Request.Builder()\n`;
     code += `      .url(${JSON.stringify(url)})\n`;
-    code += `      .method(${JSON.stringify(method)}, ${data ? 'body' : 'null'})\n`;
+    code += `      .method(${JSON.stringify(method)}, ${data || isBodyMethod ? 'body' : 'null'})\n`;
 
     Object.entries(headers).forEach(([k, v]) => {
       code += `      .addHeader(${JSON.stringify(k)}, ${JSON.stringify(v)})\n`;
@@ -294,13 +300,17 @@ export function CURLConverter({ initialData, onStateChange }: { initialData?: an
     code += `import okhttp3.OkHttpClient\nimport okhttp3.Request\nimport okhttp3.RequestBody.Companion.toRequestBody\n\n`;
     code += `val client = OkHttpClient()\n`;
 
+    const isBodyMethod = method === 'POST' || method === 'PUT' || method === 'PATCH';
     if (data) {
       code += `val mediaType = ${JSON.stringify(headers['Content-Type'] || 'text/plain')}.toMediaType()\n`;
       code += `val body = ${JSON.stringify(data)}.toRequestBody(mediaType)\n`;
+    } else if (isBodyMethod) {
+      code += `val mediaType = ${JSON.stringify(headers['Content-Type'] || 'text/plain')}.toMediaType()\n`;
+      code += `val body = "".toRequestBody(mediaType)\n`;
     }
 
     code += `val request = Request.Builder()\n  .url(${JSON.stringify(url)})\n`;
-    code += `  .method(${JSON.stringify(method)}, ${data ? 'body' : 'null'})\n`;
+    code += `  .method(${JSON.stringify(method)}, ${data || isBodyMethod ? 'body' : 'null'})\n`;
 
     Object.entries(headers).forEach(([k, v]) => {
       code += `  .addHeader(${JSON.stringify(k)}, ${JSON.stringify(v)})\n`;

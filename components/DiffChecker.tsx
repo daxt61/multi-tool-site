@@ -1,6 +1,7 @@
 import { useState, useMemo, useEffect, useCallback, useRef } from 'react';
 import { Split, ArrowRight, Trash2, Copy, Check, ArrowLeftRight, Info, Search, LayoutPanelLeft, LayoutList, RotateCcw, Download, FileCode } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
+import { toast } from 'sonner';
 import { Kbd } from './ui/Kbd';
 
 interface DiffItem {
@@ -13,6 +14,7 @@ interface DiffItem {
 
 export function DiffChecker({ initialData, onStateChange }: { initialData?: any; onStateChange?: (state: any) => void }) {
   const { t } = useTranslation();
+  const text1Ref = useRef<HTMLTextAreaElement>(null);
   const [text1, setText1] = useState(initialData?.text1 || '');
   const [text2, setText2] = useState(initialData?.text2 || '');
   const [viewMode, setViewMode] = useState<'unified' | 'split'>(initialData?.viewMode || 'unified');
@@ -113,19 +115,23 @@ export function DiffChecker({ initialData, onStateChange }: { initialData?: any;
     const t1 = text1;
     setText1(text2);
     setText2(t1);
-  }, [text1, text2]);
+    toast.success(t('common.swapped', 'Texts swapped'));
+  }, [text1, text2, t]);
 
   const handleCopy = useCallback(() => {
     const result = diffResult.map(item => `${item.type === 'added' ? '+' : item.type === 'removed' ? '-' : ' '} ${item.text}`).join('\n');
     navigator.clipboard.writeText(result);
     setCopied(true);
+    toast.success(t('common.copied'));
     setTimeout(() => setCopied(false), 2000);
-  }, [diffResult]);
+  }, [diffResult, t]);
 
   const handleReset = useCallback(() => {
     setText1('');
     setText2('');
-  }, []);
+    toast.success(t('common.reset'));
+    text1Ref.current?.focus();
+  }, [t]);
 
   const handleDownload = useCallback(() => {
     const result = diffResult.map(item => `${item.type === 'added' ? '+' : item.type === 'removed' ? '-' : ' '} ${item.text}`).join('\n');
@@ -136,7 +142,8 @@ export function DiffChecker({ initialData, onStateChange }: { initialData?: any;
     link.download = `diff-${Date.now()}.diff`;
     link.click();
     URL.revokeObjectURL(url);
-  }, [diffResult]);
+    toast.success(t('common.download_success', 'Download started'));
+  }, [diffResult, t]);
 
   const handleExportHTML = useCallback(() => {
     const rows = diffResult.map(item => {
@@ -185,7 +192,8 @@ export function DiffChecker({ initialData, onStateChange }: { initialData?: any;
     link.download = `diff-${Date.now()}.html`;
     link.click();
     URL.revokeObjectURL(url);
-  }, [diffResult]);
+    toast.success(t('common.download_success', 'Download started'));
+  }, [diffResult, t]);
 
   const leftScrollRef = useRef<HTMLDivElement>(null);
   const rightScrollRef = useRef<HTMLDivElement>(null);
@@ -332,7 +340,7 @@ export function DiffChecker({ initialData, onStateChange }: { initialData?: any;
               <Kbd modifier={null} className="hidden sm:inline-flex border-rose-200 dark:border-rose-800 text-rose-400">Esc</Kbd>
               <button
                 onClick={handleReset}
-                className="text-xs font-bold text-rose-500 bg-rose-50 dark:bg-rose-500/10 hover:bg-rose-100 dark:hover:bg-rose-500/20 px-3 py-1.5 rounded-xl flex items-center gap-2 transition-all"
+                className="text-xs font-bold text-rose-500 bg-rose-50 dark:bg-rose-500/10 hover:bg-rose-100 dark:hover:bg-rose-500/20 px-3 py-1.5 rounded-xl flex items-center gap-2 transition-all focus-visible:ring-2 focus-visible:ring-rose-500 focus-visible:outline-none"
               >
                 <RotateCcw className="w-4 h-4" /> {t('common.reset')}
               </button>
@@ -340,6 +348,7 @@ export function DiffChecker({ initialData, onStateChange }: { initialData?: any;
           </div>
           <textarea
             id="text1"
+            ref={text1Ref}
             value={text1}
             onChange={(e) => setText1(e.target.value)}
             placeholder={t('diffchecker.placeholder_original')}
@@ -410,7 +419,8 @@ export function DiffChecker({ initialData, onStateChange }: { initialData?: any;
             <div className="flex bg-slate-100 dark:bg-slate-800 p-1 rounded-xl border border-slate-200 dark:border-slate-700">
               <button
                 onClick={() => setViewMode('unified')}
-                className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all flex items-center gap-2 ${
+                aria-pressed={viewMode === 'unified'}
+                className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all flex items-center gap-2 focus-visible:ring-2 focus-visible:ring-indigo-500 focus-visible:outline-none ${
                   viewMode === 'unified'
                     ? 'bg-white dark:bg-slate-900 text-indigo-600 shadow-sm'
                     : 'text-slate-500 hover:text-slate-700 dark:hover:text-slate-300'
@@ -420,7 +430,8 @@ export function DiffChecker({ initialData, onStateChange }: { initialData?: any;
               </button>
               <button
                 onClick={() => setViewMode('split')}
-                className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all flex items-center gap-2 ${
+                aria-pressed={viewMode === 'split'}
+                className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all flex items-center gap-2 focus-visible:ring-2 focus-visible:ring-indigo-500 focus-visible:outline-none ${
                   viewMode === 'split'
                     ? 'bg-white dark:bg-slate-900 text-indigo-600 shadow-sm'
                     : 'text-slate-500 hover:text-slate-700 dark:hover:text-slate-300'
@@ -434,7 +445,7 @@ export function DiffChecker({ initialData, onStateChange }: { initialData?: any;
               <button
                 onClick={handleDownload}
                 disabled={!text1 && !text2}
-                className="text-xs font-bold px-3 py-1.5 rounded-lg text-slate-600 dark:text-slate-300 hover:bg-white dark:hover:bg-slate-900 transition-all flex items-center gap-2 disabled:opacity-50"
+                className="text-xs font-bold px-3 py-1.5 rounded-lg text-slate-600 dark:text-slate-300 hover:bg-white dark:hover:bg-slate-900 transition-all flex items-center gap-2 disabled:opacity-50 focus-visible:ring-2 focus-visible:ring-indigo-500 focus-visible:outline-none"
                 title="Download .diff"
               >
                 <Download className="w-3.5 h-3.5" /> .diff
@@ -442,7 +453,7 @@ export function DiffChecker({ initialData, onStateChange }: { initialData?: any;
               <button
                 onClick={handleExportHTML}
                 disabled={!text1 && !text2}
-                className="text-xs font-bold px-3 py-1.5 rounded-lg text-slate-600 dark:text-slate-300 hover:bg-white dark:hover:bg-slate-900 transition-all flex items-center gap-2 disabled:opacity-50"
+                className="text-xs font-bold px-3 py-1.5 rounded-lg text-slate-600 dark:text-slate-300 hover:bg-white dark:hover:bg-slate-900 transition-all flex items-center gap-2 disabled:opacity-50 focus-visible:ring-2 focus-visible:ring-indigo-500 focus-visible:outline-none"
                 title="Export as HTML"
               >
                 <FileCode className="w-3.5 h-3.5" /> HTML

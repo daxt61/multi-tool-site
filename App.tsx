@@ -624,6 +624,7 @@ const JSONToJulia = lazy(() => import("./components/JSONToJulia").then(m => ({ d
 const SQLToJulia = lazy(() => import("./components/SQLToJulia").then(m => ({ default: m.SQLToJulia })));
 const SQLToSQLAlchemy = lazy(() => import("./components/SQLToSQLAlchemy").then(m => ({ default: m.SQLToSQLAlchemy })));
 const SQLToDjango = lazy(() => import("./components/SQLToDjango").then(m => ({ default: m.SQLToDjango })));
+const SQLToMongoose = lazy(() => import("./components/SQLToMongoose").then(m => ({ default: m.SQLToMongoose })));
 const SQLToSequelize = lazy(() => import("./components/SQLToSequelize").then(m => ({ default: m.SQLToSequelize })));
 const SQLToTypeORM = lazy(() => import("./components/SQLToTypeORM").then(m => ({ default: m.SQLToTypeORM })));
 const SQLToKnex = lazy(() => import("./components/SQLToKnex").then(m => ({ default: m.SQLToKnex })));
@@ -945,6 +946,18 @@ const tools: Tool[] = [
     Component: SQLToDjango,
     category: "dev",
     keywords: ["sql", "ddl", "create table", "django", "models", "python", "orm", "admin", "foreign key", "convert", "convertir"],
+  },
+  // SQL DDL to Mongoose Schema Generator Tool
+  {
+    id: "sql-to-mongoose",
+    name: "SQL DDL en Mongoose",
+    nameEn: "SQL DDL to Mongoose",
+    icon: Database,
+    description: "Convertir des requêtes SQL CREATE TABLE DDL en schémas Mongoose, interfaces TypeScript et modèles",
+    descriptionEn: "Convert SQL CREATE TABLE DDL queries into Mongoose schemas, TypeScript interfaces, and Model exports",
+    Component: SQLToMongoose,
+    category: "dev",
+    keywords: ["sql", "mongoose", "mongodb", "ddl", "schema", "model", "typescript", "orm", "nosql", "convert", "convertir"],
   },
   // SQL DDL to TypeORM Generator Tool
   {

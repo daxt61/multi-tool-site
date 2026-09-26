@@ -643,6 +643,8 @@ const TSVTester = lazy(() => import("./components/TSVTester").then(m => ({ defau
 const EnumerateIntegers = lazy(() => import("./components/EnumerateIntegers").then(m => ({ default: m.EnumerateIntegers })));
 const GraphQLToTypeScript = lazy(() => import("./components/GraphQLToTypeScript").then(m => ({ default: m.GraphQLToTypeScript })));
 const SQLToProtobuf = lazy(() => import("./components/SQLToProtobuf").then(m => ({ default: m.SQLToProtobuf })));
+const SQLToClickHouse = lazy(() => import("./components/SQLToClickHouse").then(m => ({ default: m.SQLToClickHouse })));
+const SQLToSnowflake = lazy(() => import("./components/SQLToSnowflake").then(m => ({ default: m.SQLToSnowflake })));
 
 // ⚡ Bolt Optimization: Pre-calculating tool map and search index for O(1) lookups and faster filtering
 const toolsMap: Record<string, Tool> = {};
@@ -680,6 +682,30 @@ const categories: Category[] = [
 ];
 
 const tools: Tool[] = [
+  // SQL DDL to ClickHouse DDL Converter Tool
+  {
+    id: "sql-to-clickhouse",
+    name: "SQL DDL en ClickHouse",
+    nameEn: "SQL DDL to ClickHouse",
+    icon: Database,
+    description: "Convertir des instructions SQL CREATE TABLE DDL en requêtes ClickHouse SQL DDL",
+    descriptionEn: "Convert SQL CREATE TABLE DDL queries into ClickHouse SQL DDL statements",
+    Component: SQLToClickHouse,
+    category: "dev",
+    keywords: ["sql", "ddl", "create table", "clickhouse", "mergetree", "analytics", "data warehouse", "convert", "convertir"],
+  },
+  // SQL DDL to Snowflake DDL Converter Tool
+  {
+    id: "sql-to-snowflake",
+    name: "SQL DDL en Snowflake",
+    nameEn: "SQL DDL to Snowflake",
+    icon: Database,
+    description: "Convertir des requêtes SQL CREATE TABLE DDL en instructions Snowflake DDL",
+    descriptionEn: "Convert SQL CREATE TABLE DDL queries into Snowflake Cloud Data Warehouse SQL DDL statements",
+    Component: SQLToSnowflake,
+    category: "dev",
+    keywords: ["sql", "ddl", "create table", "snowflake", "variant", "data warehouse", "cloud", "convert", "convertir"],
+  },
   // GraphQL SDL to TypeScript Interfaces Converter Tool
   {
     id: "graphql-to-typescript",

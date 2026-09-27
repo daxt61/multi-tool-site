@@ -648,6 +648,7 @@ const GraphQLToTypeScript = lazy(() => import("./components/GraphQLToTypeScript"
 const SQLToProtobuf = lazy(() => import("./components/SQLToProtobuf").then(m => ({ default: m.SQLToProtobuf })));
 const SQLToClickHouse = lazy(() => import("./components/SQLToClickHouse").then(m => ({ default: m.SQLToClickHouse })));
 const SQLToSnowflake = lazy(() => import("./components/SQLToSnowflake").then(m => ({ default: m.SQLToSnowflake })));
+const SQLToCassandra = lazy(() => import("./components/SQLToCassandra").then(m => ({ default: m.SQLToCassandra })));
 
 // ⚡ Bolt Optimization: Pre-calculating tool map and search index for O(1) lookups and faster filtering
 const toolsMap: Record<string, Tool> = {};
@@ -708,6 +709,18 @@ const tools: Tool[] = [
     Component: SQLToSnowflake,
     category: "dev",
     keywords: ["sql", "ddl", "create table", "snowflake", "variant", "data warehouse", "cloud", "convert", "convertir"],
+  },
+  // SQL DDL to Apache Cassandra CQL Schema Generator Tool
+  {
+    id: "sql-to-cassandra",
+    name: "SQL DDL en Cassandra",
+    nameEn: "SQL DDL to Apache Cassandra",
+    icon: Database,
+    description: "Convertir des instructions SQL CREATE TABLE DDL en requêtes de schéma Apache Cassandra / DataStax CQL",
+    descriptionEn: "Convert SQL CREATE TABLE DDL statements into Apache Cassandra / DataStax CQL schema queries",
+    Component: SQLToCassandra,
+    category: "dev",
+    keywords: ["sql", "ddl", "create table", "cassandra", "cql", "keyspace", "nosql", "partition key", "datastax", "convert", "convertir"],
   },
   // GraphQL SDL to TypeScript Interfaces Converter Tool
   {

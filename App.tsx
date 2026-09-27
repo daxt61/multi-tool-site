@@ -645,6 +645,7 @@ const ImagePixelator = lazy(() => import("./components/ImagePixelator").then(m =
 const TSVTester = lazy(() => import("./components/TSVTester").then(m => ({ default: m.TSVTester })));
 const EnumerateIntegers = lazy(() => import("./components/EnumerateIntegers").then(m => ({ default: m.EnumerateIntegers })));
 const GraphQLToTypeScript = lazy(() => import("./components/GraphQLToTypeScript").then(m => ({ default: m.GraphQLToTypeScript })));
+const GraphQLToZod = lazy(() => import("./components/GraphQLToZod").then(m => ({ default: m.GraphQLToZod })));
 const SQLToProtobuf = lazy(() => import("./components/SQLToProtobuf").then(m => ({ default: m.SQLToProtobuf })));
 const SQLToClickHouse = lazy(() => import("./components/SQLToClickHouse").then(m => ({ default: m.SQLToClickHouse })));
 const SQLToSnowflake = lazy(() => import("./components/SQLToSnowflake").then(m => ({ default: m.SQLToSnowflake })));
@@ -733,6 +734,18 @@ const tools: Tool[] = [
     Component: GraphQLToTypeScript,
     category: "dev",
     keywords: ["graphql", "sdl", "typescript", "interface", "type", "enum", "schema", "convert", "convertir"],
+  },
+  // GraphQL SDL to Zod Validation Schema Converter Tool
+  {
+    id: "graphql-to-zod",
+    name: "GraphQL en Zod",
+    nameEn: "GraphQL to Zod",
+    icon: ShieldCheck,
+    description: "Convertir des schémas GraphQL SDL en schémas de validation Zod",
+    descriptionEn: "Convert GraphQL SDL schemas into strongly-typed Zod validation schemas",
+    Component: GraphQLToZod,
+    category: "dev",
+    keywords: ["graphql", "sdl", "zod", "validation", "schema", "type", "enum", "convert", "convertir"],
   },
   // Enumerate Integers Tool
   {

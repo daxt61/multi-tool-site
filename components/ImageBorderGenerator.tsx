@@ -1,6 +1,8 @@
 import { useState, useRef, useEffect, useCallback } from 'react';
-import { ImageIcon, Download, Trash2, Palette, Maximize, Settings2, Info, Frame } from 'lucide-react';
+import { ImageIcon, Download, Trash2, Palette, Maximize, Settings2, Info, Frame, RotateCcw } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
+import { toast } from 'sonner';
+import { Kbd } from './ui/Kbd';
 
 export function ImageBorderGenerator({ initialData, onStateChange }: { initialData?: any; onStateChange?: (state: any) => void }) {
   const { t } = useTranslation();
@@ -13,6 +15,7 @@ export function ImageBorderGenerator({ initialData, onStateChange }: { initialDa
 
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const containerRef = useRef<HTMLDivElement>(null);
+  const primaryInputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
     onStateChange?.({ borderWidth, borderColor, borderRadius, padding, innerRadius });
@@ -102,28 +105,79 @@ export function ImageBorderGenerator({ initialData, onStateChange }: { initialDa
     link.click();
   };
 
-  const handleClear = () => {
-    setImage(null);
+  const handleReset = () => {
+    setBorderWidth(20);
+    setBorderColor('#ffffff');
+    setCornerRadius(0);
+    setInnerRadius(0);
+    setPadding(0);
+    toast.success(t('common.reset'));
+    primaryInputRef.current?.focus();
   };
 
+  const handleClear = () => {
+    setImage(null);
+    toast.success(t('common.cleared'));
+  };
+
+  const handlersRef = useRef({ handleReset, handleClear });
+  useEffect(() => {
+    handlersRef.current = { handleReset, handleClear };
+  });
+
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      const activeElement = document.activeElement;
+      if (
+        containerRef.current &&
+        !containerRef.current.contains(activeElement) &&
+        activeElement !== document.body
+      ) {
+        return;
+      }
+
+      if (e.key === 'Escape') {
+        e.preventDefault();
+        if (image) {
+          handlersRef.current.handleReset();
+        }
+      }
+    };
+
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [image]);
+
   return (
-    <div className="max-w-6xl mx-auto space-y-8">
+    <div ref={containerRef} className="max-w-6xl mx-auto space-y-8">
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
         {/* Controls */}
         <div className="lg:col-span-4 space-y-6">
           <div className="bg-slate-50 dark:bg-slate-900/50 p-6 rounded-3xl border border-slate-200 dark:border-slate-800 space-y-6">
             <div className="flex items-center justify-between px-1">
               <div className="flex items-center gap-2">
-                <Settings2 className="w-4 h-4 text-indigo-500" />
+                <Settings2 className="w-4 h-4 text-indigo-500" aria-hidden="true" />
                 <h3 className="text-xs font-black uppercase tracking-widest text-slate-400">{t('common.options')}</h3>
               </div>
               {image && (
-                <button
-                  onClick={handleClear}
-                  className="text-rose-500 hover:text-rose-600 transition-colors"
-                >
-                  <Trash2 className="w-4 h-4" />
-                </button>
+                <div className="flex items-center gap-2">
+                  <button
+                    onClick={handleReset}
+                    className="text-xs font-bold text-indigo-600 hover:text-indigo-700 dark:text-indigo-400 dark:hover:text-indigo-300 flex items-center gap-1 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500 rounded-lg px-2 py-1"
+                    title={t('common.reset')}
+                  >
+                    <RotateCcw className="w-3.5 h-3.5" aria-hidden="true" />
+                    <span>{t('common.reset')}</span>
+                    <Kbd modifier={null}>Esc</Kbd>
+                  </button>
+                  <button
+                    onClick={handleClear}
+                    aria-label={t('common.clear')}
+                    className="p-1.5 text-rose-500 hover:text-rose-600 hover:bg-rose-50 dark:hover:bg-rose-950/30 rounded-lg transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-rose-500"
+                  >
+                    <Trash2 className="w-4 h-4" aria-hidden="true" />
+                  </button>
+                </div>
               )}
             </div>
 
@@ -139,88 +193,117 @@ export function ImageBorderGenerator({ initialData, onStateChange }: { initialDa
               <div className="space-y-6 animate-in fade-in duration-300">
                 <div className="space-y-3">
                   <div className="flex justify-between items-center px-1">
-                    <label className="text-[10px] font-bold text-slate-400 uppercase flex items-center gap-1.5">
-                       <Frame className="w-3 h-3" /> {t('image_border.width', 'Border Width')}
+                    <label htmlFor="border-width-slider" className="text-[10px] font-bold text-slate-400 uppercase flex items-center gap-1.5 cursor-pointer">
+                       <Frame className="w-3 h-3" aria-hidden="true" /> {t('image_border.width', 'Border Width')}
                     </label>
                     <span className="text-[10px] font-mono font-bold text-indigo-500">{borderWidth}px</span>
                   </div>
                   <input
+                    ref={primaryInputRef}
+                    id="border-width-slider"
                     type="range"
                     min="0"
                     max="200"
+                    step="1"
                     value={borderWidth}
+                    aria-valuemin={0}
+                    aria-valuemax={200}
+                    aria-valuenow={borderWidth}
+                    aria-label={t('image_border.width', 'Border Width')}
                     onChange={(e) => setBorderWidth(parseInt(e.target.value))}
-                    className="w-full h-1.5 bg-slate-200 dark:bg-slate-700 rounded-lg appearance-none cursor-pointer accent-indigo-600"
+                    className="w-full h-1.5 bg-slate-200 dark:bg-slate-700 rounded-lg appearance-none cursor-pointer accent-indigo-600 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500"
                   />
                 </div>
 
                 <div className="space-y-3">
                   <div className="flex justify-between items-center px-1">
-                    <label className="text-[10px] font-bold text-slate-400 uppercase flex items-center gap-1.5">
-                       <Maximize className="w-3 h-3" /> {t('image_border.inner_radius', 'Inner Radius')}
+                    <label htmlFor="inner-radius-slider" className="text-[10px] font-bold text-slate-400 uppercase flex items-center gap-1.5 cursor-pointer">
+                       <Maximize className="w-3 h-3" aria-hidden="true" /> {t('image_border.inner_radius', 'Inner Radius')}
                     </label>
                     <span className="text-[10px] font-mono font-bold text-indigo-500">{innerRadius}px</span>
                   </div>
                   <input
+                    id="inner-radius-slider"
                     type="range"
                     min="0"
                     max="200"
+                    step="1"
                     value={innerRadius}
+                    aria-valuemin={0}
+                    aria-valuemax={200}
+                    aria-valuenow={innerRadius}
+                    aria-label={t('image_border.inner_radius', 'Inner Radius')}
                     onChange={(e) => setInnerRadius(parseInt(e.target.value))}
-                    className="w-full h-1.5 bg-slate-200 dark:bg-slate-700 rounded-lg appearance-none cursor-pointer accent-indigo-600"
+                    className="w-full h-1.5 bg-slate-200 dark:bg-slate-700 rounded-lg appearance-none cursor-pointer accent-indigo-600 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500"
                   />
                 </div>
 
                 <div className="space-y-3">
                   <div className="flex justify-between items-center px-1">
-                    <label className="text-[10px] font-bold text-slate-400 uppercase flex items-center gap-1.5">
-                       <Maximize className="w-3 h-3" /> {t('image_border.padding', 'Inner Padding')}
+                    <label htmlFor="padding-slider" className="text-[10px] font-bold text-slate-400 uppercase flex items-center gap-1.5 cursor-pointer">
+                       <Maximize className="w-3 h-3" aria-hidden="true" /> {t('image_border.padding', 'Inner Padding')}
                     </label>
                     <span className="text-[10px] font-mono font-bold text-indigo-500">{padding}px</span>
                   </div>
                   <input
+                    id="padding-slider"
                     type="range"
                     min="0"
                     max="100"
+                    step="1"
                     value={padding}
+                    aria-valuemin={0}
+                    aria-valuemax={100}
+                    aria-valuenow={padding}
+                    aria-label={t('image_border.padding', 'Inner Padding')}
                     onChange={(e) => setPadding(parseInt(e.target.value))}
-                    className="w-full h-1.5 bg-slate-200 dark:bg-slate-700 rounded-lg appearance-none cursor-pointer accent-indigo-600"
+                    className="w-full h-1.5 bg-slate-200 dark:bg-slate-700 rounded-lg appearance-none cursor-pointer accent-indigo-600 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500"
                   />
                 </div>
 
                 <div className="space-y-3">
                   <div className="flex justify-between items-center px-1">
-                    <label className="text-[10px] font-bold text-slate-400 uppercase flex items-center gap-1.5">
-                       <Maximize className="w-3 h-3" /> {t('image_border.radius', 'Corner Radius')}
+                    <label htmlFor="border-radius-slider" className="text-[10px] font-bold text-slate-400 uppercase flex items-center gap-1.5 cursor-pointer">
+                       <Maximize className="w-3 h-3" aria-hidden="true" /> {t('image_border.radius', 'Corner Radius')}
                     </label>
                     <span className="text-[10px] font-mono font-bold text-indigo-500">{borderRadius}px</span>
                   </div>
                   <input
+                    id="border-radius-slider"
                     type="range"
                     min="0"
                     max="200"
+                    step="1"
                     value={borderRadius}
+                    aria-valuemin={0}
+                    aria-valuemax={200}
+                    aria-valuenow={borderRadius}
+                    aria-label={t('image_border.radius', 'Corner Radius')}
                     onChange={(e) => setCornerRadius(parseInt(e.target.value))}
-                    className="w-full h-1.5 bg-slate-200 dark:bg-slate-700 rounded-lg appearance-none cursor-pointer accent-indigo-600"
+                    className="w-full h-1.5 bg-slate-200 dark:bg-slate-700 rounded-lg appearance-none cursor-pointer accent-indigo-600 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500"
                   />
                 </div>
 
                 <div className="space-y-3">
-                  <label className="text-[10px] font-bold text-slate-400 uppercase px-1 flex items-center gap-1.5">
-                     <Palette className="w-3 h-3" /> {t('common.color')}
+                  <label htmlFor="border-color-hex" className="text-[10px] font-bold text-slate-400 uppercase px-1 flex items-center gap-1.5 cursor-pointer">
+                     <Palette className="w-3 h-3" aria-hidden="true" /> {t('common.color')}
                   </label>
                   <div className="flex gap-2 items-center">
                     <input
+                      id="border-color-picker"
                       type="color"
                       value={borderColor}
+                      aria-label={t('common.color')}
                       onChange={(e) => setBorderColor(e.target.value)}
-                      className="w-12 h-12 rounded-xl cursor-pointer border-2 border-white dark:border-slate-800 shadow-sm"
+                      className="w-12 h-12 rounded-xl cursor-pointer border-2 border-white dark:border-slate-800 shadow-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500"
                     />
                     <input
+                      id="border-color-hex"
                       type="text"
                       value={borderColor}
+                      aria-label={t('common.color')}
                       onChange={(e) => setBorderColor(e.target.value)}
-                      className="flex-1 px-4 py-2.5 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-sm font-mono outline-none focus:ring-2 focus:ring-indigo-500/20"
+                      className="flex-1 px-4 py-2.5 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-sm font-mono outline-none focus-visible:ring-2 focus-visible:ring-indigo-500"
                     />
                   </div>
                 </div>

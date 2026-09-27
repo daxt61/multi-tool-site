@@ -1,10 +1,11 @@
 import { useState, useEffect, useCallback, useRef } from 'react';
-import { Shield, Copy, Check, Trash2, RotateCcw, Info, Settings2, Keyboard, ArrowRight } from 'lucide-react';
+import { Shield, Copy, Check, Trash2, RotateCcw, Info, Settings2, Keyboard, ArrowRight, AlertCircle } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import { toast } from 'sonner';
 import { Kbd } from './ui/Kbd';
 
 const ALPHABET = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
+const MAX_LENGTH = 100000;
 
 const ROTORS = {
   I: { wiring: 'EKMFLGDQVZNTOWYHXUSPAIBRCJ', notch: 'Q' },
@@ -51,6 +52,7 @@ export function EnigmaCipher({ initialData, onStateChange }: { initialData?: any
     };
   });
   const [copied, setCopied] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
     // Sentinel: Never share secret plugboard pairs or user inputs in shared URL parameters
@@ -156,6 +158,15 @@ export function EnigmaCipher({ initialData, onStateChange }: { initialData?: any
   }, []);
 
   const handleInputChange = (val: string) => {
+    // Sentinel: Enforce MAX_LENGTH limit to mitigate client-side Denial of Service (DoS)
+    if (val.length > MAX_LENGTH) {
+      setError(t('error.max_length', { max: MAX_LENGTH.toLocaleString() }));
+      setInput(val);
+      setOutput('');
+      return;
+    }
+    setError(null);
+
     // If user cleared the input
     if (val === '') {
       setInput('');
@@ -192,6 +203,7 @@ export function EnigmaCipher({ initialData, onStateChange }: { initialData?: any
   const handleReset = () => {
     setInput('');
     setOutput('');
+    setError(null);
     setState({
       rotors: ['I', 'II', 'III'],
       reflector: 'B',
@@ -221,6 +233,13 @@ export function EnigmaCipher({ initialData, onStateChange }: { initialData?: any
 
   return (
     <div className="max-w-6xl mx-auto space-y-8">
+      {error && (
+        <div className="bg-rose-50 dark:bg-rose-500/10 border border-rose-200 dark:border-rose-800 p-4 rounded-2xl flex items-center gap-3 text-rose-600 dark:text-rose-400 font-bold animate-in fade-in slide-in-from-top-2">
+          <AlertCircle className="w-5 h-5" />
+          {error}
+        </div>
+      )}
+
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
         {/* Machine Settings */}
         <div className="lg:col-span-1 space-y-6 bg-slate-50 dark:bg-slate-900/50 p-6 rounded-[2rem] border border-slate-200 dark:border-slate-800">

@@ -8,12 +8,15 @@ const MAX_LENGTH = 100000;
 
 export function SQLToGraphQL({ initialData, onStateChange }: { initialData?: any; onStateChange?: (state: any) => void }) {
   const { t } = useTranslation();
+  const containerRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLTextAreaElement>(null);
+
   const [input, setInput] = useState(initialData?.input || '');
   const [output, setOutput] = useState(initialData?.output || '');
   const [includeInputTypes, setIncludeInputTypes] = useState(initialData?.includeInputTypes ?? true);
   const [includeQueryMutation, setIncludeQueryMutation] = useState(initialData?.includeQueryMutation ?? true);
   const [useDateTimeScalar, setUseDateTimeScalar] = useState(initialData?.useDateTimeScalar ?? true);
+  const [activePreset, setActivePreset] = useState<string | null>(null);
   const [error, setError] = useState('');
   const [copied, setCopied] = useState(false);
 
@@ -77,6 +80,24 @@ CREATE TABLE roles (
   id INT PRIMARY KEY,
   role_name VARCHAR(50) NOT NULL,
   permissions JSON
+);`,
+    blog: `-- Blog CMS & Comments Schema
+CREATE TABLE posts (
+  id INT PRIMARY KEY,
+  title VARCHAR(255) NOT NULL,
+  slug VARCHAR(255) UNIQUE NOT NULL,
+  content TEXT,
+  author_id UUID NOT NULL,
+  published_at TIMESTAMP,
+  is_published BOOLEAN DEFAULT FALSE
+);
+
+CREATE TABLE comments (
+  id INT PRIMARY KEY,
+  post_id INT NOT NULL,
+  author_name VARCHAR(100) NOT NULL,
+  content TEXT NOT NULL,
+  created_at TIMESTAMP NOT NULL
 );`
   };
 
@@ -87,11 +108,11 @@ CREATE TABLE roles (
     if (isPrimaryKey || type.includes('UUID')) {
       return 'ID';
     }
-    if (type.includes('INT') || type.includes('SERIAL')) {
-      return 'Int';
-    }
     if (type.includes('BOOL') || type.includes('BIT')) {
       return 'Boolean';
+    }
+    if (type.includes('INT') || type.includes('SERIAL')) {
+      return 'Int';
     }
     if (type.includes('FLOAT') || type.includes('DOUBLE') || type.includes('DECIMAL') || type.includes('NUMERIC') || type.includes('REAL')) {
       return 'Float';
@@ -326,6 +347,7 @@ CREATE TABLE roles (
     setInput('');
     setOutput('');
     setError('');
+    setActivePreset(null);
     toast.success(t('common.cleared', 'Cleared!'));
     setTimeout(() => inputRef.current?.focus(), 0);
   }, [t]);
@@ -346,6 +368,7 @@ CREATE TABLE roles (
 
   const loadPreset = (presetKey: keyof typeof PRESETS) => {
     setInput(PRESETS[presetKey]);
+    setActivePreset(presetKey);
     toast.success(t('sqltographql.preset_loaded', 'Loaded SQL preset!'));
   };
 
@@ -383,27 +406,48 @@ CREATE TABLE roles (
   }, []);
 
   return (
-    <div className="max-w-6xl mx-auto space-y-8 animate-in fade-in duration-500">
+    <div ref={containerRef} className="max-w-6xl mx-auto space-y-8 animate-in fade-in duration-500">
       {/* Presets Bar */}
       <div className="flex flex-wrap items-center justify-between gap-4 p-4 bg-slate-50 dark:bg-slate-900/50 rounded-2xl border border-slate-200 dark:border-slate-800">
         <div className="flex items-center gap-2">
           <Sparkles className="w-4 h-4 text-amber-500" aria-hidden="true" />
           <span className="text-xs font-bold uppercase tracking-widest text-slate-500 dark:text-slate-400">
-            {t('sqltographql.presets_title', 'Clickable Presets')}
+            {t('sqltographql.presets_title', 'Interactive Presets')}
           </span>
         </div>
         <div className="flex flex-wrap items-center gap-2">
           <button
             onClick={() => loadPreset('ecommerce')}
-            className="px-3 py-1.5 text-xs font-bold bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 hover:border-indigo-500 rounded-xl transition-all shadow-sm focus-visible:ring-2 focus-visible:ring-indigo-500 focus-visible:outline-none"
+            aria-pressed={activePreset === 'ecommerce'}
+            className={`px-3 py-1.5 text-xs font-bold rounded-xl transition-all shadow-sm focus-visible:ring-2 focus-visible:ring-indigo-500 focus-visible:outline-none border ${
+              activePreset === 'ecommerce'
+                ? 'bg-indigo-50 border-indigo-500 text-indigo-700 dark:bg-indigo-950/40 dark:border-indigo-500 dark:text-indigo-300'
+                : 'bg-white dark:bg-slate-800 border-slate-200 dark:border-slate-700 text-slate-700 dark:text-slate-300 hover:border-indigo-500'
+            }`}
           >
             {t('sqltographql.preset_ecommerce', 'E-Commerce Catalog')}
           </button>
           <button
             onClick={() => loadPreset('user_auth')}
-            className="px-3 py-1.5 text-xs font-bold bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 hover:border-indigo-500 rounded-xl transition-all shadow-sm focus-visible:ring-2 focus-visible:ring-indigo-500 focus-visible:outline-none"
+            aria-pressed={activePreset === 'user_auth'}
+            className={`px-3 py-1.5 text-xs font-bold rounded-xl transition-all shadow-sm focus-visible:ring-2 focus-visible:ring-indigo-500 focus-visible:outline-none border ${
+              activePreset === 'user_auth'
+                ? 'bg-indigo-50 border-indigo-500 text-indigo-700 dark:bg-indigo-950/40 dark:border-indigo-500 dark:text-indigo-300'
+                : 'bg-white dark:bg-slate-800 border-slate-200 dark:border-slate-700 text-slate-700 dark:text-slate-300 hover:border-indigo-500'
+            }`}
           >
             {t('sqltographql.preset_user_auth', 'User Auth & Roles')}
+          </button>
+          <button
+            onClick={() => loadPreset('blog')}
+            aria-pressed={activePreset === 'blog'}
+            className={`px-3 py-1.5 text-xs font-bold rounded-xl transition-all shadow-sm focus-visible:ring-2 focus-visible:ring-indigo-500 focus-visible:outline-none border ${
+              activePreset === 'blog'
+                ? 'bg-indigo-50 border-indigo-500 text-indigo-700 dark:bg-indigo-950/40 dark:border-indigo-500 dark:text-indigo-300'
+                : 'bg-white dark:bg-slate-800 border-slate-200 dark:border-slate-700 text-slate-700 dark:text-slate-300 hover:border-indigo-500'
+            }`}
+          >
+            {t('sqltographql.preset_blog', 'Blog CMS & Comments')}
           </button>
         </div>
       </div>
@@ -475,7 +519,10 @@ CREATE TABLE roles (
             id="sql-graphql-input"
             ref={inputRef}
             value={input}
-            onChange={(e) => setInput(e.target.value)}
+            onChange={(e) => {
+              setInput(e.target.value);
+              if (activePreset) setActivePreset(null);
+            }}
             placeholder={t('sqltographql.placeholder_sql', 'Paste SQL CREATE TABLE DDL statements here...')}
             className="w-full h-[450px] p-6 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-3xl outline-none focus:ring-2 focus:ring-indigo-500/20 transition-all font-mono text-sm leading-relaxed dark:text-slate-300 resize-none"
           />

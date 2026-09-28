@@ -650,6 +650,7 @@ const SQLToProtobuf = lazy(() => import("./components/SQLToProtobuf").then(m => 
 const SQLToClickHouse = lazy(() => import("./components/SQLToClickHouse").then(m => ({ default: m.SQLToClickHouse })));
 const SQLToSnowflake = lazy(() => import("./components/SQLToSnowflake").then(m => ({ default: m.SQLToSnowflake })));
 const SQLToCassandra = lazy(() => import("./components/SQLToCassandra").then(m => ({ default: m.SQLToCassandra })));
+const SQLToRedis = lazy(() => import("./components/SQLToRedis").then(m => ({ default: m.SQLToRedis })));
 
 // ⚡ Bolt Optimization: Pre-calculating tool map and search index for O(1) lookups and faster filtering
 const toolsMap: Record<string, Tool> = {};
@@ -687,6 +688,18 @@ const categories: Category[] = [
 ];
 
 const tools: Tool[] = [
+  // SQL to Redis Commands Generator Tool
+  {
+    id: "sql-to-redis",
+    name: "SQL en Commandes Redis",
+    nameEn: "SQL to Redis Commands",
+    icon: Database,
+    description: "Convertir des requêtes SQL CREATE TABLE, INSERT, SELECT, UPDATE et DELETE en commandes Redis CLI",
+    descriptionEn: "Convert SQL CREATE TABLE, INSERT, SELECT, UPDATE, and DELETE statements into Redis CLI commands",
+    Component: SQLToRedis,
+    category: "dev",
+    keywords: ["sql", "redis", "hset", "hgetall", "json.set", "set", "sadd", "expire", "nosql", "cache", "convert", "convertir"],
+  },
   // SQL DDL to ClickHouse DDL Converter Tool
   {
     id: "sql-to-clickhouse",

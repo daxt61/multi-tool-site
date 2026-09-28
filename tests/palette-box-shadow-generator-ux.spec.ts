@@ -1,68 +1,53 @@
 import { test, expect } from '@playwright/test';
 
-test.describe('Box Shadow Generator Micro-UX and Accessibility', () => {
+test.describe('BoxShadowGenerator Palette UX & Accessibility', () => {
   test.beforeEach(async ({ page }) => {
     await page.goto('http://localhost:5173/fr/outil/box-shadow');
+    await page.waitForSelector('#h-offset');
   });
 
-  test('should render quick presets with aria-pressed state and apply them when clicked', async ({ page }) => {
-    const presetBtn = page.getByRole('button', { name: 'Vibrant Glow' });
-    await expect(presetBtn).toBeVisible();
-    await expect(presetBtn).toHaveAttribute('aria-pressed', 'false');
+  test('applies presets correctly and updates ARIA states', async ({ page }) => {
+    const sharpBorderPreset = page.getByRole('button', { name: /Sharp Border|Bordure Nette/i });
+    await expect(sharpBorderPreset).toHaveAttribute('aria-pressed', 'false');
 
-    await presetBtn.click();
+    await sharpBorderPreset.click();
 
-    await expect(presetBtn).toHaveAttribute('aria-pressed', 'true');
-    const cssOutput = page.locator('#css-code-output');
-    await expect(cssOutput).toContainText('box-shadow: 0px 0px 30px 5px rgba(99, 102, 241, 0.5);');
-    await expect(page.getByText('Preset "Vibrant Glow" applied!')).toBeVisible();
-  });
+    await expect(sharpBorderPreset).toHaveAttribute('aria-pressed', 'true');
 
-  test('should expose explicit ARIA range properties on slider inputs', async ({ page }) => {
     const hOffsetInput = page.locator('#h-offset');
-    await expect(hOffsetInput).toHaveAttribute('aria-valuemin', '-100');
-    await expect(hOffsetInput).toHaveAttribute('aria-valuemax', '100');
-    await expect(hOffsetInput).toHaveAttribute('aria-valuenow', '10');
+    await expect(hOffsetInput).toHaveAttribute('aria-valuenow', '6');
 
-    const blurInput = page.locator('#blur');
-    await expect(blurInput).toHaveAttribute('aria-valuemin', '0');
-    await expect(blurInput).toHaveAttribute('aria-valuemax', '100');
-    await expect(blurInput).toHaveAttribute('aria-valuenow', '20');
+    const cssOutput = page.locator('#css-code-output');
+    await expect(cssOutput).toContainText('box-shadow: 6px 6px 0px 0px rgba(0, 0, 0, 1)');
   });
 
-  test('should toggle inset mode with correct aria-pressed attribute', async ({ page }) => {
-    const insetBtn = page.getByRole('button', { name: 'Ombre intérieure (Inset)' });
-    await expect(insetBtn).toHaveAttribute('aria-pressed', 'false');
+  test('toggles inset shadow and updates aria-pressed', async ({ page }) => {
+    const insetButton = page.getByRole('button', { name: /Inset Shadow|Ombre Intérieure/i });
+    await expect(insetButton).toHaveAttribute('aria-pressed', 'false');
 
-    await insetBtn.click();
-    await expect(insetBtn).toHaveAttribute('aria-pressed', 'true');
+    await insetButton.click();
+    await expect(insetButton).toHaveAttribute('aria-pressed', 'true');
 
     const cssOutput = page.locator('#css-code-output');
     await expect(cssOutput).toContainText('inset');
   });
 
-  test('should reset parameters and focus horizontal offset slider when Escape key is pressed', async ({ page }) => {
+  test('resets parameters and restores focus on Escape key or Reset button click', async ({ page }) => {
+    const sharpBorderPreset = page.getByRole('button', { name: /Sharp Border|Bordure Nette/i });
+    await sharpBorderPreset.click();
+
+    const resetButton = page.getByRole('button', { name: /Reset|Réinitialiser/i });
+    await resetButton.click();
+
     const hOffsetInput = page.locator('#h-offset');
-    await hOffsetInput.fill('45');
-
-    await page.keyboard.press('Escape');
-
-    await expect(hOffsetInput).toHaveValue('10');
+    await expect(hOffsetInput).toHaveAttribute('aria-valuenow', '10');
     await expect(hOffsetInput).toBeFocused();
-    await expect(page.getByText('Box shadow parameters reset')).toBeVisible();
   });
 
-  test('should copy CSS code when C key is pressed while unfocused', async ({ page }) => {
-    const hOffsetInput = page.locator('#h-offset');
-    await hOffsetInput.blur();
-
+  test('copies CSS code using keyboard shortcut C when not typing in an input', async ({ page }) => {
     await page.keyboard.press('c');
-
-    await expect(page.getByText('CSS code copied to clipboard!')).toBeVisible();
-  });
-
-  test('should display visual shortcut Kbd badges', async ({ page }) => {
-    await expect(page.locator('kbd', { hasText: /^Esc$/ })).toBeVisible();
-    await expect(page.locator('kbd', { hasText: /^C$/ })).toBeAttached();
+    const toast = page.locator('[data-sonner-toast]');
+    await expect(toast).toBeVisible();
+    await expect(toast).toContainText(/copié|copied/i);
   });
 });

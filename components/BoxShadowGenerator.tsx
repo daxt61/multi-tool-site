@@ -1,11 +1,13 @@
 import { useState, useCallback, useEffect, useRef } from 'react';
 import { Copy, Check, Info, Palette, Layers, Settings, Maximize, RotateCcw, Sparkles } from 'lucide-react';
 import { toast } from 'sonner';
+import { useTranslation } from 'react-i18next';
 import { Kbd } from './ui/Kbd';
 
 interface Preset {
   id: string;
-  name: string;
+  nameKey: string;
+  fallbackName: string;
   hOffset: number;
   vOffset: number;
   blur: number;
@@ -16,13 +18,14 @@ interface Preset {
 }
 
 const PRESETS: Preset[] = [
-  { id: 'soft-elevation', name: 'Soft Elevation', hOffset: 0, vOffset: 10, blur: 25, spread: -5, color: '#000000', opacity: 0.1, inset: false },
-  { id: 'sharp-border', name: 'Sharp Border', hOffset: 6, vOffset: 6, blur: 0, spread: 0, color: '#000000', opacity: 1, inset: false },
-  { id: 'subtle-inner', name: 'Subtle Inner', hOffset: 0, vOffset: 2, blur: 8, spread: 0, color: '#000000', opacity: 0.15, inset: true },
-  { id: 'vibrant-glow', name: 'Vibrant Glow', hOffset: 0, vOffset: 0, blur: 30, spread: 5, color: '#6366f1', opacity: 0.5, inset: false },
+  { id: 'soft-elevation', nameKey: 'boxshadow.preset_soft_elevation', fallbackName: 'Soft Elevation', hOffset: 0, vOffset: 10, blur: 25, spread: -5, color: '#000000', opacity: 0.1, inset: false },
+  { id: 'sharp-border', nameKey: 'boxshadow.preset_sharp_border', fallbackName: 'Sharp Border', hOffset: 6, vOffset: 6, blur: 0, spread: 0, color: '#000000', opacity: 1, inset: false },
+  { id: 'subtle-inner', nameKey: 'boxshadow.preset_subtle_inner', fallbackName: 'Subtle Inner', hOffset: 0, vOffset: 2, blur: 8, spread: 0, color: '#000000', opacity: 0.15, inset: true },
+  { id: 'vibrant-glow', nameKey: 'boxshadow.preset_vibrant_glow', fallbackName: 'Vibrant Glow', hOffset: 0, vOffset: 0, blur: 30, spread: 5, color: '#6366f1', opacity: 0.5, inset: false },
 ];
 
 export function BoxShadowGenerator() {
+  const { t } = useTranslation();
   const [hOffset, setHOffset] = useState(10);
   const [vOffset, setVOffset] = useState(10);
   const [blur, setBlur] = useState(20);
@@ -70,9 +73,9 @@ export function BoxShadowGenerator() {
   const handleCopy = useCallback(() => {
     navigator.clipboard.writeText(cssCode);
     setCopied(true);
-    toast.success('CSS code copied to clipboard!');
+    toast.success(t('boxshadow.toast_copied', 'CSS code copied to clipboard!'));
     setTimeout(() => setCopied(false), 2000);
-  }, [cssCode]);
+  }, [cssCode, t]);
 
   const handleReset = useCallback(() => {
     setHOffset(10);
@@ -82,9 +85,9 @@ export function BoxShadowGenerator() {
     setColor('#000000');
     setOpacity(0.2);
     setInset(false);
-    toast.success('Box shadow parameters reset');
+    toast.success(t('boxshadow.toast_reset', 'Box shadow parameters reset'));
     primaryInputRef.current?.focus();
-  }, []);
+  }, [t]);
 
   const handleApplyPreset = (preset: Preset) => {
     setHOffset(preset.hOffset);
@@ -94,7 +97,8 @@ export function BoxShadowGenerator() {
     setColor(preset.color);
     setOpacity(preset.opacity);
     setInset(preset.inset);
-    toast.success(`Preset "${preset.name}" applied!`);
+    const name = t(preset.nameKey, preset.fallbackName);
+    toast.success(t('boxshadow.toast_preset', `Preset "${name}" applied!`, { name }));
   };
 
   const handlersRef = useRef({ handleReset, handleCopy });
@@ -138,11 +142,12 @@ export function BoxShadowGenerator() {
       {/* Quick Presets */}
       <div className="bg-slate-50 dark:bg-slate-900/50 p-6 rounded-[2rem] border border-slate-200 dark:border-slate-800 space-y-4">
         <div className="flex items-center gap-2 text-xs font-black uppercase tracking-widest text-slate-400 px-1">
-          <Sparkles className="w-4 h-4 text-indigo-500" aria-hidden="true" /> Quick Presets
+          <Sparkles className="w-4 h-4 text-indigo-500" aria-hidden="true" /> {t('boxshadow.presets', 'Quick Presets')}
         </div>
         <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
           {PRESETS.map((preset) => {
             const active = isPresetActive(preset);
+            const presetName = t(preset.nameKey, preset.fallbackName);
             return (
               <button
                 key={preset.id}
@@ -156,7 +161,7 @@ export function BoxShadowGenerator() {
                 }`}
               >
                 <span className={`text-xs font-bold transition-colors block ${active ? 'text-indigo-600 dark:text-indigo-400' : 'text-slate-700 dark:text-slate-200 group-hover:text-indigo-600 dark:group-hover:text-indigo-400'}`}>
-                  {preset.name}
+                  {presetName}
                 </span>
                 <span className="text-[10px] text-slate-400 font-mono block mt-0.5">
                   {preset.inset ? 'inset ' : ''}{preset.hOffset}px {preset.vOffset}px {preset.blur}px
@@ -174,9 +179,9 @@ export function BoxShadowGenerator() {
             <div className="space-y-4">
               <div className="flex justify-between text-xs font-black uppercase tracking-widest text-slate-400 px-1">
                 <label htmlFor="h-offset" className="flex items-center gap-2 cursor-pointer">
-                  <Settings className="w-3 h-3" aria-hidden="true" /> Décalage Horizontal
+                  <Settings className="w-3 h-3" aria-hidden="true" /> {t('boxshadow.h_offset', 'Horizontal Offset')}
                 </label>
-                <span className="text-indigo-500">{hOffset}px</span>
+                <span className="text-indigo-500 font-mono">{hOffset}px</span>
               </div>
               <input
                 id="h-offset"
@@ -186,17 +191,17 @@ export function BoxShadowGenerator() {
                 aria-valuemax={100}
                 aria-valuenow={hOffset}
                 onChange={(e) => setHOffset(Number(e.target.value))}
-                className="w-full h-2 bg-slate-200 dark:bg-slate-700 rounded-lg appearance-none cursor-pointer accent-indigo-600"
-                aria-label="Décalage horizontal en pixels"
+                className="w-full h-2 bg-slate-200 dark:bg-slate-700 rounded-lg appearance-none cursor-pointer accent-indigo-600 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500"
+                aria-label={t('boxshadow.h_offset', 'Horizontal Offset')}
               />
             </div>
 
             <div className="space-y-4">
               <div className="flex justify-between text-xs font-black uppercase tracking-widest text-slate-400 px-1">
                 <label htmlFor="v-offset" className="flex items-center gap-2 cursor-pointer">
-                  <Settings className="w-3 h-3" aria-hidden="true" /> Décalage Vertical
+                  <Settings className="w-3 h-3" aria-hidden="true" /> {t('boxshadow.v_offset', 'Vertical Offset')}
                 </label>
-                <span className="text-indigo-500">{vOffset}px</span>
+                <span className="text-indigo-500 font-mono">{vOffset}px</span>
               </div>
               <input
                 id="v-offset"
@@ -205,17 +210,17 @@ export function BoxShadowGenerator() {
                 aria-valuemax={100}
                 aria-valuenow={vOffset}
                 onChange={(e) => setVOffset(Number(e.target.value))}
-                className="w-full h-2 bg-slate-200 dark:bg-slate-700 rounded-lg appearance-none cursor-pointer accent-indigo-600"
-                aria-label="Décalage vertical en pixels"
+                className="w-full h-2 bg-slate-200 dark:bg-slate-700 rounded-lg appearance-none cursor-pointer accent-indigo-600 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500"
+                aria-label={t('boxshadow.v_offset', 'Vertical Offset')}
               />
             </div>
 
             <div className="space-y-4">
               <div className="flex justify-between text-xs font-black uppercase tracking-widest text-slate-400 px-1">
                 <label htmlFor="blur" className="flex items-center gap-2 cursor-pointer">
-                  <Layers className="w-3 h-3" aria-hidden="true" /> Flou (Blur)
+                  <Layers className="w-3 h-3" aria-hidden="true" /> {t('boxshadow.blur', 'Blur Radius')}
                 </label>
-                <span className="text-indigo-500">{blur}px</span>
+                <span className="text-indigo-500 font-mono">{blur}px</span>
               </div>
               <input
                 id="blur"
@@ -224,17 +229,17 @@ export function BoxShadowGenerator() {
                 aria-valuemax={100}
                 aria-valuenow={blur}
                 onChange={(e) => setBlur(Number(e.target.value))}
-                className="w-full h-2 bg-slate-200 dark:bg-slate-700 rounded-lg appearance-none cursor-pointer accent-indigo-600"
-                aria-label="Rayon de flou en pixels"
+                className="w-full h-2 bg-slate-200 dark:bg-slate-700 rounded-lg appearance-none cursor-pointer accent-indigo-600 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500"
+                aria-label={t('boxshadow.blur', 'Blur Radius')}
               />
             </div>
 
             <div className="space-y-4">
               <div className="flex justify-between text-xs font-black uppercase tracking-widest text-slate-400 px-1">
                 <label htmlFor="spread" className="flex items-center gap-2 cursor-pointer">
-                  <Maximize className="w-3 h-3" aria-hidden="true" /> Étendue (Spread)
+                  <Maximize className="w-3 h-3" aria-hidden="true" /> {t('boxshadow.spread', 'Spread Radius')}
                 </label>
-                <span className="text-indigo-500">{spread}px</span>
+                <span className="text-indigo-500 font-mono">{spread}px</span>
               </div>
               <input
                 id="spread"
@@ -243,25 +248,25 @@ export function BoxShadowGenerator() {
                 aria-valuemax={50}
                 aria-valuenow={spread}
                 onChange={(e) => setSpread(Number(e.target.value))}
-                className="w-full h-2 bg-slate-200 dark:bg-slate-700 rounded-lg appearance-none cursor-pointer accent-indigo-600"
-                aria-label="Rayon d'étendue en pixels"
+                className="w-full h-2 bg-slate-200 dark:bg-slate-700 rounded-lg appearance-none cursor-pointer accent-indigo-600 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500"
+                aria-label={t('boxshadow.spread', 'Spread Radius')}
               />
             </div>
 
             <div className="space-y-4">
               <div className="flex justify-between text-xs font-black uppercase tracking-widest text-slate-400 px-1">
                 <label htmlFor="shadow-color" className="flex items-center gap-2 cursor-pointer">
-                  <Palette className="w-3 h-3" aria-hidden="true" /> Couleur & Opacité
+                  <Palette className="w-3 h-3" aria-hidden="true" /> {t('boxshadow.color_opacity', 'Color & Opacity')}
                 </label>
-                <span className="text-indigo-500">{Math.round(opacity * 100)}%</span>
+                <span className="text-indigo-500 font-mono">{Math.round(opacity * 100)}%</span>
               </div>
               <div className="flex gap-4">
                 <input
                   id="shadow-color"
                   type="color" value={color}
                   onChange={(e) => setColor(e.target.value)}
-                  className="w-12 h-12 rounded-xl cursor-pointer bg-white border border-slate-200 dark:border-slate-700 p-1"
-                  aria-label="Couleur de l'ombre"
+                  className="w-12 h-12 rounded-xl cursor-pointer bg-white border border-slate-200 dark:border-slate-700 p-1 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500"
+                  aria-label={t('boxshadow.color_opacity', 'Color & Opacity')}
                 />
                 <input
                   id="opacity"
@@ -270,8 +275,8 @@ export function BoxShadowGenerator() {
                   aria-valuemax={100}
                   aria-valuenow={Math.round(opacity * 100)}
                   onChange={(e) => setOpacity(Number(e.target.value))}
-                  className="flex-1 h-2 bg-slate-200 dark:bg-slate-700 rounded-lg appearance-none cursor-pointer accent-indigo-600 self-center"
-                  aria-label="Opacité de l'ombre"
+                  className="flex-1 h-2 bg-slate-200 dark:bg-slate-700 rounded-lg appearance-none cursor-pointer accent-indigo-600 self-center focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500"
+                  aria-label={t('boxshadow.color_opacity', 'Color & Opacity')}
                 />
               </div>
             </div>
@@ -280,13 +285,13 @@ export function BoxShadowGenerator() {
               type="button"
               onClick={() => setInset(!inset)}
               aria-pressed={inset}
-              className={`w-full p-4 rounded-2xl border transition-all flex items-center justify-between font-bold ${
+              className={`w-full p-4 rounded-2xl border transition-all flex items-center justify-between font-bold focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500 ${
                 inset
                   ? 'bg-indigo-50 dark:bg-indigo-500/10 border-indigo-200 dark:border-indigo-500/20 text-indigo-600 dark:text-indigo-400'
                   : 'bg-white dark:bg-slate-800 border-slate-200 dark:border-slate-700 text-slate-500'
               }`}
             >
-              <span>Ombre intérieure (Inset)</span>
+              <span>{t('boxshadow.inset', 'Inset Shadow')}</span>
               <div className={`w-10 h-6 rounded-full relative transition-colors ${inset ? 'bg-indigo-600' : 'bg-slate-200 dark:bg-slate-700'}`}>
                 <div className={`absolute top-1 w-4 h-4 bg-white rounded-full transition-all ${inset ? 'left-5' : 'left-1'}`} />
               </div>
@@ -303,36 +308,36 @@ export function BoxShadowGenerator() {
                 boxShadow: shadowCode,
                 backgroundColor: 'white',
               }}
-              className="w-48 h-48 rounded-3xl z-10 flex items-center justify-center text-slate-300 font-black text-xl"
+              className="w-48 h-48 rounded-3xl z-10 flex items-center justify-center text-slate-400 dark:text-slate-600 font-black text-xl"
             >
-              Aperçu
+              {t('boxshadow.preview', 'Preview')}
             </div>
           </div>
 
           <div className="space-y-4">
             <div className="flex justify-between items-center px-1">
-              <span id="css-code-label" className="text-xs font-black uppercase tracking-widest text-slate-400">CSS Code</span>
+              <span id="css-code-label" className="text-xs font-black uppercase tracking-widest text-slate-400">{t('boxshadow.css_code', 'CSS Code')}</span>
               <div className="flex gap-2">
                 <button
                   type="button"
                   onClick={handleReset}
-                  className="text-xs font-bold px-4 py-2 rounded-full text-rose-500 bg-rose-50 dark:bg-rose-500/10 hover:bg-rose-100 transition-all flex items-center gap-2"
-                  aria-label="Réinitialiser les paramètres d'ombre (Esc)"
+                  className="text-xs font-bold px-4 py-2 rounded-full text-rose-500 bg-rose-50 dark:bg-rose-500/10 hover:bg-rose-100 transition-all flex items-center gap-2 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-rose-500"
+                  aria-label={`${t('boxshadow.reset', 'Reset')} (Esc)`}
                 >
                   <RotateCcw className="w-3 h-3" aria-hidden="true" />
-                  Réinitialiser
+                  {t('boxshadow.reset', 'Reset')}
                   <Kbd modifier={null} className="hidden sm:inline-flex ml-1 bg-rose-100 dark:bg-rose-900/30 border-rose-200 dark:border-rose-800 text-rose-500">Esc</Kbd>
                 </button>
                 <button
                   type="button"
                   onClick={handleCopy}
-                  className={`text-xs font-bold px-6 py-2 rounded-full transition-all flex items-center gap-2 ${
+                  className={`text-xs font-bold px-6 py-2 rounded-full transition-all flex items-center gap-2 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500 ${
                     copied ? 'bg-emerald-500 text-white' : 'bg-indigo-600 text-white hover:bg-indigo-700 shadow-lg shadow-indigo-600/20'
                   }`}
-                  aria-label="Copier le code CSS (C)"
+                  aria-label={`${t('boxshadow.copy', 'Copy CSS')} (C)`}
                 >
                   {copied ? <Check className="w-3 h-3" aria-hidden="true" /> : <Copy className="w-3 h-3" aria-hidden="true" />}
-                  {copied ? 'Copié !' : 'Copier CSS'}
+                  {copied ? t('boxshadow.copied', 'Copied!') : t('boxshadow.copy', 'Copy CSS')}
                   {!copied && <Kbd modifier={null} className="hidden sm:inline-flex ml-1 bg-white/20 border-white/30 text-white">C</Kbd>}
                 </button>
               </div>
@@ -348,22 +353,22 @@ export function BoxShadowGenerator() {
       <div className="mt-20 grid grid-cols-1 md:grid-cols-3 gap-12 pt-16 border-t border-slate-100 dark:border-slate-800">
         <div className="space-y-4">
           <h4 className="font-bold dark:text-white flex items-center gap-2">
-            <Info className="w-4 h-4 text-indigo-500" aria-hidden="true" /> Comprendre box-shadow
+            <Info className="w-4 h-4 text-indigo-500" aria-hidden="true" /> {t('boxshadow.understand_title', 'Understanding box-shadow')}
           </h4>
           <p className="text-sm text-slate-500 dark:text-slate-400 leading-relaxed">
-            La propriété <code className="bg-slate-100 dark:bg-slate-800 px-1 rounded">box-shadow</code> permet d'ajouter des effets d'ombre aux éléments. Elle prend en charge les décalages, le flou, l'étalement et la couleur.
+            {t('boxshadow.understand_text', 'The box-shadow property allows you to add shadow effects to elements. It supports offset, blur, spread, and color customization.')}
           </p>
         </div>
         <div className="space-y-4">
-          <h4 className="font-bold dark:text-white flex items-center gap-2"><Layers className="w-4 h-4 text-indigo-500" aria-hidden="true" /> Flou vs Étendue</h4>
+          <h4 className="font-bold dark:text-white flex items-center gap-2"><Layers className="w-4 h-4 text-indigo-500" aria-hidden="true" /> {t('boxshadow.blur_vs_spread_title', 'Blur vs Spread')}</h4>
           <p className="text-sm text-slate-500 dark:text-slate-400 leading-relaxed">
-            Le flou (Blur) définit la netteté de l'ombre, tandis que l'étendue (Spread) augmente ou réduit la taille globale de l'ombre par rapport à l'élément.
+            {t('boxshadow.blur_vs_spread_text', 'Blur defines the softness of the shadow, while spread increases or decreases the size of the shadow relative to the element.')}
           </p>
         </div>
         <div className="space-y-4">
-          <h4 className="font-bold dark:text-white flex items-center gap-2"><Maximize className="w-4 h-4 text-indigo-500" aria-hidden="true" /> Profondeur</h4>
+          <h4 className="font-bold dark:text-white flex items-center gap-2"><Maximize className="w-4 h-4 text-indigo-500" aria-hidden="true" /> {t('boxshadow.depth_title', 'Visual Depth')}</h4>
           <p className="text-sm text-slate-500 dark:text-slate-400 leading-relaxed">
-            Utilisez des ombres douces (grand flou, faible opacité) pour créer une sensation de profondeur et de hiérarchie visuelle dans vos interfaces.
+            {t('boxshadow.depth_text', 'Use soft shadows (high blur, low opacity) to create depth and visual hierarchy in modern user interfaces.')}
           </p>
         </div>
       </div>

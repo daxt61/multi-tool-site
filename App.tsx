@@ -636,6 +636,7 @@ const SQLToScala = lazy(() => import("./components/SQLToScala").then(m => ({ def
 const SQLToDart = lazy(() => import("./components/SQLToDart").then(m => ({ default: m.SQLToDart })));
 const SQLToElixir = lazy(() => import("./components/SQLToElixir").then(m => ({ default: m.SQLToElixir })));
 const JSONToElixir = lazy(() => import("./components/JSONToElixir").then(m => ({ default: m.JSONToElixir })));
+const SQLToValibot = lazy(() => import("./components/SQLToValibot").then(m => ({ default: m.SQLToValibot })));
 const SQLToZod = lazy(() => import("./components/SQLToZod").then(m => ({ default: m.SQLToZod })));
 const SQLToTypeBox = lazy(() => import("./components/SQLToTypeBox").then(m => ({ default: m.SQLToTypeBox })));
 const SQLToDrizzle = lazy(() => import("./components/SQLToDrizzle").then(m => ({ default: m.SQLToDrizzle })));
@@ -913,6 +914,18 @@ const tools: Tool[] = [
     Component: SQLToTypeBox,
     category: "dev",
     keywords: ["sql", "ddl", "create table", "typebox", "schema", "validation", "typescript", "convert", "convertir"],
+  },
+  // SQL DDL to Valibot Schema Converter Tool
+  {
+    id: "sql-to-valibot",
+    name: "SQL DDL en Valibot",
+    nameEn: "SQL DDL to Valibot Schema",
+    icon: ShieldCheck,
+    description: "Convertir des instructions SQL CREATE TABLE DDL en schémas de validation Valibot TypeScript",
+    descriptionEn: "Convert SQL CREATE TABLE DDL statements into strongly-typed TypeScript Valibot validation schemas",
+    Component: SQLToValibot,
+    category: "dev",
+    keywords: ["sql", "ddl", "create table", "valibot", "schema", "validation", "typescript", "convert", "convertir"],
   },
   // SQL DDL to Zod Schema Converter Tool
   {

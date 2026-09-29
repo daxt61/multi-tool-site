@@ -13,6 +13,7 @@ interface Lap {
 
 export function Stopwatch({ initialData, onStateChange }: { initialData?: any; onStateChange?: (state: any) => void }) {
   const { t } = useTranslation();
+  const containerRef = useRef<HTMLDivElement>(null);
   const startBtnRef = useRef<HTMLButtonElement>(null);
   const [time, setTime] = useState(0);
   const [isRunning, setIsRunning] = useState(false);
@@ -127,8 +128,16 @@ export function Stopwatch({ initialData, onStateChange }: { initialData?: any; o
     setTime(0);
     setLaps([]);
     localStorage.removeItem('stopwatch_state');
+    toast.success(t('common.reset', 'Reset'));
     setTimeout(() => startBtnRef.current?.focus(), 0);
-  }, []);
+  }, [t]);
+
+  const handleClearLaps = useCallback(() => {
+    if (laps.length === 0) return;
+    setLaps([]);
+    toast.success(t('common.cleared', 'Cleared'));
+    setTimeout(() => startBtnRef.current?.focus(), 0);
+  }, [laps.length, t]);
 
   const handleLap = useCallback(() => {
     const lastLapTime = laps.length > 0 ? laps[0].overallTime : 0;
@@ -169,7 +178,8 @@ export function Stopwatch({ initialData, onStateChange }: { initialData?: any; o
     handleCopyAll,
     handleStartPause,
     handleLap,
-    handleReset
+    handleReset,
+    handleClearLaps
   });
 
   useEffect(() => {
@@ -178,9 +188,10 @@ export function Stopwatch({ initialData, onStateChange }: { initialData?: any; o
       handleCopyAll,
       handleStartPause,
       handleLap,
-      handleReset
+      handleReset,
+      handleClearLaps
     };
-  }, [handleCopyTime, handleCopyAll, handleStartPause, handleLap, handleReset]);
+  }, [handleCopyTime, handleCopyAll, handleStartPause, handleLap, handleReset, handleClearLaps]);
 
   const handleCopyLap = useCallback((lap: Lap, index: number) => {
     const { h, m, s, ms } = formatTime(lap.time);
@@ -202,7 +213,10 @@ export function Stopwatch({ initialData, onStateChange }: { initialData?: any; o
 
       if (isEditable && e.key !== 'Escape') return;
 
-      const { handleStartPause, handleLap, handleReset, handleCopyAll, handleCopyTime } = handlersRef.current;
+      const isInside = containerRef.current?.contains(activeElement) || activeElement === document.body;
+      if (!isInside) return;
+
+      const { handleStartPause, handleLap, handleReset, handleClearLaps, handleCopyAll, handleCopyTime } = handlersRef.current;
 
       if (e.code === 'Space') {
         e.preventDefault();
@@ -215,7 +229,11 @@ export function Stopwatch({ initialData, onStateChange }: { initialData?: any; o
         handleReset();
       } else if (e.key === 'Escape') {
         e.preventDefault();
-        handleReset();
+        if (laps.length > 0 && time === 0) {
+          handleClearLaps();
+        } else {
+          handleReset();
+        }
       } else if (e.key.toLowerCase() === 'c') {
         if (e.shiftKey) {
           e.preventDefault();
@@ -229,7 +247,7 @@ export function Stopwatch({ initialData, onStateChange }: { initialData?: any; o
 
     window.addEventListener('keydown', handleKeyDown);
     return () => window.removeEventListener('keydown', handleKeyDown);
-  }, []);
+  }, [laps.length, time]);
 
   const handleDownload = () => {
     if (laps.length === 0) return;
@@ -273,9 +291,9 @@ export function Stopwatch({ initialData, onStateChange }: { initialData?: any; o
   const times = formatTime(time);
 
   return (
-    <div className="max-w-4xl mx-auto space-y-12">
+    <div ref={containerRef} className="max-w-4xl mx-auto space-y-12">
       {/* Main Display */}
-      <div className="bg-slate-900 dark:bg-black p-12 md:p-20 rounded-[3rem] shadow-2xl shadow-indigo-500/10 text-center space-y-12 border border-white/5">
+      <div className="relative bg-slate-900 dark:bg-black p-12 md:p-20 rounded-[3rem] shadow-2xl shadow-indigo-500/10 text-center space-y-12 border border-white/5">
         <div className="inline-flex items-center gap-2 px-4 py-1.5 bg-indigo-500/10 text-indigo-400 rounded-full text-xs font-black uppercase tracking-widest border border-indigo-500/20">
           <Timer className="w-3 h-3" /> {t('stopwatch.title', 'Precision Stopwatch')}
         </div>
@@ -290,6 +308,17 @@ export function Stopwatch({ initialData, onStateChange }: { initialData?: any; o
             <span className="text-6xl md:text-8xl tabular-nums">{times.h}:{times.m}:{times.s}</span>
             <span className="text-3xl md:text-5xl text-indigo-500 tabular-nums">.{times.ms}</span>
           </div>
+
+          <button
+            onClick={handleCopyTime}
+            aria-label={`${t('common.copy')} (C)`}
+            title={`${t('common.copy')} (C)`}
+            className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-white/10 hover:bg-white/20 text-white/80 hover:text-white text-xs font-bold transition-all border border-white/10 focus-visible:ring-2 focus-visible:ring-indigo-500"
+          >
+            <Copy className="w-3.5 h-3.5" />
+            <span>{t('common.copy')}</span>
+            <Kbd modifier={null} className="ml-1 border-white/20 bg-white/10 text-white">C</Kbd>
+          </button>
         </div>
 
         <div className="flex flex-wrap justify-center gap-4">
@@ -367,10 +396,10 @@ export function Stopwatch({ initialData, onStateChange }: { initialData?: any; o
             <div className="flex items-center gap-2">
               <Kbd modifier={null} className="hidden sm:inline-flex border-rose-200 text-rose-400">Esc</Kbd>
               <button
-                onClick={() => setLaps([])}
+                onClick={handleClearLaps}
                 disabled={laps.length === 0}
-              title={`${t('common.clear')} (Esc)`}
-                className="text-xs font-bold text-rose-500 bg-rose-50 dark:bg-rose-500/10 hover:bg-rose-100 dark:hover:bg-rose-500/20 px-3 py-1.5 rounded-xl flex items-center gap-1 transition-all disabled:opacity-50"
+                title={`${t('common.clear')} (Esc)`}
+                className="text-xs font-bold text-rose-500 bg-rose-50 dark:bg-rose-500/10 hover:bg-rose-100 dark:hover:bg-rose-500/20 px-3 py-1.5 rounded-xl flex items-center gap-1 transition-all disabled:opacity-50 focus-visible:ring-2 focus-visible:ring-rose-500"
               >
                 <Trash2 className="w-3.5 h-3.5" /> {t('common.clear')}
               </button>

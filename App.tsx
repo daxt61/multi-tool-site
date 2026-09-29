@@ -652,6 +652,7 @@ const SQLToClickHouse = lazy(() => import("./components/SQLToClickHouse").then(m
 const SQLToSnowflake = lazy(() => import("./components/SQLToSnowflake").then(m => ({ default: m.SQLToSnowflake })));
 const SQLToCassandra = lazy(() => import("./components/SQLToCassandra").then(m => ({ default: m.SQLToCassandra })));
 const SQLToRedis = lazy(() => import("./components/SQLToRedis").then(m => ({ default: m.SQLToRedis })));
+const SQLToCypher = lazy(() => import("./components/SQLToCypher").then(m => ({ default: m.SQLToCypher })));
 
 // ⚡ Bolt Optimization: Pre-calculating tool map and search index for O(1) lookups and faster filtering
 const toolsMap: Record<string, Tool> = {};
@@ -689,6 +690,18 @@ const categories: Category[] = [
 ];
 
 const tools: Tool[] = [
+  // SQL to Neo4j Cypher Generator Tool
+  {
+    id: "sql-to-cypher",
+    name: "SQL en Neo4j Cypher",
+    nameEn: "SQL to Neo4j Cypher",
+    icon: Network,
+    description: "Convertir des requêtes SQL CREATE TABLE, INSERT INTO et SELECT en requêtes Neo4j Cypher graphiques",
+    descriptionEn: "Convert SQL CREATE TABLE, INSERT INTO, and SELECT queries into Neo4j Cypher graph database queries",
+    Component: SQLToCypher,
+    category: "dev",
+    keywords: ["sql", "neo4j", "cypher", "graph", "nodes", "relationships", "merge", "create", "nosql", "convert", "convertir"],
+  },
   // SQL to Redis Commands Generator Tool
   {
     id: "sql-to-redis",

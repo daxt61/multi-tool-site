@@ -7,7 +7,8 @@ const MAX_RAILS = 20;
 
 export function RailFenceCipher({ initialData, onStateChange }: { initialData?: any; onStateChange?: (state: any) => void }) {
   const { t } = useTranslation();
-  const [text, setText] = useState(initialData?.text || '');
+  // Sentinel: Always initialize text as empty string to prevent sensitive state leakage.
+  const [text, setText] = useState('');
   const [rails, setRails] = useState(initialData?.rails ?? 3);
   const [mode, setMode] = useState<'encrypt' | 'decrypt'>(initialData?.mode || 'encrypt');
   const [copied, setCopied] = useState(false);

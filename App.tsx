@@ -653,6 +653,7 @@ const SQLToSnowflake = lazy(() => import("./components/SQLToSnowflake").then(m =
 const SQLToCassandra = lazy(() => import("./components/SQLToCassandra").then(m => ({ default: m.SQLToCassandra })));
 const SQLToRedis = lazy(() => import("./components/SQLToRedis").then(m => ({ default: m.SQLToRedis })));
 const SQLToCypher = lazy(() => import("./components/SQLToCypher").then(m => ({ default: m.SQLToCypher })));
+const SQLToPySpark = lazy(() => import("./components/SQLToPySpark").then(m => ({ default: m.SQLToPySpark })));
 
 // ⚡ Bolt Optimization: Pre-calculating tool map and search index for O(1) lookups and faster filtering
 const toolsMap: Record<string, Tool> = {};
@@ -690,6 +691,18 @@ const categories: Category[] = [
 ];
 
 const tools: Tool[] = [
+  // SQL DDL to PySpark Schema Generator Tool
+  {
+    id: "sql-to-pyspark",
+    name: "SQL DDL en PySpark",
+    nameEn: "SQL DDL to PySpark Schema",
+    icon: Database,
+    description: "Convertir des instructions SQL CREATE TABLE DDL en schémas PySpark StructType ou DDL Spark",
+    descriptionEn: "Convert SQL CREATE TABLE DDL statements into PySpark StructType schemas or Spark DDL strings",
+    Component: SQLToPySpark,
+    category: "dev",
+    keywords: ["sql", "ddl", "pyspark", "spark", "structtype", "structfield", "dataframe", "databricks", "convert", "convertir"],
+  },
   // SQL to Neo4j Cypher Generator Tool
   {
     id: "sql-to-cypher",

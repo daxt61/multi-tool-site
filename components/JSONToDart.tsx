@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback, useRef } from 'react';
-import { FileCode, Copy, Check, Trash2, AlertCircle, Download, Info } from 'lucide-react';
+import { FileCode, Copy, Check, Trash2, AlertCircle, Download, Info, Sparkles } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import { toast } from 'sonner';
 import { Kbd } from './ui/Kbd';
@@ -7,12 +7,73 @@ import { Kbd } from './ui/Kbd';
 const MAX_LENGTH = 100000;
 const MAX_DEPTH = 20;
 
+const PRESETS = [
+  {
+    id: 'user_profile',
+    labelKey: 'jsontodart.preset_user',
+    defaultLabel: 'User Profile',
+    data: {
+      id: 101,
+      username: 'alex_flutter',
+      email: 'alex@example.com',
+      is_active: true,
+      roles: ['developer', 'admin'],
+      profile: {
+        first_name: 'Alex',
+        last_name: 'Dev',
+        age: 28,
+        rating: 4.95
+      }
+    }
+  },
+  {
+    id: 'ecommerce_order',
+    labelKey: 'jsontodart.preset_order',
+    defaultLabel: 'E-Commerce Order',
+    data: {
+      order_id: 'ORD-9872',
+      amount: 149.99,
+      tax: 12.50,
+      is_paid: true,
+      items: [
+        {
+          product_id: 'P-101',
+          name: 'Flutter Widgets Guide',
+          quantity: 2,
+          price: 49.99
+        }
+      ],
+      shipping: {
+        carrier: 'FedEx',
+        tracking_number: 'TRK12345678'
+      }
+    }
+  },
+  {
+    id: 'api_config',
+    labelKey: 'jsontodart.preset_config',
+    defaultLabel: 'API Config',
+    data: {
+      api_version: 'v2.1',
+      retry_attempts: 3,
+      timeout_seconds: 15.5,
+      debug_mode: false,
+      endpoints: {
+        auth: '/api/v2/auth',
+        users: '/api/v2/users'
+      }
+    }
+  }
+];
+
 export function JSONToDart({ initialData, onStateChange }: { initialData?: any; onStateChange?: (state: any) => void }) {
   const { t } = useTranslation();
+  const inputRef = useRef<HTMLTextAreaElement>(null);
   const [input, setInput] = useState(initialData?.input || '');
   const [output, setOutput] = useState(initialData?.output || '');
   const [error, setError] = useState('');
   const [copied, setCopied] = useState(false);
+  const [activePreset, setActivePreset] = useState<string | null>(null);
 
   // Premium Options
   const [nullSafety, setNullSafety] = useState(initialData?.nullSafety ?? true);
@@ -227,7 +288,7 @@ export function JSONToDart({ initialData, onStateChange }: { initialData?: any; 
     if (!output) return;
     navigator.clipboard.writeText(output);
     setCopied(true);
-    toast.success(t('common.copied') || 'Copied successfully!');
+    toast.success(t('jsontodart.toast_copied') || 'Dart classes copied to clipboard!');
     setTimeout(() => setCopied(false), 2000);
   }, [output, t]);
 
@@ -235,8 +296,18 @@ export function JSONToDart({ initialData, onStateChange }: { initialData?: any; 
     setInput('');
     setOutput('');
     setError('');
+    setActivePreset(null);
     toast.success(t('jsontodart.reset_success') || 'Inputs cleared!');
+    setTimeout(() => inputRef.current?.focus(), 50);
   }, [t]);
+
+  const handleLoadPreset = (preset: typeof PRESETS[0]) => {
+    const formatted = JSON.stringify(preset.data, null, 2);
+    setInput(formatted);
+    setActivePreset(preset.id);
+    toast.success(t('jsontodart.preset_loaded', { name: t(preset.labelKey) || preset.defaultLabel }) || 'Loaded preset!');
+    setTimeout(() => inputRef.current?.focus(), 50);
+  };
 
   // Setup useRef handler wrapper for shortcuts
   const handlersRef = useRef({
@@ -284,27 +355,55 @@ export function JSONToDart({ initialData, onStateChange }: { initialData?: any; 
     link.click();
     document.body.removeChild(link);
     URL.revokeObjectURL(url);
+    toast.success(t('jsontodart.downloaded') || 'Downloaded models.dart!');
   };
 
   return (
     <div className="max-w-6xl mx-auto space-y-8" role="region" aria-label="JSON to Dart Converter">
-      {/* Keyboard Shortcuts indicators */}
-      <div className="flex justify-end gap-3 px-1 items-center">
-        <span className="flex items-center gap-1.5 text-xs font-bold text-slate-400">
-          <Kbd modifier={null} className="bg-white dark:bg-slate-800 border-slate-200 dark:border-slate-700 text-slate-400">Esc</Kbd>
-          {t('common.clear')}
-        </span>
-        <span className="flex items-center gap-1.5 text-xs font-bold text-slate-400 mr-2">
-          <Kbd modifier={null} className="bg-white dark:bg-slate-800 border-slate-200 dark:border-slate-700 text-slate-400">C</Kbd>
-          {t('common.copy')}
-        </span>
-        <button
-          onClick={handleClear}
-          disabled={!input && !output}
-          className="text-xs font-bold px-3 py-1.5 rounded-xl text-rose-500 bg-rose-50 dark:bg-rose-500/10 hover:bg-rose-100 transition-all flex items-center gap-1 disabled:opacity-50"
-        >
-          <Trash2 className="w-3.5 h-3.5" /> {t('common.clear')}
-        </button>
+      {/* Quick Presets & Action Bar */}
+      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 bg-slate-50 dark:bg-slate-900/40 p-4 rounded-3xl border border-slate-200 dark:border-slate-800">
+        <div className="flex items-center gap-2 flex-wrap">
+          <span className="text-xs font-black uppercase tracking-widest text-slate-400 flex items-center gap-1.5 mr-1">
+            <Sparkles className="w-3.5 h-3.5 text-indigo-500" />
+            {t('jsontodart.presets_title') || 'Quick Presets:'}
+          </span>
+          {PRESETS.map((preset) => {
+            const label = t(preset.labelKey) || preset.defaultLabel;
+            const isActive = activePreset === preset.id;
+            return (
+              <button
+                key={preset.id}
+                onClick={() => handleLoadPreset(preset)}
+                aria-pressed={isActive}
+                className={`px-3 py-1.5 rounded-xl text-xs font-bold transition-all border ${
+                  isActive
+                    ? 'bg-indigo-600 text-white border-indigo-600 shadow-md shadow-indigo-500/20'
+                    : 'bg-white dark:bg-slate-800 text-slate-600 dark:text-slate-300 border-slate-200 dark:border-slate-700 hover:border-indigo-400 dark:hover:border-indigo-500'
+                }`}
+              >
+                {label}
+              </button>
+            );
+          })}
+        </div>
+
+        <div className="flex items-center gap-3">
+          <span className="flex items-center gap-1.5 text-xs font-bold text-slate-400">
+            <Kbd modifier={null} className="bg-white dark:bg-slate-800 border-slate-200 dark:border-slate-700 text-slate-400">Esc</Kbd>
+            {t('common.clear')}
+          </span>
+          <span className="flex items-center gap-1.5 text-xs font-bold text-slate-400 mr-2">
+            <Kbd modifier={null} className="bg-white dark:bg-slate-800 border-slate-200 dark:border-slate-700 text-slate-400">C</Kbd>
+            {t('common.copy')}
+          </span>
+          <button
+            onClick={handleClear}
+            disabled={!input && !output}
+            className="text-xs font-bold px-3 py-1.5 rounded-xl text-rose-500 bg-rose-50 dark:bg-rose-500/10 hover:bg-rose-100 dark:hover:bg-rose-900/30 transition-all flex items-center gap-1 disabled:opacity-50"
+          >
+            <Trash2 className="w-3.5 h-3.5" /> {t('common.clear')}
+          </button>
+        </div>
       </div>
 
       {/* Premium Toggles / Config Section */}
@@ -405,8 +504,12 @@ export function JSONToDart({ initialData, onStateChange }: { initialData?: any; 
           </div>
           <textarea
             id="json-input"
+            ref={inputRef}
             value={input}
-            onChange={(e) => setInput(e.target.value)}
+            onChange={(e) => {
+              setInput(e.target.value);
+              if (activePreset) setActivePreset(null);
+            }}
             placeholder='{"id": 1, "name": "Dart", "is_awesome": true, "nested": {"version": 3.0}}'
             className="w-full h-[450px] p-6 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-3xl outline-none focus:ring-2 focus:ring-indigo-500/20 transition-all font-mono text-sm leading-relaxed dark:text-slate-300 resize-none"
           />

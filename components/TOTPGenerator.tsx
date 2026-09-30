@@ -182,13 +182,18 @@ function generateTOTP(keyBytes: Uint8Array, timeIndex: number, digits: number): 
   return otp.toString().padStart(digits, "0");
 }
 
-export function TOTPGenerator() {
+export function TOTPGenerator({ initialData, onStateChange }: { initialData?: any; onStateChange?: (state: any) => void } = {}) {
   const { t } = useTranslation();
   const [secret, setSecret] = useState("");
-  const [accountName, setAccountName] = useState("User@Toolbox");
-  const [issuer, setIssuer] = useState("Toolbox");
-  const [digits, setDigits] = useState<6 | 8>(6);
-  const [period, setPeriod] = useState<number>(30);
+  const [accountName, setAccountName] = useState(initialData?.accountName || "User@Toolbox");
+  const [issuer, setIssuer] = useState(initialData?.issuer || "Toolbox");
+  const [digits, setDigits] = useState<6 | 8>(initialData?.digits === 8 ? 8 : 6);
+  const [period, setPeriod] = useState<number>(initialData?.period || 30);
+
+  useEffect(() => {
+    // Sentinel: Never serialize TOTP secret keys into shareable URL parameters
+    onStateChange?.({ accountName, issuer, digits, period });
+  }, [accountName, issuer, digits, period, onStateChange]);
 
   // Validation States
   const [testToken, setTestToken] = useState("");

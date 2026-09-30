@@ -647,6 +647,7 @@ const TSVTester = lazy(() => import("./components/TSVTester").then(m => ({ defau
 const EnumerateIntegers = lazy(() => import("./components/EnumerateIntegers").then(m => ({ default: m.EnumerateIntegers })));
 const GraphQLToTypeScript = lazy(() => import("./components/GraphQLToTypeScript").then(m => ({ default: m.GraphQLToTypeScript })));
 const GraphQLToZod = lazy(() => import("./components/GraphQLToZod").then(m => ({ default: m.GraphQLToZod })));
+const GraphQLToProtobuf = lazy(() => import("./components/GraphQLToProtobuf").then(m => ({ default: m.GraphQLToProtobuf })));
 const SQLToProtobuf = lazy(() => import("./components/SQLToProtobuf").then(m => ({ default: m.SQLToProtobuf })));
 const SQLToClickHouse = lazy(() => import("./components/SQLToClickHouse").then(m => ({ default: m.SQLToClickHouse })));
 const SQLToSnowflake = lazy(() => import("./components/SQLToSnowflake").then(m => ({ default: m.SQLToSnowflake })));
@@ -799,6 +800,18 @@ const tools: Tool[] = [
     Component: GraphQLToZod,
     category: "dev",
     keywords: ["graphql", "sdl", "zod", "validation", "schema", "type", "enum", "convert", "convertir"],
+  },
+  // GraphQL SDL to Protocol Buffers .proto Generator Tool
+  {
+    id: "graphql-to-protobuf",
+    name: "GraphQL en Protobuf",
+    nameEn: "GraphQL to Protobuf",
+    icon: FileCode,
+    description: "Convertir des schémas GraphQL SDL en schémas Protocol Buffers (.proto)",
+    descriptionEn: "Convert GraphQL SDL schemas into Protocol Buffers (.proto) schema definitions",
+    Component: GraphQLToProtobuf,
+    category: "dev",
+    keywords: ["graphql", "sdl", "protobuf", "proto", "proto3", "proto2", "gRPC", "schema", "convert", "convertir"],
   },
   // Enumerate Integers Tool
   {

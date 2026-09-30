@@ -654,6 +654,7 @@ const SQLToCassandra = lazy(() => import("./components/SQLToCassandra").then(m =
 const SQLToRedis = lazy(() => import("./components/SQLToRedis").then(m => ({ default: m.SQLToRedis })));
 const SQLToCypher = lazy(() => import("./components/SQLToCypher").then(m => ({ default: m.SQLToCypher })));
 const SQLToPySpark = lazy(() => import("./components/SQLToPySpark").then(m => ({ default: m.SQLToPySpark })));
+const SQLToDuckDB = lazy(() => import("./components/SQLToDuckDB").then(m => ({ default: m.SQLToDuckDB })));
 
 // ⚡ Bolt Optimization: Pre-calculating tool map and search index for O(1) lookups and faster filtering
 const toolsMap: Record<string, Tool> = {};
@@ -691,6 +692,18 @@ const categories: Category[] = [
 ];
 
 const tools: Tool[] = [
+  // SQL DDL to DuckDB Schema Generator Tool
+  {
+    id: "sql-to-duckdb",
+    name: "SQL DDL en DuckDB",
+    nameEn: "SQL DDL to DuckDB",
+    icon: Database,
+    description: "Convertir des instructions SQL CREATE TABLE DDL en schémas DuckDB SQL DDL, API Python/Node.js ou export Parquet",
+    descriptionEn: "Convert SQL CREATE TABLE DDL statements into DuckDB SQL DDL, Python/Node.js API code, or Parquet export scripts",
+    Component: SQLToDuckDB,
+    category: "dev",
+    keywords: ["sql", "ddl", "duckdb", "parquet", "python", "node", "columnar", "analytics", "lakehouse", "convert", "convertir"],
+  },
   // SQL DDL to PySpark Schema Generator Tool
   {
     id: "sql-to-pyspark",

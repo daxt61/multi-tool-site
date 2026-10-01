@@ -657,6 +657,7 @@ const SQLToRedis = lazy(() => import("./components/SQLToRedis").then(m => ({ def
 const SQLToCypher = lazy(() => import("./components/SQLToCypher").then(m => ({ default: m.SQLToCypher })));
 const SQLToPySpark = lazy(() => import("./components/SQLToPySpark").then(m => ({ default: m.SQLToPySpark })));
 const SQLToDuckDB = lazy(() => import("./components/SQLToDuckDB").then(m => ({ default: m.SQLToDuckDB })));
+const SQLToAvro = lazy(() => import("./components/SQLToAvro").then(m => ({ default: m.SQLToAvro })));
 
 // ⚡ Bolt Optimization: Pre-calculating tool map and search index for O(1) lookups and faster filtering
 const toolsMap: Record<string, Tool> = {};
@@ -694,6 +695,18 @@ const categories: Category[] = [
 ];
 
 const tools: Tool[] = [
+  // SQL DDL to Apache Avro (.avsc) Schema Generator Tool
+  {
+    id: "sql-to-avro",
+    name: "SQL DDL en Avro",
+    nameEn: "SQL DDL to Avro Schema",
+    icon: Database,
+    description: "Convertir des instructions SQL CREATE TABLE DDL en schémas d'enregistrements Apache Avro (.avsc)",
+    descriptionEn: "Convert SQL CREATE TABLE DDL statements into Apache Avro (.avsc) JSON schema record definitions",
+    Component: SQLToAvro,
+    category: "dev",
+    keywords: ["sql", "ddl", "avro", "avsc", "schema", "kafka", "big data", "serialization", "convert", "convertir"],
+  },
   // SQL DDL to DuckDB Schema Generator Tool
   {
     id: "sql-to-duckdb",

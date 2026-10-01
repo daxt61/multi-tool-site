@@ -12,7 +12,8 @@ export function WiFiGenerator({ initialData, onStateChange }: { initialData?: an
   const ssidInputRef = useRef<HTMLInputElement>(null);
 
   const [ssid, setSsid] = useState((initialData?.ssid || '').slice(0, MAX_LENGTH));
-  const [password, setPassword] = useState((initialData?.password || '').slice(0, MAX_LENGTH));
+  // Sentinel: Always initialize password as an empty string to prevent sensitive credential leakage via URL parameters.
+  const [password, setPassword] = useState('');
   const [encryption, setEncryption] = useState(initialData?.encryption || 'WPA');
   const [hidden, setHidden] = useState(initialData?.hidden || false);
   const [showPassword, setShowPassword] = useState(false);

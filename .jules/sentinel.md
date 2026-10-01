@@ -326,3 +326,8 @@
 **Vulnerability:** The RobotsTxtGenerator component allowed user-provided string inputs (`userAgent`, `disallow`, `allow`, `sitemap`) to contain unescaped newline characters (`\n`, `\r`), allowing directive injection into generated `robots.txt` files.
 **Learning:** File generator tools that format line-based plain text files (like `robots.txt`, `.env`, `vCard`) must neutralize or strip carriage returns and newlines from user-controlled inputs before assembling lines to prevent structure breakout or directive injection.
 **Prevention:** Always strip or escape carriage returns and line feeds (`.replace(/[\r\n]+/g, '')`) from user-controlled strings when constructing line-oriented text files.
+
+## 2026-10-15 - [Sensitive Credential Deserialization in WiFi Generator]
+**Vulnerability:** The WiFiGenerator initialized its `password` state from `initialData?.password`, which allowed sensitive WiFi network passwords to be restored from or serialized into shareable URL state parameters (`?data=...`).
+**Learning:** Preventing sensitive data leakage requires both excluding sensitive fields from `onStateChange` callbacks AND ensuring component state initialization (`initialData`) never reads sensitive password/key properties from incoming state objects.
+**Prevention:** Always initialize sensitive credential fields (such as WiFi passwords or master keys) as empty strings (`''`) instead of restoring them from `initialData`.

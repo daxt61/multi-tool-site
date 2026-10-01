@@ -648,6 +648,7 @@ const EnumerateIntegers = lazy(() => import("./components/EnumerateIntegers").th
 const GraphQLToTypeScript = lazy(() => import("./components/GraphQLToTypeScript").then(m => ({ default: m.GraphQLToTypeScript })));
 const GraphQLToZod = lazy(() => import("./components/GraphQLToZod").then(m => ({ default: m.GraphQLToZod })));
 const GraphQLToProtobuf = lazy(() => import("./components/GraphQLToProtobuf").then(m => ({ default: m.GraphQLToProtobuf })));
+const GraphQLToJSONSchema = lazy(() => import("./components/GraphQLToJSONSchema").then(m => ({ default: m.GraphQLToJSONSchema })));
 const SQLToProtobuf = lazy(() => import("./components/SQLToProtobuf").then(m => ({ default: m.SQLToProtobuf })));
 const SQLToClickHouse = lazy(() => import("./components/SQLToClickHouse").then(m => ({ default: m.SQLToClickHouse })));
 const SQLToSnowflake = lazy(() => import("./components/SQLToSnowflake").then(m => ({ default: m.SQLToSnowflake })));
@@ -812,6 +813,18 @@ const tools: Tool[] = [
     Component: GraphQLToProtobuf,
     category: "dev",
     keywords: ["graphql", "sdl", "protobuf", "proto", "proto3", "proto2", "gRPC", "schema", "convert", "convertir"],
+  },
+  // GraphQL SDL to JSON Schema Converter Tool
+  {
+    id: "graphql-to-json-schema",
+    name: "GraphQL en JSON Schema",
+    nameEn: "GraphQL to JSON Schema",
+    icon: FileCode,
+    description: "Convertir des schémas GraphQL SDL en schémas de validation JSON Schema",
+    descriptionEn: "Convert GraphQL SDL schemas into standard JSON Schema definitions",
+    Component: GraphQLToJSONSchema,
+    category: "dev",
+    keywords: ["graphql", "sdl", "json", "jsonschema", "schema", "validation", "draft07", "draft202012", "convert", "convertir"],
   },
   // Enumerate Integers Tool
   {

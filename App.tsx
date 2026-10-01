@@ -647,6 +647,7 @@ const TSVTester = lazy(() => import("./components/TSVTester").then(m => ({ defau
 const EnumerateIntegers = lazy(() => import("./components/EnumerateIntegers").then(m => ({ default: m.EnumerateIntegers })));
 const GraphQLToTypeScript = lazy(() => import("./components/GraphQLToTypeScript").then(m => ({ default: m.GraphQLToTypeScript })));
 const GraphQLToZod = lazy(() => import("./components/GraphQLToZod").then(m => ({ default: m.GraphQLToZod })));
+const GraphQLToTypeBox = lazy(() => import("./components/GraphQLToTypeBox").then(m => ({ default: m.GraphQLToTypeBox })));
 const GraphQLToProtobuf = lazy(() => import("./components/GraphQLToProtobuf").then(m => ({ default: m.GraphQLToProtobuf })));
 const GraphQLToJSONSchema = lazy(() => import("./components/GraphQLToJSONSchema").then(m => ({ default: m.GraphQLToJSONSchema })));
 const SQLToProtobuf = lazy(() => import("./components/SQLToProtobuf").then(m => ({ default: m.SQLToProtobuf })));
@@ -814,6 +815,18 @@ const tools: Tool[] = [
     Component: GraphQLToZod,
     category: "dev",
     keywords: ["graphql", "sdl", "zod", "validation", "schema", "type", "enum", "convert", "convertir"],
+  },
+  // GraphQL SDL to TypeBox Validation Schema Converter Tool
+  {
+    id: "graphql-to-typebox",
+    name: "GraphQL en TypeBox",
+    nameEn: "GraphQL to TypeBox",
+    icon: FileCode,
+    description: "Convertir des schémas GraphQL SDL en schémas de validation TypeBox TypeScript",
+    descriptionEn: "Convert GraphQL SDL schemas into strongly-typed @sinclair/typebox validation schemas",
+    Component: GraphQLToTypeBox,
+    category: "dev",
+    keywords: ["graphql", "sdl", "typebox", "validation", "schema", "typescript", "fastify", "convert", "convertir"],
   },
   // GraphQL SDL to Protocol Buffers .proto Generator Tool
   {

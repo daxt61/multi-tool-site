@@ -632,6 +632,7 @@ const SQLToPHP = lazy(() => import("./components/SQLToPHP").then(m => ({ default
 const SQLToKotlin = lazy(() => import("./components/SQLToKotlin").then(m => ({ default: m.SQLToKotlin })));
 const SQLToGo = lazy(() => import("./components/SQLToGo").then(m => ({ default: m.SQLToGo })));
 const SQLToRust = lazy(() => import("./components/SQLToRust").then(m => ({ default: m.SQLToRust })));
+const SQLToSeaORM = lazy(() => import("./components/SQLToSeaORM").then(m => ({ default: m.SQLToSeaORM })));
 const SQLToScala = lazy(() => import("./components/SQLToScala").then(m => ({ default: m.SQLToScala })));
 const SQLToDart = lazy(() => import("./components/SQLToDart").then(m => ({ default: m.SQLToDart })));
 const SQLToElixir = lazy(() => import("./components/SQLToElixir").then(m => ({ default: m.SQLToElixir })));
@@ -935,7 +936,19 @@ const tools: Tool[] = [
     descriptionEn: "Convert SQL CREATE TABLE DDL statements into strongly-typed Rust struct definitions",
     Component: SQLToRust,
     category: "dev",
-    keywords: ["sql", "ddl", "create table", "rust", "struct", "serde", "sqlx", "diesel", "convert", "convertir"],
+    keywords: ["sql", "ddl", "create table", "rust", "struct", "serde", "sqlx", "diesel", "sea_orm", "convert", "convertir"],
+  },
+  // SQL DDL to Rust SeaORM Entity Generator Tool
+  {
+    id: "sql-to-seaorm",
+    name: "SQL DDL en SeaORM Rust",
+    nameEn: "SQL DDL to SeaORM Rust Entity",
+    icon: Database,
+    description: "Générer des modèles d'entités Rust SeaORM (DeriveEntityModel, Relation, ActiveModelBehavior) à partir de SQL DDL",
+    descriptionEn: "Generate Rust SeaORM Entity models (DeriveEntityModel, Relation, ActiveModelBehavior) from SQL DDL",
+    Component: SQLToSeaORM,
+    category: "dev",
+    keywords: ["sql", "ddl", "create table", "seaorm", "sea-orm", "rust", "entity", "orm", "activemodel", "convert", "convertir"],
   },
   // SQL DDL to Scala Case Class Generator Tool
   {

@@ -2,7 +2,7 @@ import { test, expect } from '@playwright/test';
 
 test.describe('SQL DDL to Protobuf Generator', () => {
   test.beforeEach(async ({ page }) => {
-    await page.goto('/en/outil/sql-to-protobuf');
+    await page.goto('http://localhost:5173/en/outil/sql-to-protobuf');
     await page.waitForLoadState('networkidle');
   });
 

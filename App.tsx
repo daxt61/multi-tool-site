@@ -650,6 +650,7 @@ const GraphQLToZod = lazy(() => import("./components/GraphQLToZod").then(m => ({
 const GraphQLToTypeBox = lazy(() => import("./components/GraphQLToTypeBox").then(m => ({ default: m.GraphQLToTypeBox })));
 const GraphQLToProtobuf = lazy(() => import("./components/GraphQLToProtobuf").then(m => ({ default: m.GraphQLToProtobuf })));
 const GraphQLToJSONSchema = lazy(() => import("./components/GraphQLToJSONSchema").then(m => ({ default: m.GraphQLToJSONSchema })));
+const SQLToThrift = lazy(() => import("./components/SQLToThrift").then(m => ({ default: m.SQLToThrift })));
 const SQLToProtobuf = lazy(() => import("./components/SQLToProtobuf").then(m => ({ default: m.SQLToProtobuf })));
 const SQLToClickHouse = lazy(() => import("./components/SQLToClickHouse").then(m => ({ default: m.SQLToClickHouse })));
 const SQLToSnowflake = lazy(() => import("./components/SQLToSnowflake").then(m => ({ default: m.SQLToSnowflake })));
@@ -875,6 +876,18 @@ const tools: Tool[] = [
     Component: TSVTester,
     category: "dev",
     keywords: ["tsv", "tab", "validator", "tester", "quality", "columns", "empty cells", "duplicates", "types", "testeur", "valider"],
+  },
+  // SQL DDL to Apache Thrift IDL Generator Tool
+  {
+    id: "sql-to-thrift",
+    name: "SQL DDL en Apache Thrift",
+    nameEn: "SQL DDL to Apache Thrift",
+    icon: FileCode,
+    description: "Convertir des instructions SQL CREATE TABLE DDL en schémas de structures Apache Thrift IDL",
+    descriptionEn: "Convert SQL CREATE TABLE DDL statements into Apache Thrift IDL struct definitions",
+    Component: SQLToThrift,
+    category: "dev",
+    keywords: ["sql", "ddl", "create table", "thrift", "apache thrift", "idl", "struct", "rpc", "schema", "convert", "convertir"],
   },
   // SQL DDL to Protocol Buffers (.proto) Converter Tool
   {

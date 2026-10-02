@@ -140,50 +140,63 @@ export function DockerComposeGenerator({ initialData, onStateChange }: { initial
     onStateChange?.({ version, services });
   }, [version, services, onStateChange]);
 
+  // Sentinel: Sanitize single-line text values against CRLF injection to prevent YAML directive injection / structure breakout.
+  const sanitizeLine = (val: string) => val.replace(/[\r\n]+/g, '').trim();
+
   const generateYaml = useCallback(() => {
-    let yaml = `version: "${version}"\n\nservices:\n`;
+    let yaml = `version: "${sanitizeLine(version)}"\n\nservices:\n`;
 
     services.forEach((service) => {
       const sanitizedName = service.name.trim().toLowerCase().replace(/[^a-z0-9-_]/g, '');
       if (!sanitizedName) return;
 
+      const image = sanitizeLine(service.image) || 'ubuntu:latest';
       yaml += `  ${sanitizedName}:\n`;
-      yaml += `    image: ${service.image.trim() || 'ubuntu:latest'}\n`;
+      yaml += `    image: ${image}\n`;
 
-      if (service.ports.trim()) {
+      const ports = sanitizeLine(service.ports);
+      if (ports) {
         yaml += `    ports:\n`;
-        yaml += `      - "${service.ports.trim()}"\n`;
+        yaml += `      - "${ports}"\n`;
       }
 
-      if (service.restart && service.restart !== 'no') {
-        yaml += `    restart: ${service.restart}\n`;
+      const restart = sanitizeLine(service.restart);
+      if (restart && restart !== 'no') {
+        yaml += `    restart: ${restart}\n`;
       }
 
-      const validEnv = service.env.filter(e => e.key.trim());
+      const validEnv = service.env
+        .map(e => ({ key: sanitizeLine(e.key), value: sanitizeLine(e.value) }))
+        .filter(e => e.key);
       if (validEnv.length > 0) {
         yaml += `    environment:\n`;
         validEnv.forEach((e) => {
-          yaml += `      - ${e.key.trim()}=${e.value.trim()}\n`;
+          yaml += `      - ${e.key}=${e.value}\n`;
         });
       }
 
-      const validVolumes = service.volumes.filter(v => v.trim());
+      const validVolumes = service.volumes
+        .map(v => sanitizeLine(v))
+        .filter(Boolean);
       if (validVolumes.length > 0) {
         yaml += `    volumes:\n`;
         validVolumes.forEach((v) => {
-          yaml += `      - ${v.trim()}\n`;
+          yaml += `      - ${v}\n`;
         });
       }
 
-      if (service.command.trim()) {
-        yaml += `    command: ${service.command.trim()}\n`;
+      const command = sanitizeLine(service.command);
+      if (command) {
+        yaml += `    command: ${command}\n`;
       }
 
-      const validDepends = service.dependsOn.filter(d => d.trim());
+      const validDepends = service.dependsOn
+        .map(d => sanitizeLine(d))
+        .filter(Boolean);
       if (validDepends.length > 0) {
         yaml += `    depends_on:\n`;
         validDepends.forEach((d) => {
-          yaml += `      - ${d.trim()}\n`;
+          yaml += `      - ${d}\n`;
         });
       }
     });
@@ -192,9 +205,10 @@ export function DockerComposeGenerator({ initialData, onStateChange }: { initial
     const namedVolumesSet = new Set<string>();
     services.forEach((service) => {
       service.volumes.forEach((v) => {
-        const parts = v.split(':');
+        const sanitizedVol = sanitizeLine(v);
+        const parts = sanitizedVol.split(':');
         if (parts[0] && !parts[0].startsWith('.') && !parts[0].startsWith('/') && !parts[0].startsWith('~')) {
-          namedVolumesSet.add(parts[0].trim());
+          namedVolumesSet.add(parts[0]);
         }
       });
     });

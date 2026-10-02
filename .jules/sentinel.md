@@ -331,3 +331,8 @@
 **Vulnerability:** The WiFiGenerator initialized its `password` state from `initialData?.password`, which allowed sensitive WiFi network passwords to be restored from or serialized into shareable URL state parameters (`?data=...`).
 **Learning:** Preventing sensitive data leakage requires both excluding sensitive fields from `onStateChange` callbacks AND ensuring component state initialization (`initialData`) never reads sensitive password/key properties from incoming state objects.
 **Prevention:** Always initialize sensitive credential fields (such as WiFi passwords or master keys) as empty strings (`''`) instead of restoring them from `initialData`.
+
+## 2026-10-20 - [CRLF and YAML Directive Injection in Docker Compose Generator]
+**Vulnerability:** The DockerComposeGenerator component interpolated user-controlled service configuration strings (image names, ports, restart policies, environment keys/values, volumes, commands, dependencies) directly into line-based YAML files without stripping carriage returns (`\r`) or line feeds (`\n`). This allowed unescaped multiline inputs to inject arbitrary YAML directives, unauthorized service blocks, or root-level parameters.
+**Learning:** Generative tools producing YAML configuration files are line-sensitive and indentation-dependent. Unsanitized newline characters in field inputs allow an attacker or corrupted configuration payload to break out of property contexts and inject arbitrary YAML keys or services at arbitrary indentation levels.
+**Prevention:** Always sanitize single-line configuration inputs using `.replace(/[\r\n]+/g, '').trim()` before formatting YAML output lines.

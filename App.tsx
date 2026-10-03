@@ -651,6 +651,7 @@ const GraphQLToZod = lazy(() => import("./components/GraphQLToZod").then(m => ({
 const GraphQLToTypeBox = lazy(() => import("./components/GraphQLToTypeBox").then(m => ({ default: m.GraphQLToTypeBox })));
 const GraphQLToProtobuf = lazy(() => import("./components/GraphQLToProtobuf").then(m => ({ default: m.GraphQLToProtobuf })));
 const GraphQLToJSONSchema = lazy(() => import("./components/GraphQLToJSONSchema").then(m => ({ default: m.GraphQLToJSONSchema })));
+const GraphQLToSQL = lazy(() => import("./components/GraphQLToSQL").then(m => ({ default: m.GraphQLToSQL })));
 const SQLToThrift = lazy(() => import("./components/SQLToThrift").then(m => ({ default: m.SQLToThrift })));
 const SQLToProtobuf = lazy(() => import("./components/SQLToProtobuf").then(m => ({ default: m.SQLToProtobuf })));
 const SQLToClickHouse = lazy(() => import("./components/SQLToClickHouse").then(m => ({ default: m.SQLToClickHouse })));
@@ -853,6 +854,18 @@ const tools: Tool[] = [
     Component: GraphQLToJSONSchema,
     category: "dev",
     keywords: ["graphql", "sdl", "json", "jsonschema", "schema", "validation", "draft07", "draft202012", "convert", "convertir"],
+  },
+  // GraphQL SDL to SQL DDL Converter Tool
+  {
+    id: "graphql-to-sql",
+    name: "GraphQL en SQL DDL",
+    nameEn: "GraphQL to SQL DDL",
+    icon: Database,
+    description: "Convertir des schémas GraphQL SDL en requêtes SQL CREATE TABLE DDL fortement typées",
+    descriptionEn: "Convert GraphQL SDL schemas into strongly-typed SQL CREATE TABLE DDL queries",
+    Component: GraphQLToSQL,
+    category: "dev",
+    keywords: ["graphql", "sdl", "sql", "ddl", "create table", "database", "postgres", "mysql", "sqlite", "convert", "convertir"],
   },
   // Enumerate Integers Tool
   {

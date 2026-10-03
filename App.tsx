@@ -633,6 +633,7 @@ const SQLToKotlin = lazy(() => import("./components/SQLToKotlin").then(m => ({ d
 const SQLToGo = lazy(() => import("./components/SQLToGo").then(m => ({ default: m.SQLToGo })));
 const SQLToRust = lazy(() => import("./components/SQLToRust").then(m => ({ default: m.SQLToRust })));
 const SQLToSeaORM = lazy(() => import("./components/SQLToSeaORM").then(m => ({ default: m.SQLToSeaORM })));
+const SQLToDiesel = lazy(() => import("./components/SQLToDiesel").then(m => ({ default: m.SQLToDiesel })));
 const SQLToScala = lazy(() => import("./components/SQLToScala").then(m => ({ default: m.SQLToScala })));
 const SQLToDart = lazy(() => import("./components/SQLToDart").then(m => ({ default: m.SQLToDart })));
 const SQLToElixir = lazy(() => import("./components/SQLToElixir").then(m => ({ default: m.SQLToElixir })));
@@ -962,6 +963,18 @@ const tools: Tool[] = [
     Component: SQLToSeaORM,
     category: "dev",
     keywords: ["sql", "ddl", "create table", "seaorm", "sea-orm", "rust", "entity", "orm", "activemodel", "convert", "convertir"],
+  },
+  // SQL DDL to Rust Diesel ORM Generator Tool
+  {
+    id: "sql-to-diesel",
+    name: "SQL DDL en Diesel Rust",
+    nameEn: "SQL DDL to Diesel Rust ORM",
+    icon: Database,
+    description: "Convertir des instructions SQL CREATE TABLE DDL en schémas table! et modèles Diesel ORM",
+    descriptionEn: "Convert SQL CREATE TABLE DDL statements into Rust Diesel ORM table! macros and model structs",
+    Component: SQLToDiesel,
+    category: "dev",
+    keywords: ["sql", "ddl", "create table", "diesel", "orm", "rust", "table", "schema", "queryable", "insertable", "convert", "convertir"],
   },
   // SQL DDL to Scala Case Class Generator Tool
   {

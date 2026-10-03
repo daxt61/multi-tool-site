@@ -648,6 +648,7 @@ const ImagePixelator = lazy(() => import("./components/ImagePixelator").then(m =
 const TSVTester = lazy(() => import("./components/TSVTester").then(m => ({ default: m.TSVTester })));
 const EnumerateIntegers = lazy(() => import("./components/EnumerateIntegers").then(m => ({ default: m.EnumerateIntegers })));
 const GraphQLToTypeScript = lazy(() => import("./components/GraphQLToTypeScript").then(m => ({ default: m.GraphQLToTypeScript })));
+const GraphQLToPython = lazy(() => import("./components/GraphQLToPython").then(m => ({ default: m.GraphQLToPython })));
 const GraphQLToZod = lazy(() => import("./components/GraphQLToZod").then(m => ({ default: m.GraphQLToZod })));
 const GraphQLToTypeBox = lazy(() => import("./components/GraphQLToTypeBox").then(m => ({ default: m.GraphQLToTypeBox })));
 const GraphQLToProtobuf = lazy(() => import("./components/GraphQLToProtobuf").then(m => ({ default: m.GraphQLToProtobuf })));
@@ -795,6 +796,18 @@ const tools: Tool[] = [
     Component: SQLToCassandra,
     category: "dev",
     keywords: ["sql", "ddl", "create table", "cassandra", "cql", "keyspace", "nosql", "partition key", "datastax", "convert", "convertir"],
+  },
+  // GraphQL SDL to Python Models Converter Tool
+  {
+    id: "graphql-to-python",
+    name: "GraphQL en Python",
+    nameEn: "GraphQL to Python",
+    icon: FileCode,
+    description: "Convertir des schémas GraphQL SDL en modèles Python (Pydantic, Dataclasses, Strawberry)",
+    descriptionEn: "Convert GraphQL SDL schemas into strongly-typed Python models (Pydantic, Dataclasses, Strawberry)",
+    Component: GraphQLToPython,
+    category: "dev",
+    keywords: ["graphql", "sdl", "python", "pydantic", "dataclass", "strawberry", "fastapi", "convert", "convertir"],
   },
   // GraphQL SDL to TypeScript Interfaces Converter Tool
   {

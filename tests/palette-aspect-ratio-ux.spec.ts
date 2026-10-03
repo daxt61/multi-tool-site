@@ -47,4 +47,17 @@ test.describe('Aspect Ratio Calculator Keyboard Shortcuts and UX', () => {
     await expect(page.locator('kbd', { hasText: /^Esc$/ })).toBeVisible();
     await expect(page.locator('kbd', { hasText: /^C$/ }).first()).toBeAttached();
   });
+
+  test('should mark active preset with aria-pressed state', async ({ page }) => {
+    // 16:9 preset button should be active by default since initial ratio is 16:9
+    const preset169 = page.locator('button[aria-label*="16:9"]');
+    await expect(preset169).toHaveAttribute('aria-pressed', 'true');
+
+    // Click 1:1 preset
+    const preset11 = page.locator('button[aria-label*="1:1"]');
+    await preset11.click();
+
+    await expect(preset11).toHaveAttribute('aria-pressed', 'true');
+    await expect(preset169).toHaveAttribute('aria-pressed', 'false');
+  });
 });

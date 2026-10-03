@@ -5,6 +5,7 @@ import { toast } from 'sonner';
 import { Kbd } from './ui/Kbd';
 
 export function AspectRatioCalculator({ initialData, onStateChange }: { initialData?: any; onStateChange?: (state: any) => void }) {
+  const containerRef = useRef<HTMLDivElement>(null);
   const widthInputRef = useRef<HTMLInputElement>(null);
   const { t } = useTranslation();
   const [width, setWidth] = useState<string>(initialData?.width || '1920');
@@ -59,10 +60,11 @@ export function AspectRatioCalculator({ initialData, onStateChange }: { initialD
     setHeight('');
     setRatioW('');
     setRatioH('');
+    toast.info(t('common.cleared'));
     setTimeout(() => {
       widthInputRef.current?.focus();
     }, 0);
-  }, []);
+  }, [t]);
 
   const handleCopyFormat = useCallback(() => {
     if (width && height) {
@@ -90,6 +92,9 @@ export function AspectRatioCalculator({ initialData, onStateChange }: { initialD
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
       const activeElement = document.activeElement;
+      const isInside = containerRef.current?.contains(activeElement) || activeElement === document.body;
+      if (!isInside) return;
+
       const isEditable =
         activeElement instanceof HTMLInputElement ||
         activeElement instanceof HTMLTextAreaElement ||
@@ -116,7 +121,7 @@ export function AspectRatioCalculator({ initialData, onStateChange }: { initialD
   }, []);
 
   return (
-    <div className="max-w-5xl mx-auto space-y-12">
+    <div ref={containerRef} className="max-w-5xl mx-auto space-y-12">
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
         {/* Input Controls */}
         <div className="lg:col-span-7 space-y-8">
@@ -289,28 +294,41 @@ export function AspectRatioCalculator({ initialData, onStateChange }: { initialD
           <div className="bg-white dark:bg-slate-900/40 border border-slate-200 dark:border-slate-800 rounded-[2.5rem] p-8">
             <h3 className="text-xs font-black uppercase tracking-widest text-slate-400 mb-6 px-1">{t('aspectratio.standards')}</h3>
             <div className="grid grid-cols-2 gap-3">
-              {commonRatios.map((r) => (
-                <button
-                  key={r.name}
-                  onClick={() => {
-                    setRatioW(r.w.toString());
-                    setRatioH(r.h.toString());
-                    const baseWidth = Number(width) > 0 ? Number(width) : 1920;
-                    if (!width) setWidth('1920');
-                    calculateFromRatio(r.w, r.h, baseWidth, true);
-                  }}
-                  aria-label={`${r.name} - ${t(`aspectratio.preset.${r.key}`)}`}
-                  className="flex flex-col items-start p-4 bg-slate-50 dark:bg-slate-800/50 border border-slate-100 dark:border-slate-700 rounded-2xl hover:border-indigo-500/30 hover:bg-white dark:hover:bg-slate-800 transition-all text-left group focus-visible:ring-2 focus-visible:ring-indigo-500 focus-visible:outline-none"
-                >
-                  <div className="flex items-center gap-2 mb-2">
-                    <div className="p-1.5 bg-white dark:bg-slate-700 rounded-lg text-slate-400 group-hover:text-indigo-500 transition-colors">
-                      {r.icon}
+              {commonRatios.map((r) => {
+                const isActive = ratioW === r.w.toString() && ratioH === r.h.toString();
+                return (
+                  <button
+                    key={r.name}
+                    onClick={() => {
+                      setRatioW(r.w.toString());
+                      setRatioH(r.h.toString());
+                      const baseWidth = Number(width) > 0 ? Number(width) : 1920;
+                      if (!width) setWidth('1920');
+                      calculateFromRatio(r.w, r.h, baseWidth, true);
+                      toast.success(t('common.preset_applied', { name: r.name }));
+                    }}
+                    aria-pressed={isActive}
+                    aria-label={`${r.name} - ${t(`aspectratio.preset.${r.key}`)}`}
+                    className={`flex flex-col items-start p-4 border rounded-2xl transition-all text-left group focus-visible:ring-2 focus-visible:ring-indigo-500 focus-visible:outline-none ${
+                      isActive
+                        ? 'bg-indigo-50/80 dark:bg-indigo-950/50 border-indigo-500 text-indigo-600 dark:text-indigo-400 shadow-sm'
+                        : 'bg-slate-50 dark:bg-slate-800/50 border-slate-100 dark:border-slate-700 hover:border-indigo-500/30 hover:bg-white dark:hover:bg-slate-800'
+                    }`}
+                  >
+                    <div className="flex items-center gap-2 mb-2">
+                      <div className={`p-1.5 rounded-lg transition-colors ${
+                        isActive
+                          ? 'bg-indigo-500 text-white dark:bg-indigo-500'
+                          : 'bg-white dark:bg-slate-700 text-slate-400 group-hover:text-indigo-500'
+                      }`}>
+                        {r.icon}
+                      </div>
+                      <span className="font-black text-sm dark:text-white">{r.name}</span>
                     </div>
-                    <span className="font-black text-sm dark:text-white">{r.name}</span>
-                  </div>
-                  <span className="text-[10px] font-bold text-slate-400 uppercase tracking-tight">{t(`aspectratio.preset.${r.key}`)}</span>
-                </button>
-              ))}
+                    <span className="text-[10px] font-bold text-slate-400 uppercase tracking-tight">{t(`aspectratio.preset.${r.key}`)}</span>
+                  </button>
+                );
+              })}
             </div>
           </div>
         </div>

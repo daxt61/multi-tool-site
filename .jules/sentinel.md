@@ -336,3 +336,8 @@
 **Vulnerability:** The DockerComposeGenerator component interpolated user-controlled service configuration strings (image names, ports, restart policies, environment keys/values, volumes, commands, dependencies) directly into line-based YAML files without stripping carriage returns (`\r`) or line feeds (`\n`). This allowed unescaped multiline inputs to inject arbitrary YAML directives, unauthorized service blocks, or root-level parameters.
 **Learning:** Generative tools producing YAML configuration files are line-sensitive and indentation-dependent. Unsanitized newline characters in field inputs allow an attacker or corrupted configuration payload to break out of property contexts and inject arbitrary YAML keys or services at arbitrary indentation levels.
 **Prevention:** Always sanitize single-line configuration inputs using `.replace(/[\r\n]+/g, '').trim()` before formatting YAML output lines.
+
+## 2026-10-25 - [Deterministic Seed Phrase Injection in Mnemonic Generator]
+**Vulnerability:** The MnemonicGenerator component initialized its `words` state from `initialData?.words`, allowing an attacker to craft shareable URLs (`?data=...`) that pre-populated a deterministic, known 12/24-word seed phrase and bypassed CSPRNG generation on mount.
+**Learning:** Cryptographic seed phrase generators must never deserialize or restore mnemonic words from URL state parameters. An attacker who tricks a user into loading a link with pre-set seed phrase words can compromise any cryptocurrency wallet generated with that phrase.
+**Prevention:** Always initialize sensitive cryptographic output states (like seed phrases, private keys, or passwords) as empty arrays or empty strings (`[]` or `''`) rather than reading them from `initialData`.

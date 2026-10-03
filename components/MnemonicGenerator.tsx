@@ -2055,7 +2055,8 @@ const WORDLIST = [
 
 export function MnemonicGenerator({ initialData, onStateChange }: { initialData?: any; onStateChange?: (state: any) => void }) {
   const { t } = useTranslation();
-  const [words, setWords] = useState<string[]>(initialData?.words || []);
+  // Sentinel: Always initialize words as an empty array to prevent sensitive seed phrase leakage or deterministic seed phrase injection via URL state parameters.
+  const [words, setWords] = useState<string[]>([]);
   const [wordCount, setWordsCount] = useState<number>(initialData?.wordCount || 12);
   const [showMnemonic, setShowMnemonic] = useState(true);
   const [copied, setCopied] = useState(false);

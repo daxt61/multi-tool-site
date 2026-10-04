@@ -341,3 +341,8 @@
 **Vulnerability:** The MnemonicGenerator component initialized its `words` state from `initialData?.words`, allowing an attacker to craft shareable URLs (`?data=...`) that pre-populated a deterministic, known 12/24-word seed phrase and bypassed CSPRNG generation on mount.
 **Learning:** Cryptographic seed phrase generators must never deserialize or restore mnemonic words from URL state parameters. An attacker who tricks a user into loading a link with pre-set seed phrase words can compromise any cryptocurrency wallet generated with that phrase.
 **Prevention:** Always initialize sensitive cryptographic output states (like seed phrases, private keys, or passwords) as empty arrays or empty strings (`[]` or `''`) rather than reading them from `initialData`.
+
+## 2026-11-01 - [PHP Namespace Breakout and Closing Tag Injection in SQL-to-PHP Generator]
+**Vulnerability:** The SQLToPHP component interpolated user-controlled `namespace` and column names directly into PHP code headers and single-line comments without sanitization. Unescaped `namespace` inputs containing newlines (`\n`, `\r`) or semicolons allowed namespace declaration breakout, and `?>` tags in comments allowed exiting PHP execution context into plain HTML.
+**Learning:** Code generators producing PHP files must treat namespace inputs as untrusted identifiers, stripping newlines and restricting to valid PHP namespace identifier characters (`A-Za-z0-9_\\`), and must neutralize PHP closing tags (`?>` -> `? >`) in inline comments.
+**Prevention:** Always sanitize user-provided namespace strings using `clean.replace(/[^a-zA-Z0-9_\\]/g, '')` and replace `?>` with `? >` in inline code comments to maintain PHP execution context.

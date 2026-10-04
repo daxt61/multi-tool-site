@@ -136,6 +136,21 @@ export function SQLToPHP({ initialData, onStateChange }: { initialData?: any; on
     }
   };
 
+  const sanitizePhpNamespace = (ns: string): string => {
+    if (!ns) return '';
+    // Strip newlines, carriage returns, and PHP closing tags
+    const clean = ns.replace(/[\r\n]+/g, '').replace(/\?>/g, '').trim();
+    // Restrict characters to valid PHP namespace identifier chars (alphanumeric, \, _)
+    const safeNs = clean.replace(/[^a-zA-Z0-9_\\]/g, '');
+    return safeNs;
+  };
+
+  const neutralizePhpClosingTag = (str: string): string => {
+    if (!str) return '';
+    // Replace ?> with ? > to prevent PHP comment or string closing tag breakout
+    return str.replace(/\?>/g, '? >');
+  };
+
   const toValidPhpVarName = (name: string): string => {
     let clean = name.replace(/[^a-zA-Z0-9_\x80-\xff]/g, '_');
     if (/^[0-9]/.test(clean)) {
@@ -201,7 +216,7 @@ export function SQLToPHP({ initialData, onStateChange }: { initialData?: any; on
             return;
           }
 
-          const colMatch = trimmed.match(/^[`"']?(\w+)[`"']?\s+([A-Za-z0-9_()]+)/i);
+          const colMatch = trimmed.match(/^[`"']?([^`"'\s]+)[`"']?\s+([A-Za-z0-9_()]+)/i);
           if (colMatch) {
             const originalName = colMatch[1];
             const rawType = colMatch[2];
@@ -251,29 +266,31 @@ export function SQLToPHP({ initialData, onStateChange }: { initialData?: any; on
 
         let code = '';
 
+        const safeNamespace = sanitizePhpNamespace(namespace);
+
         if (targetMode === 'eloquent') {
           // Laravel Eloquent Model
           code += `<?php\n\n`;
-          if (namespace.trim()) {
-            code += `namespace ${namespace.trim()};\n\n`;
+          if (safeNamespace) {
+            code += `namespace ${safeNamespace};\n\n`;
           }
           code += `use Illuminate\\Database\\Eloquent\\Model;\n`;
           code += `use Illuminate\\Database\\Eloquent\\Factories\\HasFactory;\n\n`;
           code += `class ${className} extends Model\n{\n`;
           code += `    use HasFactory;\n\n`;
-          code += `    protected $table = '${table.tableName}';\n\n`;
+          code += `    protected $table = '${table.tableName.replace(/'/g, "\\'")}';\n\n`;
 
           const pkCol = properties.find(p => p.isPk);
           if (pkCol && pkCol.originalName !== 'id') {
-            code += `    protected $primaryKey = '${pkCol.originalName}';\n\n`;
+            code += `    protected $primaryKey = '${pkCol.originalName.replace(/'/g, "\\'")}';\n\n`;
           }
 
-          const fillables = properties.map(p => `'${p.originalName}'`).join(', ');
+          const fillables = properties.map(p => `'${p.originalName.replace(/'/g, "\\'")}'`).join(', ');
           code += `    protected $fillable = [\n        ${fillables}\n    ];\n\n`;
 
           const casts = properties
             .filter(p => p.phpType !== 'string')
-            .map(p => `'${p.originalName}' => '${p.phpType === 'bool' ? 'boolean' : p.phpType}'`)
+            .map(p => `'${p.originalName.replace(/'/g, "\\'")}' => '${p.phpType === 'bool' ? 'boolean' : p.phpType}'`)
             .join(',\n        ');
 
           if (casts) {
@@ -284,8 +301,8 @@ export function SQLToPHP({ initialData, onStateChange }: { initialData?: any; on
         } else {
           // Standard DTO or Readonly Class
           code += `<?php\n\n`;
-          if (namespace.trim()) {
-            code += `namespace ${namespace.trim()};\n\n`;
+          if (safeNamespace) {
+            code += `namespace ${safeNamespace};\n\n`;
           }
 
           const isReadonly = targetMode === 'readonly_dto';
@@ -298,7 +315,7 @@ export function SQLToPHP({ initialData, onStateChange }: { initialData?: any; on
             code += properties.map(prop => {
               const typeStr = prop.nullable ? `?${prop.phpType}` : prop.phpType;
               const defaultStr = prop.nullable ? ' = null' : '';
-              const comment = prop.propertyName !== prop.originalName ? ` // Original column: ${prop.originalName}` : '';
+              const comment = prop.propertyName !== prop.originalName ? ` // Original column: ${neutralizePhpClosingTag(prop.originalName)}` : '';
               return `        public ${typeStr} $${prop.propertyName}${defaultStr},${comment}`;
             }).join('\n');
             code += `\n    ) {}\n`;
@@ -306,7 +323,7 @@ export function SQLToPHP({ initialData, onStateChange }: { initialData?: any; on
             // Traditional property declarations
             properties.forEach(prop => {
               const typeStr = prop.nullable ? `?${prop.phpType}` : prop.phpType;
-              const comment = prop.propertyName !== prop.originalName ? ` // Original column: ${prop.originalName}` : '';
+              const comment = prop.propertyName !== prop.originalName ? ` // Original column: ${neutralizePhpClosingTag(prop.originalName)}` : '';
               code += `    public ${typeStr} $${prop.propertyName};${comment}\n`;
             });
 

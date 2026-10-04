@@ -650,6 +650,7 @@ const EnumerateIntegers = lazy(() => import("./components/EnumerateIntegers").th
 const GraphQLToTypeScript = lazy(() => import("./components/GraphQLToTypeScript").then(m => ({ default: m.GraphQLToTypeScript })));
 const GraphQLToGo = lazy(() => import("./components/GraphQLToGo").then(m => ({ default: m.GraphQLToGo })));
 const GraphQLToPython = lazy(() => import("./components/GraphQLToPython").then(m => ({ default: m.GraphQLToPython })));
+const GraphQLToRust = lazy(() => import("./components/GraphQLToRust").then(m => ({ default: m.GraphQLToRust })));
 const GraphQLToZod = lazy(() => import("./components/GraphQLToZod").then(m => ({ default: m.GraphQLToZod })));
 const GraphQLToTypeBox = lazy(() => import("./components/GraphQLToTypeBox").then(m => ({ default: m.GraphQLToTypeBox })));
 const GraphQLToProtobuf = lazy(() => import("./components/GraphQLToProtobuf").then(m => ({ default: m.GraphQLToProtobuf })));
@@ -821,6 +822,18 @@ const tools: Tool[] = [
     Component: GraphQLToPython,
     category: "dev",
     keywords: ["graphql", "sdl", "python", "pydantic", "dataclass", "strawberry", "fastapi", "convert", "convertir"],
+  },
+  // GraphQL SDL to Rust Structs Converter Tool
+  {
+    id: "graphql-to-rust",
+    name: "GraphQL en Rust",
+    nameEn: "GraphQL to Rust",
+    icon: FileCode,
+    description: "Convertir des schémas GraphQL SDL en structures et énumérations Rust fortement typées avec Serde",
+    descriptionEn: "Convert GraphQL SDL schemas into strongly-typed Rust structs and enums with Serde attributes",
+    Component: GraphQLToRust,
+    category: "dev",
+    keywords: ["graphql", "sdl", "rust", "struct", "enum", "serde", "async-graphql", "juniper", "convert", "convertir"],
   },
   // GraphQL SDL to TypeScript Interfaces Converter Tool
   {

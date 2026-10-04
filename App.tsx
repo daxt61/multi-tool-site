@@ -660,6 +660,7 @@ const SQLToThrift = lazy(() => import("./components/SQLToThrift").then(m => ({ d
 const SQLToProtobuf = lazy(() => import("./components/SQLToProtobuf").then(m => ({ default: m.SQLToProtobuf })));
 const SQLToClickHouse = lazy(() => import("./components/SQLToClickHouse").then(m => ({ default: m.SQLToClickHouse })));
 const SQLToSnowflake = lazy(() => import("./components/SQLToSnowflake").then(m => ({ default: m.SQLToSnowflake })));
+const SQLToRedshift = lazy(() => import("./components/SQLToRedshift").then(m => ({ default: m.SQLToRedshift })));
 const SQLToCassandra = lazy(() => import("./components/SQLToCassandra").then(m => ({ default: m.SQLToCassandra })));
 const SQLToRedis = lazy(() => import("./components/SQLToRedis").then(m => ({ default: m.SQLToRedis })));
 const SQLToCypher = lazy(() => import("./components/SQLToCypher").then(m => ({ default: m.SQLToCypher })));
@@ -786,6 +787,18 @@ const tools: Tool[] = [
     Component: SQLToSnowflake,
     category: "dev",
     keywords: ["sql", "ddl", "create table", "snowflake", "variant", "data warehouse", "cloud", "convert", "convertir"],
+  },
+  // SQL DDL to Amazon Redshift DDL Converter Tool
+  {
+    id: "sql-to-redshift",
+    name: "SQL DDL en Amazon Redshift",
+    nameEn: "SQL DDL to Amazon Redshift",
+    icon: Database,
+    description: "Convertir des instructions SQL CREATE TABLE DDL en requêtes Amazon Redshift SQL DDL avec clauses diststyle et sortkey",
+    descriptionEn: "Convert SQL CREATE TABLE DDL statements into Amazon Redshift SQL DDL queries with diststyle and sortkey clauses",
+    Component: SQLToRedshift,
+    category: "dev",
+    keywords: ["sql", "ddl", "create table", "redshift", "amazon redshift", "aws", "diststyle", "sortkey", "encode", "data warehouse", "convert", "convertir"],
   },
   // SQL DDL to Apache Cassandra CQL Schema Generator Tool
   {

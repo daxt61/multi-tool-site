@@ -117,19 +117,31 @@ const toPascalCase = (str: string) => {
 
 export function JSONToProtobuf({ initialData, onStateChange }: { initialData?: any; onStateChange?: (state: any) => void }) {
   const { t } = useTranslation();
-  const [input, setInput] = useState(initialData?.input || '');
+  const [input, setInput] = useState(initialData?.input || JSON.stringify(PRESETS[0].data, null, 2));
   const [output, setOutput] = useState(initialData?.output || '');
   const [packageName, setPackageName] = useState(initialData?.packageName || 'model');
   const [syntaxVersion, setSyntaxVersion] = useState<'proto3' | 'proto2'>(initialData?.syntaxVersion || 'proto3');
-  const [casingMode, setCasingMode] = useState<'original' | 'snake_case' | 'camelCase'>(initialData?.casingMode || 'original');
+  const [casingMode, setCasingMode] = useState<'original' | 'snake_case' | 'camelCase'>(initialData?.casingMode || 'snake_case');
+  const [selectedPreset, setSelectedPreset] = useState<string | null>(initialData?.selectedPreset || PRESETS[0].name);
+  const [useExplicitOptional, setUseExplicitOptional] = useState(initialData?.useExplicitOptional ?? false);
+  const [generateGrpcService, setGenerateGrpcService] = useState(initialData?.generateGrpcService ?? false);
   const [error, setError] = useState('');
   const [copied, setCopied] = useState(false);
 
   const inputRef = useRef<HTMLTextAreaElement>(null);
 
   useEffect(() => {
-    onStateChange?.({ input, output, packageName, syntaxVersion, casingMode });
-  }, [input, output, packageName, syntaxVersion, casingMode, onStateChange]);
+    onStateChange?.({
+      input,
+      output,
+      packageName,
+      syntaxVersion,
+      casingMode,
+      selectedPreset,
+      useExplicitOptional,
+      generateGrpcService
+    });
+  }, [input, output, packageName, syntaxVersion, casingMode, selectedPreset, useExplicitOptional, generateGrpcService, onStateChange]);
 
   const handleConvert = useCallback(() => {
     try {
@@ -183,7 +195,14 @@ export function JSONToProtobuf({ initialData, onStateChange }: { initialData?: a
 
             const safeCommentKey = key.replace(/[\n\r\t\v\f]/g, ' ').replace(/\*\//g, '* /');
             const comment = key !== safeKey ? ` // Original JSON key: ${safeCommentKey}` : '';
-            const optionalModifier = syntaxVersion === 'proto2' && !type.startsWith('repeated ') ? 'optional ' : '';
+
+            let optionalModifier = '';
+            if (!type.startsWith('repeated ')) {
+              if (syntaxVersion === 'proto2' || useExplicitOptional) {
+                optionalModifier = 'optional ';
+              }
+            }
+
             return `  ${optionalModifier}${type} ${safeKey} = ${index + 1};${comment}`;
           });
 
@@ -203,10 +222,20 @@ export function JSONToProtobuf({ initialData, onStateChange }: { initialData?: a
         return 'google.protobuf.Value';
       };
 
-      getProtoType(parsed, 'Root', 0);
+      const rootName = getProtoType(parsed, 'Root', 0);
 
       const pkg = packageName.trim() ? packageName.trim().replace(/[^a-zA-Z0-9._]/g, '_') : 'model';
       let result = `syntax = "${syntaxVersion}";\n\npackage ${pkg};\n\n`;
+
+      if (generateGrpcService && messages.length > 0) {
+        const serviceName = `${pkg.charAt(0).toUpperCase() + pkg.slice(1)}Service`;
+        result += `service ${serviceName} {\n`;
+        result += `  rpc Get${rootName} (Get${rootName}Request) returns (${rootName});\n`;
+        result += `  rpc Create${rootName} (${rootName}) returns (${rootName});\n`;
+        result += `}\n\n`;
+        result += `message Get${rootName}Request {\n  string id = 1;\n}\n\n`;
+      }
+
       result += messages.reverse().join('\n\n');
 
       if (messages.length === 0) {
@@ -220,7 +249,7 @@ export function JSONToProtobuf({ initialData, onStateChange }: { initialData?: a
       setError(t('jsontoprotobuf.error_invalid_json', 'Invalid JSON syntax') + ': ' + e.message);
       setOutput('');
     }
-  }, [input, packageName, syntaxVersion, casingMode, t]);
+  }, [input, packageName, syntaxVersion, casingMode, useExplicitOptional, generateGrpcService, t]);
 
   useEffect(() => {
     handleConvert();
@@ -238,6 +267,7 @@ export function JSONToProtobuf({ initialData, onStateChange }: { initialData?: a
     setInput('');
     setOutput('');
     setError('');
+    setSelectedPreset(null);
     toast.success(t('jsontoprotobuf.toast_cleared', 'Inputs cleared'));
     setTimeout(() => inputRef.current?.focus(), 0);
   }, [t]);
@@ -258,6 +288,7 @@ export function JSONToProtobuf({ initialData, onStateChange }: { initialData?: a
 
   const handleApplyPreset = (preset: Preset) => {
     setInput(JSON.stringify(preset.data, null, 2));
+    setSelectedPreset(preset.name);
     toast.success(t('jsontoprotobuf.toast_preset', 'Applied preset: ') + preset.name);
     setTimeout(() => inputRef.current?.focus(), 0);
   };
@@ -306,7 +337,7 @@ export function JSONToProtobuf({ initialData, onStateChange }: { initialData?: a
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
           {/* Package Name */}
           <div className="space-y-2">
-            <label htmlFor="package-name-input" className="text-xs font-bold text-slate-500 px-1">
+            <label htmlFor="package-name-input" className="text-xs font-bold text-slate-500 px-1 cursor-pointer">
               {t('jsontoprotobuf.package_name', 'Package Name')}
             </label>
             <input
@@ -321,7 +352,7 @@ export function JSONToProtobuf({ initialData, onStateChange }: { initialData?: a
 
           {/* Syntax Version */}
           <div className="space-y-2">
-            <label htmlFor="syntax-version-select" className="text-xs font-bold text-slate-500 px-1">
+            <label htmlFor="syntax-version-select" className="text-xs font-bold text-slate-500 px-1 cursor-pointer">
               {t('jsontoprotobuf.syntax_version', 'Protobuf Syntax')}
             </label>
             <select
@@ -337,7 +368,7 @@ export function JSONToProtobuf({ initialData, onStateChange }: { initialData?: a
 
           {/* Casing Mode */}
           <div className="space-y-2">
-            <label htmlFor="casing-mode-select" className="text-xs font-bold text-slate-500 px-1">
+            <label htmlFor="casing-mode-select" className="text-xs font-bold text-slate-500 px-1 cursor-pointer">
               {t('jsontoprotobuf.casing_mode', 'Field Casing')}
             </label>
             <select
@@ -346,11 +377,34 @@ export function JSONToProtobuf({ initialData, onStateChange }: { initialData?: a
               onChange={(e) => setCasingMode(e.target.value as any)}
               className="w-full p-2.5 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl outline-none focus:ring-2 focus:ring-indigo-500/20 font-bold text-sm text-slate-700 dark:text-slate-200"
             >
-              <option value="original">{t('jsontoprotobuf.case_original', 'As-Is (JSON original)')}</option>
               <option value="snake_case">snake_case (Protobuf standard)</option>
               <option value="camelCase">camelCase</option>
+              <option value="original">{t('jsontoprotobuf.case_original', 'As-Is (JSON original)')}</option>
             </select>
           </div>
+        </div>
+
+        {/* Checkbox Toggles */}
+        <div className="flex flex-wrap gap-6 pt-2">
+          <label className="flex items-center gap-2 text-xs font-bold text-slate-700 dark:text-slate-300 cursor-pointer">
+            <input
+              type="checkbox"
+              checked={useExplicitOptional}
+              onChange={(e) => setUseExplicitOptional(e.target.checked)}
+              className="w-4 h-4 rounded text-indigo-600 focus:ring-indigo-500"
+            />
+            {t('jsontoprotobuf.explicit_optional', 'Use explicit "optional" modifier (proto3 optional)')}
+          </label>
+
+          <label className="flex items-center gap-2 text-xs font-bold text-slate-700 dark:text-slate-300 cursor-pointer">
+            <input
+              type="checkbox"
+              checked={generateGrpcService}
+              onChange={(e) => setGenerateGrpcService(e.target.checked)}
+              className="w-4 h-4 rounded text-indigo-600 focus:ring-indigo-500"
+            />
+            {t('jsontoprotobuf.grpc_service', 'Generate gRPC service stub definition')}
+          </label>
         </div>
 
         {/* Presets */}
@@ -362,16 +416,24 @@ export function JSONToProtobuf({ initialData, onStateChange }: { initialData?: a
             </span>
           </div>
           <div className="flex flex-wrap gap-2">
-            {PRESETS.map((p) => (
-              <button
-                key={p.name}
-                type="button"
-                onClick={() => handleApplyPreset(p)}
-                className="px-3 py-1.5 rounded-xl text-xs font-bold bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 hover:border-indigo-400 dark:hover:border-indigo-500 text-slate-700 dark:text-slate-300 transition-all shadow-sm"
-              >
-                {p.name}
-              </button>
-            ))}
+            {PRESETS.map((p) => {
+              const isSelected = selectedPreset === p.name;
+              return (
+                <button
+                  key={p.name}
+                  type="button"
+                  onClick={() => handleApplyPreset(p)}
+                  aria-pressed={isSelected}
+                  className={`px-3 py-1.5 rounded-xl text-xs font-bold border transition-all shadow-sm ${
+                    isSelected
+                      ? 'bg-indigo-600 text-white border-indigo-600'
+                      : 'bg-white dark:bg-slate-800 border-slate-200 dark:border-slate-700 hover:border-indigo-400 text-slate-700 dark:text-slate-300'
+                  }`}
+                >
+                  {p.name}
+                </button>
+              );
+            })}
           </div>
         </div>
       </div>

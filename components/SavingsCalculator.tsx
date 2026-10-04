@@ -1,19 +1,25 @@
-import { useState, useMemo } from "react";
-import { PiggyBank, TrendingUp, Wallet, RotateCcw, Coins, Calendar, Percent, Info, Banknote, Trash2, AreaChart as ChartIcon } from "lucide-react";
-import { Area, AreaChart, CartesianGrid, XAxis, YAxis, ResponsiveContainer, Tooltip } from "recharts";
+import { useState, useMemo, useEffect, useCallback, useRef } from "react";
+import { PiggyBank, TrendingUp, Wallet, RotateCcw, Coins, Calendar, Percent, Info, Banknote, Copy, Check, AreaChart as ChartIcon } from "lucide-react";
+import { Area, AreaChart, CartesianGrid, XAxis, YAxis } from "recharts";
+import { useTranslation } from "react-i18next";
+import { toast } from "sonner";
 import { ChartContainer, ChartTooltip, ChartTooltipContent } from "./ui/chart";
-
-import { useEffect } from 'react';
+import { Kbd } from "./ui/Kbd";
 
 export function SavingsCalculator({ initialData, onStateChange }: { initialData?: any; onStateChange?: (state: any) => void }) {
+  const { t, i18n } = useTranslation();
+  const containerRef = useRef<HTMLDivElement>(null);
+  const initialAmountInputRef = useRef<HTMLInputElement>(null);
+
   const [initialAmount, setInitialAmount] = useState<string>(initialData?.initialAmount || "");
   const [monthlyDeposit, setMonthlyDeposit] = useState<string>(initialData?.monthlyDeposit || "");
   const [annualRate, setAnnualRate] = useState<string>(initialData?.annualRate || "");
   const [years, setYears] = useState<string>(initialData?.years || "");
+  const [copied, setCopied] = useState<boolean>(false);
 
   useEffect(() => {
     onStateChange?.({ initialAmount, monthlyDeposit, annualRate, years });
-  }, [initialAmount, monthlyDeposit, annualRate, years]);
+  }, [initialAmount, monthlyDeposit, annualRate, years, onStateChange]);
 
   const calculation = useMemo(() => {
     const p = parseFloat(initialAmount) || 0;
@@ -71,56 +77,120 @@ export function SavingsCalculator({ initialData, onStateChange }: { initialData?
     };
   }, [initialAmount, monthlyDeposit, annualRate, years]);
 
-  const handleClear = () => {
+  const handleClear = useCallback(() => {
     setInitialAmount("");
     setMonthlyDeposit("");
     setAnnualRate("");
     setYears("");
-  };
+    toast.success(t("savings.reset_success"));
+    setTimeout(() => {
+      initialAmountInputRef.current?.focus();
+    }, 50);
+  }, [t]);
+
+  const handleCopy = useCallback(() => {
+    const text = `${t("savings.estimated_final")}: ${calculation.finalAmount.toFixed(2)}€
+${t("savings.total_deposited")}: ${calculation.totalDeposited.toFixed(2)}€
+${t("savings.total_interest")}: +${calculation.totalInterest.toFixed(2)}€`;
+
+    navigator.clipboard.writeText(text);
+    setCopied(true);
+    toast.success(t("savings.copied_success"));
+    setTimeout(() => setCopied(false), 2000);
+  }, [calculation, t]);
+
+  // Keyboard shortcut listener with container isolation and handlersRef safeguard
+  const handlersRef = useRef({ handleClear, handleCopy });
+  useEffect(() => {
+    handlersRef.current = { handleClear, handleCopy };
+  }, [handleClear, handleCopy]);
+
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      const activeElement = document.activeElement;
+      const isInsideContainer = containerRef.current?.contains(activeElement) || activeElement === document.body;
+
+      if (!isInsideContainer) return;
+
+      const isInputFocused =
+        activeElement instanceof HTMLInputElement ||
+        activeElement instanceof HTMLTextAreaElement ||
+        activeElement instanceof HTMLSelectElement ||
+        activeElement?.getAttribute("contenteditable") === "true";
+
+      if (isInputFocused) {
+        if (e.key === "Escape") {
+          e.preventDefault();
+          handlersRef.current.handleClear();
+        }
+        return;
+      }
+
+      if (e.metaKey || e.ctrlKey || e.altKey || e.shiftKey) return;
+
+      if (e.key === "Escape") {
+        e.preventDefault();
+        handlersRef.current.handleClear();
+      } else if (e.key.toLowerCase() === "c") {
+        e.preventDefault();
+        handlersRef.current.handleCopy();
+      }
+    };
+
+    window.addEventListener("keydown", handleKeyDown);
+    return () => window.removeEventListener("keydown", handleKeyDown);
+  }, []);
 
   const chartConfig = {
     balance: {
-      label: "Capital total",
+      label: t("savings.chart_balance"),
       color: "var(--color-balance)",
     },
     deposited: {
-      label: "Total versé",
+      label: t("savings.chart_deposited"),
       color: "var(--color-deposited)",
     },
   };
 
+  const locale = i18n.language.startsWith("fr") ? "fr-FR" : "en-US";
+
   return (
-    <div className="max-w-5xl mx-auto space-y-8">
+    <div ref={containerRef} className="max-w-5xl mx-auto space-y-8">
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
         <div className="lg:col-span-5 space-y-6">
           <div className="bg-slate-50 dark:bg-slate-900/50 p-8 rounded-[2.5rem] border border-slate-200 dark:border-slate-800 space-y-6">
             <div className="flex justify-between items-center px-1">
-              <label htmlFor="initialAmount" className="text-xs font-black uppercase tracking-widest text-slate-400 flex items-center gap-2">
-                <Banknote className="w-3 h-3" /> Capital initial
+              <label htmlFor="initialAmount" className="text-xs font-black uppercase tracking-widest text-slate-400 flex items-center gap-2 cursor-pointer">
+                <Banknote className="w-3 h-3" aria-hidden="true" /> {t("savings.initial_amount")}
               </label>
-              <button
-                onClick={handleClear}
-                disabled={!initialAmount && !monthlyDeposit && !annualRate && !years}
-                className="text-xs font-bold text-rose-500 bg-rose-50 dark:bg-rose-500/10 hover:bg-rose-100 dark:hover:bg-rose-500/20 px-3 py-1.5 rounded-xl flex items-center gap-1 transition-all disabled:opacity-50 disabled:cursor-not-allowed"
-              >
-                <Trash2 className="w-3 h-3" /> Effacer
-              </button>
+              <div className="flex items-center gap-2">
+                <Kbd modifier={null} className="text-slate-400">Esc</Kbd>
+                <button
+                  onClick={handleClear}
+                  disabled={!initialAmount && !monthlyDeposit && !annualRate && !years}
+                  className="text-xs font-bold text-rose-500 bg-rose-50 dark:bg-rose-500/10 hover:bg-rose-100 dark:hover:bg-rose-500/20 px-3 py-1.5 rounded-xl flex items-center gap-1 transition-all disabled:opacity-50 disabled:cursor-not-allowed focus-visible:ring-2 focus-visible:ring-rose-500 focus-visible:outline-none"
+                  aria-label={t("common.reset")}
+                >
+                  <RotateCcw className="w-3 h-3" aria-hidden="true" /> {t("common.reset")}
+                </button>
+              </div>
             </div>
             <div className="relative">
               <input
                 id="initialAmount"
+                ref={initialAmountInputRef}
                 type="number"
                 value={initialAmount}
                 onChange={(e) => setInitialAmount(e.target.value)}
-                className="w-full p-6 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-3xl text-3xl font-black font-mono outline-none focus:ring-2 focus:ring-indigo-500/20 transition-all dark:text-white"
+                className="w-full p-6 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-3xl text-3xl font-black font-mono outline-none focus:ring-2 focus:ring-indigo-500/20 transition-all dark:text-white focus-visible:ring-2 focus-visible:ring-indigo-500"
                 placeholder="1000"
               />
-              <span className="absolute right-6 top-1/2 -translate-y-1/2 text-2xl font-black text-slate-300">€</span>
+              <span className="absolute right-6 top-1/2 -translate-y-1/2 text-2xl font-black text-slate-300" aria-hidden="true">€</span>
             </div>
 
             <div className="space-y-3">
-              <label htmlFor="monthlyDeposit" className="text-xs font-black uppercase tracking-widest text-slate-400 px-1 flex items-center gap-2">
-                <Wallet className="w-3 h-3" /> Versement mensuel
+              <label htmlFor="monthlyDeposit" className="text-xs font-black uppercase tracking-widest text-slate-400 px-1 flex items-center gap-2 cursor-pointer">
+                <Wallet className="w-3 h-3" aria-hidden="true" /> {t("savings.monthly_deposit")}
               </label>
               <div className="relative">
                 <input
@@ -128,17 +198,17 @@ export function SavingsCalculator({ initialData, onStateChange }: { initialData?
                   type="number"
                   value={monthlyDeposit}
                   onChange={(e) => setMonthlyDeposit(e.target.value)}
-                  className="w-full p-4 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-2xl text-xl font-black font-mono focus:border-indigo-500 outline-none transition-all dark:text-white"
+                  className="w-full p-4 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-2xl text-xl font-black font-mono focus:border-indigo-500 outline-none transition-all dark:text-white focus-visible:ring-2 focus-visible:ring-indigo-500"
                   placeholder="100"
                 />
-                <span className="absolute right-4 top-1/2 -translate-y-1/2 font-black text-slate-400">€</span>
+                <span className="absolute right-4 top-1/2 -translate-y-1/2 font-black text-slate-400" aria-hidden="true">€</span>
               </div>
             </div>
 
             <div className="grid grid-cols-2 gap-4">
               <div className="space-y-3">
-                <label htmlFor="annualRate" className="text-xs font-black uppercase tracking-widest text-slate-400 px-1 flex items-center gap-2">
-                  <Percent className="w-3 h-3" /> Taux annuel
+                <label htmlFor="annualRate" className="text-xs font-black uppercase tracking-widest text-slate-400 px-1 flex items-center gap-2 cursor-pointer">
+                  <Percent className="w-3 h-3" aria-hidden="true" /> {t("savings.annual_rate")}
                 </label>
                 <div className="relative">
                   <input
@@ -146,23 +216,23 @@ export function SavingsCalculator({ initialData, onStateChange }: { initialData?
                     type="number"
                     value={annualRate}
                     onChange={(e) => setAnnualRate(e.target.value)}
-                    className="w-full p-4 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-2xl text-xl font-black font-mono focus:border-indigo-500 outline-none transition-all dark:text-white"
+                    className="w-full p-4 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-2xl text-xl font-black font-mono focus:border-indigo-500 outline-none transition-all dark:text-white focus-visible:ring-2 focus-visible:ring-indigo-500"
                     placeholder="3"
                     step="0.01"
                   />
-                  <span className="absolute right-4 top-1/2 -translate-y-1/2 font-black text-slate-400">%</span>
+                  <span className="absolute right-4 top-1/2 -translate-y-1/2 font-black text-slate-400" aria-hidden="true">%</span>
                 </div>
               </div>
               <div className="space-y-3">
-                <label htmlFor="years" className="text-xs font-black uppercase tracking-widest text-slate-400 px-1 flex items-center gap-2">
-                  <Calendar className="w-3 h-3" /> Durée (ans)
+                <label htmlFor="years" className="text-xs font-black uppercase tracking-widest text-slate-400 px-1 flex items-center gap-2 cursor-pointer">
+                  <Calendar className="w-3 h-3" aria-hidden="true" /> {t("savings.duration_years")}
                 </label>
                 <input
                   id="years"
                   type="number"
                   value={years}
                   onChange={(e) => setYears(e.target.value)}
-                  className="w-full p-4 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-2xl text-xl font-black font-mono focus:border-indigo-500 outline-none transition-all dark:text-white"
+                  className="w-full p-4 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-2xl text-xl font-black font-mono focus:border-indigo-500 outline-none transition-all dark:text-white focus-visible:ring-2 focus-visible:ring-indigo-500"
                   placeholder="10"
                 />
               </div>
@@ -171,12 +241,28 @@ export function SavingsCalculator({ initialData, onStateChange }: { initialData?
         </div>
 
         <div className="lg:col-span-7 space-y-6">
-          <div className="bg-slate-900 dark:bg-black p-8 md:p-10 rounded-[2.5rem] shadow-xl shadow-indigo-500/10 flex flex-col items-center justify-center space-y-4 relative overflow-hidden">
+          <div className="bg-slate-900 dark:bg-black p-8 md:p-10 rounded-[2.5rem] shadow-xl shadow-indigo-500/10 flex flex-col items-center justify-center space-y-4 relative overflow-hidden group">
             <div className="absolute top-0 right-0 w-32 h-32 bg-indigo-500/10 rounded-full -mr-16 -mt-16 blur-3xl"></div>
 
-            <div className="text-slate-400 font-bold uppercase tracking-widest text-xs">Capital final estimé</div>
-            <div className="text-5xl md:text-6xl font-black text-white font-mono tracking-tighter">
-              {calculation.finalAmount.toLocaleString('fr-FR', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+            <div className="absolute top-6 right-6 flex items-center gap-2 z-20">
+              <Kbd modifier={null} className="bg-slate-800 border-slate-700 text-slate-400">C</Kbd>
+              <button
+                onClick={handleCopy}
+                className={`p-3 rounded-2xl transition-all border focus-visible:ring-2 focus-visible:ring-indigo-500 focus-visible:outline-none ${
+                  copied
+                    ? "bg-emerald-500 text-white border-emerald-500"
+                    : "bg-white/10 text-white border-transparent hover:text-white hover:bg-white/20"
+                }`}
+                aria-label={t("savings.copy_summary")}
+                title={t("savings.copy_summary")}
+              >
+                {copied ? <Check className="w-5 h-5" aria-hidden="true" /> : <Copy className="w-5 h-5" aria-hidden="true" />}
+              </button>
+            </div>
+
+            <div className="text-slate-400 font-bold uppercase tracking-widest text-xs text-center">{t("savings.estimated_final")}</div>
+            <div className="text-5xl md:text-6xl font-black text-white font-mono tracking-tighter" aria-live="polite" aria-atomic="true">
+              {calculation.finalAmount.toLocaleString(locale, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
             </div>
             <div className="text-indigo-400 font-black text-xl md:text-2xl uppercase tracking-widest">
               EUROS
@@ -186,18 +272,18 @@ export function SavingsCalculator({ initialData, onStateChange }: { initialData?
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div className="bg-slate-50 dark:bg-slate-900/50 p-6 rounded-3xl border border-slate-200 dark:border-slate-800 space-y-2 text-center">
               <div className="text-xs font-bold text-slate-400 uppercase tracking-widest flex items-center justify-center gap-2">
-                <Coins className="w-3 h-3" /> Total versé
+                <Coins className="w-3 h-3" aria-hidden="true" /> {t("savings.total_deposited")}
               </div>
               <div className="text-2xl font-black text-slate-900 dark:text-white font-mono">
-                {calculation.totalDeposited.toLocaleString('fr-FR', { minimumFractionDigits: 2 })}€
+                {calculation.totalDeposited.toLocaleString(locale, { minimumFractionDigits: 2 })}€
               </div>
             </div>
             <div className="bg-emerald-50 dark:bg-emerald-900/10 border border-emerald-100 dark:border-emerald-900/20 p-6 rounded-3xl space-y-2 text-center">
               <div className="text-xs font-bold text-emerald-600 dark:text-emerald-400 uppercase tracking-widest flex items-center justify-center gap-2">
-                <TrendingUp className="w-3 h-3" /> Intérêts
+                <TrendingUp className="w-3 h-3" aria-hidden="true" /> {t("savings.total_interest")}
               </div>
               <div className="text-2xl font-black text-emerald-600 dark:text-emerald-400 font-mono">
-                +{calculation.totalInterest.toLocaleString('fr-FR', { minimumFractionDigits: 2 })}€
+                +{calculation.totalInterest.toLocaleString(locale, { minimumFractionDigits: 2 })}€
               </div>
             </div>
           </div>
@@ -205,8 +291,8 @@ export function SavingsCalculator({ initialData, onStateChange }: { initialData?
           {calculation.chartData.length > 1 && (
             <div className="bg-white dark:bg-slate-900/40 p-6 rounded-[2rem] border border-slate-200 dark:border-slate-800 space-y-4">
               <div className="flex items-center gap-2 px-1">
-                <ChartIcon className="w-4 h-4 text-indigo-500" />
-                <h3 className="text-xs font-black uppercase tracking-widest text-slate-400">Évolution du capital</h3>
+                <ChartIcon className="w-4 h-4 text-indigo-500" aria-hidden="true" />
+                <h3 className="text-xs font-black uppercase tracking-widest text-slate-400">{t("savings.chart_title")}</h3>
               </div>
               <ChartContainer config={chartConfig} className="h-[250px] w-full">
                 <AreaChart data={calculation.chartData} margin={{ top: 10, right: 10, left: 0, bottom: 0 }}>
@@ -226,7 +312,7 @@ export function SavingsCalculator({ initialData, onStateChange }: { initialData?
                     axisLine={false}
                     tickLine={false}
                     tick={{ fill: '#94a3b8', fontSize: 10, fontWeight: 'bold' }}
-                    label={{ value: 'Années', position: 'insideBottomRight', offset: -5, fill: '#94a3b8', fontSize: 10, fontWeight: 'bold' }}
+                    label={{ value: t("savings.chart_years_axis"), position: 'insideBottomRight', offset: -5, fill: '#94a3b8', fontSize: 10, fontWeight: 'bold' }}
                   />
                   <YAxis
                     axisLine={false}
@@ -242,7 +328,7 @@ export function SavingsCalculator({ initialData, onStateChange }: { initialData?
                     strokeWidth={3}
                     fillOpacity={1}
                     fill="url(#colorBalance)"
-                    name="Capital total"
+                    name={t("savings.chart_balance")}
                   />
                   <Area
                     type="monotone"
@@ -251,7 +337,7 @@ export function SavingsCalculator({ initialData, onStateChange }: { initialData?
                     strokeWidth={3}
                     fillOpacity={1}
                     fill="url(#colorDeposited)"
-                    name="Total versé"
+                    name={t("savings.chart_deposited")}
                   />
                 </AreaChart>
               </ChartContainer>
@@ -264,31 +350,31 @@ export function SavingsCalculator({ initialData, onStateChange }: { initialData?
       <div className="grid grid-cols-1 md:grid-cols-3 gap-8 pt-12 border-t border-slate-100 dark:border-slate-800">
         <div className="space-y-4">
           <div className="w-12 h-12 bg-indigo-50 dark:bg-indigo-900/20 rounded-2xl flex items-center justify-center text-indigo-600">
-            <PiggyBank className="w-6 h-6" />
+            <PiggyBank className="w-6 h-6" aria-hidden="true" />
           </div>
-          <h3 className="text-lg font-black">L'intérêt composé</h3>
+          <h3 className="text-lg font-black">{t("savings.compound_interest_title")}</h3>
           <p className="text-sm text-slate-500 dark:text-slate-400 leading-relaxed">
-            C'est l'effet "boule de neige" : vos intérêts génèrent eux-mêmes des intérêts. Plus vous épargnez longtemps, plus cet effet est puissant.
+            {t("savings.compound_interest_desc")}
           </p>
         </div>
 
         <div className="space-y-4">
           <div className="w-12 h-12 bg-emerald-50 dark:bg-emerald-900/20 rounded-2xl flex items-center justify-center text-emerald-600">
-            <TrendingUp className="w-6 h-6" />
+            <TrendingUp className="w-6 h-6" aria-hidden="true" />
           </div>
-          <h3 className="text-lg font-black">La régularité</h3>
+          <h3 className="text-lg font-black">{t("savings.regularity_title")}</h3>
           <p className="text-sm text-slate-500 dark:text-slate-400 leading-relaxed">
-            Épargner un petit montant chaque mois est souvent plus efficace que de verser une grosse somme ponctuellement, grâce au lissage dans le temps.
+            {t("savings.regularity_desc")}
           </p>
         </div>
 
         <div className="space-y-4">
           <div className="w-12 h-12 bg-amber-50 dark:bg-amber-900/20 rounded-2xl flex items-center justify-center text-amber-600">
-            <Info className="w-6 h-6" />
+            <Info className="w-6 h-6" aria-hidden="true" />
           </div>
-          <h3 className="text-lg font-black">Inflation</h3>
+          <h3 className="text-lg font-black">{t("savings.inflation_title")}</h3>
           <p className="text-sm text-slate-500 dark:text-slate-400 leading-relaxed">
-            N'oubliez pas que l'inflation réduit le pouvoir d'achat de votre monnaie. Un taux d'intérêt supérieur à l'inflation est nécessaire pour réellement s'enrichir.
+            {t("savings.inflation_desc")}
           </p>
         </div>
       </div>

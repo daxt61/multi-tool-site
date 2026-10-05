@@ -346,3 +346,8 @@
 **Vulnerability:** The SQLToPHP component interpolated user-controlled `namespace` and column names directly into PHP code headers and single-line comments without sanitization. Unescaped `namespace` inputs containing newlines (`\n`, `\r`) or semicolons allowed namespace declaration breakout, and `?>` tags in comments allowed exiting PHP execution context into plain HTML.
 **Learning:** Code generators producing PHP files must treat namespace inputs as untrusted identifiers, stripping newlines and restricting to valid PHP namespace identifier characters (`A-Za-z0-9_\\`), and must neutralize PHP closing tags (`?>` -> `? >`) in inline comments.
 **Prevention:** Always sanitize user-provided namespace strings using `clean.replace(/[^a-zA-Z0-9_\\]/g, '')` and replace `?>` with `? >` in inline code comments to maintain PHP execution context.
+
+## 2026-11-05 - [Client-side DoS in Punycode Converter]
+**Vulnerability:** The PunycodeConverter component lacked input length checks on both the Unicode and Punycode text inputs, allowing oversized inputs (e.g. > 100,000 characters) to trigger intensive IDN encoding/decoding on the main UI thread and freeze or crash the browser.
+**Learning:** Encoding and decoding algorithms like Punycode perform iterative string parsing and character mapping that become exponentially expensive with large inputs. Unbounded textareas that trigger conversion handlers on every keystroke create client-side Denial of Service risks.
+**Prevention:** Enforce a strict `MAX_LENGTH = 100000` input limit on textareas before invoking encoding/decoding functions, and clear outputs while displaying an error alert banner when the limit is exceeded.

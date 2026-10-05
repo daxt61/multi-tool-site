@@ -3,6 +3,8 @@ import { useTranslation } from 'react-i18next';
 import { Globe, ArrowLeftRight, Copy, Check, Trash2, Info, AlertCircle } from 'lucide-react';
 import punycode from 'punycode/';
 
+const MAX_LENGTH = 100000;
+
 export function PunycodeConverter({ initialData, onStateChange }: { initialData?: any; onStateChange?: (state: any) => void }) {
   const { t } = useTranslation();
   const [unicode, setUnicode] = useState(initialData?.unicode || '');
@@ -60,12 +62,26 @@ export function PunycodeConverter({ initialData, onStateChange }: { initialData?
 
   const handleUnicodeChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
     const val = e.target.value;
+    if (val.length > MAX_LENGTH) {
+      setError(t('error.max_length', { max: MAX_LENGTH.toLocaleString() }) || `Input is too long. Limit of ${MAX_LENGTH.toLocaleString()} characters.`);
+      setUnicode(val);
+      setPuny('');
+      return;
+    }
+    setError(null);
     setUnicode(val);
     convertToPuny(val);
   };
 
   const handlePunyChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
     const val = e.target.value;
+    if (val.length > MAX_LENGTH) {
+      setError(t('error.max_length', { max: MAX_LENGTH.toLocaleString() }) || `Input is too long. Limit of ${MAX_LENGTH.toLocaleString()} characters.`);
+      setPuny(val);
+      setUnicode('');
+      return;
+    }
+    setError(null);
     setPuny(val);
     convertToUnicode(val);
   };

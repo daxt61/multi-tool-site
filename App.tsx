@@ -650,6 +650,7 @@ const EnumerateIntegers = lazy(() => import("./components/EnumerateIntegers").th
 const GraphQLToTypeScript = lazy(() => import("./components/GraphQLToTypeScript").then(m => ({ default: m.GraphQLToTypeScript })));
 const GraphQLToCSharp = lazy(() => import("./components/GraphQLToCSharp").then(m => ({ default: m.GraphQLToCSharp })));
 const GraphQLToGo = lazy(() => import("./components/GraphQLToGo").then(m => ({ default: m.GraphQLToGo })));
+const GraphQLToKotlin = lazy(() => import("./components/GraphQLToKotlin").then(m => ({ default: m.GraphQLToKotlin })));
 const GraphQLToPython = lazy(() => import("./components/GraphQLToPython").then(m => ({ default: m.GraphQLToPython })));
 const GraphQLToRust = lazy(() => import("./components/GraphQLToRust").then(m => ({ default: m.GraphQLToRust })));
 const GraphQLToZod = lazy(() => import("./components/GraphQLToZod").then(m => ({ default: m.GraphQLToZod })));
@@ -836,6 +837,18 @@ const tools: Tool[] = [
     Component: GraphQLToGo,
     category: "dev",
     keywords: ["graphql", "sdl", "go", "golang", "struct", "tags", "json", "gorm", "convert", "convertir"],
+  },
+  // GraphQL SDL to Kotlin Data Classes Converter Tool
+  {
+    id: "graphql-to-kotlin",
+    name: "GraphQL en Kotlin",
+    nameEn: "GraphQL to Kotlin",
+    icon: FileCode,
+    description: "Convertir des schémas GraphQL SDL en data classes, sealed interfaces et enums Kotlin fortement typées avec annotations de sérialisation",
+    descriptionEn: "Convert GraphQL SDL schemas into strongly-typed Kotlin data classes, sealed interfaces, and enums with serialization annotations",
+    Component: GraphQLToKotlin,
+    category: "dev",
+    keywords: ["graphql", "sdl", "kotlin", "data class", "sealed interface", "enum", "kotlinx", "jackson", "moshi", "convert", "convertir"],
   },
   // GraphQL SDL to Python Models Converter Tool
   {

@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback, useRef } from 'react';
-import { FileCode, Copy, Check, Trash2, AlertCircle, Terminal, Download, Info, Sparkles } from 'lucide-react';
+import { FileCode, Copy, Check, Trash2, AlertCircle, Terminal, Download, Info, Sparkles, RotateCcw } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import { toast } from 'sonner';
 import { Kbd } from './ui/Kbd';
@@ -12,6 +12,7 @@ export function JSONToGraphQL({ initialData, onStateChange }: { initialData?: an
   const inputRef = useRef<HTMLTextAreaElement>(null);
   const [input, setInput] = useState(initialData?.input || '');
   const [output, setOutput] = useState(initialData?.output || '');
+  const [activePresetId, setActivePresetId] = useState<string | null>(null);
   const [error, setError] = useState('');
   const [copied, setCopied] = useState(false);
 
@@ -76,7 +77,6 @@ export function JSONToGraphQL({ initialData, onStateChange }: { initialData?: an
       .map(word => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase())
       .join('');
 
-    // GraphQL type names cannot start with a digit
     if (/^[0-9]/.test(result)) {
       result = 'T' + result;
     }
@@ -118,7 +118,8 @@ export function JSONToGraphQL({ initialData, onStateChange }: { initialData?: an
             finalName = name + counter++;
           }
 
-          const fields = Object.entries(val).map(([key, value]) => {
+          const safeObj = Object.assign(Object.create(null), val);
+          const fields = Object.entries(safeObj).map(([key, value]) => {
             let safeKey = key.replace(/[^a-zA-Z0-9_]/g, '_');
             if (/^[0-9]/.test(safeKey)) safeKey = 'f_' + safeKey;
             if (!safeKey || safeKey === '_') safeKey = 'unnamed_field';
@@ -143,7 +144,21 @@ export function JSONToGraphQL({ initialData, onStateChange }: { initialData?: an
         return 'String';
       };
 
-      getGraphQLType(parsed, 'Root', 0);
+      if (Array.isArray(parsed)) {
+        const itemType = parsed.length > 0 ? getGraphQLType(parsed[0], 'Item', 0) : 'String';
+        types.push({
+          name: 'RootQuery',
+          fields: [{ name: 'items', type: `[${itemType}]`, comment: '' }]
+        });
+      } else if (typeof parsed === 'object' && parsed !== null) {
+        getGraphQLType(parsed, 'Root', 0);
+      } else {
+        const primitiveType = typeof parsed === 'number' ? (Number.isInteger(parsed) ? 'Int' : 'Float') : typeof parsed === 'boolean' ? 'Boolean' : 'String';
+        types.push({
+          name: 'RootQuery',
+          fields: [{ name: 'value', type: primitiveType, comment: '' }]
+        });
+      }
 
       const result = types.reverse().map(type => {
         let str = `type ${type.name} {\n`;
@@ -178,6 +193,7 @@ export function JSONToGraphQL({ initialData, onStateChange }: { initialData?: an
     setInput('');
     setOutput('');
     setError('');
+    setActivePresetId(null);
     toast.success(t('jsontographql.toast_cleared', 'Inputs cleared!'));
     setTimeout(() => inputRef.current?.focus(), 0);
   }, [t]);
@@ -198,6 +214,7 @@ export function JSONToGraphQL({ initialData, onStateChange }: { initialData?: an
 
   const loadPreset = (presetKey: keyof typeof PRESETS) => {
     setInput(PRESETS[presetKey]);
+    setActivePresetId(presetKey);
     toast.success(t('jsontographql.preset_loaded', 'Loaded JSON preset!'));
   };
 
@@ -247,19 +264,34 @@ export function JSONToGraphQL({ initialData, onStateChange }: { initialData?: an
         <div className="flex flex-wrap items-center gap-2">
           <button
             onClick={() => loadPreset('user_profile')}
-            className="px-3 py-1.5 text-xs font-bold bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 hover:border-indigo-500 rounded-xl transition-all shadow-sm focus-visible:ring-2 focus-visible:ring-indigo-500 focus-visible:outline-none"
+            aria-pressed={activePresetId === 'user_profile'}
+            className={`px-3 py-1.5 text-xs font-bold rounded-xl transition-all shadow-sm focus-visible:ring-2 focus-visible:ring-indigo-500 focus-visible:outline-none ${
+              activePresetId === 'user_profile'
+                ? 'bg-indigo-600 text-white border border-indigo-600'
+                : 'bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 hover:border-indigo-500 text-slate-700 dark:text-slate-200'
+            }`}
           >
             {t('jsontographql.preset_user_profile', 'User Profile JSON')}
           </button>
           <button
             onClick={() => loadPreset('ecommerce_order')}
-            className="px-3 py-1.5 text-xs font-bold bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 hover:border-indigo-500 rounded-xl transition-all shadow-sm focus-visible:ring-2 focus-visible:ring-indigo-500 focus-visible:outline-none"
+            aria-pressed={activePresetId === 'ecommerce_order'}
+            className={`px-3 py-1.5 text-xs font-bold rounded-xl transition-all shadow-sm focus-visible:ring-2 focus-visible:ring-indigo-500 focus-visible:outline-none ${
+              activePresetId === 'ecommerce_order'
+                ? 'bg-indigo-600 text-white border border-indigo-600'
+                : 'bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 hover:border-indigo-500 text-slate-700 dark:text-slate-200'
+            }`}
           >
             {t('jsontographql.preset_ecommerce', 'E-Commerce Order JSON')}
           </button>
           <button
             onClick={() => loadPreset('api_config')}
-            className="px-3 py-1.5 text-xs font-bold bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 hover:border-indigo-500 rounded-xl transition-all shadow-sm focus-visible:ring-2 focus-visible:ring-indigo-500 focus-visible:outline-none"
+            aria-pressed={activePresetId === 'api_config'}
+            className={`px-3 py-1.5 text-xs font-bold rounded-xl transition-all shadow-sm focus-visible:ring-2 focus-visible:ring-indigo-500 focus-visible:outline-none ${
+              activePresetId === 'api_config'
+                ? 'bg-indigo-600 text-white border border-indigo-600'
+                : 'bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 hover:border-indigo-500 text-slate-700 dark:text-slate-200'
+            }`}
           >
             {t('jsontographql.preset_api_config', 'API Config JSON')}
           </button>
@@ -290,7 +322,10 @@ export function JSONToGraphQL({ initialData, onStateChange }: { initialData?: an
             id="json-input"
             ref={inputRef}
             value={input}
-            onChange={(e) => setInput(e.target.value)}
+            onChange={(e) => {
+              setInput(e.target.value);
+              setActivePresetId(null);
+            }}
             placeholder='{"id": 1, "name": "John Doe", "active": true, "address": {"street": "Main St"}}'
             className="w-full h-[450px] p-6 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-3xl outline-none focus:ring-2 focus:ring-indigo-500/20 transition-all font-mono text-sm leading-relaxed dark:text-slate-300 resize-none"
           />

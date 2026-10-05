@@ -648,6 +648,7 @@ const ImagePixelator = lazy(() => import("./components/ImagePixelator").then(m =
 const TSVTester = lazy(() => import("./components/TSVTester").then(m => ({ default: m.TSVTester })));
 const EnumerateIntegers = lazy(() => import("./components/EnumerateIntegers").then(m => ({ default: m.EnumerateIntegers })));
 const GraphQLToTypeScript = lazy(() => import("./components/GraphQLToTypeScript").then(m => ({ default: m.GraphQLToTypeScript })));
+const GraphQLToCSharp = lazy(() => import("./components/GraphQLToCSharp").then(m => ({ default: m.GraphQLToCSharp })));
 const GraphQLToGo = lazy(() => import("./components/GraphQLToGo").then(m => ({ default: m.GraphQLToGo })));
 const GraphQLToPython = lazy(() => import("./components/GraphQLToPython").then(m => ({ default: m.GraphQLToPython })));
 const GraphQLToRust = lazy(() => import("./components/GraphQLToRust").then(m => ({ default: m.GraphQLToRust })));
@@ -811,6 +812,18 @@ const tools: Tool[] = [
     Component: SQLToCassandra,
     category: "dev",
     keywords: ["sql", "ddl", "create table", "cassandra", "cql", "keyspace", "nosql", "partition key", "datastax", "convert", "convertir"],
+  },
+  // GraphQL SDL to C# Models Converter Tool
+  {
+    id: "graphql-to-csharp",
+    name: "GraphQL en C#",
+    nameEn: "GraphQL to C#",
+    icon: FileCode,
+    description: "Convertir des schémas GraphQL SDL en modèles C# fortement typés (records, classes, HotChocolate, System.Text.Json)",
+    descriptionEn: "Convert GraphQL SDL schemas into strongly-typed C# models (records, classes, HotChocolate, System.Text.Json)",
+    Component: GraphQLToCSharp,
+    category: "dev",
+    keywords: ["graphql", "sdl", "csharp", "c#", "record", "class", "hotchocolate", "system.text.json", "newtonsoft", "convert", "convertir"],
   },
   // GraphQL SDL to Go Structs Converter Tool
   {

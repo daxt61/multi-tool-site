@@ -75,6 +75,7 @@ export function TextShadowGenerator({ initialData, onStateChange }: { initialDat
   const [previewText, setPreviewText] = useState((initialData?.previewText || 'Hello World').slice(0, MAX_LENGTH));
   const [textColor, setTextColor] = useState(initialData?.textColor || '#4f46e5');
   const [fontSize, setFontSize] = useState(initialData?.fontSize || 64);
+  const [activePresetId, setActivePresetId] = useState<string | null>(null);
   const [copied, setCopied] = useState(false);
 
   const containerRef = useRef<HTMLDivElement>(null);
@@ -94,6 +95,7 @@ export function TextShadowGenerator({ initialData, onStateChange }: { initialDat
       opacity: 0.3
     };
     setShadows([...shadows, newShadow]);
+    setActivePresetId(null);
     toast.success('New shadow layer added');
   };
 
@@ -103,11 +105,13 @@ export function TextShadowGenerator({ initialData, onStateChange }: { initialDat
       return;
     }
     setShadows(shadows.filter(s => s.id !== id));
+    setActivePresetId(null);
     toast.success('Shadow layer removed');
   };
 
   const updateShadow = (id: string, updates: Partial<Shadow>) => {
     setShadows(shadows.map(s => s.id === id ? { ...s, ...updates } : s));
+    setActivePresetId(null);
   };
 
   const moveShadow = (index: number, direction: 'up' | 'down') => {
@@ -116,6 +120,7 @@ export function TextShadowGenerator({ initialData, onStateChange }: { initialDat
     if (targetIndex < 0 || targetIndex >= shadows.length) return;
     [newShadows[index], newShadows[targetIndex]] = [newShadows[targetIndex], newShadows[index]];
     setShadows(newShadows);
+    setActivePresetId(null);
   };
 
   const generateCss = useCallback(() => {
@@ -139,6 +144,7 @@ export function TextShadowGenerator({ initialData, onStateChange }: { initialDat
     setTextColor('#4f46e5');
     setFontSize(64);
     setPreviewText('Hello World');
+    setActivePresetId(null);
     toast.success('Text shadow parameters reset');
     previewInputRef.current?.focus();
   }, []);
@@ -147,6 +153,7 @@ export function TextShadowGenerator({ initialData, onStateChange }: { initialDat
     setShadows(preset.shadows);
     setTextColor(preset.textColor);
     setFontSize(preset.fontSize);
+    setActivePresetId(preset.id);
     toast.success(`Preset "${preset.name}" applied!`);
   };
 
@@ -198,21 +205,33 @@ export function TextShadowGenerator({ initialData, onStateChange }: { initialDat
           <Sparkles className="w-4 h-4 text-indigo-500" aria-hidden="true" /> Quick Presets
         </div>
         <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
-          {PRESETS.map((preset) => (
-            <button
-              key={preset.id}
-              type="button"
-              onClick={() => handleApplyPreset(preset)}
-              className="px-4 py-3 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-2xl hover:border-indigo-500 dark:hover:border-indigo-500 hover:shadow-md transition-all text-left group focus-visible:ring-2 focus-visible:ring-indigo-500 focus-visible:outline-none"
-            >
-              <span className="text-xs font-bold text-slate-700 dark:text-slate-200 group-hover:text-indigo-600 dark:group-hover:text-indigo-400 transition-colors block">
-                {preset.name}
-              </span>
-              <span className="text-[10px] text-slate-400 font-mono block mt-0.5">
-                {preset.shadows.length} layer{preset.shadows.length > 1 ? 's' : ''}
-              </span>
-            </button>
-          ))}
+          {PRESETS.map((preset) => {
+            const isActive = activePresetId === preset.id;
+            return (
+              <button
+                key={preset.id}
+                type="button"
+                aria-pressed={isActive}
+                onClick={() => handleApplyPreset(preset)}
+                className={`px-4 py-3 border rounded-2xl transition-all text-left group focus-visible:ring-2 focus-visible:ring-indigo-500 focus-visible:outline-none ${
+                  isActive
+                    ? 'bg-indigo-50/80 dark:bg-indigo-950/40 border-indigo-500 dark:border-indigo-500 shadow-sm'
+                    : 'bg-white dark:bg-slate-800 border-slate-200 dark:border-slate-700 hover:border-indigo-500 dark:hover:border-indigo-500 hover:shadow-md'
+                }`}
+              >
+                <span className={`text-xs font-bold block transition-colors ${
+                  isActive
+                    ? 'text-indigo-600 dark:text-indigo-400'
+                    : 'text-slate-700 dark:text-slate-200 group-hover:text-indigo-600 dark:group-hover:text-indigo-400'
+                }`}>
+                  {preset.name}
+                </span>
+                <span className="text-[10px] text-slate-400 font-mono block mt-0.5">
+                  {preset.shadows.length} layer{preset.shadows.length > 1 ? 's' : ''}
+                </span>
+              </button>
+            );
+          })}
         </div>
       </div>
 
@@ -246,7 +265,10 @@ export function TextShadowGenerator({ initialData, onStateChange }: { initialDat
                   type="text"
                   maxLength={MAX_LENGTH}
                   value={previewText}
-                  onChange={(e) => setPreviewText(e.target.value)}
+                  onChange={(e) => {
+                    setPreviewText(e.target.value);
+                    setActivePresetId(null);
+                  }}
                   className="w-full p-3 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl outline-none focus:ring-2 focus:ring-indigo-500/20"
                 />
               </div>
@@ -260,7 +282,10 @@ export function TextShadowGenerator({ initialData, onStateChange }: { initialDat
                       type="color"
                       value={textColor}
                       aria-label="Selector text color picker"
-                      onChange={(e) => setTextColor(e.target.value)}
+                      onChange={(e) => {
+                        setTextColor(e.target.value);
+                        setActivePresetId(null);
+                      }}
                       className="w-10 h-10 rounded-lg cursor-pointer border border-slate-200 dark:border-slate-700"
                     />
                     <input
@@ -268,7 +293,10 @@ export function TextShadowGenerator({ initialData, onStateChange }: { initialDat
                       type="text"
                       value={textColor}
                       aria-label="Text color hex code"
-                      onChange={(e) => setTextColor(e.target.value)}
+                      onChange={(e) => {
+                        setTextColor(e.target.value);
+                        setActivePresetId(null);
+                      }}
                       className="flex-1 px-3 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-xs uppercase font-mono"
                     />
                   </div>
@@ -281,7 +309,10 @@ export function TextShadowGenerator({ initialData, onStateChange }: { initialDat
                     min="12"
                     max="160"
                     value={fontSize}
-                    onChange={(e) => setFontSize(parseInt(e.target.value) || 12)}
+                    onChange={(e) => {
+                      setFontSize(parseInt(e.target.value) || 12);
+                      setActivePresetId(null);
+                    }}
                     className="w-full p-2.5 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl outline-none"
                   />
                 </div>

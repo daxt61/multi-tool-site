@@ -1,13 +1,30 @@
 import { useState, useMemo, useEffect, useCallback, useRef } from 'react';
-import { Network, Info, Globe, Server, ShieldCheck, Copy, Check, Binary, Zap, RotateCcw } from 'lucide-react';
+import { Network, Info, Globe, ShieldCheck, Copy, Check, Binary, Zap, RotateCcw, Sparkles } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
+import { toast } from 'sonner';
 import { Kbd } from './ui/Kbd';
 
+interface Preset {
+  id: string;
+  name: string;
+  ip: string;
+  cidr: number;
+}
+
+const PRESETS: Preset[] = [
+  { id: 'home_office', name: 'Home / Office (/24)', ip: '192.168.1.1', cidr: 24 },
+  { id: 'corporate_lan', name: 'Corporate LAN (/16)', ip: '10.0.0.1', cidr: 16 },
+  { id: 'small_subnet', name: 'Small Subnet (/28)', ip: '10.10.1.1', cidr: 28 },
+  { id: 'p2p_link', name: 'Point-to-Point (/30)', ip: '172.16.0.1', cidr: 30 },
+];
+
 export function SubnetCalculator({ initialData, onStateChange }: { initialData?: any; onStateChange?: (state: any) => void }) {
+  const containerRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
   const { t } = useTranslation();
   const [ip, setIp] = useState(initialData?.ip || '192.168.1.1');
   const [cidr, setCidr] = useState(initialData?.cidr ?? 24);
+  const [activePresetId, setActivePresetId] = useState<string | null>('home_office');
   const [copied, setCopied] = useState<string | null>(null);
 
   useEffect(() => {
@@ -17,18 +34,41 @@ export function SubnetCalculator({ initialData, onStateChange }: { initialData?:
   const handleReset = useCallback(() => {
     setIp('192.168.1.1');
     setCidr(24);
+    setActivePresetId('home_office');
+    toast.success(t('common.reset') || 'Reset');
     inputRef.current?.focus();
-  }, []);
+  }, [t]);
 
   const handleCopy = useCallback((text: string, id: string) => {
     navigator.clipboard.writeText(text);
     setCopied(id);
+    toast.success(t('common.copied'));
     setTimeout(() => setCopied(null), 2000);
-  }, []);
+  }, [t]);
+
+  const handleSelectPreset = (preset: Preset) => {
+    setIp(preset.ip);
+    setCidr(preset.cidr);
+    setActivePresetId(preset.id);
+    toast.success(t('common.preset_applied', { name: preset.name }));
+  };
+
+  const handlersRef = useRef({ handleReset, handleCopy, ip, cidr, t });
+  useEffect(() => {
+    handlersRef.current = { handleReset, handleCopy, ip, cidr, t };
+  }, [handleReset, handleCopy, ip, cidr, t]);
 
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
       const activeElement = document.activeElement;
+      if (
+        containerRef.current &&
+        !containerRef.current.contains(activeElement) &&
+        activeElement !== document.body
+      ) {
+        return;
+      }
+
       const isInputFocused =
         activeElement instanceof HTMLInputElement ||
         activeElement instanceof HTMLTextAreaElement ||
@@ -36,7 +76,10 @@ export function SubnetCalculator({ initialData, onStateChange }: { initialData?:
         activeElement?.getAttribute("contenteditable") === "true";
 
       if (isInputFocused) {
-        // Local Escape handler on input will be added in JSX
+        if (e.key === "Escape") {
+          e.preventDefault();
+          handlersRef.current.handleReset();
+        }
         return;
       }
 
@@ -44,19 +87,19 @@ export function SubnetCalculator({ initialData, onStateChange }: { initialData?:
 
       if (e.key === "Escape") {
         e.preventDefault();
-        handleReset();
+        handlersRef.current.handleReset();
       } else if (e.key.toLowerCase() === "c") {
-        const results = calculateSubnet(ip, cidr);
+        const results = calculateSubnet(handlersRef.current.ip, handlersRef.current.cidr);
         if (results) {
           e.preventDefault();
-          handleCopy(results.network, t('subnet.network_address'));
+          handlersRef.current.handleCopy(results.network, handlersRef.current.t('subnet.network_address'));
         }
       }
     };
 
     window.addEventListener("keydown", handleKeyDown);
     return () => window.removeEventListener("keydown", handleKeyDown);
-  }, [handleReset, handleCopy, ip, cidr, t]);
+  }, []);
 
   const calculateSubnet = (ipStr: string, prefix: number) => {
     try {
@@ -111,7 +154,7 @@ export function SubnetCalculator({ initialData, onStateChange }: { initialData?:
 
 
   return (
-    <div className="max-w-6xl mx-auto space-y-12">
+    <div ref={containerRef} className="max-w-6xl mx-auto space-y-12">
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
         {/* Input Controls */}
         <div className="lg:col-span-4 space-y-6">
@@ -132,6 +175,33 @@ export function SubnetCalculator({ initialData, onStateChange }: { initialData?:
                 </button>
               </div>
 
+              {/* Presets */}
+              <div className="space-y-2">
+                <label className="text-[10px] font-black uppercase tracking-widest text-slate-400 flex items-center gap-1">
+                  <Sparkles className="w-3 h-3 text-amber-500" /> {t('common.presets')}
+                </label>
+                <div className="flex flex-wrap gap-2">
+                  {PRESETS.map((preset) => {
+                    const isActive = activePresetId === preset.id;
+                    return (
+                      <button
+                        key={preset.id}
+                        type="button"
+                        onClick={() => handleSelectPreset(preset)}
+                        aria-pressed={isActive}
+                        className={`text-xs font-bold px-3 py-1.5 rounded-xl transition-all border focus-visible:ring-2 focus-visible:ring-indigo-500 outline-none ${
+                          isActive
+                            ? 'bg-indigo-600 text-white border-indigo-600 shadow-sm'
+                            : 'bg-white dark:bg-slate-800 text-slate-600 dark:text-slate-300 border-slate-200 dark:border-slate-700 hover:border-indigo-400'
+                        }`}
+                      >
+                        {preset.name}
+                      </button>
+                    );
+                  })}
+                </div>
+              </div>
+
               <div className="space-y-4">
                 <div className="space-y-2">
                   <label htmlFor="ip-input" className="text-xs font-bold text-slate-500 px-1">{t('subnet.ip_address')}</label>
@@ -140,7 +210,10 @@ export function SubnetCalculator({ initialData, onStateChange }: { initialData?:
                     ref={inputRef}
                     type="text"
                     value={ip}
-                    onChange={(e) => setIp(e.target.value)}
+                    onChange={(e) => {
+                      setIp(e.target.value);
+                      setActivePresetId(null);
+                    }}
                     onKeyDown={(e) => {
                       if (e.key === 'Escape') {
                         handleReset();
@@ -162,7 +235,14 @@ export function SubnetCalculator({ initialData, onStateChange }: { initialData?:
                     min="0"
                     max="32"
                     value={cidr}
-                    onChange={(e) => setCidr(parseInt(e.target.value))}
+                    aria-valuemin={0}
+                    aria-valuemax={32}
+                    aria-valuenow={cidr}
+                    aria-label={t('subnet.cidr_mask')}
+                    onChange={(e) => {
+                      setCidr(parseInt(e.target.value));
+                      setActivePresetId(null);
+                    }}
                     className="w-full h-2 bg-slate-200 dark:bg-slate-700 rounded-lg appearance-none cursor-pointer accent-indigo-600"
                   />
                   <div className="flex justify-between text-[10px] font-bold text-slate-400 px-1">

@@ -51,6 +51,14 @@ export function SQLToPydantic({ initialData, onStateChange }: { initialData?: an
     'while', 'with', 'yield', 'type', 'id', 'input', 'list', 'dict', 'set'
   ]);
 
+  const escapePythonString = (str: string) => {
+    return str
+      .replace(/\\/g, '\\\\')
+      .replace(/"/g, '\\"')
+      .replace(/\n/g, '\\n')
+      .replace(/\r/g, '\\r');
+  };
+
   const PRESETS = {
     ecommerce: `-- E-Commerce Catalog Schema
 CREATE TABLE categories (
@@ -291,9 +299,9 @@ CREATE TABLE roles (
 
             if (needsAlias) {
               if (field.isOptional) {
-                generatedCode += `    ${pyName}: Optional[${field.pyType}] = Field(default=None, alias="${field.originalName}")\n`;
+                generatedCode += `    ${pyName}: Optional[${field.pyType}] = Field(default=None, alias="${escapePythonString(field.originalName)}")\n`;
               } else {
-                generatedCode += `    ${pyName}: ${field.pyType} = Field(alias="${field.originalName}")\n`;
+                generatedCode += `    ${pyName}: ${field.pyType} = Field(alias="${escapePythonString(field.originalName)}")\n`;
               }
             } else {
               generatedCode += `    ${pyName}: ${typeStr}\n`;
@@ -309,9 +317,9 @@ CREATE TABLE roles (
 
             if (needsAlias) {
               if (field.isOptional) {
-                generatedCode += `    ${pyName}: Optional[${field.pyType}] = Field(None, alias="${field.originalName}")\n`;
+                generatedCode += `    ${pyName}: Optional[${field.pyType}] = Field(None, alias="${escapePythonString(field.originalName)}")\n`;
               } else {
-                generatedCode += `    ${pyName}: ${field.pyType} = Field(..., alias="${field.originalName}")\n`;
+                generatedCode += `    ${pyName}: ${field.pyType} = Field(..., alias="${escapePythonString(field.originalName)}")\n`;
               }
             } else {
               let typeStr = field.isOptional ? `Optional[${field.pyType}] = None` : field.pyType;

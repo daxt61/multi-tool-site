@@ -614,6 +614,7 @@ const MarkdownTableToJSON = lazy(() => import("./components/MarkdownTableToJSON"
 const MarkdownTableToHTML = lazy(() => import("./components/MarkdownTableToHTML").then(m => ({ default: m.MarkdownTableToHTML })));
 const TOMLToCSV = lazy(() => import("./components/TOMLToCSV").then(m => ({ default: m.TOMLToCSV })));
 const JSONToTypeBox = lazy(() => import("./components/JSONToTypeBox").then(m => ({ default: m.JSONToTypeBox })));
+const CSVToJSON = lazy(() => import("./components/CSVToJSON").then(m => ({ default: m.CSVToJSON })));
 const CSVToNDJSON = lazy(() => import("./components/CSVToNDJSON").then(m => ({ default: m.CSVToNDJSON })));
 const NDJSONToCSV = lazy(() => import("./components/NDJSONToCSV").then(m => ({ default: m.NDJSONToCSV })));
 const SQLToJSONSchema = lazy(() => import("./components/SQLToJSONSchema").then(m => ({ default: m.SQLToJSONSchema })));
@@ -1351,6 +1352,18 @@ const tools: Tool[] = [
     Component: JSONToTypeBox,
     category: "dev",
     keywords: ["json", "typebox", "schema", "validation", "typescript", "static", "convert", "convertir"],
+  },
+  // CSV / TSV to JSON Converter Tool
+  {
+    id: "csv-to-json",
+    name: "CSV / TSV en JSON",
+    nameEn: "CSV / TSV to JSON",
+    icon: Table,
+    description: "Convertir des fichiers et tableaux CSV ou TSV en objets, tableaux 2D ou cartes JSON structurés",
+    descriptionEn: "Convert CSV or TSV datasets into structured JSON (Objects, 2D Array, Keyed Map, or NDJSON)",
+    Component: CSVToJSON,
+    category: "dev",
+    keywords: ["csv", "tsv", "json", "convert", "convertir", "objects", "array", "map", "ndjson", "parser"],
   },
   // CSV / TSV to NDJSON Converter Tool
   {

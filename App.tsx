@@ -651,6 +651,7 @@ const EnumerateIntegers = lazy(() => import("./components/EnumerateIntegers").th
 const GraphQLToTypeScript = lazy(() => import("./components/GraphQLToTypeScript").then(m => ({ default: m.GraphQLToTypeScript })));
 const GraphQLToCSharp = lazy(() => import("./components/GraphQLToCSharp").then(m => ({ default: m.GraphQLToCSharp })));
 const GraphQLToGo = lazy(() => import("./components/GraphQLToGo").then(m => ({ default: m.GraphQLToGo })));
+const GraphQLToJava = lazy(() => import("./components/GraphQLToJava").then(m => ({ default: m.GraphQLToJava })));
 const GraphQLToKotlin = lazy(() => import("./components/GraphQLToKotlin").then(m => ({ default: m.GraphQLToKotlin })));
 const GraphQLToPython = lazy(() => import("./components/GraphQLToPython").then(m => ({ default: m.GraphQLToPython })));
 const GraphQLToRust = lazy(() => import("./components/GraphQLToRust").then(m => ({ default: m.GraphQLToRust })));
@@ -838,6 +839,18 @@ const tools: Tool[] = [
     Component: GraphQLToGo,
     category: "dev",
     keywords: ["graphql", "sdl", "go", "golang", "struct", "tags", "json", "gorm", "convert", "convertir"],
+  },
+  // GraphQL SDL to Java Classes / Records Converter Tool
+  {
+    id: "graphql-to-java",
+    name: "GraphQL en Java",
+    nameEn: "GraphQL to Java",
+    icon: FileCode,
+    description: "Convertir des schémas GraphQL SDL en classes Java (POJO) ou records Java 17+ fortement typés",
+    descriptionEn: "Convert GraphQL SDL schemas into strongly-typed Java POJOs or Java 17+ Records",
+    Component: GraphQLToJava,
+    category: "dev",
+    keywords: ["graphql", "sdl", "java", "pojo", "record", "jackson", "gson", "lombok", "convert", "convertir"],
   },
   // GraphQL SDL to Kotlin Data Classes Converter Tool
   {

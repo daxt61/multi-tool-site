@@ -660,6 +660,7 @@ const GraphQLToTypeBox = lazy(() => import("./components/GraphQLToTypeBox").then
 const GraphQLToProtobuf = lazy(() => import("./components/GraphQLToProtobuf").then(m => ({ default: m.GraphQLToProtobuf })));
 const GraphQLToJSONSchema = lazy(() => import("./components/GraphQLToJSONSchema").then(m => ({ default: m.GraphQLToJSONSchema })));
 const GraphQLToSQL = lazy(() => import("./components/GraphQLToSQL").then(m => ({ default: m.GraphQLToSQL })));
+const GraphQLToPHP = lazy(() => import("./components/GraphQLToPHP").then(m => ({ default: m.GraphQLToPHP })));
 const SQLToThrift = lazy(() => import("./components/SQLToThrift").then(m => ({ default: m.SQLToThrift })));
 const SQLToProtobuf = lazy(() => import("./components/SQLToProtobuf").then(m => ({ default: m.SQLToProtobuf })));
 const SQLToClickHouse = lazy(() => import("./components/SQLToClickHouse").then(m => ({ default: m.SQLToClickHouse })));
@@ -959,6 +960,18 @@ const tools: Tool[] = [
     Component: GraphQLToSQL,
     category: "dev",
     keywords: ["graphql", "sdl", "sql", "ddl", "create table", "database", "postgres", "mysql", "sqlite", "convert", "convertir"],
+  },
+  // GraphQL SDL to PHP Converter Tool
+  {
+    id: "graphql-to-php",
+    name: "GraphQL en PHP DTO",
+    nameEn: "GraphQL to PHP DTO",
+    icon: FileCode,
+    description: "Convertir des schémas GraphQL SDL en classes PHP 8.1+, DTOs readonly PHP 8.2 ou modèles Spatie Data",
+    descriptionEn: "Convert GraphQL SDL schemas into PHP 8.1+ classes, PHP 8.2 readonly DTOs, or Spatie/Laravel Data models",
+    Component: GraphQLToPHP,
+    category: "dev",
+    keywords: ["graphql", "sdl", "php", "dto", "class", "readonly", "spatie", "laravel", "convert", "convertir"],
   },
   // Enumerate Integers Tool
   {

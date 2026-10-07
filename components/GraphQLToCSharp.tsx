@@ -175,6 +175,14 @@ union FeedItem = Post | Comment`
     return str;
   };
 
+  const escapeCSharpString = (str: string): string => {
+    return str
+      .replace(/\\/g, '\\\\')
+      .replace(/"/g, '\\"')
+      .replace(/\n/g, '\\n')
+      .replace(/\r/g, '\\r');
+  };
+
   const sanitizeCSharpIdentifier = (name: string): string => {
     let clean = name.replace(/[^a-zA-Z0-9_]/g, '_');
     if (!/^[a-zA-Z_]/.test(clean)) {
@@ -300,7 +308,7 @@ union FeedItem = Post | Comment`
           .filter(Boolean);
 
         if (outputFormat === 'hotchocolate') {
-          let block = `[UnionType("${unionName}")]\npublic interface I${unionName}\n{\n}`;
+          let block = `[UnionType("${escapeCSharpString(unionName)}")]\npublic interface I${unionName}\n{\n}`;
           outputBlocks.push(block);
         } else {
           let block = `public interface I${unionName} { }\n\n`;
@@ -392,9 +400,9 @@ union FeedItem = Post | Comment`
           const attributes: string[] = [];
 
           if (jsonAttributeFormat === 'system') {
-            attributes.push(`[JsonPropertyName("${rawFieldName}")]`);
+            attributes.push(`[JsonPropertyName("${escapeCSharpString(rawFieldName)}")]`);
           } else if (jsonAttributeFormat === 'newtonsoft') {
-            attributes.push(`[JsonProperty("${rawFieldName}")]`);
+            attributes.push(`[JsonProperty("${escapeCSharpString(rawFieldName)}")]`);
           }
 
           if (outputFormat === 'hotchocolate') {
@@ -435,7 +443,8 @@ union FeedItem = Post | Comment`
 
       let fullOutput = `${headerLines.join('\n')}\n\n`;
       if (namespaceName.trim()) {
-        fullOutput += `namespace ${namespaceName.trim()}\n{\n${outputBlocks.map(b => b.split('\n').map(l => l ? `    ${l}` : '').join('\n')).join('\n\n')}\n}`;
+        const cleanNamespace = namespaceName.trim().replace(/[^a-zA-Z0-9_.]/g, '');
+        fullOutput += `namespace ${cleanNamespace}\n{\n${outputBlocks.map(b => b.split('\n').map(l => l ? `    ${l}` : '').join('\n')).join('\n\n')}\n}`;
       } else {
         fullOutput += outputBlocks.join('\n\n');
       }

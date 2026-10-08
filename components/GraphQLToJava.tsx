@@ -174,6 +174,14 @@ union FeedItem = Post | Comment`
     return str;
   };
 
+  const escapeJavaString = (str: string): string => {
+    return str
+      .replace(/\\/g, '\\\\')
+      .replace(/"/g, '\\"')
+      .replace(/\n/g, '\\n')
+      .replace(/\r/g, '\\r');
+  };
+
   const sanitizeJavaIdentifier = (name: string): string => {
     let clean = name.replace(/[^a-zA-Z0-9_]/g, '_');
     if (!/^[a-zA-Z_]/.test(clean)) {
@@ -286,9 +294,9 @@ union FeedItem = Post | Comment`
           const comma = idx < enumValues.length - 1 ? ',' : ';';
           let anno = '';
           if (annotationKind === 'jackson' && v !== valCased) {
-            anno = `@JsonProperty("${v}") `;
+            anno = `@JsonProperty("${escapeJavaString(v)}") `;
           } else if (annotationKind === 'gson' && v !== valCased) {
-            anno = `@SerializedName("${v}") `;
+            anno = `@SerializedName("${escapeJavaString(v)}") `;
           }
           block += `    ${anno}${valCased}${comma}\n`;
         });
@@ -310,7 +318,7 @@ union FeedItem = Post | Comment`
         if (annotationKind === 'jackson') {
           block += `@JsonTypeInfo(use = JsonTypeInfo.Id.NAME, include = JsonTypeInfo.As.PROPERTY, property = "__typename")\n`;
           block += `@JsonSubTypes({\n`;
-          block += typesList.map(tName => `    @JsonSubTypes.Type(value = ${sanitizeJavaIdentifier(tName)}.class, name = "${tName}")`).join(',\n') + '\n';
+          block += typesList.map(tName => `    @JsonSubTypes.Type(value = ${sanitizeJavaIdentifier(tName)}.class, name = "${escapeJavaString(tName)}")`).join(',\n') + '\n';
           block += `})\n`;
         }
 
@@ -385,9 +393,9 @@ union FeedItem = Post | Comment`
 
             let fieldAnno = '';
             if (annotationKind === 'jackson') {
-              fieldAnno = `@JsonProperty("${rawFieldName}") `;
+              fieldAnno = `@JsonProperty("${escapeJavaString(rawFieldName)}") `;
             } else if (annotationKind === 'gson') {
-              fieldAnno = `@SerializedName("${rawFieldName}") `;
+              fieldAnno = `@SerializedName("${escapeJavaString(rawFieldName)}") `;
             }
 
             paramLines.push(`    ${fieldAnno}${javaType} ${javaPropName}`);
@@ -421,9 +429,9 @@ union FeedItem = Post | Comment`
 
             let fieldAnno = '';
             if (annotationKind === 'jackson') {
-              fieldAnno = `    @JsonProperty("${rawFieldName}")\n`;
+              fieldAnno = `    @JsonProperty("${escapeJavaString(rawFieldName)}")\n`;
             } else if (annotationKind === 'gson') {
-              fieldAnno = `    @SerializedName("${rawFieldName}")\n`;
+              fieldAnno = `    @SerializedName("${escapeJavaString(rawFieldName)}")\n`;
             }
 
             fieldDecls.push(`${fieldAnno}    private ${javaType} ${javaPropName};`);

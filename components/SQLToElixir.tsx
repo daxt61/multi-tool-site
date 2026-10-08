@@ -553,7 +553,7 @@ CREATE TABLE audit_logs (
           <div className="flex justify-between items-center px-1">
             <div className="flex items-center gap-2">
               <FileCode className="w-4 h-4 text-purple-500" aria-hidden="true" />
-              <label htmlFor="elixir-output" className="text-xs font-black uppercase tracking-widest text-slate-400 cursor-pointer">
+              <label htmlFor="sql-elixir-output" className="text-xs font-black uppercase tracking-widest text-slate-400 cursor-pointer">
                 {t('sqltoelixir.output_label', 'Generated Elixir Ecto Schemas')}
               </label>
             </div>
@@ -580,7 +580,7 @@ CREATE TABLE audit_logs (
             </div>
           </div>
           <textarea
-            id="elixir-output"
+            id="sql-elixir-output"
             value={output}
             readOnly
             placeholder={t('sqltoelixir.placeholder_output', 'Generated Elixir Ecto code will appear here...')}

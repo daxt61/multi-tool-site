@@ -662,6 +662,7 @@ const GraphQLToProtobuf = lazy(() => import("./components/GraphQLToProtobuf").th
 const GraphQLToJSONSchema = lazy(() => import("./components/GraphQLToJSONSchema").then(m => ({ default: m.GraphQLToJSONSchema })));
 const GraphQLToSQL = lazy(() => import("./components/GraphQLToSQL").then(m => ({ default: m.GraphQLToSQL })));
 const GraphQLToPHP = lazy(() => import("./components/GraphQLToPHP").then(m => ({ default: m.GraphQLToPHP })));
+const GraphQLToDart = lazy(() => import("./components/GraphQLToDart").then(m => ({ default: m.GraphQLToDart })));
 const SQLToThrift = lazy(() => import("./components/SQLToThrift").then(m => ({ default: m.SQLToThrift })));
 const SQLToProtobuf = lazy(() => import("./components/SQLToProtobuf").then(m => ({ default: m.SQLToProtobuf })));
 const SQLToClickHouse = lazy(() => import("./components/SQLToClickHouse").then(m => ({ default: m.SQLToClickHouse })));
@@ -973,6 +974,18 @@ const tools: Tool[] = [
     Component: GraphQLToPHP,
     category: "dev",
     keywords: ["graphql", "sdl", "php", "dto", "class", "readonly", "spatie", "laravel", "convert", "convertir"],
+  },
+  // GraphQL SDL to Dart Converter Tool
+  {
+    id: "graphql-to-dart",
+    name: "GraphQL en Dart",
+    nameEn: "GraphQL to Dart",
+    icon: FileCode,
+    description: "Convertir des schémas GraphQL SDL en modèles de classes Dart / Flutter fortement typés (json_serializable, freezed)",
+    descriptionEn: "Convert GraphQL SDL schemas into strongly-typed Dart / Flutter model classes with json_serializable or freezed factories",
+    Component: GraphQLToDart,
+    category: "dev",
+    keywords: ["graphql", "sdl", "dart", "flutter", "class", "freezed", "json_serializable", "convert", "convertir"],
   },
   // Enumerate Integers Tool
   {

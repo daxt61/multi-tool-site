@@ -540,6 +540,7 @@ const SQLToDynamoDB = lazy(() => import("./components/SQLToDynamoDB").then(m => 
 const SQLToElasticsearch = lazy(() => import("./components/SQLToElasticsearch").then(m => ({ default: m.SQLToElasticsearch })));
 const SQLToOpenAPI = lazy(() => import("./components/SQLToOpenAPI").then(m => ({ default: m.SQLToOpenAPI })));
 const SQLToMermaid = lazy(() => import("./components/SQLToMermaid").then(m => ({ default: m.SQLToMermaid })));
+const GraphQLToMermaid = lazy(() => import("./components/GraphQLToMermaid").then(m => ({ default: m.GraphQLToMermaid })));
 const SQLToPydantic = lazy(() => import("./components/SQLToPydantic").then(m => ({ default: m.SQLToPydantic })));
 const SQLToGraphQL = lazy(() => import("./components/SQLToGraphQL").then(m => ({ default: m.SQLToGraphQL })));
 const SQLToPrisma = lazy(() => import("./components/SQLToPrisma").then(m => ({ default: m.SQLToPrisma })));
@@ -6035,6 +6036,17 @@ const tools: Tool[] = [
     Component: SQLToMermaid,
     category: "dev",
     keywords: ["sql", "mermaid", "er", "diagram", "entity", "relationship", "database", "ddl", "create table"],
+  },
+  {
+    id: "graphql-to-mermaid",
+    name: "GraphQL en Mermaid",
+    nameEn: "GraphQL to Mermaid Diagram",
+    icon: Network,
+    description: "Générer des diagrammes de classes et ER Mermaid à partir de schémas GraphQL SDL",
+    descriptionEn: "Generate Mermaid Class and ER diagrams from GraphQL SDL schemas",
+    Component: GraphQLToMermaid,
+    category: "dev",
+    keywords: ["graphql", "mermaid", "diagram", "class", "er", "sdl", "schema"],
   },
   {
     id: "sql-to-pydantic",

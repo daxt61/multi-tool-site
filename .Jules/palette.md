@@ -1,3 +1,7 @@
+## 2026-09-11 - [Single Key Shortcut Display and Container Isolation in Overtime Calculator]
+**Learning:** Defaulting `<Kbd>` components to display `Ctrl +` modifier leads to misleading on-screen prompts (`Ctrl + Esc`, `Ctrl + c`) when single-key hotkeys (like `Escape` or `C`) are intended. Explicitly passing `modifier={null}` to `<Kbd>` ensures accurate, accessible visual hints matching container-isolated `keydown` logic (`Escape` reset & focus `#hourly-rate`, `C` copy summary).
+**Action:** Always pass `modifier={null}` to `<Kbd>` badges for single-key shortcuts to align visual instructions with keyboard event handlers.
+
 ## 2026-09-10 - [Bilingual Savings & Financial Growth Estimator Accessibility and Keyboard Isolation]
 **Learning:** Financial growth calculators (like Savings Calculator) often suffer from hardcoded French strings, unlinked input labels, lack of clipboard output triggers, and non-isolated keyboard listeners. Integrating full English/French i18n keys (`savings.*`), explicit HTML label pairings (`htmlFor`/`id`), visual `<Kbd>` shortcut badges (`Esc`, `C`), container-gated hotkey listeners (`containerRef` and `handlersRef`), Sonner toasts, and focus restoration to `#initialAmount` delivers a seamless, WCAG-compliant micro-UX.
 **Action:** Always provide full bilingual translations, connect all numeric inputs with explicit HTML label pairings, isolate keyboard listeners with `containerRef`, add a copy summary button with visual `<Kbd>` badges, and restore focus to primary inputs upon reset.

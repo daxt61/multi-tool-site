@@ -32,6 +32,15 @@ export function sanitizePhpNamespace(ns: string): string {
     .replace(/^\\+|\\+$/g, '');
 }
 
+export function escapePhpSingleQuoteString(str: string): string {
+  if (!str) return '';
+  return str
+    .replace(/\?>/g, '? >')
+    .replace(/\\/g, '\\\\')
+    .replace(/'/g, "\\'")
+    .replace(/[\r\n]/g, '\\n');
+}
+
 export function GraphQLToPHP({ initialData, onStateChange }: { initialData?: any; onStateChange?: (state: any) => void }) {
   const { t } = useTranslation();
   const inputRef = useRef<HTMLTextAreaElement>(null);
@@ -281,7 +290,8 @@ union FeedItem = Post | Comment`
         let enumBlock = `enum ${enumName}: string\n{\n`;
         enumValues.forEach(v => {
           const caseName = sanitizePhpIdentifier(v.toUpperCase());
-          enumBlock += `    case ${caseName} = '${v}';\n`;
+          const safeValue = escapePhpSingleQuoteString(v);
+          enumBlock += `    case ${caseName} = '${safeValue}';\n`;
         });
         enumBlock += `}`;
         outputBlocks.push(enumBlock);

@@ -17,6 +17,14 @@ const PYTHON_KEYWORDS = new Set([
   'true', 'try', 'while', 'with', 'yield'
 ]);
 
+const escapePythonString = (str: string): string => {
+  return str
+    .replace(/\\/g, '\\\\')
+    .replace(/"/g, '\\"')
+    .replace(/\n/g, '\\n')
+    .replace(/\r/g, '\\r');
+};
+
 export function GraphQLToPython({ initialData, onStateChange }: { initialData?: any; onStateChange?: (state: any) => void }) {
   const { t } = useTranslation();
   const inputRef = useRef<HTMLTextAreaElement>(null);
@@ -392,10 +400,11 @@ union FeedItem = Post | Comment`
           let fieldExtra = '';
           if ((outputFormat === 'pydantic_v2' || outputFormat === 'pydantic_v1') && (rawFieldName !== pyName || isKeywordEscaped)) {
             pydanticImports.add('Field');
+            const escapedAlias = escapePythonString(rawFieldName);
             if (outputFormat === 'pydantic_v2') {
-              fieldExtra = ` = Field(${defaultValue ? 'None, ' : ''}alias="${rawFieldName}")`;
+              fieldExtra = ` = Field(${defaultValue ? 'None, ' : ''}alias="${escapedAlias}")`;
             } else {
-              fieldExtra = ` = Field(${defaultValue ? 'None, ' : ''}alias="${rawFieldName}")`;
+              fieldExtra = ` = Field(${defaultValue ? 'None, ' : ''}alias="${escapedAlias}")`;
             }
             defaultValue = ''; // Handled in Field
           }

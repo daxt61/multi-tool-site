@@ -656,6 +656,7 @@ const GraphQLToJava = lazy(() => import("./components/GraphQLToJava").then(m => 
 const GraphQLToKotlin = lazy(() => import("./components/GraphQLToKotlin").then(m => ({ default: m.GraphQLToKotlin })));
 const GraphQLToPython = lazy(() => import("./components/GraphQLToPython").then(m => ({ default: m.GraphQLToPython })));
 const GraphQLToRust = lazy(() => import("./components/GraphQLToRust").then(m => ({ default: m.GraphQLToRust })));
+const GraphQLToSeaORM = lazy(() => import("./components/GraphQLToSeaORM").then(m => ({ default: m.GraphQLToSeaORM })));
 const GraphQLToZod = lazy(() => import("./components/GraphQLToZod").then(m => ({ default: m.GraphQLToZod })));
 const GraphQLToTypeBox = lazy(() => import("./components/GraphQLToTypeBox").then(m => ({ default: m.GraphQLToTypeBox })));
 const GraphQLToProtobuf = lazy(() => import("./components/GraphQLToProtobuf").then(m => ({ default: m.GraphQLToProtobuf })));
@@ -890,6 +891,17 @@ const tools: Tool[] = [
     Component: GraphQLToRust,
     category: "dev",
     keywords: ["graphql", "sdl", "rust", "struct", "enum", "serde", "async-graphql", "juniper", "convert", "convertir"],
+  },
+  {
+    id: "graphql-to-seaorm",
+    name: "GraphQL en SeaORM Rust",
+    nameEn: "GraphQL to SeaORM Rust Entity",
+    icon: FileCode,
+    description: "Convertir des schémas GraphQL SDL en modèles d'entités Rust SeaORM (DeriveEntityModel, DeriveActiveEnum)",
+    descriptionEn: "Convert GraphQL SDL schemas into Rust SeaORM Entity models (DeriveEntityModel, DeriveActiveEnum)",
+    Component: GraphQLToSeaORM,
+    category: "dev",
+    keywords: ["graphql", "sdl", "seaorm", "sea-orm", "rust", "entity", "orm", "activeenum", "activemodel", "convert", "convertir"],
   },
   // GraphQL SDL to TypeScript Interfaces Converter Tool
   {

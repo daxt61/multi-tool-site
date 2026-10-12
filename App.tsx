@@ -658,7 +658,11 @@ const GraphQLToPython = lazy(() => import("./components/GraphQLToPython").then(m
 const GraphQLToRust = lazy(() => import("./components/GraphQLToRust").then(m => ({ default: m.GraphQLToRust })));
 const GraphQLToSeaORM = lazy(() => import("./components/GraphQLToSeaORM").then(m => ({ default: m.GraphQLToSeaORM })));
 const GraphQLToZod = lazy(() => import("./components/GraphQLToZod").then(m => ({ default: m.GraphQLToZod })));
+const GraphQLToYup = lazy(() => import("./components/GraphQLToYup").then(m => ({ default: m.GraphQLToYup })));
+const GraphQLToJoi = lazy(() => import("./components/GraphQLToJoi").then(m => ({ default: m.GraphQLToJoi })));
 const GraphQLToTypeBox = lazy(() => import("./components/GraphQLToTypeBox").then(m => ({ default: m.GraphQLToTypeBox })));
+const SQLToYup = lazy(() => import("./components/SQLToYup").then(m => ({ default: m.SQLToYup })));
+const SQLToJoi = lazy(() => import("./components/SQLToJoi").then(m => ({ default: m.SQLToJoi })));
 const GraphQLToProtobuf = lazy(() => import("./components/GraphQLToProtobuf").then(m => ({ default: m.GraphQLToProtobuf })));
 const GraphQLToJSONSchema = lazy(() => import("./components/GraphQLToJSONSchema").then(m => ({ default: m.GraphQLToJSONSchema })));
 const GraphQLToSQL = lazy(() => import("./components/GraphQLToSQL").then(m => ({ default: m.GraphQLToSQL })));
@@ -926,6 +930,30 @@ const tools: Tool[] = [
     Component: GraphQLToZod,
     category: "dev",
     keywords: ["graphql", "sdl", "zod", "validation", "schema", "type", "enum", "convert", "convertir"],
+  },
+  // GraphQL SDL to Yup Validation Schema Converter Tool
+  {
+    id: "graphql-to-yup",
+    name: "GraphQL en Yup",
+    nameEn: "GraphQL to Yup",
+    icon: ShieldCheck,
+    description: "Convertir des schémas GraphQL SDL en schémas de validation Yup",
+    descriptionEn: "Convert GraphQL SDL schemas into strongly-typed Yup validation schemas",
+    Component: GraphQLToYup,
+    category: "dev",
+    keywords: ["graphql", "sdl", "yup", "validation", "schema", "type", "enum", "convert", "convertir"],
+  },
+  // GraphQL SDL to Joi Validation Schema Converter Tool
+  {
+    id: "graphql-to-joi",
+    name: "GraphQL en Joi",
+    nameEn: "GraphQL to Joi",
+    icon: ShieldCheck,
+    description: "Convertir des schémas GraphQL SDL en schémas de validation Joi",
+    descriptionEn: "Convert GraphQL SDL schemas into strongly-typed Joi validation schemas",
+    Component: GraphQLToJoi,
+    category: "dev",
+    keywords: ["graphql", "sdl", "joi", "validation", "schema", "type", "enum", "convert", "convertir"],
   },
   // GraphQL SDL to TypeBox Validation Schema Converter Tool
   {
@@ -1212,6 +1240,30 @@ const tools: Tool[] = [
     Component: SQLToZod,
     category: "dev",
     keywords: ["sql", "ddl", "create table", "zod", "schema", "validation", "typescript", "convert", "convertir"],
+  },
+  // SQL DDL to Yup Schema Converter Tool
+  {
+    id: "sql-to-yup",
+    name: "SQL DDL en Yup",
+    nameEn: "SQL DDL to Yup Schema",
+    icon: ShieldCheck,
+    description: "Convertir des instructions SQL CREATE TABLE DDL en schémas de validation Yup TypeScript",
+    descriptionEn: "Convert SQL CREATE TABLE DDL statements into strongly-typed TypeScript Yup validation schemas",
+    Component: SQLToYup,
+    category: "dev",
+    keywords: ["sql", "ddl", "create table", "yup", "schema", "validation", "typescript", "convert", "convertir"],
+  },
+  // SQL DDL to Joi Schema Converter Tool
+  {
+    id: "sql-to-joi",
+    name: "SQL DDL en Joi",
+    nameEn: "SQL DDL to Joi Schema",
+    icon: ShieldCheck,
+    description: "Convertir des instructions SQL CREATE TABLE DDL en schémas de validation Joi JavaScript",
+    descriptionEn: "Convert SQL CREATE TABLE DDL statements into strongly-typed Joi validation schemas",
+    Component: SQLToJoi,
+    category: "dev",
+    keywords: ["sql", "ddl", "create table", "joi", "schema", "validation", "javascript", "convert", "convertir"],
   },
   // Image Pixelator Tool
   {

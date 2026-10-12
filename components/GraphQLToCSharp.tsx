@@ -36,6 +36,7 @@ export function GraphQLToCSharp({ initialData, onStateChange }: { initialData?: 
   const [useNullableTypes, setUseNullableTypes] = useState<boolean>(initialData?.useNullableTypes !== undefined ? initialData.useNullableTypes : true);
   const [idType, setIdType] = useState<IdType>(initialData?.idType || 'string');
   const [dateTimeType, setDateTimeType] = useState<DateTimeType>(initialData?.dateTimeType || 'DateTime');
+  const [activePresetId, setActivePresetId] = useState<string | null>(initialData?.activePresetId || null);
   const [error, setError] = useState('');
   const [copied, setCopied] = useState(false);
 
@@ -50,8 +51,9 @@ export function GraphQLToCSharp({ initialData, onStateChange }: { initialData?: 
       useNullableTypes,
       idType,
       dateTimeType,
+      activePresetId,
     });
-  }, [input, output, namespaceName, outputFormat, jsonAttributeFormat, propertyCasing, useNullableTypes, idType, dateTimeType, onStateChange]);
+  }, [input, output, namespaceName, outputFormat, jsonAttributeFormat, propertyCasing, useNullableTypes, idType, dateTimeType, activePresetId, onStateChange]);
 
   const PRESETS = {
     ecommerce: `# E-Commerce Schema
@@ -473,6 +475,7 @@ union FeedItem = Post | Comment`
     setInput('');
     setOutput('');
     setError('');
+    setActivePresetId(null);
     toast.success(t('graphqltocsharp.toast_cleared', 'Inputs cleared!'));
     setTimeout(() => inputRef.current?.focus(), 0);
   }, [t]);
@@ -493,6 +496,7 @@ union FeedItem = Post | Comment`
 
   const loadPreset = (presetKey: keyof typeof PRESETS) => {
     setInput(PRESETS[presetKey]);
+    setActivePresetId(presetKey);
     toast.success(t('graphqltocsharp.preset_loaded', 'Loaded GraphQL preset!'));
   };
 
@@ -542,19 +546,34 @@ union FeedItem = Post | Comment`
         <div className="flex flex-wrap items-center gap-2">
           <button
             onClick={() => loadPreset('ecommerce')}
-            className="px-3 py-1.5 text-xs font-bold bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 hover:border-indigo-500 rounded-xl transition-all shadow-sm focus-visible:ring-2 focus-visible:ring-indigo-500 focus-visible:outline-none"
+            aria-pressed={activePresetId === 'ecommerce'}
+            className={`px-3 py-1.5 text-xs font-bold rounded-xl transition-all shadow-sm focus-visible:ring-2 focus-visible:ring-indigo-500 focus-visible:outline-none ${
+              activePresetId === 'ecommerce'
+                ? 'bg-indigo-600 text-white border border-indigo-600'
+                : 'bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 hover:border-indigo-500'
+            }`}
           >
             {t('graphqltocsharp.preset_ecommerce', 'E-Commerce Catalog')}
           </button>
           <button
             onClick={() => loadPreset('user_auth')}
-            className="px-3 py-1.5 text-xs font-bold bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 hover:border-indigo-500 rounded-xl transition-all shadow-sm focus-visible:ring-2 focus-visible:ring-indigo-500 focus-visible:outline-none"
+            aria-pressed={activePresetId === 'user_auth'}
+            className={`px-3 py-1.5 text-xs font-bold rounded-xl transition-all shadow-sm focus-visible:ring-2 focus-visible:ring-indigo-500 focus-visible:outline-none ${
+              activePresetId === 'user_auth'
+                ? 'bg-indigo-600 text-white border border-indigo-600'
+                : 'bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 hover:border-indigo-500'
+            }`}
           >
             {t('graphqltocsharp.preset_user_auth', 'User Management & Auth')}
           </button>
           <button
             onClick={() => loadPreset('social_feed')}
-            className="px-3 py-1.5 text-xs font-bold bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 hover:border-indigo-500 rounded-xl transition-all shadow-sm focus-visible:ring-2 focus-visible:ring-indigo-500 focus-visible:outline-none"
+            aria-pressed={activePresetId === 'social_feed'}
+            className={`px-3 py-1.5 text-xs font-bold rounded-xl transition-all shadow-sm focus-visible:ring-2 focus-visible:ring-indigo-500 focus-visible:outline-none ${
+              activePresetId === 'social_feed'
+                ? 'bg-indigo-600 text-white border border-indigo-600'
+                : 'bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 hover:border-indigo-500'
+            }`}
           >
             {t('graphqltocsharp.preset_social_feed', 'Social Feed & Comments')}
           </button>
@@ -695,7 +714,10 @@ union FeedItem = Post | Comment`
             id="graphql-csharp-input"
             ref={inputRef}
             value={input}
-            onChange={(e) => setInput(e.target.value)}
+            onChange={(e) => {
+              setInput(e.target.value);
+              if (activePresetId) setActivePresetId(null);
+            }}
             placeholder={t('graphqltocsharp.placeholder_graphql', 'Paste GraphQL SDL schema here...')}
             className="w-full h-[450px] p-6 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-3xl outline-none focus:ring-2 focus:ring-indigo-500/20 transition-all font-mono text-sm leading-relaxed dark:text-slate-300 resize-none"
           />

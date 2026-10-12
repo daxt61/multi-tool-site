@@ -170,6 +170,16 @@ union FeedItem = Post | Comment`
     return str;
   };
 
+  const escapeDartString = (str: string): string => {
+    return str
+      .replace(/\\/g, '\\\\')
+      .replace(/'/g, "\\'")
+      .replace(/\$/g, '\\$')
+      .replace(/\n/g, '\\n')
+      .replace(/\r/g, '\\r')
+      .replace(/\t/g, '\\t');
+  };
+
   const sanitizeDartIdentifier = (name: string): string => {
     let clean = name.replace(/[^a-zA-Z0-9_]/g, '_');
     if (!/^[a-zA-Z_]/.test(clean)) {
@@ -276,7 +286,7 @@ union FeedItem = Post | Comment`
           const comma = idx < enumValues.length - 1 ? ',' : ';';
           let anno = '';
           if ((constructStyle === 'json_serializable' || constructStyle === 'freezed') && v !== valCased) {
-            anno = `@JsonValue('${v}') `;
+            anno = `@JsonValue('${escapeDartString(v)}') `;
           }
           block += `  ${anno}${valCased}${comma}\n`;
         });
@@ -398,7 +408,7 @@ union FeedItem = Post | Comment`
           block += `  const factory ${dartTypeName}({\n`;
           fields.forEach(f => {
             const requiredStr = f.isNullable ? '' : 'required ';
-            const jsonKeyStr = f.rawFieldName !== f.dartPropName ? `@JsonKey(name: '${f.rawFieldName}') ` : '';
+            const jsonKeyStr = f.rawFieldName !== f.dartPropName ? `@JsonKey(name: '${escapeDartString(f.rawFieldName)}') ` : '';
             block += `    ${jsonKeyStr}${requiredStr}${f.dartTypeStr} ${f.dartPropName},\n`;
           });
           block += `  }) = _${dartTypeName};\n\n`;
@@ -412,7 +422,7 @@ union FeedItem = Post | Comment`
           block += `class ${dartTypeName}${inheritance} {\n`;
           fields.forEach(f => {
             if (f.rawFieldName !== f.dartPropName) {
-              block += `  @JsonKey(name: '${f.rawFieldName}')\n`;
+              block += `  @JsonKey(name: '${escapeDartString(f.rawFieldName)}')\n`;
             }
             block += `  final ${f.dartTypeStr} ${f.dartPropName};\n`;
           });
@@ -443,7 +453,7 @@ union FeedItem = Post | Comment`
           block += `  factory ${dartTypeName}.fromJson(Map<String, dynamic> json) {\n`;
           block += `    return ${dartTypeName}(\n`;
           fields.forEach(f => {
-            const key = f.rawFieldName;
+            const key = escapeDartString(f.rawFieldName);
             if (f.dartTypeStr.startsWith('DateTime')) {
               block += `      ${f.dartPropName}: json['${key}'] != null ? DateTime.parse(json['${key}'] as String) : ${f.isNullable ? 'null' : 'DateTime.now()'},\n`;
             } else if (f.dartTypeStr.startsWith('double')) {
@@ -464,7 +474,7 @@ union FeedItem = Post | Comment`
           block += `  Map<String, dynamic> toJson() {\n`;
           block += `    return {\n`;
           fields.forEach(f => {
-            const key = f.rawFieldName;
+            const key = escapeDartString(f.rawFieldName);
             if (f.dartTypeStr.startsWith('DateTime')) {
               block += `      '${key}': ${f.dartPropName}${f.isNullable ? '?' : ''}.toIso8601String(),\n`;
             } else {

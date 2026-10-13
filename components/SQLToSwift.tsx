@@ -138,6 +138,15 @@ export function SQLToSwift({ initialData, onStateChange }: { initialData?: any; 
     }
   };
 
+  const escapeSwiftString = (str: string): string => {
+    return str
+      .replace(/\\/g, '\\\\')
+      .replace(/"/g, '\\"')
+      .replace(/\n/g, '\\n')
+      .replace(/\r/g, '\\r')
+      .replace(/\t/g, '\\t');
+  };
+
   const formatSwiftIdentifier = (name: string): string => {
     let clean = name.replace(/[`\r\n]/g, '').trim();
     if (!clean) clean = 'property';
@@ -284,7 +293,8 @@ export function SQLToSwift({ initialData, onStateChange }: { initialData?: any; 
         // Property Declarations
         properties.forEach(prop => {
           const typeStr = prop.nullable ? `${prop.swiftType}?` : prop.swiftType;
-          const comment = prop.swiftKey.replace(/`/g, '') !== prop.originalName ? ` // original: ${prop.originalName}` : '';
+          const sanitizedOriginal = prop.originalName.replace(/[\r\n]+/g, ' ');
+          const comment = prop.swiftKey.replace(/`/g, '') !== prop.originalName ? ` // original: ${sanitizedOriginal}` : '';
           code += `    ${visibility}let ${prop.swiftKey}: ${typeStr}${comment}\n`;
         });
 
@@ -309,7 +319,7 @@ export function SQLToSwift({ initialData, onStateChange }: { initialData?: any; 
           properties.forEach(p => {
             const cleanKey = p.swiftKey.replace(/`/g, '');
             if (p.originalName !== cleanKey) {
-              code += `        case ${p.swiftKey} = "${p.originalName}"\n`;
+              code += `        case ${p.swiftKey} = "${escapeSwiftString(p.originalName)}"\n`;
             } else {
               code += `        case ${p.swiftKey}\n`;
             }

@@ -5,6 +5,33 @@ test.describe('BMR and TDEE Calculator Premium UX & Accessibility', () => {
     await page.goto(`${baseURL || 'http://localhost:5173'}/fr/outil/bmr-calculator`);
   });
 
+  test('should support quick-start presets with active selection state and toast feedback', async ({ page }) => {
+    const malePresetBtn = page.getByRole('button', { name: /Homme Standard/i });
+    await expect(malePresetBtn).toBeVisible();
+    await expect(malePresetBtn).toHaveAttribute('aria-pressed', 'false');
+
+    await malePresetBtn.click();
+    await expect(malePresetBtn).toHaveAttribute('aria-pressed', 'true');
+
+    // Check Toast
+    const toast = page.locator('li[data-sonner-toast]');
+    await expect(toast.last()).toBeVisible();
+
+    // Inputs populated
+    const ageInput = page.locator('input#age');
+    await expect(ageInput).toHaveValue('30');
+
+    const weightInput = page.locator('input#weight');
+    await expect(weightInput).toHaveValue('75');
+
+    const heightInput = page.locator('input#height');
+    await expect(heightInput).toHaveValue('175');
+
+    // Changing an input clears active preset state
+    await ageInput.fill('31');
+    await expect(malePresetBtn).toHaveAttribute('aria-pressed', 'false');
+  });
+
   test('should display accessible groups and standard label-input associations', async ({ page }) => {
     // 1. Verify Gender choice is marked with radiogroup role
     const genderGroup = page.getByRole('radiogroup', { name: /genre/i });
@@ -24,17 +51,17 @@ test.describe('BMR and TDEE Calculator Premium UX & Accessibility', () => {
     await expect(femaleRadio).toHaveAttribute('aria-checked', 'true');
 
     // 3. Verify label-to-input association for Age
-    const ageInput = page.getByLabel(/Âge/i);
+    const ageInput = page.getByLabel(/^Âge$/i);
     await expect(ageInput).toBeVisible();
     await ageInput.fill('30');
 
     // 4. Verify label-to-input association for Poids
-    const weightInput = page.getByLabel(/Poids/i);
+    const weightInput = page.getByLabel(/^Poids/i);
     await expect(weightInput).toBeVisible();
     await weightInput.fill('75');
 
     // 5. Verify label-to-input association for Taille
-    const heightInput = page.getByLabel(/Taille/i);
+    const heightInput = page.getByLabel(/^Taille/i);
     await expect(heightInput).toBeVisible();
     await heightInput.fill('180');
 
@@ -44,15 +71,15 @@ test.describe('BMR and TDEE Calculator Premium UX & Accessibility', () => {
   });
 
   test('should support keyboard shortcuts (Escape to reset and focus, C to copy)', async ({ page }) => {
-    const ageInput = page.getByLabel(/Âge/i);
+    const ageInput = page.locator('input#age');
     await ageInput.focus();
     await ageInput.fill('30');
 
-    const weightInput = page.getByLabel(/Poids/i);
+    const weightInput = page.locator('input#weight');
     await weightInput.focus();
     await weightInput.fill('75');
 
-    const heightInput = page.getByLabel(/Taille/i);
+    const heightInput = page.locator('input#height');
     await heightInput.focus();
     await heightInput.fill('180');
 

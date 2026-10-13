@@ -15,6 +15,22 @@ const ACTIVITY_MULTIPLIERS: Record<ActivityLevel, number> = {
   very_active: 1.9,
 };
 
+interface Preset {
+  id: string;
+  nameKey: string;
+  gender: Gender;
+  age: string;
+  weight: string;
+  height: string;
+  activity: ActivityLevel;
+}
+
+const PRESETS: Preset[] = [
+  { id: 'male', nameKey: 'bmrcalculator.preset_male', gender: 'male', age: '30', weight: '75', height: '175', activity: 'moderate' },
+  { id: 'female', nameKey: 'bmrcalculator.preset_female', gender: 'female', age: '28', weight: '62', height: '165', activity: 'light' },
+  { id: 'athlete', nameKey: 'bmrcalculator.preset_athlete', gender: 'male', age: '25', weight: '80', height: '185', activity: 'active' },
+];
+
 export function BMRCalculator({ initialData, onStateChange }: { initialData?: any; onStateChange?: (state: any) => void }) {
   const ageInputRef = useRef<HTMLInputElement>(null);
   const { t, i18n } = useTranslation();
@@ -24,10 +40,21 @@ export function BMRCalculator({ initialData, onStateChange }: { initialData?: an
   const [gender, setGender] = useState<Gender>(initialData?.gender || 'male');
   const [activity, setActivity] = useState<ActivityLevel>(initialData?.activity || 'sedentary');
   const [copied, setCopied] = useState<string | null>(null);
+  const [activePresetId, setActivePresetId] = useState<string | null>(null);
 
   useEffect(() => {
     onStateChange?.({ age, weight, height, gender, activity });
   }, [age, weight, height, gender, activity, onStateChange]);
+
+  const handleApplyPreset = (preset: Preset) => {
+    setGender(preset.gender);
+    setAge(preset.age);
+    setWeight(preset.weight);
+    setHeight(preset.height);
+    setActivity(preset.activity);
+    setActivePresetId(preset.id);
+    toast.success(t('bmrcalculator.preset_loaded', { name: t(preset.nameKey) }));
+  };
 
   const results = useMemo(() => {
     const a = parseFloat(age);
@@ -61,6 +88,7 @@ export function BMRCalculator({ initialData, onStateChange }: { initialData?: an
     setHeight('');
     setGender('male');
     setActivity('sedentary');
+    setActivePresetId(null);
     setTimeout(() => ageInputRef.current?.focus(), 0);
   }, []);
 
@@ -109,6 +137,28 @@ export function BMRCalculator({ initialData, onStateChange }: { initialData?: an
 
   return (
     <div className="max-w-5xl mx-auto space-y-12">
+      {/* Quick Presets */}
+      <div className="flex flex-wrap items-center gap-2 bg-slate-50 dark:bg-slate-900/50 p-4 rounded-2xl border border-slate-200 dark:border-slate-800">
+        <span className="text-xs font-bold text-slate-500 uppercase tracking-wider mr-2">{t('bmrcalculator.presets_title')}</span>
+        {PRESETS.map((preset) => {
+          const isActive = activePresetId === preset.id;
+          return (
+            <button
+              key={preset.id}
+              onClick={() => handleApplyPreset(preset)}
+              aria-pressed={isActive}
+              className={`px-3 py-1.5 rounded-xl text-xs font-bold transition-all focus-visible:ring-2 focus-visible:ring-indigo-500 focus-visible:outline-none ${
+                isActive
+                  ? 'bg-indigo-600 text-white shadow-md shadow-indigo-600/20'
+                  : 'bg-white dark:bg-slate-800 text-slate-600 dark:text-slate-300 border border-slate-200 dark:border-slate-700 hover:border-slate-300 dark:hover:border-slate-600'
+              }`}
+            >
+              {t(preset.nameKey)}
+            </button>
+          );
+        })}
+      </div>
+
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
         {/* Input Controls */}
         <div className="lg:col-span-7 space-y-8">
@@ -137,7 +187,10 @@ export function BMRCalculator({ initialData, onStateChange }: { initialData?: an
                   <button
                     role="radio"
                     aria-checked={gender === 'male'}
-                    onClick={() => setGender('male')}
+                    onClick={() => {
+                      setGender('male');
+                      setActivePresetId(null);
+                    }}
                     className={`py-4 rounded-2xl font-bold text-sm transition-all border focus-visible:ring-2 focus-visible:ring-indigo-500 focus-visible:outline-none ${
                       gender === 'male'
                         ? 'bg-indigo-600 text-white border-indigo-600 shadow-lg shadow-indigo-600/20'
@@ -149,7 +202,10 @@ export function BMRCalculator({ initialData, onStateChange }: { initialData?: an
                   <button
                     role="radio"
                     aria-checked={gender === 'female'}
-                    onClick={() => setGender('female')}
+                    onClick={() => {
+                      setGender('female');
+                      setActivePresetId(null);
+                    }}
                     className={`py-4 rounded-2xl font-bold text-sm transition-all border focus-visible:ring-2 focus-visible:ring-indigo-500 focus-visible:outline-none ${
                       gender === 'female'
                         ? 'bg-indigo-600 text-white border-indigo-600 shadow-lg shadow-indigo-600/20'
@@ -171,7 +227,10 @@ export function BMRCalculator({ initialData, onStateChange }: { initialData?: an
                       ref={ageInputRef}
                       type="number"
                       value={age}
-                      onChange={(e) => setAge(e.target.value)}
+                      onChange={(e) => {
+                        setAge(e.target.value);
+                        setActivePresetId(null);
+                      }}
                       onKeyDown={(e) => e.key === 'Escape' && handleClear()}
                       className="w-full p-4 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-2xl text-xl font-black font-mono focus:border-indigo-500 outline-none transition-all dark:text-white"
                       placeholder="25"
@@ -185,7 +244,10 @@ export function BMRCalculator({ initialData, onStateChange }: { initialData?: an
                       id="weight"
                       type="number"
                       value={weight}
-                      onChange={(e) => setWeight(e.target.value)}
+                      onChange={(e) => {
+                        setWeight(e.target.value);
+                        setActivePresetId(null);
+                      }}
                       className="w-full p-4 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-2xl text-xl font-black font-mono focus:border-indigo-500 outline-none transition-all dark:text-white"
                       placeholder="70"
                     />
@@ -198,7 +260,10 @@ export function BMRCalculator({ initialData, onStateChange }: { initialData?: an
                       id="height"
                       type="number"
                       value={height}
-                      onChange={(e) => setHeight(e.target.value)}
+                      onChange={(e) => {
+                        setHeight(e.target.value);
+                        setActivePresetId(null);
+                      }}
                       className="w-full p-4 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-2xl text-xl font-black font-mono focus:border-indigo-500 outline-none transition-all dark:text-white"
                       placeholder="175"
                     />
@@ -215,7 +280,10 @@ export function BMRCalculator({ initialData, onStateChange }: { initialData?: an
                       key={level}
                       role="radio"
                       aria-checked={activity === level}
-                      onClick={() => setActivity(level)}
+                      onClick={() => {
+                        setActivity(level);
+                        setActivePresetId(null);
+                      }}
                       className={`flex items-start gap-4 p-4 rounded-2xl border transition-all text-left focus-visible:ring-2 focus-visible:ring-indigo-500 focus-visible:outline-none ${
                         activity === level
                           ? 'bg-indigo-50 dark:bg-indigo-900/20 border-indigo-200 dark:border-indigo-800 shadow-sm'

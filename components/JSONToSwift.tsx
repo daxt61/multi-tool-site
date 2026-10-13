@@ -106,6 +106,15 @@ export function JSONToSwift({ initialData, onStateChange }: { initialData?: any;
     return result;
   };
 
+  const escapeSwiftString = (str: string): string => {
+    return str
+      .replace(/\\/g, '\\\\')
+      .replace(/"/g, '\\"')
+      .replace(/\n/g, '\\n')
+      .replace(/\r/g, '\\r')
+      .replace(/\t/g, '\\t');
+  };
+
   const toCamelCase = (str: string) => {
     const pascal = toPascalCase(str);
     return pascal.charAt(0).toLowerCase() + pascal.slice(1);
@@ -188,7 +197,7 @@ export function JSONToSwift({ initialData, onStateChange }: { initialData?: any;
             fields.forEach(f => {
               const cleanSwiftKey = f.swiftKey;
               if (f.originalKey !== cleanSwiftKey.replace(/`/g, '')) {
-                decl += `        case ${cleanSwiftKey} = "${f.originalKey}"\n`;
+                decl += `        case ${cleanSwiftKey} = "${escapeSwiftString(f.originalKey)}"\n`;
               } else {
                 decl += `        case ${cleanSwiftKey}\n`;
               }

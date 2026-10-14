@@ -131,6 +131,15 @@ const sanitizeRustIdentifier = (name: string): string => {
   return safe || 'field';
 };
 
+const escapeRustString = (str: string): string => {
+  return str
+    .replace(/\\/g, '\\\\')
+    .replace(/"/g, '\\"')
+    .replace(/\n/g, '\\n')
+    .replace(/\r/g, '\\r')
+    .replace(/\t/g, '\\t');
+};
+
 export function GraphQLToRust({ initialData, onStateChange }: { initialData?: any; onStateChange?: (state: any) => void }) {
   const { t } = useTranslation();
   const [input, setInput] = useState(initialData?.input || PRESETS[0].sdl);
@@ -252,7 +261,7 @@ export function GraphQLToRust({ initialData, onStateChange }: { initialData?: an
             .map((val) => {
               const cleanVal = val.split(/\s+/)[0];
               const safeVariant = toPascalCase(cleanVal);
-              const renameAttr = addSerdeRename && deriveSerde ? `  #[serde(rename = "${cleanVal}")]\n` : '';
+              const renameAttr = addSerdeRename && deriveSerde ? `  #[serde(rename = "${escapeRustString(cleanVal)}")]\n` : '';
               return `${renameAttr}  ${safeVariant},`;
             });
 
@@ -285,7 +294,7 @@ export function GraphQLToRust({ initialData, onStateChange }: { initialData?: an
 
             let renameAttr = '';
             if (addSerdeRename && deriveSerde && (rawFieldName !== safeFieldName || casingMode !== 'original')) {
-              renameAttr = `  #[serde(rename = "${rawFieldName}")]\n`;
+              renameAttr = `  #[serde(rename = "${escapeRustString(rawFieldName)}")]\n`;
             }
 
             return `${renameAttr}  pub ${safeFieldName}: ${rustType},`;

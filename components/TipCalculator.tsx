@@ -7,15 +7,31 @@ import { Kbd } from "./ui/Kbd";
 export function TipCalculator({ initialData, onStateChange }: { initialData?: any; onStateChange?: (state: any) => void }) {
   const { t } = useTranslation();
   const billAmountRef = useRef<HTMLInputElement>(null);
+  const containerRef = useRef<HTMLDivElement>(null);
 
   const [billAmount, setBillAmount] = useState<string>(initialData?.billAmount || "");
   const [tipPercent, setTipPercent] = useState<number>(initialData?.tipPercent ?? 15);
   const [numberOfPeople, setNumberOfPeople] = useState<string>(initialData?.numberOfPeople || "1");
+  const [activePresetId, setActivePresetId] = useState<string | null>(null);
   const [copied, setCopied] = useState(false);
 
   useEffect(() => {
     onStateChange?.({ billAmount, tipPercent, numberOfPeople });
   }, [billAmount, tipPercent, numberOfPeople]);
+
+  const presets = [
+    { id: "casual", nameKey: "tipcalculator.preset_casual", tip: 15, people: "2" },
+    { id: "group", nameKey: "tipcalculator.preset_group", tip: 18, people: "4" },
+    { id: "generous", nameKey: "tipcalculator.preset_generous", tip: 20, people: "2" },
+    { id: "quick", nameKey: "tipcalculator.preset_quick", tip: 10, people: "1" },
+  ];
+
+  const handleApplyPreset = (preset: typeof presets[0]) => {
+    setTipPercent(preset.tip);
+    setNumberOfPeople(preset.people);
+    setActivePresetId(preset.id);
+    toast.success(t("tipcalculator.toast_preset_loaded", { name: t(preset.nameKey) }));
+  };
 
   const bill = parseFloat(billAmount) || 0;
   const people = parseInt(numberOfPeople) || 1;
@@ -37,6 +53,7 @@ export function TipCalculator({ initialData, onStateChange }: { initialData?: an
     setBillAmount("");
     setTipPercent(15);
     setNumberOfPeople("1");
+    setActivePresetId(null);
     billAmountRef.current?.focus();
     toast.success(t("common.reset"));
   };
@@ -51,13 +68,17 @@ export function TipCalculator({ initialData, onStateChange }: { initialData?: an
 
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
+      const activeEl = document.activeElement;
+      const isInsideContainer = containerRef.current?.contains(activeEl) || activeEl === document.body;
+
+      if (!isInsideContainer) return;
+
       if (e.key === "Escape") {
         e.preventDefault();
         handleClearRef.current();
         return;
       }
 
-      const activeEl = document.activeElement;
       const isEditable = activeEl && (
         activeEl.tagName === "INPUT" ||
         activeEl.tagName === "TEXTAREA" ||
@@ -78,7 +99,34 @@ export function TipCalculator({ initialData, onStateChange }: { initialData?: an
   }, []);
 
   return (
-    <div className="max-w-4xl mx-auto space-y-8">
+    <div ref={containerRef} className="max-w-4xl mx-auto space-y-8">
+      {/* Presets Bar */}
+      <div className="bg-slate-50 dark:bg-slate-900/50 p-4 rounded-2xl border border-slate-200 dark:border-slate-800 space-y-2">
+        <label className="text-xs font-black uppercase tracking-widest text-slate-400 block px-1">
+          {t("tipcalculator.presets_title")}
+        </label>
+        <div className="flex flex-wrap gap-2" role="group" aria-label={t("tipcalculator.presets_title")}>
+          {presets.map((preset) => {
+            const isActive = activePresetId === preset.id && tipPercent === preset.tip && numberOfPeople === preset.people;
+            return (
+              <button
+                key={preset.id}
+                type="button"
+                onClick={() => handleApplyPreset(preset)}
+                aria-pressed={isActive}
+                className={`px-3 py-1.5 rounded-xl text-xs font-bold transition-all border focus-visible:ring-2 focus-visible:ring-indigo-500 focus-visible:outline-none ${
+                  isActive
+                    ? "bg-indigo-600 text-white border-indigo-600 shadow-md shadow-indigo-600/20"
+                    : "bg-white dark:bg-slate-800 text-slate-600 dark:text-slate-300 border-slate-200 dark:border-slate-700 hover:bg-slate-100 dark:hover:bg-slate-700/50"
+                }`}
+              >
+                {t(preset.nameKey)}
+              </button>
+            );
+          })}
+        </div>
+      </div>
+
       <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
         <div className="space-y-6">
           <div className="flex justify-between items-center px-1">
@@ -88,8 +136,9 @@ export function TipCalculator({ initialData, onStateChange }: { initialData?: an
             <div className="flex items-center gap-2">
               <Kbd modifier={null} className="text-slate-400">Esc</Kbd>
               <button
+                type="button"
                 onClick={handleClear}
-                disabled={!billAmount && tipPercent === 15 && numberOfPeople === "1"}
+                disabled={!billAmount && tipPercent === 15 && numberOfPeople === "1" && !activePresetId}
                 className="text-xs font-bold text-rose-500 bg-rose-50 dark:bg-rose-500/10 hover:bg-rose-100 dark:hover:bg-rose-500/20 px-3 py-1.5 rounded-xl flex items-center gap-1 transition-all disabled:opacity-50 disabled:cursor-not-allowed focus-visible:ring-2 focus-visible:ring-rose-500 focus-visible:outline-none"
                 aria-label={t("tipcalculator.clear")}
               >
@@ -121,7 +170,11 @@ export function TipCalculator({ initialData, onStateChange }: { initialData?: an
                 {tipButtons.map((percent) => (
                   <button
                     key={percent}
-                    onClick={() => setTipPercent(percent)}
+                    type="button"
+                    onClick={() => {
+                      setTipPercent(percent);
+                      setActivePresetId(null);
+                    }}
                     aria-pressed={tipPercent === percent}
                     className={`py-3 rounded-xl font-bold text-sm transition-all border focus-visible:ring-2 focus-visible:ring-indigo-500 focus-visible:outline-none ${
                       tipPercent === percent
@@ -139,7 +192,14 @@ export function TipCalculator({ initialData, onStateChange }: { initialData?: an
                 min="0"
                 max="50"
                 value={tipPercent}
-                onChange={(e) => setTipPercent(Number(e.target.value))}
+                aria-valuemin={0}
+                aria-valuemax={50}
+                aria-valuenow={tipPercent}
+                aria-label={`${t("tipcalculator.tip")}: ${tipPercent}%`}
+                onChange={(e) => {
+                  setTipPercent(Number(e.target.value));
+                  setActivePresetId(null);
+                }}
                 className="w-full h-2 bg-slate-100 dark:bg-slate-800 rounded-lg appearance-none cursor-pointer accent-indigo-600 mt-4 focus-visible:ring-2 focus-visible:ring-indigo-500 focus-visible:outline-none"
               />
           </div>
@@ -150,7 +210,11 @@ export function TipCalculator({ initialData, onStateChange }: { initialData?: an
             </label>
             <div className="flex items-center gap-4">
               <button
-                onClick={() => setNumberOfPeople(String(Math.max(1, people - 1)))}
+                type="button"
+                onClick={() => {
+                  setNumberOfPeople(String(Math.max(1, people - 1)));
+                  setActivePresetId(null);
+                }}
                 className="w-14 h-14 bg-slate-100 dark:bg-slate-800 rounded-2xl flex items-center justify-center text-2xl font-black hover:bg-slate-200 dark:hover:bg-slate-700 transition-colors focus-visible:ring-2 focus-visible:ring-indigo-500 focus-visible:outline-none"
                 aria-label={t("tipcalculator.decrease_people")}
               >
@@ -160,12 +224,19 @@ export function TipCalculator({ initialData, onStateChange }: { initialData?: an
                 id="people-count"
                 type="number"
                 value={numberOfPeople}
-                onChange={(e) => setNumberOfPeople(e.target.value)}
+                onChange={(e) => {
+                  setNumberOfPeople(e.target.value);
+                  setActivePresetId(null);
+                }}
                 className="flex-1 p-4 bg-slate-50 dark:bg-slate-900/50 border border-slate-200 dark:border-slate-800 rounded-2xl text-2xl font-black font-mono text-center outline-none focus:ring-2 focus:ring-indigo-500/20"
                 min="1"
               />
               <button
-                onClick={() => setNumberOfPeople(String(people + 1))}
+                type="button"
+                onClick={() => {
+                  setNumberOfPeople(String(people + 1));
+                  setActivePresetId(null);
+                }}
                 className="w-14 h-14 bg-slate-100 dark:bg-slate-800 rounded-2xl flex items-center justify-center text-2xl font-black hover:bg-slate-200 dark:hover:bg-slate-700 transition-colors focus-visible:ring-2 focus-visible:ring-indigo-500 focus-visible:outline-none"
                 aria-label={t("tipcalculator.increase_people")}
               >
@@ -180,6 +251,7 @@ export function TipCalculator({ initialData, onStateChange }: { initialData?: an
             <div className="flex justify-between items-center border-b border-slate-800/60 pb-4">
               <span className="text-xs font-black uppercase tracking-widest text-slate-500">{t("common.result")}</span>
               <button
+                type="button"
                 onClick={handleCopy}
                 className={`p-3 rounded-2xl transition-all border focus-visible:ring-2 focus-visible:ring-indigo-500 focus-visible:outline-none flex items-center gap-2 ${
                   copied

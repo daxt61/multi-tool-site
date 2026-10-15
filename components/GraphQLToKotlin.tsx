@@ -173,6 +173,15 @@ union FeedItem = Post | Comment`
     return str;
   };
 
+  const escapeKotlinString = (str: string): string => {
+    return str
+      .replace(/\\/g, '\\\\')
+      .replace(/"/g, '\\"')
+      .replace(/\n/g, '\\n')
+      .replace(/\r/g, '\\r')
+      .replace(/\$/g, '\\$');
+  };
+
   const sanitizeKotlinIdentifier = (name: string): string => {
     let clean = name.replace(/[^a-zA-Z0-9_]/g, '_');
     if (!/^[a-zA-Z_]/.test(clean)) {
@@ -291,11 +300,11 @@ union FeedItem = Post | Comment`
           const comma = idx < enumValues.length - 1 ? ',' : '';
           let anno = '';
           if (serialization === 'kotlinx' && v !== valCased) {
-            anno = `@SerialName("${v}") `;
+            anno = `@SerialName("${escapeKotlinString(v)}") `;
           } else if (serialization === 'jackson' && v !== valCased) {
-            anno = `@JsonProperty("${v}") `;
+            anno = `@JsonProperty("${escapeKotlinString(v)}") `;
           } else if (serialization === 'moshi' && v !== valCased) {
-            anno = `@Json(name = "${v}") `;
+            anno = `@Json(name = "${escapeKotlinString(v)}") `;
           }
           block += `    ${anno}${valCased}${comma}\n`;
         });
@@ -319,7 +328,7 @@ union FeedItem = Post | Comment`
         } else if (serialization === 'jackson') {
           block += `@JsonTypeInfo(use = JsonTypeInfo.Id.NAME, include = JsonTypeInfo.As.PROPERTY, property = "__typename")\n`;
           block += `@JsonSubTypes(\n`;
-          block += typesList.map(tName => `    JsonSubTypes.Type(value = ${sanitizeKotlinIdentifier(tName)}::class, name = "${tName}")`).join(',\n') + '\n';
+          block += typesList.map(tName => `    JsonSubTypes.Type(value = ${sanitizeKotlinIdentifier(tName)}::class, name = "${escapeKotlinString(tName)}")`).join(',\n') + '\n';
           block += `)\n`;
         }
 
@@ -393,7 +402,7 @@ union FeedItem = Post | Comment`
           if (serialization === 'kotlinx') {
             annotations += '@Serializable\n';
             if (rawTypeName !== ktTypeName) {
-              annotations += `@SerialName("${rawTypeName}")\n`;
+              annotations += `@SerialName("${escapeKotlinString(rawTypeName)}")\n`;
             }
           } else if (serialization === 'moshi') {
             annotations += '@JsonClass(generateAdapter = true)\n';
@@ -425,11 +434,11 @@ union FeedItem = Post | Comment`
 
             let fieldAnno = '';
             if (serialization === 'kotlinx') {
-              fieldAnno = `@SerialName("${rawFieldName}") `;
+              fieldAnno = `@SerialName("${escapeKotlinString(rawFieldName)}") `;
             } else if (serialization === 'jackson') {
-              fieldAnno = `@JsonProperty("${rawFieldName}") `;
+              fieldAnno = `@JsonProperty("${escapeKotlinString(rawFieldName)}") `;
             } else if (serialization === 'moshi') {
-              fieldAnno = `@Json(name = "${rawFieldName}") `;
+              fieldAnno = `@Json(name = "${escapeKotlinString(rawFieldName)}") `;
             }
 
             paramLines.push(`    ${fieldAnno}val ${ktPropName}: ${finalKtType}${defaultVal}`);

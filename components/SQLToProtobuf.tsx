@@ -283,7 +283,8 @@ export function SQLToProtobuf({ initialData, onStateChange }: { initialData?: an
           const isNullable = (!upperLine.includes('NOT NULL') && !upperLine.includes('PRIMARY KEY')) || upperLine.includes('DEFAULT NULL');
           const optionalModifier = (syntaxVersion === 'proto2' || isNullable) && syntaxVersion === 'proto2' ? 'optional ' : '';
 
-          const comment = rawName !== safeName ? ` // original: ${rawName}` : '';
+          const safeCommentName = rawName.replace(/[\r\n]+/g, ' ').trim();
+          const comment = rawName !== safeName ? ` // original: ${safeCommentName}` : '';
           return `  ${optionalModifier}${protoType} ${safeName} = ${index + 1};${comment}`;
         }).filter(Boolean);
 

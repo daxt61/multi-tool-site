@@ -279,7 +279,8 @@ export function SQLToThrift({ initialData, onStateChange }: { initialData?: any;
             qualifier = isNotNull ? 'required' : 'optional';
           }
 
-          const comment = rawName !== safeName ? ` // original: ${rawName}` : '';
+          const safeCommentName = rawName.replace(/[\r\n]+/g, ' ').trim();
+          const comment = rawName !== safeName ? ` // original: ${safeCommentName}` : '';
           return `  ${index + 1}: ${qualifier} ${thriftType} ${safeName};${comment}`;
         }).filter(Boolean);
 

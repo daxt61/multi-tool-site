@@ -1,3 +1,7 @@
+## 2026-09-12 - [Interactive Loan Presets, Container Isolation & Summary Copy in Loan Calculator]
+**Learning:** Credit and loan calculators (like Loan Calculator) benefit significantly from interactive quick-start loan presets ('Personal Loan', 'Auto Loan', 'Mortgage'), clear `aria-pressed` selection tracking, container-gated hotkeys (`Escape` reset & focus `#principal`, `C` copy summary), visual `<Kbd>` key hint badges, and Sonner toasts. Providing an explicit Copy Summary action directly on the calculation card allows power users to copy full loan details instantly for comparison.
+**Action:** Always provide interactive presets with `aria-pressed` states, isolate keyboard listeners with `containerRef` and `handlersRef`, add a copy summary button on calculated result cards, and restore focus to primary inputs upon reset.
+
 ## 2026-09-11 - [Single Key Shortcut Display and Container Isolation in Overtime Calculator]
 **Learning:** Defaulting `<Kbd>` components to display `Ctrl +` modifier leads to misleading on-screen prompts (`Ctrl + Esc`, `Ctrl + c`) when single-key hotkeys (like `Escape` or `C`) are intended. Explicitly passing `modifier={null}` to `<Kbd>` ensures accurate, accessible visual hints matching container-isolated `keydown` logic (`Escape` reset & focus `#hourly-rate`, `C` copy summary).
 **Action:** Always pass `modifier={null}` to `<Kbd>` badges for single-key shortcuts to align visual instructions with keyboard event handlers.

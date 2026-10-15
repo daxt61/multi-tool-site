@@ -654,6 +654,7 @@ const GraphQLToCSharp = lazy(() => import("./components/GraphQLToCSharp").then(m
 const GraphQLToGo = lazy(() => import("./components/GraphQLToGo").then(m => ({ default: m.GraphQLToGo })));
 const GraphQLToJava = lazy(() => import("./components/GraphQLToJava").then(m => ({ default: m.GraphQLToJava })));
 const GraphQLToKotlin = lazy(() => import("./components/GraphQLToKotlin").then(m => ({ default: m.GraphQLToKotlin })));
+const GraphQLToScala = lazy(() => import("./components/GraphQLToScala").then(m => ({ default: m.GraphQLToScala })));
 const GraphQLToPython = lazy(() => import("./components/GraphQLToPython").then(m => ({ default: m.GraphQLToPython })));
 const GraphQLToRust = lazy(() => import("./components/GraphQLToRust").then(m => ({ default: m.GraphQLToRust })));
 const GraphQLToSeaORM = lazy(() => import("./components/GraphQLToSeaORM").then(m => ({ default: m.GraphQLToSeaORM })));
@@ -871,6 +872,18 @@ const tools: Tool[] = [
     Component: GraphQLToKotlin,
     category: "dev",
     keywords: ["graphql", "sdl", "kotlin", "data class", "sealed interface", "enum", "kotlinx", "jackson", "moshi", "convert", "convertir"],
+  },
+  // GraphQL SDL to Scala Case Classes Converter Tool
+  {
+    id: "graphql-to-scala",
+    name: "GraphQL en Scala",
+    nameEn: "GraphQL to Scala",
+    icon: FileCode,
+    description: "Convertir des schémas GraphQL SDL en case classes, sealed traits, enums et types unions Scala fortement typés",
+    descriptionEn: "Convert GraphQL SDL schemas into strongly-typed Scala case classes, sealed traits, enums, and union types",
+    Component: GraphQLToScala,
+    category: "dev",
+    keywords: ["graphql", "sdl", "scala", "case class", "sealed trait", "enum", "circe", "play", "upickle", "jackson", "convert", "convertir"],
   },
   // GraphQL SDL to Python Models Converter Tool
   {

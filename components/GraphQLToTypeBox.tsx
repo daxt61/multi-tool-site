@@ -15,6 +15,15 @@ const JS_RESERVED_KEYWORDS = new Set([
   'symbol', 'bigint', 'object'
 ]);
 
+const escapeJsString = (str: string): string => {
+  return str
+    .replace(/\\/g, '\\\\')
+    .replace(/'/g, "\\'")
+    .replace(/\n/g, '\\n')
+    .replace(/\r/g, '\\r')
+    .replace(/\t/g, '\\t');
+};
+
 export function GraphQLToTypeBox({ initialData, onStateChange }: { initialData?: any; onStateChange?: (state: any) => void }) {
   const { t } = useTranslation();
   const inputRef = useRef<HTMLTextAreaElement>(null);
@@ -26,12 +35,13 @@ export function GraphQLToTypeBox({ initialData, onStateChange }: { initialData?:
   const [strictObjects, setStrictObjects] = useState<boolean>(initialData?.strictObjects || false);
   const [exportSchemas, setExportSchemas] = useState<boolean>(initialData?.exportSchemas !== false);
   const [generateStaticTypes, setGenerateStaticTypes] = useState<boolean>(initialData?.generateStaticTypes !== false);
+  const [activePresetId, setActivePresetId] = useState<string | null>(initialData?.activePresetId || null);
   const [error, setError] = useState('');
   const [copied, setCopied] = useState(false);
 
   useEffect(() => {
-    onStateChange?.({ input, output, idType, useOptional, useReadonly, strictObjects, exportSchemas, generateStaticTypes });
-  }, [input, output, idType, useOptional, useReadonly, strictObjects, exportSchemas, generateStaticTypes, onStateChange]);
+    onStateChange?.({ input, output, idType, useOptional, useReadonly, strictObjects, exportSchemas, generateStaticTypes, activePresetId });
+  }, [input, output, idType, useOptional, useReadonly, strictObjects, exportSchemas, generateStaticTypes, activePresetId, onStateChange]);
 
   const PRESETS = {
     ecommerce: `# E-Commerce Schema
@@ -238,7 +248,7 @@ union FeedItem = Post | Comment`
           .filter(Boolean);
 
         if (enumValues.length > 0) {
-          const unionItemsStr = enumValues.map(v => `Type.Literal('${v}')`).join(', ');
+          const unionItemsStr = enumValues.map(v => `Type.Literal('${escapeJsString(v)}')`).join(', ');
           outputBlocks.push(`${exp}const ${enumName}Schema = Type.Union([${unionItemsStr}]);`);
           if (generateStaticTypes) {
             staticBlocks.push(`${exp}type ${enumName} = Static<typeof ${enumName}Schema>;`);
@@ -365,6 +375,7 @@ union FeedItem = Post | Comment`
     setInput('');
     setOutput('');
     setError('');
+    setActivePresetId(null);
     toast.success(t('graphqltotypebox.toast_cleared', 'Inputs cleared!'));
     setTimeout(() => inputRef.current?.focus(), 0);
   }, [t]);
@@ -385,6 +396,7 @@ union FeedItem = Post | Comment`
 
   const loadPreset = (presetKey: keyof typeof PRESETS) => {
     setInput(PRESETS[presetKey]);
+    setActivePresetId(presetKey);
     toast.success(t('graphqltotypebox.preset_loaded', 'Loaded GraphQL preset!'));
   };
 
@@ -433,20 +445,38 @@ union FeedItem = Post | Comment`
         </div>
         <div className="flex flex-wrap items-center gap-2">
           <button
+            type="button"
+            aria-pressed={activePresetId === 'ecommerce'}
             onClick={() => loadPreset('ecommerce')}
-            className="px-3 py-1.5 text-xs font-bold bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 hover:border-indigo-500 rounded-xl transition-all shadow-sm focus-visible:ring-2 focus-visible:ring-indigo-500 focus-visible:outline-none"
+            className={`px-3 py-1.5 text-xs font-bold rounded-xl transition-all shadow-sm focus-visible:ring-2 focus-visible:ring-indigo-500 focus-visible:outline-none ${
+              activePresetId === 'ecommerce'
+                ? 'bg-indigo-600 text-white dark:bg-indigo-500 border border-indigo-600'
+                : 'bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 hover:border-indigo-500'
+            }`}
           >
             {t('graphqltotypebox.preset_ecommerce', 'E-Commerce Catalog')}
           </button>
           <button
+            type="button"
+            aria-pressed={activePresetId === 'user_auth'}
             onClick={() => loadPreset('user_auth')}
-            className="px-3 py-1.5 text-xs font-bold bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 hover:border-indigo-500 rounded-xl transition-all shadow-sm focus-visible:ring-2 focus-visible:ring-indigo-500 focus-visible:outline-none"
+            className={`px-3 py-1.5 text-xs font-bold rounded-xl transition-all shadow-sm focus-visible:ring-2 focus-visible:ring-indigo-500 focus-visible:outline-none ${
+              activePresetId === 'user_auth'
+                ? 'bg-indigo-600 text-white dark:bg-indigo-500 border border-indigo-600'
+                : 'bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 hover:border-indigo-500'
+            }`}
           >
             {t('graphqltotypebox.preset_user_auth', 'User Management & Auth')}
           </button>
           <button
+            type="button"
+            aria-pressed={activePresetId === 'social_feed'}
             onClick={() => loadPreset('social_feed')}
-            className="px-3 py-1.5 text-xs font-bold bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 hover:border-indigo-500 rounded-xl transition-all shadow-sm focus-visible:ring-2 focus-visible:ring-indigo-500 focus-visible:outline-none"
+            className={`px-3 py-1.5 text-xs font-bold rounded-xl transition-all shadow-sm focus-visible:ring-2 focus-visible:ring-indigo-500 focus-visible:outline-none ${
+              activePresetId === 'social_feed'
+                ? 'bg-indigo-600 text-white dark:bg-indigo-500 border border-indigo-600'
+                : 'bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 hover:border-indigo-500'
+            }`}
           >
             {t('graphqltotypebox.preset_social_feed', 'Social Feed & Comments')}
           </button>
@@ -534,6 +564,7 @@ union FeedItem = Post | Comment`
             <div className="flex items-center gap-2">
               <Kbd modifier={null} className="hidden sm:inline-flex border-rose-200 dark:border-rose-800 text-rose-400 dark:bg-slate-900">Esc</Kbd>
               <button
+                type="button"
                 onClick={handleClear}
                 disabled={!input && !output}
                 className="text-xs font-bold px-3 py-1.5 rounded-xl text-rose-500 bg-rose-50 dark:bg-rose-500/10 hover:bg-rose-100 dark:hover:bg-rose-500/20 transition-all flex items-center gap-1 disabled:opacity-50 focus-visible:ring-2 focus-visible:ring-rose-500 focus-visible:outline-none"
@@ -546,7 +577,10 @@ union FeedItem = Post | Comment`
             id="graphql-typebox-input"
             ref={inputRef}
             value={input}
-            onChange={(e) => setInput(e.target.value)}
+            onChange={(e) => {
+              setInput(e.target.value);
+              setActivePresetId(null);
+            }}
             placeholder={t('graphqltotypebox.placeholder_graphql', 'Paste GraphQL SDL schema here...')}
             className="w-full h-[450px] p-6 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-3xl outline-none focus:ring-2 focus:ring-indigo-500/20 transition-all font-mono text-sm leading-relaxed dark:text-slate-300 resize-none"
           />
@@ -562,6 +596,7 @@ union FeedItem = Post | Comment`
             </div>
             <div className="flex gap-2">
               <button
+                type="button"
                 onClick={handleDownload}
                 disabled={!output}
                 className="text-xs font-bold px-3 py-1.5 rounded-xl text-indigo-500 bg-indigo-50 dark:bg-indigo-500/10 hover:bg-indigo-100 transition-all flex items-center gap-1 disabled:opacity-50 focus-visible:ring-2 focus-visible:ring-indigo-500 focus-visible:outline-none"
@@ -569,6 +604,7 @@ union FeedItem = Post | Comment`
                 <Download className="w-3 h-3" aria-hidden="true" /> {t('common.download')}
               </button>
               <button
+                type="button"
                 onClick={handleCopy}
                 disabled={!output}
                 className={`text-xs font-bold px-3 py-1.5 rounded-xl transition-all flex items-center gap-1 border focus-visible:ring-2 focus-visible:ring-indigo-500 focus-visible:outline-none ${

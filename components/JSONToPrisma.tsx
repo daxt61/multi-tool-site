@@ -1,5 +1,5 @@
-import React, { useState, useEffect, useCallback, useRef } from 'react';
-import { Database, Copy, Check, Trash2, AlertCircle, Download, Info, Settings, Share2 } from 'lucide-react';
+import { useState, useEffect, useCallback, useRef } from 'react';
+import { Database, Copy, Check, Trash2, AlertCircle, Download, Info, Settings, Sparkles } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import { toast } from 'sonner';
 import { Kbd } from './ui/Kbd';
@@ -8,10 +8,13 @@ const MAX_LENGTH = 100000;
 const MAX_DEPTH = 20;
 
 type Provider = 'postgresql' | 'mysql' | 'sqlite' | 'mongodb' | 'sqlserver' | 'cockroachdb';
-type IdStrategy = 'autoincrement' | 'uuid' | 'cuid' | 'auto';
+type IdStrategy = 'autoincrement' | 'uuid' | 'cuid';
 
 export function JSONToPrisma({ initialData, onStateChange }: { initialData?: any; onStateChange?: (state: any) => void }) {
   const { t } = useTranslation();
+  const containerRef = useRef<HTMLDivElement>(null);
+  const textareaRef = useRef<HTMLTextAreaElement>(null);
+
   const [input, setInput] = useState(initialData?.input || '');
   const [output, setOutput] = useState('');
   const [provider, setProvider] = useState<Provider>(initialData?.provider || 'postgresql');
@@ -19,13 +22,66 @@ export function JSONToPrisma({ initialData, onStateChange }: { initialData?: any
   const [addTimestamps, setTimestamps] = useState<boolean>(initialData?.addTimestamps ?? true);
   const [addSoftDelete, setSoftDelete] = useState<boolean>(initialData?.addSoftDelete ?? false);
   const [autoRelations, setAutoRelations] = useState<boolean>(initialData?.autoRelations ?? true);
+  const [activePresetId, setActivePresetId] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [copied, setCopied] = useState(false);
-  const textareaRef = useRef<HTMLTextAreaElement>(null);
 
   useEffect(() => {
     onStateChange?.({ input, provider, idStrategy, addTimestamps, addSoftDelete, autoRelations });
   }, [input, provider, idStrategy, addTimestamps, addSoftDelete, autoRelations, onStateChange]);
+
+  const PRESETS = {
+    ecommerce: JSON.stringify([
+      {
+        id: 1,
+        title: "Wireless Noise-Canceling Headphones",
+        price: 299.99,
+        inStock: true,
+        category: {
+          id: 10,
+          name: "Audio & Electronics"
+        },
+        reviews: [
+          {
+            id: 101,
+            rating: 5,
+            comment: "Exceptional sound quality!"
+          }
+        ]
+      }
+    ], null, 2),
+    user_auth: JSON.stringify({
+      id: "usr_99812",
+      email: "alex.smith@example.com",
+      fullName: "Alex Smith",
+      isVerified: true,
+      role: "ADMIN",
+      profile: {
+        id: 501,
+        bio: "Full stack engineer & UI craftsman",
+        avatarUrl: "https://example.com/avatar.jpg"
+      }
+    }, null, 2),
+    social_feed: JSON.stringify([
+      {
+        id: "post_01",
+        title: "Building Modern Web Applications",
+        content: "Exploring reactive schemas and developer ergonomics...",
+        published: true,
+        author: {
+          id: 1,
+          name: "Jane Doe",
+          handle: "janedoe"
+        },
+        comments: [
+          {
+            id: 201,
+            text: "Great read, thanks for sharing!"
+          }
+        ]
+      }
+    ], null, 2)
+  };
 
   const toPascalCase = (str: string): string => {
     const cleaned = str.replace(/[^a-zA-Z0-9]/g, ' ');
@@ -41,12 +97,10 @@ export function JSONToPrisma({ initialData, onStateChange }: { initialData?: any
   };
 
   const sanitizeName = (name: string): string => {
-    // Sanitize to a valid Prisma identifier
     let sanitized = name.replace(/[^a-zA-Z0-9_]/g, '');
     if (/^[0-9]/.test(sanitized)) {
       sanitized = 'Model_' + sanitized;
     }
-    // Prevent prototype pollution or reserved words
     if (sanitized === '__proto__' || sanitized === 'constructor' || sanitized === 'prototype') {
       sanitized = '_' + sanitized;
     }
@@ -60,7 +114,6 @@ export function JSONToPrisma({ initialData, onStateChange }: { initialData?: any
       return Number.isInteger(val) ? 'Int' : 'Float';
     }
     if (typeof val === 'string') {
-      // Simple ISO Date detection
       if (/^\d{4}-\d{2}-\d{2}(T\d{2}:\d{2}:\d{2})?/.test(val)) {
         return 'DateTime';
       }
@@ -91,24 +144,22 @@ export function JSONToPrisma({ initialData, onStateChange }: { initialData?: any
         if (typeof obj !== 'object' || obj === null) return;
 
         const modelName = toPascalCase(sanitizeName(suggestedName));
-        if (models[modelName]) return; // Already processed or recursive loop safeguard
+        if (models[modelName]) return;
 
         const fields = Object.create(null);
         models[modelName] = fields;
 
         Object.entries(obj).forEach(([key, val]) => {
           const safeKey = sanitizeName(key);
-          if (safeKey === 'id' || safeKey === '_id') return; // Handled separately as the primary key
+          if (safeKey === 'id' || safeKey === '_id') return;
 
           if (val && typeof val === 'object' && !Array.isArray(val)) {
-            // Nested object - create relation
             const relationModelName = toPascalCase(sanitizeName(key));
             fields[toCamelCase(key)] = {
               type: relationModelName,
               isRelation: true,
               isArray: false
             };
-            // Also need foreign key field
             const fkName = toCamelCase(key) + 'Id';
             fields[fkName] = {
               type: idStrategy === 'autoincrement' ? 'Int' : 'String',
@@ -124,14 +175,12 @@ export function JSONToPrisma({ initialData, onStateChange }: { initialData?: any
             processObject(val, key, depth + 1);
           } else if (Array.isArray(val)) {
             if (val.length > 0 && typeof val[0] === 'object' && val[0] !== null) {
-              // Array of objects - 1-to-many relation
               const relationModelName = toPascalCase(sanitizeName(key));
               fields[toCamelCase(key)] = {
                 type: relationModelName,
                 isRelation: true,
                 isArray: true
               };
-              // Add foreign key details to the child model
               relationsToCreate.push({
                 fromModel: relationModelName,
                 toModel: modelName,
@@ -140,14 +189,12 @@ export function JSONToPrisma({ initialData, onStateChange }: { initialData?: any
               });
               processObject(val[0], key, depth + 1);
             } else {
-              // Primitive array
               fields[safeKey] = {
                 type: val.length > 0 ? inferType(val[0]) : 'String',
                 isArray: true
               };
             }
           } else {
-            // Primitive field
             fields[safeKey] = {
               type: inferType(val),
               isArray: false
@@ -156,7 +203,6 @@ export function JSONToPrisma({ initialData, onStateChange }: { initialData?: any
         });
       };
 
-      // Root model logic
       if (Array.isArray(parsed)) {
         if (parsed.length > 0 && typeof parsed[0] === 'object' && parsed[0] !== null) {
           processObject(parsed[0], 'Root', 0);
@@ -173,10 +219,8 @@ export function JSONToPrisma({ initialData, onStateChange }: { initialData?: any
         return;
       }
 
-      // Populate automatic back-references for relations if autoRelations is true
       if (autoRelations) {
         relationsToCreate.forEach(({ fromModel, toModel, relationField, fkField }) => {
-          // If fromModel references toModel, ensure toModel has back-reference to fromModel
           if (models[toModel] && !models[toModel][toCamelCase(fromModel)] && !models[toModel][toCamelCase(fromModel) + 's']) {
             models[toModel][toCamelCase(fromModel) + 's'] = {
               type: fromModel,
@@ -184,7 +228,6 @@ export function JSONToPrisma({ initialData, onStateChange }: { initialData?: any
               isArray: true
             };
           }
-          // Set parent foreign key on child if missing
           if (models[fromModel] && !models[fromModel][fkField]) {
             models[fromModel][fkField] = {
               type: idStrategy === 'autoincrement' ? 'Int' : 'String',
@@ -195,13 +238,11 @@ export function JSONToPrisma({ initialData, onStateChange }: { initialData?: any
         });
       }
 
-      // Build output string
       let schemaStr = `datasource db {\n  provider = "${provider}"\n  url      = env("DATABASE_URL")\n}\n\ngenerator client {\n  provider = "prisma-client-js"\n}\n\n`;
 
       Object.entries(models).forEach(([modelName, fields]: [string, any]) => {
         schemaStr += `model ${modelName} {\n`;
 
-        // Configure ID based on provider & strategy
         const isMongo = provider === 'mongodb';
         if (isMongo) {
           schemaStr += `  id String @id @default(auto()) @map("_id") @db.ObjectId\n`;
@@ -209,17 +250,15 @@ export function JSONToPrisma({ initialData, onStateChange }: { initialData?: any
           const idType = idStrategy === 'autoincrement' ? 'Int' : 'String';
           const defaultAttr = idStrategy === 'autoincrement'
             ? '@default(autoincrement())'
-            : (idStrategy === 'uuid' ? '@default(uuid())' : (idStrategy === 'cuid' ? '@default(cuid())' : ''));
+            : (idStrategy === 'uuid' ? '@default(uuid())' : '@default(cuid())');
           schemaStr += `  id ${idType} @id ${defaultAttr}\n`;
         }
 
-        // Configure other fields
         Object.entries(fields).forEach(([fieldName, config]: [string, any]) => {
           if (config.isRelation) {
             if (config.isArray) {
               schemaStr += `  ${fieldName} ${config.type}[]\n`;
             } else {
-              // Find matching relation details to write @relation attribute
               const rel = relationsToCreate.find(r => r.fromModel === modelName && r.relationField === fieldName);
               if (rel) {
                 schemaStr += `  ${fieldName} ${config.type} @relation(fields: [${rel.fkField}], references: [id])\n`;
@@ -228,23 +267,19 @@ export function JSONToPrisma({ initialData, onStateChange }: { initialData?: any
               }
             }
           } else if (config.isFK) {
-            // Write foreign key fields (must match ID type, and be optional/mandatory appropriately)
             const typeStr = isMongo ? 'String @db.ObjectId' : config.type;
             schemaStr += `  ${fieldName} ${typeStr}\n`;
           } else {
-            // Standard fields
             const arrSymbol = config.isArray ? '[]' : '';
             schemaStr += `  ${fieldName} ${config.type}${arrSymbol}\n`;
           }
         });
 
-        // Timestamps option
         if (addTimestamps) {
           schemaStr += `  createdAt DateTime @default(now())\n`;
           schemaStr += `  updatedAt DateTime @updatedAt\n`;
         }
 
-        // Soft delete option
         if (addSoftDelete) {
           schemaStr += `  deletedAt DateTime?\n`;
         }
@@ -273,7 +308,7 @@ export function JSONToPrisma({ initialData, onStateChange }: { initialData?: any
     if (!output) return;
     navigator.clipboard.writeText(output);
     setCopied(true);
-    toast.success(t('common.copied'));
+    toast.success(t('common.copied', 'Copied to clipboard!'));
     setTimeout(() => setCopied(false), 2000);
   }, [output, t]);
 
@@ -281,8 +316,10 @@ export function JSONToPrisma({ initialData, onStateChange }: { initialData?: any
     setInput('');
     setOutput('');
     setError(null);
-    textareaRef.current?.focus();
-  }, []);
+    setActivePresetId(null);
+    toast.success(t('common.cleared', 'Cleared!'));
+    setTimeout(() => textareaRef.current?.focus(), 0);
+  }, [t]);
 
   const handleDownload = () => {
     if (!output) return;
@@ -291,18 +328,31 @@ export function JSONToPrisma({ initialData, onStateChange }: { initialData?: any
     const link = document.createElement('a');
     link.href = url;
     link.download = `schema.prisma`;
+    document.body.appendChild(link);
     link.click();
+    document.body.removeChild(link);
     URL.revokeObjectURL(url);
+    toast.success(t('common.downloaded', 'Downloaded schema.prisma!'));
   };
 
-  const handlersRef = useRef({ handleCopy, handleClear });
+  const loadPreset = (presetKey: keyof typeof PRESETS) => {
+    setInput(PRESETS[presetKey]);
+    setActivePresetId(presetKey);
+    toast.success(t('jsontoprisma.preset_loaded', 'Loaded JSON preset!'));
+  };
+
+  const handlersRef = useRef({ handleCopy, handleClear, output });
   useEffect(() => {
-    handlersRef.current = { handleCopy, handleClear };
-  }, [handleCopy, handleClear]);
+    handlersRef.current = { handleCopy, handleClear, output };
+  }, [handleCopy, handleClear, output]);
 
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
       const activeElement = document.activeElement;
+      if (containerRef.current && !containerRef.current.contains(activeElement) && activeElement !== document.body) {
+        return;
+      }
+
       const isEditable =
         activeElement instanceof HTMLInputElement ||
         activeElement instanceof HTMLTextAreaElement ||
@@ -316,8 +366,10 @@ export function JSONToPrisma({ initialData, onStateChange }: { initialData?: any
         e.preventDefault();
         handlersRef.current.handleClear();
       } else if (e.key.toLowerCase() === 'c') {
-        e.preventDefault();
-        handlersRef.current.handleCopy();
+        if (handlersRef.current.output) {
+          e.preventDefault();
+          handlersRef.current.handleCopy();
+        }
       }
     };
 
@@ -326,11 +378,56 @@ export function JSONToPrisma({ initialData, onStateChange }: { initialData?: any
   }, []);
 
   return (
-    <div className="max-w-6xl mx-auto space-y-8">
+    <div ref={containerRef} className="max-w-6xl mx-auto space-y-8 animate-in fade-in duration-500">
+      {/* Presets Bar */}
+      <div className="flex flex-wrap items-center justify-between gap-4 p-4 bg-slate-50 dark:bg-slate-900/50 rounded-2xl border border-slate-200 dark:border-slate-800">
+        <div className="flex items-center gap-2">
+          <Sparkles className="w-4 h-4 text-amber-500" aria-hidden="true" />
+          <span className="text-xs font-bold uppercase tracking-widest text-slate-500 dark:text-slate-400">
+            {t('jsontoprisma.presets_title', 'Quick Start Presets:')}
+          </span>
+        </div>
+        <div className="flex flex-wrap items-center gap-2">
+          <button
+            onClick={() => loadPreset('ecommerce')}
+            aria-pressed={activePresetId === 'ecommerce'}
+            className={`px-3 py-1.5 text-xs font-bold rounded-xl transition-all shadow-sm focus-visible:ring-2 focus-visible:ring-indigo-500 focus-visible:outline-none border ${
+              activePresetId === 'ecommerce'
+                ? 'bg-indigo-600 text-white border-indigo-600 dark:bg-indigo-500 dark:border-indigo-500'
+                : 'bg-white dark:bg-slate-800 border-slate-200 dark:border-slate-700 hover:border-indigo-500'
+            }`}
+          >
+            {t('jsontoprisma.preset_ecommerce', 'E-Commerce Catalog')}
+          </button>
+          <button
+            onClick={() => loadPreset('user_auth')}
+            aria-pressed={activePresetId === 'user_auth'}
+            className={`px-3 py-1.5 text-xs font-bold rounded-xl transition-all shadow-sm focus-visible:ring-2 focus-visible:ring-indigo-500 focus-visible:outline-none border ${
+              activePresetId === 'user_auth'
+                ? 'bg-indigo-600 text-white border-indigo-600 dark:bg-indigo-500 dark:border-indigo-500'
+                : 'bg-white dark:bg-slate-800 border-slate-200 dark:border-slate-700 hover:border-indigo-500'
+            }`}
+          >
+            {t('jsontoprisma.preset_user_auth', 'User Management & Auth')}
+          </button>
+          <button
+            onClick={() => loadPreset('social_feed')}
+            aria-pressed={activePresetId === 'social_feed'}
+            className={`px-3 py-1.5 text-xs font-bold rounded-xl transition-all shadow-sm focus-visible:ring-2 focus-visible:ring-indigo-500 focus-visible:outline-none border ${
+              activePresetId === 'social_feed'
+                ? 'bg-indigo-600 text-white border-indigo-600 dark:bg-indigo-500 dark:border-indigo-500'
+                : 'bg-white dark:bg-slate-800 border-slate-200 dark:border-slate-700 hover:border-indigo-500'
+            }`}
+          >
+            {t('jsontoprisma.preset_social_feed', 'Social Feed & Comments')}
+          </button>
+        </div>
+      </div>
+
       {/* Toggles & Options Grid */}
       <div className="bg-slate-50 dark:bg-slate-900/50 p-6 rounded-[2rem] border border-slate-200 dark:border-slate-800 space-y-6">
         <div className="flex items-center gap-2 px-1">
-          <Settings className="w-5 h-5 text-indigo-500" />
+          <Settings className="w-5 h-5 text-indigo-500" aria-hidden="true" />
           <h3 className="text-sm font-black uppercase tracking-widest text-slate-400">{t('jsontoprisma.options_title', 'Converter Configuration')}</h3>
         </div>
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
@@ -405,7 +502,7 @@ export function JSONToPrisma({ initialData, onStateChange }: { initialData?: any
         <div className="space-y-4">
           <div className="flex justify-between items-center px-1">
             <div className="flex items-center gap-2">
-              <Database className="w-4 h-4 text-indigo-500" />
+              <Database className="w-4 h-4 text-indigo-500" aria-hidden="true" />
               <label htmlFor="json-input" className="text-xs font-black uppercase tracking-widest text-slate-400 cursor-pointer">{t('common.input')} JSON</label>
             </div>
             <div className="flex items-center gap-2">
@@ -415,7 +512,7 @@ export function JSONToPrisma({ initialData, onStateChange }: { initialData?: any
                 disabled={!input && !output}
                 className="text-xs font-bold px-3 py-1 rounded-full text-rose-500 bg-rose-50 dark:bg-rose-500/10 hover:bg-rose-100 transition-all flex items-center gap-1 disabled:opacity-50 focus-visible:ring-2 focus-visible:ring-rose-500 focus-visible:outline-none"
               >
-                <Trash2 className="w-3 h-3" /> {t('common.clear')}
+                <Trash2 className="w-3 h-3" aria-hidden="true" /> {t('common.clear')}
               </button>
             </div>
           </div>
@@ -443,7 +540,7 @@ export function JSONToPrisma({ initialData, onStateChange }: { initialData?: any
         <div className="space-y-4">
           <div className="flex justify-between items-center px-1">
             <div className="flex items-center gap-2">
-              <Database className="w-4 h-4 text-emerald-500" />
+              <Database className="w-4 h-4 text-emerald-500" aria-hidden="true" />
               <label htmlFor="prisma-output" className="text-xs font-black uppercase tracking-widest text-slate-400 cursor-pointer">Prisma Schema</label>
             </div>
             <div className="flex gap-2">
@@ -452,7 +549,7 @@ export function JSONToPrisma({ initialData, onStateChange }: { initialData?: any
                 disabled={!output}
                 className="text-xs font-bold px-3 py-1 rounded-full text-indigo-500 bg-indigo-50 dark:bg-indigo-500/10 hover:bg-indigo-100 transition-all flex items-center gap-1 disabled:opacity-50 focus-visible:ring-2 focus-visible:ring-indigo-500 focus-visible:outline-none"
               >
-                <Download className="w-3 h-3" /> {t('common.download')}
+                <Download className="w-3 h-3" aria-hidden="true" /> {t('common.download')}
               </button>
               <button
                 onClick={handleCopy}
@@ -463,8 +560,8 @@ export function JSONToPrisma({ initialData, onStateChange }: { initialData?: any
                     : 'text-slate-500 bg-slate-100 dark:bg-slate-800 border-transparent hover:bg-slate-200 dark:hover:bg-slate-700 disabled:opacity-50'
                 }`}
               >
-                {copied ? <Check className="w-3 h-3" /> : <Copy className="w-3 h-3" />} {copied ? t('common.copied') : t('common.copy')}
-                {!copied && <Kbd modifier={null} className="hidden sm:inline-flex w-4 h-4 bg-white/50 dark:bg-black/20 ml-1">C</Kbd>}
+                {copied ? <Check className="w-3 h-3" aria-hidden="true" /> : <Copy className="w-3 h-3" aria-hidden="true" />} {copied ? t('common.copied') : t('common.copy')}
+                {!copied && input && <Kbd modifier={null} className="hidden sm:inline-flex w-4 h-4 bg-white/50 dark:bg-black/20 ml-1">C</Kbd>}
               </button>
             </div>
           </div>
@@ -480,14 +577,14 @@ export function JSONToPrisma({ initialData, onStateChange }: { initialData?: any
 
       {error && (
         <div className="bg-rose-50 dark:bg-rose-500/10 border border-rose-200 dark:border-rose-800 p-4 rounded-2xl flex items-center gap-3 text-rose-600 dark:text-rose-400 font-bold">
-          <AlertCircle className="w-5 h-5" />
+          <AlertCircle className="w-5 h-5" aria-hidden="true" />
           {error}
         </div>
       )}
 
       {/* Educational info card */}
       <div className="bg-indigo-50 dark:bg-indigo-900/10 p-8 rounded-[2.5rem] border border-indigo-100 dark:border-indigo-900/20 flex items-start gap-4">
-        <Info className="w-6 h-6 text-indigo-500 mt-1" />
+        <Info className="w-6 h-6 text-indigo-500 mt-1" aria-hidden="true" />
         <div className="space-y-2">
           <h4 className="font-bold dark:text-white">{t('jsontoprisma.about_title', 'About JSON to Prisma')}</h4>
           <p className="text-sm text-slate-500 dark:text-slate-400 leading-relaxed">

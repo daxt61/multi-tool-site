@@ -6,8 +6,28 @@ import { Kbd } from './ui/Kbd';
 
 type Gender = 'male' | 'female';
 
+interface Preset {
+  id: string;
+  nameKey: string;
+  gender: Gender;
+  weight: string;
+  height: string;
+  neck: string;
+  waist: string;
+  hip: string;
+  unit: 'metric' | 'imperial';
+}
+
+const PRESETS: Preset[] = [
+  { id: 'male_avg', nameKey: 'bodyfat.preset_male_avg', gender: 'male', weight: '75', height: '180', neck: '38', waist: '85', hip: '95', unit: 'metric' },
+  { id: 'female_avg', nameKey: 'bodyfat.preset_female_avg', gender: 'female', weight: '62', height: '165', neck: '32', waist: '72', hip: '95', unit: 'metric' },
+  { id: 'male_athletic', nameKey: 'bodyfat.preset_male_athletic', gender: 'male', weight: '80', height: '185', neck: '40', waist: '80', hip: '90', unit: 'metric' },
+  { id: 'female_athletic', nameKey: 'bodyfat.preset_female_athletic', gender: 'female', weight: '60', height: '170', neck: '31', waist: '66', hip: '90', unit: 'metric' },
+];
+
 export function BodyFatCalculator({ initialData, onStateChange }: { initialData?: any; onStateChange?: (state: any) => void }) {
   const { t } = useTranslation();
+  const containerRef = useRef<HTMLDivElement>(null);
   const [gender, setGender] = useState<Gender>(initialData?.gender || 'male');
   const [weight, setWeight] = useState<string>(initialData?.weight || '75');
   const [height, setHeight] = useState<string>(initialData?.height || '180');
@@ -16,6 +36,7 @@ export function BodyFatCalculator({ initialData, onStateChange }: { initialData?
   const [hip, setHip] = useState<string>(initialData?.hip || '95');
   const [unit, setUnit] = useState<'metric' | 'imperial'>(initialData?.unit || 'metric');
   const [copied, setCopied] = useState(false);
+  const [activePresetId, setActivePresetId] = useState<string | null>(null);
   const heightInputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
@@ -81,12 +102,25 @@ export function BodyFatCalculator({ initialData, onStateChange }: { initialData?
     }
   };
 
+  const handleApplyPreset = (preset: Preset) => {
+    setGender(preset.gender);
+    setUnit(preset.unit);
+    setHeight(preset.height);
+    setWeight(preset.weight);
+    setNeck(preset.neck);
+    setWaist(preset.waist);
+    setHip(preset.hip);
+    setActivePresetId(preset.id);
+    toast.success(t('bodyfat.preset_loaded', { name: t(preset.nameKey) }));
+  };
+
   const handleReset = useCallback(() => {
     setWeight('');
     setHeight('');
     setNeck('');
     setWaist('');
     setHip('');
+    setActivePresetId(null);
     setTimeout(() => heightInputRef.current?.focus(), 0);
   }, []);
 
@@ -94,6 +128,7 @@ export function BodyFatCalculator({ initialData, onStateChange }: { initialData?
     if (newUnit === unit) return;
 
     setUnit(newUnit);
+    setActivePresetId(null);
     // Sensible defaults for the new unit
     if (newUnit === 'metric') {
       setHeight('180');
@@ -132,11 +167,10 @@ export function BodyFatCalculator({ initialData, onStateChange }: { initialData?
         activeElement instanceof HTMLSelectElement ||
         activeElement?.getAttribute("contenteditable") === "true";
 
-      const isInputFocused = activeElement === heightInputRef.current ||
-        (activeElement instanceof HTMLInputElement && activeElement.closest('.max-w-5xl') !== null);
+      const isInsideContainer = containerRef.current?.contains(activeElement) || activeElement === document.body;
 
       if (e.key === 'Escape') {
-        if (isInputFocused || !isEditable) {
+        if (isInsideContainer) {
           e.preventDefault();
           handlersRef.current.handleReset();
         }
@@ -147,7 +181,7 @@ export function BodyFatCalculator({ initialData, onStateChange }: { initialData?
 
       if (e.metaKey || e.ctrlKey || e.altKey || e.shiftKey) return;
 
-      if (e.key.toLowerCase() === 'c' && handlersRef.current.stats) {
+      if (e.key.toLowerCase() === 'c' && handlersRef.current.stats && isInsideContainer) {
         e.preventDefault();
         handlersRef.current.handleCopy();
       }
@@ -160,7 +194,29 @@ export function BodyFatCalculator({ initialData, onStateChange }: { initialData?
   const category = stats ? getCategory(stats.bodyFat) : null;
 
   return (
-    <div className="max-w-5xl mx-auto space-y-12">
+    <div ref={containerRef} className="max-w-5xl mx-auto space-y-12">
+      {/* Quick Presets */}
+      <div className="flex flex-wrap items-center gap-2 bg-slate-50 dark:bg-slate-900/50 p-4 rounded-2xl border border-slate-200 dark:border-slate-800">
+        <span className="text-xs font-bold text-slate-500 uppercase tracking-wider mr-2">{t('bodyfat.presets_title')}</span>
+        {PRESETS.map((preset) => {
+          const isActive = activePresetId === preset.id;
+          return (
+            <button
+              key={preset.id}
+              onClick={() => handleApplyPreset(preset)}
+              aria-pressed={isActive}
+              className={`px-3 py-1.5 rounded-xl text-xs font-bold transition-all focus-visible:ring-2 focus-visible:ring-indigo-500 focus-visible:outline-none ${
+                isActive
+                  ? 'bg-indigo-600 text-white shadow-md shadow-indigo-600/20'
+                  : 'bg-white dark:bg-slate-800 text-slate-600 dark:text-slate-300 border border-slate-200 dark:border-slate-700 hover:border-slate-300 dark:hover:border-slate-600'
+              }`}
+            >
+              {t(preset.nameKey)}
+            </button>
+          );
+        })}
+      </div>
+
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
         {/* Inputs */}
         <div className="lg:col-span-7 space-y-8">
@@ -206,7 +262,10 @@ export function BodyFatCalculator({ initialData, onStateChange }: { initialData?
                   aria-labelledby="gender-label"
                 >
                   <button
-                    onClick={() => setGender('male')}
+                    onClick={() => {
+                      setGender('male');
+                      setActivePresetId(null);
+                    }}
                     role="radio"
                     aria-checked={gender === 'male'}
                     className={`py-4 rounded-2xl font-bold text-sm transition-all border focus-visible:ring-2 focus-visible:ring-indigo-500 focus-visible:outline-none ${gender === 'male' ? 'bg-indigo-600 text-white border-indigo-600 shadow-lg' : 'bg-white dark:bg-slate-800 text-slate-500 border-slate-200 dark:border-slate-700'}`}
@@ -214,7 +273,10 @@ export function BodyFatCalculator({ initialData, onStateChange }: { initialData?
                     {t('bodyfat.male')}
                   </button>
                   <button
-                    onClick={() => setGender('female')}
+                    onClick={() => {
+                      setGender('female');
+                      setActivePresetId(null);
+                    }}
                     role="radio"
                     aria-checked={gender === 'female'}
                     className={`py-4 rounded-2xl font-bold text-sm transition-all border focus-visible:ring-2 focus-visible:ring-indigo-500 focus-visible:outline-none ${gender === 'female' ? 'bg-indigo-600 text-white border-indigo-600 shadow-lg' : 'bg-white dark:bg-slate-800 text-slate-500 border-slate-200 dark:border-slate-700'}`}
@@ -232,7 +294,10 @@ export function BodyFatCalculator({ initialData, onStateChange }: { initialData?
                     ref={heightInputRef}
                     type="number"
                     value={height}
-                    onChange={(e) => setHeight(e.target.value)}
+                    onChange={(e) => {
+                      setHeight(e.target.value);
+                      setActivePresetId(null);
+                    }}
                     className="w-full p-4 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-2xl text-xl font-black font-mono focus:border-indigo-500 outline-none transition-all dark:text-white"
                     placeholder={unit === 'metric' ? '180' : '71'}
                   />
@@ -243,7 +308,10 @@ export function BodyFatCalculator({ initialData, onStateChange }: { initialData?
                     id="weight"
                     type="number"
                     value={weight}
-                    onChange={(e) => setWeight(e.target.value)}
+                    onChange={(e) => {
+                      setWeight(e.target.value);
+                      setActivePresetId(null);
+                    }}
                     className="w-full p-4 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-2xl text-xl font-black font-mono focus:border-indigo-500 outline-none transition-all dark:text-white"
                     placeholder={unit === 'metric' ? '75' : '165'}
                   />
@@ -254,7 +322,10 @@ export function BodyFatCalculator({ initialData, onStateChange }: { initialData?
                     id="neck"
                     type="number"
                     value={neck}
-                    onChange={(e) => setNeck(e.target.value)}
+                    onChange={(e) => {
+                      setNeck(e.target.value);
+                      setActivePresetId(null);
+                    }}
                     className="w-full p-4 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-2xl text-xl font-black font-mono focus:border-indigo-500 outline-none transition-all dark:text-white"
                     placeholder={unit === 'metric' ? '38' : '15'}
                   />
@@ -265,7 +336,10 @@ export function BodyFatCalculator({ initialData, onStateChange }: { initialData?
                     id="waist"
                     type="number"
                     value={waist}
-                    onChange={(e) => setWaist(e.target.value)}
+                    onChange={(e) => {
+                      setWaist(e.target.value);
+                      setActivePresetId(null);
+                    }}
                     className="w-full p-4 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-2xl text-xl font-black font-mono focus:border-indigo-500 outline-none transition-all dark:text-white"
                     placeholder={unit === 'metric' ? '85' : '33'}
                   />
@@ -277,7 +351,10 @@ export function BodyFatCalculator({ initialData, onStateChange }: { initialData?
                       id="hip"
                       type="number"
                       value={hip}
-                      onChange={(e) => setHip(e.target.value)}
+                      onChange={(e) => {
+                        setHip(e.target.value);
+                        setActivePresetId(null);
+                      }}
                       className="w-full p-4 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-2xl text-xl font-black font-mono focus:border-indigo-500 outline-none transition-all dark:text-white"
                       placeholder={unit === 'metric' ? '95' : '37'}
                     />

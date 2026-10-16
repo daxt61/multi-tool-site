@@ -659,6 +659,7 @@ const GraphQLToKotlin = lazy(() => import("./components/GraphQLToKotlin").then(m
 const GraphQLToScala = lazy(() => import("./components/GraphQLToScala").then(m => ({ default: m.GraphQLToScala })));
 const GraphQLToPython = lazy(() => import("./components/GraphQLToPython").then(m => ({ default: m.GraphQLToPython })));
 const GraphQLToPrisma = lazy(() => import("./components/GraphQLToPrisma").then(m => ({ default: m.GraphQLToPrisma })));
+const GraphQLToMongoose = lazy(() => import("./components/GraphQLToMongoose").then(m => ({ default: m.GraphQLToMongoose })));
 const GraphQLToPydantic = lazy(() => import("./components/GraphQLToPydantic").then(m => ({ default: m.GraphQLToPydantic })));
 const GraphQLToRust = lazy(() => import("./components/GraphQLToRust").then(m => ({ default: m.GraphQLToRust })));
 const GraphQLToSeaORM = lazy(() => import("./components/GraphQLToSeaORM").then(m => ({ default: m.GraphQLToSeaORM })));
@@ -1055,6 +1056,18 @@ const tools: Tool[] = [
     Component: GraphQLToPrisma,
     category: "dev",
     keywords: ["graphql", "sdl", "prisma", "schema", "model", "orm", "database", "postgresql", "mysql", "mongodb", "convert", "convertir"],
+  },
+  // GraphQL SDL to Mongoose Schema & TypeScript Interface Converter Tool
+  {
+    id: "graphql-to-mongoose",
+    name: "GraphQL en Mongoose",
+    nameEn: "GraphQL to Mongoose",
+    icon: Database,
+    description: "Convertir des schémas GraphQL SDL en schémas Mongoose, interfaces TypeScript Document et modèles",
+    descriptionEn: "Convert GraphQL SDL schemas into Mongoose Schemas, TypeScript Document Interfaces, and Model exports",
+    Component: GraphQLToMongoose,
+    category: "dev",
+    keywords: ["graphql", "sdl", "mongoose", "mongodb", "schema", "model", "typescript", "document", "orm", "nosql", "convert", "convertir"],
   },
   // GraphQL SDL to Pydantic Model Converter Tool
   {

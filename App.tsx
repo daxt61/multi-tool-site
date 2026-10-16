@@ -650,6 +650,8 @@ const ImagePixelator = lazy(() => import("./components/ImagePixelator").then(m =
 const TSVTester = lazy(() => import("./components/TSVTester").then(m => ({ default: m.TSVTester })));
 const EnumerateIntegers = lazy(() => import("./components/EnumerateIntegers").then(m => ({ default: m.EnumerateIntegers })));
 const GraphQLToTypeScript = lazy(() => import("./components/GraphQLToTypeScript").then(m => ({ default: m.GraphQLToTypeScript })));
+const GraphQLToRuby = lazy(() => import("./components/GraphQLToRuby").then(m => ({ default: m.GraphQLToRuby })));
+const SQLToRuby = lazy(() => import("./components/SQLToRuby").then(m => ({ default: m.SQLToRuby })));
 const GraphQLToCSharp = lazy(() => import("./components/GraphQLToCSharp").then(m => ({ default: m.GraphQLToCSharp })));
 const GraphQLToGo = lazy(() => import("./components/GraphQLToGo").then(m => ({ default: m.GraphQLToGo })));
 const GraphQLToJava = lazy(() => import("./components/GraphQLToJava").then(m => ({ default: m.GraphQLToJava })));
@@ -824,6 +826,30 @@ const tools: Tool[] = [
     Component: SQLToCassandra,
     category: "dev",
     keywords: ["sql", "ddl", "create table", "cassandra", "cql", "keyspace", "nosql", "partition key", "datastax", "convert", "convertir"],
+  },
+  // GraphQL SDL to Ruby Models Converter Tool
+  {
+    id: "graphql-to-ruby",
+    name: "GraphQL en Ruby",
+    nameEn: "GraphQL to Ruby",
+    icon: FileCode,
+    description: "Convertir des schémas GraphQL SDL en modèles Ruby (classes, Data.define, Struct, Sorbet, Dry-Struct)",
+    descriptionEn: "Convert GraphQL SDL schemas into strongly-typed Ruby models (classes, Data.define, Struct, Sorbet, Dry-Struct)",
+    Component: GraphQLToRuby,
+    category: "dev",
+    keywords: ["graphql", "sdl", "ruby", "class", "data", "struct", "sorbet", "dry", "convert", "convertir"],
+  },
+  // SQL DDL to Ruby Models Converter Tool
+  {
+    id: "sql-to-ruby",
+    name: "SQL DDL en Ruby",
+    nameEn: "SQL DDL to Ruby",
+    icon: Database,
+    description: "Convertir des instructions SQL CREATE TABLE DDL en modèles Ruby (classes, Data.define, Struct, Sorbet, Dry-Struct)",
+    descriptionEn: "Convert SQL CREATE TABLE DDL statements into strongly-typed Ruby models (classes, Data.define, Struct, Sorbet, Dry-Struct)",
+    Component: SQLToRuby,
+    category: "dev",
+    keywords: ["sql", "ddl", "ruby", "class", "data", "struct", "sorbet", "dry", "convert", "convertir"],
   },
   // GraphQL SDL to C# Models Converter Tool
   {

@@ -658,6 +658,8 @@ const GraphQLToJava = lazy(() => import("./components/GraphQLToJava").then(m => 
 const GraphQLToKotlin = lazy(() => import("./components/GraphQLToKotlin").then(m => ({ default: m.GraphQLToKotlin })));
 const GraphQLToScala = lazy(() => import("./components/GraphQLToScala").then(m => ({ default: m.GraphQLToScala })));
 const GraphQLToPython = lazy(() => import("./components/GraphQLToPython").then(m => ({ default: m.GraphQLToPython })));
+const GraphQLToPrisma = lazy(() => import("./components/GraphQLToPrisma").then(m => ({ default: m.GraphQLToPrisma })));
+const GraphQLToPydantic = lazy(() => import("./components/GraphQLToPydantic").then(m => ({ default: m.GraphQLToPydantic })));
 const GraphQLToRust = lazy(() => import("./components/GraphQLToRust").then(m => ({ default: m.GraphQLToRust })));
 const GraphQLToSeaORM = lazy(() => import("./components/GraphQLToSeaORM").then(m => ({ default: m.GraphQLToSeaORM })));
 const GraphQLToZod = lazy(() => import("./components/GraphQLToZod").then(m => ({ default: m.GraphQLToZod })));
@@ -1041,6 +1043,30 @@ const tools: Tool[] = [
     Component: GraphQLToSQL,
     category: "dev",
     keywords: ["graphql", "sdl", "sql", "ddl", "create table", "database", "postgres", "mysql", "sqlite", "convert", "convertir"],
+  },
+  // GraphQL SDL to Prisma Schema Converter Tool
+  {
+    id: "graphql-to-prisma",
+    name: "GraphQL en Prisma",
+    nameEn: "GraphQL to Prisma Schema",
+    icon: Database,
+    description: "Convertir des schémas GraphQL SDL en modèles de schéma Prisma",
+    descriptionEn: "Convert GraphQL SDL schemas into Prisma Schema model definitions",
+    Component: GraphQLToPrisma,
+    category: "dev",
+    keywords: ["graphql", "sdl", "prisma", "schema", "model", "orm", "database", "postgresql", "mysql", "mongodb", "convert", "convertir"],
+  },
+  // GraphQL SDL to Pydantic Model Converter Tool
+  {
+    id: "graphql-to-pydantic",
+    name: "GraphQL en Pydantic",
+    nameEn: "GraphQL to Pydantic",
+    icon: ShieldCheck,
+    description: "Convertir des schémas GraphQL SDL en modèles Python Pydantic V2/V1",
+    descriptionEn: "Convert GraphQL SDL schemas into strongly-typed Python Pydantic V2/V1 models",
+    Component: GraphQLToPydantic,
+    category: "dev",
+    keywords: ["graphql", "sdl", "pydantic", "python", "fastapi", "model", "dataclass", "convert", "convertir"],
   },
   // GraphQL SDL to PHP Converter Tool
   {

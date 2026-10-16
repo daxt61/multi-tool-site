@@ -8,9 +8,10 @@ const MAX_LENGTH = 100000;
 
 export function JWTDecoder({ initialData, onStateChange }: { initialData?: any; onStateChange?: (state: any) => void }) {
   const { t } = useTranslation();
-  const [jwt, setJwt] = useState(initialData?.jwt || "");
+  // Sentinel: Sensitive bearer tokens (jwt) must never be initialized from initialData or serialized in URL state.
+  const [jwt, setJwt] = useState("");
   const [secretKey, setSecretKey] = useState("");
-  const [selectedAlg, setSelectedAlg] = useState("HS256");
+  const [selectedAlg, setSelectedAlg] = useState(initialData?.selectedAlg || "HS256");
   const [verificationResult, setVerificationResult] = useState<"valid" | "invalid" | "missing_secret" | "error" | null>("missing_secret");
   const [verificationError, setVerificationError] = useState("");
   const [showSecret, setShowSecret] = useState(false);
@@ -31,8 +32,9 @@ export function JWTDecoder({ initialData, onStateChange }: { initialData?: any; 
   const [copiedPayload, setCopiedPayload] = useState(false);
 
   useEffect(() => {
-    onStateChange?.({ jwt, selectedAlg });
-  }, [jwt, selectedAlg, onStateChange]);
+    // Sentinel: Never share raw JWT bearer tokens in the shareable URL state.
+    onStateChange?.({ selectedAlg });
+  }, [selectedAlg, onStateChange]);
 
   const base64UrlDecode = (str: string) => {
     let base64 = str.replace(/-/g, "+").replace(/_/g, "/");

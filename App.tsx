@@ -668,6 +668,7 @@ const GraphQLToZod = lazy(() => import("./components/GraphQLToZod").then(m => ({
 const GraphQLToYup = lazy(() => import("./components/GraphQLToYup").then(m => ({ default: m.GraphQLToYup })));
 const GraphQLToJoi = lazy(() => import("./components/GraphQLToJoi").then(m => ({ default: m.GraphQLToJoi })));
 const GraphQLToTypeBox = lazy(() => import("./components/GraphQLToTypeBox").then(m => ({ default: m.GraphQLToTypeBox })));
+const GraphQLToKysely = lazy(() => import("./components/GraphQLToKysely").then(m => ({ default: m.GraphQLToKysely })));
 const SQLToYup = lazy(() => import("./components/SQLToYup").then(m => ({ default: m.SQLToYup })));
 const SQLToJoi = lazy(() => import("./components/SQLToJoi").then(m => ({ default: m.SQLToJoi })));
 const GraphQLToProtobuf = lazy(() => import("./components/GraphQLToProtobuf").then(m => ({ default: m.GraphQLToProtobuf })));
@@ -1021,6 +1022,18 @@ const tools: Tool[] = [
     Component: GraphQLToTypeBox,
     category: "dev",
     keywords: ["graphql", "sdl", "typebox", "validation", "schema", "typescript", "fastify", "convert", "convertir"],
+  },
+  // GraphQL SDL to Kysely TypeScript Schema Interface Converter Tool
+  {
+    id: "graphql-to-kysely",
+    name: "GraphQL en Kysely",
+    nameEn: "GraphQL to Kysely",
+    icon: Database,
+    description: "Convertir des schémas GraphQL SDL en interfaces de base de données Kysely TypeScript",
+    descriptionEn: "Convert GraphQL SDL schemas into strongly-typed Kysely TypeScript database interfaces",
+    Component: GraphQLToKysely,
+    category: "dev",
+    keywords: ["graphql", "sdl", "kysely", "typescript", "database", "schema", "interface", "generated", "convert", "convertir"],
   },
   // GraphQL SDL to Protocol Buffers .proto Generator Tool
   {

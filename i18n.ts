@@ -14744,7 +14744,30 @@ const resources = {
       "graphqltopydantic.toast_cleared": "Saisies effacées !",
       "graphqltopydantic.preset_loaded": "Préréglage GraphQL chargé !",
       "graphqltopydantic.about_title": "À propos du Convertisseur GraphQL SDL en Pydantic",
-      "graphqltopydantic.about_text": "Convertissez directement des définitions GraphQL SDL en modèles Python Pydantic V2 ou V1 fortement typés avec gestion des alias et des enums."
+      "graphqltopydantic.about_text": "Convertissez directement des définitions GraphQL SDL en modèles Python Pydantic V2 ou V1 fortement typés avec gestion des alias et des enums.",
+
+      "tool.graphql-to-kysely.name": "GraphQL en Kysely",
+      "tool.graphql-to-kysely.description": "Convertir des schémas GraphQL SDL en interfaces de base de données Kysely TypeScript",
+      "graphqltokysely.presets_title": "Préréglages Rapides :",
+      "graphqltokysely.preset_ecommerce": "Catalogue E-Commerce",
+      "graphqltokysely.preset_user_auth": "Gestion Utilisateurs & Auth",
+      "graphqltokysely.preset_social_feed": "Flux Social & Commentaires",
+      "graphqltokysely.id_type": "Mappage Scalaire ID",
+      "graphqltokysely.timestamp_type": "Mappage DateTime",
+      "graphqltokysely.field_casing": "Casse des Propriétés",
+      "graphqltokysely.use_json_column": "Envelopper JSON (JSONColumnType<T>)",
+      "graphqltokysely.include_database": "Générer l'Interface Racine Database",
+      "graphqltokysely.graphql_input_label": "Schéma GraphQL SDL",
+      "graphqltokysely.output_label": "Interfaces TypeScript Kysely",
+      "graphqltokysely.placeholder_graphql": "Collez le schéma GraphQL SDL ici...",
+      "graphqltokysely.placeholder_output": "Les interfaces de base de données TypeScript Kysely apparaîtront ici...",
+      "graphqltokysely.no_types_found": "Aucun type, interface, entrée ou enum GraphQL valide n'a été trouvé.",
+      "graphqltokysely.error_parsing": "Erreur lors de l'analyse du schéma GraphQL",
+      "graphqltokysely.toast_copied": "Interfaces TypeScript Kysely copiées dans le presse-papiers !",
+      "graphqltokysely.toast_cleared": "Saisies effacées !",
+      "graphqltokysely.preset_loaded": "Préréglage GraphQL chargé !",
+      "graphqltokysely.about_title": "À propos du Convertisseur GraphQL SDL en Kysely",
+      "graphqltokysely.about_text": "Convertissez des types, interfaces, entrées et enums GraphQL SDL directement en interfaces de base de données TypeScript Kysely fortement typées avec Generated<T>, JSONColumnType<T>, conversion de casse et interface racine Database."
     }
   }
 };

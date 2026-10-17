@@ -657,6 +657,7 @@ const GraphQLToGo = lazy(() => import("./components/GraphQLToGo").then(m => ({ d
 const GraphQLToJava = lazy(() => import("./components/GraphQLToJava").then(m => ({ default: m.GraphQLToJava })));
 const GraphQLToKotlin = lazy(() => import("./components/GraphQLToKotlin").then(m => ({ default: m.GraphQLToKotlin })));
 const GraphQLToScala = lazy(() => import("./components/GraphQLToScala").then(m => ({ default: m.GraphQLToScala })));
+const GraphQLToSwift = lazy(() => import("./components/GraphQLToSwift").then(m => ({ default: m.GraphQLToSwift })));
 const GraphQLToPython = lazy(() => import("./components/GraphQLToPython").then(m => ({ default: m.GraphQLToPython })));
 const GraphQLToPrisma = lazy(() => import("./components/GraphQLToPrisma").then(m => ({ default: m.GraphQLToPrisma })));
 const GraphQLToMongoose = lazy(() => import("./components/GraphQLToMongoose").then(m => ({ default: m.GraphQLToMongoose })));
@@ -913,6 +914,18 @@ const tools: Tool[] = [
     Component: GraphQLToScala,
     category: "dev",
     keywords: ["graphql", "sdl", "scala", "case class", "sealed trait", "enum", "circe", "play", "upickle", "jackson", "convert", "convertir"],
+  },
+  // GraphQL SDL to Swift Codable Converter Tool
+  {
+    id: "graphql-to-swift",
+    name: "GraphQL en Swift Codable",
+    nameEn: "GraphQL to Swift Codable",
+    icon: FileCode,
+    description: "Convertir des schémas GraphQL SDL en structures ou classes Swift 5.9+ Codable (Identifiable, Sendable)",
+    descriptionEn: "Convert GraphQL SDL schemas into strongly-typed Swift 5.9+ Codable structs or classes",
+    Component: GraphQLToSwift,
+    category: "dev",
+    keywords: ["graphql", "sdl", "swift", "codable", "identifiable", "sendable", "struct", "class", "ios", "macos", "convert", "convertir"],
   },
   // GraphQL SDL to Python Models Converter Tool
   {

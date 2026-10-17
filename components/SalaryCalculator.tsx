@@ -1,25 +1,86 @@
 import { useState, useMemo, useEffect, useCallback, useRef } from "react";
-import { Banknote, Briefcase, Info, TrendingDown, TrendingUp, RotateCcw, HelpCircle, BookOpen, ChevronRight, Calculator, Copy, Check } from "lucide-react";
+import { Banknote, Briefcase, Info, TrendingDown, TrendingUp, RotateCcw, HelpCircle, BookOpen, ChevronRight, Calculator, Copy, Check, Sparkles } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import { toast } from "sonner";
 import { Kbd } from "./ui/Kbd";
 
+interface SalaryPreset {
+  id: string;
+  labelKey: string;
+  grossAnnual: string;
+  status: "non-cadre" | "cadre";
+  is13thMonth: boolean;
+  mealVoucherValue: string;
+  mealVoucherDays: string;
+  employerShare: string;
+  benefitsInKind: string;
+}
+
+const PRESETS: SalaryPreset[] = [
+  {
+    id: "smic",
+    labelKey: "salary.preset_smic",
+    grossAnnual: "21203",
+    status: "non-cadre",
+    is13thMonth: false,
+    mealVoucherValue: "9.50",
+    mealVoucherDays: "20",
+    employerShare: "50",
+    benefitsInKind: "0",
+  },
+  {
+    id: "junior_cadre",
+    labelKey: "salary.preset_junior_cadre",
+    grossAnnual: "38000",
+    status: "cadre",
+    is13thMonth: false,
+    mealVoucherValue: "10.00",
+    mealVoucherDays: "20",
+    employerShare: "50",
+    benefitsInKind: "0",
+  },
+  {
+    id: "senior_cadre",
+    labelKey: "salary.preset_senior_cadre",
+    grossAnnual: "55000",
+    status: "cadre",
+    is13thMonth: false,
+    mealVoucherValue: "11.00",
+    mealVoucherDays: "20",
+    employerShare: "60",
+    benefitsInKind: "0",
+  },
+  {
+    id: "exec",
+    labelKey: "salary.preset_exec",
+    grossAnnual: "85000",
+    status: "cadre",
+    is13thMonth: true,
+    mealVoucherValue: "12.00",
+    mealVoucherDays: "20",
+    employerShare: "60",
+    benefitsInKind: "150",
+  },
+];
+
 export function SalaryCalculator({ initialData, onStateChange }: { initialData?: any; onStateChange?: (state: any) => void }) {
   const { t } = useTranslation();
+  const containerRef = useRef<HTMLDivElement>(null);
   const grossSalaryInputRef = useRef<HTMLInputElement>(null);
 
   const [grossAnnual, setGrossAnnual] = useState<string>(initialData?.grossAnnual || "35000");
   const [status, setStatus] = useState<"non-cadre" | "cadre">(initialData?.status || "non-cadre");
-  const [is13thMonth, setIs13thMonth] = useState(initialData?.is13thMonth ?? false);
+  const [is13thMonth, setIs13thMonth] = useState<boolean>(initialData?.is13thMonth ?? false);
   const [mealVoucherValue, setMealVoucherValue] = useState<string>(initialData?.mealVoucherValue || "0");
   const [mealVoucherDays, setMealVoucherDays] = useState<string>(initialData?.mealVoucherDays || "20");
   const [employerShare, setEmployerShare] = useState<string>(initialData?.employerShare || "50");
   const [benefitsInKind, setBenefitsInKind] = useState<string>(initialData?.benefitsInKind || "0");
+  const [activePresetId, setActivePresetId] = useState<string | null>(initialData?.activePresetId || null);
   const [copied, setCopied] = useState(false);
 
   useEffect(() => {
-    onStateChange?.({ grossAnnual, status, is13thMonth, mealVoucherValue, mealVoucherDays, employerShare, benefitsInKind });
-  }, [grossAnnual, status, is13thMonth, mealVoucherValue, mealVoucherDays, employerShare, benefitsInKind, onStateChange]);
+    onStateChange?.({ grossAnnual, status, is13thMonth, mealVoucherValue, mealVoucherDays, employerShare, benefitsInKind, activePresetId });
+  }, [grossAnnual, status, is13thMonth, mealVoucherValue, mealVoucherDays, employerShare, benefitsInKind, activePresetId, onStateChange]);
 
   const results = useMemo(() => {
     const gross = parseFloat(grossAnnual) || 0;
@@ -79,10 +140,23 @@ export function SalaryCalculator({ initialData, onStateChange }: { initialData?:
     };
   }, [grossAnnual, status, is13thMonth, mealVoucherValue, mealVoucherDays, employerShare, benefitsInKind]);
 
+  const handleApplyPreset = useCallback((preset: SalaryPreset) => {
+    setGrossAnnual(preset.grossAnnual);
+    setStatus(preset.status);
+    setIs13thMonth(preset.is13thMonth);
+    setMealVoucherValue(preset.mealVoucherValue);
+    setMealVoucherDays(preset.mealVoucherDays);
+    setEmployerShare(preset.employerShare);
+    setBenefitsInKind(preset.benefitsInKind);
+    setActivePresetId(preset.id);
+    toast.success(t("salary.toast_preset_loaded", { name: t(preset.labelKey) }));
+  }, [t]);
+
   const handleClear = useCallback(() => {
     setGrossAnnual("");
     setMealVoucherValue("0");
     setBenefitsInKind("0");
+    setActivePresetId(null);
     toast.success(t("salary.reset_success"));
     setTimeout(() => {
       grossSalaryInputRef.current?.focus();
@@ -107,6 +181,11 @@ ${t("salary.net_after_tax")} : ${results.netAnnualAfterTax.toFixed(2)}€ / an (
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
       const activeElement = document.activeElement;
+
+      if (containerRef.current && !containerRef.current.contains(activeElement) && activeElement !== document.body) {
+        return;
+      }
+
       const isInputFocused =
         activeElement instanceof HTMLInputElement ||
         activeElement instanceof HTMLTextAreaElement ||
@@ -137,7 +216,34 @@ ${t("salary.net_after_tax")} : ${results.netAnnualAfterTax.toFixed(2)}€ / an (
   }, []);
 
   return (
-    <div className="max-w-4xl mx-auto space-y-8">
+    <div ref={containerRef} className="max-w-4xl mx-auto space-y-8">
+      {/* Quick Start Presets */}
+      <div className="bg-slate-50 dark:bg-slate-900/50 p-4 rounded-2xl border border-slate-200 dark:border-slate-800 space-y-2">
+        <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider px-1 flex items-center gap-1.5">
+          <Sparkles className="w-3 h-3 text-indigo-500" aria-hidden="true" /> {t("salary.presets_title")}
+        </span>
+        <div className="flex flex-wrap gap-2">
+          {PRESETS.map((preset) => {
+            const isActive = activePresetId === preset.id;
+            return (
+              <button
+                key={preset.id}
+                type="button"
+                aria-pressed={isActive}
+                onClick={() => handleApplyPreset(preset)}
+                className={`px-3 py-1.5 rounded-xl text-xs font-bold transition-all focus-visible:ring-2 focus-visible:ring-indigo-500 focus-visible:outline-none ${
+                  isActive
+                    ? "bg-indigo-600 text-white shadow-sm"
+                    : "bg-white dark:bg-slate-800 text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-700 border border-slate-200 dark:border-slate-700"
+                }`}
+              >
+                {t(preset.labelKey)}
+              </button>
+            );
+          })}
+        </div>
+      </div>
+
       <div className="grid grid-cols-1 md:grid-cols-2 gap-12">
         <div className="space-y-6">
           <div className="flex justify-between items-center px-1">
@@ -147,6 +253,7 @@ ${t("salary.net_after_tax")} : ${results.netAnnualAfterTax.toFixed(2)}€ / an (
             <div className="flex items-center gap-2">
               <Kbd modifier={null} className="text-slate-400">Esc</Kbd>
               <button
+                type="button"
                 onClick={handleClear}
                 disabled={!grossAnnual && mealVoucherValue === "0" && benefitsInKind === "0"}
                 className="text-xs font-bold text-rose-500 bg-rose-50 dark:bg-rose-500/10 hover:bg-rose-100 dark:hover:bg-rose-500/20 px-3 py-1.5 rounded-xl flex items-center gap-1 transition-all disabled:opacity-50 disabled:cursor-not-allowed focus-visible:ring-2 focus-visible:ring-rose-500 focus-visible:outline-none"
@@ -162,7 +269,10 @@ ${t("salary.net_after_tax")} : ${results.netAnnualAfterTax.toFixed(2)}€ / an (
               ref={grossSalaryInputRef}
               type="number"
               value={grossAnnual}
-              onChange={(e) => setGrossAnnual(e.target.value)}
+              onChange={(e) => {
+                setGrossAnnual(e.target.value);
+                setActivePresetId(null);
+              }}
               className="w-full p-6 bg-slate-50 dark:bg-slate-900/50 border border-slate-200 dark:border-slate-800 rounded-3xl text-3xl md:text-4xl font-black font-mono outline-none focus:ring-2 focus:ring-indigo-500/20 transition-all dark:text-white focus-visible:ring-indigo-500"
               placeholder="35000"
             />
@@ -179,7 +289,10 @@ ${t("salary.net_after_tax")} : ${results.netAnnualAfterTax.toFixed(2)}€ / an (
                   type="button"
                   role="radio"
                   aria-checked={status === "non-cadre"}
-                  onClick={() => setStatus("non-cadre")}
+                  onClick={() => {
+                    setStatus("non-cadre");
+                    setActivePresetId(null);
+                  }}
                   className={`flex-1 py-2 rounded-lg text-xs font-bold transition-all focus-visible:ring-2 focus-visible:ring-indigo-500 focus-visible:outline-none ${status === "non-cadre" ? "bg-white dark:bg-slate-700 text-indigo-600 shadow-sm" : "text-slate-500"}`}
                 >
                   {t("salary.status_non_cadre")}
@@ -188,7 +301,10 @@ ${t("salary.net_after_tax")} : ${results.netAnnualAfterTax.toFixed(2)}€ / an (
                   type="button"
                   role="radio"
                   aria-checked={status === "cadre"}
-                  onClick={() => setStatus("cadre")}
+                  onClick={() => {
+                    setStatus("cadre");
+                    setActivePresetId(null);
+                  }}
                   className={`flex-1 py-2 rounded-lg text-xs font-bold transition-all focus-visible:ring-2 focus-visible:ring-indigo-500 focus-visible:outline-none ${status === "cadre" ? "bg-white dark:bg-slate-700 text-indigo-600 shadow-sm" : "text-slate-500"}`}
                 >
                   {t("salary.status_cadre")}
@@ -204,7 +320,10 @@ ${t("salary.net_after_tax")} : ${results.netAnnualAfterTax.toFixed(2)}€ / an (
                   type="button"
                   role="radio"
                   aria-checked={!is13thMonth}
-                  onClick={() => setIs13thMonth(false)}
+                  onClick={() => {
+                    setIs13thMonth(false);
+                    setActivePresetId(null);
+                  }}
                   className={`flex-1 py-2.5 rounded-lg text-xs font-bold transition-all focus-visible:ring-2 focus-visible:ring-indigo-500 focus-visible:outline-none ${!is13thMonth ? "bg-white dark:bg-slate-700 text-indigo-600 shadow-sm" : "text-slate-500"}`}
                 >
                   {t("salary.period_12")}
@@ -213,7 +332,10 @@ ${t("salary.net_after_tax")} : ${results.netAnnualAfterTax.toFixed(2)}€ / an (
                   type="button"
                   role="radio"
                   aria-checked={is13thMonth}
-                  onClick={() => setIs13thMonth(true)}
+                  onClick={() => {
+                    setIs13thMonth(true);
+                    setActivePresetId(null);
+                  }}
                   className={`flex-1 py-2.5 rounded-lg text-xs font-bold transition-all focus-visible:ring-2 focus-visible:ring-indigo-500 focus-visible:outline-none ${is13thMonth ? "bg-white dark:bg-slate-700 text-indigo-600 shadow-sm" : "text-slate-500"}`}
                 >
                   {t("salary.period_13")}
@@ -233,7 +355,10 @@ ${t("salary.net_after_tax")} : ${results.netAnnualAfterTax.toFixed(2)}€ / an (
                     id="meal-vouchers"
                     type="number"
                     value={mealVoucherValue}
-                    onChange={(e) => setMealVoucherValue(e.target.value)}
+                    onChange={(e) => {
+                      setMealVoucherValue(e.target.value);
+                      setActivePresetId(null);
+                    }}
                     className="w-full p-3 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl text-sm font-bold outline-none focus:border-indigo-500 transition-colors dark:text-white focus-visible:ring-2 focus-visible:ring-indigo-500 focus-visible:outline-none"
                     placeholder="9.50"
                   />
@@ -247,7 +372,10 @@ ${t("salary.net_after_tax")} : ${results.netAnnualAfterTax.toFixed(2)}€ / an (
                     id="benefits"
                     type="number"
                     value={benefitsInKind}
-                    onChange={(e) => setBenefitsInKind(e.target.value)}
+                    onChange={(e) => {
+                      setBenefitsInKind(e.target.value);
+                      setActivePresetId(null);
+                    }}
                     className="w-full p-3 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl text-sm font-bold outline-none focus:border-indigo-500 transition-colors dark:text-white focus-visible:ring-2 focus-visible:ring-indigo-500 focus-visible:outline-none"
                     placeholder="0"
                   />
@@ -277,6 +405,7 @@ ${t("salary.net_after_tax")} : ${results.netAnnualAfterTax.toFixed(2)}€ / an (
              <div className="absolute top-6 right-6 flex items-center gap-2 z-20">
                <Kbd modifier={null} className="bg-slate-800 border-slate-700 text-slate-400">C</Kbd>
                <button
+                type="button"
                 onClick={handleCopy}
                 className={`p-3 rounded-2xl transition-all border focus-visible:ring-2 focus-visible:ring-indigo-500 focus-visible:outline-none ${
                   copied

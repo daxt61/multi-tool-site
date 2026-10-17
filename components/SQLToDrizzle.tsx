@@ -6,6 +6,15 @@ import { Kbd } from './ui/Kbd';
 
 const MAX_LENGTH = 100000;
 
+const escapeJsString = (str: string): string => {
+  return str
+    .replace(/\\/g, '\\\\')
+    .replace(/'/g, "\\'")
+    .replace(/\n/g, '\\n')
+    .replace(/\r/g, '\\r')
+    .replace(/\t/g, '\\t');
+};
+
 export function SQLToDrizzle({ initialData, onStateChange }: { initialData?: any; onStateChange?: (state: any) => void }) {
   const { t } = useTranslation();
   const containerRef = useRef<HTMLDivElement>(null);
@@ -212,7 +221,7 @@ CREATE TABLE comments (
         .replace(/--.*$/gm, '')
         .replace(/\/\*[\s\S]*?\*\//g, '');
 
-      const tableRegex = /CREATE\s+TABLE\s+(?:IF\s+NOT\s+EXISTS\s+)?(?:["`]?(\w+)["`]?\.)?["`]?(\w+)["`]?\s*\(([\s\S]*?)\);/gi;
+      const tableRegex = /CREATE\s+TABLE\s+(?:IF\s+NOT\s+EXISTS\s+)?(?:["`]?([^"`\s.]+)["`]?\.)?["`]?([^"`\s]+)["`]?\s*\(([\s\S]*?)\);/gi;
       let match;
       const tables: { tableName: string; columns: { rawName: string; propName: string; drizzleExpr: string; drizzleTypeImport: string }[] }[] = [];
       const requiredImports = new Set<string>();
@@ -305,7 +314,7 @@ CREATE TABLE comments (
           requiredImports.add(drizzleModuleImport);
 
           // Build function call expression e.g. text('column_name') or varchar('column_name', { length: 255 })
-          let args = `'${rawName}'`;
+          let args = `'${escapeJsString(rawName)}'`;
           if (drizzleFn === 'varchar') {
             const lenMatch = (sqlType || '').match(/\((\d+)\)/);
             const len = lenMatch ? parseInt(lenMatch[1], 10) : 255;
@@ -334,7 +343,7 @@ CREATE TABLE comments (
             } else if (!isNaN(Number(defaultValue))) {
               drizzleExpr += `.default(${defaultValue})`;
             } else {
-              drizzleExpr += `.default('${defaultValue}')`;
+              drizzleExpr += `.default('${escapeJsString(defaultValue)}')`;
             }
           }
 
@@ -374,7 +383,7 @@ CREATE TABLE comments (
         const varName = toVarName(table.tableName);
         const typeName = toTypeName(table.tableName);
 
-        generated += `${exportKeyword}const ${varName} = ${tableFnName}('${table.tableName}', {\n`;
+        generated += `${exportKeyword}const ${varName} = ${tableFnName}('${escapeJsString(table.tableName)}', {\n`;
         table.columns.forEach(col => {
           const isValidIdent = /^[a-zA-Z_$][a-zA-Z0-9_$]*$/.test(col.propName);
           const keyStr = isValidIdent ? col.propName : JSON.stringify(col.propName);

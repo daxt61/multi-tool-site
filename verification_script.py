@@ -1,23 +1,31 @@
 from playwright.sync_api import sync_playwright
-import os
 
 def run_cuj(page):
-    # Navigate to GraphQL to Mongoose tool
-    page.goto("http://localhost:4173/en/outil/graphql-to-mongoose")
-    page.wait_for_timeout(500)
+    page.goto("http://localhost:4173/en/outil/graphql-to-gorm")
+    page.wait_for_timeout(1000)
 
-    # Click Social Feed & Comments preset
-    page.get_by_role("button", name="Social Feed & Comments").click()
-    page.wait_for_timeout(500)
+    # Click E-Commerce Catalog preset
+    page.get_by_role("button", name="E-Commerce Catalog").click()
+    page.wait_for_timeout(1000)
 
-    # Take screenshot of Mongoose tool
-    page.screenshot(path="/home/jules/verification/screenshots/mongoose_verification.png")
+    # Change dialect
+    page.locator("#dialect").select_option("mysql")
+    page.wait_for_timeout(1000)
+
+    page.screenshot(path="/home/jules/verification/screenshots/graphql_to_gorm.png")
+
+    # Navigate to VAT Calculator
+    page.goto("http://localhost:4173/en/outil/vat-calculator")
+    page.wait_for_timeout(1000)
+
+    # Click Food preset
+    page.get_by_role("button", name="Catering / Food").click()
+    page.wait_for_timeout(1000)
+
+    page.screenshot(path="/home/jules/verification/screenshots/vat_calculator.png")
     page.wait_for_timeout(1000)
 
 if __name__ == "__main__":
-    os.makedirs("/home/jules/verification/videos", exist_ok=True)
-    os.makedirs("/home/jules/verification/screenshots", exist_ok=True)
-
     with sync_playwright() as p:
         browser = p.chromium.launch(headless=True)
         context = browser.new_context(

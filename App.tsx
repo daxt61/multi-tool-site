@@ -654,6 +654,7 @@ const GraphQLToRuby = lazy(() => import("./components/GraphQLToRuby").then(m => 
 const SQLToRuby = lazy(() => import("./components/SQLToRuby").then(m => ({ default: m.SQLToRuby })));
 const GraphQLToCSharp = lazy(() => import("./components/GraphQLToCSharp").then(m => ({ default: m.GraphQLToCSharp })));
 const GraphQLToGo = lazy(() => import("./components/GraphQLToGo").then(m => ({ default: m.GraphQLToGo })));
+const GraphQLToGorm = lazy(() => import("./components/GraphQLToGorm").then(m => ({ default: m.GraphQLToGorm })));
 const GraphQLToJava = lazy(() => import("./components/GraphQLToJava").then(m => ({ default: m.GraphQLToJava })));
 const GraphQLToKotlin = lazy(() => import("./components/GraphQLToKotlin").then(m => ({ default: m.GraphQLToKotlin })));
 const GraphQLToScala = lazy(() => import("./components/GraphQLToScala").then(m => ({ default: m.GraphQLToScala })));
@@ -880,6 +881,18 @@ const tools: Tool[] = [
     Component: GraphQLToGo,
     category: "dev",
     keywords: ["graphql", "sdl", "go", "golang", "struct", "tags", "json", "gorm", "convert", "convertir"],
+  },
+  // GraphQL SDL to Go GORM Model Converter Tool
+  {
+    id: "graphql-to-gorm",
+    name: "GraphQL en GORM Go",
+    nameEn: "GraphQL to Go GORM",
+    icon: Database,
+    description: "Convertir des schémas GraphQL SDL en modèles d'entités Go GORM ORM",
+    descriptionEn: "Convert GraphQL SDL schemas into Go GORM ORM model structs",
+    Component: GraphQLToGorm,
+    category: "dev",
+    keywords: ["graphql", "sdl", "gorm", "go", "golang", "orm", "model", "database", "postgres", "mysql", "sqlite", "convert", "convertir"],
   },
   // GraphQL SDL to Java Classes / Records Converter Tool
   {

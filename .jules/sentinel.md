@@ -391,3 +391,8 @@
 **Vulnerability:** The SQLToDrizzle component interpolated raw SQL table names, column names, and default string values directly into single-quoted JS/TS string literals (`pgTable('...', ...)`, `varchar('...')`, `.default('...')`) without escaping single quotes or backslashes.
 **Learning:** Object-relational mapping (ORM) schema generators that produce JavaScript/TypeScript code from SQL DDL queries must escape single quotes and backslashes in table/column identifiers and default string values to prevent syntax breakout in generated code files.
 **Prevention:** Apply a dedicated `escapeJsString` helper function to escape backslashes (`\\`), single quotes (`\'`), newlines (`\n`), carriage returns (`\r`), and tabs (`\t`) when interpolating raw string identifiers or string defaults into JavaScript code generators.
+
+## 2026-12-20 - [String Literal Breakout in Jackson Annotations and Package Header Injection in SQL-to-Scala Generator]
+**Vulnerability:** The SQLToScala component interpolated raw SQL column names directly into Jackson double-quoted string literals (`@com.fasterxml.jackson.annotation.JsonProperty("${f.originalName}")`) and interpolated unvalidated package names directly into file headers without sanitization or escaping.
+**Learning:** Code generators that derive annotation parameters or package declarations from untrusted SQL DDL queries must escape double quotes, backslashes, control characters, and dollar signs in string literal parameters, and restrict package identifiers to valid POSIX/identifier patterns (`[^\w.]`).
+**Prevention:** Apply dedicated string escaping (`escapeScalaString`) to raw column names in string literal annotations and package name sanitization (`sanitizePackageName`) when generating file header statements.

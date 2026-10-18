@@ -178,6 +178,7 @@ union FeedItem = Post | Comment`
       .replace(/"/g, '\\"')
       .replace(/\n/g, '\\n')
       .replace(/\r/g, '\\r')
+      .replace(/\t/g, '\\t')
       .replace(/\$/g, '\\$');
   };
 

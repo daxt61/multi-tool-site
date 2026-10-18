@@ -668,6 +668,7 @@ const GraphQLToZod = lazy(() => import("./components/GraphQLToZod").then(m => ({
 const GraphQLToYup = lazy(() => import("./components/GraphQLToYup").then(m => ({ default: m.GraphQLToYup })));
 const GraphQLToJoi = lazy(() => import("./components/GraphQLToJoi").then(m => ({ default: m.GraphQLToJoi })));
 const GraphQLToTypeBox = lazy(() => import("./components/GraphQLToTypeBox").then(m => ({ default: m.GraphQLToTypeBox })));
+const GraphQLToDrizzle = lazy(() => import("./components/GraphQLToDrizzle").then(m => ({ default: m.GraphQLToDrizzle })));
 const GraphQLToKysely = lazy(() => import("./components/GraphQLToKysely").then(m => ({ default: m.GraphQLToKysely })));
 const SQLToYup = lazy(() => import("./components/SQLToYup").then(m => ({ default: m.SQLToYup })));
 const SQLToJoi = lazy(() => import("./components/SQLToJoi").then(m => ({ default: m.SQLToJoi })));
@@ -1022,6 +1023,18 @@ const tools: Tool[] = [
     Component: GraphQLToTypeBox,
     category: "dev",
     keywords: ["graphql", "sdl", "typebox", "validation", "schema", "typescript", "fastify", "convert", "convertir"],
+  },
+  // GraphQL SDL to Drizzle ORM Schema Converter Tool
+  {
+    id: "graphql-to-drizzle",
+    name: "GraphQL en Drizzle",
+    nameEn: "GraphQL to Drizzle ORM",
+    icon: Database,
+    description: "Convertir des schémas GraphQL SDL en schémas Drizzle ORM fortement typés",
+    descriptionEn: "Convert GraphQL SDL schemas into strongly-typed Drizzle ORM schema definitions",
+    Component: GraphQLToDrizzle,
+    category: "dev",
+    keywords: ["graphql", "sdl", "drizzle", "orm", "pgTable", "mysqlTable", "sqliteTable", "schema", "convert", "convertir"],
   },
   // GraphQL SDL to Kysely TypeScript Schema Interface Converter Tool
   {

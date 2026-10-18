@@ -666,6 +666,7 @@ const GraphQLToPydantic = lazy(() => import("./components/GraphQLToPydantic").th
 const GraphQLToRust = lazy(() => import("./components/GraphQLToRust").then(m => ({ default: m.GraphQLToRust })));
 const GraphQLToSeaORM = lazy(() => import("./components/GraphQLToSeaORM").then(m => ({ default: m.GraphQLToSeaORM })));
 const GraphQLToZod = lazy(() => import("./components/GraphQLToZod").then(m => ({ default: m.GraphQLToZod })));
+const GraphQLToValibot = lazy(() => import("./components/GraphQLToValibot").then(m => ({ default: m.GraphQLToValibot })));
 const GraphQLToYup = lazy(() => import("./components/GraphQLToYup").then(m => ({ default: m.GraphQLToYup })));
 const GraphQLToJoi = lazy(() => import("./components/GraphQLToJoi").then(m => ({ default: m.GraphQLToJoi })));
 const GraphQLToTypeBox = lazy(() => import("./components/GraphQLToTypeBox").then(m => ({ default: m.GraphQLToTypeBox })));
@@ -1000,6 +1001,18 @@ const tools: Tool[] = [
     Component: GraphQLToZod,
     category: "dev",
     keywords: ["graphql", "sdl", "zod", "validation", "schema", "type", "enum", "convert", "convertir"],
+  },
+  // GraphQL SDL to Valibot Validation Schema Converter Tool
+  {
+    id: "graphql-to-valibot",
+    name: "GraphQL en Valibot",
+    nameEn: "GraphQL to Valibot",
+    icon: ShieldCheck,
+    description: "Convertir des schémas GraphQL SDL en schémas de validation Valibot",
+    descriptionEn: "Convert GraphQL SDL schemas into strongly-typed Valibot validation schemas",
+    Component: GraphQLToValibot,
+    category: "dev",
+    keywords: ["graphql", "sdl", "valibot", "validation", "schema", "type", "enum", "convert", "convertir"],
   },
   // GraphQL SDL to Yup Validation Schema Converter Tool
   {

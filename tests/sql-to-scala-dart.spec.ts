@@ -57,6 +57,21 @@ test.describe('SQL to Scala Case Class Generator Tool', () => {
     expect(outputVal).toContain('`type`: String');
     expect(outputVal).toContain('`match`: Option[String]');
   });
+
+  test('escapes special characters in Jackson annotations and sanitizes package name', async ({ page }) => {
+    await page.locator('#scala-framework').selectOption('jackson');
+    await page.locator('#scala-package').fill('com.example; import malicious._;');
+    await page.locator('#sql-scala-input').fill(`
+      CREATE TABLE test_table (
+        id INT PRIMARY KEY,
+        "col_name$test" VARCHAR(50) NOT NULL
+      );
+    `);
+
+    const outputVal = await page.locator('#scala-output').inputValue();
+    expect(outputVal).toContain('package com.exampleimportmalicious');
+    expect(outputVal).toContain('@com.fasterxml.jackson.annotation.JsonProperty("col_name\\$test")');
+  });
 });
 
 test.describe('SQL to Dart Model Class Generator Tool', () => {

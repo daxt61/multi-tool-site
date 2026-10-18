@@ -70,6 +70,22 @@ const SCALA_RESERVED_KEYWORDS = new Set([
   'given', 'using', 'opaque', 'inline', 'open', 'transparent', 'enum'
 ]);
 
+const escapeScalaString = (str: string): string => {
+  return str
+    .replace(/\\/g, '\\\\')
+    .replace(/"/g, '\\"')
+    .replace(/\n/g, '\\n')
+    .replace(/\r/g, '\\r')
+    .replace(/\t/g, '\\t')
+    .replace(/\$/g, '\\$');
+};
+
+const sanitizePackageName = (name: string): string => {
+  return name
+    .replace(/[^\w.]/g, '')
+    .replace(/^\.+|\.+$|\.(?=\.)/g, '');
+};
+
 export function SQLToScala({ initialData, onStateChange }: { initialData?: any; onStateChange?: (state: any) => void }) {
   const { t } = useTranslation();
   const [input, setInput] = useState(initialData?.input || PRESETS[0].sql);
@@ -207,18 +223,38 @@ export function SQLToScala({ initialData, onStateChange }: { initialData?: any; 
             continue;
           }
 
-          const colMatch = line.match(/^([`"'\w]+)\s+([A-Za-z0-9_()]+)(.*)/);
-          if (colMatch) {
-            const originalName = colMatch[1];
-            const rawType = colMatch[2];
-            const rest = colMatch[3] || '';
+          let originalName = '';
+          let rawType = '';
+          let rest = '';
 
+          if (line.startsWith('"') || line.startsWith('`') || line.startsWith("'")) {
+            const quote = line[0];
+            let i = 1;
+            while (i < line.length && (line[i] !== quote || line[i - 1] === '\\')) {
+              originalName += line[i];
+              i++;
+            }
+            const remaining = line.substring(i + 1).trim();
+            const parts = remaining.split(/\s+/);
+            rawType = parts[0] || '';
+            rest = remaining.substring(rawType.length).trim();
+          } else {
+            const colMatch = line.match(/^([`"'\w$]+)\s+([A-Za-z0-9_()]+)(.*)/);
+            if (colMatch) {
+              originalName = colMatch[1];
+              rawType = colMatch[2];
+              rest = colMatch[3] || '';
+            }
+          }
+
+          if (originalName && rawType) {
             const isNullable = !rest.toUpperCase().includes('NOT NULL') && !rest.toUpperCase().includes('PRIMARY KEY');
-            const scalaName = transformCasing(originalName, casing);
+            const cleanOriginalName = originalName.replace(/[`"']/g, '');
+            const scalaName = transformCasing(cleanOriginalName, casing);
             let baseType = mapSqlTypeToScala(rawType);
 
             fields.push({
-              originalName: originalName.replace(/[`"']/g, ''),
+              originalName: cleanOriginalName,
               scalaName,
               scalaType: isNullable ? `Option[${baseType}]` : baseType,
               isNullable,
@@ -240,7 +276,7 @@ export function SQLToScala({ initialData, onStateChange }: { initialData?: any; 
         const fieldDeclarations = fields.map(f => {
           let annotation = '';
           if (framework === 'jackson' && f.originalName !== f.scalaName) {
-            annotation = `@com.fasterxml.jackson.annotation.JsonProperty("${f.originalName}") `;
+            annotation = `@com.fasterxml.jackson.annotation.JsonProperty("${escapeScalaString(f.originalName)}") `;
           }
           return `  ${annotation}${f.scalaName}: ${f.scalaType}`;
         });
@@ -261,8 +297,9 @@ export function SQLToScala({ initialData, onStateChange }: { initialData?: any; 
       }
 
       let finalOutput = '';
-      if (packageName.trim()) {
-        finalOutput += `package ${packageName.trim()}\n\n`;
+      const cleanPkg = sanitizePackageName(packageName);
+      if (cleanPkg) {
+        finalOutput += `package ${cleanPkg}\n\n`;
       }
 
       // Imports
@@ -273,7 +310,8 @@ export function SQLToScala({ initialData, onStateChange }: { initialData?: any; 
       }
 
       if (wrapObject) {
-        finalOutput += `object ${toPascalCase(packageName.split('.').pop() || 'Models')} {\n\n`;
+        const pkgNamePart = sanitizePackageName(packageName).split('.').pop() || 'Models';
+        finalOutput += `object ${toPascalCase(pkgNamePart)} {\n\n`;
         finalOutput += classOutputs.map(c => c.split('\n').map(l => `  ${l}`).join('\n')).join('\n\n');
         if (playCodecs.length > 0) {
           finalOutput += '\n\n' + playCodecs.join('\n');

@@ -118,6 +118,15 @@ CREATE TABLE comments (
       .toLowerCase();
   };
 
+  const escapeJsString = (str: string): string => {
+    return str
+      .replace(/\\/g, '\\\\')
+      .replace(/'/g, "\\'")
+      .replace(/\n/g, '\\n')
+      .replace(/\r/g, '\\r')
+      .replace(/\t/g, '\\t');
+  };
+
   const formatFieldName = (name: string) => {
     if (fieldCasing === 'camelCase') return toCamelCase(name);
     if (fieldCasing === 'snake_case') return toSnakeCase(name);
@@ -132,8 +141,11 @@ CREATE TABLE comments (
     if (upper === 'NULL') return 'null';
     if (upper === 'CURRENT_TIMESTAMP' || upper === 'NOW()' || upper === 'CURRENT_TIMESTAMP()') return 'knex.fn.now()';
     if (!isNaN(Number(defaultVal))) return defaultVal;
-    if (defaultVal.startsWith("'") || defaultVal.startsWith('"')) return defaultVal;
-    return `'${defaultVal.replace(/'/g, "\\'")}'`;
+    let val = defaultVal;
+    if ((val.startsWith("'") && val.endsWith("'")) || (val.startsWith('"') && val.endsWith('"'))) {
+      val = val.slice(1, -1);
+    }
+    return `'${escapeJsString(val)}'`;
   };
 
   const mapSqlTypeToKnex = (
@@ -144,49 +156,50 @@ CREATE TABLE comments (
     isAutoIncrement: boolean
   ): string => {
     const type = (sqlType || 'VARCHAR').toUpperCase();
+    const safeName = escapeJsString(formattedName);
 
     if (isPrimary && isAutoIncrement) {
       if (type.includes('BIGINT')) {
-        return `table.bigIncrements('${formattedName}')`;
+        return `table.bigIncrements('${safeName}')`;
       }
-      return `table.increments('${formattedName}')`;
+      return `table.increments('${safeName}')`;
     }
 
     if (isPrimary && type.includes('UUID')) {
-      return `table.uuid('${formattedName}')`;
+      return `table.uuid('${safeName}')`;
     }
 
-    if (type.includes('UUID')) return `table.uuid('${formattedName}')`;
-    if (type.includes('BIGINT')) return `table.bigInteger('${formattedName}')`;
-    if (type.includes('SMALLINT') || type.includes('TINYINT')) return `table.integer('${formattedName}')`;
-    if (type.includes('INT') || type.includes('SERIAL')) return `table.integer('${formattedName}')`;
-    if (type.includes('TINYINT(1)') || type.includes('BOOLEAN') || type.includes('BOOL')) return `table.boolean('${formattedName}')`;
+    if (type.includes('UUID')) return `table.uuid('${safeName}')`;
+    if (type.includes('BIGINT')) return `table.bigInteger('${safeName}')`;
+    if (type.includes('SMALLINT') || type.includes('TINYINT')) return `table.integer('${safeName}')`;
+    if (type.includes('INT') || type.includes('SERIAL')) return `table.integer('${safeName}')`;
+    if (type.includes('TINYINT(1)') || type.includes('BOOLEAN') || type.includes('BOOL')) return `table.boolean('${safeName}')`;
 
     if (type.includes('DECIMAL') || type.includes('NUMERIC')) {
       const match = type.match(/\((\d+)\s*,\s*(\d+)\)/);
       if (match) {
-        return `table.decimal('${formattedName}', ${match[1]}, ${match[2]})`;
+        return `table.decimal('${safeName}', ${match[1]}, ${match[2]})`;
       }
-      return `table.decimal('${formattedName}')`;
+      return `table.decimal('${safeName}')`;
     }
 
-    if (type.includes('FLOAT') || type.includes('REAL')) return `table.float('${formattedName}')`;
-    if (type.includes('DOUBLE')) return `table.double('${formattedName}')`;
-    if (type.includes('DATETIME')) return `table.datetime('${formattedName}')`;
-    if (type.includes('TIMESTAMP')) return `table.timestamp('${formattedName}')`;
-    if (type.includes('DATE')) return `table.date('${formattedName}')`;
-    if (type.includes('TIME')) return `table.time('${formattedName}')`;
-    if (type.includes('JSONB')) return `table.jsonb('${formattedName}')`;
-    if (type.includes('JSON')) return `table.json('${formattedName}')`;
-    if (type.includes('TEXT') || type.includes('CLOB')) return `table.text('${formattedName}')`;
-    if (type.includes('BLOB') || type.includes('BYTEA')) return `table.binary('${formattedName}')`;
+    if (type.includes('FLOAT') || type.includes('REAL')) return `table.float('${safeName}')`;
+    if (type.includes('DOUBLE')) return `table.double('${safeName}')`;
+    if (type.includes('DATETIME')) return `table.datetime('${safeName}')`;
+    if (type.includes('TIMESTAMP')) return `table.timestamp('${safeName}')`;
+    if (type.includes('DATE')) return `table.date('${safeName}')`;
+    if (type.includes('TIME')) return `table.time('${safeName}')`;
+    if (type.includes('JSONB')) return `table.jsonb('${safeName}')`;
+    if (type.includes('JSON')) return `table.json('${safeName}')`;
+    if (type.includes('TEXT') || type.includes('CLOB')) return `table.text('${safeName}')`;
+    if (type.includes('BLOB') || type.includes('BYTEA')) return `table.binary('${safeName}')`;
 
     const varcharMatch = type.match(/VARCHAR\((\d+)\)/) || type.match(/CHAR\((\d+)\)/);
     if (varcharMatch) {
-      return `table.string('${formattedName}', ${varcharMatch[1]})`;
+      return `table.string('${safeName}', ${varcharMatch[1]})`;
     }
 
-    return `table.string('${formattedName}')`;
+    return `table.string('${safeName}')`;
   };
 
   const handleConvert = useCallback(() => {
@@ -206,7 +219,7 @@ CREATE TABLE comments (
         .replace(/--.*$/gm, '')
         .replace(/\/\*[\s\S]*?\*\//g, '');
 
-      const tableRegex = /CREATE\s+TABLE\s+(?:IF\s+NOT\s+EXISTS\s+)?(?:["`]?(\w+)["`]?\.)?["`]?(\w+)["`]?\s*\(([\s\S]*?)\);/gi;
+      const tableRegex = /CREATE\s+TABLE\s+(?:IF\s+NOT\s+EXISTS\s+)?(?:["`']?([a-zA-Z0-9_\-.]+)["`']?\.)?(?:["`']([^"`\r\n]+)["`']|`([^`\r\n]+)`|'([^'\r\n]+)'|([a-zA-Z0-9_]+))\s*\(([\s\S]*?)\);/gi;
       let match;
       const tables: Array<{
         tableName: string;
@@ -215,8 +228,8 @@ CREATE TABLE comments (
       }> = [];
 
       while ((match = tableRegex.exec(cleanInput)) !== null) {
-        const rawTableName = match[2];
-        const columnsContent = match[3];
+        const rawTableName = match[2] || match[3] || match[4] || match[5];
+        const columnsContent = match[6];
 
         const columnLines: string[] = [];
         let currentLine = '';
@@ -302,7 +315,7 @@ CREATE TABLE comments (
           const isUnique = upper.includes('UNIQUE');
 
           let defaultValue: string | undefined = undefined;
-          const defaultMatch = trimmed.match(/DEFAULT\s+('([^']*)'|"([^"]*)"|[\w_()+.-]+)/i);
+          const defaultMatch = trimmed.match(/DEFAULT\s+('((?:\\'|[^'])*)'|"((?:\\"|[^"])*)"|[\w_()+.-]+)/i);
           if (defaultMatch) {
             defaultValue = defaultMatch[1];
           }
@@ -381,7 +394,7 @@ CREATE TABLE comments (
         generated += `  return knex.schema\n`;
         tables.forEach((tData, idx) => {
           const isLast = idx === tables.length - 1;
-          generated += `    .createTable('${tData.tableName}', (table) => {\n`;
+          generated += `    .createTable('${escapeJsString(tData.tableName)}', (table) => {\n`;
           generated += tData.lines.join('\n') + '\n';
           generated += `    })${isLast ? ';' : ''}\n`;
         });
@@ -392,7 +405,7 @@ CREATE TABLE comments (
         const reversedTables = [...tables].reverse();
         reversedTables.forEach((tData, idx) => {
           const isLast = idx === reversedTables.length - 1;
-          generated += `    .dropTableIfExists('${tData.tableName}')${isLast ? ';' : ''}\n`;
+          generated += `    .dropTableIfExists('${escapeJsString(tData.tableName)}')${isLast ? ';' : ''}\n`;
         });
         generated += `}\n`;
       } else {
@@ -401,7 +414,7 @@ CREATE TABLE comments (
         generated += `  return knex.schema\n`;
         tables.forEach((tData, idx) => {
           const isLast = idx === tables.length - 1;
-          generated += `    .createTable('${tData.tableName}', function(table) {\n`;
+          generated += `    .createTable('${escapeJsString(tData.tableName)}', function(table) {\n`;
           generated += tData.lines.join('\n') + '\n';
           generated += `    })${isLast ? ';' : ''}\n`;
         });
@@ -413,7 +426,7 @@ CREATE TABLE comments (
         const reversedTables = [...tables].reverse();
         reversedTables.forEach((tData, idx) => {
           const isLast = idx === reversedTables.length - 1;
-          generated += `    .dropTableIfExists('${tData.tableName}')${isLast ? ';' : ''}\n`;
+          generated += `    .dropTableIfExists('${escapeJsString(tData.tableName)}')${isLast ? ';' : ''}\n`;
         });
         generated += `};\n`;
       }

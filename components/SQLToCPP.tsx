@@ -6,6 +6,8 @@ import { Kbd } from './ui/Kbd';
 
 const MAX_LENGTH = 100000;
 
+type MemberCasing = 'snake_case' | 'camelCase' | 'PascalCase' | 'original';
+
 const CPP_KEYWORDS = new Set([
   'alignas', 'alignof', 'and', 'and_eq', 'asm', 'atomic_cancel', 'atomic_commit',
   'atomic_noexcept', 'auto', 'bitand', 'bitor', 'bool', 'break', 'case', 'catch',
@@ -28,10 +30,11 @@ export function SQLToCPP({ initialData, onStateChange }: { initialData?: any; on
   const [input, setInput] = useState(initialData?.input || '');
   const [output, setOutput] = useState(initialData?.output || '');
   const [constructKind, setConstructKind] = useState<'struct' | 'class'>(initialData?.constructKind || 'struct');
-  const [casing, setCasing] = useState<'snake_case' | 'camelCase' | 'PascalCase' | 'original'>(initialData?.casing || 'snake_case');
+  const [casing, setCasing] = useState<MemberCasing>(initialData?.casing || 'snake_case');
   const [useOptional, setUseOptional] = useState(initialData?.useOptional ?? true);
   const [useNlohmannJson, setUseNlohmannJson] = useState(initialData?.useNlohmannJson ?? false);
   const [namespaceName, setNamespaceName] = useState(initialData?.namespaceName || '');
+  const [activePresetId, setActivePresetId] = useState<string | null>(initialData?.activePresetId || null);
   const [error, setError] = useState('');
   const [copied, setCopied] = useState(false);
 
@@ -44,8 +47,9 @@ export function SQLToCPP({ initialData, onStateChange }: { initialData?: any; on
       useOptional,
       useNlohmannJson,
       namespaceName,
+      activePresetId,
     });
-  }, [input, output, constructKind, casing, useOptional, useNlohmannJson, namespaceName, onStateChange]);
+  }, [input, output, constructKind, casing, useOptional, useNlohmannJson, namespaceName, activePresetId, onStateChange]);
 
   const PRESETS = {
     ecommerce: `-- E-Commerce Catalog Schema
@@ -337,6 +341,7 @@ CREATE TABLE posts (
     setInput('');
     setOutput('');
     setError('');
+    setActivePresetId(null);
     toast.success(t('common.cleared', 'Cleared!'));
     setTimeout(() => inputRef.current?.focus(), 0);
   }, [t]);
@@ -357,6 +362,7 @@ CREATE TABLE posts (
 
   const loadPreset = (presetKey: keyof typeof PRESETS) => {
     setInput(PRESETS[presetKey]);
+    setActivePresetId(presetKey);
     toast.success(t('sqltocpp.preset_loaded', 'Loaded SQL preset!'));
   };
 
@@ -406,19 +412,34 @@ CREATE TABLE posts (
         <div className="flex flex-wrap items-center gap-2">
           <button
             onClick={() => loadPreset('ecommerce')}
-            className="px-3 py-1.5 text-xs font-bold bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 hover:border-indigo-500 rounded-xl transition-all shadow-sm focus-visible:ring-2 focus-visible:ring-indigo-500 focus-visible:outline-none"
+            aria-pressed={activePresetId === 'ecommerce'}
+            className={`px-3 py-1.5 text-xs font-bold rounded-xl transition-all shadow-sm focus-visible:ring-2 focus-visible:ring-indigo-500 focus-visible:outline-none border ${
+              activePresetId === 'ecommerce'
+                ? 'bg-indigo-600 text-white border-indigo-600'
+                : 'bg-white dark:bg-slate-800 border-slate-200 dark:border-slate-700 hover:border-indigo-500 text-slate-700 dark:text-slate-200'
+            }`}
           >
             {t('sqltocpp.preset_ecommerce', 'E-Commerce Catalog')}
           </button>
           <button
             onClick={() => loadPreset('user_auth')}
-            className="px-3 py-1.5 text-xs font-bold bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 hover:border-indigo-500 rounded-xl transition-all shadow-sm focus-visible:ring-2 focus-visible:ring-indigo-500 focus-visible:outline-none"
+            aria-pressed={activePresetId === 'user_auth'}
+            className={`px-3 py-1.5 text-xs font-bold rounded-xl transition-all shadow-sm focus-visible:ring-2 focus-visible:ring-indigo-500 focus-visible:outline-none border ${
+              activePresetId === 'user_auth'
+                ? 'bg-indigo-600 text-white border-indigo-600'
+                : 'bg-white dark:bg-slate-800 border-slate-200 dark:border-slate-700 hover:border-indigo-500 text-slate-700 dark:text-slate-200'
+            }`}
           >
             {t('sqltocpp.preset_user_auth', 'User Auth & Roles')}
           </button>
           <button
             onClick={() => loadPreset('blog')}
-            className="px-3 py-1.5 text-xs font-bold bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 hover:border-indigo-500 rounded-xl transition-all shadow-sm focus-visible:ring-2 focus-visible:ring-indigo-500 focus-visible:outline-none"
+            aria-pressed={activePresetId === 'blog'}
+            className={`px-3 py-1.5 text-xs font-bold rounded-xl transition-all shadow-sm focus-visible:ring-2 focus-visible:ring-indigo-500 focus-visible:outline-none border ${
+              activePresetId === 'blog'
+                ? 'bg-indigo-600 text-white border-indigo-600'
+                : 'bg-white dark:bg-slate-800 border-slate-200 dark:border-slate-700 hover:border-indigo-500 text-slate-700 dark:text-slate-200'
+            }`}
           >
             {t('sqltocpp.preset_blog', 'Blog CMS')}
           </button>
@@ -527,7 +548,10 @@ CREATE TABLE posts (
             id="sql-cpp-input"
             ref={inputRef}
             value={input}
-            onChange={(e) => setInput(e.target.value)}
+            onChange={(e) => {
+              setInput(e.target.value);
+              if (activePresetId) setActivePresetId(null);
+            }}
             placeholder={t('sqltocpp.placeholder_sql', 'Paste SQL CREATE TABLE DDL statements here...')}
             className="w-full h-[450px] p-6 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-3xl outline-none focus:ring-2 focus:ring-indigo-500/20 transition-all font-mono text-sm leading-relaxed dark:text-slate-300 resize-none"
           />

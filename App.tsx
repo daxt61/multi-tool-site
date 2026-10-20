@@ -658,6 +658,7 @@ const GraphQLToGorm = lazy(() => import("./components/GraphQLToGorm").then(m => 
 const GraphQLToJava = lazy(() => import("./components/GraphQLToJava").then(m => ({ default: m.GraphQLToJava })));
 const GraphQLToKotlin = lazy(() => import("./components/GraphQLToKotlin").then(m => ({ default: m.GraphQLToKotlin })));
 const GraphQLToScala = lazy(() => import("./components/GraphQLToScala").then(m => ({ default: m.GraphQLToScala })));
+const GraphQLToCPP = lazy(() => import("./components/GraphQLToCPP").then(m => ({ default: m.GraphQLToCPP })));
 const GraphQLToSwift = lazy(() => import("./components/GraphQLToSwift").then(m => ({ default: m.GraphQLToSwift })));
 const GraphQLToPython = lazy(() => import("./components/GraphQLToPython").then(m => ({ default: m.GraphQLToPython })));
 const GraphQLToPrisma = lazy(() => import("./components/GraphQLToPrisma").then(m => ({ default: m.GraphQLToPrisma })));
@@ -930,6 +931,18 @@ const tools: Tool[] = [
     Component: GraphQLToScala,
     category: "dev",
     keywords: ["graphql", "sdl", "scala", "case class", "sealed trait", "enum", "circe", "play", "upickle", "jackson", "convert", "convertir"],
+  },
+  // GraphQL SDL to C++ Struct / Class Converter Tool
+  {
+    id: "graphql-to-cpp",
+    name: "GraphQL en C++",
+    nameEn: "GraphQL to C++",
+    icon: FileCode,
+    description: "Convertir des schémas GraphQL SDL en structures ou classes C++ fortement typées",
+    descriptionEn: "Convert GraphQL SDL schemas into strongly-typed C++ structs or classes",
+    Component: GraphQLToCPP,
+    category: "dev",
+    keywords: ["graphql", "sdl", "cpp", "c++", "struct", "class", "optional", "nlohmann", "convert", "convertir"],
   },
   // GraphQL SDL to Swift Codable Converter Tool
   {

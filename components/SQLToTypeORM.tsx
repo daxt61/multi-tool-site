@@ -15,6 +15,15 @@ const TS_RESERVED_KEYWORDS = new Set([
   'interface', 'package', 'private', 'protected', 'public', 'readonly'
 ]);
 
+const escapeJsString = (str: string): string => {
+  return str
+    .replace(/\\/g, '\\\\')
+    .replace(/'/g, "\\'")
+    .replace(/\n/g, '\\n')
+    .replace(/\r/g, '\\r')
+    .replace(/\t/g, '\\t');
+};
+
 type FieldCasing = 'camelCase' | 'snake_case' | 'PascalCase' | 'original';
 
 export function SQLToTypeORM({ initialData, onStateChange }: { initialData?: any; onStateChange?: (state: any) => void }) {
@@ -209,8 +218,15 @@ CREATE TABLE comments (
     if (upper === 'NULL') return 'null';
     if (upper === 'CURRENT_TIMESTAMP' || upper === 'NOW()' || upper === 'CURRENT_TIMESTAMP()') return "() => 'CURRENT_TIMESTAMP'";
     if (!isNaN(Number(defaultVal))) return defaultVal;
-    if (defaultVal.startsWith("'") || defaultVal.startsWith('"')) return defaultVal;
-    return `'${defaultVal.replace(/'/g, "\\'")}'`;
+    if (defaultVal.startsWith("'") && defaultVal.endsWith("'")) {
+      const inner = defaultVal.slice(1, -1);
+      return `'${escapeJsString(inner)}'`;
+    }
+    if (defaultVal.startsWith('"') && defaultVal.endsWith('"')) {
+      const inner = defaultVal.slice(1, -1);
+      return `'${escapeJsString(inner)}'`;
+    }
+    return `'${escapeJsString(defaultVal)}'`;
   };
 
   const handleConvert = useCallback(() => {
@@ -230,14 +246,14 @@ CREATE TABLE comments (
         .replace(/--.*$/gm, '')
         .replace(/\/\*[\s\S]*?\*\//g, '');
 
-      const tableRegex = /CREATE\s+TABLE\s+(?:IF\s+NOT\s+EXISTS\s+)?(?:["`]?(\w+)["`]?\.)?["`]?(\w+)["`]?\s*\(([\s\S]*?)\);/gi;
+      const tableRegex = /CREATE\s+TABLE\s+(?:IF\s+NOT\s+EXISTS\s+)?(?:["`']?([a-zA-Z0-9_\-.]+)["`']?\.)?(?:["`']([^"`\r\n]+)["`']|`([^`\r\n]+)`|'([^'\r\n]+)'|([a-zA-Z0-9_]+))\s*\(([\s\S]*?)\);/gi;
       let match;
       const entityBlocks: string[] = [];
       let usesClassValidatorImports = false;
 
       while ((match = tableRegex.exec(cleanInput)) !== null) {
-        const rawTableName = match[2];
-        const columnsContent = match[3];
+        const rawTableName = match[2] || match[3] || match[4] || match[5];
+        const columnsContent = match[6];
         const className = getClassName(rawTableName);
 
         const columnLines: string[] = [];
@@ -324,7 +340,7 @@ CREATE TABLE comments (
           const isUnique = upper.includes('UNIQUE');
 
           let defaultValue: string | undefined = undefined;
-          const defaultMatch = trimmed.match(/DEFAULT\s+('([^']*)'|"([^"]*)"|[\w_()+.-]+)/i);
+          const defaultMatch = trimmed.match(/DEFAULT\s+('((?:\\.|[^'])*)'|"((?:\\.|[^"])*)"|[\w_()+.-]+)/i);
           if (defaultMatch) {
             defaultValue = defaultMatch[1];
           }
@@ -377,15 +393,15 @@ CREATE TABLE comments (
             } else if (f.isAutoIncrement) {
               decorators.push('  @PrimaryGeneratedColumn()');
             } else {
-              decorators.push(`  @PrimaryColumn({ type: '${columnType}'${f.attrName !== f.rawName ? `, name: '${f.rawName}'` : ''} })`);
+              decorators.push(`  @PrimaryColumn({ type: '${columnType}'${f.attrName !== f.rawName ? `, name: '${escapeJsString(f.rawName)}'` : ''} })`);
             }
           } else if (isCreateDate) {
-            decorators.push(`  @CreateDateColumn({ type: '${columnType}'${f.attrName !== f.rawName ? `, name: '${f.rawName}'` : ''} })`);
+            decorators.push(`  @CreateDateColumn({ type: '${columnType}'${f.attrName !== f.rawName ? `, name: '${escapeJsString(f.rawName)}'` : ''} })`);
           } else if (isUpdateDate) {
-            decorators.push(`  @UpdateDateColumn({ type: '${columnType}'${f.attrName !== f.rawName ? `, name: '${f.rawName}'` : ''} })`);
+            decorators.push(`  @UpdateDateColumn({ type: '${columnType}'${f.attrName !== f.rawName ? `, name: '${escapeJsString(f.rawName)}'` : ''} })`);
           } else {
             const colOpts: string[] = [`type: '${columnType}'`];
-            if (f.attrName !== f.rawName) colOpts.push(`name: '${f.rawName}'`);
+            if (f.attrName !== f.rawName) colOpts.push(`name: '${escapeJsString(f.rawName)}'`);
             if (extraOpts?.length) colOpts.push(`length: ${extraOpts.length}`);
             if (extraOpts?.precision !== undefined) colOpts.push(`precision: ${extraOpts.precision}`);
             if (extraOpts?.scale !== undefined) colOpts.push(`scale: ${extraOpts.scale}`);
@@ -405,7 +421,7 @@ CREATE TABLE comments (
           constructorCode = `\n\n  constructor(init?: Partial<${className}>) {\n    Object.assign(this, init);\n  }`;
         }
 
-        const classDef = `@Entity('${rawTableName}')\nexport class ${className} {\n${propertyDefs.join('\n\n')}${constructorCode}\n}`;
+        const classDef = `@Entity('${escapeJsString(rawTableName)}')\nexport class ${className} {\n${propertyDefs.join('\n\n')}${constructorCode}\n}`;
         entityBlocks.push(classDef);
       }
 

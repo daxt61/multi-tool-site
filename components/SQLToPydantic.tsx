@@ -14,12 +14,13 @@ export function SQLToPydantic({ initialData, onStateChange }: { initialData?: an
   const [version, setModeVersion] = useState<'v2' | 'v1' | 'dataclass'>(initialData?.version || 'v2');
   const [useDecimal, setUseDecimal] = useState(initialData?.useDecimal || false);
   const [useUUID, setUseUUID] = useState(initialData?.useUUID || false);
+  const [activePresetId, setActivePresetId] = useState<string | null>(initialData?.activePresetId || null);
   const [error, setError] = useState('');
   const [copied, setCopied] = useState(false);
 
   useEffect(() => {
-    onStateChange?.({ input, output, version, useDecimal, useUUID });
-  }, [input, output, version, useDecimal, useUUID, onStateChange]);
+    onStateChange?.({ input, output, version, useDecimal, useUUID, activePresetId });
+  }, [input, output, version, useDecimal, useUUID, activePresetId, onStateChange]);
 
   const toPascalCase = (str: string) => {
     return str
@@ -368,6 +369,7 @@ CREATE TABLE roles (
     setInput('');
     setOutput('');
     setError('');
+    setActivePresetId(null);
     toast.success(t('common.cleared', 'Cleared!'));
     setTimeout(() => inputRef.current?.focus(), 0);
   }, [t]);
@@ -388,6 +390,7 @@ CREATE TABLE roles (
 
   const loadPreset = (presetKey: keyof typeof PRESETS) => {
     setInput(PRESETS[presetKey]);
+    setActivePresetId(presetKey);
     toast.success(t('sqltopydantic.preset_loaded', 'Loaded SQL preset!'));
   };
 
@@ -436,14 +439,26 @@ CREATE TABLE roles (
         </div>
         <div className="flex flex-wrap items-center gap-2">
           <button
+            type="button"
+            aria-pressed={activePresetId === 'ecommerce'}
             onClick={() => loadPreset('ecommerce')}
-            className="px-3 py-1.5 text-xs font-bold bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 hover:border-indigo-500 rounded-xl transition-all shadow-sm focus-visible:ring-2 focus-visible:ring-indigo-500 focus-visible:outline-none"
+            className={`px-3 py-1.5 text-xs font-bold rounded-xl transition-all shadow-sm focus-visible:ring-2 focus-visible:ring-indigo-500 focus-visible:outline-none ${
+              activePresetId === 'ecommerce'
+                ? 'bg-indigo-600 text-white dark:bg-indigo-500 border border-indigo-600'
+                : 'bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 hover:border-indigo-500'
+            }`}
           >
             {t('sqltopydantic.preset_ecommerce', 'E-Commerce Catalog')}
           </button>
           <button
+            type="button"
+            aria-pressed={activePresetId === 'user_auth'}
             onClick={() => loadPreset('user_auth')}
-            className="px-3 py-1.5 text-xs font-bold bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 hover:border-indigo-500 rounded-xl transition-all shadow-sm focus-visible:ring-2 focus-visible:ring-indigo-500 focus-visible:outline-none"
+            className={`px-3 py-1.5 text-xs font-bold rounded-xl transition-all shadow-sm focus-visible:ring-2 focus-visible:ring-indigo-500 focus-visible:outline-none ${
+              activePresetId === 'user_auth'
+                ? 'bg-indigo-600 text-white dark:bg-indigo-500 border border-indigo-600'
+                : 'bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 hover:border-indigo-500'
+            }`}
           >
             {t('sqltopydantic.preset_user_auth', 'User Auth & Roles')}
           </button>
@@ -520,7 +535,10 @@ CREATE TABLE roles (
             id="sql-pydantic-input"
             ref={inputRef}
             value={input}
-            onChange={(e) => setInput(e.target.value)}
+            onChange={(e) => {
+              setInput(e.target.value);
+              if (activePresetId) setActivePresetId(null);
+            }}
             placeholder={t('sqltopydantic.placeholder_sql', 'Paste SQL CREATE TABLE DDL statements here...')}
             className="w-full h-[450px] p-6 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-3xl outline-none focus:ring-2 focus:ring-indigo-500/20 transition-all font-mono text-sm leading-relaxed dark:text-slate-300 resize-none"
           />

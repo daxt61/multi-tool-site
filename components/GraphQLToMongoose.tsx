@@ -302,7 +302,7 @@ type Post {
 
           if (isList) {
             if (isRef) {
-              fieldObjStr = `[{ type: ${mgType}, ref: '${base}' }]`;
+              fieldObjStr = `[{ type: ${mgType}, ref: '${escapeJsString(base)}' }]`;
             } else if (isEnum) {
               const enumVals = enumMap[base].map((v: string) => `'${escapeJsString(v)}'`).join(', ');
               fieldObjStr = `[{ type: ${mgType}, enum: [${enumVals}], ${reqStr} }]`;
@@ -311,7 +311,7 @@ type Post {
             }
           } else {
             if (isRef) {
-              fieldObjStr = `{ type: ${mgType}, ref: '${base}', ${reqStr} }`;
+              fieldObjStr = `{ type: ${mgType}, ref: '${escapeJsString(base)}', ${reqStr} }`;
             } else if (isEnum) {
               const enumVals = enumMap[base].map((v: string) => `'${escapeJsString(v)}'`).join(', ');
               fieldObjStr = `{ type: ${mgType}, enum: [${enumVals}], ${reqStr} }`;

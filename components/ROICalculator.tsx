@@ -1,8 +1,23 @@
 import { useState, useEffect, useMemo, useRef, useCallback } from "react";
-import { TrendingUp, Calendar, Info, LineChart, Target, Trash2, Copy, Check, Download, ArrowUpRight, ArrowDownRight } from "lucide-react";
+import { TrendingUp, Calendar, Info, LineChart, Target, Trash2, Copy, Check, Download, ArrowUpRight, ArrowDownRight, Sparkles } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import { toast } from "sonner";
 import { Kbd } from "./ui/Kbd";
+
+interface Preset {
+  id: string;
+  nameKey: string;
+  initialInvestment: string;
+  finalValue: string;
+  duration: string;
+}
+
+const PRESETS: Preset[] = [
+  { id: "index", nameKey: "roi.preset_index", initialInvestment: "10000", finalValue: "15000", duration: "5" },
+  { id: "realestate", nameKey: "roi.preset_realestate", initialInvestment: "150000", finalValue: "195000", duration: "2" },
+  { id: "tech", nameKey: "roi.preset_tech", initialInvestment: "5000", finalValue: "12000", duration: "3" },
+  { id: "bonds", nameKey: "roi.preset_bonds", initialInvestment: "20000", finalValue: "22500", duration: "3" },
+];
 
 export function ROICalculator({ initialData, onStateChange }: { initialData?: any; onStateChange?: (state: any) => void }) {
   const { t } = useTranslation();
@@ -12,11 +27,12 @@ export function ROICalculator({ initialData, onStateChange }: { initialData?: an
   const [initialInvestment, setInitialInvestment] = useState<string>(initialData?.initialInvestment || "");
   const [finalValue, setFinalValue] = useState<string>(initialData?.finalValue || "");
   const [duration, setDuration] = useState<string>(initialData?.duration || "");
+  const [activePresetId, setActivePresetId] = useState<string | null>(initialData?.activePresetId || null);
   const [copied, setCopied] = useState(false);
 
   useEffect(() => {
-    onStateChange?.({ initialInvestment, finalValue, duration });
-  }, [initialInvestment, finalValue, duration, onStateChange]);
+    onStateChange?.({ initialInvestment, finalValue, duration, activePresetId });
+  }, [initialInvestment, finalValue, duration, activePresetId, onStateChange]);
 
   const stats = useMemo(() => {
     const initial = parseFloat(initialInvestment) || 0;
@@ -37,8 +53,18 @@ export function ROICalculator({ initialData, onStateChange }: { initialData?: an
     setInitialInvestment("");
     setFinalValue("");
     setDuration("");
+    setActivePresetId(null);
     initialInvestmentRef.current?.focus();
     toast.success(t("roi.cleared_toast"));
+  }, [t]);
+
+  const handleSelectPreset = useCallback((preset: Preset) => {
+    setInitialInvestment(preset.initialInvestment);
+    setFinalValue(preset.finalValue);
+    setDuration(preset.duration);
+    setActivePresetId(preset.id);
+    initialInvestmentRef.current?.focus();
+    toast.success(t("roi.toast_preset_loaded", { name: t(preset.nameKey) }));
   }, [t]);
 
   const handleCopy = useCallback(() => {
@@ -146,6 +172,33 @@ export function ROICalculator({ initialData, onStateChange }: { initialData?: an
 
           <div className="space-y-4">
             <div className="space-y-2">
+              <label className="text-xs font-black uppercase tracking-widest text-slate-400 px-1 flex items-center gap-1.5">
+                <Sparkles className="w-3.5 h-3.5 text-indigo-500" aria-hidden="true" />
+                <span>{t("roi.presets_title")}</span>
+              </label>
+              <div className="flex flex-wrap gap-2">
+                {PRESETS.map((preset) => {
+                  const isActive = activePresetId === preset.id;
+                  return (
+                    <button
+                      key={preset.id}
+                      type="button"
+                      onClick={() => handleSelectPreset(preset)}
+                      aria-pressed={isActive}
+                      className={`px-3 py-1.5 rounded-xl text-xs font-bold transition-all focus-visible:ring-2 focus-visible:ring-indigo-500 focus-visible:outline-none ${
+                        isActive
+                          ? "bg-indigo-600 text-white shadow-md shadow-indigo-500/20"
+                          : "bg-white dark:bg-slate-800 text-slate-700 dark:text-slate-300 border border-slate-200 dark:border-slate-700 hover:border-indigo-500/50"
+                      }`}
+                    >
+                      {t(preset.nameKey)}
+                    </button>
+                  );
+                })}
+              </div>
+            </div>
+
+            <div className="space-y-2">
               <label htmlFor="initialInvestment" className="text-xs font-black uppercase tracking-widest text-slate-400 px-1 cursor-pointer">
                 {t("roi.initial_investment")}
               </label>
@@ -155,7 +208,10 @@ export function ROICalculator({ initialData, onStateChange }: { initialData?: an
                   ref={initialInvestmentRef}
                   type="number"
                   value={initialInvestment}
-                  onChange={(e) => setInitialInvestment(e.target.value)}
+                  onChange={(e) => {
+                    setInitialInvestment(e.target.value);
+                    setActivePresetId(null);
+                  }}
                   className="w-full p-4 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-2xl text-xl font-black font-mono focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500/20 outline-none transition-all dark:text-white"
                   placeholder="10000"
                 />
@@ -172,7 +228,10 @@ export function ROICalculator({ initialData, onStateChange }: { initialData?: an
                   id="finalValue"
                   type="number"
                   value={finalValue}
-                  onChange={(e) => setFinalValue(e.target.value)}
+                  onChange={(e) => {
+                    setFinalValue(e.target.value);
+                    setActivePresetId(null);
+                  }}
                   className="w-full p-4 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-2xl text-xl font-black font-mono focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500/20 outline-none transition-all dark:text-white"
                   placeholder="15000"
                 />
@@ -189,7 +248,10 @@ export function ROICalculator({ initialData, onStateChange }: { initialData?: an
                   id="duration"
                   type="number"
                   value={duration}
-                  onChange={(e) => setDuration(e.target.value)}
+                  onChange={(e) => {
+                    setDuration(e.target.value);
+                    setActivePresetId(null);
+                  }}
                   className="w-full p-4 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-2xl text-xl font-black font-mono focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500/20 outline-none transition-all dark:text-white"
                   placeholder="5"
                   step="0.5"

@@ -673,6 +673,8 @@ const GraphQLToJoi = lazy(() => import("./components/GraphQLToJoi").then(m => ({
 const GraphQLToTypeBox = lazy(() => import("./components/GraphQLToTypeBox").then(m => ({ default: m.GraphQLToTypeBox })));
 const GraphQLToDrizzle = lazy(() => import("./components/GraphQLToDrizzle").then(m => ({ default: m.GraphQLToDrizzle })));
 const GraphQLToKysely = lazy(() => import("./components/GraphQLToKysely").then(m => ({ default: m.GraphQLToKysely })));
+const GraphQLToSequelize = lazy(() => import("./components/GraphQLToSequelize").then(m => ({ default: m.GraphQLToSequelize })));
+const GraphQLToTypeORM = lazy(() => import("./components/GraphQLToTypeORM").then(m => ({ default: m.GraphQLToTypeORM })));
 const SQLToYup = lazy(() => import("./components/SQLToYup").then(m => ({ default: m.SQLToYup })));
 const SQLToJoi = lazy(() => import("./components/SQLToJoi").then(m => ({ default: m.SQLToJoi })));
 const GraphQLToProtobuf = lazy(() => import("./components/GraphQLToProtobuf").then(m => ({ default: m.GraphQLToProtobuf })));
@@ -1086,6 +1088,30 @@ const tools: Tool[] = [
     Component: GraphQLToKysely,
     category: "dev",
     keywords: ["graphql", "sdl", "kysely", "typescript", "database", "schema", "interface", "generated", "convert", "convertir"],
+  },
+  // GraphQL SDL to Sequelize ORM Model Converter Tool
+  {
+    id: "graphql-to-sequelize",
+    name: "GraphQL en Sequelize",
+    nameEn: "GraphQL to Sequelize",
+    icon: Database,
+    description: "Convertir des schémas GraphQL SDL en modèles ORM Sequelize v6/v7 JavaScript ou TypeScript",
+    descriptionEn: "Convert GraphQL SDL schemas into Sequelize v6/v7 JavaScript or TypeScript ORM models",
+    Component: GraphQLToSequelize,
+    category: "dev",
+    keywords: ["graphql", "sdl", "sequelize", "orm", "models", "typescript", "javascript", "node", "convert", "convertir"],
+  },
+  // GraphQL SDL to TypeORM Entity Converter Tool
+  {
+    id: "graphql-to-typeorm",
+    name: "GraphQL en TypeORM",
+    nameEn: "GraphQL to TypeORM",
+    icon: Database,
+    description: "Convertir des schémas GraphQL SDL en classes d'entités ORM TypeORM",
+    descriptionEn: "Convert GraphQL SDL schemas into TypeORM Entity classes with decorators",
+    Component: GraphQLToTypeORM,
+    category: "dev",
+    keywords: ["graphql", "sdl", "typeorm", "orm", "entity", "entities", "decorators", "class-validator", "typescript", "convert", "convertir"],
   },
   // GraphQL SDL to Protocol Buffers .proto Generator Tool
   {

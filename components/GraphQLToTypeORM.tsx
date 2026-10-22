@@ -371,9 +371,9 @@ type Comment {
 
           if (f.isPrimaryKey) {
             if (idType === 'uuid') {
-              decorators.push("  @PrimaryGeneratedColumn('uuid')");
+              decorators.push(`  @PrimaryGeneratedColumn('uuid'${f.attrName !== f.rawName ? `, { name: '${escapeJsString(f.rawName)}' }` : ''})`);
             } else if (idType === 'auto-increment') {
-              decorators.push('  @PrimaryGeneratedColumn()');
+              decorators.push(`  @PrimaryGeneratedColumn(${f.attrName !== f.rawName ? `{ name: '${escapeJsString(f.rawName)}' }` : ''})`);
             } else {
               decorators.push(`  @PrimaryColumn({ type: 'varchar'${f.attrName !== f.rawName ? `, name: '${escapeJsString(f.rawName)}'` : ''} })`);
             }

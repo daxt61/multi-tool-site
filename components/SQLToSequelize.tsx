@@ -15,6 +15,15 @@ const JS_RESERVED_KEYWORDS = new Set([
   'interface', 'private', 'public', 'null', 'true', 'false', 'undefined'
 ]);
 
+const escapeJsString = (str: string): string => {
+  return str
+    .replace(/\\/g, '\\\\')
+    .replace(/'/g, "\\'")
+    .replace(/\n/g, '\\n')
+    .replace(/\r/g, '\\r')
+    .replace(/\t/g, '\\t');
+};
+
 type ModelStyle = 'define' | 'class';
 type Language = 'js' | 'ts';
 type FieldCasing = 'camelCase' | 'snake_case' | 'PascalCase' | 'original';
@@ -347,20 +356,25 @@ CREATE TABLE comments (
               else if (defUpper === 'FALSE') props.push('    defaultValue: false');
               else if (defUpper === 'CURRENT_TIMESTAMP' || defUpper === 'NOW()' || defUpper === 'CURRENT_TIMESTAMP()') props.push('    defaultValue: DataTypes.NOW');
               else if (!isNaN(Number(f.defaultValue))) props.push(`    defaultValue: ${f.defaultValue}`);
-              else if (f.defaultValue.startsWith("'") || f.defaultValue.startsWith('"')) props.push(`    defaultValue: ${f.defaultValue}`);
-              else props.push(`    defaultValue: '${f.defaultValue.replace(/'/g, "\\'")}'`);
+              else {
+                let cleanVal = f.defaultValue;
+                if ((cleanVal.startsWith("'") && cleanVal.endsWith("'")) || (cleanVal.startsWith('"') && cleanVal.endsWith('"'))) {
+                  cleanVal = cleanVal.slice(1, -1);
+                }
+                props.push(`    defaultValue: '${escapeJsString(cleanVal)}'`);
+              }
             }
 
             if (f.attrName !== f.rawName) {
-              props.push(`    field: '${f.rawName}'`);
+              props.push(`    field: '${escapeJsString(f.rawName)}'`);
             }
 
             return `  ${f.attrName}: {\n${props.join(',\n')}\n  }`;
           });
 
           const modelDef = language === 'ts'
-            ? `export const init${className}Model = (sequelize: Sequelize) => {\n  return sequelize.define('${className}', {\n${fieldDefs.join(',\n')}\n  }, {\n    tableName: '${rawTableName}',\n    timestamps: ${timestamps},\n    underscored: ${underscored},\n    freezeTableName: ${freezeTableName},\n  });\n};`
-            : `const ${className} = sequelize.define('${className}', {\n${fieldDefs.join(',\n')}\n}, {\n  tableName: '${rawTableName}',\n  timestamps: ${timestamps},\n  underscored: ${underscored},\n  freezeTableName: ${freezeTableName},\n});\n\nmodule.exports = ${className};`;
+            ? `export const init${className}Model = (sequelize: Sequelize) => {\n  return sequelize.define('${className}', {\n${fieldDefs.join(',\n')}\n  }, {\n    tableName: '${escapeJsString(rawTableName)}',\n    timestamps: ${timestamps},\n    underscored: ${underscored},\n    freezeTableName: ${freezeTableName},\n  });\n};`
+            : `const ${className} = sequelize.define('${className}', {\n${fieldDefs.join(',\n')}\n}, {\n  tableName: '${escapeJsString(rawTableName)}',\n  timestamps: ${timestamps},\n  underscored: ${underscored},\n  freezeTableName: ${freezeTableName},\n});\n\nmodule.exports = ${className};`;
 
           modelBlocks.push(modelDef);
         } else {
@@ -378,11 +392,11 @@ CREATE TABLE comments (
               if (f.isAutoIncrement) props.push('    autoIncrement: true');
               if (f.isNullable === false) props.push('    allowNull: false');
               if (f.isUnique) props.push('    unique: true');
-              if (f.attrName !== f.rawName) props.push(`    field: '${f.rawName}'`);
+              if (f.attrName !== f.rawName) props.push(`    field: '${escapeJsString(f.rawName)}'`);
               return `    ${f.attrName}: {\n${props.join(',\n')}\n    }`;
             });
 
-            const classDef = `${interfacesCode}\n\nexport class ${className} extends Model<${className}Attributes, ${className}CreationAttributes> implements ${className}Attributes {\n${classProps}\n\n  public static initModel(sequelize: Sequelize): typeof ${className} {\n    return ${className}.init({\n${initFields.join(',\n')}\n    }, {\n      sequelize,\n      tableName: '${rawTableName}',\n      timestamps: ${timestamps},\n      underscored: ${underscored},\n      freezeTableName: ${freezeTableName},\n    });\n  }\n}`;
+            const classDef = `${interfacesCode}\n\nexport class ${className} extends Model<${className}Attributes, ${className}CreationAttributes> implements ${className}Attributes {\n${classProps}\n\n  public static initModel(sequelize: Sequelize): typeof ${className} {\n    return ${className}.init({\n${initFields.join(',\n')}\n    }, {\n      sequelize,\n      tableName: '${escapeJsString(rawTableName)}',\n      timestamps: ${timestamps},\n      underscored: ${underscored},\n      freezeTableName: ${freezeTableName},\n    });\n  }\n}`;
             modelBlocks.push(classDef);
           } else {
             // JS Class Style
@@ -392,11 +406,11 @@ CREATE TABLE comments (
               if (f.isAutoIncrement) props.push('    autoIncrement: true');
               if (f.isNullable === false) props.push('    allowNull: false');
               if (f.isUnique) props.push('    unique: true');
-              if (f.attrName !== f.rawName) props.push(`    field: '${f.rawName}'`);
+              if (f.attrName !== f.rawName) props.push(`    field: '${escapeJsString(f.rawName)}'`);
               return `    ${f.attrName}: {\n${props.join(',\n')}\n    }`;
             });
 
-            const classDef = `class ${className} extends Model {\n  static initModel(sequelize) {\n    return super.init({\n${initFields.join(',\n')}\n    }, {\n      sequelize,\n      tableName: '${rawTableName}',\n      timestamps: ${timestamps},\n      underscored: ${underscored},\n      freezeTableName: ${freezeTableName},\n    });\n  }\n}\n\nmodule.exports = ${className};`;
+            const classDef = `class ${className} extends Model {\n  static initModel(sequelize) {\n    return super.init({\n${initFields.join(',\n')}\n    }, {\n      sequelize,\n      tableName: '${escapeJsString(rawTableName)}',\n      timestamps: ${timestamps},\n      underscored: ${underscored},\n      freezeTableName: ${freezeTableName},\n    });\n  }\n}\n\nmodule.exports = ${className};`;
             modelBlocks.push(classDef);
           }
         }

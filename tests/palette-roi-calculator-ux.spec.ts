@@ -86,4 +86,24 @@ test.describe('ROI Calculator UX & Accessibility', () => {
     await expect(page.locator('kbd', { hasText: /^Esc$/ }).first()).toBeVisible();
     await expect(page.locator('kbd', { hasText: /^C$/ }).first()).toBeVisible();
   });
+
+  test('should load preset parameters, mark active preset with aria-pressed, and clear selection on manual input edit', async ({ page }) => {
+    await page.goto('http://localhost:5173/fr/outil/roi-calculator');
+
+    const presetBtn = page.getByRole('button', { name: 'Indice Boursier' });
+    await expect(presetBtn).toHaveAttribute('aria-pressed', 'false');
+
+    await presetBtn.click();
+
+    await expect(page.locator('#initialInvestment')).toHaveValue('10000');
+    await expect(page.locator('#finalValue')).toHaveValue('15000');
+    await expect(page.locator('#duration')).toHaveValue('5');
+    await expect(presetBtn).toHaveAttribute('aria-pressed', 'true');
+    await expect(page.locator('#initialInvestment')).toBeFocused();
+    await expect(page.getByText('Préréglage appliqué : "Indice Boursier" !')).toBeVisible();
+
+    // Manual input edit should clear active preset state
+    await page.fill('#initialInvestment', '12000');
+    await expect(presetBtn).toHaveAttribute('aria-pressed', 'false');
+  });
 });

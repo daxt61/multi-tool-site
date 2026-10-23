@@ -675,6 +675,8 @@ const GraphQLToDrizzle = lazy(() => import("./components/GraphQLToDrizzle").then
 const GraphQLToKysely = lazy(() => import("./components/GraphQLToKysely").then(m => ({ default: m.GraphQLToKysely })));
 const GraphQLToSequelize = lazy(() => import("./components/GraphQLToSequelize").then(m => ({ default: m.GraphQLToSequelize })));
 const GraphQLToTypeORM = lazy(() => import("./components/GraphQLToTypeORM").then(m => ({ default: m.GraphQLToTypeORM })));
+const GraphQLToCassandra = lazy(() => import("./components/GraphQLToCassandra").then(m => ({ default: m.GraphQLToCassandra })));
+const GraphQLToElasticsearch = lazy(() => import("./components/GraphQLToElasticsearch").then(m => ({ default: m.GraphQLToElasticsearch })));
 const SQLToYup = lazy(() => import("./components/SQLToYup").then(m => ({ default: m.SQLToYup })));
 const SQLToJoi = lazy(() => import("./components/SQLToJoi").then(m => ({ default: m.SQLToJoi })));
 const GraphQLToProtobuf = lazy(() => import("./components/GraphQLToProtobuf").then(m => ({ default: m.GraphQLToProtobuf })));
@@ -1112,6 +1114,30 @@ const tools: Tool[] = [
     Component: GraphQLToTypeORM,
     category: "dev",
     keywords: ["graphql", "sdl", "typeorm", "orm", "entity", "entities", "decorators", "class-validator", "typescript", "convert", "convertir"],
+  },
+  // GraphQL SDL to Apache Cassandra CQL Schema Converter Tool
+  {
+    id: "graphql-to-cassandra",
+    name: "GraphQL en Cassandra CQL",
+    nameEn: "GraphQL to Cassandra CQL",
+    icon: Database,
+    description: "Convertir des schémas GraphQL SDL en requêtes CQL Apache Cassandra (CREATE TABLE, CREATE TYPE UDT, CREATE KEYSPACE)",
+    descriptionEn: "Convert GraphQL SDL schemas into Apache Cassandra CQL statements (CREATE TABLE, CREATE TYPE UDT, CREATE KEYSPACE)",
+    Component: GraphQLToCassandra,
+    category: "dev",
+    keywords: ["graphql", "sdl", "cassandra", "cql", "keyspace", "udt", "table", "nosql", "datastax", "convert", "convertir"],
+  },
+  // GraphQL SDL to Elasticsearch Index Mapping Converter Tool
+  {
+    id: "graphql-to-elasticsearch",
+    name: "GraphQL en Elasticsearch Mapping",
+    nameEn: "GraphQL to Elasticsearch Mapping",
+    icon: Database,
+    description: "Convertir des schémas GraphQL SDL en spécifications de mappings d'index Elasticsearch 8.x/7.x ou requêtes cURL",
+    descriptionEn: "Convert GraphQL SDL schemas into Elasticsearch 8.x/7.x Index Mapping specifications or cURL PUT queries",
+    Component: GraphQLToElasticsearch,
+    category: "dev",
+    keywords: ["graphql", "sdl", "elasticsearch", "elastic", "mapping", "index", "curl", "json", "search", "convert", "convertir"],
   },
   // GraphQL SDL to Protocol Buffers .proto Generator Tool
   {

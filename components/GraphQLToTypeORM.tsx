@@ -483,6 +483,7 @@ type Comment {
     setInput(PRESETS[presetKey]);
     setActivePresetId(presetKey);
     toast.success(t('graphqltotypeorm.preset_loaded', 'Loaded GraphQL preset!'));
+    setTimeout(() => inputRef.current?.focus(), 0);
   };
 
   const handlersRef = useRef({ handleClear, handleCopy, output });

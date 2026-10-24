@@ -684,6 +684,8 @@ const GraphQLToJSONSchema = lazy(() => import("./components/GraphQLToJSONSchema"
 const GraphQLToSQL = lazy(() => import("./components/GraphQLToSQL").then(m => ({ default: m.GraphQLToSQL })));
 const GraphQLToPHP = lazy(() => import("./components/GraphQLToPHP").then(m => ({ default: m.GraphQLToPHP })));
 const GraphQLToDart = lazy(() => import("./components/GraphQLToDart").then(m => ({ default: m.GraphQLToDart })));
+const GraphQLToOpenAPI = lazy(() => import("./components/GraphQLToOpenAPI").then(m => ({ default: m.GraphQLToOpenAPI })));
+const GraphQLToSQLAlchemy = lazy(() => import("./components/GraphQLToSQLAlchemy").then(m => ({ default: m.GraphQLToSQLAlchemy })));
 const SQLToThrift = lazy(() => import("./components/SQLToThrift").then(m => ({ default: m.SQLToThrift })));
 const SQLToProtobuf = lazy(() => import("./components/SQLToProtobuf").then(m => ({ default: m.SQLToProtobuf })));
 const SQLToClickHouse = lazy(() => import("./components/SQLToClickHouse").then(m => ({ default: m.SQLToClickHouse })));
@@ -1114,6 +1116,30 @@ const tools: Tool[] = [
     Component: GraphQLToTypeORM,
     category: "dev",
     keywords: ["graphql", "sdl", "typeorm", "orm", "entity", "entities", "decorators", "class-validator", "typescript", "convert", "convertir"],
+  },
+  // GraphQL SDL to OpenAPI 3.0 / 3.1 Schema Converter Tool
+  {
+    id: "graphql-to-openapi",
+    name: "GraphQL en OpenAPI",
+    nameEn: "GraphQL to OpenAPI",
+    icon: FileCode,
+    description: "Convertir des schémas GraphQL SDL en spécifications OpenAPI 3.0 / 3.1 YAML ou JSON",
+    descriptionEn: "Convert GraphQL SDL schemas into OpenAPI 3.0 / 3.1 YAML or JSON specifications",
+    Component: GraphQLToOpenAPI,
+    category: "dev",
+    keywords: ["graphql", "sdl", "openapi", "swagger", "schema", "yaml", "json", "api", "paths", "convert", "convertir"],
+  },
+  // GraphQL SDL to Python SQLAlchemy Models Converter Tool
+  {
+    id: "graphql-to-sqlalchemy",
+    name: "GraphQL en SQLAlchemy",
+    nameEn: "GraphQL to SQLAlchemy",
+    icon: Database,
+    description: "Convertir des schémas GraphQL SDL en modèles ORM Python SQLAlchemy 2.0 / 1.4",
+    descriptionEn: "Convert GraphQL SDL schemas into Python SQLAlchemy 2.0 / 1.4 ORM models",
+    Component: GraphQLToSQLAlchemy,
+    category: "dev",
+    keywords: ["graphql", "sdl", "sqlalchemy", "python", "orm", "mapped", "column", "declarative", "convert", "convertir"],
   },
   // GraphQL SDL to Apache Cassandra CQL Schema Converter Tool
   {

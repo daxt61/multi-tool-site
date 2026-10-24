@@ -1,11 +1,51 @@
 import { useState, useEffect, useCallback, useRef } from 'react';
-import { Percent, ArrowRight, Info, TrendingUp, Trash2, Copy, Check } from 'lucide-react';
+import { Percent, ArrowRight, Info, TrendingUp, Trash2, Copy, Check, Sparkles } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import { toast } from 'sonner';
 import { Kbd } from './ui/Kbd';
 
+interface CalculationPreset {
+  id: string;
+  nameKey: string;
+  descriptionKey: string;
+  v2: string;
+  v1: string;
+}
+
+const CALC_PRESETS: CalculationPreset[] = [
+  {
+    id: 'vat_20',
+    nameKey: 'percentage.preset_vat20_title',
+    descriptionKey: 'percentage.preset_vat20_desc',
+    v2: '20',
+    v1: '150'
+  },
+  {
+    id: 'discount_15',
+    nameKey: 'percentage.preset_discount15_title',
+    descriptionKey: 'percentage.preset_discount15_desc',
+    v2: '15',
+    v1: '80'
+  },
+  {
+    id: 'increase_20',
+    nameKey: 'percentage.preset_increase20_title',
+    descriptionKey: 'percentage.preset_increase20_desc',
+    v2: '20',
+    v1: '250'
+  },
+  {
+    id: 'part_25',
+    nameKey: 'percentage.preset_part25_title',
+    descriptionKey: 'percentage.preset_part25_desc',
+    v2: '25',
+    v1: '400'
+  }
+];
+
 export function PercentageCalculator({ initialData, onStateChange }: { initialData?: any; onStateChange?: (state: any) => void }) {
   const { t } = useTranslation();
+  const containerRef = useRef<HTMLDivElement>(null);
   const percentInputRef = useRef<HTMLInputElement>(null);
 
   const [value1, setValue1] = useState(initialData?.value1 || '');
@@ -16,11 +56,12 @@ export function PercentageCalculator({ initialData, onStateChange }: { initialDa
   const [finalVal, setFinalVal] = useState(initialData?.finalVal || '');
   const [valAfter, setValAfter] = useState(initialData?.valAfter || '');
   const [percentAfter, setPercentAfter] = useState(initialData?.percentAfter || '');
+  const [activePresetId, setActivePresetId] = useState<string | null>(initialData?.activePresetId ?? null);
   const [copiedId, setCopiedId] = useState<string | null>(null);
 
   useEffect(() => {
-    onStateChange?.({ value1, value2, value3, value4, initialVal, finalVal, valAfter, percentAfter });
-  }, [value1, value2, value3, value4, initialVal, finalVal, valAfter, percentAfter, onStateChange]);
+    onStateChange?.({ value1, value2, value3, value4, initialVal, finalVal, valAfter, percentAfter, activePresetId });
+  }, [value1, value2, value3, value4, initialVal, finalVal, valAfter, percentAfter, activePresetId, onStateChange]);
 
   const percentageOf = (value1 !== '' && value2 !== '' && !isNaN(Number(value1)) && !isNaN(Number(value2))) ? (Number(value2) / 100) * Number(value1) : NaN;
   const whatPercent = (value3 !== '' && value4 !== '' && Number(value4) !== 0 && !isNaN(Number(value3)) && !isNaN(Number(value4))) ? (Number(value3) / Number(value4)) * 100 : NaN;
@@ -41,10 +82,19 @@ export function PercentageCalculator({ initialData, onStateChange }: { initialDa
     setFinalVal('');
     setValAfter('');
     setPercentAfter('');
+    setActivePresetId(null);
+    toast.success(t('percentage.cleared_toast'));
     setTimeout(() => {
       percentInputRef.current?.focus();
     }, 0);
-  }, []);
+  }, [t]);
+
+  const handleApplyPreset = useCallback((preset: CalculationPreset) => {
+    setValue2(preset.v2);
+    setValue1(preset.v1);
+    setActivePresetId(preset.id);
+    toast.success(t('percentage.preset_loaded_toast'));
+  }, [t]);
 
   const copyToClipboard = (text: string, id: string) => {
     navigator.clipboard.writeText(text);
@@ -53,10 +103,10 @@ export function PercentageCalculator({ initialData, onStateChange }: { initialDa
     setTimeout(() => setCopiedId(null), 2000);
   };
 
-  const handlersRef = useRef({ handleClear });
+  const handlersRef = useRef({ handleClear, percentageOf, copyToClipboard });
   useEffect(() => {
-    handlersRef.current = { handleClear };
-  }, [handleClear]);
+    handlersRef.current = { handleClear, percentageOf, copyToClipboard };
+  }, [handleClear, percentageOf]);
 
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
@@ -67,35 +117,80 @@ export function PercentageCalculator({ initialData, onStateChange }: { initialDa
         activeElement instanceof HTMLSelectElement ||
         activeElement?.getAttribute("contenteditable") === "true";
 
-      const { handleClear } = handlersRef.current;
+      const { handleClear, percentageOf, copyToClipboard } = handlersRef.current;
 
       if (isEditable && e.key !== 'Escape') return;
-
       if (e.metaKey || e.ctrlKey || e.altKey || e.shiftKey) return;
 
       if (e.key === 'Escape') {
         e.preventDefault();
         handleClear();
+      } else if (e.key.toLowerCase() === 'c') {
+        e.preventDefault();
+        if (!isNaN(percentageOf)) {
+          copyToClipboard(percentageOf.toFixed(2), 'copy1');
+        }
       }
     };
-    window.addEventListener('keydown', handleKeyDown);
-    return () => window.removeEventListener('keydown', handleKeyDown);
+
+    const container = containerRef.current;
+    if (container) {
+      container.addEventListener('keydown', handleKeyDown);
+      return () => container.removeEventListener('keydown', handleKeyDown);
+    }
   }, []);
 
   const hasContent = value1 || value2 || value3 || value4 || initialVal || finalVal || valAfter || percentAfter;
 
   return (
-    <div className="max-w-4xl mx-auto space-y-8">
-      <div className="flex justify-end px-1 gap-2 items-center">
-        <Kbd modifier={null} className="hidden sm:inline-flex text-rose-400 border-rose-200 dark:border-rose-800 bg-white dark:bg-slate-900">Esc</Kbd>
-        <button
-          onClick={handleClear}
-          disabled={!hasContent}
-          className="text-xs font-bold text-rose-500 bg-rose-50 dark:bg-rose-500/10 hover:bg-rose-100 dark:hover:bg-rose-500/20 px-3 py-1.5 rounded-xl flex items-center gap-2 transition-all disabled:opacity-50 disabled:cursor-not-allowed"
-        >
-          <Trash2 className="w-4 h-4" /> {t('common.clear')}
-        </button>
+    <div ref={containerRef} tabIndex={-1} className="max-w-4xl mx-auto space-y-8 outline-none">
+      {/* Quick Start Presets */}
+      <div className="bg-slate-50 dark:bg-slate-900/50 p-6 rounded-[2rem] border border-slate-200 dark:border-slate-800 space-y-4">
+        <div className="flex items-center gap-2 text-xs font-black uppercase tracking-widest text-slate-400 px-1">
+          <Sparkles className="w-4 h-4 text-indigo-500" />
+          <span>{t('percentage.presets_title')}</span>
+        </div>
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+          {CALC_PRESETS.map((preset) => (
+            <button
+              key={preset.id}
+              onClick={() => handleApplyPreset(preset)}
+              aria-pressed={activePresetId === preset.id}
+              className={`p-3.5 rounded-2xl text-left transition-all border flex flex-col justify-between space-y-1 focus-visible:ring-2 focus-visible:ring-indigo-500 focus-visible:outline-none ${
+                activePresetId === preset.id
+                  ? 'bg-indigo-50/80 dark:bg-indigo-900/30 border-indigo-500 text-indigo-900 dark:text-indigo-200 shadow-sm'
+                  : 'bg-white dark:bg-slate-800 border-slate-200 dark:border-slate-700 text-slate-700 dark:text-slate-300 hover:border-indigo-300 dark:hover:border-indigo-700'
+              }`}
+            >
+              <div className="font-bold text-xs flex items-center justify-between">
+                <span>{t(preset.nameKey)}</span>
+                {activePresetId === preset.id && <Check className="w-3.5 h-3.5 text-indigo-600 dark:text-indigo-400" />}
+              </div>
+              <p className="text-[10px] text-slate-500 dark:text-slate-400 leading-tight">
+                {t(preset.descriptionKey)}
+              </p>
+            </button>
+          ))}
+        </div>
       </div>
+
+      <div className="flex justify-between px-1 gap-2 items-center">
+        <div className="flex items-center gap-2">
+          <Kbd modifier={null} className="hidden sm:inline-flex text-indigo-400 border-indigo-200 dark:border-indigo-800 bg-white dark:bg-slate-900">C</Kbd>
+          <span className="text-xs text-slate-400 font-medium">{t('percentage.kbd_copy_hint')}</span>
+        </div>
+        <div className="flex items-center gap-2">
+          <Kbd modifier={null} className="hidden sm:inline-flex text-rose-400 border-rose-200 dark:border-rose-800 bg-white dark:bg-slate-900">Esc</Kbd>
+          <button
+            onClick={handleClear}
+            disabled={!hasContent}
+            className="text-xs font-bold text-rose-500 bg-rose-50 dark:bg-rose-500/10 hover:bg-rose-100 dark:hover:bg-rose-500/20 px-3 py-1.5 rounded-xl flex items-center gap-2 transition-all disabled:opacity-50 disabled:cursor-not-allowed focus-visible:ring-2 focus-visible:ring-rose-500 focus-visible:outline-none"
+          >
+            <Trash2 className="w-4 h-4" /> {t('common.clear')}
+          </button>
+        </div>
+      </div>
+
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
         {/* Section 1: X% de Y */}
         <div className="bg-slate-50 dark:bg-slate-900/50 p-8 rounded-[2.5rem] border border-slate-200 dark:border-slate-800 flex flex-col justify-between space-y-6">
@@ -106,7 +201,7 @@ export function PercentageCalculator({ initialData, onStateChange }: { initialDa
                 <h3 className="text-xs font-black uppercase tracking-widest text-slate-400">{t('percentage.title1')}</h3>
               </div>
               <button
-                onClick={() => { setValue2(''); setValue1(''); }}
+                onClick={() => { setValue2(''); setValue1(''); setActivePresetId(null); }}
                 disabled={!value2 && !value1}
                 className="text-[10px] font-bold text-rose-500 bg-rose-50 dark:bg-rose-500/10 hover:bg-rose-100 dark:hover:bg-rose-500/20 px-2 py-0.5 rounded-lg transition-all disabled:opacity-0 disabled:pointer-events-none"
               >
@@ -115,25 +210,25 @@ export function PercentageCalculator({ initialData, onStateChange }: { initialDa
             </div>
             <div className="flex items-center gap-3">
               <div className="w-full">
-                <label htmlFor="percent-val" className="sr-only">{t('percentage.label_percent')}</label>
+                <label htmlFor="percent-val" className="text-xs font-bold text-slate-400 block mb-1">{t('percentage.label_percent')}</label>
                 <input
                   id="percent-val"
                   ref={percentInputRef}
                   type="number"
                   value={value2}
-                  onChange={(e) => setValue2(e.target.value)}
+                  onChange={(e) => { setValue2(e.target.value); setActivePresetId(null); }}
                   className="w-full p-4 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-2xl text-xl font-black font-mono focus:border-indigo-500 outline-none transition-all dark:text-white"
                   placeholder="20"
                 />
               </div>
-              <span className="text-xl font-bold text-slate-400 whitespace-nowrap">{t('percentage.percent_of')}</span>
+              <span className="text-xl font-bold text-slate-400 whitespace-nowrap mt-6">{t('percentage.percent_of')}</span>
               <div className="w-full">
-                <label htmlFor="total-val" className="sr-only">{t('percentage.label_total')}</label>
+                <label htmlFor="total-val" className="text-xs font-bold text-slate-400 block mb-1">{t('percentage.label_total')}</label>
                 <input
                   id="total-val"
                   type="number"
                   value={value1}
-                  onChange={(e) => setValue1(e.target.value)}
+                  onChange={(e) => { setValue1(e.target.value); setActivePresetId(null); }}
                   className="w-full p-4 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-2xl text-xl font-black font-mono focus:border-indigo-500 outline-none transition-all dark:text-white"
                   placeholder="100"
                 />
@@ -178,7 +273,7 @@ export function PercentageCalculator({ initialData, onStateChange }: { initialDa
             </div>
             <div className="flex items-center gap-3">
               <div className="w-full">
-                <label htmlFor="part-val" className="sr-only">{t('percentage.label_part')}</label>
+                <label htmlFor="part-val" className="text-xs font-bold text-slate-400 block mb-1">{t('percentage.label_part')}</label>
                 <input
                   id="part-val"
                   type="number"
@@ -188,9 +283,9 @@ export function PercentageCalculator({ initialData, onStateChange }: { initialDa
                   placeholder="150"
                 />
               </div>
-              <span className="text-xl font-bold text-slate-400 whitespace-nowrap">{t('percentage.of')}</span>
+              <span className="text-xl font-bold text-slate-400 whitespace-nowrap mt-6">{t('percentage.of')}</span>
               <div className="w-full">
-                <label htmlFor="whole-val" className="sr-only">{t('percentage.label_reference')}</label>
+                <label htmlFor="whole-val" className="text-xs font-bold text-slate-400 block mb-1">{t('percentage.label_reference')}</label>
                 <input
                   id="whole-val"
                   type="number"

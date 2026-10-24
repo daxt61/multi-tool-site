@@ -411,3 +411,8 @@
 **Vulnerability:** `GraphQLToTypeORM` and `GraphQLToSequelize` failed to escape single quotes, backslashes, or control characters in raw GraphQL field names, enum values, and primary key options, allowing string literal breakout in generated `@Entity`, `@Column`, `@PrimaryGeneratedColumn`, and `sequelize.define` decorator string attributes.
 **Learning:** Object-relational mapping (ORM) schema generators that produce JavaScript/TypeScript model definitions from GraphQL SDL schemas must escape single quotes and backslashes in raw field names and enum value literals to prevent syntax breakout in generated code files.
 **Prevention:** Apply a dedicated `escapeJsString` helper function to escape backslashes (`\\`), single quotes (`\'`), newlines (`\n`), carriage returns (`\r`), and tabs (`\t`) when interpolating raw GraphQL field names or enum values into generated JavaScript/TypeScript ORM code.
+
+## 2026-10-25 - [SQL String Literal Breakout in PostgreSQL Enum Generation]
+**Vulnerability:** `GraphQLToSQL` failed to escape single quotes, backslashes, or control characters when formatting GraphQL enum values into PostgreSQL `CREATE TYPE ... AS ENUM ('value')` statements, allowing SQL syntax breakout or injection in generated DDL scripts.
+**Learning:** SQL DDL generators converting GraphQL enum definitions to PostgreSQL enum types must treat raw enum value strings as untrusted SQL string literals.
+**Prevention:** Apply a dedicated `escapeSqlString` helper function to escape single quotes (`''`), backslashes (`\\\\`), and control characters (`\\n`, `\\r`, `\\t`) when interpolating enum values into SQL string literals.

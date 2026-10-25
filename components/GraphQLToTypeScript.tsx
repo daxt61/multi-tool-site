@@ -6,6 +6,15 @@ import { Kbd } from './ui/Kbd';
 
 const MAX_LENGTH = 100000;
 
+const escapeJsString = (str: string): string => {
+  return str
+    .replace(/\\/g, '\\\\')
+    .replace(/'/g, "\\'")
+    .replace(/\n/g, '\\n')
+    .replace(/\r/g, '\\r')
+    .replace(/\t/g, '\\t');
+};
+
 const TS_RESERVED_KEYWORDS = new Set([
   'type', 'interface', 'class', 'function', 'var', 'let', 'const', 'import', 'export',
   'default', 'return', 'enum', 'extends', 'implements', 'public', 'private', 'protected',
@@ -222,12 +231,12 @@ union FeedItem = Post | Comment`
         if (enumStyle === 'enum') {
           let block = `${exp}enum ${enumName} {\n`;
           enumValues.forEach(v => {
-            block += `  ${v} = '${v}',\n`;
+            block += `  ${v} = '${escapeJsString(v)}',\n`;
           });
           block += `}`;
           outputBlocks.push(block);
         } else {
-          const unionStr = enumValues.map(v => `'${v}'`).join(' | ') || 'string';
+          const unionStr = enumValues.map(v => `'${escapeJsString(v)}'`).join(' | ') || 'string';
           outputBlocks.push(`${exp}type ${enumName} = ${unionStr};`);
         }
       }

@@ -6,6 +6,15 @@ import { Kbd } from './ui/Kbd';
 
 const MAX_LENGTH = 100000;
 
+const escapeJsString = (str: string): string => {
+  return str
+    .replace(/\\/g, '\\\\')
+    .replace(/'/g, "\\'")
+    .replace(/\n/g, '\\n')
+    .replace(/\r/g, '\\r')
+    .replace(/\t/g, '\\t');
+};
+
 type PropertyCasing = 'camelCase' | 'snake_case' | 'PascalCase' | 'original';
 
 const JS_RESERVED_KEYWORDS = new Set([
@@ -256,7 +265,7 @@ type Post {
           .map(v => v.trim())
           .filter(Boolean);
 
-        const valLiterals = values.map(v => `'${v.replace(/'/g, "\\'")}'`).join(', ');
+        const valLiterals = values.map(v => `'${escapeJsString(v)}'`).join(', ');
         let code = `export const ${enumName}YupSchema = yup.string().oneOf([${valLiterals}]).required();`;
         if (generateInferType) {
           code += `\nexport type ${enumName}SchemaType = yup.InferType<typeof ${enumName}YupSchema>;`;

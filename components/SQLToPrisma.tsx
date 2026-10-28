@@ -6,6 +6,15 @@ import { Kbd } from './ui/Kbd';
 
 const MAX_LENGTH = 100000;
 
+const escapePrismaString = (str: string): string => {
+  return str
+    .replace(/\\/g, '\\\\')
+    .replace(/"/g, '\\"')
+    .replace(/\n/g, '\\n')
+    .replace(/\r/g, '\\r')
+    .replace(/\t/g, '\\t');
+};
+
 type Provider = 'postgresql' | 'mysql' | 'sqlite' | 'sqlserver' | 'cockroachdb';
 
 interface ParsedColumn {
@@ -324,7 +333,7 @@ CREATE TABLE comments (
           let defaultValue: string | undefined = undefined;
           const defaultMatch = line.match(/DEFAULT\s+([^,\s]+(?:\([^)]*\))?)/i);
           if (defaultMatch) {
-            defaultValue = defaultMatch[1].replace(/['"]/g, '');
+            defaultValue = defaultMatch[1].replace(/^['"]|['"]$/g, '');
           }
 
           let fkInfo = tableForeignKeys.find(fk => fk.colName === rawColName);
@@ -378,7 +387,7 @@ CREATE TABLE comments (
 
         table.columns.forEach(col => {
           const fieldName = useMapAttributes ? col.camelName : col.name;
-          const mapAttr = (useMapAttributes && col.camelName !== col.name) ? ` @map("${col.name}")` : '';
+          const mapAttr = (useMapAttributes && col.camelName !== col.name) ? ` @map("${escapePrismaString(col.name)}")` : '';
 
           let typeStr = col.prismaType;
           if (col.isNullable && !col.isPrimaryKey) {
@@ -408,7 +417,7 @@ CREATE TABLE comments (
             } else if (!isNaN(Number(col.defaultValue))) {
               attrs += ` @default(${col.defaultValue})`;
             } else if (defUpper !== 'NULL') {
-              attrs += ` @default("${col.defaultValue}")`;
+              attrs += ` @default("${escapePrismaString(col.defaultValue)}")`;
             }
           }
 
@@ -441,7 +450,7 @@ CREATE TABLE comments (
         }
 
         if (useMapAttributes && table.modelName.toLowerCase() !== table.tableName.toLowerCase()) {
-          schemaStr += `  @@map("${table.tableName}")\n`;
+          schemaStr += `  @@map("${escapePrismaString(table.tableName)}")\n`;
         }
 
         schemaStr += `}\n\n`;

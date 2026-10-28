@@ -1,22 +1,75 @@
 import { useState, useMemo, useEffect, useRef, useCallback } from 'react';
-import { Activity, Info, Copy, Check, Trash2, BookOpen, ChevronRight, Scale, Download } from 'lucide-react';
+import { Activity, Info, Copy, Check, Trash2, BookOpen, ChevronRight, Scale, Download, Sparkles } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import { toast } from 'sonner';
 import { Kbd } from './ui/Kbd';
 
+interface BMIPreset {
+  id: string;
+  titleKey: string;
+  descKey: string;
+  weightMetric: string;
+  heightMetric: string;
+  weightImperial: string;
+  heightImperial: string;
+}
+
+const BMI_PRESETS: BMIPreset[] = [
+  {
+    id: 'male',
+    titleKey: 'bmi.preset_male_title',
+    descKey: 'bmi.preset_male_desc',
+    weightMetric: '75',
+    heightMetric: '178',
+    weightImperial: '165',
+    heightImperial: '70',
+  },
+  {
+    id: 'female',
+    titleKey: 'bmi.preset_female_title',
+    descKey: 'bmi.preset_female_desc',
+    weightMetric: '62',
+    heightMetric: '165',
+    weightImperial: '136',
+    heightImperial: '65',
+  },
+  {
+    id: 'athlete',
+    titleKey: 'bmi.preset_athlete_title',
+    descKey: 'bmi.preset_athlete_desc',
+    weightMetric: '80',
+    heightMetric: '182',
+    weightImperial: '176',
+    heightImperial: '72',
+  },
+  {
+    id: 'senior',
+    titleKey: 'bmi.preset_senior_title',
+    descKey: 'bmi.preset_senior_desc',
+    weightMetric: '55',
+    heightMetric: '160',
+    weightImperial: '121',
+    heightImperial: '63',
+  },
+];
+
 export function BMICalculator({ initialData, onStateChange }: { initialData?: any; onStateChange?: (state: any) => void }) {
+  const containerRef = useRef<HTMLDivElement>(null);
   const weightRef = useRef<HTMLInputElement>(null);
   const { t } = useTranslation();
-  const [weight, setWeight] = useState(initialData?.weight || '70');
-  const [height, setHeight] = useState(initialData?.height || '170');
-  const [unit, setUnit] = useState<'metric' | 'imperial'>(initialData?.unit || 'metric');
-  const [useNewFormula, setUseNewFormula] = useState(initialData?.useNewFormula ?? false);
 
-  useEffect(() => {
-    onStateChange?.({ weight, height, unit, useNewFormula });
-  }, [weight, height, unit, useNewFormula]);
+  const [weight, setWeight] = useState<string>(initialData?.weight || '70');
+  const [height, setHeight] = useState<string>(initialData?.height || '170');
+  const [unit, setUnit] = useState<'metric' | 'imperial'>(initialData?.unit || 'metric');
+  const [useNewFormula, setUseNewFormula] = useState<boolean>(initialData?.useNewFormula ?? false);
+  const [activePresetId, setActivePresetId] = useState<string | null>(initialData?.activePresetId || null);
+
   const [copied, setCopied] = useState(false);
   const [copiedIdeal, setCopiedIdeal] = useState(false);
+
+  useEffect(() => {
+    onStateChange?.({ weight, height, unit, useNewFormula, activePresetId });
+  }, [weight, height, unit, useNewFormula, activePresetId]);
 
   const { bmi, idealWeightRange } = useMemo(() => {
     let weightKg = parseFloat(weight);
@@ -36,14 +89,13 @@ export function BMICalculator({ initialData, onStateChange }: { initialData?: an
     let bmiValue = 0;
     if (useNewFormula) {
       // New BMI formula: 1.3 * weight / (height^2.5)
-      bmiValue = 1.3 * weightKg / Math.pow(heightM, 2.5);
+      bmiValue = (1.3 * weightKg) / Math.pow(heightM, 2.5);
     } else {
       // Standard BMI formula: weight / height^2
       bmiValue = weightKg / (heightM * heightM);
     }
 
     // Ideal weight range based on BMI 18.5 - 25
-    // For simplicity, we keep standard BMI range for ideal weight calculation
     const lowKg = 18.5 * (heightM * heightM);
     const highKg = 25 * (heightM * heightM);
 
@@ -53,8 +105,8 @@ export function BMICalculator({ initialData, onStateChange }: { initialData?: an
         idealWeightRange: {
           low: lowKg / 0.453592,
           high: highKg / 0.453592,
-          unit: 'lb'
-        }
+          unit: 'lb',
+        },
       };
     }
 
@@ -63,10 +115,10 @@ export function BMICalculator({ initialData, onStateChange }: { initialData?: an
       idealWeightRange: {
         low: lowKg,
         high: highKg,
-        unit: 'kg'
-      }
+        unit: 'kg',
+      },
     };
-  }, [weight, height, unit]);
+  }, [weight, height, unit, useNewFormula]);
 
   const category = useMemo(() => {
     if (bmi === 0) return { id: 'na', label: t('common.na'), color: 'bg-slate-200', text: 'text-slate-500', glow: 'bg-indigo-500/10' };
@@ -81,7 +133,7 @@ export function BMICalculator({ initialData, onStateChange }: { initialData?: an
     const text = `${t('bmi.your_bmi')} : ${bmi.toFixed(1)} (${category.label})`;
     navigator.clipboard.writeText(text);
     setCopied(true);
-    toast.success(t('common.copied'));
+    toast.success(t('bmi.toast_copied'));
     setTimeout(() => setCopied(false), 2000);
   }, [bmi, category.label, t]);
 
@@ -112,31 +164,53 @@ ${idealWeightRange ? `- ${t('bmi.ideal_weight')} : ${idealWeightRange.low.toFixe
     URL.revokeObjectURL(url);
   }, [bmi, weight, unit, height, category.label, idealWeightRange, t]);
 
-  const handleUnitChange = useCallback((newUnit: 'metric' | 'imperial') => {
-    if (newUnit === unit) return;
+  const handleUnitChange = useCallback(
+    (newUnit: 'metric' | 'imperial') => {
+      if (newUnit === unit) return;
 
-    const w = parseFloat(weight);
-    const h = parseFloat(height);
+      const w = parseFloat(weight);
+      const h = parseFloat(height);
 
-    if (!isNaN(w) && !isNaN(h)) {
-      if (newUnit === 'imperial') {
-        // Metric to Imperial
-        setWeight((w * 2.20462).toFixed(1));
-        setHeight((h / 2.54).toFixed(1));
-      } else {
-        // Imperial to Metric
-        setWeight((w / 2.20462).toFixed(1));
-        setHeight((h * 2.54).toFixed(1));
+      if (!isNaN(w) && !isNaN(h)) {
+        if (newUnit === 'imperial') {
+          // Metric to Imperial
+          setWeight((w * 2.20462).toFixed(1));
+          setHeight((h / 2.54).toFixed(1));
+        } else {
+          // Imperial to Metric
+          setWeight((w / 2.20462).toFixed(1));
+          setHeight((h * 2.54).toFixed(1));
+        }
       }
-    }
-    setUnit(newUnit);
-  }, [unit, weight, height]);
+      setUnit(newUnit);
+      setActivePresetId(null);
+    },
+    [unit, weight, height]
+  );
 
   const handleClear = useCallback(() => {
     setWeight('');
     setHeight('');
+    setActivePresetId(null);
+    toast.success(t('bmi.toast_cleared'));
     weightRef.current?.focus();
-  }, []);
+  }, [t]);
+
+  const handlePresetSelect = useCallback(
+    (preset: BMIPreset) => {
+      setActivePresetId(preset.id);
+      if (unit === 'imperial') {
+        setWeight(preset.weightImperial);
+        setHeight(preset.heightImperial);
+      } else {
+        setWeight(preset.weightMetric);
+        setHeight(preset.heightMetric);
+      }
+      toast.success(t('bmi.toast_preset_loaded'));
+      weightRef.current?.focus();
+    },
+    [unit, t]
+  );
 
   const handlersRef = useRef({ handleClear, handleCopy, handleUnitChange, unit });
 
@@ -146,59 +220,108 @@ ${idealWeightRange ? `- ${t('bmi.ideal_weight')} : ${idealWeightRange.low.toFixe
 
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
+      const container = containerRef.current;
+      if (!container) return;
+
       const activeElement = document.activeElement;
+      const isInsideContainer = container.contains(activeElement);
+
       const isEditable =
         activeElement instanceof HTMLInputElement ||
         activeElement instanceof HTMLTextAreaElement ||
         activeElement instanceof HTMLSelectElement ||
-        activeElement?.getAttribute("contenteditable") === "true";
+        activeElement?.getAttribute('contenteditable') === 'true';
 
       const { handleClear, handleCopy, handleUnitChange, unit } = handlersRef.current;
 
-      if (isEditable && e.key !== "Escape") return;
+      if (e.key === 'Escape') {
+        if (isInsideContainer || isEditable) {
+          e.preventDefault();
+          handleClear();
+        }
+        return;
+      }
 
+      if (isEditable) return;
       if (e.metaKey || e.ctrlKey || e.altKey || e.shiftKey) return;
 
-      if (e.key === "Escape") {
-        e.preventDefault();
-        handleClear();
-      } else if (e.key.toLowerCase() === "c") {
+      if (e.key.toLowerCase() === 'c' && isInsideContainer) {
         e.preventDefault();
         handleCopy();
-      } else if (e.key.toLowerCase() === "s") {
+      } else if (e.key.toLowerCase() === 's' && isInsideContainer) {
         e.preventDefault();
         handleUnitChange(unit === 'metric' ? 'imperial' : 'metric');
       }
     };
 
-    window.addEventListener("keydown", handleKeyDown);
-    return () => window.removeEventListener("keydown", handleKeyDown);
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
   }, []);
 
   return (
-    <div className="max-w-4xl mx-auto space-y-8">
+    <div ref={containerRef} className="max-w-4xl mx-auto space-y-8">
+      {/* Quick Start Presets */}
+      <div className="bg-slate-50 dark:bg-slate-900/50 p-6 rounded-[2rem] border border-slate-200 dark:border-slate-800 space-y-4">
+        <div className="flex items-center gap-2 text-xs font-black uppercase tracking-widest text-slate-400 px-1">
+          <Sparkles className="w-4 h-4 text-indigo-500" />
+          <span>{t('bmi.presets_title')}</span>
+        </div>
+        <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+          {BMI_PRESETS.map((preset) => {
+            const isSelected = activePresetId === preset.id;
+            return (
+              <button
+                key={preset.id}
+                type="button"
+                onClick={() => handlePresetSelect(preset)}
+                aria-pressed={isSelected}
+                className={`p-3 rounded-2xl text-left transition-all border flex flex-col justify-between ${
+                  isSelected
+                    ? 'bg-indigo-600 text-white border-indigo-600 shadow-md shadow-indigo-500/20'
+                    : 'bg-white dark:bg-slate-800 text-slate-700 dark:text-slate-300 border-slate-200 dark:border-slate-700 hover:border-indigo-400 dark:hover:border-indigo-500'
+                }`}
+              >
+                <div className="font-bold text-xs">{t(preset.titleKey)}</div>
+                <div className={`text-[10px] mt-1 font-mono ${isSelected ? 'text-indigo-100' : 'text-slate-400'}`}>
+                  {t(preset.descKey)}
+                </div>
+              </button>
+            );
+          })}
+        </div>
+      </div>
+
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
         <div className="bg-slate-50 dark:bg-slate-900/50 p-8 rounded-[2rem] border border-slate-200 dark:border-slate-800 space-y-8">
           <div className="flex justify-between items-center px-1">
-             <div className="flex items-center gap-2 bg-slate-100 dark:bg-slate-800 p-1 rounded-xl w-fit">
+            <div className="flex items-center gap-2 bg-slate-100 dark:bg-slate-800 p-1 rounded-xl w-fit">
               <button
+                type="button"
                 onClick={() => handleUnitChange('metric')}
                 aria-pressed={unit === 'metric'}
-                className={`flex-1 py-1.5 rounded-lg text-xs font-bold transition-all ${unit === 'metric' ? 'bg-white dark:bg-slate-700 text-indigo-600 shadow-sm' : 'text-slate-500'}`}
+                className={`flex-1 py-1.5 px-3 rounded-lg text-xs font-bold transition-all ${
+                  unit === 'metric' ? 'bg-white dark:bg-slate-700 text-indigo-600 shadow-sm' : 'text-slate-500'
+                }`}
               >
                 {t('bmi.metric')}
               </button>
               <button
+                type="button"
                 onClick={() => handleUnitChange('imperial')}
                 aria-pressed={unit === 'imperial'}
-                className={`flex-1 py-1.5 rounded-lg text-xs font-bold transition-all ${unit === 'imperial' ? 'bg-white dark:bg-slate-700 text-indigo-600 shadow-sm' : 'text-slate-500'}`}
+                className={`flex-1 py-1.5 px-3 rounded-lg text-xs font-bold transition-all ${
+                  unit === 'imperial' ? 'bg-white dark:bg-slate-700 text-indigo-600 shadow-sm' : 'text-slate-500'
+                }`}
               >
                 {t('bmi.imperial')}
               </button>
-              <Kbd modifier={null} className="hidden sm:inline-flex mx-1">S</Kbd>
+              <Kbd modifier={null} className="hidden sm:inline-flex mx-1">
+                S
+              </Kbd>
             </div>
             <div className="flex gap-2 items-center">
               <button
+                type="button"
                 onClick={handleDownload}
                 disabled={bmi === 0}
                 aria-label={t('bmi.download_report')}
@@ -207,8 +330,11 @@ ${idealWeightRange ? `- ${t('bmi.ideal_weight')} : ${idealWeightRange.low.toFixe
                 <Download className="w-3 h-3" /> {t('common.download')}
               </button>
               <div className="flex gap-2 items-center">
-                <Kbd modifier={null} className="hidden sm:inline-flex border-rose-200 dark:border-rose-800 text-rose-400">Esc</Kbd>
+                <Kbd modifier={null} className="hidden sm:inline-flex border-rose-200 dark:border-rose-800 text-rose-400">
+                  Esc
+                </Kbd>
                 <button
+                  type="button"
                   onClick={handleClear}
                   disabled={!weight && !height}
                   aria-label={t('bmi.clear_fields')}
@@ -224,28 +350,42 @@ ${idealWeightRange ? `- ${t('bmi.ideal_weight')} : ${idealWeightRange.low.toFixe
           <div className="space-y-6">
             <div className="flex items-center justify-between p-4 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-2xl">
               <div className="space-y-1">
-                <div id="new-formula-label" className="text-xs font-bold dark:text-white">{t('bmi.new_formula')}</div>
+                <div id="new-formula-label" className="text-xs font-bold dark:text-white">
+                  {t('bmi.new_formula')}
+                </div>
                 <div className="text-[10px] text-slate-400">{t('bmi.formula_by')}</div>
               </div>
               <button
+                type="button"
                 role="switch"
                 aria-checked={useNewFormula}
                 aria-labelledby="new-formula-label"
                 onClick={() => setUseNewFormula(!useNewFormula)}
-                className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 ${useNewFormula ? 'bg-indigo-600' : 'bg-slate-200 dark:bg-slate-700'}`}
+                className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 ${
+                  useNewFormula ? 'bg-indigo-600' : 'bg-slate-200 dark:bg-slate-700'
+                }`}
               >
-                <span className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform ${useNewFormula ? 'translate-x-6' : 'translate-x-1'}`} />
+                <span
+                  className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform ${
+                    useNewFormula ? 'translate-x-6' : 'translate-x-1'
+                  }`}
+                />
               </button>
             </div>
 
             <div className="space-y-3">
-              <label htmlFor="weight" className="text-xs font-black uppercase tracking-widest text-slate-400 px-1 cursor-pointer">{t('bmi.weight')} ({unit === 'metric' ? 'kg' : 'lb'})</label>
+              <label htmlFor="weight" className="text-xs font-black uppercase tracking-widest text-slate-400 px-1 cursor-pointer">
+                {t('bmi.weight')} ({unit === 'metric' ? 'kg' : 'lb'})
+              </label>
               <input
                 id="weight"
                 ref={weightRef}
                 type="number"
                 value={weight}
-                onChange={(e) => setWeight(e.target.value)}
+                onChange={(e) => {
+                  setWeight(e.target.value);
+                  setActivePresetId(null);
+                }}
                 onKeyDown={(e) => {
                   if (e.key === 'Escape') {
                     handleClear();
@@ -256,12 +396,17 @@ ${idealWeightRange ? `- ${t('bmi.ideal_weight')} : ${idealWeightRange.low.toFixe
               />
             </div>
             <div className="space-y-3">
-              <label htmlFor="height" className="text-xs font-black uppercase tracking-widest text-slate-400 px-1 cursor-pointer">{t('bmi.height')} ({unit === 'metric' ? 'cm' : 'in'})</label>
+              <label htmlFor="height" className="text-xs font-black uppercase tracking-widest text-slate-400 px-1 cursor-pointer">
+                {t('bmi.height')} ({unit === 'metric' ? 'cm' : 'in'})
+              </label>
               <input
                 id="height"
                 type="number"
                 value={height}
-                onChange={(e) => setHeight(e.target.value)}
+                onChange={(e) => {
+                  setHeight(e.target.value);
+                  setActivePresetId(null);
+                }}
                 onKeyDown={(e) => {
                   if (e.key === 'Escape') {
                     handleClear();
@@ -275,45 +420,55 @@ ${idealWeightRange ? `- ${t('bmi.ideal_weight')} : ${idealWeightRange.low.toFixe
 
           {idealWeightRange && (
             <div className="bg-indigo-50 dark:bg-indigo-900/20 p-6 rounded-3xl border border-indigo-100 dark:border-indigo-900/20 flex items-center justify-between gap-4 group/ideal">
-               <div className="flex items-center gap-4">
-                 <div className="p-3 bg-white dark:bg-slate-800 text-indigo-600 rounded-2xl shadow-sm shrink-0">
-                    <Scale className="w-6 h-6" />
-                 </div>
-                 <div>
-                    <div className="text-xs font-bold text-indigo-400 uppercase tracking-widest mb-1">{t('bmi.ideal_weight')}</div>
-                    <div className="text-lg font-black text-indigo-900 dark:text-indigo-300 font-mono">
-                      {idealWeightRange.low.toFixed(1)} - {idealWeightRange.high.toFixed(1)} {idealWeightRange.unit}
-                    </div>
-                 </div>
-               </div>
-               <button
-                  onClick={handleCopyIdeal}
-                  className={`p-2 rounded-xl transition-all z-20 ${copiedIdeal ? 'bg-emerald-50 dark:bg-emerald-500/10 text-emerald-600 dark:text-emerald-400' : 'bg-white dark:bg-slate-800 text-slate-400 hover:text-indigo-500 opacity-0 group-hover/ideal:opacity-100 focus-visible:opacity-100'}`}
-                  aria-label={t('bmi.copy_ideal')}
-                >
-                  {copiedIdeal ? <Check className="w-4 h-4" /> : <Copy className="w-4 h-4" />}
-                </button>
+              <div className="flex items-center gap-4">
+                <div className="p-3 bg-white dark:bg-slate-800 text-indigo-600 rounded-2xl shadow-sm shrink-0">
+                  <Scale className="w-6 h-6" />
+                </div>
+                <div>
+                  <div className="text-xs font-bold text-indigo-400 uppercase tracking-widest mb-1">{t('bmi.ideal_weight')}</div>
+                  <div className="text-lg font-black text-indigo-900 dark:text-indigo-300 font-mono">
+                    {idealWeightRange.low.toFixed(1)} - {idealWeightRange.high.toFixed(1)} {idealWeightRange.unit}
+                  </div>
+                </div>
+              </div>
+              <button
+                type="button"
+                onClick={handleCopyIdeal}
+                className={`p-2 rounded-xl transition-all z-20 ${
+                  copiedIdeal
+                    ? 'bg-emerald-50 dark:bg-emerald-500/10 text-emerald-600 dark:text-emerald-400'
+                    : 'bg-white dark:bg-slate-800 text-slate-400 hover:text-indigo-500 opacity-0 group-hover/ideal:opacity-100 focus-visible:opacity-100'
+                }`}
+                aria-label={t('bmi.copy_ideal')}
+              >
+                {copiedIdeal ? <Check className="w-4 h-4" /> : <Copy className="w-4 h-4" />}
+              </button>
             </div>
           )}
         </div>
 
         <div className="flex flex-col gap-6">
           <div className="flex-grow bg-slate-900 dark:bg-black p-10 rounded-[2.5rem] text-center flex flex-col items-center justify-center space-y-4 shadow-xl shadow-indigo-500/10 relative group overflow-hidden">
-             <div className={`absolute top-0 right-0 w-32 h-32 ${category.glow} rounded-full -mr-16 -mt-16 blur-3xl transition-colors duration-500`}></div>
+            <div className={`absolute top-0 right-0 w-32 h-32 ${category.glow} rounded-full -mr-16 -mt-16 blur-3xl transition-colors duration-500`} />
 
             <button
+              type="button"
               onClick={handleCopy}
               disabled={bmi === 0}
               className={`absolute top-6 right-6 p-3 rounded-2xl transition-all border z-20 focus-visible:ring-2 focus-visible:ring-white focus-visible:outline-none flex items-center gap-2 ${
                 copied
-                  ? "bg-emerald-50 dark:bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border-emerald-200 dark:border-emerald-500/20"
-                  : "bg-white/10 text-white/40 border-transparent hover:text-white hover:bg-white/20 md:opacity-0 md:group-hover:opacity-100 md:focus-visible:opacity-100"
+                  ? 'bg-emerald-50 dark:bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border-emerald-200 dark:border-emerald-500/20'
+                  : 'bg-white/10 text-white/40 border-transparent hover:text-white hover:bg-white/20 md:opacity-0 md:group-hover:opacity-100 md:focus-visible:opacity-100'
               } disabled:opacity-0`}
               title={`${t('bmi.copy_result')} (C)`}
               aria-label={`${t('bmi.copy_result')} (C)`}
             >
               {copied ? <Check className="w-5 h-5" /> : <Copy className="w-5 h-5" />}
-              {!copied && <Kbd modifier={null} className="hidden sm:inline-flex border-white/20 bg-white/5 text-white/50">C</Kbd>}
+              {!copied && (
+                <Kbd modifier={null} className="hidden sm:inline-flex border-white/20 bg-white/5 text-white/50">
+                  C
+                </Kbd>
+              )}
             </button>
             <div className="space-y-4 relative z-10" aria-live="polite" aria-atomic="true">
               <div className="text-slate-400 font-bold uppercase tracking-widest text-xs">{t('bmi.your_bmi')}</div>
@@ -327,12 +482,10 @@ ${idealWeightRange ? `- ${t('bmi.ideal_weight')} : ${idealWeightRange.low.toFixe
           </div>
 
           <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 p-6 rounded-[2rem] flex items-start gap-4">
-             <div className="p-3 bg-indigo-50 dark:bg-indigo-900/20 text-indigo-600 dark:text-indigo-400 rounded-2xl shrink-0">
-                <Info className="w-5 h-5" />
-             </div>
-             <p className="text-sm text-slate-500 dark:text-slate-400 leading-relaxed font-medium">
-               {t('bmi.disclaimer')}
-             </p>
+            <div className="p-3 bg-indigo-50 dark:bg-indigo-900/20 text-indigo-600 dark:text-indigo-400 rounded-2xl shrink-0">
+              <Info className="w-5 h-5" />
+            </div>
+            <p className="text-sm text-slate-500 dark:text-slate-400 leading-relaxed font-medium">{t('bmi.disclaimer')}</p>
           </div>
         </div>
       </div>
@@ -357,10 +510,12 @@ ${idealWeightRange ? `- ${t('bmi.ideal_weight')} : ${idealWeightRange.low.toFixe
               }`}
             >
               <div>
-                <div className={`text-[10px] font-black uppercase mb-1 tracking-wider ${category.id === item.id ? 'text-indigo-500' : 'text-slate-400'}`}>{item.label}</div>
+                <div className={`text-[10px] font-black uppercase mb-1 tracking-wider ${category.id === item.id ? 'text-indigo-500' : 'text-slate-400'}`}>
+                  {item.label}
+                </div>
                 <div className="font-mono font-black text-slate-900 dark:text-white">{item.range}</div>
               </div>
-              <div className={`w-3 h-3 rounded-full ${item.color} ${category.id === item.id ? 'animate-pulse' : ''}`}></div>
+              <div className={`w-3 h-3 rounded-full ${item.color} ${category.id === item.id ? 'animate-pulse' : ''}`} />
             </div>
           ))}
         </div>
@@ -373,11 +528,9 @@ ${idealWeightRange ? `- ${t('bmi.ideal_weight')} : ${idealWeightRange.low.toFixe
             <BookOpen className="w-6 h-6" />
           </div>
           <h3 className="text-lg font-black">{t('bmi.what_is_bmi')}</h3>
-          <p className="text-sm text-slate-500 dark:text-slate-400 leading-relaxed">
-            {t('bmi.bmi_desc')}
-          </p>
+          <p className="text-sm text-slate-500 dark:text-slate-400 leading-relaxed">{t('bmi.bmi_desc')}</p>
           <ul className="space-y-2">
-            {[t('bmi.formula_standard'), t('bmi.formula_oms'), t('bmi.formula_adult')].map(item => (
+            {[t('bmi.formula_standard'), t('bmi.formula_oms'), t('bmi.formula_adult')].map((item) => (
               <li key={item} className="flex items-center gap-2 text-sm font-bold text-slate-600 dark:text-slate-300">
                 <ChevronRight className="w-4 h-4 text-indigo-500" /> {item}
               </li>
@@ -390,9 +543,7 @@ ${idealWeightRange ? `- ${t('bmi.ideal_weight')} : ${idealWeightRange.low.toFixe
             <Scale className="w-6 h-6" />
           </div>
           <h3 className="text-lg font-black">{t('bmi.ideal_weight_title')}</h3>
-          <p className="text-sm text-slate-500 dark:text-slate-400 leading-relaxed">
-            {t('bmi.ideal_weight_desc')}
-          </p>
+          <p className="text-sm text-slate-500 dark:text-slate-400 leading-relaxed">{t('bmi.ideal_weight_desc')}</p>
         </div>
 
         <div className="space-y-4">
@@ -400,9 +551,7 @@ ${idealWeightRange ? `- ${t('bmi.ideal_weight')} : ${idealWeightRange.low.toFixe
             <Activity className="w-6 h-6" />
           </div>
           <h3 className="text-lg font-black">{t('bmi.new_formula_title')}</h3>
-          <p className="text-sm text-slate-500 dark:text-slate-400 leading-relaxed">
-            {t('bmi.new_formula_desc')}
-          </p>
+          <p className="text-sm text-slate-500 dark:text-slate-400 leading-relaxed">{t('bmi.new_formula_desc')}</p>
         </div>
       </div>
 

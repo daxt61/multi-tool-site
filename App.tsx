@@ -675,6 +675,7 @@ const GraphQLToDrizzle = lazy(() => import("./components/GraphQLToDrizzle").then
 const GraphQLToKysely = lazy(() => import("./components/GraphQLToKysely").then(m => ({ default: m.GraphQLToKysely })));
 const GraphQLToSequelize = lazy(() => import("./components/GraphQLToSequelize").then(m => ({ default: m.GraphQLToSequelize })));
 const GraphQLToTypeORM = lazy(() => import("./components/GraphQLToTypeORM").then(m => ({ default: m.GraphQLToTypeORM })));
+const GraphQLToMikroORM = lazy(() => import("./components/GraphQLToMikroORM").then(m => ({ default: m.GraphQLToMikroORM })));
 const GraphQLToCassandra = lazy(() => import("./components/GraphQLToCassandra").then(m => ({ default: m.GraphQLToCassandra })));
 const GraphQLToElasticsearch = lazy(() => import("./components/GraphQLToElasticsearch").then(m => ({ default: m.GraphQLToElasticsearch })));
 const SQLToYup = lazy(() => import("./components/SQLToYup").then(m => ({ default: m.SQLToYup })));
@@ -1116,6 +1117,18 @@ const tools: Tool[] = [
     Component: GraphQLToTypeORM,
     category: "dev",
     keywords: ["graphql", "sdl", "typeorm", "orm", "entity", "entities", "decorators", "class-validator", "typescript", "convert", "convertir"],
+  },
+  // GraphQL SDL to MikroORM TypeScript Entity Generator Tool
+  {
+    id: "graphql-to-mikroorm",
+    name: "GraphQL en MikroORM",
+    nameEn: "GraphQL to MikroORM",
+    icon: Database,
+    description: "Convertir des schémas GraphQL SDL en classes d'entités TypeScript MikroORM",
+    descriptionEn: "Convert GraphQL SDL schemas into strongly-typed MikroORM TypeScript Entity classes",
+    Component: GraphQLToMikroORM,
+    category: "dev",
+    keywords: ["graphql", "sdl", "mikroorm", "mikro-orm", "orm", "entity", "entities", "typescript", "decorators", "convert", "convertir"],
   },
   // GraphQL SDL to OpenAPI 3.0 / 3.1 Schema Converter Tool
   {

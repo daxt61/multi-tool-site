@@ -697,6 +697,7 @@ const SQLToRedis = lazy(() => import("./components/SQLToRedis").then(m => ({ def
 const SQLToCypher = lazy(() => import("./components/SQLToCypher").then(m => ({ default: m.SQLToCypher })));
 const SQLToPySpark = lazy(() => import("./components/SQLToPySpark").then(m => ({ default: m.SQLToPySpark })));
 const SQLToDuckDB = lazy(() => import("./components/SQLToDuckDB").then(m => ({ default: m.SQLToDuckDB })));
+const GraphQLToDuckDB = lazy(() => import("./components/GraphQLToDuckDB").then(m => ({ default: m.GraphQLToDuckDB })));
 const SQLToAvro = lazy(() => import("./components/SQLToAvro").then(m => ({ default: m.SQLToAvro })));
 
 // ⚡ Bolt Optimization: Pre-calculating tool map and search index for O(1) lookups and faster filtering
@@ -758,6 +759,18 @@ const tools: Tool[] = [
     Component: SQLToDuckDB,
     category: "dev",
     keywords: ["sql", "ddl", "duckdb", "parquet", "python", "node", "columnar", "analytics", "lakehouse", "convert", "convertir"],
+  },
+  // GraphQL SDL to DuckDB Schema Generator Tool
+  {
+    id: "graphql-to-duckdb",
+    name: "GraphQL en DuckDB",
+    nameEn: "GraphQL to DuckDB",
+    icon: Database,
+    description: "Convertir des schémas GraphQL SDL en schémas DuckDB SQL DDL, API Python/Node.js ou export Parquet",
+    descriptionEn: "Convert GraphQL SDL schemas into DuckDB SQL DDL, Python/Node.js API code, or Parquet export scripts",
+    Component: GraphQLToDuckDB,
+    category: "dev",
+    keywords: ["graphql", "sdl", "duckdb", "parquet", "python", "node", "columnar", "analytics", "lakehouse", "convert", "convertir"],
   },
   // SQL DDL to PySpark Schema Generator Tool
   {

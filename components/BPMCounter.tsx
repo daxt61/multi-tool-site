@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback, useMemo, useRef } from 'react';
-import { Music, RotateCcw, Copy, Check, Volume2, VolumeX, BarChart2, Activity, Zap, Info } from 'lucide-react';
+import { Music, RotateCcw, Copy, Check, Volume2, VolumeX, BarChart2, Activity, Zap, Info, Sparkles } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import { toast } from 'sonner';
 import { Kbd } from './ui/Kbd';
@@ -13,8 +13,25 @@ import {
   ResponsiveContainer,
 } from 'recharts';
 
+interface Preset {
+  id: string;
+  nameKey: string;
+  bpm: number;
+}
+
+const PRESETS: Preset[] = [
+  { id: 'slow_ballad', nameKey: 'bpm.preset_slow_ballad', bpm: 72 },
+  { id: 'hip_hop', nameKey: 'bpm.preset_hip_hop', bpm: 90 },
+  { id: 'pop_rock', nameKey: 'bpm.preset_pop_rock', bpm: 120 },
+  { id: 'house_dance', nameKey: 'bpm.preset_house_dance', bpm: 128 },
+  { id: 'techno_dnb', nameKey: 'bpm.preset_techno_dnb', bpm: 150 },
+];
+
 export function BPMCounter({ initialData, onStateChange }: { initialData?: any; onStateChange?: (state: any) => void }) {
   const { t } = useTranslation();
+  const containerRef = useRef<HTMLDivElement>(null);
+  const tapButtonRef = useRef<HTMLButtonElement>(null);
+
   const [taps, setTaps] = useState<number[]>([]);
   const [bpm, setBpm] = useState<number | null>(initialData?.bpm || null);
   const [history, setHistory] = useState<{ time: number; bpm: number }[]>([]);
@@ -22,13 +39,28 @@ export function BPMCounter({ initialData, onStateChange }: { initialData?: any; 
   const [isBeatActive, setIsBeatActive] = useState(false);
   const [copied, setCopied] = useState(false);
   const [isMetronomeOn, setIsMetronomeOn] = useState(false);
+  const [activePresetId, setActivePresetId] = useState<string | null>(initialData?.activePresetId || null);
 
   const audioContextRef = useRef<AudioContext | null>(null);
   const metronomeTimeoutRef = useRef<number | null>(null);
 
   useEffect(() => {
-    onStateChange?.({ bpm });
-  }, [bpm, onStateChange]);
+    onStateChange?.({ bpm, activePresetId });
+  }, [bpm, activePresetId, onStateChange]);
+
+  const handleApplyPreset = (preset: Preset) => {
+    const now = Date.now();
+    const intervalMs = 60000 / preset.bpm;
+    const simulatedTaps: number[] = [];
+    for (let i = 9; i >= 0; i--) {
+      simulatedTaps.push(now - i * intervalMs);
+    }
+    setTaps(simulatedTaps);
+    setBpm(preset.bpm);
+    setHistory(simulatedTaps.map((t) => ({ time: t, bpm: preset.bpm })));
+    setActivePresetId(preset.id);
+    toast.success(t('bpm.preset_loaded', { name: t(preset.nameKey), bpm: preset.bpm }));
+  };
 
   const stats = useMemo(() => {
     if (history.length === 0) return null;
@@ -113,6 +145,7 @@ export function BPMCounter({ initialData, onStateChange }: { initialData?: any; 
     const now = Date.now();
     setIsAnimate(true);
     setTimeout(() => setIsAnimate(false), 100);
+    setActivePresetId(null);
 
     setTaps(prev => {
       const newTaps = [...prev, now].slice(-20); // Keep last 20 taps for better history
@@ -163,8 +196,11 @@ export function BPMCounter({ initialData, onStateChange }: { initialData?: any; 
     setBpm(null);
     setHistory([]);
     setIsMetronomeOn(false);
+    setActivePresetId(null);
     stopMetronome();
-  }, [stopMetronome]);
+    toast.info(t('common.cleared'));
+    setTimeout(() => tapButtonRef.current?.focus(), 0);
+  }, [stopMetronome, t]);
 
   const handleTapRef = useRef(handleTap);
   const handleResetRef = useRef(reset);
@@ -179,6 +215,9 @@ export function BPMCounter({ initialData, onStateChange }: { initialData?: any; 
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
       const activeElement = document.activeElement;
+      const isInside = containerRef.current?.contains(activeElement) || activeElement === document.body;
+      if (!isInside) return;
+
       const isEditable =
         activeElement instanceof HTMLInputElement ||
         activeElement instanceof HTMLTextAreaElement ||
@@ -186,6 +225,8 @@ export function BPMCounter({ initialData, onStateChange }: { initialData?: any; 
         activeElement?.getAttribute("contenteditable") === "true";
 
       if (isEditable && e.key !== 'Escape') return;
+
+      if (e.metaKey || e.ctrlKey || e.altKey || e.shiftKey) return;
 
       if (e.key === ' ' || e.key === 'Enter') {
         if (!isEditable) {
@@ -195,7 +236,7 @@ export function BPMCounter({ initialData, onStateChange }: { initialData?: any; 
       } else if (e.key === 'Escape') {
         e.preventDefault();
         handleResetRef.current();
-      } else if (e.key.toLowerCase() === 'c' && !e.metaKey && !e.ctrlKey) {
+      } else if (e.key.toLowerCase() === 'c') {
         e.preventDefault();
         handleCopyRef.current();
       }
@@ -205,11 +246,42 @@ export function BPMCounter({ initialData, onStateChange }: { initialData?: any; 
   }, []);
 
   return (
-    <div className="max-w-4xl mx-auto space-y-12">
+    <div ref={containerRef} className="max-w-4xl mx-auto space-y-8">
+      {/* Quick Start Presets */}
+      <div className="flex flex-wrap items-center justify-between gap-4 p-4 bg-slate-50 dark:bg-slate-900/50 rounded-2xl border border-slate-200 dark:border-slate-800">
+        <div className="flex items-center gap-2">
+          <Sparkles className="w-4 h-4 text-amber-500" aria-hidden="true" />
+          <span className="text-xs font-bold uppercase tracking-widest text-slate-500 dark:text-slate-400">
+            {t('bpm.presets_title', 'Tempo Presets:')}
+          </span>
+        </div>
+        <div className="flex flex-wrap items-center gap-2">
+          {PRESETS.map((preset) => {
+            const isActive = activePresetId === preset.id;
+            return (
+              <button
+                key={preset.id}
+                type="button"
+                aria-pressed={isActive}
+                onClick={() => handleApplyPreset(preset)}
+                className={`px-3 py-1.5 text-xs font-bold rounded-xl transition-all shadow-sm focus-visible:ring-2 focus-visible:ring-indigo-500 focus-visible:outline-none ${
+                  isActive
+                    ? 'bg-indigo-600 text-white dark:bg-indigo-500 border border-indigo-600'
+                    : 'bg-white dark:bg-slate-800 text-slate-600 dark:text-slate-300 border border-slate-200 dark:border-slate-700 hover:border-indigo-500'
+                }`}
+              >
+                {t(preset.nameKey)} ({preset.bpm} BPM)
+              </button>
+            );
+          })}
+        </div>
+      </div>
+
       <div className="grid grid-cols-1 md:grid-cols-2 gap-12 items-center">
         {/* Main Tap Area */}
         <div className="text-center space-y-8">
           <button
+            ref={tapButtonRef}
             className={`p-12 rounded-[3rem] border-4 transition-all duration-100 flex flex-col items-center justify-center aspect-square mx-auto w-full max-w-[320px] cursor-pointer select-none outline-none focus-visible:ring-4 focus-visible:ring-indigo-500/20 shadow-2xl ${
               isAnimate
                 ? 'bg-indigo-600 border-indigo-400 scale-95 text-white shadow-indigo-500/40'

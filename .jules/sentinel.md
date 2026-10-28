@@ -416,3 +416,8 @@
 **Vulnerability:** `GraphQLToSQL` failed to escape single quotes, backslashes, or control characters when formatting GraphQL enum values into PostgreSQL `CREATE TYPE ... AS ENUM ('value')` statements, allowing SQL syntax breakout or injection in generated DDL scripts.
 **Learning:** SQL DDL generators converting GraphQL enum definitions to PostgreSQL enum types must treat raw enum value strings as untrusted SQL string literals.
 **Prevention:** Apply a dedicated `escapeSqlString` helper function to escape single quotes (`''`), backslashes (`\\\\`), and control characters (`\\n`, `\\r`, `\\t`) when interpolating enum values into SQL string literals.
+
+## 2026-11-01 - [String Literal Breakout in Prisma Schema Attributes]
+**Vulnerability:** The SQLToPrisma component interpolated raw SQL table names, column names, and default string values directly into Prisma double-quoted string literals (`@map("...")`, `@@map("...")`, `@default("...")`) without escaping double quotes, backslashes, or control characters. Unescaped quotes or newlines allowed breaking out of attribute string literals and injecting arbitrary Prisma models or schema directives.
+**Learning:** Code generators producing Prisma schema files (`schema.prisma`) must sanitize all user-controlled identifiers and default values embedded in double-quoted attribute strings to prevent syntax breakout and directive injection.
+**Prevention:** Apply a dedicated `escapePrismaString` helper function to escape backslashes (`\\`), double quotes (`\"`), newlines (`\n`), carriage returns (`\r`), and tabs (`\t`) when interpolating raw SQL identifiers or default string values into Prisma attribute string parameters.

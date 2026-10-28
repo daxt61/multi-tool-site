@@ -288,13 +288,14 @@ export function SQLToDuckDB({ initialData, onStateChange }: { initialData?: any;
       if (outputStyle === 'sql_ddl') {
         setOutput(sqlDdl);
       } else if (outputStyle === 'python_api') {
+        const escapedDdlPy = sqlDdl.replace(/\\/g, '\\\\').replace(/"""/g, '\\"\\"\\"');
         let py = `import duckdb\n\n`;
         py += `# Connect to in-memory or file-backed DuckDB instance\n`;
         py += `con = duckdb.connect('analytics.duckdb')\n\n`;
         py += `# Create DuckDB table schema\n`;
-        py += `con.sql("""\n${sqlDdl}\n""")\n\n`;
+        py += `con.sql("""\n${escapedDdlPy}\n""")\n\n`;
         py += `# Query or export as PyArrow / Pandas DataFrame\n`;
-        py += `df = con.sql("SELECT * FROM ${tableName}").df()\n`;
+        py += `df = con.sql("SELECT * FROM \\"${tableName}\\"").df()\n`;
         py += `print(df)`;
         setOutput(py);
       } else if (outputStyle === 'parquet_export') {
@@ -305,12 +306,13 @@ export function SQLToDuckDB({ initialData, onStateChange }: { initialData?: any;
         pq += `SELECT * FROM read_parquet('${tableName}.parquet') LIMIT 10;`;
         setOutput(pq);
       } else if (outputStyle === 'node_api') {
+        const escapedDdlJs = sqlDdl.replace(/\\/g, '\\\\').replace(/`/g, '\\`').replace(/\${/g, '\\${');
         let js = `import { DuckDBInstance } from '@duckdb/node-api';\n\n`;
         js += `async function run() {\n`;
         js += `  const instance = await DuckDBInstance.create('analytics.duckdb');\n`;
         js += `  const connection = await instance.connect();\n\n`;
         js += `  // Initialize DuckDB table schema\n`;
-        js += `  await connection.run(\`\n${sqlDdl}\n  \`);\n\n`;
+        js += `  await connection.run(\`\n${escapedDdlJs}\n  \`);\n\n`;
         js += `  console.log('DuckDB table ${tableName} created successfully');\n`;
         js += `}\n\n`;
         js += `run();`;

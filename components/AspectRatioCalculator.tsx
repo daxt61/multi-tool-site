@@ -12,6 +12,7 @@ export function AspectRatioCalculator({ initialData, onStateChange }: { initialD
   const [height, setHeight] = useState<string>(initialData?.height || '1080');
   const [ratioW, setRatioW] = useState<string>(initialData?.ratioW || '16');
   const [ratioH, setRatioH] = useState<string>(initialData?.ratioH || '9');
+  const [activePresetId, setActivePresetId] = useState<string | null>('16_9');
   const [copiedFormat, setCopiedFormat] = useState(false);
   const [copiedRatio, setCopiedRatio] = useState(false);
 
@@ -60,6 +61,7 @@ export function AspectRatioCalculator({ initialData, onStateChange }: { initialD
     setHeight('');
     setRatioW('');
     setRatioH('');
+    setActivePresetId(null);
     toast.info(t('common.cleared'));
     setTimeout(() => {
       widthInputRef.current?.focus();
@@ -155,6 +157,7 @@ export function AspectRatioCalculator({ initialData, onStateChange }: { initialD
                     onChange={(e) => {
                       const val = e.target.value;
                       setWidth(val);
+                      setActivePresetId(null);
                       calculateFromDims(Number(val), Number(height));
                     }}
                     onKeyDown={(e) => e.key === 'Escape' && handleClear()}
@@ -170,6 +173,7 @@ export function AspectRatioCalculator({ initialData, onStateChange }: { initialD
                     onChange={(e) => {
                       const val = e.target.value;
                       setHeight(val);
+                      setActivePresetId(null);
                       calculateFromDims(Number(width), Number(val));
                     }}
                     onKeyDown={(e) => e.key === 'Escape' && handleClear()}
@@ -194,6 +198,7 @@ export function AspectRatioCalculator({ initialData, onStateChange }: { initialD
                     onChange={(e) => {
                       const val = e.target.value;
                       setRatioW(val);
+                      setActivePresetId(null);
                       calculateFromRatio(Number(val), Number(ratioH), Number(width), true);
                     }}
                     onKeyDown={(e) => e.key === 'Escape' && handleClear()}
@@ -210,6 +215,7 @@ export function AspectRatioCalculator({ initialData, onStateChange }: { initialD
                     onChange={(e) => {
                       const val = e.target.value;
                       setRatioH(val);
+                      setActivePresetId(null);
                       calculateFromRatio(Number(ratioW), Number(val), Number(width), true);
                     }}
                     onKeyDown={(e) => e.key === 'Escape' && handleClear()}
@@ -295,23 +301,25 @@ export function AspectRatioCalculator({ initialData, onStateChange }: { initialD
             <h3 className="text-xs font-black uppercase tracking-widest text-slate-400 mb-6 px-1">{t('aspectratio.standards')}</h3>
             <div className="grid grid-cols-2 gap-3">
               {commonRatios.map((r) => {
-                const isActive = ratioW === r.w.toString() && ratioH === r.h.toString();
+                const isActive = activePresetId === r.key || (ratioW === r.w.toString() && ratioH === r.h.toString());
                 return (
                   <button
                     key={r.name}
                     onClick={() => {
                       setRatioW(r.w.toString());
                       setRatioH(r.h.toString());
+                      setActivePresetId(r.key);
                       const baseWidth = Number(width) > 0 ? Number(width) : 1920;
                       if (!width) setWidth('1920');
                       calculateFromRatio(r.w, r.h, baseWidth, true);
                       toast.success(t('common.preset_applied', { name: r.name }));
+                      setTimeout(() => widthInputRef.current?.focus(), 0);
                     }}
                     aria-pressed={isActive}
                     aria-label={`${r.name} - ${t(`aspectratio.preset.${r.key}`)}`}
                     className={`flex flex-col items-start p-4 border rounded-2xl transition-all text-left group focus-visible:ring-2 focus-visible:ring-indigo-500 focus-visible:outline-none ${
                       isActive
-                        ? 'bg-indigo-50/80 dark:bg-indigo-950/50 border-indigo-500 text-indigo-600 dark:text-indigo-400 shadow-sm'
+                        ? 'bg-indigo-50/80 dark:bg-indigo-950/50 border-indigo-500 text-indigo-600 dark:text-indigo-400 shadow-sm ring-1 ring-indigo-500'
                         : 'bg-slate-50 dark:bg-slate-800/50 border-slate-100 dark:border-slate-700 hover:border-indigo-500/30 hover:bg-white dark:hover:bg-slate-800'
                     }`}
                   >

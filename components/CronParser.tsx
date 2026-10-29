@@ -261,12 +261,22 @@ export function CronParser({ initialData, onStateChange }: { initialData?: any; 
   const lang = i18n.language || 'en';
 
   const [cron, setCron] = useState<string>(initialData?.cron || '*/15 * * * *');
+  const [activePresetId, setActivePresetId] = useState<string | null>(
+    initialData?.cron ? PRESETS.find((p) => p.cron === initialData.cron)?.id || null : 'every_15m'
+  );
   const [copied, setCopied] = useState(false);
   const inputRef = useRef<HTMLInputElement>(null);
+  const containerRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     onStateChange?.({ cron });
   }, [cron, onStateChange]);
+
+  const handleInputChange = (val: string) => {
+    setCron(val);
+    const matched = PRESETS.find((p) => p.cron === val.trim());
+    setActivePresetId(matched ? matched.id : null);
+  };
 
   const error = useMemo(() => {
     if (!cron.trim()) return null;
@@ -311,6 +321,7 @@ export function CronParser({ initialData, onStateChange }: { initialData?: any; 
   const handlersRef = useRef({
     handleClear: () => {
       setCron('');
+      setActivePresetId(null);
       toast.success(t('cronparser.cleared_toast') || 'Input cleared!');
       inputRef.current?.focus();
     },
@@ -328,6 +339,7 @@ export function CronParser({ initialData, onStateChange }: { initialData?: any; 
     handlersRef.current = {
       handleClear: () => {
         setCron('');
+        setActivePresetId(null);
         toast.success(t('cronparser.cleared_toast') || 'Input cleared!');
         inputRef.current?.focus();
       },
@@ -344,21 +356,25 @@ export function CronParser({ initialData, onStateChange }: { initialData?: any; 
 
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
-      if (e.key === 'Escape') {
-        e.preventDefault();
-        handlersRef.current.handleClear();
-        return;
-      }
-
       const activeElement = document.activeElement;
-      const isInputFocused =
+      const isEditable =
         activeElement?.tagName === 'INPUT' ||
         activeElement?.tagName === 'TEXTAREA' ||
         (activeElement as HTMLElement)?.isContentEditable;
 
-      if (!isInputFocused && (e.key === 'c' || e.key === 'C') && !e.ctrlKey && !e.metaKey && !e.altKey) {
-        e.preventDefault();
-        handlersRef.current.handleCopy();
+      if (e.key === 'Escape') {
+        if (!isEditable || activeElement === inputRef.current) {
+          e.preventDefault();
+          handlersRef.current.handleClear();
+        }
+        return;
+      }
+
+      if (!isEditable && (e.key === 'c' || e.key === 'C') && !e.ctrlKey && !e.metaKey && !e.altKey) {
+        if (containerRef.current?.contains(activeElement) || !activeElement || activeElement === document.body) {
+          e.preventDefault();
+          handlersRef.current.handleCopy();
+        }
       }
     };
 
@@ -383,12 +399,13 @@ export function CronParser({ initialData, onStateChange }: { initialData?: any; 
 
   const applyPreset = (p: Preset) => {
     setCron(p.cron);
+    setActivePresetId(p.id);
     toast.success(t('cronparser.preset_loaded') || 'Preset loaded!');
     inputRef.current?.focus();
   };
 
   return (
-    <div className="max-w-5xl mx-auto space-y-8" data-testid="cron-parser-container">
+    <div ref={containerRef} className="max-w-5xl mx-auto space-y-8" data-testid="cron-parser-container">
       {/* Presets */}
       <div className="p-6 bg-slate-50 dark:bg-slate-900/50 border border-slate-200 dark:border-slate-800 rounded-3xl space-y-3">
         <div className="flex items-center gap-2">
@@ -398,16 +415,30 @@ export function CronParser({ initialData, onStateChange }: { initialData?: any; 
           </h3>
         </div>
         <div className="flex flex-wrap gap-2">
-          {PRESETS.map((preset) => (
-            <button
-              key={preset.id}
-              onClick={() => applyPreset(preset)}
-              className="px-3.5 py-1.5 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 hover:border-indigo-500 dark:hover:border-indigo-500 text-slate-700 dark:text-slate-300 text-xs font-bold rounded-xl transition-all shadow-sm flex items-center gap-2"
-            >
-              <code className="text-indigo-600 dark:text-indigo-400 font-mono font-bold text-[11px]">{preset.cron}</code>
-              <span>{t(preset.nameKey) || preset.id}</span>
-            </button>
-          ))}
+          {PRESETS.map((preset) => {
+            const isActive = activePresetId === preset.id;
+            return (
+              <button
+                key={preset.id}
+                onClick={() => applyPreset(preset)}
+                aria-pressed={isActive}
+                className={`px-3.5 py-1.5 border text-xs font-bold rounded-xl transition-all shadow-sm flex items-center gap-2 ${
+                  isActive
+                    ? 'bg-indigo-600 text-white border-indigo-600 dark:bg-indigo-600 dark:border-indigo-500 shadow-indigo-500/20'
+                    : 'bg-white dark:bg-slate-800 border-slate-200 dark:border-slate-700 hover:border-indigo-500 dark:hover:border-indigo-500 text-slate-700 dark:text-slate-300'
+                }`}
+              >
+                <code
+                  className={`font-mono font-bold text-[11px] ${
+                    isActive ? 'text-indigo-100' : 'text-indigo-600 dark:text-indigo-400'
+                  }`}
+                >
+                  {preset.cron}
+                </code>
+                <span>{t(preset.nameKey) || preset.id}</span>
+              </button>
+            );
+          })}
         </div>
       </div>
 
@@ -423,6 +454,7 @@ export function CronParser({ initialData, onStateChange }: { initialData?: any; 
           <button
             onClick={() => handlersRef.current.handleClear()}
             disabled={!cron}
+            aria-label={t('common.clear') || 'Clear'}
             className="text-xs font-bold text-rose-500 bg-rose-50 dark:bg-rose-500/10 hover:bg-rose-100 dark:hover:bg-rose-500/20 px-3 py-1.5 rounded-xl flex items-center gap-1 transition-all disabled:opacity-50"
           >
             <Trash2 className="w-3.5 h-3.5" aria-hidden="true" /> {t('common.clear')}
@@ -435,7 +467,9 @@ export function CronParser({ initialData, onStateChange }: { initialData?: any; 
           type="text"
           value={cron}
           maxLength={MAX_LENGTH}
-          onChange={(e) => setCron(e.target.value)}
+          onChange={(e) => handleInputChange(e.target.value)}
+          autoComplete="off"
+          spellCheck={false}
           placeholder="*/15 * * * *"
           className="w-full p-4 text-center font-mono text-xl sm:text-2xl font-bold bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl outline-none focus:ring-2 focus:ring-indigo-500/20 transition-all text-indigo-600 dark:text-indigo-400 tracking-wider shadow-inner"
         />
@@ -475,12 +509,13 @@ export function CronParser({ initialData, onStateChange }: { initialData?: any; 
               <button
                 onClick={handleDownload}
                 className="p-2 text-indigo-600 bg-indigo-50 dark:bg-indigo-900/20 rounded-xl hover:bg-indigo-100 dark:hover:bg-indigo-900/40 transition-all"
-                aria-label={t('common.download')}
+                aria-label={t('common.download') || 'Download'}
               >
                 <Download className="w-4 h-4" aria-hidden="true" />
               </button>
               <button
                 onClick={() => handlersRef.current.handleCopy()}
+                aria-label={t('common.copy') || 'Copy'}
                 className={`flex items-center gap-2 px-4 py-2 rounded-xl text-xs font-bold transition-all ${
                   copied
                     ? 'bg-emerald-50 text-emerald-600 dark:bg-emerald-500/10 border border-emerald-200 dark:border-emerald-500/20'

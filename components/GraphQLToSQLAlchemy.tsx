@@ -14,6 +14,14 @@ const PYTHON_KEYWORDS = new Set([
   'metadata', 'query'
 ]);
 
+function escapePythonString(str: string): string {
+  return str
+    .replace(/\\/g, '\\\\')
+    .replace(/"/g, '\\"')
+    .replace(/\n/g, '\\n')
+    .replace(/\r/g, '\\r');
+}
+
 function sanitizePythonIdentifier(name: string): string {
   let cleaned = name.replace(/[^a-zA-Z0-9_]/g, '_');
   if (/^[0-9]/.test(cleaned)) {
@@ -226,7 +234,7 @@ export function GraphQLToSQLAlchemy({ initialData, onStateChange }: { initialDat
           if (typeDef.values && typeDef.values.length > 0) {
             for (const val of typeDef.values) {
               const safeVal = sanitizePythonIdentifier(val);
-              pyCode += `    ${safeVal} = "${val}"\n`;
+              pyCode += `    ${safeVal} = "${escapePythonString(val)}"\n`;
             }
           } else {
             pyCode += `    PASS = "PASS"\n`;
@@ -255,7 +263,7 @@ export function GraphQLToSQLAlchemy({ initialData, onStateChange }: { initialDat
         const tableName = className.toLowerCase() + 's';
 
         pyCode += `class ${className}(Base):\n`;
-        pyCode += `    __tablename__ = "${tableName}"\n\n`;
+        pyCode += `    __tablename__ = "${escapePythonString(tableName)}"\n\n`;
 
         const rels: string[] = [];
 
@@ -276,19 +284,19 @@ export function GraphQLToSQLAlchemy({ initialData, onStateChange }: { initialDat
             const targetClass = sanitizePythonIdentifier(field.type);
             if (field.isList) {
               if (sqlaVer === '2.0') {
-                rels.push(`    ${fieldName}: Mapped[List["${targetClass}"]] = relationship()`);
+                rels.push(`    ${fieldName}: Mapped[List["${escapePythonString(targetClass)}"]] = relationship()`);
               } else {
-                rels.push(`    ${fieldName} = relationship("${targetClass}")`);
+                rels.push(`    ${fieldName} = relationship("${escapePythonString(targetClass)}")`);
               }
             } else {
               const fkName = `${fieldName}_id`;
               if (sqlaVer === '2.0') {
                 const pyType = field.isNonNull ? 'str' : 'Optional[str]';
-                pyCode += `    ${fkName}: Mapped[${pyType}] = mapped_column(ForeignKey("${targetClass.toLowerCase()}s.id"), nullable=${!field.isNonNull ? 'True' : 'False'})\n`;
-                rels.push(`    ${fieldName}: Mapped["${targetClass}"] = relationship()`);
+                pyCode += `    ${fkName}: Mapped[${pyType}] = mapped_column(ForeignKey("${escapePythonString(targetClass.toLowerCase())}s.id"), nullable=${!field.isNonNull ? 'True' : 'False'})\n`;
+                rels.push(`    ${fieldName}: Mapped["${escapePythonString(targetClass)}"] = relationship()`);
               } else {
-                pyCode += `    ${fkName} = Column(String(36), ForeignKey("${targetClass.toLowerCase()}s.id"), nullable=${!field.isNonNull ? 'True' : 'False'})\n`;
-                rels.push(`    ${fieldName} = relationship("${targetClass}")`);
+                pyCode += `    ${fkName} = Column(String(36), ForeignKey("${escapePythonString(targetClass.toLowerCase())}s.id"), nullable=${!field.isNonNull ? 'True' : 'False'})\n`;
+                rels.push(`    ${fieldName} = relationship("${escapePythonString(targetClass)}")`);
               }
             }
           } else {
@@ -313,7 +321,7 @@ export function GraphQLToSQLAlchemy({ initialData, onStateChange }: { initialDat
 
         if (genRepr) {
           pyCode += `\n    def __repr__(self) -> str:\n`;
-          pyCode += `        return f"<${className} id={getattr(self, 'id', None)}">"\n`;
+          pyCode += `        return f"<${escapePythonString(className)} id={getattr(self, 'id', None)}">"\n`;
         }
 
         if (genDict) {
@@ -321,7 +329,7 @@ export function GraphQLToSQLAlchemy({ initialData, onStateChange }: { initialDat
           pyCode += `        return {\n`;
           for (const f of typeDef.fields) {
             if (!typesMap[f.type] || typesMap[f.type].kind === 'ENUM') {
-              pyCode += `            "${f.name}": self.${f.name},\n`;
+              pyCode += `            "${escapePythonString(f.name)}": self.${f.name},\n`;
             }
           }
           pyCode += `        }\n`;

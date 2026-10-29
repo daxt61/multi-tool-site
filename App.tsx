@@ -698,6 +698,7 @@ const SQLToCypher = lazy(() => import("./components/SQLToCypher").then(m => ({ d
 const SQLToPySpark = lazy(() => import("./components/SQLToPySpark").then(m => ({ default: m.SQLToPySpark })));
 const SQLToDuckDB = lazy(() => import("./components/SQLToDuckDB").then(m => ({ default: m.SQLToDuckDB })));
 const GraphQLToDuckDB = lazy(() => import("./components/GraphQLToDuckDB").then(m => ({ default: m.GraphQLToDuckDB })));
+const GraphQLToJulia = lazy(() => import("./components/GraphQLToJulia").then(m => ({ default: m.GraphQLToJulia })));
 const SQLToAvro = lazy(() => import("./components/SQLToAvro").then(m => ({ default: m.SQLToAvro })));
 
 // ⚡ Bolt Optimization: Pre-calculating tool map and search index for O(1) lookups and faster filtering
@@ -771,6 +772,17 @@ const tools: Tool[] = [
     Component: GraphQLToDuckDB,
     category: "dev",
     keywords: ["graphql", "sdl", "duckdb", "parquet", "python", "node", "columnar", "analytics", "lakehouse", "convert", "convertir"],
+  },
+  {
+    id: "graphql-to-julia",
+    name: "GraphQL en Julia",
+    nameEn: "GraphQL to Julia",
+    icon: FileCode,
+    description: "Convertir des schémas GraphQL SDL en structures et modèles Julia (StructTypes.jl / JSON3.jl)",
+    descriptionEn: "Convert GraphQL SDL schemas into Julia structs and models with StructTypes.jl or JSON3.jl bindings",
+    Component: GraphQLToJulia,
+    category: "dev",
+    keywords: ["graphql", "sdl", "julia", "struct", "structtypes", "json3", "dataframes", "convert", "convertir"],
   },
   // SQL DDL to PySpark Schema Generator Tool
   {

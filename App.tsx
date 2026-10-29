@@ -698,6 +698,7 @@ const SQLToCypher = lazy(() => import("./components/SQLToCypher").then(m => ({ d
 const SQLToPySpark = lazy(() => import("./components/SQLToPySpark").then(m => ({ default: m.SQLToPySpark })));
 const SQLToDuckDB = lazy(() => import("./components/SQLToDuckDB").then(m => ({ default: m.SQLToDuckDB })));
 const GraphQLToDuckDB = lazy(() => import("./components/GraphQLToDuckDB").then(m => ({ default: m.GraphQLToDuckDB })));
+const GraphQLToClickHouse = lazy(() => import("./components/GraphQLToClickHouse").then(m => ({ default: m.GraphQLToClickHouse })));
 const GraphQLToJulia = lazy(() => import("./components/GraphQLToJulia").then(m => ({ default: m.GraphQLToJulia })));
 const GraphQLToNats = lazy(() => import("./components/GraphQLToNats").then(m => ({ default: m.GraphQLToNats })));
 const SQLToAvro = lazy(() => import("./components/SQLToAvro").then(m => ({ default: m.SQLToAvro })));
@@ -843,6 +844,18 @@ const tools: Tool[] = [
     Component: SQLToClickHouse,
     category: "dev",
     keywords: ["sql", "ddl", "create table", "clickhouse", "mergetree", "analytics", "data warehouse", "convert", "convertir"],
+  },
+  // GraphQL SDL to ClickHouse DDL Converter Tool
+  {
+    id: "graphql-to-clickhouse",
+    name: "GraphQL en ClickHouse",
+    nameEn: "GraphQL to ClickHouse",
+    icon: Database,
+    description: "Convertir des schémas GraphQL SDL en requêtes ClickHouse SQL DDL",
+    descriptionEn: "Convert GraphQL SDL schemas into ClickHouse SQL DDL statements",
+    Component: GraphQLToClickHouse,
+    category: "dev",
+    keywords: ["graphql", "sdl", "clickhouse", "mergetree", "analytics", "data warehouse", "convert", "convertir"],
   },
   // SQL DDL to Snowflake DDL Converter Tool
   {

@@ -699,6 +699,7 @@ const SQLToPySpark = lazy(() => import("./components/SQLToPySpark").then(m => ({
 const SQLToDuckDB = lazy(() => import("./components/SQLToDuckDB").then(m => ({ default: m.SQLToDuckDB })));
 const GraphQLToDuckDB = lazy(() => import("./components/GraphQLToDuckDB").then(m => ({ default: m.GraphQLToDuckDB })));
 const GraphQLToJulia = lazy(() => import("./components/GraphQLToJulia").then(m => ({ default: m.GraphQLToJulia })));
+const GraphQLToNats = lazy(() => import("./components/GraphQLToNats").then(m => ({ default: m.GraphQLToNats })));
 const SQLToAvro = lazy(() => import("./components/SQLToAvro").then(m => ({ default: m.SQLToAvro })));
 
 // ⚡ Bolt Optimization: Pre-calculating tool map and search index for O(1) lookups and faster filtering
@@ -783,6 +784,17 @@ const tools: Tool[] = [
     Component: GraphQLToJulia,
     category: "dev",
     keywords: ["graphql", "sdl", "julia", "struct", "structtypes", "json3", "dataframes", "convert", "convertir"],
+  },
+  {
+    id: "graphql-to-nats",
+    name: "GraphQL en NATS JetStream",
+    nameEn: "GraphQL to NATS JetStream",
+    icon: Send,
+    description: "Convertir des définitions d'événements GraphQL SDL en flux NATS JetStream, hiérarchies de sujets et code client Go/Node",
+    descriptionEn: "Convert GraphQL SDL event definitions into NATS JetStream streams, subjects, and Go/Node client code",
+    Component: GraphQLToNats,
+    category: "dev",
+    keywords: ["graphql", "nats", "jetstream", "pubsub", "subjects", "events", "go", "node", "sdl", "convert", "convertir"],
   },
   // SQL DDL to PySpark Schema Generator Tool
   {

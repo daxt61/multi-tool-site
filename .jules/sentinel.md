@@ -421,3 +421,8 @@
 **Vulnerability:** The SQLToPrisma component interpolated raw SQL table names, column names, and default string values directly into Prisma double-quoted string literals (`@map("...")`, `@@map("...")`, `@default("...")`) without escaping double quotes, backslashes, or control characters. Unescaped quotes or newlines allowed breaking out of attribute string literals and injecting arbitrary Prisma models or schema directives.
 **Learning:** Code generators producing Prisma schema files (`schema.prisma`) must sanitize all user-controlled identifiers and default values embedded in double-quoted attribute strings to prevent syntax breakout and directive injection.
 **Prevention:** Apply a dedicated `escapePrismaString` helper function to escape backslashes (`\\`), double quotes (`\"`), newlines (`\n`), carriage returns (`\r`), and tabs (`\t`) when interpolating raw SQL identifiers or default string values into Prisma attribute string parameters.
+
+## 2026-12-31 - [String Literal Breakout in Python Enum Generation]
+**Vulnerability:** The GraphQLToPython component interpolated raw GraphQL enum values directly into Python double-quoted string literals (`"${v}"`) without escaping. GraphQL enum inputs containing double quotes (`"`), backslashes (`\`), or newlines (`\n`) could break out of the string literal context in generated Python code files.
+**Learning:** Code generators producing Python models from GraphQL SDL schemas must treat enum values as untrusted string literals when generating Python `enum.Enum` or `@strawberry.enum` member assignments.
+**Prevention:** Always apply `escapePythonString(v)` to raw enum values when interpolating them into double-quoted string literals in Python code generators.

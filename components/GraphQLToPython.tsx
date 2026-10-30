@@ -275,14 +275,14 @@ union FeedItem = Post | Comment`
           let block = `@strawberry.enum\nclass ${enumName}(enum.Enum):\n`;
           enumValues.forEach(v => {
             const { pyName } = sanitizePythonIdentifier(v);
-            block += `    ${pyName} = "${v}"\n`;
+            block += `    ${pyName} = "${escapePythonString(v)}"\n`;
           });
           outputBlocks.push(block.trimEnd());
         } else {
           let block = `class ${enumName}(str, enum.Enum):\n`;
           enumValues.forEach(v => {
             const { pyName } = sanitizePythonIdentifier(v);
-            block += `    ${pyName} = "${v}"\n`;
+            block += `    ${pyName} = "${escapePythonString(v)}"\n`;
           });
           outputBlocks.push(block.trimEnd());
         }

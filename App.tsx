@@ -698,6 +698,7 @@ const SQLToCypher = lazy(() => import("./components/SQLToCypher").then(m => ({ d
 const SQLToPySpark = lazy(() => import("./components/SQLToPySpark").then(m => ({ default: m.SQLToPySpark })));
 const SQLToDuckDB = lazy(() => import("./components/SQLToDuckDB").then(m => ({ default: m.SQLToDuckDB })));
 const GraphQLToDuckDB = lazy(() => import("./components/GraphQLToDuckDB").then(m => ({ default: m.GraphQLToDuckDB })));
+const GraphQLToBigQuery = lazy(() => import("./components/GraphQLToBigQuery").then(m => ({ default: m.GraphQLToBigQuery })));
 const GraphQLToClickHouse = lazy(() => import("./components/GraphQLToClickHouse").then(m => ({ default: m.GraphQLToClickHouse })));
 const GraphQLToJulia = lazy(() => import("./components/GraphQLToJulia").then(m => ({ default: m.GraphQLToJulia })));
 const GraphQLToNats = lazy(() => import("./components/GraphQLToNats").then(m => ({ default: m.GraphQLToNats })));
@@ -774,6 +775,18 @@ const tools: Tool[] = [
     Component: GraphQLToDuckDB,
     category: "dev",
     keywords: ["graphql", "sdl", "duckdb", "parquet", "python", "node", "columnar", "analytics", "lakehouse", "convert", "convertir"],
+  },
+  // GraphQL SDL to BigQuery Schema Generator Tool
+  {
+    id: "graphql-to-bigquery",
+    name: "GraphQL en BigQuery",
+    nameEn: "GraphQL to BigQuery",
+    icon: Database,
+    description: "Convertir des schémas GraphQL SDL en schémas BigQuery SQL DDL, JSON Schema, SDK Python ou Terraform",
+    descriptionEn: "Convert GraphQL SDL schemas into BigQuery SQL DDL, JSON Schema definitions, Python SDK code, or Terraform resources",
+    Component: GraphQLToBigQuery,
+    category: "dev",
+    keywords: ["graphql", "sdl", "bigquery", "google", "cloud", "ddl", "json schema", "python", "terraform", "convert", "convertir"],
   },
   {
     id: "graphql-to-julia",

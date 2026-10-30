@@ -33,6 +33,7 @@ const PRESETS: Preset[] = [
 
 export function BMRCalculator({ initialData, onStateChange }: { initialData?: any; onStateChange?: (state: any) => void }) {
   const ageInputRef = useRef<HTMLInputElement>(null);
+  const containerRef = useRef<HTMLDivElement>(null);
   const { t, i18n } = useTranslation();
   const [age, setAge] = useState<string>(initialData?.age || '');
   const [weight, setWeight] = useState<string>(initialData?.weight || '');
@@ -107,6 +108,10 @@ export function BMRCalculator({ initialData, onStateChange }: { initialData?: an
 
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
+      if (containerRef.current && !containerRef.current.contains(document.activeElement)) {
+        return;
+      }
+
       const activeElement = document.activeElement;
       const isEditable =
         activeElement instanceof HTMLInputElement ||
@@ -136,7 +141,7 @@ export function BMRCalculator({ initialData, onStateChange }: { initialData?: an
   const activityLevels: ActivityLevel[] = ['sedentary', 'light', 'moderate', 'active', 'very_active'];
 
   return (
-    <div className="max-w-5xl mx-auto space-y-12">
+    <div ref={containerRef} className="max-w-5xl mx-auto space-y-12">
       {/* Quick Presets */}
       <div className="flex flex-wrap items-center gap-2 bg-slate-50 dark:bg-slate-900/50 p-4 rounded-2xl border border-slate-200 dark:border-slate-800">
         <span className="text-xs font-bold text-slate-500 uppercase tracking-wider mr-2">{t('bmrcalculator.presets_title')}</span>

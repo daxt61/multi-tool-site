@@ -640,6 +640,7 @@ const SQLToScala = lazy(() => import("./components/SQLToScala").then(m => ({ def
 const SQLToDart = lazy(() => import("./components/SQLToDart").then(m => ({ default: m.SQLToDart })));
 const SQLToElixir = lazy(() => import("./components/SQLToElixir").then(m => ({ default: m.SQLToElixir })));
 const JSONToElixir = lazy(() => import("./components/JSONToElixir").then(m => ({ default: m.JSONToElixir })));
+const GraphQLToElixir = lazy(() => import("./components/GraphQLToElixir").then(m => ({ default: m.GraphQLToElixir })));
 const SQLToValibot = lazy(() => import("./components/SQLToValibot").then(m => ({ default: m.SQLToValibot })));
 const SQLToZod = lazy(() => import("./components/SQLToZod").then(m => ({ default: m.SQLToZod })));
 const SQLToTypeBox = lazy(() => import("./components/SQLToTypeBox").then(m => ({ default: m.SQLToTypeBox })));
@@ -1490,6 +1491,17 @@ const tools: Tool[] = [
     Component: JSONToElixir,
     category: "dev",
     keywords: ["json", "elixir", "defstruct", "ecto", "embedded_schema", "typespec", "convert", "convertir"],
+  },
+  {
+    id: "graphql-to-elixir",
+    name: "GraphQL en Elixir Ecto",
+    nameEn: "GraphQL to Elixir Ecto",
+    icon: FileCode,
+    description: "Convertir des schémas GraphQL SDL en modules d'entités et schémas Elixir Ecto",
+    descriptionEn: "Convert GraphQL SDL schemas into Elixir Ecto Schema modules and changeset functions",
+    Component: GraphQLToElixir,
+    category: "dev",
+    keywords: ["graphql", "sdl", "elixir", "ecto", "schema", "changeset", "phoenix", "mix", "typespec", "convert", "convertir"],
   },
   // SQL DDL to Drizzle ORM Schema Generator Tool
   {

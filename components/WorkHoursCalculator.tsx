@@ -25,6 +25,8 @@ const DEFAULT_DAYS = (): DayLog[] => [
 export function WorkHoursCalculator({ initialData, onStateChange }: { initialData?: any; onStateChange?: (state: any) => void }) {
   const { t, i18n } = useTranslation();
   const currentLang = i18n.language || 'fr';
+  const containerRef = useRef<HTMLDivElement>(null);
+  const primaryInputRef = useRef<HTMLInputElement>(null);
 
   // State initialization with URL / initialData state checks
   const [days, setDays] = useState<DayLog[]>(() => {
@@ -40,21 +42,52 @@ export function WorkHoursCalculator({ initialData, onStateChange }: { initialDat
     return DEFAULT_DAYS();
   });
 
-  const [hourlyRate, setHourlyRate] = useState<string>(() => {
+  const [hourlyRate, setHourlyRateState] = useState<string>(() => {
     const val = initialData?.hourlyRate;
     return typeof val === 'string' || typeof val === 'number' ? String(val) : '20';
   });
 
-  const [useDailyOvertime, setUseDailyOvertime] = useState<boolean>(() => !!initialData?.useDailyOvertime);
-  const [dailyOvertimeThreshold, setDailyOvertimeThreshold] = useState<string>(() => String(initialData?.dailyOvertimeThreshold || '8'));
-  const [dailyOvertimeMultiplier, setDailyOvertimeMultiplier] = useState<string>(() => String(initialData?.dailyOvertimeMultiplier || '1.5'));
+  const [useDailyOvertime, setUseDailyOvertimeState] = useState<boolean>(() => !!initialData?.useDailyOvertime);
+  const [dailyOvertimeThreshold, setDailyOvertimeThresholdState] = useState<string>(() => String(initialData?.dailyOvertimeThreshold || '8'));
+  const [dailyOvertimeMultiplier, setDailyOvertimeMultiplierState] = useState<string>(() => String(initialData?.dailyOvertimeMultiplier || '1.5'));
 
-  const [useWeeklyOvertime, setUseWeeklyOvertime] = useState<boolean>(() => initialData?.useWeeklyOvertime ?? true);
-  const [weeklyOvertimeThreshold, setWeeklyOvertimeThreshold] = useState<string>(() => String(initialData?.weeklyOvertimeThreshold || '40'));
-  const [weeklyOvertimeMultiplier, setWeeklyOvertimeMultiplier] = useState<string>(() => String(initialData?.weeklyOvertimeMultiplier || '1.5'));
+  const [useWeeklyOvertime, setUseWeeklyOvertimeState] = useState<boolean>(() => initialData?.useWeeklyOvertime ?? true);
+  const [weeklyOvertimeThreshold, setWeeklyOvertimeThresholdState] = useState<string>(() => String(initialData?.weeklyOvertimeThreshold || '40'));
+  const [weeklyOvertimeMultiplier, setWeeklyOvertimeMultiplierState] = useState<string>(() => String(initialData?.weeklyOvertimeMultiplier || '1.5'));
 
+  const [activePresetId, setActivePresetId] = useState<'standard' | 'forty' | 'parttime' | null>('standard');
   const [copied, setCopied] = useState(false);
   const [error, setError] = useState<string | null>(null);
+
+  // Helper setters that clear active preset tracking when custom tweaks are made
+  const setHourlyRate = (val: string) => {
+    setHourlyRateState(val);
+    setActivePresetId(null);
+  };
+  const setUseDailyOvertime = (val: boolean) => {
+    setUseDailyOvertimeState(val);
+    setActivePresetId(null);
+  };
+  const setDailyOvertimeThreshold = (val: string) => {
+    setDailyOvertimeThresholdState(val);
+    setActivePresetId(null);
+  };
+  const setDailyOvertimeMultiplier = (val: string) => {
+    setDailyOvertimeMultiplierState(val);
+    setActivePresetId(null);
+  };
+  const setUseWeeklyOvertime = (val: boolean) => {
+    setUseWeeklyOvertimeState(val);
+    setActivePresetId(null);
+  };
+  const setWeeklyOvertimeThreshold = (val: string) => {
+    setWeeklyOvertimeThresholdState(val);
+    setActivePresetId(null);
+  };
+  const setWeeklyOvertimeMultiplier = (val: string) => {
+    setWeeklyOvertimeMultiplierState(val);
+    setActivePresetId(null);
+  };
 
   // Sync state upward safely
   useEffect(() => {
@@ -191,6 +224,7 @@ export function WorkHoursCalculator({ initialData, onStateChange }: { initialDat
   }, [days, useDailyOvertime, parsedDailyThreshold, useWeeklyOvertime, parsedWeeklyThreshold, parsedHourlyRate, parsedDailyMultiplier, parsedWeeklyMultiplier]);
 
   const updateDay = (dayId: string, updates: Partial<DayLog>) => {
+    setActivePresetId(null);
     setDays(prev => prev.map(d => d.dayId === dayId ? { ...d, ...updates } : d));
   };
 
@@ -215,22 +249,22 @@ export function WorkHoursCalculator({ initialData, onStateChange }: { initialDat
       });
     }
     setDays(newDays);
+    setActivePresetId(presetType);
     toast.success(t('workhours.toast_preset', 'Preset template loaded successfully!'));
   };
 
   const handleReset = useCallback(() => {
     setDays(DEFAULT_DAYS());
-    setHourlyRate('20');
-    setUseDailyOvertime(false);
-    setUseWeeklyOvertime(true);
-    setDailyOvertimeThreshold('8');
-    setDailyOvertimeMultiplier('1.5');
-    setWeeklyOvertimeThreshold('40');
-    setWeeklyOvertimeMultiplier('1.5');
+    setHourlyRateState('20');
+    setUseDailyOvertimeState(false);
+    setUseWeeklyOvertimeState(true);
+    setDailyOvertimeThresholdState('8');
+    setDailyOvertimeMultiplierState('1.5');
+    setWeeklyOvertimeThresholdState('40');
+    setWeeklyOvertimeMultiplierState('1.5');
+    setActivePresetId('standard');
     setError(null);
-    if (document.activeElement instanceof HTMLElement) {
-      document.activeElement.blur();
-    }
+    primaryInputRef.current?.focus();
     toast.success(t('workhours.toast_reset', 'Calculator reset to default configurations.'));
   }, [t]);
 
@@ -296,6 +330,9 @@ export function WorkHoursCalculator({ initialData, onStateChange }: { initialDat
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
       const activeElement = document.activeElement;
+      const isContainerFocused = containerRef.current?.contains(activeElement) || activeElement === document.body;
+      if (!isContainerFocused) return;
+
       const isEditable = activeElement && (
         (activeElement.tagName === 'INPUT' && !['checkbox', 'radio'].includes((activeElement as HTMLInputElement).type)) ||
         activeElement.tagName === 'TEXTAREA' ||
@@ -324,27 +361,42 @@ export function WorkHoursCalculator({ initialData, onStateChange }: { initialDat
   }, []);
 
   return (
-    <div className="max-w-6xl mx-auto space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-500">
+    <div ref={containerRef} className="max-w-6xl mx-auto space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-500">
       {/* Upper header action blocks */}
       <div className="flex flex-wrap items-center justify-between gap-4 bg-slate-50 dark:bg-slate-900/40 p-4 rounded-3xl border border-slate-200/60 dark:border-slate-800">
         <div className="flex flex-wrap gap-2">
           <button
             onClick={() => loadPreset('standard')}
-            className="px-4 py-2 bg-white dark:bg-slate-800 hover:bg-slate-100 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-200 border border-slate-200 dark:border-slate-700 rounded-xl text-xs font-bold transition-all shadow-sm flex items-center gap-1.5"
+            aria-pressed={activePresetId === 'standard'}
+            className={`px-4 py-2 rounded-xl text-xs font-bold transition-all shadow-sm flex items-center gap-1.5 border ${
+              activePresetId === 'standard'
+                ? 'bg-indigo-600 text-white border-indigo-600 ring-2 ring-indigo-500/30'
+                : 'bg-white dark:bg-slate-800 hover:bg-slate-100 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-200 border-slate-200 dark:border-slate-700'
+            }`}
           >
-            <Sparkles className="w-3.5 h-3.5 text-indigo-500" />
+            <Sparkles className={`w-3.5 h-3.5 ${activePresetId === 'standard' ? 'text-indigo-200' : 'text-indigo-500'}`} />
             {t('workhours.preset_standard', 'Standard 9-5')}
-            <Kbd modifier={null} className="ml-1 text-[9px] bg-slate-100/50 dark:bg-slate-900/30">T</Kbd>
+            <Kbd modifier={null} className={`ml-1 text-[9px] ${activePresetId === 'standard' ? 'bg-indigo-700/50 text-white' : 'bg-slate-100/50 dark:bg-slate-900/30'}`}>T</Kbd>
           </button>
           <button
             onClick={() => loadPreset('forty')}
-            className="px-4 py-2 bg-white dark:bg-slate-800 hover:bg-slate-100 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-200 border border-slate-200 dark:border-slate-700 rounded-xl text-xs font-bold transition-all shadow-sm"
+            aria-pressed={activePresetId === 'forty'}
+            className={`px-4 py-2 rounded-xl text-xs font-bold transition-all shadow-sm border ${
+              activePresetId === 'forty'
+                ? 'bg-indigo-600 text-white border-indigo-600 ring-2 ring-indigo-500/30'
+                : 'bg-white dark:bg-slate-800 hover:bg-slate-100 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-200 border-slate-200 dark:border-slate-700'
+            }`}
           >
             {t('workhours.preset_forty', '40h Week')}
           </button>
           <button
             onClick={() => loadPreset('parttime')}
-            className="px-4 py-2 bg-white dark:bg-slate-800 hover:bg-slate-100 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-200 border border-slate-200 dark:border-slate-700 rounded-xl text-xs font-bold transition-all shadow-sm"
+            aria-pressed={activePresetId === 'parttime'}
+            className={`px-4 py-2 rounded-xl text-xs font-bold transition-all shadow-sm border ${
+              activePresetId === 'parttime'
+                ? 'bg-indigo-600 text-white border-indigo-600 ring-2 ring-indigo-500/30'
+                : 'bg-white dark:bg-slate-800 hover:bg-slate-100 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-200 border-slate-200 dark:border-slate-700'
+            }`}
           >
             {t('workhours.preset_parttime', 'Part-time')}
           </button>
@@ -353,14 +405,14 @@ export function WorkHoursCalculator({ initialData, onStateChange }: { initialDat
         <div className="flex gap-2">
           <button
             onClick={handleDownloadCSV}
-            className="px-4 py-2 bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300 rounded-xl text-xs font-bold transition-all flex items-center gap-1.5"
+            className="px-4 py-2 bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300 rounded-xl text-xs font-bold transition-all flex items-center gap-1.5 focus-visible:ring-2 focus-visible:ring-indigo-500 focus-visible:outline-none"
             title={t('workhours.download_csv_tooltip', 'Download CSV report')}
           >
             <Download className="w-3.5 h-3.5" /> CSV
           </button>
           <button
             onClick={handleCopySummary}
-            className={`px-4 py-2 rounded-xl text-xs font-bold transition-all flex items-center gap-1.5 border ${
+            className={`px-4 py-2 rounded-xl text-xs font-bold transition-all flex items-center gap-1.5 border focus-visible:ring-2 focus-visible:ring-indigo-500 focus-visible:outline-none ${
               copied
                 ? 'bg-emerald-50 dark:bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border-emerald-200 dark:border-emerald-500/20'
                 : 'text-indigo-600 dark:text-indigo-400 border-transparent bg-indigo-50 dark:bg-indigo-900/25 hover:bg-indigo-100/80 dark:hover:bg-indigo-900/40'
@@ -398,7 +450,7 @@ export function WorkHoursCalculator({ initialData, onStateChange }: { initialDat
           </div>
 
           <div className="space-y-3">
-            {days.map((day, idx) => {
+            {days.map((day) => {
               const dayLabel = getDayLabel(day.dayId);
               const breakdown = calculationResult.dailyBreakdown.find(d => d.dayId === day.dayId);
               const totalSpanHours = breakdown ? breakdown.workHours : 0;
@@ -433,8 +485,11 @@ export function WorkHoursCalculator({ initialData, onStateChange }: { initialDat
                   {day.active ? (
                     <div className="flex flex-wrap items-center gap-4 flex-1">
                       <div className="flex items-center gap-2">
-                        <span className="text-xs font-bold text-slate-400">{t('common.from', 'From')}:</span>
+                        <label htmlFor={`start-time-${day.dayId}`} className="text-xs font-bold text-slate-400">
+                          {t('common.from', 'From')}:
+                        </label>
                         <input
+                          id={`start-time-${day.dayId}`}
                           type="time"
                           value={day.startTime}
                           onChange={(e) => updateDay(day.dayId, { startTime: e.target.value })}
@@ -443,8 +498,11 @@ export function WorkHoursCalculator({ initialData, onStateChange }: { initialDat
                       </div>
 
                       <div className="flex items-center gap-2">
-                        <span className="text-xs font-bold text-slate-400">{t('common.to', 'To')}:</span>
+                        <label htmlFor={`end-time-${day.dayId}`} className="text-xs font-bold text-slate-400">
+                          {t('common.to', 'To')}:
+                        </label>
                         <input
+                          id={`end-time-${day.dayId}`}
                           type="time"
                           value={day.endTime}
                           onChange={(e) => updateDay(day.dayId, { endTime: e.target.value })}
@@ -453,9 +511,12 @@ export function WorkHoursCalculator({ initialData, onStateChange }: { initialDat
                       </div>
 
                       <div className="flex items-center gap-2">
-                        <span className="text-xs font-bold text-slate-400">{t('workhours.break', 'Break')}:</span>
+                        <label htmlFor={`break-minutes-${day.dayId}`} className="text-xs font-bold text-slate-400">
+                          {t('workhours.break', 'Break')}:
+                        </label>
                         <div className="relative flex items-center">
                           <input
+                            id={`break-minutes-${day.dayId}`}
                             type="number"
                             min="0"
                             max="1440"
@@ -505,6 +566,7 @@ export function WorkHoursCalculator({ initialData, onStateChange }: { initialDat
               <label htmlFor="hourly-rate-input" className="text-xs font-bold text-slate-400 px-1 block">{t('workhours.hourly_rate', 'Hourly Rate')}</label>
               <div className="relative">
                 <input
+                  ref={primaryInputRef}
                   id="hourly-rate-input"
                   type="number"
                   min="0"

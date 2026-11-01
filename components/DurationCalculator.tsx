@@ -1,6 +1,7 @@
 import { useState, useEffect, useMemo, useCallback, useRef } from 'react';
-import { Clock, Plus, Minus, Trash2, Copy, Check, RotateCcw, Info, Hash, History } from 'lucide-react';
+import { Clock, Plus, Minus, Trash2, Copy, Check, RotateCcw, Info, Hash, History, Sparkles } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
+import { toast } from 'sonner';
 
 interface DurationEntry {
   id: string;
@@ -10,43 +11,102 @@ interface DurationEntry {
   operator: 'add' | 'subtract';
 }
 
+interface DurationPreset {
+  id: string;
+  label: string;
+  description: string;
+  entries: DurationEntry[];
+}
+
+const PRESETS: DurationPreset[] = [
+  {
+    id: 'workday',
+    label: 'Workday & Lunch Break',
+    description: '8h 30m shift minus 45m lunch',
+    entries: [
+      { id: '1', hours: '8', minutes: '30', seconds: '0', operator: 'add' },
+      { id: '2', hours: '0', minutes: '45', seconds: '0', operator: 'subtract' }
+    ]
+  },
+  {
+    id: 'media_playlist',
+    label: 'Media / Video Playlist',
+    description: '3 clips combined (12m, 24m, 1h 15m)',
+    entries: [
+      { id: '1', hours: '0', minutes: '12', seconds: '45', operator: 'add' },
+      { id: '2', hours: '0', minutes: '24', seconds: '15', operator: 'add' },
+      { id: '3', hours: '1', minutes: '15', seconds: '30', operator: 'add' }
+    ]
+  },
+  {
+    id: 'hiit_workout',
+    label: 'Running Intervals & Rest',
+    description: '40m run minus two 3m 30s rests',
+    entries: [
+      { id: '1', hours: '0', minutes: '40', seconds: '0', operator: 'add' },
+      { id: '2', hours: '0', minutes: '3', seconds: '30', operator: 'subtract' },
+      { id: '3', hours: '0', minutes: '3', seconds: '30', operator: 'subtract' }
+    ]
+  },
+  {
+    id: 'pomodoro',
+    label: 'Pomodoro Study Blocks',
+    description: '4 sprints of 25m each',
+    entries: [
+      { id: '1', hours: '0', minutes: '25', seconds: '0', operator: 'add' },
+      { id: '2', hours: '0', minutes: '25', seconds: '0', operator: 'add' },
+      { id: '3', hours: '0', minutes: '25', seconds: '0', operator: 'add' },
+      { id: '4', hours: '0', minutes: '25', seconds: '0', operator: 'add' }
+    ]
+  }
+];
+
 export function DurationCalculator({ initialData, onStateChange }: { initialData?: any; onStateChange?: (state: any) => void }) {
   const { t } = useTranslation();
   const [entries, setEntries] = useState<DurationEntry[]>(initialData?.entries || [
     { id: '1', hours: '', minutes: '', seconds: '', operator: 'add' }
   ]);
+  const [activePresetId, setActivePresetId] = useState<string | null>(null);
   const [copied, setCopied] = useState(false);
+
+  const containerRef = useRef<HTMLDivElement>(null);
+  const firstInputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
     onStateChange?.({ entries });
-  }, [entries]);
+  }, [entries, onStateChange]);
 
   const addEntry = () => {
-    setEntries([...entries, { id: Date.now().toString(), hours: '', minutes: '', seconds: '', operator: 'add' }]);
+    setActivePresetId(null);
+    setEntries((prev) => [...prev, { id: Date.now().toString(), hours: '', minutes: '', seconds: '', operator: 'add' }]);
   };
 
   const removeEntry = (id: string) => {
-    if (entries.length > 1) {
-      setEntries(entries.filter(e => e.id !== id));
-    } else {
-      setEntries([{ id: '1', hours: '', minutes: '', seconds: '', operator: 'add' }]);
-    }
+    setActivePresetId(null);
+    setEntries((prev) => {
+      if (prev.length > 1) {
+        return prev.filter(e => e.id !== id);
+      }
+      return [{ id: '1', hours: '', minutes: '', seconds: '', operator: 'add' }];
+    });
   };
 
   const updateEntry = (id: string, field: keyof DurationEntry, value: string) => {
-    setEntries(entries.map(e => e.id === id ? { ...e, [field]: value } : e));
+    setActivePresetId(null);
+    setEntries((prev) => prev.map(e => e.id === id ? { ...e, [field]: value } : e));
   };
 
   const toggleOperator = (id: string) => {
-    setEntries(entries.map(e => e.id === id ? { ...e, operator: e.operator === 'add' ? 'subtract' : 'add' } : e));
+    setActivePresetId(null);
+    setEntries((prev) => prev.map(e => e.id === id ? { ...e, operator: e.operator === 'add' ? 'subtract' : 'add' } : e));
   };
 
   const totals = useMemo(() => {
     let totalSeconds = 0;
     entries.forEach(e => {
-      const h = parseInt(e.hours) || 0;
-      const m = parseInt(e.minutes) || 0;
-      const s = parseInt(e.seconds) || 0;
+      const h = parseInt(e.hours, 10) || 0;
+      const m = parseInt(e.minutes, 10) || 0;
+      const s = parseInt(e.seconds, 10) || 0;
       const entrySeconds = h * 3600 + m * 60 + s;
 
       if (e.operator === 'add') {
@@ -59,56 +119,64 @@ export function DurationCalculator({ initialData, onStateChange }: { initialData
     const isNegative = totalSeconds < 0;
     const absSeconds = Math.abs(totalSeconds);
 
-    const h = Math.floor(absSeconds / 3600);
-    const m = Math.floor((absSeconds % 3600) / 60);
-    const s = absSeconds % 60;
+    const hours = Math.floor(absSeconds / 3600);
+    const minutes = Math.floor((absSeconds % 3600) / 60);
+    const seconds = absSeconds % 60;
+
+    const formatted = `${isNegative ? '-' : ''}${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+    const totalMinutes = (totalSeconds / 60).toFixed(2);
+    const totalHours = (totalSeconds / 3600).toFixed(2);
 
     return {
-      formatted: `${isNegative ? '-' : ''}${h.toString().padStart(2, '0')}:${m.toString().padStart(2, '0')}:${s.toString().padStart(2, '0')}`,
-      totalSeconds,
-      totalMinutes: (totalSeconds / 60).toFixed(2),
-      totalHours: (totalSeconds / 3600).toFixed(2),
-      isNegative
+      formatted,
+      totalMinutes,
+      totalHours,
+      isNegative,
+      rawSeconds: totalSeconds
     };
   }, [entries]);
 
-  const handleCopy = () => {
+  const handleCopy = useCallback(() => {
     navigator.clipboard.writeText(totals.formatted);
     setCopied(true);
+    toast.success(t('duration.toast_copied', { defaultValue: 'Duration result copied to clipboard!' }));
     setTimeout(() => setCopied(false), 2000);
-  };
+  }, [totals.formatted, t]);
 
   const handleReset = useCallback(() => {
     setEntries([{ id: '1', hours: '', minutes: '', seconds: '', operator: 'add' }]);
-  }, []);
+    setActivePresetId(null);
+    firstInputRef.current?.focus();
+    toast.info(t('duration.toast_reset', { defaultValue: 'Duration entries reset!' }));
+  }, [t]);
 
-  const handleCopyRef = useRef(handleCopy);
-  const handleResetRef = useRef(handleReset);
+  const handleApplyPreset = useCallback((preset: DurationPreset) => {
+    setEntries(preset.entries);
+    setActivePresetId(preset.id);
+    firstInputRef.current?.focus();
+    toast.success(t('duration.toast_preset_loaded', { defaultValue: `Preset "${preset.label}" loaded!` }));
+  }, [t]);
 
+  const handlersRef = useRef({ handleReset, handleCopy });
   useEffect(() => {
-    handleCopyRef.current = handleCopy;
-    handleResetRef.current = handleReset;
-  }, [handleCopy, handleReset]);
+    handlersRef.current = { handleReset, handleCopy };
+  });
 
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
-      if (
-        document.activeElement?.tagName === "INPUT" ||
-        document.activeElement?.tagName === "TEXTAREA" ||
-        document.activeElement?.tagName === "SELECT" ||
-        document.activeElement?.getAttribute('contenteditable') === 'true'
-      ) {
+      if (!containerRef.current?.contains(document.activeElement)) {
         return;
       }
 
-      if (e.metaKey || e.ctrlKey || e.altKey || e.shiftKey) return;
+      const target = e.target as HTMLElement;
+      const isInput = target.tagName === 'INPUT' || target.tagName === 'TEXTAREA' || target.isContentEditable;
 
       if (e.key === 'Escape') {
         e.preventDefault();
-        handleResetRef.current();
-      } else if (e.key.toLowerCase() === 'c') {
+        handlersRef.current.handleReset();
+      } else if (e.key.toLowerCase() === 'c' && !isInput && !e.metaKey && !e.ctrlKey && !e.altKey) {
         e.preventDefault();
-        handleCopyRef.current();
+        handlersRef.current.handleCopy();
       }
     };
 
@@ -117,7 +185,41 @@ export function DurationCalculator({ initialData, onStateChange }: { initialData
   }, []);
 
   return (
-    <div className="max-w-4xl mx-auto space-y-12">
+    <div ref={containerRef} className="max-w-4xl mx-auto space-y-8">
+      {/* Interactive Quick-Start Presets */}
+      <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 p-6 rounded-3xl shadow-sm">
+        <div className="flex items-center justify-between mb-3 px-1">
+          <span className="text-xs font-black uppercase tracking-widest text-slate-400 flex items-center gap-2">
+            <Sparkles className="w-3.5 h-3.5 text-indigo-500" />
+            {t('duration.presets_title', { defaultValue: 'Quick Presets' })}
+          </span>
+          <span className="text-[10px] text-slate-400">Add / Subtract Scenarios</span>
+        </div>
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-2">
+          {PRESETS.map((preset) => (
+            <button
+              key={preset.id}
+              onClick={() => handleApplyPreset(preset)}
+              aria-pressed={activePresetId === preset.id}
+              className={`p-3 rounded-2xl text-left border text-xs font-bold transition-all focus-visible:ring-2 focus-visible:ring-indigo-500 focus-visible:outline-none ${
+                activePresetId === preset.id
+                  ? 'bg-indigo-600 text-white border-indigo-600 shadow-md shadow-indigo-600/20'
+                  : 'bg-slate-50 dark:bg-slate-800 text-slate-700 dark:text-slate-300 border-slate-200 dark:border-slate-700 hover:border-slate-300 dark:hover:border-slate-600'
+              }`}
+            >
+              <div className="truncate">{preset.label}</div>
+              <div
+                className={`text-[10px] mt-0.5 truncate font-normal ${
+                  activePresetId === preset.id ? 'text-indigo-100' : 'text-slate-400'
+                }`}
+              >
+                {preset.description}
+              </div>
+            </button>
+          ))}
+        </div>
+      </div>
+
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-12">
         {/* Entries List */}
         <div className="lg:col-span-7 space-y-6">
@@ -130,7 +232,7 @@ export function DurationCalculator({ initialData, onStateChange }: { initialData
               <kbd className="hidden sm:inline-flex items-center justify-center px-1.5 py-0.5 border border-rose-200 dark:border-rose-800 rounded text-[10px] font-bold text-rose-400 bg-white dark:bg-slate-900">Esc</kbd>
               <button
                 onClick={handleReset}
-                className="text-xs font-bold text-rose-500 bg-rose-50 dark:bg-rose-500/10 hover:bg-rose-100 dark:hover:bg-rose-500/20 px-3 py-1.5 rounded-xl flex items-center gap-2 transition-all"
+                className="text-xs font-bold text-rose-500 bg-rose-50 dark:bg-rose-500/10 hover:bg-rose-100 dark:hover:bg-rose-500/20 px-3 py-1.5 rounded-xl flex items-center gap-2 transition-all focus-visible:ring-2 focus-visible:ring-rose-500 focus-visible:outline-none"
               >
                 <RotateCcw className="w-4 h-4" /> {t('common.reset')}
               </button>
@@ -142,7 +244,8 @@ export function DurationCalculator({ initialData, onStateChange }: { initialData
               <div key={entry.id} className="group flex items-center gap-3 animate-in fade-in slide-in-from-left-4 duration-300">
                 <button
                   onClick={() => toggleOperator(entry.id)}
-                  className={`w-12 h-12 rounded-xl flex items-center justify-center transition-all border ${
+                  aria-label={entry.operator === 'add' ? t('common.add') : t('duration.subtract')}
+                  className={`w-12 h-12 rounded-xl flex items-center justify-center transition-all border shrink-0 focus-visible:ring-2 focus-visible:ring-indigo-500 focus-visible:outline-none ${
                     entry.operator === 'add'
                       ? 'bg-emerald-50 dark:bg-emerald-500/10 text-emerald-600 border-emerald-100 dark:border-emerald-500/20'
                       : 'bg-rose-50 dark:bg-rose-500/10 text-rose-600 border-rose-100 dark:border-rose-500/20'
@@ -155,8 +258,12 @@ export function DurationCalculator({ initialData, onStateChange }: { initialData
                 <div className="flex-grow grid grid-cols-3 gap-2 bg-slate-50 dark:bg-slate-900/50 p-2 rounded-2xl border border-slate-200 dark:border-slate-800 focus-within:border-indigo-500/50 transition-all">
                   <div className="relative">
                     <input
+                      ref={index === 0 ? firstInputRef : undefined}
+                      id={`duration-hours-${entry.id}`}
+                      aria-label={`${t('agecalculator.hours')} ${index + 1}`}
                       type="number"
                       placeholder="HH"
+                      min="0"
                       value={entry.hours}
                       onChange={(e) => updateEntry(entry.id, 'hours', e.target.value)}
                       className="w-full bg-transparent text-center font-mono font-bold py-2 outline-none dark:text-white"
@@ -165,8 +272,12 @@ export function DurationCalculator({ initialData, onStateChange }: { initialData
                   </div>
                   <div className="relative border-x border-slate-200 dark:border-slate-700">
                     <input
+                      id={`duration-minutes-${entry.id}`}
+                      aria-label={`${t('timer.minutes')} ${index + 1}`}
                       type="number"
                       placeholder="MM"
+                      min="0"
+                      max="59"
                       value={entry.minutes}
                       onChange={(e) => updateEntry(entry.id, 'minutes', e.target.value)}
                       className="w-full bg-transparent text-center font-mono font-bold py-2 outline-none dark:text-white"
@@ -175,8 +286,12 @@ export function DurationCalculator({ initialData, onStateChange }: { initialData
                   </div>
                   <div className="relative">
                     <input
+                      id={`duration-seconds-${entry.id}`}
+                      aria-label={`${t('timer.seconds')} ${index + 1}`}
                       type="number"
                       placeholder="SS"
+                      min="0"
+                      max="59"
                       value={entry.seconds}
                       onChange={(e) => updateEntry(entry.id, 'seconds', e.target.value)}
                       className="w-full bg-transparent text-center font-mono font-bold py-2 outline-none dark:text-white"
@@ -187,7 +302,7 @@ export function DurationCalculator({ initialData, onStateChange }: { initialData
 
                 <button
                   onClick={() => removeEntry(entry.id)}
-                  className="w-12 h-12 rounded-xl flex items-center justify-center text-slate-300 hover:text-rose-500 hover:bg-rose-50 dark:hover:bg-rose-500/10 transition-all"
+                  className="w-12 h-12 rounded-xl flex items-center justify-center text-slate-300 hover:text-rose-500 hover:bg-rose-50 dark:hover:bg-rose-500/10 transition-all shrink-0 focus-visible:ring-2 focus-visible:ring-rose-500 focus-visible:outline-none"
                   aria-label={t('duration.remove_line')}
                 >
                   <Trash2 className="w-5 h-5" />
@@ -198,7 +313,7 @@ export function DurationCalculator({ initialData, onStateChange }: { initialData
 
           <button
             onClick={addEntry}
-            className="w-full py-4 border-2 border-dashed border-slate-200 dark:border-slate-800 rounded-2xl text-slate-400 font-bold hover:border-indigo-500 hover:text-indigo-500 transition-all flex items-center justify-center gap-2"
+            className="w-full py-4 border-2 border-dashed border-slate-200 dark:border-slate-800 rounded-2xl text-slate-400 font-bold hover:border-indigo-500 hover:text-indigo-500 transition-all flex items-center justify-center gap-2 focus-visible:ring-2 focus-visible:ring-indigo-500 focus-visible:outline-none"
           >
             <Plus className="w-5 h-5" /> {t('duration.add_duration')}
           </button>
@@ -216,7 +331,7 @@ export function DurationCalculator({ initialData, onStateChange }: { initialData
 
             <button
               onClick={handleCopy}
-              className={`px-8 py-3 rounded-2xl font-black text-sm transition-all flex items-center gap-2 ${
+              className={`px-8 py-3 rounded-2xl font-black text-sm transition-all flex items-center gap-2 focus-visible:ring-2 focus-visible:ring-indigo-400 focus-visible:outline-none ${
                 copied
                   ? 'bg-emerald-500 text-white'
                   : 'bg-white/10 text-white/60 hover:text-white hover:bg-white/20'

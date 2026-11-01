@@ -701,6 +701,7 @@ const SQLToDuckDB = lazy(() => import("./components/SQLToDuckDB").then(m => ({ d
 const GraphQLToDuckDB = lazy(() => import("./components/GraphQLToDuckDB").then(m => ({ default: m.GraphQLToDuckDB })));
 const GraphQLToBigQuery = lazy(() => import("./components/GraphQLToBigQuery").then(m => ({ default: m.GraphQLToBigQuery })));
 const GraphQLToClickHouse = lazy(() => import("./components/GraphQLToClickHouse").then(m => ({ default: m.GraphQLToClickHouse })));
+const GraphQLToSnowflake = lazy(() => import("./components/GraphQLToSnowflake").then(m => ({ default: m.GraphQLToSnowflake })));
 const GraphQLToJulia = lazy(() => import("./components/GraphQLToJulia").then(m => ({ default: m.GraphQLToJulia })));
 const GraphQLToNats = lazy(() => import("./components/GraphQLToNats").then(m => ({ default: m.GraphQLToNats })));
 const SQLToAvro = lazy(() => import("./components/SQLToAvro").then(m => ({ default: m.SQLToAvro })));
@@ -882,6 +883,18 @@ const tools: Tool[] = [
     Component: SQLToSnowflake,
     category: "dev",
     keywords: ["sql", "ddl", "create table", "snowflake", "variant", "data warehouse", "cloud", "convert", "convertir"],
+  },
+  // GraphQL SDL to Snowflake DDL Converter Tool
+  {
+    id: "graphql-to-snowflake",
+    name: "GraphQL en Snowflake",
+    nameEn: "GraphQL to Snowflake",
+    icon: Database,
+    description: "Convertir des schémas GraphQL SDL en tables Snowflake SQL DDL",
+    descriptionEn: "Convert GraphQL SDL schemas into Snowflake Cloud Data Warehouse SQL DDL statements",
+    Component: GraphQLToSnowflake,
+    category: "dev",
+    keywords: ["graphql", "sdl", "snowflake", "variant", "hybrid table", "data warehouse", "cloud", "convert", "convertir"],
   },
   // SQL DDL to Amazon Redshift DDL Converter Tool
   {

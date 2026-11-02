@@ -213,6 +213,7 @@ const ListUniqueFinder = lazy(() => import("./components/ListUniqueFinder").then
 const JWTDecoder = lazy(() => import("./components/JWTDecoder").then(m => ({ default: m.JWTDecoder })));
 const CodeMinifier = lazy(() => import("./components/CodeMinifier").then(m => ({ default: m.CodeMinifier })));
 const BinaryTextConverter = lazy(() => import("./components/BinaryTextConverter").then(m => ({ default: m.BinaryTextConverter })));
+const NetstringConverter = lazy(() => import("./components/NetstringConverter").then(m => ({ default: m.NetstringConverter })));
 const Base64ToImage = lazy(() => import("./components/Base64ToImage").then(m => ({ default: m.Base64ToImage })));
 const UnitPriceCalculator = lazy(() => import("./components/UnitPriceCalculator").then(m => ({ default: m.UnitPriceCalculator })));
 const AgeCalculator = lazy(() => import("./components/AgeCalculator").then(m => ({ default: m.AgeCalculator })));
@@ -3557,6 +3558,17 @@ const tools: Tool[] = [
     Component: BinaryTextConverter,
     category: "dev",
     keywords: ["0101", "ASCII", "codage", "décodage", "ordinateur", "base2"],
+  },
+  {
+    id: "netstring-converter",
+    name: "Convertisseur Netstring",
+    nameEn: "Netstring Converter",
+    icon: FileCode,
+    description: "Encoder et décoder des chaînes en netstrings sécurisés (spécification DJB)",
+    descriptionEn: "Encode and decode strings to and from DJB netstring streams",
+    Component: NetstringConverter,
+    category: "dev",
+    keywords: ["netstring", "encode", "decode", "djb", "length-prefixed", "onlinetools", "string", "bytes", "framing", "converter"],
   },
   {
     id: "json-xml",

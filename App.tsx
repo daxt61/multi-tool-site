@@ -210,6 +210,8 @@ const JSONToTS = lazy(() => import("./components/JSONToTS").then(m => ({ default
 const JSONToCPP = lazy(() => import("./components/JSONToCPP").then(m => ({ default: m.JSONToCPP })));
 const ListCleaner = lazy(() => import("./components/ListCleaner").then(m => ({ default: m.ListCleaner })));
 const ListUniqueFinder = lazy(() => import("./components/ListUniqueFinder").then(m => ({ default: m.ListUniqueFinder })));
+const TopListItemFinder = lazy(() => import("./components/TopListItemFinder").then(m => ({ default: m.TopListItemFinder })));
+const ListLengthFinder = lazy(() => import("./components/ListLengthFinder").then(m => ({ default: m.ListLengthFinder })));
 const JWTDecoder = lazy(() => import("./components/JWTDecoder").then(m => ({ default: m.JWTDecoder })));
 const CodeMinifier = lazy(() => import("./components/CodeMinifier").then(m => ({ default: m.CodeMinifier })));
 const BinaryTextConverter = lazy(() => import("./components/BinaryTextConverter").then(m => ({ default: m.BinaryTextConverter })));
@@ -6724,6 +6726,28 @@ const tools: Tool[] = [
     Component: SVGToReact,
     category: "dev",
     keywords: ["svg", "react", "native", "jsx", "tsx", "component", "converter", "vector", "developer"],
+  },
+  {
+    id: "top-list-items",
+    name: "Éléments Fréquents de Liste",
+    nameEn: "Find Most Popular List Items",
+    icon: TrendingUp,
+    description: "Trouver les éléments les plus fréquents d'une liste avec fréquence, pourcentage et proportion (inspiré de onlinetools.com)",
+    descriptionEn: "Find the most popular and frequent items in a list with occurrence counts, percentages, and ratios",
+    Component: TopListItemFinder,
+    category: "text",
+    keywords: ["top list items", "popular", "frequent", "frequency", "count", "percentage", "ratio", "ranking", "most popular", "onlinetools"],
+  },
+  {
+    id: "list-length-finder",
+    name: "Longueur de Liste",
+    nameEn: "Find List Length",
+    icon: Ruler,
+    description: "Calculer la longueur exacte d'une liste (tous les éléments, éléments uniques ou copies dupliquées) (inspiré de onlinetools.com)",
+    descriptionEn: "Find the exact length of a list with counting modes for all items, unique items, or duplicate copies",
+    Component: ListLengthFinder,
+    category: "text",
+    keywords: ["list length", "count items", "unique", "duplicate", "copies", "size", "lines", "delimiter", "onlinetools", "longueur"],
   },
   {
     id: "quote-list-items",

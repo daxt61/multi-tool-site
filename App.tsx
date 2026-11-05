@@ -112,6 +112,7 @@ import {
   Coffee,
   Volume2,
   Layers,
+  FlipHorizontal,
   Network,
   Clock,
   Download,
@@ -212,6 +213,8 @@ const ListCleaner = lazy(() => import("./components/ListCleaner").then(m => ({ d
 const ListUniqueFinder = lazy(() => import("./components/ListUniqueFinder").then(m => ({ default: m.ListUniqueFinder })));
 const TopListItemFinder = lazy(() => import("./components/TopListItemFinder").then(m => ({ default: m.TopListItemFinder })));
 const ListLengthFinder = lazy(() => import("./components/ListLengthFinder").then(m => ({ default: m.ListLengthFinder })));
+const ListItemGrouper = lazy(() => import("./components/ListItemGrouper").then(m => ({ default: m.ListItemGrouper })));
+const SymmetricListCreator = lazy(() => import("./components/SymmetricListCreator").then(m => ({ default: m.SymmetricListCreator })));
 const JWTDecoder = lazy(() => import("./components/JWTDecoder").then(m => ({ default: m.JWTDecoder })));
 const CodeMinifier = lazy(() => import("./components/CodeMinifier").then(m => ({ default: m.CodeMinifier })));
 const BinaryTextConverter = lazy(() => import("./components/BinaryTextConverter").then(m => ({ default: m.BinaryTextConverter })));
@@ -6748,6 +6751,28 @@ const tools: Tool[] = [
     Component: ListLengthFinder,
     category: "text",
     keywords: ["list length", "count items", "unique", "duplicate", "copies", "size", "lines", "delimiter", "onlinetools", "longueur"],
+  },
+  {
+    id: "list-item-grouper",
+    name: "Grouper des Éléments de Liste",
+    nameEn: "Group List Items",
+    icon: Layers,
+    description: "Regrouper les éléments d'une liste par paquets de N éléments avec délimiteurs, enrobage et remplissage (inspiré de onlinetools.com)",
+    descriptionEn: "Bundle items in any list into groups of N items with customizable separators, wrapping, and padding",
+    Component: ListItemGrouper,
+    category: "text",
+    keywords: ["group list items", "chunk", "batch", "bundle", "split list", "pack", "trigrams", "pairs", "onlinetools", "grouper liste"],
+  },
+  {
+    id: "symmetric-list-creator",
+    name: "Créateur de Liste Symétrique",
+    nameEn: "Create Symmetric List",
+    icon: FlipHorizontal,
+    description: "Transformer toute liste en séquence symétrique / palindromique (mode miroir, centré ou minimal) (inspiré de onlinetools.com)",
+    descriptionEn: "Turn any list into a symmetric palindromic list using mirrored, centered, or minimal symmetry",
+    Component: SymmetricListCreator,
+    category: "text",
+    keywords: ["symmetric list", "palindromic list", "mirror", "centered", "minimal", "palindrome", "sequence", "onlinetools", "liste symétrique"],
   },
   {
     id: "quote-list-items",

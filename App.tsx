@@ -215,6 +215,8 @@ const TopListItemFinder = lazy(() => import("./components/TopListItemFinder").th
 const ListLengthFinder = lazy(() => import("./components/ListLengthFinder").then(m => ({ default: m.ListLengthFinder })));
 const ListItemGrouper = lazy(() => import("./components/ListItemGrouper").then(m => ({ default: m.ListItemGrouper })));
 const SymmetricListCreator = lazy(() => import("./components/SymmetricListCreator").then(m => ({ default: m.SymmetricListCreator })));
+const ListRotator = lazy(() => import("./components/ListRotator").then(m => ({ default: m.ListRotator })));
+const ListLengthChanger = lazy(() => import("./components/ListLengthChanger").then(m => ({ default: m.ListLengthChanger })));
 const JWTDecoder = lazy(() => import("./components/JWTDecoder").then(m => ({ default: m.JWTDecoder })));
 const CodeMinifier = lazy(() => import("./components/CodeMinifier").then(m => ({ default: m.CodeMinifier })));
 const BinaryTextConverter = lazy(() => import("./components/BinaryTextConverter").then(m => ({ default: m.BinaryTextConverter })));
@@ -6773,6 +6775,28 @@ const tools: Tool[] = [
     Component: SymmetricListCreator,
     category: "text",
     keywords: ["symmetric list", "palindromic list", "mirror", "centered", "minimal", "palindrome", "sequence", "onlinetools", "liste symétrique"],
+  },
+  {
+    id: "list-rotator",
+    name: "Pivoteur de Liste",
+    nameEn: "Rotate a List",
+    icon: RotateCw,
+    description: "Pivoter et décaler cycliquement les éléments d'une liste vers la droite ou vers la gauche (inspiré de onlinetools.com)",
+    descriptionEn: "Cyclically rotate items in a list forward (right / down) or backward (left / up) by N positions",
+    Component: ListRotator,
+    category: "text",
+    keywords: ["rotate list", "cyclic shift", "shift list", "rotate", "shift", "forward", "backward", "modulo", "onlinetools", "pivoter liste"],
+  },
+  {
+    id: "list-length-changer",
+    name: "Modificateur de Longueur de Liste",
+    nameEn: "Change List Length",
+    icon: Maximize2,
+    description: "Ajuster la longueur exacte d'une liste en ajoutant du remplissage cyclique ou en tronquant (inspiré de onlinetools.com)",
+    descriptionEn: "Adjust the exact length of a list by expanding with cycling fillers or cleanly truncating from start or end",
+    Component: ListLengthChanger,
+    category: "text",
+    keywords: ["change list length", "pad list", "truncate list", "extend list", "shorten list", "pad", "fill", "fixed length", "onlinetools", "longueur liste"],
   },
   {
     id: "quote-list-items",

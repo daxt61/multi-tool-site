@@ -1,13 +1,33 @@
-import { useState, useEffect } from 'react';
-import { Dog, Calculator, Info, Trash2, Heart } from 'lucide-react';
+import { useState, useEffect, useRef, useCallback } from 'react';
+import { Dog, Info, Trash2, Copy, Check, Sparkles } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
+import { toast } from 'sonner';
+import { Kbd } from './ui/Kbd';
 
 type DogSize = 'small' | 'medium' | 'large' | 'giant';
 
+interface DogPreset {
+  id: string;
+  labelKey: string;
+  age: number;
+  size: DogSize;
+}
+
+const DOG_PRESETS: DogPreset[] = [
+  { id: 'puppy', labelKey: 'dogage.preset_puppy', age: 1, size: 'medium' },
+  { id: 'young_adult', labelKey: 'dogage.preset_young_adult', age: 3, size: 'large' },
+  { id: 'mature', labelKey: 'dogage.preset_mature', age: 7, size: 'small' },
+  { id: 'senior', labelKey: 'dogage.preset_senior', age: 10, size: 'giant' },
+];
+
 export function DogAgeConverter({ initialData, onStateChange }: { initialData?: any; onStateChange?: (state: any) => void }) {
   const { t } = useTranslation();
+  const containerRef = useRef<HTMLDivElement>(null);
+  const sliderRef = useRef<HTMLInputElement>(null);
   const [dogAge, setDogAge] = useState<number>(initialData?.dogAge || 1);
   const [dogSize, setDogSize] = useState<DogSize>(initialData?.dogSize || 'medium');
+  const [activePresetId, setActivePresetId] = useState<string | null>(null);
+  const [copied, setCopied] = useState<boolean>(false);
 
   useEffect(() => {
     onStateChange?.({ dogAge, dogSize });
@@ -15,14 +35,9 @@ export function DogAgeConverter({ initialData, onStateChange }: { initialData?: 
 
   const humanAge = (() => {
     if (dogAge <= 0) return 0;
-
-    // First year is roughly 15 human years for all sizes
     if (dogAge === 1) return 15;
-
-    // Second year adds roughly 9 years (total 24)
     if (dogAge === 2) return 24;
 
-    // From year 3, it depends on size
     const baseAge = 24;
     const remainingYears = dogAge - 2;
 
@@ -35,20 +50,103 @@ export function DogAgeConverter({ initialData, onStateChange }: { initialData?: 
     return baseAge + (remainingYears * factor);
   })();
 
-  const handleClear = () => {
+  const handleCopy = useCallback(() => {
+    const text = `${humanAge} ${t('agecalculator.years', 'ans')}`;
+    navigator.clipboard.writeText(text);
+    setCopied(true);
+    toast.success(t('common.copied'));
+    setTimeout(() => setCopied(false), 2000);
+  }, [humanAge, t]);
+
+  const handleClear = useCallback(() => {
     setDogAge(1);
     setDogSize('medium');
+    setActivePresetId(null);
+    toast.success(t('dogage.reset_success', 'Réinitialisé aux valeurs par défaut'));
+    setTimeout(() => sliderRef.current?.focus(), 0);
+  }, [t]);
+
+  const handleApplyPreset = (preset: DogPreset) => {
+    setDogAge(preset.age);
+    setDogSize(preset.size);
+    setActivePresetId(preset.id);
+    toast.success(t('dogage.preset_loaded', 'Préréglage chargé'));
   };
 
+  const handlersRef = useRef({ handleClear, handleCopy, humanAge });
+  useEffect(() => {
+    handlersRef.current = { handleClear, handleCopy, humanAge };
+  }, [handleClear, handleCopy, humanAge]);
+
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      const activeElement = document.activeElement;
+      // Ensure listener is container-isolated or not interfering with other elements
+      if (!containerRef.current?.contains(activeElement) && activeElement !== document.body) return;
+
+      const isEditable =
+        activeElement instanceof HTMLInputElement && activeElement.type !== 'range' ||
+        activeElement instanceof HTMLTextAreaElement ||
+        activeElement instanceof HTMLSelectElement ||
+        activeElement?.getAttribute('contenteditable') === 'true';
+
+      // Don't intercept if user is typing in search or command menu
+      if (isEditable) return;
+      if (e.metaKey || e.ctrlKey || e.altKey || e.shiftKey) return;
+
+      if (e.key === 'Escape') {
+        e.preventDefault();
+        handlersRef.current.handleClear();
+      } else if (e.key.toLowerCase() === 'c') {
+        e.preventDefault();
+        handlersRef.current.handleCopy();
+      }
+    };
+
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, []);
+
   return (
-    <div className="max-w-4xl mx-auto space-y-8">
-      <div className="flex justify-end px-1">
-        <button
-          onClick={handleClear}
-          className="text-xs font-bold text-rose-500 bg-rose-50 dark:bg-rose-500/10 hover:bg-rose-100 dark:hover:bg-rose-500/20 px-3 py-1.5 rounded-xl flex items-center gap-1 transition-all focus-visible:ring-2 focus-visible:ring-rose-500 focus-visible:outline-none"
-        >
-          <Trash2 className="w-3 h-3" /> {t('common.reset')}
-        </button>
+    <div ref={containerRef} className="max-w-4xl mx-auto space-y-8">
+      {/* Quick Presets & Toolbar */}
+      <div className="flex flex-wrap items-center justify-between gap-4 bg-slate-50 dark:bg-slate-900/40 p-4 rounded-2xl border border-slate-200 dark:border-slate-800">
+        <div className="flex flex-wrap items-center gap-2">
+          <span className="text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider flex items-center gap-1.5 mr-1">
+            <Sparkles className="w-3.5 h-3.5 text-indigo-500" />
+            {t('dogage.presets_title', 'Préréglages')} :
+          </span>
+          {DOG_PRESETS.map((preset) => {
+            const isActive = activePresetId === preset.id;
+            return (
+              <button
+                key={preset.id}
+                onClick={() => handleApplyPreset(preset)}
+                aria-pressed={isActive}
+                className={`text-xs font-semibold px-3 py-1.5 rounded-xl border transition-all focus-visible:ring-2 focus-visible:ring-indigo-500 focus-visible:outline-none ${
+                  isActive
+                    ? 'bg-indigo-600 text-white border-indigo-600 shadow-sm'
+                    : 'bg-white dark:bg-slate-800 border-slate-200 dark:border-slate-700 text-slate-700 dark:text-slate-300 hover:border-indigo-500 dark:hover:border-indigo-500'
+                }`}
+              >
+                {t(preset.labelKey)}
+              </button>
+            );
+          })}
+        </div>
+
+        <div className="flex items-center gap-2">
+          <button
+            onClick={handleClear}
+            className="text-xs font-bold text-rose-500 bg-rose-50 dark:bg-rose-500/10 hover:bg-rose-100 dark:hover:bg-rose-500/20 px-3 py-1.5 rounded-xl flex items-center gap-1.5 transition-all focus-visible:ring-2 focus-visible:ring-rose-500 focus-visible:outline-none"
+            title={`${t('common.reset')} (Esc)`}
+            aria-label={`${t('common.reset')} (Esc)`}
+          >
+            <Trash2 className="w-3 h-3" />
+            <span>{t('common.reset')}</span>
+            <Kbd modifier={null} className="ml-1 text-[10px] text-rose-500 border-rose-200 dark:border-rose-800">Esc</Kbd>
+          </button>
+        </div>
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
@@ -62,12 +160,20 @@ export function DogAgeConverter({ initialData, onStateChange }: { initialData?: 
             </div>
             <input
               id="dog-age"
+              ref={sliderRef}
               type="range"
               min="1"
               max="20"
               step="1"
               value={dogAge}
-              onChange={(e) => setDogAge(Number(e.target.value))}
+              aria-valuenow={dogAge}
+              aria-valuemin={1}
+              aria-valuemax={20}
+              aria-valuetext={`${dogAge} ${t('agecalculator.years', 'ans')}`}
+              onChange={(e) => {
+                setDogAge(Number(e.target.value));
+                setActivePresetId(null);
+              }}
               className="w-full h-2 bg-slate-200 dark:bg-slate-800 rounded-lg appearance-none cursor-pointer accent-indigo-600 focus-visible:ring-2 focus-visible:ring-indigo-500 focus-visible:outline-none"
             />
           </div>
@@ -85,8 +191,12 @@ export function DogAgeConverter({ initialData, onStateChange }: { initialData?: 
               ].map((s) => (
                 <button
                   key={s.id}
-                  onClick={() => setDogSize(s.id as DogSize)}
-                  className={`p-4 rounded-2xl border text-left transition-all ${
+                  onClick={() => {
+                    setDogSize(s.id as DogSize);
+                    setActivePresetId(null);
+                  }}
+                  aria-pressed={dogSize === s.id}
+                  className={`p-4 rounded-2xl border text-left transition-all focus-visible:ring-2 focus-visible:ring-indigo-500 focus-visible:outline-none ${
                     dogSize === s.id
                       ? 'bg-indigo-600 border-indigo-600 text-white shadow-lg shadow-indigo-600/20'
                       : 'bg-white dark:bg-slate-800 border-slate-200 dark:border-slate-700 text-slate-600 dark:text-slate-400 hover:border-indigo-500/50'
@@ -100,9 +210,24 @@ export function DogAgeConverter({ initialData, onStateChange }: { initialData?: 
           </div>
         </div>
 
-        <div className="flex flex-col items-center justify-center p-8 bg-indigo-600 rounded-[2.5rem] text-white shadow-xl shadow-indigo-600/10 relative overflow-hidden">
+        <div className="flex flex-col items-center justify-center p-8 bg-indigo-600 rounded-[2.5rem] text-white shadow-xl shadow-indigo-600/10 relative overflow-hidden group">
           <div className="absolute top-0 right-0 w-64 h-64 bg-white/10 rounded-full blur-3xl -mr-32 -mt-32"></div>
           <div className="absolute bottom-0 left-0 w-48 h-48 bg-black/10 rounded-full blur-2xl -ml-24 -mb-24"></div>
+
+          {/* Copy button */}
+          <button
+            onClick={handleCopy}
+            className={`absolute top-6 right-6 p-2.5 rounded-xl transition-all border z-20 focus-visible:ring-2 focus-visible:ring-white focus-visible:outline-none flex items-center gap-1.5 ${
+              copied
+                ? 'bg-emerald-500 text-white border-emerald-400 shadow-md'
+                : 'bg-white/10 text-white/80 border-white/20 hover:text-white hover:bg-white/20'
+            }`}
+            title={`${t('common.copy')} (C)`}
+            aria-label={`${t('common.copy')} (C)`}
+          >
+            {copied ? <Check className="w-4 h-4" /> : <Copy className="w-4 h-4" />}
+            <Kbd modifier={null} className="hidden sm:inline-flex bg-white/10 border-white/20 text-white text-[10px]">C</Kbd>
+          </button>
 
           <div className="relative z-10 text-center space-y-4">
             <div className="w-20 h-20 bg-white/20 backdrop-blur-md rounded-3xl flex items-center justify-center mx-auto mb-6">
@@ -110,7 +235,7 @@ export function DogAgeConverter({ initialData, onStateChange }: { initialData?: 
             </div>
             <h3 className="text-xl font-bold opacity-80 uppercase tracking-widest">{t('dogage.human_equivalent', 'Équivalent Humain')}</h3>
             <div className="flex items-baseline justify-center gap-2">
-              <span className="text-8xl font-black font-mono tracking-tighter">{humanAge}</span>
+              <span className="text-8xl font-black font-mono tracking-tighter" aria-live="polite">{humanAge}</span>
               <span className="text-2xl font-bold opacity-60">{t('agecalculator.years', 'ans')}</span>
             </div>
             <p className="max-w-[250px] mx-auto text-indigo-100 font-medium leading-relaxed">

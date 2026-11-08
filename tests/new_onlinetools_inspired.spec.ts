@@ -9,8 +9,8 @@ test.describe('New OnlineTools Inspired Tools Smoke Test', () => {
     await page.goto('http://localhost:5173/en/outil/fraction-calculator');
 
     // Default 1/2 + 1/4 = 3/4 (0.75)
-    await expect(page.locator('text=3')).toBeVisible();
-    await expect(page.locator('text=4')).toBeVisible();
+    await expect(page.locator('.text-indigo-600.border-b-2, .dark\\:text-indigo-400.border-b-2')).toHaveText('3');
+    await expect(page.locator('.text-indigo-600.pt-1, .dark\\:text-indigo-400.pt-1')).toHaveText('4');
     await expect(page.locator('text=0.75')).toBeVisible();
   });
 

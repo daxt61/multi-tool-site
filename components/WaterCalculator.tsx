@@ -1,10 +1,25 @@
 import { useState, useMemo, useEffect, useRef, useCallback } from 'react';
-import { Droplets, Info, Weight, Activity, Copy, Check, Trash2, GlassWater, Waves } from 'lucide-react';
+import { Droplets, Info, Weight, Activity, Copy, Check, Trash2, GlassWater, Waves, Sparkles } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import { toast } from 'sonner';
 import { Kbd } from './ui/Kbd';
 
 type ActivityLevel = 'sedentary' | 'light' | 'moderate' | 'active' | 'very_active';
+
+interface WaterPreset {
+  id: string;
+  weight: string;
+  activity: ActivityLevel;
+  titleKey: string;
+  descKey: string;
+}
+
+const WATER_PRESETS: WaterPreset[] = [
+  { id: 'office', weight: '70', activity: 'sedentary', titleKey: 'water.preset_office', descKey: 'water.preset_office_desc' },
+  { id: 'casual', weight: '65', activity: 'light', titleKey: 'water.preset_casual', descKey: 'water.preset_casual_desc' },
+  { id: 'fitness', weight: '80', activity: 'active', titleKey: 'water.preset_fitness', descKey: 'water.preset_fitness_desc' },
+  { id: 'athlete', weight: '75', activity: 'very_active', titleKey: 'water.preset_athlete', descKey: 'water.preset_athlete_desc' },
+];
 
 const ACTIVITY_EXTRAS: Record<ActivityLevel, number> = {
   sedentary: 0,
@@ -15,10 +30,12 @@ const ACTIVITY_EXTRAS: Record<ActivityLevel, number> = {
 };
 
 export function WaterCalculator({ initialData, onStateChange }: { initialData?: any; onStateChange?: (state: any) => void }) {
+  const containerRef = useRef<HTMLDivElement>(null);
   const weightInputRef = useRef<HTMLInputElement>(null);
   const { t } = useTranslation();
   const [weight, setWeight] = useState<string>(initialData?.weight || '70');
   const [activity, setActivity] = useState<ActivityLevel>(initialData?.activity || 'moderate');
+  const [activePresetId, setActivePresetId] = useState<string | null>(null);
   const [copied, setCopied] = useState(false);
 
   useEffect(() => {
@@ -48,8 +65,17 @@ export function WaterCalculator({ initialData, onStateChange }: { initialData?: 
   const handleClear = useCallback(() => {
     setWeight('');
     setActivity('sedentary');
+    setActivePresetId(null);
     setTimeout(() => weightInputRef.current?.focus(), 0);
   }, []);
+
+  const handlePresetSelect = useCallback((preset: WaterPreset) => {
+    setWeight(preset.weight);
+    setActivity(preset.activity);
+    setActivePresetId(preset.id);
+    toast.success(t('water.preset_loaded'));
+    setTimeout(() => weightInputRef.current?.focus(), 0);
+  }, [t]);
 
   const handlersRef = useRef({ handleClear, handleCopy, waterNeeds });
 
@@ -60,6 +86,7 @@ export function WaterCalculator({ initialData, onStateChange }: { initialData?: 
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
       const activeElement = document.activeElement;
+      const isInsideContainer = containerRef.current?.contains(activeElement);
       const isEditable =
         activeElement instanceof HTMLInputElement ||
         activeElement instanceof HTMLTextAreaElement ||
@@ -75,7 +102,7 @@ export function WaterCalculator({ initialData, onStateChange }: { initialData?: 
       if (e.key === 'Escape') {
         e.preventDefault();
         handleClear();
-      } else if (e.key.toLowerCase() === 'c' && waterNeeds > 0) {
+      } else if (e.key.toLowerCase() === 'c' && waterNeeds > 0 && (!isInsideContainer || !isEditable)) {
         e.preventDefault();
         handleCopy();
       }
@@ -88,7 +115,38 @@ export function WaterCalculator({ initialData, onStateChange }: { initialData?: 
   const activityLevels: ActivityLevel[] = ['sedentary', 'light', 'moderate', 'active', 'very_active'];
 
   return (
-    <div className="max-w-5xl mx-auto space-y-12">
+    <div ref={containerRef} className="max-w-5xl mx-auto space-y-8">
+      {/* Quick Start Presets */}
+      <div className="bg-slate-50 dark:bg-slate-900/50 p-6 rounded-[2rem] border border-slate-200 dark:border-slate-800 space-y-4">
+        <div className="flex items-center gap-2 text-xs font-black uppercase tracking-widest text-slate-400 px-1">
+          <Sparkles className="w-4 h-4 text-indigo-500" />
+          <span>{t('water.presets_title')}</span>
+        </div>
+        <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+          {WATER_PRESETS.map((preset) => {
+            const isSelected = activePresetId === preset.id;
+            return (
+              <button
+                key={preset.id}
+                type="button"
+                onClick={() => handlePresetSelect(preset)}
+                aria-pressed={isSelected}
+                className={`p-3 rounded-2xl text-left transition-all border flex flex-col justify-between ${
+                  isSelected
+                    ? 'bg-indigo-600 text-white border-indigo-600 shadow-md shadow-indigo-500/20'
+                    : 'bg-white dark:bg-slate-800 text-slate-700 dark:text-slate-300 border-slate-200 dark:border-slate-700 hover:border-indigo-400 dark:hover:border-indigo-500'
+                }`}
+              >
+                <div className="font-bold text-xs">{t(preset.titleKey)}</div>
+                <div className={`text-[10px] mt-1 font-mono ${isSelected ? 'text-indigo-100' : 'text-slate-400'}`}>
+                  {t(preset.descKey)}
+                </div>
+              </button>
+            );
+          })}
+        </div>
+      </div>
+
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
         {/* Inputs */}
         <div className="lg:col-span-7 space-y-8">
@@ -98,6 +156,7 @@ export function WaterCalculator({ initialData, onStateChange }: { initialData?: 
                 <Weight className="w-4 h-4 text-indigo-500" /> {t('water.your_data')}
               </h3>
               <button
+                type="button"
                 onClick={handleClear}
                 disabled={!weight}
                 className="text-xs font-bold text-rose-500 bg-rose-50 dark:bg-rose-500/10 hover:bg-rose-100 dark:hover:bg-rose-500/20 px-3 py-1.5 rounded-xl flex items-center gap-1 transition-all disabled:opacity-50 disabled:cursor-not-allowed focus-visible:ring-2 focus-visible:ring-rose-500 focus-visible:outline-none"
@@ -115,7 +174,10 @@ export function WaterCalculator({ initialData, onStateChange }: { initialData?: 
                   ref={weightInputRef}
                   type="number"
                   value={weight}
-                  onChange={(e) => setWeight(e.target.value)}
+                  onChange={(e) => {
+                    setWeight(e.target.value);
+                    setActivePresetId(null);
+                  }}
                   onKeyDown={(e) => e.key === 'Escape' && handleClear()}
                   className="w-full p-4 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-2xl text-2xl font-black font-mono focus:border-indigo-500 outline-none transition-all dark:text-white"
                   placeholder="70"
@@ -128,7 +190,11 @@ export function WaterCalculator({ initialData, onStateChange }: { initialData?: 
                   {activityLevels.map((level) => (
                     <button
                       key={level}
-                      onClick={() => setActivity(level)}
+                      type="button"
+                      onClick={() => {
+                        setActivity(level);
+                        setActivePresetId(null);
+                      }}
                       aria-pressed={activity === level}
                       className={`flex items-center gap-4 p-4 rounded-2xl border transition-all text-left focus-visible:ring-2 focus-visible:ring-indigo-500 focus-visible:outline-none ${
                         activity === level

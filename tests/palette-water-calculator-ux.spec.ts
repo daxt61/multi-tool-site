@@ -43,4 +43,35 @@ test.describe('Water Calculator Keyboard Shortcuts and UX', () => {
     await expect(page.locator('kbd', { hasText: /^Esc$/ })).toBeVisible();
     await expect(page.locator('kbd', { hasText: /^C$/ })).toBeAttached();
   });
+
+  test('should display hydration presets with aria-pressed and apply them', async ({ page }) => {
+    const fitnessPreset = page.getByRole('button', { name: /Fitness/i });
+    await expect(fitnessPreset).toBeVisible();
+    await expect(fitnessPreset).toHaveAttribute('aria-pressed', 'false');
+
+    await fitnessPreset.click();
+    await expect(fitnessPreset).toHaveAttribute('aria-pressed', 'true');
+
+    // Fitness preset: 80 kg, active (+700ml): 80 * 35 + 700 = 3500 => 3.50 L
+    const weightInput = page.locator('#weight');
+    await expect(weightInput).toHaveValue('80');
+    await expect(weightInput).toBeFocused();
+    await expect(page.locator('.text-6xl')).toHaveText('3.50');
+
+    // Toast notification check
+    await expect(page.locator('[data-sonner-toast]')).toBeVisible();
+
+    // Selecting another preset updates aria-pressed and calculation
+    const officePreset = page.getByRole('button', { name: /bureau|office/i });
+    await officePreset.click();
+    await expect(officePreset).toHaveAttribute('aria-pressed', 'true');
+    await expect(fitnessPreset).toHaveAttribute('aria-pressed', 'false');
+    // Office preset: 70 kg, sedentary (+0ml): 70 * 35 = 2450 => 2.45 L
+    await expect(weightInput).toHaveValue('70');
+    await expect(page.locator('.text-6xl')).toHaveText('2.45');
+
+    // Modifying weight manually resets active preset tracking
+    await weightInput.fill('72');
+    await expect(officePreset).toHaveAttribute('aria-pressed', 'false');
+  });
 });

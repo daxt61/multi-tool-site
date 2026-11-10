@@ -119,6 +119,7 @@ import {
   FileUp,
   Target,
   ListOrdered,
+  List as ListIcon,
   WrapText,
   ImagePlus,
   SunDim,
@@ -217,6 +218,8 @@ const ListItemGrouper = lazy(() => import("./components/ListItemGrouper").then(m
 const SymmetricListCreator = lazy(() => import("./components/SymmetricListCreator").then(m => ({ default: m.SymmetricListCreator })));
 const ListRotator = lazy(() => import("./components/ListRotator").then(m => ({ default: m.ListRotator })));
 const ListLengthChanger = lazy(() => import("./components/ListLengthChanger").then(m => ({ default: m.ListLengthChanger })));
+const ListItemCounter = lazy(() => import("./components/ListItemCounter").then(m => ({ default: m.ListItemCounter })));
+const ListBulletAdder = lazy(() => import("./components/ListBulletAdder").then(m => ({ default: m.ListBulletAdder })));
 const JWTDecoder = lazy(() => import("./components/JWTDecoder").then(m => ({ default: m.JWTDecoder })));
 const CodeMinifier = lazy(() => import("./components/CodeMinifier").then(m => ({ default: m.CodeMinifier })));
 const BinaryTextConverter = lazy(() => import("./components/BinaryTextConverter").then(m => ({ default: m.BinaryTextConverter })));
@@ -6797,6 +6800,28 @@ const tools: Tool[] = [
     Component: ListLengthChanger,
     category: "text",
     keywords: ["change list length", "pad list", "truncate list", "extend list", "shorten list", "pad", "fill", "fixed length", "onlinetools", "longueur liste"],
+  },
+  {
+    id: "list-item-counter",
+    name: "Numéroteur d'Éléments de Liste",
+    nameEn: "Add List Item Counter",
+    icon: ListOrdered,
+    description: "Énumérer et numéroter les éléments d'une liste avec entiers arabes, chiffres romains, lettres alphabétiques ou modèles personnalisés (inspiré de onlinetools.com)",
+    descriptionEn: "Enumerate and number items in any list with Arabic integers, Roman numerals, alphabetic sequences, or custom templates",
+    Component: ListItemCounter,
+    category: "text",
+    keywords: ["list item counter", "enumerate list", "numbering", "roman numerals", "alphabetic counter", "order list", "index list", "onlinetools", "numéroter liste"],
+  },
+  {
+    id: "list-bullet-adder",
+    name: "Ajouteur de Puces de Liste",
+    nameEn: "Add List Item Bullets",
+    icon: ListIcon,
+    description: "Ajouter des puces personnalisées (points, flèches, coches, étoiles, émojis) aux éléments de n'importe quelle liste (inspiré de onlinetools.com)",
+    descriptionEn: "Add customizable bullet symbols (dots, arrows, checkmarks, stars, emojis) to items in any list",
+    Component: ListBulletAdder,
+    category: "text",
+    keywords: ["list bullet adder", "add bullets", "bullet list", "bullet points", "glyphs", "symbols", "checklist", "onlinetools", "puces liste"],
   },
   {
     id: "quote-list-items",

@@ -1,6 +1,8 @@
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useRef } from 'react';
 import { Monitor, RefreshCcw, Copy, Check, Info } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
+import { toast } from 'sonner';
+import { Kbd } from './ui/Kbd';
 import { getSecureRandomInt } from './ui/crypto';
 
 interface UAPreset {
@@ -63,14 +65,19 @@ export function UAGenerator({ initialData, onStateChange }: { initialData?: any;
   const [userAgent, setUserAgent] = useState(initialData?.userAgent || '');
   const [selectedPreset, setSelectedPreset] = useState(initialData?.selectedPreset || 'chrome_windows');
   const [copied, setCopied] = useState(false);
+  const containerRef = useRef<HTMLDivElement>(null);
+  const primaryButtonRef = useRef<HTMLButtonElement>(null);
 
-  const generate = useCallback((presetKey: string) => {
+  const generate = useCallback((presetKey: string, showToast = false) => {
     const preset = PRESETS[presetKey];
     if (preset) {
       const newUA = preset.template();
       setUserAgent(newUA);
+      if (showToast) {
+        toast.success(t('uagenerator.regenerated_success', 'New User Agent generated!'));
+      }
     }
-  }, []);
+  }, [t]);
 
   useEffect(() => {
     if (!userAgent) {
@@ -82,14 +89,65 @@ export function UAGenerator({ initialData, onStateChange }: { initialData?: any;
     onStateChange?.({ userAgent, selectedPreset });
   }, [userAgent, selectedPreset, onStateChange]);
 
-  const handleCopy = () => {
+  const handleCopy = useCallback(() => {
+    if (!userAgent) return;
     navigator.clipboard.writeText(userAgent);
     setCopied(true);
+    toast.success(t('uagenerator.copied_success', 'User Agent copied to clipboard!'));
     setTimeout(() => setCopied(false), 2000);
-  };
+  }, [userAgent, t]);
+
+  const handlePresetSelect = useCallback((key: string) => {
+    setSelectedPreset(key);
+    generate(key);
+    toast.success(t('uagenerator.preset_loaded', 'Preset loaded!'));
+  }, [generate, t]);
+
+  const handleReset = useCallback(() => {
+    setSelectedPreset('chrome_windows');
+    generate('chrome_windows');
+    primaryButtonRef.current?.focus();
+    toast.success(t('uagenerator.preset_loaded', 'Preset loaded!'));
+  }, [generate, t]);
+
+  const handlersRef = useRef({ handleCopy, generate, selectedPreset, handleReset });
+  useEffect(() => {
+    handlersRef.current = { handleCopy, generate, selectedPreset, handleReset };
+  });
+
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      const activeElement = document.activeElement;
+      const isEditable = activeElement instanceof HTMLInputElement ||
+                         activeElement instanceof HTMLTextAreaElement ||
+                         (activeElement as HTMLElement)?.isContentEditable;
+      if (isEditable) return;
+
+      const isInside = containerRef.current?.contains(activeElement) || activeElement === document.body;
+      if (!isInside) return;
+
+      if (e.key === 'c' || e.key === 'C') {
+        if (!e.metaKey && !e.ctrlKey && !e.altKey) {
+          e.preventDefault();
+          handlersRef.current.handleCopy();
+        }
+      } else if (e.key === 'r' || e.key === 'R') {
+        if (!e.metaKey && !e.ctrlKey && !e.altKey) {
+          e.preventDefault();
+          handlersRef.current.generate(handlersRef.current.selectedPreset, true);
+        }
+      } else if (e.key === 'Escape') {
+        e.preventDefault();
+        handlersRef.current.handleReset();
+      }
+    };
+
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, []);
 
   return (
-    <div className="max-w-4xl mx-auto space-y-12">
+    <div ref={containerRef} className="max-w-4xl mx-auto space-y-12">
       <div className="grid grid-cols-1 md:grid-cols-2 gap-8 items-start">
         <div className="space-y-6">
           <div className="flex items-center gap-2 px-1">
@@ -97,17 +155,17 @@ export function UAGenerator({ initialData, onStateChange }: { initialData?: any;
             <h3 className="text-xs font-black uppercase tracking-widest text-slate-400">{t('uagenerator.presets')}</h3>
           </div>
           <div className="grid grid-cols-1 gap-2">
-            {Object.entries(PRESETS).map(([key, preset]) => (
+            {Object.entries(PRESETS).map(([key, preset], idx) => (
               <button
                 key={key}
-                onClick={() => {
-                  setSelectedPreset(key);
-                  generate(key);
-                }}
-                className={`p-4 text-left rounded-2xl border transition-all font-bold text-sm ${
+                ref={idx === 0 ? primaryButtonRef : undefined}
+                type="button"
+                aria-pressed={selectedPreset === key}
+                onClick={() => handlePresetSelect(key)}
+                className={`p-4 text-left rounded-2xl border transition-all font-bold text-sm focus-visible:ring-2 focus-visible:ring-indigo-500 focus-visible:outline-none ${
                   selectedPreset === key
                     ? 'bg-indigo-600 text-white border-indigo-600 shadow-md'
-                    : 'bg-white dark:bg-slate-900 text-slate-600 border-slate-200 dark:border-slate-800 hover:border-indigo-500'
+                    : 'bg-white dark:bg-slate-900 text-slate-600 dark:text-slate-300 border-slate-200 dark:border-slate-800 hover:border-indigo-500'
                 }`}
               >
                 {preset.name}
@@ -123,25 +181,33 @@ export function UAGenerator({ initialData, onStateChange }: { initialData?: any;
               <h3 className="text-xs font-black uppercase tracking-widest text-slate-400">{t('uagenerator.generated_title')}</h3>
             </div>
             <button
-              onClick={() => generate(selectedPreset)}
-              className="text-xs font-bold text-indigo-600 hover:text-indigo-700 transition-colors flex items-center gap-1"
+              type="button"
+              onClick={() => generate(selectedPreset, true)}
+              title={`${t('uagenerator.regenerate')} (R)`}
+              aria-label={`${t('uagenerator.regenerate')} (R)`}
+              className="text-xs font-bold text-indigo-600 dark:text-indigo-400 hover:text-indigo-700 transition-colors flex items-center gap-1.5 focus-visible:ring-2 focus-visible:ring-indigo-500 focus-visible:outline-none rounded-lg px-2 py-1"
             >
               <RefreshCcw className="w-3 h-3" /> {t('uagenerator.regenerate')}
+              <Kbd modifier={null} className="hidden sm:inline-flex text-[10px]">R</Kbd>
             </button>
           </div>
           <div className="p-8 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-[2.5rem] relative group min-h-[150px] flex items-center">
-            <p className="text-lg font-mono font-medium text-slate-700 dark:text-slate-300 break-all leading-relaxed">
+            <p className="text-lg font-mono font-medium text-slate-700 dark:text-slate-300 break-all leading-relaxed pr-14" aria-live="polite">
               {userAgent}
             </p>
             <button
+              type="button"
               onClick={handleCopy}
-              className={`absolute top-4 right-4 p-3 rounded-xl transition-all border ${
+              title={`${t('common.copy')} (C)`}
+              aria-label={`${t('uagenerator.copy_ua', t('common.copy'))} (C)`}
+              className={`absolute top-4 right-4 p-3 rounded-xl transition-all border flex items-center gap-1.5 focus-visible:ring-2 focus-visible:ring-indigo-500 focus-visible:outline-none ${
                 copied
                   ? 'bg-emerald-50 dark:bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border-emerald-200 dark:border-emerald-500/20'
                   : 'bg-white dark:bg-slate-800 text-slate-400 border-slate-200 dark:border-slate-700 hover:text-indigo-600 hover:border-indigo-500'
               }`}
             >
-              {copied ? <Check className="w-5 h-5" /> : <Copy className="w-5 h-5" />}
+              {copied ? <Check className="w-5 h-5 text-emerald-600 dark:text-emerald-400" /> : <Copy className="w-5 h-5" />}
+              {!copied && <Kbd modifier={null} className="hidden sm:inline-flex text-[10px]">C</Kbd>}
             </button>
           </div>
 

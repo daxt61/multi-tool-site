@@ -121,6 +121,7 @@ import {
   ListOrdered,
   List as ListIcon,
   WrapText,
+  UnfoldHorizontal,
   ImagePlus,
   SunDim,
   Wifi,
@@ -220,6 +221,8 @@ const ListRotator = lazy(() => import("./components/ListRotator").then(m => ({ d
 const ListLengthChanger = lazy(() => import("./components/ListLengthChanger").then(m => ({ default: m.ListLengthChanger })));
 const ListItemCounter = lazy(() => import("./components/ListItemCounter").then(m => ({ default: m.ListItemCounter })));
 const ListBulletAdder = lazy(() => import("./components/ListBulletAdder").then(m => ({ default: m.ListBulletAdder })));
+const ListItemWrapper = lazy(() => import("./components/ListItemWrapper").then(m => ({ default: m.ListItemWrapper })));
+const ListItemUnwrapper = lazy(() => import("./components/ListItemUnwrapper").then(m => ({ default: m.ListItemUnwrapper })));
 const JWTDecoder = lazy(() => import("./components/JWTDecoder").then(m => ({ default: m.JWTDecoder })));
 const CodeMinifier = lazy(() => import("./components/CodeMinifier").then(m => ({ default: m.CodeMinifier })));
 const BinaryTextConverter = lazy(() => import("./components/BinaryTextConverter").then(m => ({ default: m.BinaryTextConverter })));
@@ -6822,6 +6825,28 @@ const tools: Tool[] = [
     Component: ListBulletAdder,
     category: "text",
     keywords: ["list bullet adder", "add bullets", "bullet list", "bullet points", "glyphs", "symbols", "checklist", "onlinetools", "puces liste"],
+  },
+  {
+    id: "list-item-wrapper",
+    name: "Enveloppeur d'Éléments de Liste",
+    nameEn: "Wrap Text Around List Items",
+    icon: WrapText,
+    description: "Ajouter du texte, préfixes ou suffixes personnalisés autour des éléments d'une liste (inspiré de onlinetools.com)",
+    descriptionEn: "Wrap list items in arbitrary text with customizable prefixes, suffixes, split delimiters, and join characters",
+    Component: ListItemWrapper,
+    category: "text",
+    keywords: ["wrap list items", "wrap text around items", "prefix list", "suffix list", "surround items", "delimiters", "onlinetools", "envelopper liste"],
+  },
+  {
+    id: "list-item-unwrapper",
+    name: "Désenveloppeur d'Éléments de Liste",
+    nameEn: "Unwrap Items from Text",
+    icon: UnfoldHorizontal,
+    description: "Supprimer du texte, préfixes ou suffixes personnalisés autour des éléments d'une liste avec unwrapping multiniveau (inspiré de onlinetools.com)",
+    descriptionEn: "Remove text, prefixes, or suffixes from list items with multi-line candidates and multilevel recursive unwrapping",
+    Component: ListItemUnwrapper,
+    category: "text",
+    keywords: ["unwrap items", "unwrap text", "remove prefix", "remove suffix", "strip quotes", "multilevel unwrap", "clean list", "onlinetools", "désenvelopper liste"],
   },
   {
     id: "quote-list-items",
